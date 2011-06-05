@@ -14,6 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 package org.omnaest.utils.beans;
+
 import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
@@ -21,7 +22,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.omnaest.utils.beans.MapToInterfaceAdapter;
+import org.omnaest.utils.beans.MapToInterfaceAdapter.UnderlyingMapAware;
 
 public class MapToInterfaceAdapterTest
 {
@@ -31,7 +32,7 @@ public class MapToInterfaceAdapterTest
   {
   }
   
-  protected static interface TestType
+  protected static interface TestType extends UnderlyingMapAware<Map<String, Object>>
   {
     public Double getFieldDouble();
     
@@ -40,6 +41,7 @@ public class MapToInterfaceAdapterTest
     public String getFieldString();
     
     public void setFieldString( String fieldString );
+    
   }
   
   @Test
@@ -65,5 +67,9 @@ public class MapToInterfaceAdapterTest
     assertEquals( "New String value", map.get( "fieldString" ) );
     assertEquals( 11.0, (Double) map.get( "fieldDouble" ), 0.01 );
     assertEquals( 2, map.size() );
+    
+    //
+    Map<String, Object> underlyingMap = testType.getUnderlyingMap();
+    assertEquals( map, underlyingMap );
   }
 }
