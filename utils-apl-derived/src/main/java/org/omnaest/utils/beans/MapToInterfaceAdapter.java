@@ -167,6 +167,8 @@ public class MapToInterfaceAdapter<T, M extends Map>
     super();
     this.map = map;
     
+    this.hasAccessToUnderlyingMap = MapToInterfaceAdapter.isAssignableFromUnderlyingMapAwareInterface( clazz );
+    
     //
     this.initializeClassAdapter( clazz );
   }
@@ -185,9 +187,6 @@ public class MapToInterfaceAdapter<T, M extends Map>
       
       //
       this.classAdapter = (T) enhancer.create();
-      
-      //
-      this.hasAccessToUnderlyingMap = MapToInterfaceAdapter.isAssignableFromUnderlyingMapAwareInterface( clazz );
     }
     catch ( Exception e )
     {
