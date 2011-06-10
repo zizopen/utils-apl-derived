@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.omnaest.utils.beans.MapToInterfaceAdapter.UnderlyingMapAware;
+import org.omnaest.utils.beans.MapToTypeAdapter.UnderlyingMapAware;
 
 public class MapToInterfaceAdapterTest
 {
@@ -51,7 +51,7 @@ public class MapToInterfaceAdapterTest
     Map<String, Object> map = new HashMap<String, Object>();
     
     //reading from facade
-    TestType testType = MapToInterfaceAdapter.newInstance( map, TestType.class );
+    TestType testType = MapToTypeAdapter.newInstance( map, TestType.class );
     
     //
     map.put( "fieldString", "String value" );

@@ -14,6 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 package org.omnaest.utils.beans;
+
 import java.lang.reflect.Method;
 
 /**
@@ -43,6 +44,11 @@ public class BeanMethodNameUtils
       this.isGetter = isGetter;
       this.isSetter = isSetter;
       this.referencedFieldName = referencedFieldName;
+    }
+    
+    public boolean isFieldAccessMethod()
+    {
+      return this.isGetter || this.isSetter;
     }
     
     /**
