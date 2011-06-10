@@ -33,7 +33,7 @@ import net.sf.cglib.proxy.MethodProxy;
  * @param <M>
  */
 @SuppressWarnings("rawtypes")
-public class MapToInterfaceAdapter<T, M extends Map>
+public class MapToTypeAdapter<T, M extends Map>
 {
   /* ********************************************** Variables ********************************************** */
   protected M       map                      = null;
@@ -44,7 +44,7 @@ public class MapToInterfaceAdapter<T, M extends Map>
 
   /**
    * This interface makes a derivative type aware of an underlying map implementation. This is normally used in combination with
-   * an {@link MapToInterfaceAdapter}.
+   * an {@link MapToTypeAdapter}.
    */
   public static interface UnderlyingMapAware<M extends Map>
   {
@@ -64,7 +64,7 @@ public class MapToInterfaceAdapter<T, M extends Map>
   }
   
   /**
-   * A {@link MethodInterceptor} implementation special for this {@link MapToInterfaceAdapter}
+   * A {@link MethodInterceptor} implementation special for this {@link MapToTypeAdapter}
    */
   protected class ClassAdapterMethodInterceptor implements MethodInterceptor
   {
@@ -82,12 +82,12 @@ public class MapToInterfaceAdapter<T, M extends Map>
         if ( beanMethodInformation != null )
         {
           //
-          boolean accessToUnderlyingMap = MapToInterfaceAdapter.this.hasAccessToUnderlyingMap
+          boolean accessToUnderlyingMap = MapToTypeAdapter.this.hasAccessToUnderlyingMap
                                           && "underlyingMap".equals( beanMethodInformation.getReferencedFieldName() );
           boolean isGetter = beanMethodInformation.isGetter() && args.length == 0;
           boolean isSetter = beanMethodInformation.isSetter() && args.length == 1;
           
-          boolean isMapNotNull = MapToInterfaceAdapter.this.map != null;
+          boolean isMapNotNull = MapToTypeAdapter.this.map != null;
           
           //
           if ( !accessToUnderlyingMap )
@@ -97,12 +97,12 @@ public class MapToInterfaceAdapter<T, M extends Map>
               if ( isGetter )
               {
                 //
-                retval = MapToInterfaceAdapter.this.map.get( beanMethodInformation.getReferencedFieldName() );
+                retval = MapToTypeAdapter.this.map.get( beanMethodInformation.getReferencedFieldName() );
               }
               else if ( isSetter )
               {
                 //
-                MapToInterfaceAdapter.this.map.put( beanMethodInformation.getReferencedFieldName(), args[0] );
+                MapToTypeAdapter.this.map.put( beanMethodInformation.getReferencedFieldName(), args[0] );
                 
                 //
                 retval = Void.TYPE;
@@ -114,12 +114,12 @@ public class MapToInterfaceAdapter<T, M extends Map>
             if ( isGetter )
             {
               //
-              retval = MapToInterfaceAdapter.this.map;
+              retval = MapToTypeAdapter.this.map;
             }
             else if ( isSetter )
             {
               //
-              MapToInterfaceAdapter.this.map = (M) args[0];
+              MapToTypeAdapter.this.map = (M) args[0];
               
               //
               retval = Void.TYPE;
@@ -139,7 +139,7 @@ public class MapToInterfaceAdapter<T, M extends Map>
   /* ********************************************** Methods ********************************************** */
 
   /**
-   * Factory methods to create a new {@link MapToInterfaceAdapter} for a given {@link Map} with the given {@link Class} as facade.
+   * Factory methods to create a new {@link MapToTypeAdapter} for a given {@link Map} with the given {@link Class} as facade.
    * 
    * @param map
    * @param clazz
@@ -150,10 +150,10 @@ public class MapToInterfaceAdapter<T, M extends Map>
     T retval = null;
     
     //
-    if ( clazz != null && ( map != null || MapToInterfaceAdapter.isAssignableFromUnderlyingMapAwareInterface( clazz ) ) )
+    if ( clazz != null && ( map != null || MapToTypeAdapter.isAssignableFromUnderlyingMapAwareInterface( clazz ) ) )
     {
       //
-      MapToInterfaceAdapter<T, M> mapToInterfaceAdapter = new MapToInterfaceAdapter<T, M>( map, clazz );
+      MapToTypeAdapter<T, M> mapToInterfaceAdapter = new MapToTypeAdapter<T, M>( map, clazz );
       retval = mapToInterfaceAdapter.classAdapter;
     }
     
@@ -161,13 +161,13 @@ public class MapToInterfaceAdapter<T, M extends Map>
     return retval;
   }
   
-  protected MapToInterfaceAdapter( M map, Class<? extends T> clazz )
+  protected MapToTypeAdapter( M map, Class<? extends T> clazz )
   {
     //
     super();
     this.map = map;
     
-    this.hasAccessToUnderlyingMap = MapToInterfaceAdapter.isAssignableFromUnderlyingMapAwareInterface( clazz );
+    this.hasAccessToUnderlyingMap = MapToTypeAdapter.isAssignableFromUnderlyingMapAwareInterface( clazz );
     
     //
     this.initializeClassAdapter( clazz );
