@@ -14,6 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 package org.omnaest.utils.xml;
+
 /*******************************************************************************
  * Copyright (c) 2011 Danny Kunz.
  * All rights reserved. This program and the accompanying materials
@@ -25,7 +26,6 @@ package org.omnaest.utils.xml;
  *     Danny Kunz - initial API and implementation
  ******************************************************************************/
 
-
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -33,8 +33,20 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+/**
+ * Helper class for JAXB annotated classes.
+ * 
+ * @author Omnaest
+ */
 public class XMLHelper
 {
+  
+  /**
+   * Stores a given JAXB annotated object to the given {@link OutputStream}.
+   * 
+   * @param object
+   * @param outputStream
+   */
   public static void storeObjectAsXML( Object object, OutputStream outputStream )
   {
     // 
@@ -52,6 +64,14 @@ public class XMLHelper
     }
   }
   
+  /**
+   * Loads an object from the given class type from an {@link InputStream}. The class has to have JAXB annotations.
+   * 
+   * @param <E>
+   * @param inputStream
+   * @param typeClazz
+   * @return
+   */
   @SuppressWarnings("unchecked")
   public static <E> E loadObjectFromXML( InputStream inputStream, Class<E> typeClazz )
   {
