@@ -88,6 +88,13 @@ public class DurationCaptureTypeProxyTest
     assertEquals( "generateRandomStringList", intervalKeyList.get( 0 ) );
     
     //
+    long durationInMillisecondsAroundMethod = durationCapture.getDurationInMilliseconds( "generateRandomStringList" );
+    long durationInMillisecondsWithinMethod = testClass.getDurationCaptureInternal().getDurationInMilliseconds();
+    
+    //
+    assertTrue( durationInMillisecondsWithinMethod * 1.75 > durationInMillisecondsAroundMethod );
+    
+    //
     //    System.out.println( durationCapture.calculateIntervalStatisticLogMessage() );
     //    System.out.println( testClass.getDurationCaptureInternal().calculateIntervalStatisticLogMessage() );
     
