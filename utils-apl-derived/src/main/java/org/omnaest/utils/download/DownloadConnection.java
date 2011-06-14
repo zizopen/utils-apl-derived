@@ -46,7 +46,7 @@ public class DownloadConnection implements Runnable
   private String               authenticationPassword = null;
   private byte[]               content                = null;
   
-  private DurationCapture         timeDuration           = new DurationCapture();
+  private DurationCapture      timeDuration           = DurationCapture.newInstance();
   private URLConnection        urlConnection          = null;
   
   private long                 estimatedByteSize      = 0;
@@ -215,8 +215,7 @@ public class DownloadConnection implements Runnable
   private void prepareDownload()
   {
     //
-    this.timeDuration.startTimeMeasurement();
-    this.timeDuration.startIntervalTime();
+    this.timeDuration.startTimeMeasurement( "prepareDownload" );
     
     //
     this.estimatedByteSize = this.urlConnection.getContentLength();
@@ -224,14 +223,14 @@ public class DownloadConnection implements Runnable
     this.contentType = this.urlConnection.getContentType();
     
     //
-    this.timeDuration.saveIntervalTime( "prepareDownload" );
+    this.timeDuration.stopTimeMeasurement( "prepareDownload" );
     
   }
   
   private synchronized boolean openConnection()
   {
     //
-    this.timeDuration.startIntervalTime();
+    this.timeDuration.startTimeMeasurement( "openConnection" );
     this.exceptionList.clear();
     
     //
@@ -282,7 +281,7 @@ public class DownloadConnection implements Runnable
     }
     
     //
-    this.timeDuration.saveIntervalTime( "openConnection" );
+    this.timeDuration.stopTimeMeasurement( "openConnection" );
     
     //
     return retval;
@@ -291,7 +290,7 @@ public class DownloadConnection implements Runnable
   private void downloadContent()
   {
     //
-    this.timeDuration.startIntervalTime();
+    this.timeDuration.startTimeMeasurement( "downloadContent" );
     
     //
     try
@@ -329,7 +328,7 @@ public class DownloadConnection implements Runnable
     }
     
     //
-    this.timeDuration.saveIntervalTime( "downloadContent" );
+    this.timeDuration.stopTimeMeasurement( "downloadContent" );
   }
   
   private void downloadMonitoring( int processState )
@@ -343,7 +342,7 @@ public class DownloadConnection implements Runnable
   private void closeConnection()
   {
     //
-    this.timeDuration.startIntervalTime();
+    this.timeDuration.startTimeMeasurement( "closeConnection" );
     
     //
     if ( this.url.getProtocol().toLowerCase().matches( "http?" ) )
@@ -360,8 +359,8 @@ public class DownloadConnection implements Runnable
     }
     
     //
-    this.timeDuration.saveIntervalTime( "closeConnection" );
-    this.timeExpired = this.timeDuration.stopTimeMeasurement().getDuration();
+    this.timeDuration.stopTimeMeasurement( "closeConnection" );
+    this.timeExpired = this.timeDuration.stopTimeMeasurement().getDurationInMilliseconds();
   }
   
   /**
@@ -574,10 +573,7 @@ public class DownloadConnection implements Runnable
     long retval = this.timeExpired;
     if ( retval == 0 )
     {
-      if ( this.timeDuration.isMeasurementActive() )
-      {
-        retval = this.timeDuration.getInterimTime();
-      }
+      retval = this.timeDuration.getInterimTimeInMilliseconds();
     }
     return retval;
   }

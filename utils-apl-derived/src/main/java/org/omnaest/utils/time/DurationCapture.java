@@ -16,23 +16,26 @@
 package org.omnaest.utils.time;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A {@link DurationCapture} will measure time intervals.
  * 
+ * @see #newInstance()
  * @author Omnaest
  */
 public class DurationCapture
 {
+  
   /* ********************************************** Variables ********************************************** */
 
-  private long                startTime         = 0;
-  private long                stopTime          = 0;
-  private long                intervalTime      = 0;
-  private long                duration          = 0;
-  private boolean             measurementActive = false;
-  
-  private ArrayList<Interval> intervalList      = null;
+  protected Map<Object, Interval> intervalKeyToIntervalMap = new ConcurrentHashMap<Object, DurationCapture.Interval>();
+  protected Object                intervalDefaultKey       = "DEFAULT";
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
@@ -40,44 +43,191 @@ public class DurationCapture
    * 
    * @author Omnaest
    */
-  private class Interval
+  public static class Interval
   {
-    private String name       = null;
-    private Long   duration   = null;
-    private int    percentage = 0;
+    /* ********************************************** Variables ********************************************** */
+    protected Object key       = null;
+    protected long   duration  = 0l;
     
-    public String getName()
+    protected long   startTime = 0;
+    protected long   stopTime  = 0;
+    
+    /* ********************************************** Methods ********************************************** */
+
+    /**
+     * Returns the duration in milliseconds which has passed since the start of the time measurement and now.
+     */
+    public long getInterimTimeInMilliseconds()
     {
-      return name;
+      return System.currentTimeMillis() - this.startTime;
     }
     
-    public void setName( String name )
+    /**
+     * Starts the measurement of time for this {@link Interval}.
+     */
+    public void startMeasurement()
     {
-      this.name = name;
+      //
+      this.startTime = System.currentTimeMillis();
     }
     
-    public Long getDuration()
+    /**
+     * Stops the time measurement for this {@link Interval}.
+     */
+    public void stopMeasurement()
     {
-      return duration;
+      //
+      this.stopTime = System.currentTimeMillis();
+      
+      //
+      this.calculateDurationInMilliseconds();
     }
     
-    public void setDuration( Long duration )
+    /**
+     * Resets the internal timer of this time measurement for this {@link Interval}.
+     */
+    public void reset()
     {
-      this.duration = duration;
+      this.duration = 0;
     }
     
-    public int getPercentage()
+    /**
+     * Calculates the {@link #duration} field based on the {@link #startTime} and {@link #stopTime}.
+     */
+    protected void calculateDurationInMilliseconds()
     {
-      return percentage;
+      this.duration += this.stopTime - this.startTime;
     }
     
-    public void setPercentage( int percentage )
+    /**
+     * @param key
+     * @return this
+     */
+    protected Interval setKey( Object key )
     {
-      this.percentage = percentage;
+      //
+      this.key = key;
+      
+      //
+      return this;
+    }
+    
+    public long getDurationInMilliseconds()
+    {
+      return this.duration;
+    }
+    
+    public Object getKey()
+    {
+      return this.key;
+    }
+    
+  }
+  
+  /**
+   * Internal class for statistical data calculated for the {@link Interval} instances.
+   * 
+   * @see DurationCapture
+   * @author Omnaest
+   */
+  protected static class IntervalStatistic
+  {
+    /* ********************************************** Variables ********************************************** */
+    protected Interval interval               = null;
+    protected long     durationInMilliseconds = 0;
+    protected double   durationPercentage     = 0.0;
+    
+    /* ********************************************** Methods ********************************************** */
+    public Interval getInterval()
+    {
+      return this.interval;
+    }
+    
+    public void setInterval( Interval interval )
+    {
+      this.interval = interval;
+    }
+    
+    public String getIntervalKeyAsString()
+    {
+      return String.valueOf( this.interval.getKey() );
+    }
+    
+    public double getDurationPercentage()
+    {
+      return this.durationPercentage;
+    }
+    
+    public void setDurationPercentage( double durationPercentage )
+    {
+      this.durationPercentage = durationPercentage;
+    }
+    
+    public long getDurationInMilliseconds()
+    {
+      return this.durationInMilliseconds;
+    }
+    
+    public void setDurationInMilliseconds( long durationInMilliseconds )
+    {
+      this.durationInMilliseconds = durationInMilliseconds;
     }
   }
   
   /* ********************************************** Methods ********************************************** */
+
+  /**
+   * Use {@link DurationCapture#newInstance()} for creating an instance of this class.
+   */
+  protected DurationCapture()
+  {
+  }
+  
+  /**
+   * Starts the time measurement which will relate to the given key.
+   * 
+   * @param intervalKey
+   * @return this
+   */
+  public DurationCapture startTimeMeasurement( Object intervalKey )
+  {
+    //
+    this.determineInterval( intervalKey ).startMeasurement();
+    
+    //
+    return this;
+  }
+  
+  /**
+   * Returns an {@link Interval} for the given key.
+   * 
+   * @param key
+   * @return
+   */
+  protected Interval determineInterval( Object key )
+  {
+    //
+    Interval retval = null;
+    
+    //
+    if ( key == null )
+    {
+      key = this;
+    }
+    
+    //
+    if ( !this.intervalKeyToIntervalMap.containsKey( key ) )
+    {
+      this.intervalKeyToIntervalMap.put( key, new Interval().setKey( key ) );
+    }
+    
+    //
+    retval = this.intervalKeyToIntervalMap.get( key );
+    
+    //
+    return retval;
+  }
+  
   /**
    * Starts the measurement of time.
    * 
@@ -85,66 +235,154 @@ public class DurationCapture
    */
   public DurationCapture startTimeMeasurement()
   {
-    this.resetTimers();
-    this.initializeIntervalMap();
-    this.startTime = System.currentTimeMillis();
-    this.measurementActive = true;
+    //
+    this.determineInterval( this.intervalDefaultKey ).startMeasurement();
+    
+    //
     return this;
   }
   
   /**
-   * Sets all timers back to default, what is zero.
+   * Sets the timer of the default {@link Interval} back to zero.
    */
-  private void resetTimers()
+  public void resetTimer()
   {
-    this.startTime = 0;
-    this.stopTime = 0;
-    this.intervalTime = 0;
-    this.duration = 0;
-    this.measurementActive = false;
+    this.determineInterval( this.intervalDefaultKey ).reset();
   }
   
   /**
-   * Stops the measurement of the time.
+   * Resets the timer of all contained {@link Interval} instances.
+   */
+  public void resetTimers()
+  {
+    //
+    for ( Object intervalKey : this.intervalKeyToIntervalMap.keySet() )
+    {
+      //
+      Interval interval = this.intervalKeyToIntervalMap.get( intervalKey );
+      
+      //
+      interval.reset();
+    }
+  }
+  
+  /**
+   * Stops the measurement of the time for the default {@link Interval}.
    * 
    * @return
    */
   public DurationCapture stopTimeMeasurement()
   {
-    stopTime = System.currentTimeMillis();
-    duration = stopTime - startTime;
-    this.calculateIntervalStatistics();
-    this.measurementActive = false;
+    //
+    this.determineInterval( this.intervalDefaultKey ).stopMeasurement();
+    
+    //
     return this;
   }
   
   /**
-   * Calculates the statistical data for the interval
+   * Stops the time measurement for the respective {@link Interval}.
+   * 
+   * @param intervalKey
+   * @return this
    */
-  private void calculateIntervalStatistics()
+  public DurationCapture stopTimeMeasurement( Object intervalKey )
   {
-    if ( this.intervalList != null )
+    //
+    this.determineInterval( intervalKey ).stopMeasurement();
+    
+    //
+    return this;
+  }
+  
+  /**
+   * Calculates the statistical data for the interval and returns a map with the intervalKeys and a {@link IntervalStatistic}
+   * instance.
+   */
+  protected Map<Object, IntervalStatistic> calculateIntervalStatisticMap()
+  {
+    //
+    Map<Object, IntervalStatistic> retmap = new LinkedHashMap<Object, DurationCapture.IntervalStatistic>();
+    
+    //
+    long durationInMillisecondsSum = 0;
+    for ( Object intervalKey : this.intervalKeyToIntervalMap.keySet() )
     {
-      for ( Interval iInterval : this.intervalList )
+      //
+      Interval interval = this.intervalKeyToIntervalMap.get( intervalKey );
+      
+      //
+      if ( interval.getKey() != this.intervalDefaultKey )
       {
-        int percentage = 0;
-        if ( this.duration > 0 )
-        {
-          percentage = Math.round( ( iInterval.duration * 100 ) / this.duration );
-        }
-        iInterval.setPercentage( percentage );
+        //
+        long durationInMilliseconds = interval.getDurationInMilliseconds();
+        
+        //
+        durationInMillisecondsSum += durationInMilliseconds;
       }
     }
+    
+    //  
+    List<Object> intervalKeyList = new ArrayList<Object>( this.intervalKeyToIntervalMap.keySet() );
+    Collections.sort( intervalKeyList, new Comparator<Object>()
+    {
+      @Override
+      public int compare( Object o1, Object o2 )
+      {
+        return String.valueOf( o1 ).compareTo( String.valueOf( o2 ) );
+      }
+    } );
+    
+    //
+    for ( Object intervalKey : intervalKeyList )
+    {
+      //
+      Interval interval = this.intervalKeyToIntervalMap.get( intervalKey );
+      
+      //
+      IntervalStatistic intervalStatistic = new IntervalStatistic();
+      {
+        //
+        long durationInMilliseconds = interval.getDurationInMilliseconds();
+        
+        //
+        double durationPercentage = ( durationInMilliseconds * 100.0 ) / durationInMillisecondsSum;
+        
+        //
+        intervalStatistic.setDurationPercentage( durationPercentage );
+        intervalStatistic.setInterval( interval );
+        intervalStatistic.setDurationInMilliseconds( durationInMilliseconds );
+      }
+      
+      //
+      retmap.put( interval.getKey(), intervalStatistic );
+    }
+    
+    //
+    return retmap;
   }
   
   /**
    * Returns the needed time between measurement start and stop in milliseconds.
    * 
+   * @see #getDurationInMilliseconds(Object)
    * @return
    */
-  public long getDuration()
+  public long getDurationInMilliseconds()
   {
-    return duration;
+    return this.getDurationInMilliseconds( this.intervalDefaultKey );
+  }
+  
+  /**
+   * Returns the needed time between measurement start and stop in milliseconds.
+   * 
+   * @param intervalKey
+   * @see #getDurationInMilliseconds()
+   * @return
+   */
+  public long getDurationInMilliseconds( Object intervalKey )
+  {
+    return this.determineInterval( intervalKey ).getDurationInMilliseconds();
   }
   
   /**
@@ -152,74 +390,88 @@ public class DurationCapture
    * 
    * @return
    */
-  public long getInterimTime()
+  public long getInterimTimeInMilliseconds()
   {
-    return System.currentTimeMillis() - this.startTime;
+    return this.getInterimTimeInMilliseconds( this.intervalDefaultKey );
   }
   
   /**
-   * Sets the intervaltimer to zero
-   */
-  public void startIntervalTime()
-  {
-    this.intervalTime = System.currentTimeMillis();
-  }
-  
-  /**
-   * Sets a stop point for the interval time.
-   * 
-   * @param intervalName
-   */
-  public void saveIntervalTime( String intervalName )
-  {
-    if ( this.intervalList == null )
-    {
-      this.initializeIntervalMap();
-    }
-    long newIntervalTime = System.currentTimeMillis();
-    long duration = newIntervalTime - this.intervalTime;
-    
-    //if there is already an interval with the same name, update the existing one, else create a new one
-    if ( this.intervalList.contains( intervalName ) )
-    {
-      Interval interval = this.intervalList.get( this.intervalList.indexOf( intervalName ) );
-      interval.setDuration( interval.getDuration() + duration );
-    }
-    else
-    {
-      Interval interval = new Interval();
-      interval.setName( intervalName );
-      interval.setDuration( duration );
-      this.intervalList.add( interval );
-    }
-    //
-    this.intervalTime = newIntervalTime;
-  }
-  
-  /**
-   * Returns the collected informations from the intervals.
+   * Returns the time since starting the measurement and now in milliseconds.
    * 
    * @return
    */
-  public String getIntervalMapLog()
+  public long getInterimTimeInMilliseconds( Object intervalKey )
+  {
+    return this.determineInterval( intervalKey ).getInterimTimeInMilliseconds();
+  }
+  
+  /**
+   * Returns true, if there is an {@link Interval} instance for the {@link #intervalDefaultKey}.
+   * 
+   * @return
+   */
+  protected boolean hasDefaultInterval()
+  {
+    return this.intervalKeyToIntervalMap.containsKey( this.intervalDefaultKey );
+  }
+  
+  /**
+   * Returns the collected statistical informations for the intervals durations.
+   * 
+   * @return
+   */
+  public String calculateIntervalStatisticLogMessage()
   {
     String retval = null;
     StringBuffer sb = new StringBuffer();
     final String lineSeparator = "-------------------------------------------------------------------------------------------------\n";
     
-    //intervals
-    if ( this.intervalList != null )
+    //    
+    Map<Object, IntervalStatistic> intervalStatisticMap = this.calculateIntervalStatisticMap();
+    
+    //
+    if ( intervalStatisticMap.containsKey( this.intervalDefaultKey ) )
     {
+      //
+      IntervalStatistic intervalStatistic = intervalStatisticMap.get( this.intervalDefaultKey );
+      
+      //
       sb.append( lineSeparator );
-      for ( Interval iInterval : this.intervalList )
+      sb.append( String.format( "%s : %d ms (%3.2f%%)\n", intervalStatistic.getIntervalKeyAsString(),
+                                intervalStatistic.getDurationInMilliseconds(), intervalStatistic.getDurationPercentage() ) );
+      
+      //
+      intervalStatisticMap.remove( this.intervalDefaultKey );
+    }
+    
+    //    
+    long intervalDurationTimeSum = 0;
+    if ( intervalStatisticMap.size() > 0 )
+    {
+      //
+      sb.append( lineSeparator );
+      for ( Object intervalKey : intervalStatisticMap.keySet() )
       {
-        sb.append( iInterval.getName() + " : " + iInterval.getDuration() + " ms (" + iInterval.getPercentage() + "%)\n" );
+        //
+        IntervalStatistic intervalStatistic = intervalStatisticMap.get( intervalKey );
+        
+        //
+        sb.append( String.format( "%s : %d ms (%3.2f%%)\n", intervalStatistic.getIntervalKeyAsString(),
+                                  intervalStatistic.getDurationInMilliseconds(), intervalStatistic.getDurationPercentage() ) );
+        
+        //
+        intervalDurationTimeSum += intervalStatistic.getDurationInMilliseconds();
       }
     }
     
     //summary
-    sb.append( lineSeparator );
-    sb.append( "Whole duration time: " + this.duration + " ms\n" );
+    if ( intervalStatisticMap.size() > 1 )
+    {
+      sb.append( lineSeparator );
+      sb.append( "Whole interval duration time: " + intervalDurationTimeSum + " ms\n" );
+    }
+    
+    //
     sb.append( lineSeparator );
     
     //return
@@ -228,20 +480,13 @@ public class DurationCapture
   }
   
   /**
-   * Creates a intervalmap object, or clears the available object
+   * Returns all available {@link Interval} keys.
+   * 
+   * @return
    */
-  public void initializeIntervalMap()
+  public List<Object> getIntervalKeyList()
   {
-    if ( this.intervalList == null )
-    {
-      this.intervalList = new ArrayList<Interval>( 0 );
-    }
-    this.intervalList.clear();
-  }
-  
-  public boolean isMeasurementActive()
-  {
-    return measurementActive;
+    return new ArrayList<Object>( this.intervalKeyToIntervalMap.keySet() );
   }
   
   /* ********************************************** STATIC FACTORY METHOD PART ********************************************** */
@@ -258,7 +503,7 @@ public class DurationCapture
    * 
    * @see #implementationForDurationClass
    */
-  public static DurationCapture createNewInstance()
+  public static DurationCapture newInstance()
   {
     DurationCapture result = null;
     
@@ -272,4 +517,5 @@ public class DurationCapture
     
     return result;
   }
+  
 }
