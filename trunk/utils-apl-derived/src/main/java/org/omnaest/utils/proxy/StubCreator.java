@@ -17,7 +17,6 @@ package org.omnaest.utils.proxy;
 
 import java.lang.reflect.Method;
 
-import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -47,33 +46,82 @@ public class StubCreator
      * @param methodCallCapture
      * @return
      */
-    public Object handle( MethodCallCapture methodCallCapture );
+    public Object handle( MethodCallCapture methodCallCapture ) throws Throwable;
   }
   
   /* ********************************************** Methods ********************************************** */
+
+  /**
+   * Returns a new proxy stub for the given class or interface.
+   * 
+   * @param <E>
+   * @param clazz
+   * @param methodInvocationHandler
+   * @return
+   */
+  public static <E> E newStubInstance( final Class<? extends E> clazz, final MethodInvocationHandler methodInvocationHandler )
+  {
+    return StubCreator.newStubInstance( clazz, null, methodInvocationHandler );
+  }
+  
+  public static <E> E newStubInstance( final Class<? extends E> clazz, final MethodInterceptor methodInterceptor )
+  {
+    return StubCreator.newStubInstance( clazz, null, methodInterceptor );
+  }
+  
+  /**
+   * Same as {@link #newStubInstance(Class, Class[], MethodInterceptor)} but uses a {@link MethodInvocationHandler} instead.
+   * 
+   * @param <E>
+   * @param clazz
+   * @param interfaces
+   * @param methodInvocationHandler
+   * @return
+   */
+  public static <E> E newStubInstance( Class<? extends E> clazz,
+                                       Class<?>[] interfaces,
+                                       final MethodInvocationHandler methodInvocationHandler )
+  {
+    return StubCreator.newStubInstance( clazz, interfaces, new MethodInterceptor()
+    {
+      @Override
+      public Object intercept( Object obj, Method method, Object[] args, MethodProxy proxy ) throws Throwable
+      {
+        return methodInvocationHandler.handle( new MethodCallCapture( obj, method, args, proxy ) );
+      }
+    } );
+  }
+  
+  /**
+   * Returns a new proxy stub for the given class or interface but takes additional interfaces.
+   * 
+   * @param <E>
+   * @param clazz
+   * @param interfaces
+   * @param methodInterceptor
+   * @return
+   */
   @SuppressWarnings("unchecked")
-  public static <E> E newStubInstance( Class<? extends E> clazz, final MethodInvocationHandler methodInvocationHandler )
+  public static <E> E newStubInstance( Class<? extends E> clazz, Class<?>[] interfaces, final MethodInterceptor methodInterceptor )
   {
     //
     E retval = null;
     
     //
-    if ( clazz != null && methodInvocationHandler != null )
+    if ( clazz != null && methodInterceptor != null )
     {
       try
       {
         //      
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass( clazz );
-        Callback callback = new MethodInterceptor()
+        if ( interfaces != null )
         {
-          @Override
-          public Object intercept( Object obj, Method method, Object[] args, MethodProxy proxy ) throws Throwable
-          {
-            return methodInvocationHandler.handle( new MethodCallCapture( obj, method, args, proxy ) );
-          }
-        };
-        enhancer.setCallback( callback );
+          enhancer.setInterfaces( interfaces );
+        }
+        
+        //
+        enhancer.setCallback( methodInterceptor );
         
         //
         retval = (E) enhancer.create();

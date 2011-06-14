@@ -46,8 +46,8 @@ public class IndexArrayListTest
      */
     //
     int addingNumber = 40000;
-    DurationCapture timeDurationArrayList = new DurationCapture();
-    DurationCapture timeDurationIndexedList = new DurationCapture();
+    DurationCapture timeDurationArrayList = DurationCapture.newInstance();
+    DurationCapture timeDurationIndexedList = DurationCapture.newInstance();
     
     List<String> indexedList = new IndexArrayList<String>();
     List<String> arrayList = new ArrayList<String>();
@@ -81,7 +81,7 @@ public class IndexArrayListTest
     //    System.out.println(timeDurationArrayList.getDuration() + ":"
     //                       + timeDurationIndexedList.getDuration());
     
-    assertEquals( true, timeDurationArrayList.getDuration() < timeDurationIndexedList.getDuration() );
+    assertEquals( true, timeDurationArrayList.getDurationInMilliseconds() < timeDurationIndexedList.getDurationInMilliseconds() );
     
   }
   
@@ -171,8 +171,8 @@ public class IndexArrayListTest
     //
     int dataNumber = 40000;
     int searchingNumber = 500;
-    DurationCapture timeDurationArrayList = new DurationCapture();
-    DurationCapture timeDurationIndexedList = new DurationCapture();
+    DurationCapture timeDurationArrayList = DurationCapture.newInstance();
+    DurationCapture timeDurationIndexedList = DurationCapture.newInstance();
     
     List<String> indexedList = new IndexArrayList<String>();
     List<String> arrayList = new ArrayList<String>();
@@ -213,7 +213,7 @@ public class IndexArrayListTest
     timeDurationIndexedList.stopTimeMeasurement();
     
     //
-    assertEquals( true, timeDurationArrayList.getDuration() > timeDurationIndexedList.getDuration() );
+    assertEquals( true, timeDurationArrayList.getDurationInMilliseconds() > timeDurationIndexedList.getDurationInMilliseconds() );
     
     /*
      * logarithmic test
@@ -222,7 +222,7 @@ public class IndexArrayListTest
     int initialSearchNumber = 1000000;
     int loopIntervalFaktor = 10;
     int loopNumbers = 3;
-    DurationCapture timeDurationLog = new DurationCapture();
+    DurationCapture timeDurationLog = DurationCapture.newInstance();
     
     //initial data
     indexedList = new IndexArrayList<String>();
@@ -252,7 +252,7 @@ public class IndexArrayListTest
       timeDurationLog.stopTimeMeasurement();
       
       //
-      measurementList.add( timeDurationLog.getDuration() );
+      measurementList.add( timeDurationLog.getDurationInMilliseconds() );
       
       //
       currentDataNumber = currentDataNumber * loopIntervalFaktor;
@@ -343,8 +343,8 @@ public class IndexArrayListTest
     //
     int dataNumber = 40000;
     int searchingNumber = 2000;
-    DurationCapture timeDurationArrayList = new DurationCapture();
-    DurationCapture timeDurationIndexedList = new DurationCapture();
+    DurationCapture timeDurationArrayList = DurationCapture.newInstance();
+    DurationCapture timeDurationIndexedList = DurationCapture.newInstance();
     
     List<String> indexedList = new IndexArrayList<String>();
     List<String> arrayList = new ArrayList<String>();

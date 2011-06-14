@@ -697,14 +697,14 @@ public class IndexArrayTableTest
     int searchNumber = 0;
     
     //perform search
-    DurationCapture duration = new DurationCapture().startTimeMeasurement();
-    for ( int ii = 0; duration.getInterimTime() < 200; ii++ )
+    DurationCapture duration = DurationCapture.newInstance().startTimeMeasurement();
+    for ( int ii = 0; duration.getInterimTimeInMilliseconds() < 200; ii++ )
     {
       indexedTable.indexOf( String.valueOf( Math.abs( Math.random() * rowNumber ) ) );
       searchNumber = ii;
     }
     duration.stopTimeMeasurement();
-    durationWithoutIndexes = duration.getDuration();
+    durationWithoutIndexes = duration.getDurationInMilliseconds();
     
     //activate indexes of table
     for ( int ii = 0; ii < columnNumber; ii++ )
@@ -719,7 +719,7 @@ public class IndexArrayTableTest
       indexedTable.indexOf( String.valueOf( Math.abs( Math.random() * rowNumber ) ) );
     }
     duration.stopTimeMeasurement();
-    durationWithIndexes = duration.getDuration();
+    durationWithIndexes = duration.getDurationInMilliseconds();
     
     //System.out.println( searchNumber + "->" + durationWithoutIndexes + ":" + durationWithIndexes );
     assertEquals( true, durationWithoutIndexes > durationWithIndexes );
