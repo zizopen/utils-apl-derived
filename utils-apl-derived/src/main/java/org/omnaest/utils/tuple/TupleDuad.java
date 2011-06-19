@@ -15,6 +15,9 @@
  ******************************************************************************/
 package org.omnaest.utils.tuple;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Two arguments {@link Tuple}
  * 
@@ -40,23 +43,60 @@ public class TupleDuad<T1, T2> implements Tuple
     this.valueSecond = valueSecond;
   }
   
+  /**
+   * Returns the first value of the {@link Tuple}.
+   * 
+   * @return
+   */
   public T1 getValueFirst()
   {
     return this.valueFirst;
   }
   
+  /**
+   * Sets the first value of the {@link Tuple}.
+   * 
+   * @param valueFirst
+   */
   public void setValueFirst( T1 valueFirst )
   {
     this.valueFirst = valueFirst;
   }
   
+  /**
+   * Returns the second value of the {@link Tuple}.
+   * 
+   * @return
+   */
   public T2 getValueSecond()
   {
     return this.valueSecond;
   }
   
+  /**
+   * Sets the second value of the {@link Tuple}.
+   * 
+   * @param valueSecond
+   */
   public void setValueSecond( T2 valueSecond )
   {
     this.valueSecond = valueSecond;
+  }
+  
+  /**
+   * Returns a {@link Map} containing an entry based on this {@link Tuple}.
+   * 
+   * @return
+   */
+  public Map<T1, T2> asMap()
+  {
+    //
+    Map<T1, T2> retmap = new HashMap<T1, T2>();
+    
+    //
+    retmap.put( this.valueFirst, this.valueSecond );
+    
+    //
+    return retmap;
   }
 }

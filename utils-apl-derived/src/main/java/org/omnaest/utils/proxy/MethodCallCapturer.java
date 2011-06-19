@@ -26,7 +26,7 @@ import org.omnaest.utils.proxy.StubCreator.MethodInvocationHandler;
 /**
  * A {@link MethodCallCapturer} allows to create stubs for given java types which capture the calls of methods of this stub.
  * 
- * @see #newCaptureTypeInstance(Class)
+ * @see #newCapturedTypeInstance(Class)
  * @see #getMethodCallCaptureList()
  * @see MethodCallCapture
  * @author Omnaest
@@ -39,21 +39,55 @@ public class MethodCallCapturer
   /* ********************************************** Classes/Interfaces ********************************************** */
 
   /**
+   * Interface stubs are implementing when they are created by
+   * {@link MethodCallCapturer#newCapturedTypeInstanceMethodCallCapturerAware(Class)}.
+   * 
+   * @see MethodCallCapturer
+   */
+  public static interface MethodCallCapturerAware
+  {
+    /**
+     * Returns the underlying {@link MethodCallCapturer}
+     * 
+     * @return
+     */
+    public MethodCallCapturer getMethodCallCapturer();
+  }
+  
+  /**
    * {@link MethodInterceptor} for the {@link MethodCallCapturer}.
    * 
    * @author Omnaest
    */
   protected class MethodCaptureMethodInvocationHandler implements MethodInvocationHandler
   {
+    /* ********************************************** Variables ********************************************** */
+    protected boolean isMethodCallCapturerAware = false;
+    
+    /* ********************************************** Methods ********************************************** */
+    public MethodCaptureMethodInvocationHandler( boolean isMethodCallCapturerAware )
+    {
+      this.isMethodCallCapturerAware = isMethodCallCapturerAware;
+    }
     
     @Override
     public Object handle( MethodCallCapture methodCallCapture )
     {
       //
-      MethodCallCapturer.this.methodCallCaptureList.add( methodCallCapture );
+      Object retval = null;
+      
+      //
+      if ( !"getMethodCallCapturer".equals( methodCallCapture.getMethod().getName() ) )
+      {
+        MethodCallCapturer.this.methodCallCaptureList.add( methodCallCapture );
+      }
+      else
+      {
+        retval = MethodCallCapturer.this;
+      }
       
       // 
-      return null;
+      return retval;
     }
     
   }
@@ -65,9 +99,15 @@ public class MethodCallCapturer
    * 
    * @see MethodCallCapturer#getMethodCallCaptureList()
    */
-  public <E> E newCaptureTypeInstance( Class<? extends E> clazz )
+  public <E> E newCapturedTypeInstance( Class<? extends E> clazz )
   {
-    return StubCreator.newStubInstance( clazz, new MethodCaptureMethodInvocationHandler() );
+    return StubCreator.newStubInstance( clazz, new MethodCaptureMethodInvocationHandler( false ) );
+  }
+  
+  public <E> E newCapturedTypeInstanceMethodCallCapturerAware( Class<? extends E> clazz )
+  {
+    return StubCreator.newStubInstance( clazz, new Class[] { MethodCallCapturerAware.class },
+                                        new MethodCaptureMethodInvocationHandler( true ) );
   }
   
   /**
@@ -78,6 +118,11 @@ public class MethodCallCapturer
   public List<MethodCallCapture> getMethodCallCaptureList()
   {
     return new ArrayList<MethodCallCapture>( this.methodCallCaptureList );
+  }
+  
+  public MethodCallCapture getLastMethodCallCapture()
+  {
+    return this.methodCallCaptureList.size() > 0 ? this.methodCallCaptureList.get( this.methodCallCaptureList.size() - 1 ) : null;
   }
   
   /**
