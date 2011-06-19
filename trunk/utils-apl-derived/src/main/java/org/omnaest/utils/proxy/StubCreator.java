@@ -16,6 +16,9 @@
 package org.omnaest.utils.proxy;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -112,12 +115,28 @@ public class StubCreator
     {
       try
       {
+        //
+        Set<Class<?>> interfaceSet = new HashSet<Class<?>>();
+        {
+          if ( interfaces != null )
+          {
+            interfaceSet.addAll( Arrays.asList( interfaces ) );
+          }
+          if ( clazz.isInterface() )
+          {
+            interfaceSet.add( clazz );
+          }
+        }
+        
         //      
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass( clazz );
-        if ( interfaces != null )
+        if ( interfaceSet.size() > 0 )
         {
-          enhancer.setInterfaces( interfaces );
+          enhancer.setInterfaces( interfaceSet.toArray( new Class[0] ) );
+        }
+        if ( !clazz.isInterface() )
+        {
+          enhancer.setSuperclass( clazz );
         }
         
         //
