@@ -222,4 +222,44 @@ public class ListUtils
     return retlist;
   }
   
+  /**
+   * Merges all elements of the given {@link Collection} instances into one single {@link List} instance which keeps the order of
+   * 
+   * @see #mergeAll(Collection)
+   * @param <E>
+   * @param collections
+   * @return
+   */
+  public static <E> List<E> mergeAll( Collection<E>... collections )
+  {
+    return ListUtils.mergeAll( Arrays.asList( collections ) );
+  }
+  
+  /**
+   * Merges all elements of the given {@link Collection} instances into one single {@link List} instance which keeps the order of
+   * the elements.
+   * 
+   * @see #mergeAll(Collection...)
+   * @param <E>
+   * @param collections
+   * @return
+   */
+  public static <E> List<E> mergeAll( Collection<? extends Collection<E>> collections )
+  {
+    //
+    List<E> retlist = new ArrayList<E>();
+    
+    //
+    if ( collections != null )
+    {
+      for ( Collection<E> list : collections )
+      {
+        retlist.addAll( list );
+      }
+    }
+    
+    //
+    return retlist;
+  }
+  
 }

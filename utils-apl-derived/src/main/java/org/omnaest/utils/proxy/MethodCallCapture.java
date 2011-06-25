@@ -42,7 +42,7 @@ public class MethodCallCapture
   }
   
   /**
-   * @return the enhanced object
+   * @return the enhanced object / stub / proxy
    */
   public Object getObj()
   {
@@ -70,12 +70,24 @@ public class MethodCallCapture
   }
   
   /**
-   * Proxy used to invoke the non-intercepted method
+   * A secondary proxy used to invoke the non-intercepted method.
    * 
+   * @see MethodProxy#invokeSuper(Object, Object[])
    * @return
    */
   public MethodProxy getProxy()
   {
     return this.proxy;
+  }
+  
+  /**
+   * Returns the name of the called {@link Method}.
+   * 
+   * @see Method#getName()
+   * @return name of the method or null if no method has been resolved.
+   */
+  public String getMethodName()
+  {
+    return this.method != null ? this.method.getName() : null;
   }
 }
