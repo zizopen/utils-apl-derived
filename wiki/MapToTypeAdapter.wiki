@@ -21,3 +21,5 @@ will change the values of the underlying map for the respective property names a
 assertEquals( "New String value", map.get( "fieldString" ) );
 assertEquals( 11.0, (Double) map.get( "fieldDouble" ), 0.01 );
 }}}
+
+For more see [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/beans/MapToTypeAdapterTest.java MapToTypeAdapterTest]
