@@ -1,5 +1,5 @@
+#summary Adapter to map arbitrary Java Bean interfaces or classes to maps
 #labels Maptotypeadapter,reflection
-#Adapter to map arbitrary Java Bean interfaces or classes to maps
 
 = Mapping of Java Bean interfaces or classes to Map instances =
 
