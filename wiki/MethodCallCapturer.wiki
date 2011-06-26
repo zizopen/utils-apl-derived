@@ -15,7 +15,9 @@ Once you have created a stub for a given class or interface you can easily track
 String methodName = methodCallCapturer.methodNameOf( testInterface.doSomething( "text value" ) );
 }}}
 
-Or even replay the done method calls on real objects like:
+Or even replay the raised method calls on real objects like:
 {{{
 ReplayResult replayResult = methodCallCapturer.replay( testInterfaceObject );
 }}}
+
+For more examples see the [MethodCallCapturerTest]http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodCallCapturerTest.java
