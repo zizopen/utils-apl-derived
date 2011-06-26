@@ -20,4 +20,4 @@ Or even replay the raised method calls on real objects like:
 ReplayResult replayResult = methodCallCapturer.replay( testInterfaceObject );
 }}}
 
-For more examples see the [MethodCallCapturerTest]http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodCallCapturerTest.java
+For more examples see the [MethodCallCapturerTest http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodCallCapturerTest.java]
