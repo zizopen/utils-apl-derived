@@ -1,3 +1,4 @@
+#summary Capturing method calls with proxies
 #labels Methodcallcapturing,reflection
 = Capturing method calls =
 
