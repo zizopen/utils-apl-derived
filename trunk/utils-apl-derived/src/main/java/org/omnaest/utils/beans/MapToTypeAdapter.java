@@ -24,8 +24,8 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 /**
- * This class creates a proxy implementation for a given class or interface type which is used as a facade to an underlying map.
- * to link the key and values of an arbitrary {@link Map} instance to a given {@link Class} schemata.
+ * This class creates a proxy implementation for a given class or interface type which is used as a facade to an underlying
+ * Map&lt;String,?&gt;.
  * 
  * @author Omnaest
  * @see #newInstance(Map, Class)
