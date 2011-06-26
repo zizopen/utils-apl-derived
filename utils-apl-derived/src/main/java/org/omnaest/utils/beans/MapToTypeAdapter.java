@@ -32,13 +32,12 @@ import net.sf.cglib.proxy.MethodProxy;
  * @param <T>
  * @param <M>
  */
-@SuppressWarnings("rawtypes")
-public class MapToTypeAdapter<T, M extends Map>
+public class MapToTypeAdapter<T, M extends Map<String, ?>>
 {
   /* ********************************************** Variables ********************************************** */
-  protected M       map                      = null;
-  protected T       classAdapter             = null;
-  protected boolean hasAccessToUnderlyingMap = false;
+  protected Map<String, Object> map                      = null;
+  protected T                   classAdapter             = null;
+  protected boolean             hasAccessToUnderlyingMap = false;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
 
@@ -46,7 +45,7 @@ public class MapToTypeAdapter<T, M extends Map>
    * This interface makes a derivative type aware of an underlying map implementation. This is normally used in combination with
    * an {@link MapToTypeAdapter}.
    */
-  public static interface UnderlyingMapAware<M extends Map>
+  public static interface UnderlyingMapAware<M extends Map<String, Object>>
   {
     /**
      * Returns the {@link Map} which underlies this class type facade.
@@ -119,7 +118,7 @@ public class MapToTypeAdapter<T, M extends Map>
             else if ( isSetter )
             {
               //
-              MapToTypeAdapter.this.map = (M) args[0];
+              MapToTypeAdapter.this.map = (Map<String, Object>) args[0];
               
               //
               retval = Void.TYPE;
@@ -144,7 +143,7 @@ public class MapToTypeAdapter<T, M extends Map>
    * @param map
    * @param clazz
    */
-  public static <T, M extends Map> T newInstance( M map, Class<? extends T> clazz )
+  public static <T, M extends Map<String, ?>> T newInstance( M map, Class<? extends T> clazz )
   {
     //    
     T retval = null;
@@ -161,11 +160,12 @@ public class MapToTypeAdapter<T, M extends Map>
     return retval;
   }
   
+  @SuppressWarnings("unchecked")
   protected MapToTypeAdapter( M map, Class<? extends T> clazz )
   {
     //
     super();
-    this.map = map;
+    this.map = (Map<String, Object>) map;
     
     this.hasAccessToUnderlyingMap = MapToTypeAdapter.isAssignableFromUnderlyingMapAwareInterface( clazz );
     
