@@ -64,6 +64,9 @@ public class MapToTypeAdapterTest
     testType.setFieldString( "New String value" );
     testType.setFieldDouble( 11.0 );
     
+    assertEquals( "New String value", testType.getFieldString() );
+    assertEquals( 11.0, testType.getFieldDouble(), 0.01 );
+    
     assertEquals( "New String value", map.get( "fieldString" ) );
     assertEquals( 11.0, (Double) map.get( "fieldDouble" ), 0.01 );
     assertEquals( 2, map.size() );
