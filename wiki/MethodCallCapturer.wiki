@@ -1,0 +1,21 @@
+#labels Methodcallcapturing,reflection
+= Capturing method calls =
+
+With the `MethodCallCapturer`you can track method calls on interface or class methods.
+
+E.g. following code will create a stub for the `TestInterface` interface:
+{{{
+MethodCallCapturer methodCallCapturer = new MethodCallCapturer();
+TestInterface testInterface = methodCallCapturer.newInstanceOfTransitivlyCapturedType( TestInterface.class );
+}}}
+
+Once you have created a stub for a given class or interface you can easily track the method names of method calls like:
+
+{{{
+String methodName = methodCallCapturer.methodNameOf( testInterface.doSomething( "text value" ) );
+}}}
+
+Or even replay the done method calls on real objects like:
+{{{
+ReplayResult replayResult = methodCallCapturer.replay( testInterfaceObject );
+}}}
