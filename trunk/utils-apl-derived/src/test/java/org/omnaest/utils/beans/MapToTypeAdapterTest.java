@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.omnaest.utils.beans.MapToTypeAdapter.UnderlyingMapAware;
 
-public class MapToInterfaceAdapterTest
+public class MapToTypeAdapterTest
 {
   
   @Before
