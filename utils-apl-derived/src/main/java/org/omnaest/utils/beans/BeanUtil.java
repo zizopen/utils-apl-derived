@@ -87,7 +87,7 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
         if ( iBeanProperty != null && iBeanProperty.isReadable() )
         {
           //
-          Value value = BeanUtil.invokeJavaBeanPropertyMethod( beanObject, iBeanProperty.getGetterMethodName(), null );
+          Value value = BeanUtil.<Value> invokeJavaBeanPropertyMethod( beanObject, iBeanProperty.getGetterMethodName(), null );
           
           //
           retmap.put( propertyName, value );
@@ -109,7 +109,7 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
         if ( iBeanProperty != null && iBeanProperty.isReadable() )
         {
           //
-          Value value = BeanUtil.invokeJavaBeanPropertyMethod( beanObject, iBeanProperty.getGetterMethodName(), null );
+          Value value = BeanUtil.<Value> invokeJavaBeanPropertyMethod( beanObject, iBeanProperty.getGetterMethodName(), null );
           
           //
           retmap.put( iBeanProperty.getPropertyName(), value );

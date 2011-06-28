@@ -396,7 +396,7 @@ public class MethodCallCapturer
   public <E> E newInstanceOfCapturedType( Class<? extends E> clazz )
   {
     //
-    return this.newInstanceOfCapturedType( new CapturedTypeInstanceCreationConfiguration( clazz, null, false ) );
+    return this.<E> newInstanceOfCapturedType( new CapturedTypeInstanceCreationConfiguration( clazz, null, false ) );
   }
   
   /**
@@ -416,7 +416,7 @@ public class MethodCallCapturer
                                                                                                                                          clazz,
                                                                                                                                          new Class[] { MethodCallCapturerAware.class },
                                                                                                                                          false );
-    return this.newInstanceOfCapturedType( capturedTypeInstanceCreationConfiguration );
+    return this.<E> newInstanceOfCapturedType( capturedTypeInstanceCreationConfiguration );
   }
   
   /**
@@ -431,7 +431,7 @@ public class MethodCallCapturer
    */
   public <E> E newInstanceOfTransitivlyCapturedType( Class<? extends E> clazz )
   {
-    return this.newInstanceOfCapturedType( new CapturedTypeInstanceCreationConfiguration( clazz, null, true ) );
+    return this.<E> newInstanceOfCapturedType( new CapturedTypeInstanceCreationConfiguration( clazz, null, true ) );
   }
   
   /**
@@ -452,7 +452,7 @@ public class MethodCallCapturer
                                                                                                                                          clazz,
                                                                                                                                          new Class[] { MethodCallCapturerAware.class },
                                                                                                                                          true );
-    return this.newInstanceOfCapturedType( capturedTypeInstanceCreationConfiguration );
+    return this.<E> newInstanceOfCapturedType( capturedTypeInstanceCreationConfiguration );
   }
   
   /**
@@ -470,9 +470,9 @@ public class MethodCallCapturer
     //
     MethodCaptureMethodInvocationHandler methodCaptureMethodInvocationHandler = new MethodCaptureMethodInvocationHandler(
                                                                                                                           capturedTypeInstanceCreationConfiguration );
-    E stubInstance = StubCreator.newStubInstance( (Class<? extends E>) capturedTypeInstanceCreationConfiguration.getClazz(),
-                                                  capturedTypeInstanceCreationConfiguration.getInterfaces(),
-                                                  methodCaptureMethodInvocationHandler );
+    E stubInstance = StubCreator.<E> newStubInstance( (Class<? extends E>) capturedTypeInstanceCreationConfiguration.getClazz(),
+                                                      capturedTypeInstanceCreationConfiguration.getInterfaces(),
+                                                      methodCaptureMethodInvocationHandler );
     
     //
     if ( capturedTypeInstanceCreationConfiguration.getPreviousMethodCallCaptureContext() == null )
