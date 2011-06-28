@@ -24,8 +24,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * The {@link JAXBMap} is a virtual {@link XmlRootElement} for an arbitrary {@link Map} instance. It uses an proxy implementation
- * which is not able to handle high performance requests.
+ * The {@link JAXBMap} is a artificial {@link XmlRootElement} for an arbitrary {@link Map} instance. It just stores an internal
+ * map instance and delegates all {@link Map} based methods to it.
  * 
  * @author Omnaest
  * @param <K>
