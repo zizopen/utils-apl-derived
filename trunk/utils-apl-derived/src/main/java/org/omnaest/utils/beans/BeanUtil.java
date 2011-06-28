@@ -972,7 +972,6 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
       return retval;
     }
     
-    @SuppressWarnings("unchecked")
     public PropertyCriterionAnnotationname addAnnotationNames( String[] annotationNames )
     {
       //
@@ -1002,7 +1001,6 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
   {
     protected List<PropertyCriterion> propertyCriterionList = new ArrayList<PropertyCriterion>();
     
-    @SuppressWarnings("unchecked")
     public PropertyCriterionConjunction addPropertyCriteria( PropertyCriterion... propertyCriteria )
     {
       //
