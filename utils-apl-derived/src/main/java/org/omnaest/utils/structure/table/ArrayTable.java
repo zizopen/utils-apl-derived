@@ -1594,7 +1594,7 @@ public class ArrayTable<E> implements Table<E>
     @Override
     public boolean contains( Object row )
     {
-      if ( row != null && row instanceof List && ( (List) row ).size() > 0 )
+      if ( row != null && row instanceof List && ( (List<E>) row ).size() > 0 )
       {
         return this.table.containsRow( (List<E>) row );
       }
@@ -1743,7 +1743,6 @@ public class ArrayTable<E> implements Table<E>
       return row;
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public boolean removeAll( Collection<?> rowCollection )
     {
