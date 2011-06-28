@@ -177,7 +177,6 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     return this.isColumnIndexed( this.determineColumnIndexPosition( columnTitle ) );
   }
   
-  @SuppressWarnings({ "unchecked" })
   boolean isIndexedList( List<E> list )
   {
     return ( list instanceof IndexList );
@@ -197,7 +196,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
       List<E> row = this.rowList.get( rowIndexPosition );
       if ( indexed && !this.isIndexedList( row ) )
       {
-        List<E> newRow = this.indexedListFactory.create();
+        List<E> newRow = this.indexedListFactory.<E> create();
         newRow.addAll( row );
         this.rowList.set( rowIndexPosition, newRow );
       }
@@ -252,7 +251,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
       List<E> column = this.columnList.get( columnIndexPosition );
       if ( indexed && !this.isIndexedList( column ) )
       {
-        List<E> newColumn = this.indexedListFactory.create();
+        List<E> newColumn = this.indexedListFactory.<E> create();
         newColumn.addAll( column );
         this.columnList.set( columnIndexPosition, newColumn );
       }
@@ -627,8 +626,8 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     };
     
     //
-    Map<Integer, E> columnIndexToElementMap = MapUtil.convertMapKey( columnTitleToElementMap,
-                                                                     columnTitleToColumnIndexElementConverter );
+    Map<Integer, E> columnIndexToElementMap = MapUtil.<String, Integer, E> convertMapKey( columnTitleToElementMap,
+                                                                                          columnTitleToColumnIndexElementConverter );
     
     //
     return this.whereElementIsGreaterThanColumnIndexMap( columnIndexToElementMap );

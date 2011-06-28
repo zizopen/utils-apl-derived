@@ -36,12 +36,12 @@ import java.util.Map;
 public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMETER, RETURN_INFO>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long                                         serialVersionUID                           = 185487616795626165L;
+  private static final long                                     serialVersionUID                           = 185487616795626165L;
   
   /* ********************************************** Variables ********************************************** */
-  protected List<Listener<PARAMETER, RETURN_INFO>>                  listenerList                               = new ArrayList<Listener<PARAMETER, RETURN_INFO>>();
+  protected List<Listener<PARAMETER, RETURN_INFO>>              listenerList                               = new ArrayList<Listener<PARAMETER, RETURN_INFO>>();
   protected ListenerRegistrationControl<PARAMETER, RETURN_INFO> listenerRegistration                       = null;
-  protected Map<ListenerRegistration<?, ?>, Listener<?, ?>>         connectedListenerRegistrationToListenerMap = new HashMap<ListenerRegistration<?, ?>, Listener<?, ?>>();
+  protected Map<ListenerRegistration<?, ?>, Listener<?, ?>>     connectedListenerRegistrationToListenerMap = new HashMap<ListenerRegistration<?, ?>, Listener<?, ?>>();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
 
@@ -207,9 +207,10 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
       //
       Listener<OTHER_PARAMETER, OTHER_RETURN_INFO> listener = new Listener<OTHER_PARAMETER, OTHER_RETURN_INFO>()
       {
-        @SuppressWarnings("rawtypes")
+        
         @Override
-        public List<OTHER_RETURN_INFO> handleEvent( OTHER_PARAMETER otherParameter, ListenerRegistration listenerRegistration )
+        public List<OTHER_RETURN_INFO> handleEvent( OTHER_PARAMETER otherParameter,
+                                                    ListenerRegistration<OTHER_PARAMETER, OTHER_RETURN_INFO> listenerRegistration )
         {
           //
           List<OTHER_RETURN_INFO> otherReturnInfoList = new ArrayList<OTHER_RETURN_INFO>();

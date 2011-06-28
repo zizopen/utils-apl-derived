@@ -43,7 +43,7 @@ public class DurationCaptureTypeProxyTest
       //
       this.durationCaptureInternal.startTimeMeasurement();
       List<String> retlist = new ArrayList<String>();
-      for ( int ii = 0; ii < 1000000; ii++ )
+      for ( int ii = 0; ii < 100000; ii++ )
       {
         retlist.add( "value" + ii );
       }
