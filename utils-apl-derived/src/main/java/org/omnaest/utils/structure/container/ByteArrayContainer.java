@@ -60,6 +60,55 @@ public class ByteArrayContainer
   /* ********************************************** Methods ********************************************** */
 
   /**
+   * Default {@link ByteArrayContainer} creating an instance with no content.
+   */
+  public ByteArrayContainer()
+  {
+    super();
+  }
+  
+  /**
+   * Creates an {@link ByteArrayContainer} with a copied byte array content.
+   * 
+   * @param content
+   */
+  public ByteArrayContainer( byte[] content )
+  {
+    super();
+    this.copy( content );
+  }
+  
+  /**
+   * @see #copy(String)
+   * @param content
+   */
+  public ByteArrayContainer( String content )
+  {
+    super();
+    this.copy( content );
+  }
+  
+  /**
+   * @see #copy(String, String)
+   * @param content
+   */
+  public ByteArrayContainer( String content, String encoding )
+  {
+    super();
+    this.copy( content, encoding );
+  }
+  
+  /**
+   * @see #copy(StringBuffer, String)
+   * @param content
+   */
+  public ByteArrayContainer( StringBuffer content, String encoding )
+  {
+    super();
+    this.copy( content, encoding );
+  }
+  
+  /**
    * @return true: content is empty, false: container has content with size > 0
    * @see #isNotEmpty()
    */

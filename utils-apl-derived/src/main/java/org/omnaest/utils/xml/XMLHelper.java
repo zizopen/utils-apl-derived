@@ -22,6 +22,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.omnaest.utils.structure.container.ByteArrayContainer;
+
 /**
  * Helper class for JAXB annotated classes.
  * 
@@ -29,7 +31,10 @@ import javax.xml.bind.Unmarshaller;
  */
 public class XMLHelper
 {
+  /* ********************************************** Constants ********************************************** */
+  final static public String ENCODING_UTF_8 = "utf-8";
   
+  /* ********************************************** Methods ********************************************** */
   /**
    * Stores a given JAXB annotated object to the given {@link OutputStream}.
    * 
@@ -51,6 +56,39 @@ public class XMLHelper
     {
       e.printStackTrace();
     }
+  }
+  
+  /**
+   * Stores the given object as XML als {@link String} using the {@link #ENCODING_UTF_8}
+   * 
+   * @see #storeObjectAsXML(Object, String)
+   * @param object
+   * @return
+   */
+  public static String storeObjectAsXML( Object object )
+  {
+    return XMLHelper.storeObjectAsXML( object, ENCODING_UTF_8 );
+  }
+  
+  /**
+   * Stores the given object as XML {@link String} using the given encoding.
+   * 
+   * @see #storeObjectAsXML(Object, OutputStream)
+   * @see #storeObjectAsXML(Object)
+   * @param object
+   * @param encoding
+   * @return
+   */
+  public static String storeObjectAsXML( Object object, String encoding )
+  {
+    //
+    ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+    
+    //
+    XMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream() );
+    
+    //
+    return byteArrayContainer.toString( encoding );
   }
   
   /**
@@ -80,5 +118,15 @@ public class XMLHelper
     }
     //
     return retval;
+  }
+  
+  public static <E> E loadObjectFromXML( String xmlContent, Class<E> typeClazz )
+  {
+    //
+    ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+    byteArrayContainer.copy( xmlContent );
+    
+    //
+    return XMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz );
   }
 }
