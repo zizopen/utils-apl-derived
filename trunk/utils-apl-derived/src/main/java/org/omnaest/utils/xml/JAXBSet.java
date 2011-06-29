@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * {@link Set} instance is determined at runtime, each of the objects have its own schema definition. This will cause some
  * overhead in comparison to a {@link Set} which is wrapped not by its interface.
  * 
- * @see #newInstance(Collection)
+ * @see #newInstance(Set)
  * @author Omnaest
  * @param <E>
  */
@@ -41,11 +41,11 @@ public class JAXBSet<E> implements Set<E>
   /* ********************************************** Methods ********************************************** */
 
   /**
-   * Creates a new instance of a {@link JAXBSet} for a given {@link Collection}.
+   * Creates a new instance of a {@link JAXBSet} for a given {@link Set}.
    * 
    * @param <E>
    * @param set
-   * @return new instance or null if collection param is null
+   * @return new instance or null if set param is null
    */
   public static <E> JAXBSet<E> newInstance( Set<E> set )
   {
