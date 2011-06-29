@@ -111,7 +111,6 @@ public class IndexArrayTableTest
     }
   }
   
-  @SuppressWarnings("unchecked")
   @Test
   public void testAddPutGetRowByClass()
   {
@@ -126,6 +125,7 @@ public class IndexArrayTableTest
     beanMock2.setProperty3( "test3" );
     beanMock2.setProperty2( "test2" );
     
+    @SuppressWarnings("rawtypes")
     Table<?> indexedTable = new IndexArrayTable();
     
     indexedTable.addRow( beanMock1 );
@@ -617,6 +617,7 @@ public class IndexArrayTableTest
     assertEquals( "f", indexedTable.getCell( 3, 2 ) );
   }
   
+  @SuppressWarnings("unused")
   @Test
   public void testSetIndexColumnAndRow()
   {
@@ -890,7 +891,6 @@ public class IndexArrayTableTest
     
   }
   
-  @SuppressWarnings("unchecked")
   @Test
   public void getRowList()
   {
@@ -1032,7 +1032,6 @@ public class IndexArrayTableTest
     
   }
   
-  @SuppressWarnings("unchecked")
   @Test
   public void testGetCellIterator()
   {
@@ -1059,7 +1058,6 @@ public class IndexArrayTableTest
     
   }
   
-  @SuppressWarnings("unchecked")
   @Test
   public void testGetCellList()
   {

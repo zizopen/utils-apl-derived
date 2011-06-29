@@ -27,6 +27,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * The {@link JAXBMap} is a artificial {@link XmlRootElement} for an arbitrary {@link Map} instance. It just stores an internal
  * map instance and delegates all {@link Map} based methods to it.
  * 
+ * @see #newInstance(Map)
  * @author Omnaest
  * @param <K>
  * @param <V>
@@ -51,6 +52,15 @@ public class JAXBMap<K, V> implements Map<K, V>
     this.map = map;
   }
   
+  /**
+   * Creates a new {@link Map} wrapper.
+   * 
+   * @param <M>
+   * @param <K>
+   * @param <V>
+   * @param map
+   * @return
+   */
   @SuppressWarnings("unchecked")
   public static <M extends Map<K, V>, K, V> M newInstance( Map<K, V> map )
   {
