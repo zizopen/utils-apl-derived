@@ -129,4 +129,27 @@ public class XMLHelper
     //
     return XMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz );
   }
+  
+  @SuppressWarnings("unchecked")
+  public static <E> E cloneObject( E object )
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( object != null )
+    {
+      //
+      ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+      
+      //
+      XMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream() );
+      
+      //
+      retval = (E) XMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), object.getClass() );
+    }
+    
+    //
+    return retval;
+  }
 }
