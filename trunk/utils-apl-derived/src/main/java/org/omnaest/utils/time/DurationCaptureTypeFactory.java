@@ -26,16 +26,17 @@ import org.omnaest.utils.proxy.StubCreator;
  * Proxy creator the measure the time for methods calls of an arbitrary object.
  * 
  * @see #newStubInstance(Object)
+ * @see DurationCapture
  * @author Omnaest
  */
-public class DurationCaptureStubCreator
+public class DurationCaptureTypeFactory
 {
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
    * Defines the interface which proxied Objects will implement, too.
    * 
-   * @see DurationCaptureStubCreator
+   * @see DurationCaptureTypeFactory
    * @author Omnaest
    */
   public static interface DurationCaptureAware

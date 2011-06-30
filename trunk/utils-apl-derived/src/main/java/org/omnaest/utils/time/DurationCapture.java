@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * A {@link DurationCapture} will measure time intervals.
  * 
  * @see #newInstance()
+ * @see DurationCaptureTypeFactory
  * @author Omnaest
  */
 public class DurationCapture

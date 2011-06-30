@@ -24,9 +24,13 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.omnaest.utils.time.DurationCaptureStubCreator.DurationCaptureAware;
+import org.omnaest.utils.time.DurationCaptureTypeFactory.DurationCaptureAware;
 
-public class DurationCaptureTypeProxyTest
+/**
+ * @see DurationCaptureTypeFactory
+ * @author Omnaest
+ */
+public class DurationCaptureTypeFactoryTest
 {
   
   @Before
@@ -66,7 +70,7 @@ public class DurationCaptureTypeProxyTest
     TestClass testClass = new TestClass();
     
     //
-    TestClass stubInstance = DurationCaptureStubCreator.newStubInstance( testClass );
+    TestClass stubInstance = DurationCaptureTypeFactory.newStubInstance( testClass );
     
     //
     List<String> stringListOriginal = testClass.generateRandomStringList();
