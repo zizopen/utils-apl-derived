@@ -39,8 +39,10 @@ import org.omnaest.utils.structure.collection.CollectionUtil.ElementConverter;
 /**
  * Simple utility class, which extends the Apache Common BeanUtils class.
  * 
+ * @deprecated use {@link BeanUtils} instead
  * @author Omnaest
  */
+@Deprecated
 public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
 {
   /* ********************************************** Constants ********************************************** */

@@ -32,6 +32,8 @@ import org.junit.Test;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.RowList;
 import org.omnaest.utils.structure.table.Table.TableCellConverter;
+import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.concrete.IndexArrayTable;
 import org.omnaest.utils.time.DurationCapture;
 
 public class IndexArrayTableTest

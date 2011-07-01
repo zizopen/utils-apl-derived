@@ -77,7 +77,7 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
       //
       try
       {
-        BeanMethodNameUtils.BeanMethodInformation beanMethodInformation = BeanMethodNameUtils.determineBeanMethodInformation( method );
+        BeanMethodInformation beanMethodInformation = BeanUtils.determineBeanMethodInformation( method );
         if ( beanMethodInformation != null )
         {
           //

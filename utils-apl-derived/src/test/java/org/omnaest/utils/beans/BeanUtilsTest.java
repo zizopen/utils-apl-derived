@@ -15,10 +15,17 @@
  ******************************************************************************/
 package org.omnaest.utils.beans;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * @see BeanUtils
+ * @author Omnaest
+ */
 public class BeanUtilsTest
 {
   
@@ -27,7 +34,8 @@ public class BeanUtilsTest
   {
   }
   
-  protected class TestBeanImpl implements TestBean
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  protected static class TestBeanImpl implements TestBean
   {
     /* ********************************************** Variables ********************************************** */
     protected String fieldString = null;
@@ -57,6 +65,58 @@ public class BeanUtilsTest
     {
       this.fieldDouble = fieldDouble;
     }
+    
+    @Override
+    public int hashCode()
+    {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ( ( this.fieldDouble == null ) ? 0 : this.fieldDouble.hashCode() );
+      result = prime * result + ( ( this.fieldString == null ) ? 0 : this.fieldString.hashCode() );
+      return result;
+    }
+    
+    @Override
+    public boolean equals( Object obj )
+    {
+      if ( this == obj )
+      {
+        return true;
+      }
+      if ( obj == null )
+      {
+        return false;
+      }
+      if ( !( obj instanceof TestBeanImpl ) )
+      {
+        return false;
+      }
+      TestBeanImpl other = (TestBeanImpl) obj;
+      if ( this.fieldDouble == null )
+      {
+        if ( other.fieldDouble != null )
+        {
+          return false;
+        }
+      }
+      else if ( !this.fieldDouble.equals( other.fieldDouble ) )
+      {
+        return false;
+      }
+      if ( this.fieldString == null )
+      {
+        if ( other.fieldString != null )
+        {
+          return false;
+        }
+      }
+      else if ( !this.fieldString.equals( other.fieldString ) )
+      {
+        return false;
+      }
+      return true;
+    }
+    
   }
   
   protected static interface TestBean
@@ -70,6 +130,7 @@ public class BeanUtilsTest
     public String getFieldString();
   }
   
+  /* ********************************************** Methods ********************************************** */
   @Test
   public void testDeterminePropertyNames()
   {
@@ -78,5 +139,68 @@ public class BeanUtilsTest
     
     //
     Assert.assertArrayEquals( new String[] { "fieldString", "fieldDouble" }, propertyNames );
+  }
+  
+  @Test
+  public void testCopyPropertyValues()
+  {
+    //
+    TestBeanImpl beanSource = new TestBeanImpl();
+    beanSource.setFieldString( "value1" );
+    beanSource.setFieldDouble( 1.3 );
+    
+    //
+    TestBeanImpl beanDestination = new TestBeanImpl();
+    
+    //
+    BeanUtils.copyPropertyValues( beanSource, beanDestination );
+    
+    //
+    assertEquals( beanSource, beanDestination );
+  }
+  
+  @Test
+  public void testDetermineBeanMethodInformationSet()
+  {
+    //
+    assertEquals( 4, BeanUtils.determineBeanMethodInformationSet( TestBean.class ).size() );
+  }
+  
+  @Test
+  public void testDetermineFieldnameToBeanPropertyAccessorMap()
+  {
+    //
+    assertEquals( 2, BeanUtils.determineFieldnameToBeanPropertyAccessorMap( TestBean.class ).size() );
+    assertEquals( 2, BeanUtils.determineFieldnameToBeanPropertyAccessorMap( TestBeanImpl.class ).size() );
+  }
+  
+  @Test
+  public void testDetermineBeanPropertyAccessorSet()
+  {
+    //
+    assertEquals( 2, BeanUtils.determineBeanPropertyAccessorSet( TestBean.class ).size() );
+    assertEquals( 2, BeanUtils.determineBeanPropertyAccessorSet( TestBeanImpl.class ).size() );
+  }
+  
+  @Test
+  public void testDetermineBeanPropertyAccessor() throws Throwable
+  {
+    //
+    {
+      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.determineBeanPropertyAccessor( TestBeanImpl.class,
+                                                                                                         TestBeanImpl.class.getDeclaredFields()[0] );
+      
+      assertNotNull( beanPropertyAccessor );
+      assertEquals( true, beanPropertyAccessor.hasGetterAndSetter() );
+    }
+    
+    //
+    {
+      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.determineBeanPropertyAccessor( TestBeanImpl.class,
+                                                                                                         TestBeanImpl.class.getDeclaredField( "fieldString" ) );
+      
+      assertNotNull( beanPropertyAccessor );
+      assertEquals( true, beanPropertyAccessor.hasGetterAndSetter() );
+    }
   }
 }

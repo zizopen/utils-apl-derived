@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table;
+package org.omnaest.utils.structure.table.concrete;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,7 +29,10 @@ import org.omnaest.utils.structure.collection.CollectionUtil;
 import org.omnaest.utils.structure.collection.CollectionUtil.ElementConverter;
 import org.omnaest.utils.structure.collection.list.IndexArrayList;
 import org.omnaest.utils.structure.collection.list.IndexList;
-import org.omnaest.utils.structure.map.MapUtil;
+import org.omnaest.utils.structure.map.MapUtils;
+import org.omnaest.utils.structure.table.IndexTable;
+import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.Table.CellIndexPosition;
 
 /**
  * Extension of the {@link ArrayTable} class, which allows to used index lists for faster access. This allows more advanced where
@@ -566,7 +569,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   }
   
   @Override
-  public IndexTable<E> whereElementIsGreaterThanColumnIndexMap( Map<Integer, E> columnIndexToElementMap )
+  public Table<E> whereElementIsGreaterThanColumnIndexMap( Map<Integer, E> columnIndexToElementMap )
   {
     //
     IndexTable<E> table = this;
@@ -626,7 +629,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     };
     
     //
-    Map<Integer, E> columnIndexToElementMap = MapUtil.<String, Integer, E> convertMapKey( columnTitleToElementMap,
+    Map<Integer, E> columnIndexToElementMap = MapUtils.<String, Integer, E> convertMapKey( columnTitleToElementMap,
                                                                                           columnTitleToColumnIndexElementConverter );
     
     //
@@ -755,7 +758,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     };
     
     //
-    Map<Integer, E> columnIndexToElementMap = MapUtil.convertMapKey( columnEnumToElementMap,
+    Map<Integer, E> columnIndexToElementMap = MapUtils.convertMapKey( columnEnumToElementMap,
                                                                      columnEnumToColumnIndexElementConverter );
     
     //
@@ -776,7 +779,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     };
     
     //
-    Map<Integer, E> columnIndexToElementMap = MapUtil.convertMapKey( columnTitleToElementMap,
+    Map<Integer, E> columnIndexToElementMap = MapUtils.convertMapKey( columnTitleToElementMap,
                                                                      columnTitleToColumnIndexElementConverter );
     
     //

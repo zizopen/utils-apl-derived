@@ -21,8 +21,8 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.omnaest.utils.strings.StringUtil;
 import org.omnaest.utils.structure.collection.CollectionUtil;
-import org.omnaest.utils.structure.table.ArrayTable;
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.concrete.ArrayTable;
 
 /**
  * Helper class offering several methods for {@link Table}

@@ -15,19 +15,97 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.map;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.omnaest.utils.structure.collection.CollectionUtil.ElementConverter;
 import org.omnaest.utils.structure.collection.CollectionUtil.IdentityElementConverter;
+import org.omnaest.utils.tuple.TupleDuad;
 
 /**
- * Helper class for map operations.
+ * Helper class for {@link Map} operations.
  * 
  * @author Omnaest
  */
-public class MapUtil
+public class MapUtils
 {
+  
+  /**
+   * Merges all given {@link Map} instances into a single {@link LinkedHashMap}.
+   * 
+   * @see #mergeAll(Map...)
+   * @param <K>
+   * @param <V>
+   * @param mapCollection
+   * @return
+   */
+  public static <K, V> Map<K, V> mergeAll( Collection<Map<K, V>> mapCollection )
+  {
+    //
+    Map<K, V> retmap = new LinkedHashMap<K, V>();
+    
+    //
+    for ( Map<K, V> map : mapCollection )
+    {
+      retmap.putAll( map );
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Merges all given {@link Map} instances into a single {@link LinkedHashMap}.
+   * 
+   * @see #mergeAll(Collection)
+   * @param <K>
+   * @param <V>
+   * @param maps
+   * @return
+   */
+  public static <K, V> Map<K, V> mergeAll( Map<K, V>... maps )
+  {
+    return MapUtils.mergeAll( Arrays.asList( maps ) );
+  }
+  
+  /**
+   * Returns a list of {@link TupleDuad} instances which have always the value of the first map and the value of the second map
+   * which share the same key over both maps.
+   * 
+   * @param <K>
+   * @param <VA>
+   * @param <VB>
+   * @param mapA
+   * @param mapB
+   * @return
+   */
+  public static <K, VA, VB> List<TupleDuad<VA, VB>> innerJoinMapByKey( Map<K, VA> mapA, Map<K, VB> mapB )
+  {
+    //
+    List<TupleDuad<VA, VB>> retlist = new ArrayList<TupleDuad<VA, VB>>();
+    
+    //
+    if ( mapA != null && mapB != null )
+    {
+      //
+      for ( K key : mapA.keySet() )
+      {
+        //
+        VA valueA = mapA.get( key );
+        VB valueB = mapB.get( key );
+        
+        //
+        retlist.add( new TupleDuad<VA, VB>( valueA, valueB ) );
+      }
+    }
+    
+    //
+    return retlist;
+  }
   
   /**
    * Converts the key of a map into another key.
@@ -42,7 +120,7 @@ public class MapUtil
   public static <KeyFrom, KeyTo, Value> Map<KeyTo, Value> convertMapKey( Map<KeyFrom, Value> map,
                                                                          ElementConverter<KeyFrom, KeyTo> keyElementConverter )
   {
-    return MapUtil.convertMap( map, keyElementConverter, new IdentityElementConverter<Value>() );
+    return MapUtils.convertMap( map, keyElementConverter, new IdentityElementConverter<Value>() );
   }
   
   /**
