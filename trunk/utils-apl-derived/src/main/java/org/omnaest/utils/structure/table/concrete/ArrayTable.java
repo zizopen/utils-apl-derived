@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table;
+package org.omnaest.utils.structure.table.concrete;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,6 +32,7 @@ import org.omnaest.utils.structure.collection.list.ListAbstract;
 import org.omnaest.utils.structure.collection.list.ListToListIteratorAdapter;
 import org.omnaest.utils.structure.table.IndexTable.IndexPositionPair;
 import org.omnaest.utils.structure.table.IndexTable.TableSize;
+import org.omnaest.utils.structure.table.Table;
 
 /**
  * Implementation of {@link Table} that uses two array lists as row and column data structure.
