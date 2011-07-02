@@ -17,7 +17,7 @@ package org.omnaest.utils.beans;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,7 +25,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.omnaest.utils.beans.result.BeanMethodInformation;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.structure.map.MapUtils;
+import org.omnaest.utils.structure.map.MapUtils.MapElementMergeOperation;
 import org.omnaest.utils.tuple.TupleDuad;
 
 /**
@@ -45,35 +48,6 @@ public class BeanUtils
   public static int determineNumberOfProperties( Class<?> beanClass )
   {
     return BeanUtils.determineBeanPropertyAccessorSet( beanClass ).size();
-  }
-  
-  /**
-   * Returns a natural ordered list of {@link BeanPropertyAccessor} instances for all Java Bean properties of the given
-   * {@link Class}. Natural order means the order of declared {@link Field}, declared {@link Method}s, inherited {@link Field}s
-   * and inherited {@link Method}s.
-   * 
-   * @see #determineFieldnameToBeanPropertyAccessorMap(Class)
-   * @see #determineBeanPropertyAccessor(Class, Field)
-   * @param beanClass
-   * @return
-   */
-  public static <B> List<BeanPropertyAccessor<B>> determineBeanPropertyAccessorList( Class<B> beanClass )
-  {
-    //
-    List<BeanPropertyAccessor<B>> retlist = new ArrayList<BeanPropertyAccessor<B>>();
-    
-    //
-    if ( beanClass != null )
-    {
-      //
-      Map<String, BeanPropertyAccessor<B>> fieldnameToBeanPropertyAccessorMap = BeanUtils.determineFieldnameToBeanPropertyAccessorMap( beanClass );
-      
-      //
-      retlist.addAll( fieldnameToBeanPropertyAccessorMap.values() );
-    }
-    
-    //
-    return retlist;
   }
   
   /**
@@ -132,7 +106,7 @@ public class BeanUtils
         Method methodSetter = null;
         
         //
-        retmap.put( fieldname, new BeanPropertyAccessor<B>( field, methodGetter, methodSetter, fieldname ) );
+        retmap.put( fieldname, new BeanPropertyAccessor<B>( field, methodGetter, methodSetter, fieldname, beanClass ) );
       }
     }
     
@@ -182,19 +156,10 @@ public class BeanUtils
           }
           
           //
-          Field field = null;
-          try
+          if ( methodGetter != null || methodSetter != null )
           {
-            field = beanClass.getField( fieldname );
-          }
-          catch ( Exception e )
-          {
-          }
-          
-          //
-          if ( field != null || methodGetter != null || methodSetter != null )
-          {
-            retmap.put( fieldname, new BeanPropertyAccessor<B>( field, methodGetter, methodSetter, fieldname ) );
+            Field field = null;
+            retmap.put( fieldname, new BeanPropertyAccessor<B>( field, methodGetter, methodSetter, fieldname, beanClass ) );
           }
         }
       }
@@ -206,17 +171,17 @@ public class BeanUtils
   
   /**
    * Returns a map of property names and {@link BeanPropertyAccessor} instances for all Java Bean properties of the given
-   * {@link Class}. The properties are in their natural order, which means to be ordered like declared fields, declared methods,
-   * inherited fields, inherited methods.
+   * {@link Class}. The properties are in no order.
    * 
    * @see #determineBeanPropertyAccessorSet(Class)
    * @param beanClass
    * @return
    */
+  @SuppressWarnings("unchecked")
   public static <B> Map<String, BeanPropertyAccessor<B>> determineFieldnameToBeanPropertyAccessorMap( Class<B> beanClass )
   {
     //
-    Map<String, BeanPropertyAccessor<B>> retmap = new LinkedHashMap<String, BeanPropertyAccessor<B>>();
+    Map<String, BeanPropertyAccessor<B>> retmap = new HashMap<String, BeanPropertyAccessor<B>>();
     
     //
     if ( beanClass != null )
@@ -224,26 +189,39 @@ public class BeanUtils
       //
       try
       {
-        /*
-         * Order is determined by:
-         * 
-         * - declared fields
-         * - declared methods
-         * - fields
-         * - methods
-         * 
-         */
-
         //
-        retmap.putAll( BeanUtils.determineFieldnameToBeanPropertyAccessorMap( beanClass, beanClass.getDeclaredFields() ) );
-        retmap.putAll( BeanUtils.determineFieldnameToBeanPropertyAccessorMap( beanClass, beanClass.getDeclaredMethods() ) );
-        retmap.putAll( BeanUtils.determineFieldnameToBeanPropertyAccessorMap( beanClass, beanClass.getFields() ) );
-        retmap.putAll( BeanUtils.determineFieldnameToBeanPropertyAccessorMap( beanClass, beanClass.getMethods() ) );
+        MapElementMergeOperation<String, BeanPropertyAccessor<B>> mapElementMergeOperation = new MapElementMergeOperation<String, BeanPropertyAccessor<B>>()
+        {
+          @Override
+          public void merge( String key, BeanPropertyAccessor<B> value, Map<String, BeanPropertyAccessor<B>> mergedMap )
+          {
+            //
+            if ( mergedMap.containsKey( key ) )
+            {
+              BeanPropertyAccessor<B> beanPropertyAccessor = mergedMap.get( key );
+              BeanPropertyAccessor<B> beanPropertyAccessorMerged = BeanPropertyAccessor.merge( beanPropertyAccessor, value );
+              mergedMap.put( key, beanPropertyAccessorMerged );
+            }
+            else
+            {
+              mergedMap.put( key, value );
+            }
+          }
+        };
+        
+        retmap = MapUtils.mergeAll( mapElementMergeOperation,
+                                    BeanUtils.determineFieldnameToBeanPropertyAccessorMap( beanClass,
+                                                                                           beanClass.getDeclaredFields() ),
+                                    BeanUtils.determineFieldnameToBeanPropertyAccessorMap( beanClass,
+                                                                                           beanClass.getDeclaredMethods() ),
+                                    BeanUtils.determineFieldnameToBeanPropertyAccessorMap( beanClass, beanClass.getFields() ),
+                                    BeanUtils.determineFieldnameToBeanPropertyAccessorMap( beanClass, beanClass.getMethods() ) );
+        
       }
       catch ( Exception e )
       {
+        e.printStackTrace();
       }
-      
     }
     
     //
@@ -293,7 +271,7 @@ public class BeanUtils
         }
         
         //
-        retval = new BeanPropertyAccessor<B>( field, methodGetter, methodSetter, fieldname );
+        retval = new BeanPropertyAccessor<B>( field, methodGetter, methodSetter, fieldname, beanClass );
       }
       catch ( Exception e )
       {
@@ -347,7 +325,7 @@ public class BeanUtils
     }
     else
     {
-      retmap = new LinkedHashMap<String, Set<BeanMethodInformation>>();
+      retmap = new HashMap<String, Set<BeanMethodInformation>>();
     }
     
     //
@@ -356,7 +334,7 @@ public class BeanUtils
   
   /**
    * Determines a map with the referenced field names as keys and a {@link Set} of {@link BeanMethodInformation} for every field
-   * name. The map keys keep their natural order.
+   * name. The map keys are in no order.
    * 
    * @param methods
    * @return
@@ -364,7 +342,7 @@ public class BeanUtils
   public static Map<String, Set<BeanMethodInformation>> determineFieldnameToBeanMethodInformationMap( Method... methods )
   {
     //
-    Map<String, Set<BeanMethodInformation>> retmap = new LinkedHashMap<String, Set<BeanMethodInformation>>();
+    Map<String, Set<BeanMethodInformation>> retmap = new HashMap<String, Set<BeanMethodInformation>>();
     
     //
     if ( methods != null )
@@ -460,7 +438,7 @@ public class BeanUtils
     {
       //
       Map<String, BeanPropertyAccessor<S>> fieldnameToBeanPropertyAccessorSourceMap = BeanUtils.determineFieldnameToBeanPropertyAccessorMap( (Class<S>) beanSource.getClass() );
-      Map<String, BeanPropertyAccessor<D>> fieldnameToBeanPropertyAccessorDestinationMap = BeanUtils.determineFieldnameToBeanPropertyAccessorMap( (Class<D>) beanSource.getClass() );
+      Map<String, BeanPropertyAccessor<D>> fieldnameToBeanPropertyAccessorDestinationMap = BeanUtils.determineFieldnameToBeanPropertyAccessorMap( (Class<D>) beanDestination.getClass() );
       
       //
       List<TupleDuad<BeanPropertyAccessor<S>, BeanPropertyAccessor<D>>> joinTupleList = MapUtils.innerJoinMapByKey( fieldnameToBeanPropertyAccessorSourceMap,
@@ -476,8 +454,9 @@ public class BeanUtils
         //
         if ( beanPropertySourceAccessor.hasGetter() && beanPropertyDestinationAccessor.hasSetter() )
         {
-          beanPropertyDestinationAccessor.setPropertyValue( beanDestination,
-                                                            beanPropertySourceAccessor.getPropertyValue( beanSource ) );
+          //
+          Object propertyValue = beanPropertySourceAccessor.getPropertyValue( beanSource );
+          beanPropertyDestinationAccessor.setPropertyValue( beanDestination, propertyValue );
         }
       }
     }
@@ -485,12 +464,12 @@ public class BeanUtils
   }
   
   /**
-   * Determines the property names of a given bean class.
+   * Determines the property names of a given bean class which are addressed by getter or setter.
    * 
    * @param clazz
    * @return
    */
-  public static String[] determinePropertyNames( Class<?> clazz )
+  public static String[] determinePropertyNamesForMethodAccess( Class<?> clazz )
   {
     //
     String[] retvals = null;
@@ -500,26 +479,9 @@ public class BeanUtils
     if ( clazz != null )
     {
       //
-      Method[] methods = clazz.getMethods();
-      if ( methods != null )
-      {
-        for ( Method method : methods )
-        {
-          if ( method != null )
-          {
-            //
-            BeanMethodInformation beanMethodInformation = BeanUtils.determineBeanMethodInformation( method );
-            
-            //
-            boolean isFieldAccessMethod = beanMethodInformation.isFieldAccessMethod();
-            if ( isFieldAccessMethod )
-            {
-              //
-              propertyNameSet.add( beanMethodInformation.getReferencedFieldName() );
-            }
-          }
-        }
-      }
+      Map<String, Set<BeanMethodInformation>> fieldnameToBeanMethodInformationMap = BeanUtils.determineFieldnameToBeanMethodInformationMap( clazz );
+      propertyNameSet.addAll( fieldnameToBeanMethodInformationMap.keySet() );
+      propertyNameSet.remove( null );
       
       //
       propertyNameSet.remove( "class" );

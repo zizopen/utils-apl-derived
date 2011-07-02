@@ -16,6 +16,7 @@
 package org.omnaest.utils.beans;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class MapToTypeAdapterTest
   {
   }
   
-  protected static interface TestType extends UnderlyingMapAware<Map<String, Object>>
+  protected static interface TestType
   {
     public Double getFieldDouble();
     
@@ -51,7 +52,7 @@ public class MapToTypeAdapterTest
     Map<String, Object> map = new HashMap<String, Object>();
     
     //reading from facade
-    TestType testType = MapToTypeAdapter.newInstance( map, TestType.class );
+    TestType testType = MapToTypeAdapter.newInstance( map, TestType.class, false );
     
     //
     map.put( "fieldString", "String value" );
@@ -71,8 +72,27 @@ public class MapToTypeAdapterTest
     assertEquals( 11.0, (Double) map.get( "fieldDouble" ), 0.01 );
     assertEquals( 2, map.size() );
     
+  }
+  
+  @Test
+  public void testNewInstanceUnderlyingMapAware()
+  {
     //
-    Map<String, Object> underlyingMap = testType.getUnderlyingMap();
+    Map<String, Object> map = new HashMap<String, Object>();
+    
+    map.put( "fieldString", "String value" );
+    map.put( "fieldDouble", 10.0 );
+    
+    //reading from facade
+    TestType testType = MapToTypeAdapter.newInstance( map, TestType.class, true );
+    
+    assertEquals( "String value", testType.getFieldString() );
+    assertEquals( 10.0, testType.getFieldDouble(), 0.01 );
+    
+    //
+    assertTrue( testType instanceof UnderlyingMapAware );
+    UnderlyingMapAware<?> underlyingMapAware = (UnderlyingMapAware<?>) testType;
+    Map<String, Object> underlyingMap = underlyingMapAware.getUnderlyingMap();
     assertEquals( map, underlyingMap );
   }
 }

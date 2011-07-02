@@ -33,6 +33,83 @@ import org.omnaest.utils.tuple.TupleDuad;
  */
 public class MapUtils
 {
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  /**
+   * A {@link MapElementMergeOperation} defines a {@link #merge(Object, Object, Map)} operation to merge {@link Map} elements into
+   * a merged {@link Map} instance.
+   * 
+   * @author Omnaest
+   * @param <K>
+   * @param <V>
+   */
+  public static interface MapElementMergeOperation<K, V>
+  {
+    /**
+     * Merge operation, which should implement the logic which merges the given key and value pair into the given mergedMap.
+     * 
+     * @param key
+     * @param value
+     * @param mergedMap
+     */
+    public void merge( K key, V value, Map<K, V> mergedMap );
+  }
+  
+  /* ********************************************** Methods ********************************************** */
+
+  /**
+   * Merges all given {@link Map} instances into a single {@link LinkedHashMap} using the given {@link MapElementMergeOperation}.
+   * 
+   * @see #mergeAll(Map...)
+   * @see #mergeAll(Collection, MapElementMergeOperation)
+   * @param <K>
+   * @param <V>
+   * @param mapElementMergeOperation
+   * @param maps
+   * @return
+   */
+  public static <K, V> Map<K, V> mergeAll( MapElementMergeOperation<K, V> mapElementMergeOperation, Map<K, V>... maps )
+  {
+    return MapUtils.mergeAll( Arrays.asList( maps ), mapElementMergeOperation );
+  }
+  
+  /**
+   * Merges all given {@link Map} instances into a single {@link LinkedHashMap} using the given {@link MapElementMergeOperation}.
+   * 
+   * @see #mergeAll(Map...)
+   * @param <K>
+   * @param <V>
+   * @param mapCollection
+   * @param mapElementMergeOperation
+   * @return
+   */
+  public static <K, V> Map<K, V> mergeAll( Collection<Map<K, V>> mapCollection,
+                                           MapElementMergeOperation<K, V> mapElementMergeOperation )
+  {
+    //
+    Map<K, V> retmap = new LinkedHashMap<K, V>();
+    
+    //
+    if ( mapCollection != null && mapElementMergeOperation != null )
+    {
+      for ( Map<K, V> map : mapCollection )
+      {
+        if ( map != null )
+        {
+          for ( K key : map.keySet() )
+          {
+            //
+            V value = map.get( key );
+            
+            //
+            mapElementMergeOperation.merge( key, value, retmap );
+          }
+        }
+      }
+    }
+    
+    //
+    return retmap;
+  }
   
   /**
    * Merges all given {@link Map} instances into a single {@link LinkedHashMap}.
@@ -62,6 +139,7 @@ public class MapUtils
    * Merges all given {@link Map} instances into a single {@link LinkedHashMap}.
    * 
    * @see #mergeAll(Collection)
+   * @see #mergeAll(Collection, MapElementMergeOperation)
    * @param <K>
    * @param <V>
    * @param maps

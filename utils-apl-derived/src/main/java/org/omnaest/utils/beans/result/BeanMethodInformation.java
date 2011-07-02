@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.beans;
+package org.omnaest.utils.beans.result;
 
 import java.lang.reflect.Method;
 
@@ -35,7 +35,7 @@ public class BeanMethodInformation
   /**
    * 
    */
-  protected BeanMethodInformation( boolean isGetter, boolean isSetter, String referencedFieldName, Method method )
+  public BeanMethodInformation( boolean isGetter, boolean isSetter, String referencedFieldName, Method method )
   {
     super();
     this.isGetter = isGetter;

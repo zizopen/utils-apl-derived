@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.beans;
+package org.omnaest.utils.beans.result;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.TypeVariable;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Java Bean property access object for {@link Method}s and {@link Field} of a special Java Bean type.
@@ -36,8 +37,8 @@ public class BeanPropertyAccessor<B>
   protected Class<B> beanClass    = null;
   
   /* ********************************************** Methods ********************************************** */
-  @SuppressWarnings("unchecked")
-  protected BeanPropertyAccessor( Field field, Method methodGetter, Method methodSetter, String propertyname )
+
+  public BeanPropertyAccessor( Field field, Method methodGetter, Method methodSetter, String propertyname, Class<B> beanClass )
   {
     //
     super();
@@ -47,10 +48,7 @@ public class BeanPropertyAccessor<B>
     this.field = field;
     this.methodGetter = methodGetter;
     this.methodSetter = methodSetter;
-    
-    //
-    TypeVariable<?> typeVariable = this.getClass().getTypeParameters()[0];
-    this.beanClass = (Class<B>) typeVariable.getBounds()[0];
+    this.beanClass = beanClass;
   }
   
   /**
@@ -107,6 +105,7 @@ public class BeanPropertyAccessor<B>
       }
       catch ( Exception e )
       {
+        e.printStackTrace();
       }
     }
     
@@ -127,7 +126,7 @@ public class BeanPropertyAccessor<B>
     boolean retval = false;
     
     //
-    if ( this.hasSetter() )
+    if ( this.hasSetter() && bean != null )
     {
       try
       {
@@ -139,6 +138,7 @@ public class BeanPropertyAccessor<B>
       }
       catch ( Exception e )
       {
+        e.printStackTrace();
       }
     }
     
@@ -196,6 +196,47 @@ public class BeanPropertyAccessor<B>
     return this.field != null ? this.field.getName() : null;
   }
   
+  /**
+   * Merges two {@link BeanPropertyAccessor} instances into one if the underlying {@link Class} and property are equal.
+   * 
+   * @param <B>
+   * @param beanPropertyAccessorA
+   * @param beanPropertyAccessorB
+   * @return
+   */
+  public static <B> BeanPropertyAccessor<B> merge( BeanPropertyAccessor<B> beanPropertyAccessorA,
+                                                   BeanPropertyAccessor<B> beanPropertyAccessorB )
+  {
+    //
+    BeanPropertyAccessor<B> retval = null;
+    
+    //
+    if ( beanPropertyAccessorA != null && beanPropertyAccessorB != null )
+    {
+      //
+      if ( StringUtils.equals( beanPropertyAccessorA.propertyname, beanPropertyAccessorB.propertyname )
+           && beanPropertyAccessorA.beanClass != null && beanPropertyAccessorA.beanClass.equals( beanPropertyAccessorB.beanClass ) )
+      {
+        //
+        String propertyname = beanPropertyAccessorA.propertyname != null ? beanPropertyAccessorA.propertyname
+                                                                        : beanPropertyAccessorB.propertyname;
+        Class<B> beanClass = beanPropertyAccessorA.beanClass != null ? beanPropertyAccessorA.beanClass
+                                                                    : beanPropertyAccessorB.beanClass;
+        Field field = beanPropertyAccessorA.field != null ? beanPropertyAccessorA.field : beanPropertyAccessorB.field;
+        Method methodGetter = beanPropertyAccessorA.methodGetter != null ? beanPropertyAccessorA.methodGetter
+                                                                        : beanPropertyAccessorB.methodGetter;
+        Method methodSetter = beanPropertyAccessorA.methodSetter != null ? beanPropertyAccessorA.methodSetter
+                                                                        : beanPropertyAccessorB.methodSetter;
+        
+        //
+        retval = new BeanPropertyAccessor<B>( field, methodGetter, methodSetter, propertyname, beanClass );
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
   protected Method getMethod()
   {
     return this.methodGetter;
@@ -224,6 +265,12 @@ public class BeanPropertyAccessor<B>
   public Method getMethodSetter()
   {
     return this.methodSetter;
+  }
+  
+  @Override
+  public String toString()
+  {
+    return "BeanPropertyAccessor [propertyname=" + this.propertyname + ", beanClass=" + this.beanClass + "]";
   }
   
 }
