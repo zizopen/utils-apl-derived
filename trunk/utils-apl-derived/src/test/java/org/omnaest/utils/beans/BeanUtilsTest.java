@@ -170,11 +170,11 @@ public class BeanUtilsTest
   }
   
   @Test
-  public void testDetermineFieldnameToBeanPropertyAccessorMap()
+  public void testDeterminePropertynameToBeanPropertyAccessorMap()
   {
     //
-    assertEquals( 2, BeanUtils.determineFieldnameToBeanPropertyAccessorMap( TestBean.class ).size() );
-    assertEquals( 2, BeanUtils.determineFieldnameToBeanPropertyAccessorMap( TestBeanImpl.class ).size() );
+    assertEquals( 2, BeanUtils.determinePropertynameToBeanPropertyAccessorMap( TestBean.class ).size() );
+    assertEquals( 2, BeanUtils.determinePropertynameToBeanPropertyAccessorMap( TestBeanImpl.class ).size() );
   }
   
   @Test
@@ -205,5 +205,18 @@ public class BeanUtilsTest
       assertNotNull( beanPropertyAccessor );
       assertEquals( true, beanPropertyAccessor.hasGetterAndSetter() );
     }
+  }
+  
+  @Test
+  public void testDeterminePropertyNamesForMethodAccess()
+  {
+    String[] propertyNamesForMethodAccess = BeanUtils.determinePropertyNamesForMethodAccess( TestBean.class );
+    Assert.assertArrayEquals( new String[] { "fieldString", "fieldDouble" }, propertyNamesForMethodAccess );
+  }
+  
+  @Test
+  public void testDetermineNumberOfProperties()
+  {
+    Assert.assertEquals( 2, BeanUtils.determinePropertyNamesForMethodAccess( TestBean.class ).length );
   }
 }
