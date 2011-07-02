@@ -99,4 +99,11 @@ public class TupleDuad<T1, T2> implements Tuple
     //
     return retmap;
   }
+  
+  @Override
+  public String toString()
+  {
+    return "TupleDuad [valueFirst=" + this.valueFirst + ", valueSecond=" + this.valueSecond + "]";
+  }
+  
 }

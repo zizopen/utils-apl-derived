@@ -17,14 +17,18 @@ package org.omnaest.utils.beans;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import org.apache.commons.lang.StringUtils;
+import org.omnaest.utils.beans.result.BeanMethodInformation;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor;
+import org.omnaest.utils.proxy.StubCreator;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
 
@@ -34,7 +38,7 @@ import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
  * access on properties declared by supertypes.
  * 
  * @author Omnaest
- * @see #newInstance(Map, Class)
+ * @see #newInstance(List, Class)
  * @param <T>
  * @param <L>
  */
@@ -45,7 +49,7 @@ public class ListToTypeAdapter<T, L extends List<?>>
   protected T                  classAdapter              = null;
   protected Class<? extends T> clazz                     = null;
   protected List<String>       propertynameList          = new ArrayList<String>();
-  protected boolean            hasAccessToUnderlyingList = false;
+  protected boolean            hasAccessToUnderlyingData = false;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
 
@@ -68,6 +72,20 @@ public class ListToTypeAdapter<T, L extends List<?>>
      * @param underlyingList
      */
     public void setUnderlyingList( L underlyingList );
+    
+    /**
+     * Sets the underlying property name list after which the elements of the value list are ordered.
+     * 
+     * @param propertynameList
+     */
+    public void setUnderlyingPropertynameList( List<String> propertynameList );
+    
+    /**
+     * Returns the underlying property name list after which the elements of the value list are ordered.
+     * 
+     * @return
+     */
+    public List<String> getUnderlyingPropertynameList();
   }
   
   /**
@@ -93,15 +111,20 @@ public class ListToTypeAdapter<T, L extends List<?>>
           String referencedFieldName = beanMethodInformation.getReferencedFieldName();
           
           //
-          boolean accessToUnderlyingMap = ListToTypeAdapter.this.hasAccessToUnderlyingList
-                                          && "underlyingList".equals( referencedFieldName );
+          boolean accessToUnderlyingMap = ListToTypeAdapter.this.hasAccessToUnderlyingData
+                                          && StringUtils.equals( "underlyingList", referencedFieldName );
+          boolean accessUnderlyingPropertynameList = ListToTypeAdapter.this.hasAccessToUnderlyingData
+                                                     && StringUtils.equals( "underlyingPropertynameList", referencedFieldName );
+          
+          //
           boolean isGetter = beanMethodInformation.isGetter() && args.length == 0;
           boolean isSetter = beanMethodInformation.isSetter() && args.length == 1;
           
+          //
           boolean isListNotNull = ListToTypeAdapter.this.list != null;
           
           //
-          if ( !accessToUnderlyingMap )
+          if ( !accessToUnderlyingMap && !accessUnderlyingPropertynameList )
           {
             //
             int methodIndexPosition = ListToTypeAdapter.this.propertynameList.indexOf( referencedFieldName );
@@ -130,18 +153,40 @@ public class ListToTypeAdapter<T, L extends List<?>>
           }
           else
           {
-            if ( isGetter )
+            //
+            if ( accessToUnderlyingMap )
             {
               //
-              retval = ListToTypeAdapter.this.list;
+              if ( isGetter )
+              {
+                //
+                retval = ListToTypeAdapter.this.list;
+              }
+              else if ( isSetter )
+              {
+                //
+                ListToTypeAdapter.this.list = (List<Object>) args[0];
+                
+                //
+                retval = Void.TYPE;
+              }
             }
-            else if ( isSetter )
+            else if ( accessUnderlyingPropertynameList )
             {
               //
-              ListToTypeAdapter.this.list = (List<Object>) args[0];
-              
-              //
-              retval = Void.TYPE;
+              if ( isGetter )
+              {
+                //
+                retval = ListToTypeAdapter.this.propertynameList;
+              }
+              else if ( isSetter )
+              {
+                //
+                ListToTypeAdapter.this.propertynameList = (List<String>) args[0];
+                
+                //
+                retval = Void.TYPE;
+              }
             }
           }
         }
@@ -158,21 +203,120 @@ public class ListToTypeAdapter<T, L extends List<?>>
   /* ********************************************** Methods ********************************************** */
 
   /**
-   * Factory methods to create a new {@link ListToTypeAdapter} for a given {@link List} with the given {@link Class} as facade.
+   * Factory method to create a new {@link ListToTypeAdapter} for a given {@link List} with the given {@link Class} as facade. The
+   * list will contain as many elements as properties are possible and for each property an immutable index position is reserved.
+   * Within the list the objects will be stored in the order the property names have after invoking the given {@link Comparator}
+   * on them.
    * 
+   * @see #newInstance(List, Class)
    * @param list
-   * @param beanClass
+   * @param clazz
+   * @param comparatorPropertyname
+   * @param underlyingListAware
+   *          : true > returned stub implements {@link UnderlyingListAware}
+   * @return new
+   */
+  public static <T, L extends List<?>> T newInstance( L list,
+                                                      Class<T> clazz,
+                                                      Comparator<String> comparatorPropertyname,
+                                                      boolean underlyingListAware )
+  {
+    //
+    List<String> propertynameList = null;
+    return ListToTypeAdapter.newInstance( list, clazz, comparatorPropertyname, propertynameList, underlyingListAware );
+  }
+  
+  /**
+   * Factory method to create a new {@link ListToTypeAdapter} for a given {@link List} with the given {@link Class} as facade. The
+   * list will contain as many elements as properties are possible and for each property an immutable index position is reserved.
+   * The objects will be stored in the order of the given {@link List} of property names.
+   * 
+   * @see #newInstance(List, Class)
+   * @param list
+   * @param clazz
+   * @param underlyingListAware
+   *          : true > returned stub implements {@link UnderlyingListAware}
+   * @return new
+   */
+  public static <T, L extends List<?>> T newInstance( L list,
+                                                      Class<T> clazz,
+                                                      List<String> propertynameList,
+                                                      boolean underlyingListAware )
+  {
+    //
+    Comparator<String> comparatorPropertyname = null;
+    return ListToTypeAdapter.newInstance( list, clazz, comparatorPropertyname, propertynameList, underlyingListAware );
+  }
+  
+  /**
+   * Factory method to create a new {@link ListToTypeAdapter} for a given {@link List} with the given {@link Class} as facade. The
+   * list will contain as many elements as properties are possible and for each property an immutable index position is reserved.
+   * The objects will be stored in no particular order within the {@link List}.
+   * 
+   * @see #newInstance(List, Class)
+   * @param list
+   * @param clazz
+   * @param underlyingListAware
+   *          : true > returned stub implements {@link UnderlyingListAware}
+   * @return new
+   */
+  public static <T, L extends List<?>> T newInstance( L list, Class<T> clazz, boolean underlyingListAware )
+  {
+    //
+    List<String> propertynameList = null;
+    Comparator<String> comparatorPropertyname = null;
+    return ListToTypeAdapter.newInstance( list, clazz, comparatorPropertyname, propertynameList, underlyingListAware );
+  }
+  
+  /**
+   * Factory method to create a new {@link ListToTypeAdapter} for a given {@link List} with the given {@link Class} as facade. The
+   * list will contain as many elements as properties are possible and for each property an immutable index position is reserved.
+   * The objects will be stored in no particular order within the {@link List}.
+   * 
+   * @see #newInstance(List, Class, boolean)
+   * @see #newInstance(List, Class, List, boolean)
+   * @see #newInstance(List, Class, Comparator, boolean) *
+   * @param list
+   * @param clazz
+   * @return new
    */
   public static <T, L extends List<?>> T newInstance( L list, Class<T> clazz )
+  {
+    //
+    List<String> propertynameList = null;
+    Comparator<String> comparatorPropertyname = null;
+    boolean underlyingListAware = false;
+    return ListToTypeAdapter.newInstance( list, clazz, comparatorPropertyname, propertynameList, underlyingListAware );
+  }
+  
+  /**
+   * Factory method to create a new {@link ListToTypeAdapter} for a given {@link List} with the given {@link Class} as facade.
+   * 
+   * @see #newInstance(List, Class)
+   * @see #newInstance(List, Class, Comparator)
+   * @see #newInstance(List, Class, List)
+   * @param list
+   * @param clazz
+   * @param comparatorPropertyname
+   * @param propertynameList
+   * @param underlyingListAware
+   * @return new
+   */
+  protected static <T, L extends List<?>> T newInstance( L list,
+                                                         Class<T> clazz,
+                                                         Comparator<String> comparatorPropertyname,
+                                                         List<String> propertynameList,
+                                                         boolean underlyingListAware )
   {
     //    
     T retval = null;
     
     //
-    if ( list != null )
+    if ( list != null && clazz != null )
     {
       //
-      ListToTypeAdapter<T, L> listToInterfaceAdapter = new ListToTypeAdapter<T, L>( list, clazz );
+      ListToTypeAdapter<T, L> listToInterfaceAdapter = new ListToTypeAdapter<T, L>( list, clazz, comparatorPropertyname,
+                                                                                    propertynameList, underlyingListAware );
       
       //
       retval = listToInterfaceAdapter.classAdapter;
@@ -182,8 +326,18 @@ public class ListToTypeAdapter<T, L extends List<?>>
     return retval;
   }
   
+  /**
+   * @param list
+   * @param clazz
+   * @param comparatorPropertyname
+   *          : optional
+   * @param propertynameList
+   *          : optional
+   * @param underlyingListAware
+   */
   @SuppressWarnings("unchecked")
-  protected ListToTypeAdapter( L list, Class<T> clazz )
+  protected ListToTypeAdapter( L list, Class<T> clazz, Comparator<String> comparatorPropertyname, List<String> propertynameList,
+                               boolean underlyingListAware )
   {
     //
     super();
@@ -193,22 +347,44 @@ public class ListToTypeAdapter<T, L extends List<?>>
     this.clazz = clazz;
     
     //
-    List<BeanPropertyAccessor<T>> beanPropertyAccessorList = BeanUtils.determineBeanPropertyAccessorList( clazz );
-    ElementTransformer<BeanPropertyAccessor<T>, String> elementTransformer = new ElementTransformer<BeanPropertyAccessor<T>, String>()
+    if ( propertynameList != null )
     {
-      @Override
-      public String transformElement( BeanPropertyAccessor<T> beanPropertyAccessor )
+      //
+      this.propertynameList.addAll( propertynameList );
+    }
+    else
+    {
+      //
+      List<String> propertynameResolvedList = new ArrayList<String>();
       {
-        return beanPropertyAccessor.getPropertyname();
+        //
+        Set<BeanPropertyAccessor<T>> beanPropertyAccessorList = BeanUtils.determineBeanPropertyAccessorSet( clazz );
+        ElementTransformer<BeanPropertyAccessor<T>, String> elementTransformer = new ElementTransformer<BeanPropertyAccessor<T>, String>()
+        {
+          @Override
+          public String transformElement( BeanPropertyAccessor<T> beanPropertyAccessor )
+          {
+            return beanPropertyAccessor.getPropertyname();
+          }
+        };
+        propertynameResolvedList.addAll( ListUtils.transform( beanPropertyAccessorList, elementTransformer ) );
       }
-    };
-    this.propertynameList.addAll( ListUtils.transform( beanPropertyAccessorList, elementTransformer ) );
+      
+      //
+      this.propertynameList = propertynameResolvedList;
+    }
     
     //
-    this.hasAccessToUnderlyingList = ListToTypeAdapter.isAssignableFromUnderlyingListAwareInterface( clazz );
+    if ( comparatorPropertyname != null )
+    {
+      Collections.sort( this.propertynameList, comparatorPropertyname );
+    }
     
     //
-    this.initializeClassAdapter( clazz );
+    this.hasAccessToUnderlyingData = underlyingListAware;
+    
+    //
+    this.initializeClassAdapter( clazz, underlyingListAware );
     this.ensureListSize();
   }
   
@@ -227,29 +403,25 @@ public class ListToTypeAdapter<T, L extends List<?>>
     }
   }
   
-  @SuppressWarnings("unchecked")
-  protected void initializeClassAdapter( Class<? extends T> clazz )
+  /**
+   * Creates the stub
+   * 
+   * @param clazz
+   * @param underlyingListAware
+   */
+  protected void initializeClassAdapter( Class<? extends T> clazz, boolean underlyingListAware )
   {
     //
     try
     {
       //      
-      Enhancer enhancer = new Enhancer();
-      enhancer.setSuperclass( clazz );
-      Callback callback = new ClassAdapterMethodInterceptor();
-      enhancer.setCallback( callback );
-      
-      //
-      this.classAdapter = (T) enhancer.create();
+      Class<?>[] interfaces = underlyingListAware ? new Class[] { UnderlyingListAware.class } : null;
+      MethodInterceptor methodInterceptor = new ClassAdapterMethodInterceptor();
+      this.classAdapter = StubCreator.newStubInstance( clazz, interfaces, methodInterceptor );
     }
     catch ( Exception e )
     {
     }
-  }
-  
-  protected static boolean isAssignableFromUnderlyingListAwareInterface( Class<?> clazz )
-  {
-    return clazz != null && UnderlyingListAware.class.isAssignableFrom( clazz );
   }
   
 }

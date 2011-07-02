@@ -18,10 +18,11 @@ package org.omnaest.utils.beans;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+
+import org.omnaest.utils.beans.result.BeanMethodInformation;
+import org.omnaest.utils.proxy.StubCreator;
 
 /**
  * This class creates a proxy implementation for a given class or interface type which is used as a facade to an underlying
@@ -140,19 +141,23 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
   /**
    * Factory methods to create a new {@link MapToTypeAdapter} for a given {@link Map} with the given {@link Class} as facade.
    * 
+   * @see #newInstance(Map, Class)
    * @param map
    * @param clazz
+   * @param underlyingMapAware
+   *          : true > returned stub implements {@link UnderlyingMapAware}
+   * @return new
    */
-  public static <T, M extends Map<String, ?>> T newInstance( M map, Class<? extends T> clazz )
+  public static <T, M extends Map<String, ?>> T newInstance( M map, Class<? extends T> clazz, boolean underlyingMapAware )
   {
     //    
     T retval = null;
     
     //
-    if ( clazz != null && ( map != null || MapToTypeAdapter.isAssignableFromUnderlyingMapAwareInterface( clazz ) ) )
+    if ( clazz != null && map != null )
     {
       //
-      MapToTypeAdapter<T, M> mapToInterfaceAdapter = new MapToTypeAdapter<T, M>( map, clazz );
+      MapToTypeAdapter<T, M> mapToInterfaceAdapter = new MapToTypeAdapter<T, M>( map, clazz, underlyingMapAware );
       retval = mapToInterfaceAdapter.classAdapter;
     }
     
@@ -160,42 +165,59 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
     return retval;
   }
   
+  /**
+   * Factory methods to create a new {@link MapToTypeAdapter} for a given {@link Map} with the given {@link Class} as facade.
+   * 
+   * @see #newInstance(Map, Class, boolean)
+   * @param map
+   * @param clazz
+   * @return new
+   */
+  public static <T, M extends Map<String, ?>> T newInstance( M map, Class<? extends T> clazz )
+  {
+    boolean underlyingMapAware = false;
+    return MapToTypeAdapter.newInstance( map, clazz, underlyingMapAware );
+  }
+  
+  /**
+   * Internal constructor. See {@link #newInstance(Map, Class)} instead.
+   * 
+   * @param map
+   * @param clazz
+   * @param underlyingMapAware
+   */
   @SuppressWarnings("unchecked")
-  protected MapToTypeAdapter( M map, Class<? extends T> clazz )
+  protected MapToTypeAdapter( M map, Class<? extends T> clazz, boolean underlyingMapAware )
   {
     //
     super();
     this.map = (Map<String, Object>) map;
     
-    this.hasAccessToUnderlyingMap = MapToTypeAdapter.isAssignableFromUnderlyingMapAwareInterface( clazz );
+    this.hasAccessToUnderlyingMap = underlyingMapAware;
     
     //
-    this.initializeClassAdapter( clazz );
+    this.initializeClassAdapter( clazz, underlyingMapAware );
   }
   
-  @SuppressWarnings("unchecked")
-  protected void initializeClassAdapter( Class<? extends T> clazz )
+  /**
+   * Creates the stub
+   * 
+   * @param clazz
+   * @param underlyingMapAware
+   */
+  protected void initializeClassAdapter( Class<? extends T> clazz, boolean underlyingMapAware )
   {
     //
     try
     {
-      //      
-      Enhancer enhancer = new Enhancer();
-      enhancer.setSuperclass( clazz );
-      Callback callback = new ClassAdapterMethodInterceptor();
-      enhancer.setCallback( callback );
-      
-      //
-      this.classAdapter = (T) enhancer.create();
+      //       
+      Class<?>[] interfaces = underlyingMapAware ? new Class[] { UnderlyingMapAware.class } : null;
+      MethodInterceptor methodInterceptor = new ClassAdapterMethodInterceptor();
+      this.classAdapter = StubCreator.newStubInstance( clazz, interfaces, methodInterceptor );
     }
     catch ( Exception e )
     {
     }
-  }
-  
-  protected static boolean isAssignableFromUnderlyingMapAwareInterface( Class<?> clazz )
-  {
-    return clazz != null && UnderlyingMapAware.class.isAssignableFrom( clazz );
   }
   
 }

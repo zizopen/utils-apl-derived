@@ -17,10 +17,12 @@ package org.omnaest.utils.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 
 /**
  * @see BeanUtils
@@ -135,7 +137,7 @@ public class BeanUtilsTest
   public void testDeterminePropertyNames()
   {
     //
-    String[] propertyNames = BeanUtils.determinePropertyNames( TestBean.class );
+    String[] propertyNames = BeanUtils.determinePropertyNamesForMethodAccess( TestBean.class );
     
     //
     Assert.assertArrayEquals( new String[] { "fieldString", "fieldDouble" }, propertyNames );
@@ -151,6 +153,7 @@ public class BeanUtilsTest
     
     //
     TestBeanImpl beanDestination = new TestBeanImpl();
+    assertTrue( !beanSource.equals( beanDestination ) );
     
     //
     BeanUtils.copyPropertyValues( beanSource, beanDestination );
