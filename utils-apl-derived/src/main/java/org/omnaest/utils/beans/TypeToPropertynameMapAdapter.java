@@ -78,7 +78,7 @@ public class TypeToPropertynameMapAdapter<B> extends AbstractMap<String, Object>
     
     //
     this.bean = bean;
-    this.propertynameToBeanPropertyAccessorMap = BeanUtils.determinePropertynameToBeanPropertyAccessorMap( beanClass );
+    this.propertynameToBeanPropertyAccessorMap = BeanUtils.determinePropertyNameToBeanPropertyAccessorMap( beanClass );
   }
   
   @Override

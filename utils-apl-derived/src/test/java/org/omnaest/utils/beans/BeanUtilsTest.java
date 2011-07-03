@@ -173,11 +173,11 @@ public class BeanUtilsTest
   }
   
   @Test
-  public void testDeterminePropertynameToBeanPropertyAccessorMap()
+  public void testDeterminePropertyNameToBeanPropertyAccessorMap()
   {
     //
-    assertEquals( 2, BeanUtils.determinePropertynameToBeanPropertyAccessorMap( TestBean.class ).size() );
-    assertEquals( 2, BeanUtils.determinePropertynameToBeanPropertyAccessorMap( TestBeanImpl.class ).size() );
+    assertEquals( 2, BeanUtils.determinePropertyNameToBeanPropertyAccessorMap( TestBean.class ).size() );
+    assertEquals( 2, BeanUtils.determinePropertyNameToBeanPropertyAccessorMap( TestBeanImpl.class ).size() );
   }
   
   @Test
@@ -247,5 +247,38 @@ public class BeanUtilsTest
     assertEquals( 2, propertyTypeToBeanPropertyAccessorSetMap.size() );
     assertEquals( 1, propertyTypeToBeanPropertyAccessorSetMap.get( String.class ).size() );
     assertEquals( 1, propertyTypeToBeanPropertyAccessorSetMap.get( Double.class ).size() );
+  }
+  
+  @Test
+  public void testDeterminePropertyNameToBeanPropertyValueMap()
+  {
+    //
+    TestBeanImpl beanSource = new TestBeanImpl();
+    beanSource.setFieldString( "value1" );
+    beanSource.setFieldDouble( 1.3 );
+    
+    //
+    Map<String, Object> propertynameToBeanPropertyValueMap = BeanUtils.determinePropertyNameToBeanPropertyValueMap( beanSource );
+    assertNotNull( propertynameToBeanPropertyValueMap );
+    assertEquals( 2, propertynameToBeanPropertyValueMap.size() );
+    assertEquals( beanSource.getFieldString(), propertynameToBeanPropertyValueMap.get( "fieldString" ) );
+    assertEquals( beanSource.getFieldDouble(), propertynameToBeanPropertyValueMap.get( "fieldDouble" ) );
+  }
+  
+  @Test
+  public void testDeterminePropertyNameToBeanPropertyValueMapForPropertyNames()
+  {
+    //
+    TestBeanImpl beanSource = new TestBeanImpl();
+    beanSource.setFieldString( "value1" );
+    beanSource.setFieldDouble( 1.3 );
+    
+    //
+    Map<String, Object> propertynameToBeanPropertyValueMap = BeanUtils.determinePropertyNameToBeanPropertyValueMap( beanSource,
+                                                                                                                    "fieldString" );
+    assertNotNull( propertynameToBeanPropertyValueMap );
+    assertEquals( 1, propertynameToBeanPropertyValueMap.size() );
+    assertEquals( beanSource.getFieldString(), propertynameToBeanPropertyValueMap.get( "fieldString" ) );
+    
   }
 }

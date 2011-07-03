@@ -77,7 +77,7 @@ public class TypeToAutowiredPropertyContainerAdapter<B> implements AutowiredProp
     
     //
     this.bean = bean;
-    this.propertynameToBeanPropertyAccessorMap = BeanUtils.determinePropertynameToBeanPropertyAccessorMap( beanClass );
+    this.propertynameToBeanPropertyAccessorMap = BeanUtils.determinePropertyNameToBeanPropertyAccessorMap( beanClass );
     this.propertyTypeToBeanPropertyAccessorSetMap = BeanUtils.determinePropertyTypeToBeanPropertyAccessorSetMap( beanClass );
   }
   

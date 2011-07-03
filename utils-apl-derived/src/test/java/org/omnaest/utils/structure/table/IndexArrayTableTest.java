@@ -245,7 +245,7 @@ public class IndexArrayTableTest
     indexedTable.setTableName( "where table" );
     
     //
-    indexedTable = indexedTable.whereElementIsBetween( 1, "2", "3" );
+    indexedTable = (IndexTable<String>) indexedTable.whereElementIsBetween( 1, "2", "3" );
     
     //IndexedArrayTable.printTable(indexedTable);
     
@@ -266,7 +266,7 @@ public class IndexArrayTableTest
     indexedTable.setTableName( "where > table" );
     
     //
-    indexedTable = indexedTable.whereElementIsGreaterThan( 1, "1" );
+    indexedTable = (IndexTable<String>) indexedTable.whereElementIsGreaterThan( 1, "1" );
     
     //IndexedArrayTable.printTable(indexedTable);
     
@@ -287,7 +287,7 @@ public class IndexArrayTableTest
     indexedTable.setTableName( "where < table" );
     
     //
-    indexedTable = indexedTable.whereElementIsLesserThan( 1, "2" );
+    indexedTable = (IndexTable<String>) indexedTable.whereElementIsLesserThan( 1, "2" );
     
     //IndexedArrayTable.printTable(indexedTable);
     
@@ -1367,7 +1367,7 @@ public class IndexArrayTableTest
     //
     beanMock = new BeanMock();
     beanMock.setProperty2( 2 );
-    result = table.orderRowsAscendingByBeanObjectPropertyNotNull( beanMock );
+    result = (IndexTable<Integer>) table.orderRowsAscendingByBeanObjectPropertyNotNull( beanMock );
     
     //
     assertEquals( beanMocks.length, result.getTableSize().getRowSize() );
@@ -1376,7 +1376,7 @@ public class IndexArrayTableTest
     //
     beanMock = new BeanMock();
     beanMock.setProperty1( 2 );
-    result = table.orderRowsAscendingByBeanObjectPropertyNotNull( beanMock );
+    result = (IndexTable<Integer>) table.orderRowsAscendingByBeanObjectPropertyNotNull( beanMock );
     
     //
     assertEquals( beanMocks.length, result.getTableSize().getRowSize() );
