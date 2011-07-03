@@ -17,8 +17,87 @@ package org.omnaest.utils.structure.table;
 
 import java.util.Map;
 
+/**
+ * @see Table
+ * @author Omnaest
+ * @param <E>
+ * @param <T>
+ */
 public interface TableSelectable<E, T extends Table<E>>
 {
+  /* ********************************************** Classes/Interfaces ********************************************** */
+
+  /**
+   * {@link Selection} of a {@link Table}
+   * 
+   * @see TableSelectable
+   */
+  public static interface Selection<E> extends Table<E>
+  {
+    
+    /**
+     * {@link Join} clause of a {@link Selection}
+     * 
+     * @param join
+     * @return
+     */
+    public Selection<E> join( Join join );
+    
+    /**
+     * {@link Where} clause of a {@link Selection}
+     * 
+     * @param where
+     * @return
+     */
+    public Selection<E> where( Where where );
+    
+    /**
+     * {@link Order} clause of a {@link Selection}
+     * 
+     * @param order
+     * @return
+     */
+    public Selection<E> orderBy( Order order );
+  }
+  
+  /**
+   * {@link Order} clause of a {@link Selection}.
+   * 
+   * @see Table
+   * @see Selection
+   * @author Omnaest
+   */
+  public static interface Order
+  {
+    
+  }
+  
+  /**
+   * {@link Where} clause of a {@link Selection}
+   * 
+   * @see Selection
+   * @author Omnaest
+   */
+  public static interface Where
+  {
+  }
+  
+  /**
+   * {@link Join} clause of a {@link Selection}.
+   * 
+   * @author Omnaest
+   */
+  public static interface Join
+  {
+  }
+  
+  /* ********************************************** Methods ********************************************** */
+
+  /**
+   * @see Table
+   * @see Selection
+   */
+  public Selection select();
   
   /**
    * @see #whereElementEquals(int, Comparable)

@@ -15,32 +15,17 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.view;
 
-import org.omnaest.utils.io.XLSFile.TableRow;
 import org.omnaest.utils.structure.table.Table;
 
 /**
- * A {@link BeanTable} treats the horizontal rows of the table as Java Beans.
+ * View of an underlying {@link Table}. A {@link TableView} does not have an own data structure, instead it relies on the data
+ * structure of another existing {@link Table}. This implies that all modifications made to a {@link TableView} are made to the
+ * underlying {@link Table} and vice versa.
  * 
  * @author Omnaest
- * @see Table
- * @param <B>
- *          Java Bean type
+ * @param <E>
  */
-public interface BeanTable<B>
+public interface TableView<E> extends Table<E>
 {
   
-  /**
-   * Returns the {@link TableRow} for the given row index position as Java Bean.
-   * 
-   * @param rowIndex
-   * @return
-   */
-  public B getRow( int rowIndex );
-  
-  /**
-   * Returns the underlying {@link Table} data structure.
-   * 
-   * @return
-   */
-  public Table<Object> getTable();
 }

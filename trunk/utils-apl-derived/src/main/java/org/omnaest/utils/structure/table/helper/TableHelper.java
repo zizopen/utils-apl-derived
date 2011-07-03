@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.table.helper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +37,30 @@ public class TableHelper
   
   /* ********************************************** Methods ********************************************** */
 
+  /**
+   * Converts a array of given index positions into a sorted list.
+   * 
+   * @param indexPositions
+   * @return
+   */
+  protected static List<Integer> determineIndexPositionList( int[] indexPositions )
+  {
+    //
+    List<Integer> indexPositionList = new ArrayList<Integer>( indexPositions.length );
+    
+    //
+    for ( int iRowIndexPosition : indexPositions )
+    {
+      indexPositionList.add( iRowIndexPosition );
+    }
+    
+    //
+    Collections.sort( indexPositionList );
+    
+    //
+    return indexPositionList;
+  }
+  
   /**
    * Returns a table for a given csv text content.
    * 

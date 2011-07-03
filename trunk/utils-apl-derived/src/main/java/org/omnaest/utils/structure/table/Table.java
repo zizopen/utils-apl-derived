@@ -19,7 +19,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 
 /**
  * Table representation. Allows to create arbitrary table structures. Offers rudimentary methods for joining.
@@ -32,7 +34,144 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
 
 {
   /* ********************************************** Classes ********************************************** */
+  /**
+   * Common base for a {@link Column} and a {@link Row}
+   * 
+   * @see Table
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface Stripe<E> extends Serializable
+  {
+    
+    /* ********************************************** Classes/Interfaces ********************************************** */
 
+    /**
+     * Marker interface
+     * @see Stripe
+     * @see StripeList
+     * @author Omnaest
+     *
+     */
+    public static interface StripeType
+    {
+      
+    }
+    
+    /**
+     * {@link Title} of a single {@link Stripe}.
+     * 
+     * @see Stripe
+     */
+    public static interface Title extends Serializable
+    {
+      
+      /**
+       * Gets the value of a {@link Title}
+       * 
+       * @return
+       */
+      public Object getValue();
+      
+      /**
+       * Gets the value of a {@link Title} as {@link String}
+       * 
+       * @return
+       */
+      public String getValueAsString();
+    }
+    
+    /* ********************************************** Methods ********************************************** */
+    /**
+     * Get the cell for the given index position.
+     * 
+     * @param indexPosition
+     * @return
+     */
+    public Cell<E> getCell( int indexPosition );
+    
+    /**
+     * Returns the element for the given title enumeration. The title enumeration is the same as for the underlying table.
+     * 
+     * @param title
+     * @return
+     */
+    public Cell<E> getCell( Enum<?> title );
+    
+    /**
+     * Returns the element for the given title of a table column.
+     * 
+     * @param rowTitle
+     * @return
+     */
+    public Cell<E> getCell( String title );
+    
+    /**
+     * Determines the index position.
+     * 
+     * @return
+     */
+    public int determineIndexPosition();
+    
+    /**
+     * Returns the {@link Title}.
+     * 
+     * @return
+     */
+    public Title getTitle();
+    
+    /**
+     * Returns a stub for the given bean class which matches the {@link Cell}s {@link Title}s by with the name of the Java Bean
+     * properties.
+     * 
+     * @param beanClass
+     * @return proxy stub adapter
+     */
+    public <B> B asBeanAdapter( Class<B> beanClass );
+  }
+  
+  /**
+   * @see Table
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface Row<E> extends Stripe<E>, StripeType
+  {
+  }
+  
+  /**
+   * @see Table
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface Column<E> extends Stripe<E>, StripeType
+  {
+    
+  }
+  
+  /**
+   * @see Table
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface Cell<E> extends Serializable
+  {
+    
+    /**
+     * Returns the value of the {@link Cell}
+     * 
+     * @return
+     */
+    public E getValue();
+    
+    /**
+     * Sets the value of the {@link Cell}
+     * 
+     * @param element
+     */
+    public void setValue( E element );
+  }
+  
   /**
    * Interface that is used to convert a table into another table form. For example convert a Table<String> to a Table<Integer>.
    * 
@@ -80,41 +219,6 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
     public int getCellIndexPosition();
     
     public void setCellIndexPosition( int cellIndexPosition );
-    
-  }
-  
-  /**
-   * An advanced list interface as representation of a table row.
-   * 
-   * @author Omnaest
-   */
-  public interface Row<E> extends List<E>, Serializable
-  {
-    /**
-     * Returns the element for the given title enumeration. The title enumeration is the same as for the underlying table.
-     * 
-     * @param rowTitleEnum
-     * @return
-     */
-    public E get( Enum<?> columnTitleEnum );
-    
-    /**
-     * Returns the element for the given title of a table column.
-     * 
-     * @param rowTitle
-     * @return
-     */
-    public E get( String columnTitle );
-    
-    /**
-     * Returns the given bean object which has the values of the row injected into the properties with the same name as the table
-     * column titles. The given bean object can not be null, and it will be returned by the function.
-     * 
-     * @see TableCore#getRowAsBean(Object, int)
-     * @param beanObject
-     * @return beanObject
-     */
-    public <B> B asBean( B beanObject );
     
   }
   
