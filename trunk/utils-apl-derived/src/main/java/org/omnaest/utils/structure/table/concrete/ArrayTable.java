@@ -26,7 +26,7 @@ import java.util.ListIterator;
 
 import org.omnaest.utils.beans.BeanUtil;
 import org.omnaest.utils.beans.BeanUtil.BeanProperty;
-import org.omnaest.utils.structure.collection.CollectionUtil;
+import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.list.IndexArrayList;
 import org.omnaest.utils.structure.collection.list.ListAbstract;
 import org.omnaest.utils.structure.collection.list.ListToListIteratorAdapter;
@@ -375,14 +375,14 @@ public class ArrayTable<E> implements Table<E>
   protected int[] determineSubtractedIndexPositions( int[] baseIndexPositions, int[] subtractIndexPositions )
   {
     List<Integer> subtractedRowIndexPositionList = new ArrayList<Integer>( 0 );
-    CollectionUtil.addAll( subtractedRowIndexPositionList, baseIndexPositions );
+    CollectionUtils.addAll( subtractedRowIndexPositionList, baseIndexPositions );
     
     for ( int iRowIndexPosition : subtractIndexPositions )
     {
       subtractedRowIndexPositionList.remove( Integer.valueOf( iRowIndexPosition ) );
     }
     
-    return CollectionUtil.toArrayInt( subtractedRowIndexPositionList );
+    return CollectionUtils.toArrayInt( subtractedRowIndexPositionList );
   }
   
   /**
@@ -1106,7 +1106,7 @@ public class ArrayTable<E> implements Table<E>
     
     //we need a descending ordered list, to remove the elements from back to beginning.
     List<Integer> rowIndexPositionList = new ArrayList<Integer>( rowIndexPositions.length );
-    CollectionUtil.addAll( rowIndexPositionList, rowIndexPositions );
+    CollectionUtils.addAll( rowIndexPositionList, rowIndexPositions );
     Collections.sort( rowIndexPositionList, new Comparator<Integer>()
     {
       @Override

@@ -40,6 +40,35 @@ public class BeanUtils
 {
   
   /**
+   * Returns a new {@link Map} instance which contains the property names as keys and the values of the properties as map values.
+   * Modifications to the returned map will have no impact on the original Java Bean object.
+   * 
+   * @see MapToTypeAdapter
+   * @param <B>
+   * @param bean
+   * @return
+   */
+  public static <B> Map<String, Object> transformBeanIntoMap( B bean )
+  {
+    //
+    Map<String, Object> retmap = new HashMap<String, Object>();
+    
+    //
+    if ( bean != null )
+    {
+      @SuppressWarnings("unchecked")
+      Class<? extends B> clazz = (Class<? extends B>) bean.getClass();
+      B beanAdapter = MapToTypeAdapter.<B> newInstance( retmap, clazz );
+      
+      //
+      BeanUtils.copyPropertyValues( bean, beanAdapter );
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
    * Returns the number of available Java Bean properties for the given Java Bean type.
    * 
    * @param beanClass
@@ -160,6 +189,54 @@ public class BeanUtils
           {
             Field field = null;
             retmap.put( fieldname, new BeanPropertyAccessor<B>( field, methodGetter, methodSetter, fieldname, beanClass ) );
+          }
+        }
+      }
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Returns a map of property types for all Java Bean properties of the given {@link Class} and a {@link Set} of
+   * {@link BeanPropertyAccessor} instances for each type.
+   * 
+   * @see #determineBeanPropertyAccessorSet(Class)
+   * @see #determinePropertynameToBeanPropertyAccessorMap(Class)
+   * @param beanClass
+   * @return
+   */
+  public static <B> Map<Class<?>, Set<BeanPropertyAccessor<B>>> determinePropertyTypeToBeanPropertyAccessorSetMap( Class<B> beanClass )
+  {
+    //    
+    Map<Class<?>, Set<BeanPropertyAccessor<B>>> retmap = new HashMap<Class<?>, Set<BeanPropertyAccessor<B>>>();
+    
+    //
+    if ( beanClass != null )
+    {
+      //
+      Set<BeanPropertyAccessor<B>> beanPropertyAccessorSet = BeanUtils.determineBeanPropertyAccessorSet( beanClass );
+      
+      //
+      if ( beanPropertyAccessorSet != null )
+      {
+        for ( BeanPropertyAccessor<B> beanPropertyAccessor : beanPropertyAccessorSet )
+        {
+          if ( beanPropertyAccessor != null )
+          {
+            Class<?> propertyType = beanPropertyAccessor.determinePropertyType();
+            if ( propertyType != null )
+            {
+              //
+              if ( !retmap.containsKey( propertyType ) )
+              {
+                retmap.put( propertyType, new HashSet<BeanPropertyAccessor<B>>() );
+              }
+              
+              //
+              retmap.get( propertyType ).add( beanPropertyAccessor );
+            }
           }
         }
       }

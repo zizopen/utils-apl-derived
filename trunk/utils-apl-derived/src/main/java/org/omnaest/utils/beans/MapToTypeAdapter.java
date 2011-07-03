@@ -30,6 +30,7 @@ import org.omnaest.utils.proxy.StubCreator;
  * 
  * @author Omnaest
  * @see #newInstance(Map, Class)
+ * @see TypeToPropertynameMapAdapter
  * @param <T>
  * @param <M>
  */
@@ -148,7 +149,7 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
    *          : true > returned stub implements {@link UnderlyingMapAware}
    * @return new
    */
-  public static <T, M extends Map<String, ?>> T newInstance( M map, Class<? extends T> clazz, boolean underlyingMapAware )
+  public static <T> T newInstance( Map<String, ?> map, Class<? extends T> clazz, boolean underlyingMapAware )
   {
     //    
     T retval = null;
@@ -157,7 +158,10 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
     if ( clazz != null && map != null )
     {
       //
-      MapToTypeAdapter<T, M> mapToInterfaceAdapter = new MapToTypeAdapter<T, M>( map, clazz, underlyingMapAware );
+      MapToTypeAdapter<T, Map<String, ?>> mapToInterfaceAdapter = new MapToTypeAdapter<T, Map<String, ?>>( map, clazz,
+                                                                                                           underlyingMapAware );
+      
+      //
       retval = mapToInterfaceAdapter.classAdapter;
     }
     
@@ -173,7 +177,7 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
    * @param clazz
    * @return new
    */
-  public static <T, M extends Map<String, ?>> T newInstance( M map, Class<? extends T> clazz )
+  public static <T> T newInstance( Map<String, ?> map, Class<? extends T> clazz )
   {
     boolean underlyingMapAware = false;
     return MapToTypeAdapter.newInstance( map, clazz, underlyingMapAware );

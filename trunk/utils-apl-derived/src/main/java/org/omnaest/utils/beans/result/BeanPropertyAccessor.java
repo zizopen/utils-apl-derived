@@ -30,7 +30,7 @@ import org.apache.commons.lang.StringUtils;
 public class BeanPropertyAccessor<B>
 {
   /* ********************************************** Variables ********************************************** */
-  protected String   propertyname = null;
+  protected String   propertyName = null;
   protected Field    field        = null;
   protected Method   methodGetter = null;
   protected Method   methodSetter = null;
@@ -38,13 +38,13 @@ public class BeanPropertyAccessor<B>
   
   /* ********************************************** Methods ********************************************** */
 
-  public BeanPropertyAccessor( Field field, Method methodGetter, Method methodSetter, String propertyname, Class<B> beanClass )
+  public BeanPropertyAccessor( Field field, Method methodGetter, Method methodSetter, String propertyName, Class<B> beanClass )
   {
     //
     super();
     
     //
-    this.propertyname = propertyname;
+    this.propertyName = propertyName;
     this.field = field;
     this.methodGetter = methodGetter;
     this.methodSetter = methodSetter;
@@ -79,6 +79,34 @@ public class BeanPropertyAccessor<B>
       catch ( Exception e )
       {
       }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Determines the {@link Class} type for the property.
+   * 
+   * @return
+   */
+  public Class<?> determinePropertyType()
+  {
+    //
+    Class<?> retval = null;
+    
+    //
+    if ( this.field != null )
+    {
+      retval = this.field.getType();
+    }
+    else if ( this.methodGetter != null )
+    {
+      retval = this.methodGetter.getReturnType();
+    }
+    else if ( this.methodSetter != null )
+    {
+      retval = this.methodSetter.getParameterTypes()[0];
     }
     
     //
@@ -187,16 +215,6 @@ public class BeanPropertyAccessor<B>
   }
   
   /**
-   * Returns the field name referenced by the underlying {@link Field}.
-   * 
-   * @return
-   */
-  public String getReferencedFieldName()
-  {
-    return this.field != null ? this.field.getName() : null;
-  }
-  
-  /**
    * Merges two {@link BeanPropertyAccessor} instances into one if the underlying {@link Class} and property are equal.
    * 
    * @param <B>
@@ -214,12 +232,12 @@ public class BeanPropertyAccessor<B>
     if ( beanPropertyAccessorA != null && beanPropertyAccessorB != null )
     {
       //
-      if ( StringUtils.equals( beanPropertyAccessorA.propertyname, beanPropertyAccessorB.propertyname )
+      if ( StringUtils.equals( beanPropertyAccessorA.propertyName, beanPropertyAccessorB.propertyName )
            && beanPropertyAccessorA.beanClass != null && beanPropertyAccessorA.beanClass.equals( beanPropertyAccessorB.beanClass ) )
       {
         //
-        String propertyname = beanPropertyAccessorA.propertyname != null ? beanPropertyAccessorA.propertyname
-                                                                        : beanPropertyAccessorB.propertyname;
+        String propertyname = beanPropertyAccessorA.propertyName != null ? beanPropertyAccessorA.propertyName
+                                                                        : beanPropertyAccessorB.propertyName;
         Class<B> beanClass = beanPropertyAccessorA.beanClass != null ? beanPropertyAccessorA.beanClass
                                                                     : beanPropertyAccessorB.beanClass;
         Field field = beanPropertyAccessorA.field != null ? beanPropertyAccessorA.field : beanPropertyAccessorB.field;
@@ -247,9 +265,12 @@ public class BeanPropertyAccessor<B>
     return this.beanClass;
   }
   
-  public String getPropertyname()
+  /**
+   * @return
+   */
+  public String getPropertyName()
   {
-    return this.propertyname;
+    return this.propertyName;
   }
   
   public Field getField()
@@ -270,7 +291,7 @@ public class BeanPropertyAccessor<B>
   @Override
   public String toString()
   {
-    return "BeanPropertyAccessor [propertyname=" + this.propertyname + ", beanClass=" + this.beanClass + "]";
+    return "BeanPropertyAccessor [propertyname=" + this.propertyName + ", beanClass=" + this.beanClass + "]";
   }
   
 }

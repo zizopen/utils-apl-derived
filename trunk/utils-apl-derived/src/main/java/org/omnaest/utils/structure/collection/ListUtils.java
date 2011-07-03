@@ -224,6 +224,7 @@ public class ListUtils
   
   /**
    * Merges all elements of the given {@link Collection} instances into one single {@link List} instance which keeps the order of
+   * the elements.
    * 
    * @see #mergeAll(Collection)
    * @param <E>

@@ -22,8 +22,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.omnaest.utils.structure.collection.CollectionUtil.ElementConverter;
-import org.omnaest.utils.structure.collection.CollectionUtil.IdentityElementConverter;
+import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
+import org.omnaest.utils.structure.collection.CollectionUtils.IdentityElementConverter;
 import org.omnaest.utils.tuple.TupleDuad;
 
 /**

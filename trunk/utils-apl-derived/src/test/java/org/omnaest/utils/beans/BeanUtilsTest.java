@@ -19,6 +19,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -218,5 +221,31 @@ public class BeanUtilsTest
   public void testDetermineNumberOfProperties()
   {
     Assert.assertEquals( 2, BeanUtils.determinePropertyNamesForMethodAccess( TestBean.class ).length );
+  }
+  
+  @Test
+  public void testTransformBeanIntoMap()
+  {
+    //
+    TestBeanImpl beanSource = new TestBeanImpl();
+    beanSource.setFieldString( "value1" );
+    beanSource.setFieldDouble( 1.3 );
+    
+    //
+    Map<String, Object> map = BeanUtils.transformBeanIntoMap( beanSource );
+    assertNotNull( map );
+    assertEquals( 2, map.size() );
+    assertEquals( beanSource.getFieldString(), map.get( "fieldString" ) );
+    assertEquals( beanSource.getFieldDouble(), map.get( "fieldDouble" ) );
+  }
+  
+  @Test
+  public void testDeterminePropertyTypeToBeanPropertyAccessorSetMap()
+  {
+    //
+    Map<Class<?>, Set<BeanPropertyAccessor<TestBean>>> propertyTypeToBeanPropertyAccessorSetMap = BeanUtils.determinePropertyTypeToBeanPropertyAccessorSetMap( TestBean.class );
+    assertEquals( 2, propertyTypeToBeanPropertyAccessorSetMap.size() );
+    assertEquals( 1, propertyTypeToBeanPropertyAccessorSetMap.get( String.class ).size() );
+    assertEquals( 1, propertyTypeToBeanPropertyAccessorSetMap.get( Double.class ).size() );
   }
 }
