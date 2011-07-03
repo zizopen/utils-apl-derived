@@ -33,6 +33,7 @@ import org.omnaest.utils.structure.collection.list.ListToListIteratorAdapter;
 import org.omnaest.utils.structure.table.IndexTable.IndexPositionPair;
 import org.omnaest.utils.structure.table.IndexTable.TableSize;
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.concrete.components.body.StripeListContainerImpl;
 
 /**
  * Implementation of {@link Table} that uses two array lists as row and column data structure.
@@ -40,16 +41,13 @@ import org.omnaest.utils.structure.table.Table;
  * @see Table
  * @author Omnaest
  */
-public class ArrayTable<E> implements Table<E>
+public class ArrayTable<E> extends TableAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID = 1763808639838518679L;
+  private static final long     serialVersionUID    = 1763808639838518679L;
   
   /* ********************************************** Variables ********************************************** */
-  protected List<List<E>>   rowList          = new ArrayList<List<E>>( 0 );
-  protected List<List<E>>   columnList       = new ArrayList<List<E>>( 0 );
-  /** Defines the row and column titles */
-  private TableHeader       tableHeader      = new TableHeader();
+  protected StripeListContainer stripeListContainer = new StripeListContainerImpl<E>();
   
   /* ********************************************** Methods ********************************************** */
   public ArrayTable()
@@ -57,7 +55,17 @@ public class ArrayTable<E> implements Table<E>
     super();
   }
   
-  public Table<E> getSubTableByRows( int rowIndexPositionFrom, int rowIndexPositionTo )
+  protected StripeList<E> getStripeListColumn()
+  {
+    return this.stripeListContainer.getStripeList( Column.class );
+  }
+  
+  protected StripeList<E> getStripeListRow()
+  {
+    return this.stripeListContainer.getStripeList( Row.class );
+  }
+  
+  protected public Table<E> getSubTableByRows( int rowIndexPositionFrom, int rowIndexPositionTo )
   {
     return this.getSubTableByRows( this.generateIndexArrayForBetween( rowIndexPositionFrom, rowIndexPositionTo ) );
   }
@@ -94,29 +102,7 @@ public class ArrayTable<E> implements Table<E>
     return this.getSubTableByColumns( columnIndexPositions );
   }
   
-  /**
-   * Converts a array of given index positions into a sorted list.
-   * 
-   * @param indexPositions
-   * @return
-   */
-  protected List<Integer> determineIndexPositionList( int[] indexPositions )
-  {
-    //
-    List<Integer> indexPositionList = new ArrayList<Integer>( indexPositions.length );
-    
-    //
-    for ( int iRowIndexPosition : indexPositions )
-    {
-      indexPositionList.add( iRowIndexPosition );
-    }
-    
-    //
-    Collections.sort( indexPositionList );
-    
-    //
-    return indexPositionList;
-  }
+  
   
   public Table<E> getSubTable( int[] rowIndexPositions, int[] columnIndexPositions )
   {
@@ -800,37 +786,6 @@ public class ArrayTable<E> implements Table<E>
     
     //
     return retval;
-  }
-  
-  public E getCell( String rowTitle, String columnTitle )
-  {
-    return this.getCell( this.tableHeader.getRowTitles().indexOf( rowTitle ),
-                         this.tableHeader.getColumnTitles().indexOf( columnTitle ) );
-  }
-  
-  public E getCell( String rowTitle, int columnIndexPosition )
-  {
-    return this.getCell( this.tableHeader.getRowTitles().indexOf( rowTitle ), columnIndexPosition );
-  }
-  
-  public E getCell( int rowIndexPosition, String columnTitle )
-  {
-    return this.getCell( rowIndexPosition, this.tableHeader.getColumnTitles().indexOf( columnTitle ) );
-  }
-  
-  public E getCell( Enum<?> rowTitleEnum, Enum<?> columnTitleEnum )
-  {
-    return this.getCell( rowTitleEnum.name(), columnTitleEnum.name() );
-  }
-  
-  public E getCell( Enum<?> rowTitleEnum, int columnIndexPosition )
-  {
-    return this.getCell( this.tableHeader.getRowTitles().indexOf( rowTitleEnum.name() ), columnIndexPosition );
-  }
-  
-  public E getCell( int rowIndexPosition, Enum<?> columnTitleEnumeration )
-  {
-    return this.getCell( rowIndexPosition, this.tableHeader.getColumnTitles().indexOf( columnTitleEnumeration.name() ) );
   }
   
   /**

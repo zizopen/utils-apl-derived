@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.omnaest.utils.proxy.MethodCallCapturer;
 import org.omnaest.utils.proxy.MethodCallCapturer.MethodCallCaptureContext;
 import org.omnaest.utils.proxy.MethodCallCapturer.MethodCallCapturerAware;
 import org.omnaest.utils.proxy.MethodCallCapturer.ReplayResult;

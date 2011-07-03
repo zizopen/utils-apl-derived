@@ -1229,7 +1229,7 @@ public class IndexArrayTableTest
       int ii = 0;
       for ( Row<Integer> row : table )
       {
-        assertEquals( beanMock[ii++], row.asBean( new BeanMock() ) );
+        assertEquals( beanMock[ii++], row.asBeanAdapter( new BeanMock() ) );
       }
       
       //
