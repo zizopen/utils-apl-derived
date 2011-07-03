@@ -19,8 +19,45 @@ import java.util.Collection;
 
 import org.omnaest.utils.structure.collection.list.ListUtil;
 
-public class CollectionUtil
+public class CollectionUtils
 {
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
+
+  /**
+   * Used to convert a collection element.
+   * 
+   * @author Omnaest
+   * @param <FROM>
+   * @param <TO>
+   */
+  public static interface ElementConverter<FROM, TO>
+  {
+    /**
+     * Converts a given element into another element with the given return type.
+     * 
+     * @param from
+     * @return
+     */
+    public TO convert( FROM from );
+  }
+  
+  /**
+   * Does not change the type of the element and the value of the element being converted.
+   * 
+   * @author Omnaest
+   */
+  public static class IdentityElementConverter<T> implements ElementConverter<T, T>
+  {
+    @Override
+    public T convert( T from )
+    {
+      return from;
+    }
+  }
+  
+  /* ********************************************** Methods ********************************************** */
+
   /**
    * Returns the sum of the values within an Integer collection.
    * 
@@ -157,35 +194,4 @@ public class CollectionUtil
     return ListUtil.convertListExcludingNullElements( collectionFrom, elementConverter );
   }
   
-  /**
-   * Used to convert a collection element.
-   * 
-   * @author Omnaest
-   * @param <FROM>
-   * @param <TO>
-   */
-  public static interface ElementConverter<FROM, TO>
-  {
-    /**
-     * Converts a given element into another element with the given return type.
-     * 
-     * @param from
-     * @return
-     */
-    public TO convert( FROM from );
-  }
-  
-  /**
-   * Does not change the type of the element and the value of the element being converted.
-   * 
-   * @author Omnaest
-   */
-  public static class IdentityElementConverter<T> implements ElementConverter<T, T>
-  {
-    @Override
-    public T convert( T from )
-    {
-      return from;
-    }
-  }
 }

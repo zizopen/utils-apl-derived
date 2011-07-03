@@ -25,8 +25,8 @@ import org.omnaest.utils.sorting.SortUtil;
 import org.omnaest.utils.sorting.SortUtil.ArbitraryStructureContext;
 import org.omnaest.utils.sorting.SortUtil.ComparableArbitraryStructureIndexPosition;
 import org.omnaest.utils.sorting.SortUtil.MergeSortDataModify;
-import org.omnaest.utils.structure.collection.CollectionUtil;
-import org.omnaest.utils.structure.collection.CollectionUtil.ElementConverter;
+import org.omnaest.utils.structure.collection.CollectionUtils;
+import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
 import org.omnaest.utils.structure.collection.list.IndexArrayList;
 import org.omnaest.utils.structure.collection.list.IndexList;
 import org.omnaest.utils.structure.map.MapUtils;
@@ -445,7 +445,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
         }
         
         //
-        retvals = CollectionUtil.toArrayInt( largerElementsIndexPositionList );
+        retvals = CollectionUtils.toArrayInt( largerElementsIndexPositionList );
         
       }
     }
@@ -485,7 +485,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
         }
         
         //
-        retvals = CollectionUtil.toArrayInt( smallerElementsIndexPositionList );
+        retvals = CollectionUtils.toArrayInt( smallerElementsIndexPositionList );
       }
     }
     
@@ -526,7 +526,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
         }
         
         //
-        retvals = CollectionUtil.toArrayInt( betweenIndexPositionList );
+        retvals = CollectionUtils.toArrayInt( betweenIndexPositionList );
         
       }
     }

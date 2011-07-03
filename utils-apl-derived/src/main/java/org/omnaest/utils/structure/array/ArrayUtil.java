@@ -18,14 +18,14 @@ package org.omnaest.utils.structure.array;
 import java.util.Arrays;
 import java.util.List;
 
-import org.omnaest.utils.structure.collection.CollectionUtil;
-import org.omnaest.utils.structure.collection.CollectionUtil.ElementConverter;
+import org.omnaest.utils.structure.collection.CollectionUtils;
+import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
 import org.omnaest.utils.structure.collection.list.ListUtil;
 
 /**
  * Helper methods for arrays.
  * 
- * @see CollectionUtil
+ * @see CollectionUtils
  * @author Omnaest
  */
 public class ArrayUtil

@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.omnaest.utils.strings.StringUtil;
-import org.omnaest.utils.structure.collection.CollectionUtil;
+import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 
@@ -207,7 +207,7 @@ public class TableHelper
     String titleRowDelimiter = "!";
     
     //
-    int printOutTableWidth = columnWidthList.size() + CollectionUtil.sumOfIntegerCollection( columnWidthList ) + 1;
+    int printOutTableWidth = columnWidthList.size() + CollectionUtils.sumOfIntegerCollection( columnWidthList ) + 1;
     String lineRepeatedDelimiter = StringUtil.repeatString( printOutTableWidth, lineDelimiter );
     System.out.println( lineRepeatedDelimiter );
     

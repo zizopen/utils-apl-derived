@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Test;
-import org.omnaest.utils.structure.collection.CollectionUtil;
+import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.list.IndexArrayList;
 import org.omnaest.utils.time.DurationCapture;
 
@@ -697,7 +697,7 @@ public class IndexArrayListTest
     int[] indexPositions = list.indexesOfElementsGreaterThan( 3 );
     
     List<Integer> indexPositionList = new ArrayList<Integer>( 0 );
-    CollectionUtil.addAll( indexPositionList, indexPositions );
+    CollectionUtils.addAll( indexPositionList, indexPositions );
     Collections.sort( indexPositionList );
     //CollectionUtil.printCollection(indexPositionList);
     
@@ -718,7 +718,7 @@ public class IndexArrayListTest
     int[] indexPositions = list.indexesOfElementsLessThan( 3 );
     
     List<Integer> indexPositionList = new ArrayList<Integer>( 0 );
-    CollectionUtil.addAll( indexPositionList, indexPositions );
+    CollectionUtils.addAll( indexPositionList, indexPositions );
     Collections.sort( indexPositionList );
     //CollectionUtil.printCollection(indexPositionList);
     
@@ -743,7 +743,7 @@ public class IndexArrayListTest
     int[] indexPositions = list.indexesOfElementsEqualOrBetween( 3, 7 );
     
     List<Integer> indexPositionList = new ArrayList<Integer>( 0 );
-    CollectionUtil.addAll( indexPositionList, indexPositions );
+    CollectionUtils.addAll( indexPositionList, indexPositions );
     Collections.sort( indexPositionList );
     //CollectionUtil.printCollection(indexPositionList);
     
@@ -759,7 +759,7 @@ public class IndexArrayListTest
     indexPositions = list.indexesOfElementsEqualOrBetween( 7, 10 );
     
     indexPositionList = new ArrayList<Integer>( 0 );
-    CollectionUtil.addAll( indexPositionList, indexPositions );
+    CollectionUtils.addAll( indexPositionList, indexPositions );
     Collections.sort( indexPositionList );
     //CollectionUtil.printCollection(indexPositionList);
     
@@ -772,7 +772,7 @@ public class IndexArrayListTest
     indexPositions = list.indexesOfElementsEqualOrBetween( -5, 2 );
     
     indexPositionList = new ArrayList<Integer>( 0 );
-    CollectionUtil.addAll( indexPositionList, indexPositions );
+    CollectionUtils.addAll( indexPositionList, indexPositions );
     Collections.sort( indexPositionList );
     //CollectionUtil.printCollection(indexPositionList);
     

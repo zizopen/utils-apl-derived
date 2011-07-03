@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.omnaest.utils.structure.collection.CollectionUtil;
-import org.omnaest.utils.structure.collection.CollectionUtil.ElementConverter;
+import org.omnaest.utils.structure.collection.CollectionUtils;
+import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
 
 /**
  * Helper class for List.
  * 
- * @see CollectionUtil
+ * @see CollectionUtils
  * @author Omnaest
  */
 public class ListUtil

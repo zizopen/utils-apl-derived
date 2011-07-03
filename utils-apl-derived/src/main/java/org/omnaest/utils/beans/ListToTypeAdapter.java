@@ -216,10 +216,10 @@ public class ListToTypeAdapter<T, L extends List<?>>
    *          : true > returned stub implements {@link UnderlyingListAware}
    * @return new
    */
-  public static <T, L extends List<?>> T newInstance( L list,
-                                                      Class<T> clazz,
-                                                      Comparator<String> comparatorPropertyname,
-                                                      boolean underlyingListAware )
+  public static <T> T newInstance( List<?> list,
+                                   Class<T> clazz,
+                                   Comparator<String> comparatorPropertyname,
+                                   boolean underlyingListAware )
   {
     //
     List<String> propertynameList = null;
@@ -238,10 +238,7 @@ public class ListToTypeAdapter<T, L extends List<?>>
    *          : true > returned stub implements {@link UnderlyingListAware}
    * @return new
    */
-  public static <T, L extends List<?>> T newInstance( L list,
-                                                      Class<T> clazz,
-                                                      List<String> propertynameList,
-                                                      boolean underlyingListAware )
+  public static <T> T newInstance( List<?> list, Class<T> clazz, List<String> propertynameList, boolean underlyingListAware )
   {
     //
     Comparator<String> comparatorPropertyname = null;
@@ -260,7 +257,7 @@ public class ListToTypeAdapter<T, L extends List<?>>
    *          : true > returned stub implements {@link UnderlyingListAware}
    * @return new
    */
-  public static <T, L extends List<?>> T newInstance( L list, Class<T> clazz, boolean underlyingListAware )
+  public static <T> T newInstance( List<?> list, Class<T> clazz, boolean underlyingListAware )
   {
     //
     List<String> propertynameList = null;
@@ -280,7 +277,7 @@ public class ListToTypeAdapter<T, L extends List<?>>
    * @param clazz
    * @return new
    */
-  public static <T, L extends List<?>> T newInstance( L list, Class<T> clazz )
+  public static <T> T newInstance( List<?> list, Class<T> clazz )
   {
     //
     List<String> propertynameList = null;
@@ -302,11 +299,11 @@ public class ListToTypeAdapter<T, L extends List<?>>
    * @param underlyingListAware
    * @return new
    */
-  protected static <T, L extends List<?>> T newInstance( L list,
-                                                         Class<T> clazz,
-                                                         Comparator<String> comparatorPropertyname,
-                                                         List<String> propertynameList,
-                                                         boolean underlyingListAware )
+  protected static <T> T newInstance( List<?> list,
+                                      Class<T> clazz,
+                                      Comparator<String> comparatorPropertyname,
+                                      List<String> propertynameList,
+                                      boolean underlyingListAware )
   {
     //    
     T retval = null;
@@ -315,8 +312,10 @@ public class ListToTypeAdapter<T, L extends List<?>>
     if ( list != null && clazz != null )
     {
       //
-      ListToTypeAdapter<T, L> listToInterfaceAdapter = new ListToTypeAdapter<T, L>( list, clazz, comparatorPropertyname,
-                                                                                    propertynameList, underlyingListAware );
+      ListToTypeAdapter<T, List<?>> listToInterfaceAdapter = new ListToTypeAdapter<T, List<?>>( list, clazz,
+                                                                                                comparatorPropertyname,
+                                                                                                propertynameList,
+                                                                                                underlyingListAware );
       
       //
       retval = listToInterfaceAdapter.classAdapter;
@@ -364,7 +363,7 @@ public class ListToTypeAdapter<T, L extends List<?>>
           @Override
           public String transformElement( BeanPropertyAccessor<T> beanPropertyAccessor )
           {
-            return beanPropertyAccessor.getPropertyname();
+            return beanPropertyAccessor.getPropertyName();
           }
         };
         propertynameResolvedList.addAll( ListUtils.transform( beanPropertyAccessorList, elementTransformer ) );
