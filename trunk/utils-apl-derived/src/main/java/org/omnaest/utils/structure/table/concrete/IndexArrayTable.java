@@ -20,7 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import org.omnaest.utils.beans.BeanUtil;
+import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.sorting.SortUtil;
 import org.omnaest.utils.sorting.SortUtil.ArbitraryStructureContext;
 import org.omnaest.utils.sorting.SortUtil.ComparableArbitraryStructureIndexPosition;
@@ -32,7 +32,6 @@ import org.omnaest.utils.structure.collection.list.IndexList;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.structure.table.IndexTable;
 import org.omnaest.utils.structure.table.Table;
-import org.omnaest.utils.structure.table.Table.CellIndexPosition;
 
 /**
  * Extension of the {@link ArrayTable} class, which allows to used index lists for faster access. This allows more advanced where
@@ -400,7 +399,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     IndexTable<E> rettable = this;
     
     //
-    Map<String, E> beanPropertyNameToElementMap = BeanUtil.determineBeanPropertyNameToValueMap( beanObject );
+    Map<String, E> beanPropertyNameToElementMap = BeanUtils.determinePropertyNameToBeanPropertyValueMap( beanObject );
     for ( String columnTitle : beanPropertyNameToElementMap.keySet() )
     {
       if ( beanPropertyNameToElementMap.get( columnTitle ) != null )
@@ -582,7 +581,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
         if ( this.isColumnInTableBoundary( columnIndexPosition ) )
         {
           E element = columnIndexToElementMap.get( columnIndexPosition );
-          table = table.whereElementIsGreaterThan( columnIndexPosition, element );
+          table = (IndexTable<E>) table.whereElementIsGreaterThan( columnIndexPosition, element );
         }
       }
     }
@@ -594,7 +593,8 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   @Override
   public <B> IndexTable<E> whereElementIsGreaterThanBeanObject( B beanObject )
   {
-    Map<String, E> columnTitleToElementMap = BeanUtil.determineBeanPropertyNameToValueMap( beanObject, this.getColumnTitles() );
+    Map<String, E> columnTitleToElementMap = BeanUtils.determinePropertyNameToBeanPropertyValueMap( beanObject,
+                                                                                                    this.getColumnTitles() );
     return this.whereElementIsGreaterThanColumnTitleMap( columnTitleToElementMap );
   }
   
@@ -602,7 +602,8 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   public <B> IndexTable<E> whereElementIsGreaterThanBeanObjectIgnoringNullValues( B beanObject )
   {
     //
-    Map<String, E> columnTitleToElementMap = BeanUtil.determineBeanPropertyNameToValueMap( beanObject, this.getColumnTitles() );
+    Map<String, E> columnTitleToElementMap = BeanUtils.determinePropertyNameToBeanPropertyValueMap( beanObject,
+                                                                                                    this.getColumnTitles() );
     for ( String key : new ArrayList<String>( columnTitleToElementMap.keySet() ) )
     {
       if ( columnTitleToElementMap.get( key ) == null )
@@ -630,10 +631,10 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     
     //
     Map<Integer, E> columnIndexToElementMap = MapUtils.<String, Integer, E> convertMapKey( columnTitleToElementMap,
-                                                                                          columnTitleToColumnIndexElementConverter );
+                                                                                           columnTitleToColumnIndexElementConverter );
     
     //
-    return this.whereElementIsGreaterThanColumnIndexMap( columnIndexToElementMap );
+    return (IndexTable<E>) this.whereElementIsGreaterThanColumnIndexMap( columnIndexToElementMap );
   }
   
   @Override
@@ -710,7 +711,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
         if ( this.isColumnInTableBoundary( columnIndexPosition ) )
         {
           E element = columnIndexToElementMap.get( columnIndexPosition );
-          table = table.whereElementEquals( columnIndexPosition, element );
+          table = (IndexTable<E>) table.whereElementEquals( columnIndexPosition, element );
         }
       }
     }
@@ -722,7 +723,8 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   @Override
   public <B> IndexTable<E> whereElementEqualsBeanObject( B beanObject )
   {
-    Map<String, E> columnTitleToElementMap = BeanUtil.determineBeanPropertyNameToValueMap( beanObject, this.getColumnTitles() );
+    Map<String, E> columnTitleToElementMap = BeanUtils.determinePropertyNameToBeanPropertyValueMap( beanObject,
+                                                                                                    this.getColumnTitles() );
     return this.whereElementEqualsColumnTitleMap( columnTitleToElementMap );
   }
   
@@ -730,7 +732,8 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   public <B> IndexTable<E> whereElementEqualsBeanObjectIgnoringNullValues( B beanObject )
   {
     //
-    Map<String, E> columnTitleToElementMap = BeanUtil.determineBeanPropertyNameToValueMap( beanObject, this.getColumnTitles() );
+    Map<String, E> columnTitleToElementMap = BeanUtils.determinePropertyNameToBeanPropertyValueMap( beanObject,
+                                                                                                    this.getColumnTitles() );
     for ( String key : new ArrayList<String>( columnTitleToElementMap.keySet() ) )
     {
       if ( columnTitleToElementMap.get( key ) == null )
@@ -759,7 +762,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     
     //
     Map<Integer, E> columnIndexToElementMap = MapUtils.convertMapKey( columnEnumToElementMap,
-                                                                     columnEnumToColumnIndexElementConverter );
+                                                                      columnEnumToColumnIndexElementConverter );
     
     //
     return this.whereElementEqualsColumnIndexMap( columnIndexToElementMap );
@@ -780,7 +783,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     
     //
     Map<Integer, E> columnIndexToElementMap = MapUtils.convertMapKey( columnTitleToElementMap,
-                                                                     columnTitleToColumnIndexElementConverter );
+                                                                      columnTitleToColumnIndexElementConverter );
     
     //
     return this.whereElementEqualsColumnIndexMap( columnIndexToElementMap );

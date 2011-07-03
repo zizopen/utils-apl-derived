@@ -20,13 +20,15 @@ import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.view.BeanTable;
 
 /**
+ * TODO undone
+ * 
  * @see ArrayTable
  * @see BeanTable
  * @author Omnaest
  * @param <B>
  *          Java Bean type
  */
-public class BeanArrayTable<B> implements BeanTable<B>
+public abstract class BeanArrayTable<B> implements BeanTable<B>
 {
   /* ********************************************** Variables ********************************************** */
   protected Table<Object> table = null;
