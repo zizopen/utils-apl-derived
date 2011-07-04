@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.internal;
 
+import java.io.Serializable;
+
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
@@ -26,6 +28,50 @@ import org.omnaest.utils.structure.table.Table.Stripe.Title;
  */
 public interface TableInternal<E> extends Table<E>
 {
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  /**
+   * @see TableInternal
+   * @author Omnaest
+   * @param <E>
+   */
+  public interface CellResolver<E> extends Serializable
+  {
+    /**
+     * Resolves the {@link Cell} for the given index positions.
+     * 
+     * @param rowIndexPosition
+     * @param columnIndexPosition
+     * @return
+     */
+    public Cell<E> resolveCell( int rowIndexPosition, int columnIndexPosition );
+    
+    /**
+     * Resolves a {@link Cell} for the given {@link Row} and column index position.
+     * 
+     * @param row
+     * @param columnIndexPosition
+     * @return
+     */
+    public Cell<E> resolveCell( Row<E> row, int columnIndexPosition );
+    
+    /**
+     * Resolves a {@link Cell} by a row index position and a {@link Column}.
+     * 
+     * @param rowIndexPosition
+     * @param column
+     * @return
+     */
+    public Cell<E> resolveCell( int rowIndexPosition, Column<E> column );
+    
+    /**
+     * Resolves a {@link Cell} by a given {@link Row} and {@link Column}
+     * 
+     * @param row
+     * @param column
+     * @return
+     */
+    public Cell<E> resolveCell( Row<E> row, Column<E> column );
+  }
   
   /**
    * Resolver for {@link Stripe} instances
@@ -58,10 +104,15 @@ public interface TableInternal<E> extends Table<E>
     /**
      * Returns the {@link StripeList} for the given {@link StripeType}
      * 
-     * @param type
+     * @param stripeType
      * @return
      */
-    public StripeList<E> getStripeList( Class<StripeType> type );
+    public StripeList<E> getStripeList( StripeType stripeType );
+    
+    /**
+     * Switches the {@link StripeList} for the {@link Row} and {@link Column}.
+     */
+    public void switchRowAndColumnStripeList();
     
   }
   
@@ -70,7 +121,7 @@ public interface TableInternal<E> extends Table<E>
    * @author Omnaest
    * @param <E>
    */
-  public static interface StripeList<E>
+  public static interface StripeList<E> extends Iterable<Stripe<E>>
   {
     
     /**
@@ -78,14 +129,45 @@ public interface TableInternal<E> extends Table<E>
      * 
      * @return
      */
-    public Class<StripeType> getStripeType();
+    public StripeType getStripeType();
     
     /**
      * Sets the {@link StripeType} information of the {@link StripeList}
      * 
      * @param stripeType
      */
-    public void setStripeType( Class<StripeType> stripeType );
+    public void setStripeType( StripeType stripeType );
+    
+    /**
+     * Returns the index of a given {@link Stripe}
+     * 
+     * @param stripe
+     * @return
+     */
+    public int indexOf( Stripe<E> stripe );
+    
+    /**
+     * Returns the stripe at the given index position. If the index position is out of bounds null is returned.
+     * 
+     * @param indexPosition
+     * @return
+     */
+    public Stripe<E> get( int indexPosition );
+    
+    /**
+     * Returns true if the {@link StripeList} does not contain any {@link Stripe} instance.
+     * 
+     * @return
+     */
+    public boolean isEmpty();
+    
+    /**
+     * Returns the size of the {@link StripeList}
+     * 
+     * @return
+     */
+    public int size();
+    
   }
   
   /**
@@ -95,7 +177,7 @@ public interface TableInternal<E> extends Table<E>
    */
   public static interface StripeInternal<E> extends Stripe<E>
   {
-    
+    /* ********************************************** Classes/Interfaces ********************************************** */
     /**
      * @see StripeInternal
      * @see Title
@@ -112,6 +194,7 @@ public interface TableInternal<E> extends Table<E>
        */
       public boolean hasEqualValueTo( Title title );
     }
+    
   }
   
   /**
@@ -142,5 +225,19 @@ public interface TableInternal<E> extends Table<E>
   public static interface CellInternal<E> extends Cell<E>
   {
   }
+  
+  /* ********************************************** Methods ********************************************** */
+  /**
+   * @see StripeListContainer
+   * @return
+   */
+  public StripeListContainer<E> getStripeListContainer();
+  
+  /**
+   * Returns the {@link CellResolver} of the {@link Table}
+   * 
+   * @return
+   */
+  public CellResolver<E> getCellResolver();
   
 }

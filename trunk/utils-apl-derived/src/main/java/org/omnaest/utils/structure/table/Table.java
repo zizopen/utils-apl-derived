@@ -19,7 +19,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 
@@ -30,6 +31,7 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
  * @see ArrayTable
  * @author Omnaest
  */
+@XmlRootElement
 public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>, Serializable, TableJoinable<Table<E>>
 
 {
@@ -41,21 +43,22 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
    * @author Omnaest
    * @param <E>
    */
-  public static interface Stripe<E> extends Serializable
+  public static interface Stripe<E> extends Serializable, Iterable<Cell<E>>
   {
     
     /* ********************************************** Classes/Interfaces ********************************************** */
 
     /**
      * Marker interface
+     * 
      * @see Stripe
      * @see StripeList
      * @author Omnaest
-     *
      */
-    public static interface StripeType
+    public static enum StripeType
     {
-      
+      ROW,
+      COLUMN
     }
     
     /**
@@ -128,25 +131,32 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
      * @return proxy stub adapter
      */
     public <B> B asBeanAdapter( Class<B> beanClass );
-  }
-  
-  /**
-   * @see Table
-   * @author Omnaest
-   * @param <E>
-   */
-  public static interface Row<E> extends Stripe<E>, StripeType
-  {
-  }
-  
-  /**
-   * @see Table
-   * @author Omnaest
-   * @param <E>
-   */
-  public static interface Column<E> extends Stripe<E>, StripeType
-  {
     
+    /**
+     * Returns true if this {@link Stripe} contains the given {@link Cell}.
+     * 
+     * @param cell
+     * @return
+     */
+    public boolean contains( Cell<E> cell );
+  }
+  
+  /**
+   * @see Table
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface Row<E> extends Stripe<E>
+  {
+  }
+  
+  /**
+   * @see Table
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface Column<E> extends Stripe<E>
+  {
   }
   
   /**
@@ -162,7 +172,7 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
      * 
      * @return
      */
-    public E getValue();
+    public E getElement();
     
     /**
      * Sets the value of the {@link Cell}

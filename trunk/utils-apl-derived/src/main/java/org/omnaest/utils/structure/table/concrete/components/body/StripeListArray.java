@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.table.concrete.components.body;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table;
@@ -32,30 +33,27 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 public class StripeListArray<E> implements StripeList<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected List<Stripe<E>>             stripeList = new ArrayList<Table.Stripe<E>>();
-  protected Class<? extends StripeType> stripeType = null;
+  protected List<Stripe<E>> stripeList = new ArrayList<Table.Stripe<E>>();
+  protected StripeType      stripeType = null;
   
   /* ********************************************** Methods ********************************************** */
 
-  public StripeListArray( Class<? extends StripeType> stripeType )
+  public StripeListArray( StripeType stripeType )
   {
     super();
     this.stripeType = stripeType;
   }
   
+  @Override
   public int size()
   {
     return this.stripeList.size();
   }
   
+  @Override
   public boolean isEmpty()
   {
     return this.stripeList.isEmpty();
-  }
-  
-  public boolean contains( Object o )
-  {
-    return this.stripeList.contains( o );
   }
   
   public boolean add( Stripe<E> e )
@@ -83,22 +81,34 @@ public class StripeListArray<E> implements StripeList<E>
     this.stripeList.add( index, element );
   }
   
-  public int indexOf( Object o )
-  {
-    return this.stripeList.indexOf( o );
-  }
-  
-  @SuppressWarnings("unchecked")
   @Override
-  public Class<StripeType> getStripeType()
+  public int indexOf( Stripe<E> stripe )
   {
-    return (Class<StripeType>) this.stripeType;
+    return this.stripeList.indexOf( stripe );
   }
   
   @Override
-  public void setStripeType( Class<StripeType> stripeType )
+  public StripeType getStripeType()
+  {
+    return this.stripeType;
+  }
+  
+  @Override
+  public void setStripeType( StripeType stripeType )
   {
     this.stripeType = stripeType;
+  }
+  
+  @Override
+  public Stripe<E> get( int index )
+  {
+    return index >= 0 && index < this.stripeList.size() ? this.stripeList.get( index ) : null;
+  }
+  
+  @Override
+  public Iterator<Stripe<E>> iterator()
+  {
+    return this.stripeList.iterator();
   }
   
 }

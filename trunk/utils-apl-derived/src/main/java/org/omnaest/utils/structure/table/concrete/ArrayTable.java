@@ -33,6 +33,7 @@ import org.omnaest.utils.structure.collection.list.ListToListIteratorAdapter;
 import org.omnaest.utils.structure.table.IndexTable.IndexPositionPair;
 import org.omnaest.utils.structure.table.IndexTable.TableSize;
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.concrete.components.body.CellResolverImpl;
 import org.omnaest.utils.structure.table.concrete.components.body.StripeListContainerImpl;
 
 /**
@@ -48,267 +49,257 @@ public class ArrayTable<E> extends TableAbstract<E>
   
   /* ********************************************** Variables ********************************************** */
   protected StripeListContainer stripeListContainer = new StripeListContainerImpl<E>();
+  protected CellResolver<E>     cellResolver        = new CellResolverImpl( this );
   
   /* ********************************************** Methods ********************************************** */
+
   public ArrayTable()
   {
     super();
   }
   
-  protected StripeList<E> getStripeListColumn()
-  {
-    return this.stripeListContainer.getStripeList( Column.class );
-  }
+  //  protected public Table<E> getSubTableByRows( int rowIndexPositionFrom, int rowIndexPositionTo )
+  //  {
+  //    return this.getSubTableByRows( this.generateIndexArrayForBetween( rowIndexPositionFrom, rowIndexPositionTo ) );
+  //  }
   
-  protected StripeList<E> getStripeListRow()
-  {
-    return this.stripeListContainer.getStripeList( Row.class );
-  }
+  //  public Table<E> getSubTableByRows( int[] rowIndexPositions )
+  //  {
+  //    return this.getSubTable( rowIndexPositions, this.generateIndexArrayForBetween( 0, this.columnList.size() - 1 ) );
+  //  }
+  //  
+  //  public Table<E> getSubTableByRows( List<Integer> rowIndexPositionList )
+  //  {
+  //    int[] rowIndexPositions = new int[rowIndexPositionList.size()];
+  //    for ( int ii = 0; ii < rowIndexPositions.length; ii++ )
+  //    {
+  //      rowIndexPositions[ii] = rowIndexPositionList.get( ii );
+  //    }
+  //    
+  //    return this.getSubTableByRows( rowIndexPositions );
+  //  }
+  //  
+  //  public Table<E> getSubTableByColumns( int[] columnIndexPositions )
+  //  {
+  //    return this.getSubTable( this.generateIndexArrayForBetween( 0, this.rowList.size() - 1 ), columnIndexPositions );
+  //  }
+  //  
+  //  public Table<E> getSubTableByColumns( List<Integer> columnIndexPositionList )
+  //  {
+  //    int[] columnIndexPositions = new int[columnIndexPositionList.size()];
+  //    for ( int ii = 0; ii < columnIndexPositions.length; ii++ )
+  //    {
+  //      columnIndexPositions[ii] = columnIndexPositionList.get( ii );
+  //    }
+  //    
+  //    return this.getSubTableByColumns( columnIndexPositions );
+  //  }
+  //  
+  //  public Table<E> getSubTable( int[] rowIndexPositions, int[] columnIndexPositions )
+  //  {
+  //    //
+  //    TableInternal<E> rettable = new ArrayTable<E>();
+  //    
+  //    //generate a sorted list 
+  //    List<Integer> rowIndexPositionList = this.determineIndexPositionList( rowIndexPositions );
+  //    List<Integer> columnIndexPositionList = this.determineIndexPositionList( columnIndexPositions );
+  //    
+  //    //add row and column titles
+  //    rettable.tableHeader = new TableHeader();
+  //    for ( int iColumnIndexPosition : columnIndexPositionList )
+  //    {
+  //      if ( iColumnIndexPosition < this.tableHeader.getColumnTitles().size() )
+  //      {
+  //        rettable.tableHeader.columnTitles.add( this.tableHeader.getColumnTitles().get( iColumnIndexPosition ) );
+  //      }
+  //    }
+  //    for ( int iRowIndexPosition : rowIndexPositionList )
+  //    {
+  //      if ( iRowIndexPosition < this.tableHeader.getRowTitles().size() )
+  //      {
+  //        rettable.tableHeader.rowTitles.add( this.tableHeader.getRowTitles().get( iRowIndexPosition ) );
+  //      }
+  //    }
+  //    
+  //    //add columns
+  //    {
+  //      int columnIndexPosition = 0;
+  //      for ( int iColumnIndexPosition : columnIndexPositionList )
+  //      {
+  //        int rowIndexPosition = 0;
+  //        for ( int iRowIndexPosition : rowIndexPositionList )
+  //        {
+  //          rettable.setCell( rowIndexPosition, columnIndexPosition, this.getCell( iRowIndexPosition, iColumnIndexPosition ) );
+  //          rowIndexPosition++;
+  //        }
+  //        columnIndexPosition++;
+  //      }
+  //    }
+  //    
+  //    //
+  //    return rettable;
+  //  }
+  //  
+  //  public Table<E> getSubTable( int rowIndexPositionFrom,
+  //                               int rowIndexPositionTo,
+  //                               int columnIndexPositionFrom,
+  //                               int columnIndexPositionTo )
+  //  {
+  //    return this.getSubTable( this.generateIndexArrayForBetween( rowIndexPositionFrom, rowIndexPositionTo ),
+  //                             this.generateIndexArrayForBetween( columnIndexPositionFrom, columnIndexPositionTo ) );
+  //  }
+  //  
+  //  public Table<E> getSubTableByColumns( int colunmIndexPositionFrom, int colunmIndexPositionTo )
+  //  {
+  //    return this.getSubTableByColumns( this.generateIndexArrayForBetween( colunmIndexPositionFrom, colunmIndexPositionTo ) );
+  //  }
   
-  protected public Table<E> getSubTableByRows( int rowIndexPositionFrom, int rowIndexPositionTo )
-  {
-    return this.getSubTableByRows( this.generateIndexArrayForBetween( rowIndexPositionFrom, rowIndexPositionTo ) );
-  }
-  
-  public Table<E> getSubTableByRows( int[] rowIndexPositions )
-  {
-    return this.getSubTable( rowIndexPositions, this.generateIndexArrayForBetween( 0, this.columnList.size() - 1 ) );
-  }
-  
-  public Table<E> getSubTableByRows( List<Integer> rowIndexPositionList )
-  {
-    int[] rowIndexPositions = new int[rowIndexPositionList.size()];
-    for ( int ii = 0; ii < rowIndexPositions.length; ii++ )
-    {
-      rowIndexPositions[ii] = rowIndexPositionList.get( ii );
-    }
-    
-    return this.getSubTableByRows( rowIndexPositions );
-  }
-  
-  public Table<E> getSubTableByColumns( int[] columnIndexPositions )
-  {
-    return this.getSubTable( this.generateIndexArrayForBetween( 0, this.rowList.size() - 1 ), columnIndexPositions );
-  }
-  
-  public Table<E> getSubTableByColumns( List<Integer> columnIndexPositionList )
-  {
-    int[] columnIndexPositions = new int[columnIndexPositionList.size()];
-    for ( int ii = 0; ii < columnIndexPositions.length; ii++ )
-    {
-      columnIndexPositions[ii] = columnIndexPositionList.get( ii );
-    }
-    
-    return this.getSubTableByColumns( columnIndexPositions );
-  }
-  
-  
-  
-  public Table<E> getSubTable( int[] rowIndexPositions, int[] columnIndexPositions )
-  {
-    //
-    ArrayTable<E> rettable = new ArrayTable<E>();
-    
-    //generate a sorted list 
-    List<Integer> rowIndexPositionList = this.determineIndexPositionList( rowIndexPositions );
-    List<Integer> columnIndexPositionList = this.determineIndexPositionList( columnIndexPositions );
-    
-    //add row and column titles
-    rettable.tableHeader = new TableHeader();
-    for ( int iColumnIndexPosition : columnIndexPositionList )
-    {
-      if ( iColumnIndexPosition < this.tableHeader.getColumnTitles().size() )
-      {
-        rettable.tableHeader.columnTitles.add( this.tableHeader.getColumnTitles().get( iColumnIndexPosition ) );
-      }
-    }
-    for ( int iRowIndexPosition : rowIndexPositionList )
-    {
-      if ( iRowIndexPosition < this.tableHeader.getRowTitles().size() )
-      {
-        rettable.tableHeader.rowTitles.add( this.tableHeader.getRowTitles().get( iRowIndexPosition ) );
-      }
-    }
-    
-    //add columns
-    {
-      int columnIndexPosition = 0;
-      for ( int iColumnIndexPosition : columnIndexPositionList )
-      {
-        int rowIndexPosition = 0;
-        for ( int iRowIndexPosition : rowIndexPositionList )
-        {
-          rettable.setCell( rowIndexPosition, columnIndexPosition, this.getCell( iRowIndexPosition, iColumnIndexPosition ) );
-          rowIndexPosition++;
-        }
-        columnIndexPosition++;
-      }
-    }
-    
-    //
-    return rettable;
-  }
-  
-  public Table<E> getSubTable( int rowIndexPositionFrom,
-                               int rowIndexPositionTo,
-                               int columnIndexPositionFrom,
-                               int columnIndexPositionTo )
-  {
-    return this.getSubTable( this.generateIndexArrayForBetween( rowIndexPositionFrom, rowIndexPositionTo ),
-                             this.generateIndexArrayForBetween( columnIndexPositionFrom, columnIndexPositionTo ) );
-  }
-  
-  public Table<E> getSubTableByColumns( int colunmIndexPositionFrom, int colunmIndexPositionTo )
-  {
-    return this.getSubTableByColumns( this.generateIndexArrayForBetween( colunmIndexPositionFrom, colunmIndexPositionTo ) );
-  }
-  
-  public Table<E> innerJoinByEqualColumn( Table<E> joinTable, int[][] columnIndexPositionPairs )
-  {
-    //create column index position pairs
-    List<IndexPositionPair> columnIndexPositionPairList = new ArrayList<IndexPositionPair>( 0 );
-    
-    for ( int ii = 0; ii < columnIndexPositionPairs.length; ii++ )
-    {
-      int[] columnIndexPositionPair = columnIndexPositionPairs[ii];
-      int currentTableColumnIndexPosition = columnIndexPositionPair[0];
-      int joinTableColumnIndexPosition = columnIndexPositionPair[1];
-      
-      IndexPositionPair indexPositionPair = new IndexPositionPairImpl();
-      indexPositionPair.setCurrentTableIndexPosition( currentTableColumnIndexPosition );
-      indexPositionPair.setJoinTableIndexPosition( joinTableColumnIndexPosition );
-      
-      columnIndexPositionPairList.add( indexPositionPair );
-    }
-    
-    return this.innerJoinByEqualColumn( joinTable, columnIndexPositionPairList );
-  }
-  
-  public Table<E> innerJoinByEqualColumn( Table<E> joinTable, List<IndexPositionPair> columnIndexPositionPairList )
-  {
-    //
-    Table<E> rettable = new ArrayTable<E>();
-    
-    /*
-     * First make sure the smaller table is executing the job. This should reduce the costs, because
-     * the lookup will be done by the joinTable, and the joinTable can do that with log(n2) cost, if it is an indexed table,
-     * while the current table has to loop through the whole rows, which is a cost of (n1). As long
-     * as n1 * log(n2) < n2 * log(n1) is true, the join operation should be done by this table.
-     */
-    int currentTableRowSize = this.getTableSize().getRowSize();
-    int joinTableRowSize = joinTable.getTableSize().getRowSize();
-    boolean thisTableShouldBeTheJoinTable = currentTableRowSize > 10
-                                            && joinTableRowSize > 10
-                                            && currentTableRowSize * Math.log10( joinTableRowSize ) > joinTableRowSize
-                                                                                                      * Math.log10( currentTableRowSize );
-    if ( thisTableShouldBeTheJoinTable )
-    {
-      rettable = joinTable.innerJoinByEqualColumn( joinTable, columnIndexPositionPairList );
-    }
-    else
-    {
-      rettable = this.doInnerJoinByEqualColumn( joinTable, columnIndexPositionPairList );
-    }
-    
-    //
-    return rettable;
-  }
-  
-  protected Table<E> doInnerJoinByEqualColumn( Table<E> joinTable, List<IndexPositionPair> columnIndexPositionPairList )
-  {
-    /*
-     * Step through each row.
-     *  1. Go column for column pair 
-     *    - Try to resolve all rowIndexPositions
-     *      from the other table 
-     *    - break the cycle if the number of indexes resolved from the other
-     *      table are smaller than log(tablesize other table) 
-     * 2. merge the current available indexes
-     *    beginning with the colunms which have the smallest numbers of results 
-     * 3. if the columns are
-     *    not completely walked through, test the remaining row indexes to have equal values for all
-     *    columns 
-     * 4. merge subparts of both tables together to a new table
-     */
-
-    //
-    Table<E> rettable = new ArrayTable<E>();
-    for ( int iRowIndexPosition = 0; iRowIndexPosition < this.rowList.size(); iRowIndexPosition++ )
-    {
-      //
-      List<MatchingIndexes> matchingIndexesList = new ArrayList<MatchingIndexes>( columnIndexPositionPairList.size() );
-      
-      //
-      for ( IndexPositionPair iColumnIndexPair : columnIndexPositionPairList )
-      {
-        //
-        MatchingIndexes matchingIndexes = new MatchingIndexes();
-        
-        //
-        int currentTableColumnIndexPosition = iColumnIndexPair.getCurrentTableIndexPosition();
-        int joinTableColumnIndexPosition = iColumnIndexPair.getJoinTableIndexPosition();
-        
-        //
-        E element = this.getCell( iRowIndexPosition, currentTableColumnIndexPosition );
-        
-        //
-        List<Integer> destinationIndexPositionList = matchingIndexes.getDestinationIndexPositionList();
-        int[] matchingJoinTableRowIndexPositions = joinTable.indexesOfRowsWithElementsEquals( joinTableColumnIndexPosition,
-                                                                                              element );
-        
-        if ( matchingJoinTableRowIndexPositions != null )
-        {
-          for ( int iMatchingJoinTableRowIndexPosition : matchingJoinTableRowIndexPositions )
-          {
-            destinationIndexPositionList.add( iMatchingJoinTableRowIndexPosition );
-          }
-        }
-        
-        //
-        matchingIndexes.setIndexPositionPair( iColumnIndexPair );
-        matchingIndexes.setSourceIndexPosition( iRowIndexPosition );
-        
-        //
-        matchingIndexesList.add( matchingIndexes );
-        
-      }
-      
-      //merge the indexlists
-      MatchingIndexes mergedMatchingIndexes = null;
-      for ( MatchingIndexes iMatchingIndexes : matchingIndexesList )
-      {
-        if ( mergedMatchingIndexes != null )
-        {
-          mergedMatchingIndexes = mergedMatchingIndexes.disjunction( iMatchingIndexes );
-        }
-        else
-        {
-          mergedMatchingIndexes = iMatchingIndexes;
-        }
-      }
-      
-      if ( mergedMatchingIndexes.getDestinationIndexPositionList().size() > 0 )
-      {
-        //take the subtables of both tables which are defined by the rows 
-        //and merge them with the source table on the left
-        Table<E> leftTable = this.getSubTableByRows( mergedMatchingIndexes.getSourceIndexPosition(),
-                                                     mergedMatchingIndexes.getSourceIndexPosition() );
-        Table<E> rightTable = joinTable.getSubTableByRows( mergedMatchingIndexes.getDestinationIndexPositionList() );
-        while ( leftTable.getTableSize().getRowSize() < rightTable.getTableSize().getRowSize() )
-        {
-          leftTable.addRow( leftTable.getRow( 0 ) );
-        }
-        
-        //
-        int rowInsertIndexPosition = rettable.getTableSize().getRowSize();
-        rettable.putTable( leftTable, rowInsertIndexPosition, 0 );
-        rettable.putTable( rightTable, rowInsertIndexPosition, leftTable.getTableSize().getColumnSize() );
-      }
-    }
-    
-    //
-    return rettable;
-  }
+  //  public Table<E> innerJoinByEqualColumn( Table<E> joinTable, int[][] columnIndexPositionPairs )
+  //  {
+  //    //create column index position pairs
+  //    List<IndexPositionPair> columnIndexPositionPairList = new ArrayList<IndexPositionPair>( 0 );
+  //    
+  //    for ( int ii = 0; ii < columnIndexPositionPairs.length; ii++ )
+  //    {
+  //      int[] columnIndexPositionPair = columnIndexPositionPairs[ii];
+  //      int currentTableColumnIndexPosition = columnIndexPositionPair[0];
+  //      int joinTableColumnIndexPosition = columnIndexPositionPair[1];
+  //      
+  //      IndexPositionPair indexPositionPair = new IndexPositionPairImpl();
+  //      indexPositionPair.setCurrentTableIndexPosition( currentTableColumnIndexPosition );
+  //      indexPositionPair.setJoinTableIndexPosition( joinTableColumnIndexPosition );
+  //      
+  //      columnIndexPositionPairList.add( indexPositionPair );
+  //    }
+  //    
+  //    return this.innerJoinByEqualColumn( joinTable, columnIndexPositionPairList );
+  //  }
+  //  
+  //  public Table<E> innerJoinByEqualColumn( Table<E> joinTable, List<IndexPositionPair> columnIndexPositionPairList )
+  //  {
+  //    //
+  //    Table<E> rettable = new ArrayTable<E>();
+  //    
+  //    /*
+  //     * First make sure the smaller table is executing the job. This should reduce the costs, because
+  //     * the lookup will be done by the joinTable, and the joinTable can do that with log(n2) cost, if it is an indexed table,
+  //     * while the current table has to loop through the whole rows, which is a cost of (n1). As long
+  //     * as n1 * log(n2) < n2 * log(n1) is true, the join operation should be done by this table.
+  //     */
+  //    int currentTableRowSize = this.getTableSize().getRowSize();
+  //    int joinTableRowSize = joinTable.getTableSize().getRowSize();
+  //    boolean thisTableShouldBeTheJoinTable = currentTableRowSize > 10
+  //                                            && joinTableRowSize > 10
+  //                                            && currentTableRowSize * Math.log10( joinTableRowSize ) > joinTableRowSize
+  //                                                                                                      * Math.log10( currentTableRowSize );
+  //    if ( thisTableShouldBeTheJoinTable )
+  //    {
+  //      rettable = joinTable.innerJoinByEqualColumn( joinTable, columnIndexPositionPairList );
+  //    }
+  //    else
+  //    {
+  //      rettable = this.doInnerJoinByEqualColumn( joinTable, columnIndexPositionPairList );
+  //    }
+  //    
+  //    //
+  //    return rettable;
+  //  }
+  //  
+  //  protected Table<E> doInnerJoinByEqualColumn( Table<E> joinTable, List<IndexPositionPair> columnIndexPositionPairList )
+  //  {
+  //    /*
+  //     * Step through each row.
+  //     *  1. Go column for column pair 
+  //     *    - Try to resolve all rowIndexPositions
+  //     *      from the other table 
+  //     *    - break the cycle if the number of indexes resolved from the other
+  //     *      table are smaller than log(tablesize other table) 
+  //     * 2. merge the current available indexes
+  //     *    beginning with the colunms which have the smallest numbers of results 
+  //     * 3. if the columns are
+  //     *    not completely walked through, test the remaining row indexes to have equal values for all
+  //     *    columns 
+  //     * 4. merge subparts of both tables together to a new table
+  //     */
+  //
+  //    //
+  //    Table<E> rettable = new ArrayTable<E>();
+  //    for ( int iRowIndexPosition = 0; iRowIndexPosition < this.rowList.size(); iRowIndexPosition++ )
+  //    {
+  //      //
+  //      List<MatchingIndexes> matchingIndexesList = new ArrayList<MatchingIndexes>( columnIndexPositionPairList.size() );
+  //      
+  //      //
+  //      for ( IndexPositionPair iColumnIndexPair : columnIndexPositionPairList )
+  //      {
+  //        //
+  //        MatchingIndexes matchingIndexes = new MatchingIndexes();
+  //        
+  //        //
+  //        int currentTableColumnIndexPosition = iColumnIndexPair.getCurrentTableIndexPosition();
+  //        int joinTableColumnIndexPosition = iColumnIndexPair.getJoinTableIndexPosition();
+  //        
+  //        //
+  //        E element = this.getCell( iRowIndexPosition, currentTableColumnIndexPosition );
+  //        
+  //        //
+  //        List<Integer> destinationIndexPositionList = matchingIndexes.getDestinationIndexPositionList();
+  //        int[] matchingJoinTableRowIndexPositions = joinTable.indexesOfRowsWithElementsEquals( joinTableColumnIndexPosition,
+  //                                                                                              element );
+  //        
+  //        if ( matchingJoinTableRowIndexPositions != null )
+  //        {
+  //          for ( int iMatchingJoinTableRowIndexPosition : matchingJoinTableRowIndexPositions )
+  //          {
+  //            destinationIndexPositionList.add( iMatchingJoinTableRowIndexPosition );
+  //          }
+  //        }
+  //        
+  //        //
+  //        matchingIndexes.setIndexPositionPair( iColumnIndexPair );
+  //        matchingIndexes.setSourceIndexPosition( iRowIndexPosition );
+  //        
+  //        //
+  //        matchingIndexesList.add( matchingIndexes );
+  //        
+  //      }
+  //      
+  //      //merge the indexlists
+  //      MatchingIndexes mergedMatchingIndexes = null;
+  //      for ( MatchingIndexes iMatchingIndexes : matchingIndexesList )
+  //      {
+  //        if ( mergedMatchingIndexes != null )
+  //        {
+  //          mergedMatchingIndexes = mergedMatchingIndexes.disjunction( iMatchingIndexes );
+  //        }
+  //        else
+  //        {
+  //          mergedMatchingIndexes = iMatchingIndexes;
+  //        }
+  //      }
+  //      
+  //      if ( mergedMatchingIndexes.getDestinationIndexPositionList().size() > 0 )
+  //      {
+  //        //take the subtables of both tables which are defined by the rows 
+  //        //and merge them with the source table on the left
+  //        Table<E> leftTable = this.getSubTableByRows( mergedMatchingIndexes.getSourceIndexPosition(),
+  //                                                     mergedMatchingIndexes.getSourceIndexPosition() );
+  //        Table<E> rightTable = joinTable.getSubTableByRows( mergedMatchingIndexes.getDestinationIndexPositionList() );
+  //        while ( leftTable.getTableSize().getRowSize() < rightTable.getTableSize().getRowSize() )
+  //        {
+  //          leftTable.addRow( leftTable.getRow( 0 ) );
+  //        }
+  //        
+  //        //
+  //        int rowInsertIndexPosition = rettable.getTableSize().getRowSize();
+  //        rettable.putTable( leftTable, rowInsertIndexPosition, 0 );
+  //        rettable.putTable( rightTable, rowInsertIndexPosition, leftTable.getTableSize().getColumnSize() );
+  //      }
+  //    }
+  //    
+  //    //
+  //    return rettable;
+  //  }
   
   /**
    * Returns an array of all index positions from the table available reduced by the given index positions.
@@ -371,104 +362,100 @@ public class ArrayTable<E> extends TableAbstract<E>
     return CollectionUtils.toArrayInt( subtractedRowIndexPositionList );
   }
   
-  /**
-   * Inserts empty rows at the given position and moves existing rows behind the new created rows.
-   * 
-   * @param rowIndexPosition
-   * @param numberOfRows
-   */
-  private void insertEmptyRows( int rowIndexPosition, int numberOfRows )
-  {
-    for ( int ii = this.rowList.size() - 1 + numberOfRows; ii >= rowIndexPosition + numberOfRows; ii-- )
-    {
-      this.setRow( ii, this.rowList.get( ii - numberOfRows ) );
-    }
-    for ( int ii = 0; ii < numberOfRows; ii++ )
-    {
-      this.setRow( ii + rowIndexPosition, this.createNewEmptyRow() );
-    }
-  }
+  //  /**
+  //   * Inserts empty rows at the given position and moves existing rows behind the new created rows.
+  //   * 
+  //   * @param rowIndexPosition
+  //   * @param numberOfRows
+  //   */
+  //  private void insertEmptyRows( int rowIndexPosition, int numberOfRows )
+  //  {
+  //    for ( int ii = this.rowList.size() - 1 + numberOfRows; ii >= rowIndexPosition + numberOfRows; ii-- )
+  //    {
+  //      this.setRow( ii, this.rowList.get( ii - numberOfRows ) );
+  //    }
+  //    for ( int ii = 0; ii < numberOfRows; ii++ )
+  //    {
+  //      this.setRow( ii + rowIndexPosition, this.createNewEmptyRow() );
+  //    }
+  //  }
+  //  
+  //  public Table<E> insertArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition )
+  //  {
+  //    //
+  //    this.insertEmptyRows( rowIndexPosition, elementArray.length );
+  //    //
+  //    this.putArray( elementArray, rowIndexPosition, columnIndexPosition );
+  //    
+  //    //
+  //    return this;
+  //  }
+  //  
+  //  public Table<E> insertTable( Table<E> insertIndexedTable, int rowIndexPosition, int columnIndexPosition )
+  //  {
+  //    //
+  //    this.insertEmptyRows( rowIndexPosition, insertIndexedTable.getTableSize().getRowSize() );
+  //    
+  //    //
+  //    this.putTable( insertIndexedTable, rowIndexPosition, columnIndexPosition );
+  //    
+  //    //
+  //    return this;
+  //  }
+  //  
+  //  public Table<E> putTable( Table<E> insertTable, int rowIndexPosition, int columnIndexPosition )
+  //  {
+  //    if ( insertTable != null )
+  //    {
+  //      //copy the foreign table to the current table cell for cell
+  //      for ( int ii = 0; ii < insertTable.getTableSize().getRowSize(); ii++ )
+  //      {
+  //        for ( int jj = 0; jj < insertTable.getTableSize().getColumnSize(); jj++ )
+  //        {
+  //          this.setCell( ii + rowIndexPosition, jj + columnIndexPosition, insertTable.getCell( ii, jj ) );
+  //        }
+  //      }
+  //      
+  //      //copy titles for rows and columns if necessary
+  //      for ( int ii = 0; ii < insertTable.getTableSize().getRowSize(); ii++ )
+  //      {
+  //        if ( this.getRowTitle( ii + rowIndexPosition ) == null && insertTable.getRowTitle( ii ) != null )
+  //        {
+  //          this.setRowTitle( insertTable.getRowTitle( ii ), ii + rowIndexPosition );
+  //        }
+  //      }
+  //      for ( int jj = 0; jj < insertTable.getTableSize().getColumnSize(); jj++ )
+  //      {
+  //        if ( this.getColumnTitle( jj + columnIndexPosition ) == null && insertTable.getColumnTitle( jj ) != null )
+  //        {
+  //          this.setColumnTitle( insertTable.getColumnTitle( jj ), jj + columnIndexPosition );
+  //        }
+  //      }
+  //    }
+  //    //
+  //    return this;
+  //  }
+  //  
+  //  public Table<E> putArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition )
+  //  {
+  //    //
+  //    for ( int ii = 0; ii < elementArray.length; ii++ )
+  //    {
+  //      for ( int jj = 0; jj < elementArray[ii].length; jj++ )
+  //      {
+  //        this.setCell( rowIndexPosition + ii, columnIndexPosition + jj, elementArray[ii][jj] );
+  //      }
+  //    }
+  //    
+  //    //
+  //    return this;
+  //  }
   
-  public Table<E> insertArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition )
-  {
-    //
-    this.insertEmptyRows( rowIndexPosition, elementArray.length );
-    //
-    this.putArray( elementArray, rowIndexPosition, columnIndexPosition );
-    
-    //
-    return this;
-  }
-  
-  public Table<E> insertTable( Table<E> insertIndexedTable, int rowIndexPosition, int columnIndexPosition )
-  {
-    //
-    this.insertEmptyRows( rowIndexPosition, insertIndexedTable.getTableSize().getRowSize() );
-    
-    //
-    this.putTable( insertIndexedTable, rowIndexPosition, columnIndexPosition );
-    
-    //
-    return this;
-  }
-  
-  public Table<E> putTable( Table<E> insertTable, int rowIndexPosition, int columnIndexPosition )
-  {
-    if ( insertTable != null )
-    {
-      //copy the foreign table to the current table cell for cell
-      for ( int ii = 0; ii < insertTable.getTableSize().getRowSize(); ii++ )
-      {
-        for ( int jj = 0; jj < insertTable.getTableSize().getColumnSize(); jj++ )
-        {
-          this.setCell( ii + rowIndexPosition, jj + columnIndexPosition, insertTable.getCell( ii, jj ) );
-        }
-      }
-      
-      //copy titles for rows and columns if necessary
-      for ( int ii = 0; ii < insertTable.getTableSize().getRowSize(); ii++ )
-      {
-        if ( this.getRowTitle( ii + rowIndexPosition ) == null && insertTable.getRowTitle( ii ) != null )
-        {
-          this.setRowTitle( insertTable.getRowTitle( ii ), ii + rowIndexPosition );
-        }
-      }
-      for ( int jj = 0; jj < insertTable.getTableSize().getColumnSize(); jj++ )
-      {
-        if ( this.getColumnTitle( jj + columnIndexPosition ) == null && insertTable.getColumnTitle( jj ) != null )
-        {
-          this.setColumnTitle( insertTable.getColumnTitle( jj ), jj + columnIndexPosition );
-        }
-      }
-    }
-    //
-    return this;
-  }
-  
-  public Table<E> putArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition )
-  {
-    //
-    for ( int ii = 0; ii < elementArray.length; ii++ )
-    {
-      for ( int jj = 0; jj < elementArray[ii].length; jj++ )
-      {
-        this.setCell( rowIndexPosition + ii, columnIndexPosition + jj, elementArray[ii][jj] );
-      }
-    }
-    
-    //
-    return this;
-  }
-  
+  @Override
   public Table<E> transpose()
   {
     //
-    this.tableHeader.swapColumnAndRowTitles();
-    
-    //
-    List<List<E>> tempList = this.columnList;
-    this.columnList = this.rowList;
-    this.rowList = tempList;
+    this.stripeListContainer.switchRowAndColumnStripeList();
     
     //
     return this;
@@ -772,92 +759,16 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this;
   }
   
-  public E getCell( int rowIndexPosition, int columnIndexPosition )
+  @Override
+  public Cell<E> getCell( int rowIndexPosition, int columnIndexPosition )
   {
-    //
-    E retval = null;
-    
-    //
-    if ( this.isRowAndColumnInTableBoundary( rowIndexPosition, columnIndexPosition ) )
-    {
-      List<E> row = this.rowList.get( rowIndexPosition );
-      retval = row.get( columnIndexPosition );
-    }
-    
-    //
-    return retval;
+    return this.cellResolver.resolveCell( rowIndexPosition, columnIndexPosition );
   }
   
-  /**
-   * Looks, if the given index positions are within the table row and column boundaries.
-   * 
-   * @see #isColumnInTableBoundary(int)
-   * @see #isRowInTableBoundary(int)
-   * @param rowIndexPosition
-   * @param columnIndexPosition
-   * @return
-   */
-  protected boolean isRowAndColumnInTableBoundary( int rowIndexPosition, int columnIndexPosition )
+  @Override
+  public E getCellElement( int rowIndexPosition, int columnIndexPosition )
   {
-    return this.isRowInTableBoundary( rowIndexPosition ) && this.isColumnInTableBoundary( columnIndexPosition );
-  }
-  
-  /**
-   * @see #isRowAndColumnInTableBoundary(int, int)
-   * @see #isColumnInTableBoundary(int)
-   * @param rowIndexPosition
-   * @return
-   */
-  protected boolean isRowInTableBoundary( int rowIndexPosition )
-  {
-    return rowIndexPosition >= 0 && rowIndexPosition < this.rowList.size();
-  }
-  
-  /**
-   * @see #isRowAndColumnInTableBoundary(int, int)
-   * @see #isRowInTableBoundary(int)
-   * @param columnIndexPosition
-   * @return
-   */
-  protected boolean isColumnInTableBoundary( int columnIndexPosition )
-  {
-    return columnIndexPosition >= 0 && columnIndexPosition < this.columnList.size();
-  }
-  
-  /**
-   * Expands the table, until it has enough rows and columns to have a table cell with the given index positions.
-   * 
-   * @param rowIndexPosition
-   * @param columnIndexPosition
-   * @return
-   */
-  protected boolean expandTableBoundariesToGivenIndexPositionsIfNecessary( int rowIndexPosition, int columnIndexPosition )
-  {
-    //
-    boolean retval = false;
-    
-    //
-    while ( this.columnList.size() <= columnIndexPosition )
-    {
-      this.columnList.add( this.createNewEmptyColumn() );
-      for ( List<E> iRow : this.rowList )
-      {
-        iRow.add( null );
-      }
-      retval = true;
-    }
-    while ( this.rowList.size() <= rowIndexPosition )
-    {
-      this.rowList.add( this.createNewEmptyRow() );
-      for ( List<E> iColumn : this.columnList )
-      {
-        iColumn.add( null );
-      }
-      retval = true;
-    }
-    
-    //
-    return retval;
+    return this.getCell( rowIndexPosition, columnIndexPosition ).getElement();
   }
   
   private List<E> createNewEmptyColumn()
@@ -974,39 +885,6 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this;
   }
   
-  @SuppressWarnings("unchecked")
-  protected List<E> determineRowFromJavaBean( Object beanObject )
-  {
-    //
-    List<E> row = new ArrayList<E>( 0 );
-    
-    //
-    BeanProperty[] beanObjectProperties = BeanUtil.determineBeanProperties( beanObject );
-    if ( this.tableHeader.hasColumnTitles() )
-    {
-      for ( int ii = 0; ii < this.tableHeader.columnTitles.size(); ii++ )
-      {
-        row.add( null );
-      }
-      
-      for ( BeanProperty iBeanProperty : beanObjectProperties )
-      {
-        if ( iBeanProperty.isReadable() && this.tableHeader.getColumnTitles().contains( iBeanProperty.getPropertyName() ) )
-        {
-          int columnIndexPosition = this.tableHeader.indexOfColumnTitle( iBeanProperty.getPropertyName() );
-          if ( columnIndexPosition >= 0 )
-          {
-            row.set( columnIndexPosition,
-                     (E) BeanUtil.invokeJavaBeanPropertyMethod( beanObject, iBeanProperty.getGetterMethodName(), null ) );
-          }
-        }
-      }
-    }
-    
-    //
-    return row;
-  }
-  
   public List<E> removeRow( int rowIndexPosition )
   {
     //
@@ -1045,8 +923,6 @@ public class ArrayTable<E> extends TableAbstract<E>
         iRow.remove( columnIndexPosition );
       }
       
-      //title of the row
-      this.tableHeader.removeColumnTitle( columnIndexPosition );
     }
     
     //
@@ -2705,6 +2581,18 @@ public class ArrayTable<E> extends TableAbstract<E>
     }
     sb.append( "]" );
     return sb.toString();
+  }
+  
+  @Override
+  public StripeListContainer<E> getStripeListContainer()
+  {
+    return this.stripeListContainer;
+  }
+  
+  @Override
+  public CellResolver<E> getCellResolver()
+  {
+    return this.cellResolver;
   }
   
 }
