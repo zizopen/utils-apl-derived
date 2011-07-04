@@ -15,8 +15,6 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.components.body;
 
-import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeListContainer;
@@ -25,28 +23,38 @@ public class StripeListContainerImpl<E> implements StripeListContainer<E>
 {
   /* ********************************************** Variables ********************************************** */
   @SuppressWarnings("unchecked")
-  protected StripeList<E>[] stripeLists = new StripeList[] { new StripeListArray<E>( Row.class ),
-      new StripeListArray<E>( Column.class ) };
+  protected StripeList<E>[] stripeLists = new StripeList[] { new StripeListArray<E>( StripeType.ROW ),
+      new StripeListArray<E>( StripeType.ROW ) };
   
   /* ********************************************** Methods ********************************************** */
+
+  @Override
+  public void switchRowAndColumnStripeList()
+  {
+    //
+    StripeList<E> stripeList = this.stripeLists[0];
+    this.stripeLists[0] = this.stripeLists[1];
+    this.stripeLists[1] = stripeList;
+  }
+  
   /**
    * Returns the Stripe for the given type.
    * 
-   * @param type
+   * @param stripeType
    * @return
    */
   @Override
-  public StripeList<E> getStripeList( Class<StripeType> type )
+  public StripeList<E> getStripeList( StripeType stripeType )
   {
     //    
     StripeList<E> retval = null;
     
     //
-    if ( type != null )
+    if ( stripeType != null )
     {
       for ( StripeList<E> stripeList : this.stripeLists )
       {
-        if ( type.equals( stripeList.getStripeType() ) )
+        if ( stripeType.equals( stripeList.getStripeType() ) )
         {
           //
           retval = this.stripeLists[0];

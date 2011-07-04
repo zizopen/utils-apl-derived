@@ -37,7 +37,7 @@ public class CellImpl<E> implements CellInternal<E>
   /* ********************************************** Methods ********************************************** */
 
   @Override
-  public E getValue()
+  public E getElement()
   {
     return this.element;
   }

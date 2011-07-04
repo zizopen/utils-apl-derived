@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.omnaest.utils.structure.table.IndexTable.TableSize;
+import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.CellIndexPosition;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.RowList;
@@ -359,7 +360,16 @@ public interface TableCore<E, T extends Table<E>>
    * @param columnIndexPosition
    * @return
    */
-  public E getCell( int rowIndexPosition, int columnIndexPosition );
+  public E getCellElement( int rowIndexPosition, int columnIndexPosition );
+  
+  /**
+   * Resolves the {@link Cell} for the given index positions.
+   * 
+   * @param rowIndexPosition
+   * @param columnIndexPosition
+   * @return
+   */
+  public Cell<E> getCell( int rowIndexPosition, int columnIndexPosition );
   
   /**
    * Returns the cell element determined by the given cell index position. The cell index position starts with 0 and increases

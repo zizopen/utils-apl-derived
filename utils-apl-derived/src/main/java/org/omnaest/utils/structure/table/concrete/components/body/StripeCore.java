@@ -15,7 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.components.body;
 
+import java.util.Iterator;
+import java.util.Set;
+
+import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe;
+import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 
 /**
@@ -27,8 +32,64 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 public abstract class StripeCore<E> implements StripeInternal<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID = 5552519174349074630L;
+  private static final long  serialVersionUID = 5552519174349074630L;
   /* ********************************************** Variables ********************************************** */
-  protected TitleInternal   title            = null;
+  protected TitleInternal    title            = null;
+  protected TableInternal<E> tableInternal    = null;
+  protected Set<Cell<E>>     cellSet          = null;
+  
+  /* ********************************************** Methods ********************************************** */
+  @Override
+  public Cell<E> getCell( int indexPosition )
+  {
+    return null;
+  }
+  
+  @Override
+  public int determineIndexPosition()
+  {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+  
+  @Override
+  public Title getTitle()
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+  
+  @Override
+  public Cell<E> getCell( Enum<?> title )
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+  
+  @Override
+  public Cell<E> getCell( String title )
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+  
+  @Override
+  public <B> B asBeanAdapter( Class<B> beanClass )
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+  
+  @Override
+  public Iterator<Cell<E>> iterator()
+  {
+    return this.cellSet.iterator();
+  }
+  
+  @Override
+  public boolean contains( Cell<E> cell )
+  {
+    return this.cellSet.contains( cell );
+  }
   
 }
