@@ -34,7 +34,7 @@ public interface TableInternal<E> extends Table<E>
    * @author Omnaest
    * @param <E>
    */
-  public interface CellResolver<E> extends Serializable
+  public interface CellAndStripeResolver<E> extends Serializable
   {
     /**
      * Resolves the {@link Cell} for the given index positions.
@@ -71,6 +71,22 @@ public interface TableInternal<E> extends Table<E>
      * @return
      */
     public Cell<E> resolveCell( Row<E> row, Column<E> column );
+    
+    /**
+     * Resolves a {@link ColumnInternal} for the given {@link Column} index position.
+     * 
+     * @param columnIndexPosition
+     * @return
+     */
+    public ColumnInternal<E> resolveColumn( int columnIndexPosition );
+    
+    /**
+     * Resolves a {@link RowInternal} for the given {@link Row} index position.
+     * 
+     * @param rowIndexPosition
+     * @return
+     */
+    public RowInternal<E> resolveRow( int rowIndexPosition );
   }
   
   /**
@@ -234,10 +250,10 @@ public interface TableInternal<E> extends Table<E>
   public StripeListContainer<E> getStripeListContainer();
   
   /**
-   * Returns the {@link CellResolver} of the {@link Table}
+   * Returns the {@link CellAndStripeResolver} of the {@link Table}
    * 
    * @return
    */
-  public CellResolver<E> getCellResolver();
+  public CellAndStripeResolver<E> getCellResolver();
   
 }

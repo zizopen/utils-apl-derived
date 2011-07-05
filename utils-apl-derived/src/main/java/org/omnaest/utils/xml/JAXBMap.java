@@ -62,7 +62,7 @@ public class JAXBMap<K, V> implements Map<K, V>
    * @return
    */
   @SuppressWarnings("unchecked")
-  public static <M extends Map<K, V>, K, V> M newInstance( Map<K, V> map )
+  public static <M extends JAXBMap<K, V>, K, V> M newInstance( Map<K, V> map )
   {
     //
     M retmap = null;
