@@ -33,7 +33,7 @@ import org.omnaest.utils.structure.collection.list.ListToListIteratorAdapter;
 import org.omnaest.utils.structure.table.IndexTable.IndexPositionPair;
 import org.omnaest.utils.structure.table.IndexTable.TableSize;
 import org.omnaest.utils.structure.table.Table;
-import org.omnaest.utils.structure.table.concrete.components.body.CellResolverImpl;
+import org.omnaest.utils.structure.table.concrete.components.body.CellAndStripeResolverImpl;
 import org.omnaest.utils.structure.table.concrete.components.body.StripeListContainerImpl;
 
 /**
@@ -45,11 +45,11 @@ import org.omnaest.utils.structure.table.concrete.components.body.StripeListCont
 public class ArrayTable<E> extends TableAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long     serialVersionUID    = 1763808639838518679L;
+  private static final long          serialVersionUID      = 1763808639838518679L;
   
   /* ********************************************** Variables ********************************************** */
-  protected StripeListContainer stripeListContainer = new StripeListContainerImpl<E>();
-  protected CellResolver<E>     cellResolver        = new CellResolverImpl( this );
+  protected StripeListContainer      stripeListContainer   = new StripeListContainerImpl<E>();
+  protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl( this );
   
   /* ********************************************** Methods ********************************************** */
 
@@ -550,6 +550,11 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> setRowTitle( String title, int rowIndexPosition )
   {
     //
+    RowInternal<E> row = this.cellAndStripeResolver.resolveRow( rowIndexPosition );
+    
+    row.getTitle().setValue( title );
+    
+    //
     List<String> rowTitleList = this.getRowTitleList();
     
     while ( rowIndexPosition >= rowTitleList.size() )
@@ -762,7 +767,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public Cell<E> getCell( int rowIndexPosition, int columnIndexPosition )
   {
-    return this.cellResolver.resolveCell( rowIndexPosition, columnIndexPosition );
+    return this.cellAndStripeResolver.resolveCell( rowIndexPosition, columnIndexPosition );
   }
   
   @Override
@@ -2590,9 +2595,9 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public CellResolver<E> getCellResolver()
+  public CellAndStripeResolver<E> getCellResolver()
   {
-    return this.cellResolver;
+    return this.cellAndStripeResolver;
   }
   
 }

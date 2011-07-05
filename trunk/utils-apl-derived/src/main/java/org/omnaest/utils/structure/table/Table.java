@@ -82,6 +82,13 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
        * @return
        */
       public String getValueAsString();
+      
+      /**
+       * Sets the value of the {@link Title}
+       * 
+       * @param value
+       */
+      public void setValue( Object value );
     }
     
     /* ********************************************** Methods ********************************************** */

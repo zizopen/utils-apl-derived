@@ -18,12 +18,10 @@ package org.omnaest.utils.structure.table.concrete.components.body;
 import org.omnaest.utils.structure.CloneableDeep;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
-import org.omnaest.utils.structure.table.concrete.components.tableheader.TableHeader;
 import org.omnaest.utils.structure.table.concrete.components.tableheader.title.TableTitleList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal.TitleInternal;
 
 /**
- * @see TableHeader
  * @see TableTitleList
  * @author Omnaest
  */
@@ -123,6 +121,12 @@ public class TitleImpl<E> implements TitleInternal, CloneableDeep<TitleImpl<E>>
   public boolean hasEqualValueTo( Title title )
   {
     return this.value == title.getValue() || ( this.value != null && this.value.equals( title.getValue() ) );
+  }
+  
+  @Override
+  public void setValue( Object value )
+  {
+    this.value = value;
   }
   
 }
