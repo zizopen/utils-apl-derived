@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -29,14 +30,15 @@ import org.omnaest.utils.proxy.MethodCallCapturer.MethodCallCaptureContext;
 import org.omnaest.utils.proxy.MethodCallCapturer.MethodCallCapturerAware;
 import org.omnaest.utils.proxy.MethodCallCapturer.ReplayResult;
 
+/**
+ * {@link MethodCallCapturer}
+ * 
+ * @author Omnaest
+ */
 public class MethodCallCapturerTest
 {
-  
-  @Before
-  public void setUp() throws Exception
-  {
-  }
-  
+  /* ********************************************** Classes/Interfaces ********************************************** */
+
   protected static interface TestInterface
   {
     public String doSomething( String text );
@@ -102,6 +104,12 @@ public class MethodCallCapturerTest
       return this.testSubInterfaceObject;
     }
     
+  }
+  
+  /* ********************************************** Methods ********************************************** */
+  @Before
+  public void setUp() throws Exception
+  {
   }
   
   @Test
@@ -179,36 +187,6 @@ public class MethodCallCapturerTest
   }
   
   @Test
-  public void testMethodNameOf()
-  {
-    //
-    MethodCallCapturer methodCallCapturer = new MethodCallCapturer();
-    TestInterface testInterface = methodCallCapturer.newInstanceOfTransitivlyCapturedType( TestInterface.class );
-    
-    //
-    String methodName;
-    {
-      //
-      methodName = methodCallCapturer.methodNameOf( testInterface.doSomething( "text value" ) );
-      assertEquals( "doSomething", methodName );
-      
-      //
-      methodName = methodCallCapturer.methodNameOf( testInterface.doSomethingPrimitive( "more text" ) );
-      assertEquals( "doSomethingPrimitive", methodName );
-      
-      //
-      methodName = methodCallCapturer.methodNameOf( testInterface.doTestSubInterface().doCalculateSomething() );
-      assertEquals( "doTestSubInterface.doCalculateSomething", methodName );
-      
-      //
-      methodName = methodCallCapturer.methodNameOf( testInterface.doTestSubInterface()
-                                                                 .doTestSubInterface()
-                                                                 .doCalculateSomething() );
-      assertEquals( "doTestSubInterface.doTestSubInterface.doCalculateSomething", methodName );
-    }
-  }
-  
-  @Test
   public void testReplay()
   {
     //
@@ -250,6 +228,44 @@ public class MethodCallCapturerTest
       assertEquals( true, subTestSubInterfaceObjectSub.doCalcualteSomething );
       assertNull( subTestSubInterfaceObjectSub.testSubInterfaceObject );
     }
+  }
+  
+  @Test
+  public void testGetCapturedCanonicalMethodNameListWithMergedHierarchyCalls()
+  {
+    //
+    MethodCallCapturer methodCallCapturer = new MethodCallCapturer();
+    TestInterface testInterface = methodCallCapturer.newInstanceOfTransitivlyCapturedType( TestInterface.class );
+    TestInterface testInterface2 = methodCallCapturer.newInstanceOfTransitivlyCapturedType( TestInterface.class );
+    
+    //
+    testInterface2.doSomething( "text value" );
+    testInterface2.doSomethingPrimitive( "more text" );
+    
+    testInterface.doSomething( "text value" );
+    testInterface.doSomethingPrimitive( "more text" );
+    testInterface.doTestSubInterface().doCalculateSomething();
+    testInterface.doTestSubInterface().doTestSubInterface().doCalculateSomething();
+    
+    testInterface2.doTestSubInterface().doCalculateSomething();
+    testInterface2.doTestSubInterface().doTestSubInterface().doCalculateSomething();
+    
+    //
+    {
+      List<String> capturedCanonicalMethodNameListWithMergedHierarchyCalls = methodCallCapturer.getCapturedCanonicalMethodNameListWithMergedHierarchyCalls( testInterface );
+      assertEquals( Arrays.asList( "doSomething", "doSomethingPrimitive", "doTestSubInterface.doCalculateSomething",
+                                   "doTestSubInterface.doTestSubInterface.doCalculateSomething" ),
+                    capturedCanonicalMethodNameListWithMergedHierarchyCalls );
+    }
+    
+    //
+    {
+      List<String> capturedCanonicalMethodNameListWithMergedHierarchyCalls = methodCallCapturer.getCapturedCanonicalMethodNameListWithMergedHierarchyCalls( testInterface2 );
+      assertEquals( Arrays.asList( "doSomething", "doSomethingPrimitive", "doTestSubInterface.doCalculateSomething",
+                                   "doTestSubInterface.doTestSubInterface.doCalculateSomething" ),
+                    capturedCanonicalMethodNameListWithMergedHierarchyCalls );
+    }
+    
   }
   
 }
