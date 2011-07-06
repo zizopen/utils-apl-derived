@@ -81,12 +81,30 @@ public interface TableInternal<E> extends Table<E>
     public ColumnInternal<E> resolveColumn( int columnIndexPosition );
     
     /**
+     * Tries to resolve the {@link Column} for the given {@link Column} index position. If the {@link Column} does not exists but
+     * would have a valid {@link Column} index position it will be created.
+     * 
+     * @param columnIndexPosition
+     * @return
+     */
+    public ColumnInternal<E> resolveOrCreateColumn( int columnIndexPosition );
+    
+    /**
      * Resolves a {@link RowInternal} for the given {@link Row} index position.
      * 
      * @param rowIndexPosition
      * @return
      */
     public RowInternal<E> resolveRow( int rowIndexPosition );
+    
+    /**
+     * Tries to resolve the {@link Row} for the given {@link Row} index position. If the {@link Row} does not exists but would
+     * have a valid {@link Row} index position it will be created.
+     * 
+     * @param rowIndexPosition
+     * @return
+     */
+    public RowInternal<E> resolveOrCreateRow( int rowIndexPosition );
   }
   
   /**
@@ -137,7 +155,7 @@ public interface TableInternal<E> extends Table<E>
    * @author Omnaest
    * @param <E>
    */
-  public static interface StripeList<E> extends Iterable<Stripe<E>>
+  public static interface StripeList<E> extends Iterable<StripeInternal<E>>
   {
     
     /**
@@ -168,7 +186,7 @@ public interface TableInternal<E> extends Table<E>
      * @param indexPosition
      * @return
      */
-    public Stripe<E> getStripe( int indexPosition );
+    public StripeInternal<E> getStripe( int indexPosition );
     
     /**
      * Returns the {@link Stripe} which contains the given {@link Cell}
@@ -176,7 +194,7 @@ public interface TableInternal<E> extends Table<E>
      * @param cell
      * @return
      */
-    public Stripe<E> getStripe( Cell<E> cell );
+    public StripeInternal<E> getStripe( Cell<E> cell );
     
     /**
      * Returns true if the {@link StripeList} does not contain any {@link Stripe} instance.
@@ -191,6 +209,13 @@ public interface TableInternal<E> extends Table<E>
      * @return
      */
     public int size();
+    
+    /**
+     * Adds a new created {@link Stripe} instance to the end of the {@link StripeList}
+     * 
+     * @return
+     */
+    public StripeInternal<E> addNewStripe();
     
   }
   
