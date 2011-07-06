@@ -168,7 +168,15 @@ public interface TableInternal<E> extends Table<E>
      * @param indexPosition
      * @return
      */
-    public Stripe<E> get( int indexPosition );
+    public Stripe<E> getStripe( int indexPosition );
+    
+    /**
+     * Returns the {@link Stripe} which contains the given {@link Cell}
+     * 
+     * @param cell
+     * @return
+     */
+    public Stripe<E> getStripe( Cell<E> cell );
     
     /**
      * Returns true if the {@link StripeList} does not contain any {@link Stripe} instance.

@@ -163,7 +163,7 @@ public class CellAndStripeResolverImpl<E> implements CellAndStripeResolver<E>
       StripeList<E> stripeList = stripeListContainer.getStripeList( stripeType );
       
       //
-      retval = stripeList.get( indexPosition );
+      retval = stripeList.getStripe( indexPosition );
     }
     
     //

@@ -16,13 +16,14 @@
 package org.omnaest.utils.structure.table.concrete.components.body;
 
 import org.omnaest.utils.structure.CloneableDeep;
+import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
-import org.omnaest.utils.structure.table.concrete.components.tableheader.title.TableTitleList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal.TitleInternal;
 
 /**
- * @see TableTitleList
+ * @see Table
+ * @see Title
  * @author Omnaest
  */
 public class TitleImpl<E> implements TitleInternal, CloneableDeep<TitleImpl<E>>
@@ -36,7 +37,7 @@ public class TitleImpl<E> implements TitleInternal, CloneableDeep<TitleImpl<E>>
   /* ********************************************** Methods ********************************************** */
 
   /**
-   * Creates a new {@link TitleImpl} instance
+   * Creates a new {@link Title} instance
    */
   public TitleImpl()
   {
