@@ -717,8 +717,8 @@ public class ArrayTable<E> extends TableAbstract<E>
       this.expandTableBoundariesToGivenIndexPositionsIfNecessary( rowIndexPosition, columnIndexPosition );
       
       //
-      List<E> column = this.columnList.get( columnIndexPosition );
-      List<E> row = this.rowList.get( rowIndexPosition );
+      List<E> column = this.columnList.getStripe( columnIndexPosition );
+      List<E> row = this.rowList.getStripe( rowIndexPosition );
       
       column.set( rowIndexPosition, element );
       row.set( columnIndexPosition, element );
@@ -979,7 +979,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     Row<E> retlist = new ArrayTableRow<E>( this.columnList.size() );
     
     //
-    for ( E iElement : this.rowList.get( rowIndexPosition ) )
+    for ( E iElement : this.rowList.getStripe( rowIndexPosition ) )
     {
       retlist.add( iElement );
     }
@@ -1053,7 +1053,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     List<E> retlist = new ArrayList<E>( this.rowList.size() );
     
     //
-    for ( E iElement : this.columnList.get( columnIndexPosition ) )
+    for ( E iElement : this.columnList.getStripe( columnIndexPosition ) )
     {
       retlist.add( iElement );
     }
@@ -1790,7 +1790,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     //    
     for ( int ii = this.rowList.size() - 1; ii >= 0; ii-- )
     {
-      int indexOf = this.rowList.get( ii ).lastIndexOf( element );
+      int indexOf = this.rowList.getStripe( ii ).lastIndexOf( element );
       if ( indexOf >= 0 )
       {
         retval = this.determineCellIndexPosition( ii, indexOf );
@@ -1810,7 +1810,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     //    
     for ( int ii = 0; ii < this.rowList.size(); ii++ )
     {
-      int indexOf = this.rowList.get( ii ).indexOf( element );
+      int indexOf = this.rowList.getStripe( ii ).indexOf( element );
       if ( indexOf >= 0 )
       {
         retval = this.determineCellIndexPosition( ii, indexOf );
@@ -1824,13 +1824,13 @@ public class ArrayTable<E> extends TableAbstract<E>
   
   public int indexOfFirstColumnWithElementEquals( int rowIndexPosition, E element )
   {
-    List<E> row = this.rowList.get( rowIndexPosition );
+    List<E> row = this.rowList.getStripe( rowIndexPosition );
     return row.indexOf( element );
   }
   
   public int indexOfFirstRowWithElementEquals( int columnIndexPosition, E element )
   {
-    List<E> column = this.columnList.get( columnIndexPosition );
+    List<E> column = this.columnList.getStripe( columnIndexPosition );
     return column.indexOf( element );
   }
   
@@ -1843,7 +1843,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     {
       //make a full table scan
       List<Integer> indexPositionList = new ArrayList<Integer>( 0 );
-      List<E> column = this.columnList.get( columnIndexPosition );
+      List<E> column = this.columnList.getStripe( columnIndexPosition );
       
       for ( int ii = 0; ii < column.size(); ii++ )
       {
@@ -1899,7 +1899,7 @@ public class ArrayTable<E> extends TableAbstract<E>
       
       for ( int rowIndexPosition = 0; rowIndexPosition < this.getTableSize().getRowSize(); rowIndexPosition++ )
       {
-        List<E> iTableRow = this.rowList.get( rowIndexPosition );
+        List<E> iTableRow = this.rowList.getStripe( rowIndexPosition );
         if ( iTableRow != null && iTableRow.equals( row ) )
         {
           rowIndexPositionList.add( rowIndexPosition );
@@ -1917,7 +1917,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   
   public int lastIndexOfElementWithinRow( int rowIndexPosition, E element )
   {
-    List<E> row = this.rowList.get( rowIndexPosition );
+    List<E> row = this.rowList.getStripe( rowIndexPosition );
     return row.lastIndexOf( element );
   }
   
@@ -1933,7 +1933,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   
   public int lastIndexOfElementWithinColumn( int columnIndexPosition, E element )
   {
-    List<E> column = this.columnList.get( columnIndexPosition );
+    List<E> column = this.columnList.getStripe( columnIndexPosition );
     return column.lastIndexOf( element );
   }
   
@@ -2530,7 +2530,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     //
     for ( String columnTitle : this.getColumnTitleList() )
     {
-      beanObject = BeanUtil.injectValueOfPropertyIntoBean( beanObject, columnTitle, row.get( columnTitle ) );
+      beanObject = BeanUtil.injectValueOfPropertyIntoBean( beanObject, columnTitle, row.getStripe( columnTitle ) );
     }
     
     //

@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
@@ -100,7 +101,7 @@ public class StripeListArray<E> implements StripeList<E>
   }
   
   @Override
-  public Stripe<E> get( int index )
+  public Stripe<E> getStripe( int index )
   {
     return index >= 0 && index < this.stripeList.size() ? this.stripeList.get( index ) : null;
   }
@@ -109,6 +110,30 @@ public class StripeListArray<E> implements StripeList<E>
   public Iterator<Stripe<E>> iterator()
   {
     return this.stripeList.iterator();
+  }
+  
+  @Override
+  public Stripe<E> getStripe( Cell<E> cell )
+  {
+    //
+    Stripe<E> retval = null;
+    
+    //
+    if ( cell != null )
+    {
+      for ( Stripe<E> stripe : this.stripeList )
+      {
+        if ( stripe.contains( cell ) )
+        {
+          //
+          retval = stripe;
+          break;
+        }
+      }
+    }
+    
+    //
+    return retval;
   }
   
 }
