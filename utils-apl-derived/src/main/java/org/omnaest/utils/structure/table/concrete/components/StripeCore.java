@@ -34,50 +34,16 @@ public abstract class StripeCore<E> implements StripeInternal<E>
   /* ********************************************** Constants ********************************************** */
   private static final long  serialVersionUID = 5552519174349074630L;
   /* ********************************************** Variables ********************************************** */
-  protected TitleInternal    title            = null;
+  protected TitleInternal    title            = new TitleImpl<E>( this );
   protected TableInternal<E> tableInternal    = null;
   protected Set<Cell<E>>     cellSet          = null;
   
   /* ********************************************** Methods ********************************************** */
-  @Override
-  public Cell<E> getCell( int indexPosition )
-  {
-    return null;
-  }
-  
-  @Override
-  public int determineIndexPosition()
-  {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-  
+
   @Override
   public Title getTitle()
   {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Cell<E> getCell( Enum<?> title )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Cell<E> getCell( String title )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public <B> B asBeanAdapter( Class<B> beanClass )
-  {
-    // TODO Auto-generated method stub
-    return null;
+    return this.title;
   }
   
   @Override
@@ -90,6 +56,18 @@ public abstract class StripeCore<E> implements StripeInternal<E>
   public boolean contains( Cell<E> cell )
   {
     return this.cellSet.contains( cell );
+  }
+  
+  @Override
+  public Cell<E> getCell( int indexPosition )
+  {
+    return this.tableInternal.getCellResolver().resolveCell( this, indexPosition );
+  }
+  
+  @Override
+  public Cell<E> getCell( Object titleValue )
+  {
+    return this.tableInternal.getCellResolver().resolveCell( this, titleValue );
   }
   
 }

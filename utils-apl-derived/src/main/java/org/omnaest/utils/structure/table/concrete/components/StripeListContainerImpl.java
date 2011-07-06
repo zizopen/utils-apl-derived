@@ -20,7 +20,13 @@ import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeListContainer;
 
-public class StripeListContainerImpl<E> implements StripeListContainer<E>
+/**
+ * @author Omnaest
+ * @see StripeListContainerAbstract
+ * @see StripeListContainer
+ * @param <E>
+ */
+public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
 {
   /* ********************************************** Variables ********************************************** */
   @SuppressWarnings("unchecked")

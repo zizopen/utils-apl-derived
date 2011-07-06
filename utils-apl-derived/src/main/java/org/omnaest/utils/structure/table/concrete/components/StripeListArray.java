@@ -166,4 +166,41 @@ public class StripeListArray<E> implements StripeList<E>
     return retval;
   }
   
+  @Override
+  public boolean contains( Stripe<E> stripe )
+  {
+    return this.stripeList.contains( stripe );
+  }
+  
+  @Override
+  public boolean contains( Object titleValue )
+  {
+    return this.getStripe( titleValue ) != null;
+  }
+  
+  @Override
+  public StripeInternal<E> getStripe( Object titleValue )
+  {
+    //
+    StripeInternal<E> retval = null;
+    
+    //
+    if ( titleValue != null )
+    {
+      for ( StripeInternal<E> stripe : this.stripeList )
+      {
+        //
+        Object value = stripe.getTitle().getValue();
+        
+        //
+        if ( titleValue.equals( value ) )
+        {
+          retval = stripe;
+        }
+      }
+    }
+    
+    //
+    return retval;
+  }
 }
