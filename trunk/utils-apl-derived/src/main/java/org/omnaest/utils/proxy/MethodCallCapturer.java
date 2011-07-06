@@ -25,6 +25,7 @@ import java.util.Map;
 import net.sf.cglib.proxy.MethodInterceptor;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.omnaest.utils.proxy.StubCreator.MethodInvocationHandler;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
@@ -573,31 +574,6 @@ public class MethodCallCapturer
   }
   
   /**
-   * Returns the canonical method name of the last method call done from the stub created by this {@link MethodCallCapturer}
-   * instance.<br>
-   * <br>
-   * This should be used like <br>
-   * <br>
-   * <code>
-   *   MethodCallCapturer methodCallCapturer = new MethodCallCapturer();<br>
-   *   TestInterface testInterface = methodCallCapturer.newInstanceOfCapturedType( TestInterface.class );<br>   
-   *   String methodName = methodCallCapturer.methodNameOf( testInterface.doSomething() ); 
-   * </code><br>
-   * <br>
-   * where the <code>stub</code> is a previously created stub by this {@link MethodCallCapturer} instance.
-   * 
-   * @param object
-   * @return
-   */
-  public String methodNameOf( Object object )
-  {
-    //
-    List<String> canonicalMethodNameList = this.getCapturedCanonicalMethodNameList();
-    int canonicalMethodNameListSize = canonicalMethodNameList.size();
-    return canonicalMethodNameListSize > 0 ? canonicalMethodNameList.get( canonicalMethodNameListSize - 1 ) : null;
-  }
-  
-  /**
    * Returns a new list of all captured canonical method names for a given stub object in order of their invocation. (First
    * invocation is the first entry)
    * 
@@ -630,11 +606,71 @@ public class MethodCallCapturer
    * Returns a new list of all captured canonical method names for the last active stub object in order of their invocation.
    * (First invocation is the first entry)
    * 
+   * @see #getCapturedCanonicalMethodNameListWithMergedHierarchyCalls(Object)
    * @return
    */
   public List<String> getCapturedCanonicalMethodNameList()
   {
     return this.getCapturedCanonicalMethodNameList( this.lastActiveRootStub );
+  }
+  
+  /**
+   * Returns a {@link List} of the canonical method names captured by the last active stub.
+   * 
+   * @see #getCapturedCanonicalMethodNameListWithMergedHierarchyCalls(Object)
+   * @return
+   */
+  public List<String> getCapturedCanonicalMethodNameListWithMergedHierarchyCalls()
+  {
+    return this.getCapturedCanonicalMethodNameListWithMergedHierarchyCalls( this.lastActiveRootStub );
+  }
+  
+  /**
+   * Returns a {@link List} of the canonical method names captured by the given stub but with all hierarchical calls like
+   * <code>testInterface.doTestSubInterface().doCalculateSomething()</code> which result in
+   * <ul>
+   * <li>testInterface</li>
+   * <li>testInterface.doTestSubInterface</li>
+   * <li>testInterface.doTestSubInterface.doCalculateSomething</li>
+   * </ul>
+   * merged into a single representation like:
+   * <ul>
+   * <li>testInterface.doTestSubInterface.doCalculateSomething</li>
+   * </ul>
+   * 
+   * @see #getCapturedCanonicalMethodNameList()
+   * @see #getCapturedCanonicalMethodNameListWithMergedHierarchyCalls()
+   * @param stub
+   * @return
+   */
+  public List<String> getCapturedCanonicalMethodNameListWithMergedHierarchyCalls( Object stub )
+  {
+    //
+    List<String> retlist = new ArrayList<String>();
+    
+    //
+    List<String> capturedCanonicalMethodNameList = this.getCapturedCanonicalMethodNameList( stub );
+    Collections.reverse( capturedCanonicalMethodNameList );
+    
+    //
+    String methodNameLast = null;
+    for ( String methodName : capturedCanonicalMethodNameList )
+    {
+      //
+      if ( methodNameLast == null || !StringUtils.startsWith( methodNameLast, methodName + "." ) )
+      {
+        retlist.add( methodName );
+      }
+      
+      //
+      methodNameLast = methodName;
+    }
+    
+    //
+    Collections.reverse( retlist );
+    
+    //
+    return retlist;
   }
   
   /**
