@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.components.body;
+package org.omnaest.utils.structure.table.concrete.components;
 
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
+import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeListContainer;
 
@@ -23,11 +24,22 @@ public class StripeListContainerImpl<E> implements StripeListContainer<E>
 {
   /* ********************************************** Variables ********************************************** */
   @SuppressWarnings("unchecked")
-  protected StripeList<E>[] stripeLists = new StripeList[] { new StripeListArray<E>( StripeType.ROW ),
+  protected StripeList<E>[]  stripeLists   = new StripeList[] { new StripeListArray<E>( StripeType.ROW ),
       new StripeListArray<E>( StripeType.ROW ) };
+  
+  protected TableInternal<E> tableInternal = null;
   
   /* ********************************************** Methods ********************************************** */
 
+  /**
+   * @param tableInternal
+   */
+  public StripeListContainerImpl( TableInternal<E> tableInternal )
+  {
+    super();
+    this.tableInternal = tableInternal;
+  }
+  
   @Override
   public void switchRowAndColumnStripeList()
   {

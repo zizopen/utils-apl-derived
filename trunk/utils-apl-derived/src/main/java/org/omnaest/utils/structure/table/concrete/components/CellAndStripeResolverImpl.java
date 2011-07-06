@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.components.body;
+package org.omnaest.utils.structure.table.concrete.components;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
@@ -25,16 +25,18 @@ import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellAndStripeResolver;
 import org.omnaest.utils.structure.table.internal.TableInternal.ColumnInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.RowInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeListContainer;
 
 /**
  * @see TableInternal
  * @see CellAndStripeResolver
+ * @see CellAndStripeResolverAbstract
  * @author Omnaest
  * @param <E>
  */
-public class CellAndStripeResolverImpl<E> implements CellAndStripeResolver<E>
+public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long  serialVersionUID = 7793892246619215531L;
@@ -51,24 +53,6 @@ public class CellAndStripeResolverImpl<E> implements CellAndStripeResolver<E>
   {
     super();
     this.tableInternal = tableInternal;
-  }
-  
-  @Override
-  public Cell<E> resolveCell( int rowIndexPosition, int columnIndexPosition )
-  {
-    return this.resolveCell( this.resolveRow( rowIndexPosition ), this.resolveColumn( columnIndexPosition ) );
-  }
-  
-  @Override
-  public Cell<E> resolveCell( Row<E> row, int columnIndexPosition )
-  {
-    return this.resolveCell( row, this.resolveColumn( columnIndexPosition ) );
-  }
-  
-  @Override
-  public Cell<E> resolveCell( int rowIndexPosition, Column<E> column )
-  {
-    return this.resolveCell( this.resolveRow( rowIndexPosition ), column );
   }
   
   @Override
@@ -148,10 +132,10 @@ public class CellAndStripeResolverImpl<E> implements CellAndStripeResolver<E>
    * @param indexPosition
    * @return
    */
-  protected Stripe<E> resolveStripe( StripeType stripeType, int indexPosition )
+  protected StripeInternal<E> resolveStripe( StripeType stripeType, int indexPosition )
   {
     //
-    Stripe<E> retval = null;
+    StripeInternal<E> retval = null;
     
     //
     if ( stripeType != null )
@@ -170,4 +154,75 @@ public class CellAndStripeResolverImpl<E> implements CellAndStripeResolver<E>
     return retval;
   }
   
+  /**
+   * @see #resolveOrCreateStripe(StripeType, int)
+   * @param columnIndexPosition
+   */
+  @Override
+  public ColumnInternal<E> resolveOrCreateColumn( int columnIndexPosition )
+  {
+    //
+    ColumnInternal<E> column = null;
+    
+    //
+    StripeInternal<E> stripeInternal = this.resolveOrCreateStripe( StripeType.COLUMN, columnIndexPosition );
+    if ( stripeInternal instanceof ColumnInternal )
+    {
+      //
+      column = (ColumnInternal<E>) stripeInternal;
+    }
+    
+    //
+    return column;
+  }
+  
+  /**
+   * @see #resolveOrCreateStripe(StripeType, int)
+   * @param rowIndexPosition
+   */
+  @Override
+  public RowInternal<E> resolveOrCreateRow( int rowIndexPosition )
+  {
+    //
+    RowInternal<E> row = null;
+    
+    //
+    StripeInternal<E> stripeInternal = this.resolveOrCreateStripe( StripeType.ROW, rowIndexPosition );
+    if ( stripeInternal instanceof RowInternal )
+    {
+      //
+      row = (RowInternal<E>) stripeInternal;
+    }
+    
+    //
+    return row;
+  }
+  
+  /**
+   * Tries to resolve a {@link StripeInternal} instance for the given index position and {@link StripeType}. If no {@link Stripe}
+   * instance could be resolved for the given valid index position as many are created until there is an instance available for
+   * the given index position.
+   * 
+   * @param stripeType
+   * @param indexPosition
+   * @return
+   */
+  protected StripeInternal<E> resolveOrCreateStripe( StripeType stripeType, int indexPosition )
+  {
+    //
+    StripeInternal<E> stripe = null;
+    
+    //
+    if ( indexPosition >= 0 )
+    {
+      //
+      while ( ( stripe = this.resolveStripe( stripeType, indexPosition ) ) == null )
+      {
+        this.tableInternal.getStripeListContainer().getStripeList( stripeType ).addNewStripe();
+      }
+    }
+    
+    //
+    return stripe;
+  }
 }

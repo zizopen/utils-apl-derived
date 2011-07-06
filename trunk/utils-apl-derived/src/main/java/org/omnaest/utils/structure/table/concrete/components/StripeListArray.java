@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.components.body;
+package org.omnaest.utils.structure.table.concrete.components;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
+import org.omnaest.utils.structure.table.internal.TableInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 
 /**
@@ -34,11 +35,40 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 public class StripeListArray<E> implements StripeList<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected List<Stripe<E>> stripeList = new ArrayList<Table.Stripe<E>>();
-  protected StripeType      stripeType = null;
+  protected List<StripeInternal<E>> stripeList    = new ArrayList<StripeInternal<E>>();
+  protected StripeType              stripeType    = null;
+  protected TableInternal<E>        tableInternal = null;
   
   /* ********************************************** Methods ********************************************** */
 
+  /**
+   * Adds a new created {@link Stripe} instance to the {@link StripeListArray}.
+   */
+  @Override
+  public StripeInternal<E> addNewStripe()
+  {
+    //
+    StripeInternal<E> retval = new RowAndColumnImpl<E>( this.tableInternal );
+    
+    //
+    this.stripeList.add( retval );
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * @param tableInternal
+   */
+  public StripeListArray( TableInternal<E> tableInternal )
+  {
+    super();
+    this.tableInternal = tableInternal;
+  }
+  
+  /**
+   * @param stripeType
+   */
   public StripeListArray( StripeType stripeType )
   {
     super();
@@ -59,7 +89,7 @@ public class StripeListArray<E> implements StripeList<E>
   
   public boolean add( Stripe<E> e )
   {
-    return this.stripeList.add( e );
+    return this.stripeList.add( (StripeInternal<E>) e );
   }
   
   public boolean remove( Object o )
@@ -74,12 +104,12 @@ public class StripeListArray<E> implements StripeList<E>
   
   public Stripe<E> set( int index, Stripe<E> element )
   {
-    return this.stripeList.set( index, element );
+    return this.stripeList.set( index, (StripeInternal<E>) element );
   }
   
   public void add( int index, Stripe<E> element )
   {
-    this.stripeList.add( index, element );
+    this.stripeList.add( index, (StripeInternal<E>) element );
   }
   
   @Override
@@ -101,27 +131,27 @@ public class StripeListArray<E> implements StripeList<E>
   }
   
   @Override
-  public Stripe<E> getStripe( int index )
+  public StripeInternal<E> getStripe( int index )
   {
     return index >= 0 && index < this.stripeList.size() ? this.stripeList.get( index ) : null;
   }
   
   @Override
-  public Iterator<Stripe<E>> iterator()
+  public Iterator<StripeInternal<E>> iterator()
   {
     return this.stripeList.iterator();
   }
   
   @Override
-  public Stripe<E> getStripe( Cell<E> cell )
+  public StripeInternal<E> getStripe( Cell<E> cell )
   {
     //
-    Stripe<E> retval = null;
+    StripeInternal<E> retval = null;
     
     //
     if ( cell != null )
     {
-      for ( Stripe<E> stripe : this.stripeList )
+      for ( StripeInternal<E> stripe : this.stripeList )
       {
         if ( stripe.contains( cell ) )
         {

@@ -33,8 +33,8 @@ import org.omnaest.utils.structure.collection.list.ListToListIteratorAdapter;
 import org.omnaest.utils.structure.table.IndexTable.IndexPositionPair;
 import org.omnaest.utils.structure.table.IndexTable.TableSize;
 import org.omnaest.utils.structure.table.Table;
-import org.omnaest.utils.structure.table.concrete.components.body.CellAndStripeResolverImpl;
-import org.omnaest.utils.structure.table.concrete.components.body.StripeListContainerImpl;
+import org.omnaest.utils.structure.table.concrete.components.CellAndStripeResolverImpl;
+import org.omnaest.utils.structure.table.concrete.components.StripeListContainerImpl;
 
 /**
  * Implementation of {@link Table} that uses two array lists as row and column data structure.
@@ -48,7 +48,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   private static final long          serialVersionUID      = 1763808639838518679L;
   
   /* ********************************************** Variables ********************************************** */
-  protected StripeListContainer      stripeListContainer   = new StripeListContainerImpl<E>();
+  protected StripeListContainer      stripeListContainer   = new StripeListContainerImpl<E>( this );
   protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl( this );
   
   /* ********************************************** Methods ********************************************** */
@@ -613,6 +613,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this;
   }
   
+  @Override
   public Table<E> setColumnTitles( Class<?> beanClass )
   {
     //
@@ -648,11 +649,15 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this;
   }
   
+  @Override
   public Table<E> setColumnTitles( List<String> titleList )
   {
     //create a new list, its not defined which kind of list is passed as parameter
     List<String> columnTitleList = new ArrayList<String>( 0 );
     columnTitleList.addAll( titleList );
+    
+    //
+    this.cellAndStripeResolver.resolveColumn( columnIndexPosition );
     
     //
     this.tableHeader.setColumnTitles( columnTitleList );

@@ -17,7 +17,6 @@ package org.omnaest.utils.structure.table.concrete.components;
 
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
-import org.omnaest.utils.structure.table.concrete.components.body.StripeCore;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 
 /**
@@ -37,7 +36,7 @@ public class RowAndColumnImpl<E> extends StripeCore<E> implements Row<E>, Column
   /**
    * @param tableInternal
    */
-  public RowAndColumnImpl( TableInternal<E> tableInternal )
+  protected RowAndColumnImpl( TableInternal<E> tableInternal )
   {
     //
     super();
