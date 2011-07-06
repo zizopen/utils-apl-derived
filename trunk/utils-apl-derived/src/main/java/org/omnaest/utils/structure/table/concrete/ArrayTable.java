@@ -33,6 +33,8 @@ import org.omnaest.utils.structure.collection.list.ListToListIteratorAdapter;
 import org.omnaest.utils.structure.table.IndexTable.IndexPositionPair;
 import org.omnaest.utils.structure.table.IndexTable.TableSize;
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
+import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.concrete.components.CellAndStripeResolverImpl;
 import org.omnaest.utils.structure.table.concrete.components.StripeListContainerImpl;
 
@@ -517,100 +519,49 @@ public class ArrayTable<E> extends TableAbstract<E>
     return retval;
   }
   
-  public Table<E> setRowTitles( Enum<?>[] rowTitleEnums )
+  @Override
+  public Table<E> setRowTitle( Object titleValue, int rowIndexPosition )
   {
     //
-    List<String> titleList = new ArrayList<String>( 0 );
-    if ( rowTitleEnums != null )
-    {
-      for ( Enum<?> iTitleEnum : rowTitleEnums )
-      {
-        String iTitle = iTitleEnum.toString();
-        titleList.add( iTitle );
-      }
-      this.setRowTitles( titleList );
-    }
-    //
-    return this;
-  }
-  
-  public Table<E> setRowTitles( String[] titles )
-  {
-    //
-    List<String> titleList = new ArrayList<String>( 0 );
-    Collections.addAll( titleList, titles );
-    
-    //
-    this.setRowTitles( titleList );
-    
-    //
-    return this;
-  }
-  
-  public Table<E> setRowTitle( String title, int rowIndexPosition )
-  {
-    //
-    RowInternal<E> row = this.cellAndStripeResolver.resolveRow( rowIndexPosition );
-    
-    row.getTitle().setValue( title );
-    
-    //
-    List<String> rowTitleList = this.getRowTitleList();
-    
-    while ( rowIndexPosition >= rowTitleList.size() )
-    {
-      rowTitleList.add( null );
-    }
-    
-    rowTitleList.set( rowIndexPosition, title );
-    
-    //
-    return this;
-  }
-  
-  public Table<E> setRowTitles( List<String> titleList )
-  {
-    //create a new list, its not defined which kind of list is passed as parameter
-    List<String> rowTitleList = new ArrayList<String>( 0 );
-    rowTitleList.addAll( titleList );
-    
-    //
-    this.tableHeader.setRowTitles( rowTitleList );
-    
-    //
-    return this;
-  }
-  
-  public Table<E> setColumnTitles( Enum<?>[] titleEnumerations )
-  {
-    //
-    List<String> titleList = new ArrayList<String>( 0 );
-    if ( titleEnumerations != null )
-    {
-      for ( Enum<?> iTitleEnum : titleEnumerations )
-      {
-        String iTitle = iTitleEnum.toString();
-        titleList.add( iTitle );
-      }
-      this.setColumnTitles( titleList );
-    }
+    RowInternal<E> row = this.cellAndStripeResolver.resolveOrCreateRow( rowIndexPosition );
+    row.getTitle().setValue( titleValue );
     
     //
     return this;
   }
   
   @Override
-  public Table<E> setColumnTitles( String... titles )
+  public Table<E> setRowTitles( List<String> titleList )
   {
     //
-    List<String> columnTitleList = new ArrayList<String>( 0 );
-    Collections.addAll( columnTitleList, titles );
-    
-    //
-    this.setColumnTitles( columnTitleList );
+    this.setStripeTitleValueList( titleList, StripeType.ROW );
     
     //
     return this;
+  }
+  
+  /**
+   * Sets the {@link Title} elements of the {@link Row}s or {@link Column}s
+   * 
+   * @param titleValueList
+   * @param stripeType
+   */
+  protected void setStripeTitleValueList( List<? extends Object> titleValueList, StripeType stripeType )
+  {
+    //
+    if ( titleValueList != null && stripeType != null )
+    {
+      //
+      for ( int indexPosition = 0; indexPosition < titleValueList.size(); indexPosition++ )
+      {
+        //
+        StripeInternal<E> stripe = this.cellAndStripeResolver.resolveOrCreateStripe( stripeType, indexPosition );
+        
+        //
+        Title title = stripe.getTitle();
+        title.setValue( titleValueList.get( indexPosition ) );
+      }
+    }
   }
   
   @Override
@@ -635,15 +586,12 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this;
   }
   
-  public Table<E> setColumnTitle( String title, int columnIndexPosition )
+  @Override
+  public Table<E> setColumnTitle( Object titleValue, int columnIndexPosition )
   {
     //
-    List<String> columnTitleList = this.getColumnTitleList();
-    while ( columnIndexPosition >= columnTitleList.size() )
-    {
-      columnTitleList.add( null );
-    }
-    columnTitleList.set( columnIndexPosition, title );
+    ColumnInternal<E> column = this.cellAndStripeResolver.resolveOrCreateColumn( columnIndexPosition );
+    column.getTitle().setValue( titleValue );
     
     //
     return this;
@@ -652,41 +600,88 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public Table<E> setColumnTitles( List<String> titleList )
   {
-    //create a new list, its not defined which kind of list is passed as parameter
-    List<String> columnTitleList = new ArrayList<String>( 0 );
-    columnTitleList.addAll( titleList );
-    
     //
-    this.cellAndStripeResolver.resolveColumn( columnIndexPosition );
-    
-    //
-    this.tableHeader.setColumnTitles( columnTitleList );
+    this.setStripeTitleValueList( titleList, StripeType.COLUMN );
     
     //
     return this;
   }
   
-  public List<String> getRowTitleList()
+  @Override
+  public List<Object> getRowTitleList()
   {
-    return this.tableHeader.getRowTitles();
+    return this.getStripeTitleValueList( StripeType.ROW );
   }
   
-  public String getRowTitle( int rowIndexPosition )
+  /**
+   * Returns the {@link Title#getValue()} elements within a {@link List}
+   * 
+   * @param stripeType
+   * @return
+   */
+  protected List<Object> getStripeTitleValueList( StripeType stripeType )
   {
-    if ( rowIndexPosition < this.getRowTitleList().size() && rowIndexPosition >= 0 )
+    //
+    List<Object> retlist = new ArrayList<Object>();
+    
+    //
+    if ( stripeType != null )
     {
-      return this.getRowTitleList().get( rowIndexPosition );
+      //
+      StripeList<E> stripeList = this.stripeListContainer.getStripeList( stripeType );
+      
+      //
+      for ( Stripe<E> stripe : stripeList )
+      {
+        //
+        retlist.add( stripe.getTitle().getValue() );
+      }
     }
-    else
-    {
-      return null;
-    }
+    
+    //
+    return retlist;
   }
   
   @Override
-  public List<String> getColumnTitleList()
+  public Object getRowTitle( int rowIndexPosition )
   {
-    return this.tableHeader.getColumnTitles();
+    return this.getStripeTitleValue( StripeType.ROW, rowIndexPosition );
+  }
+  
+  /**
+   * Returns the {@link Title#getValue()} object for the given index position within the respective
+   * {@link StripeListContainer#getStripeList(StripeType)}
+   * 
+   * @param stripeType
+   * @param indexPosition
+   * @return
+   */
+  protected Object getStripeTitleValue( StripeType stripeType, int indexPosition )
+  {
+    //
+    Object retval = null;
+    
+    //
+    if ( stripeType != null && indexPosition >= 0 )
+    {
+      //
+      StripeInternal<E> stripe = this.cellAndStripeResolver.resolveStripe( stripeType, indexPosition );
+      
+      //
+      if ( stripe != null )
+      {
+        retval = stripe.getTitle().getValue();
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  @Override
+  public List<Object> getColumnTitleList()
+  {
+    return this.getStripeTitleValueList( StripeType.COLUMN );
   }
   
   @Override
@@ -696,16 +691,9 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public String getColumnTitle( int columnIndexPosition )
+  public Object getColumnTitle( int columnIndexPosition )
   {
-    if ( columnIndexPosition < this.getColumnTitleList().size() && columnIndexPosition >= 0 )
-    {
-      return this.getColumnTitleList().get( columnIndexPosition );
-    }
-    else
-    {
-      return null;
-    }
+    return this.getStripeTitleValue( StripeType.COLUMN, columnIndexPosition );
   }
   
   @Override

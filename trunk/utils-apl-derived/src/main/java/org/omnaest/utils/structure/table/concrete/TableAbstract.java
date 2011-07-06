@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 
@@ -61,6 +65,33 @@ public abstract class TableAbstract<E> implements TableInternal<E>
   public E getCell( int rowIndexPosition, Enum<?> columnTitleEnumeration )
   {
     return this.getCell( rowIndexPosition, this.tableHeader.getColumnTitles().indexOf( columnTitleEnumeration.name() ) );
+  }
+
+  public Table<E> setRowTitles( String[] titles )
+  {
+    //
+    List<String> titleList = new ArrayList<String>( 0 );
+    Collections.addAll( titleList, titles );
+    
+    //
+    this.setRowTitles( titleList );
+    
+    //
+    return this;
+  }
+
+  @Override
+  public Table<E> setColumnTitles( String... titles )
+  {
+    //
+    List<String> columnTitleList = new ArrayList<String>( 0 );
+    Collections.addAll( columnTitleList, titles );
+    
+    //
+    this.setColumnTitles( columnTitleList );
+    
+    //
+    return this;
   }
   
 }

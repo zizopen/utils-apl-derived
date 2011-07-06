@@ -73,6 +73,24 @@ public interface TableInternal<E> extends Table<E>
     public Cell<E> resolveCell( Row<E> row, Column<E> column );
     
     /**
+     * Resolves a {@link Cell} by a given {@link Stripe} and the complementary index position
+     * 
+     * @param stripe
+     * @param indexPosition
+     * @return
+     */
+    public Cell<E> resolveCell( Stripe<E> stripe, int indexPosition );
+    
+    /**
+     * Resolves a {@link Cell} by a given {@link Stripe} and the title value of the orthogonal stripe
+     * 
+     * @param stripe
+     * @param titleValue
+     * @return
+     */
+    public Cell<E> resolveCell( Stripe<E> stripe, Object titleValue );
+    
+    /**
      * Resolves a {@link ColumnInternal} for the given {@link Column} index position.
      * 
      * @param columnIndexPosition
@@ -105,6 +123,60 @@ public interface TableInternal<E> extends Table<E>
      * @return
      */
     public RowInternal<E> resolveOrCreateRow( int rowIndexPosition );
+    
+    /**
+     * Tries to resolve a {@link StripeInternal} instance for the given index position and {@link StripeType}. If no
+     * {@link Stripe} instance could be resolved for the given valid index position as many are created until there is an instance
+     * available for the given index position.
+     * 
+     * @param stripeType
+     * @param indexPosition
+     * @return
+     */
+    public StripeInternal<E> resolveOrCreateStripe( StripeType stripeType, int indexPosition );
+    
+    /**
+     * Resolves the {@link Stripe} for the given {@link StripeType} and index position from the internal {@link Table} reference.
+     * 
+     * @param stripeType
+     * @param indexPosition
+     * @return
+     */
+    public StripeInternal<E> resolveStripe( StripeType stripeType, int indexPosition );
+    
+    /**
+     * Resolves the {@link Row} by the given {@link Title#getValue()}
+     * 
+     * @param titleValue
+     * @return
+     */
+    public RowInternal<E> resolveRow( Object titleValue );
+    
+    /**
+     * Resolves the {@link Column} by the given {@link Title#getValue()}
+     * 
+     * @param titleValue
+     * @return
+     */
+    public ColumnInternal<E> resolveColumn( Object titleValue );
+    
+    /**
+     * Resolves a {@link Cell} by the {@link Title#getValue()} of the {@link Row} and the {@link Column}
+     * 
+     * @param rowTitleValue
+     * @param column
+     * @return
+     */
+    public Cell<E> resolveCell( Object rowTitleValue, Column<E> column );
+    
+    /**
+     * Resolves a {@link Cell} by the {@link Row} and the {@link Title#getValue()} of the {@link Column}
+     * 
+     * @param row
+     * @param columnTitleValue
+     * @return
+     */
+    public Cell<E> resolveCell( Row<E> row, Object columnTitleValue );
   }
   
   /**
@@ -144,6 +216,20 @@ public interface TableInternal<E> extends Table<E>
     public StripeList<E> getStripeList( StripeType stripeType );
     
     /**
+     * Returns the {@link Row} list
+     * 
+     * @return
+     */
+    public StripeList<E> getRowList();
+    
+    /**
+     * Returns the {@link Column} list
+     * 
+     * @return
+     */
+    public StripeList<E> getColumnList();
+    
+    /**
      * Switches the {@link StripeList} for the {@link Row} and {@link Column}.
      */
     public void switchRowAndColumnStripeList();
@@ -157,7 +243,7 @@ public interface TableInternal<E> extends Table<E>
    */
   public static interface StripeList<E> extends Iterable<StripeInternal<E>>
   {
-    
+    /* ********************************************** Methods ********************************************** */
     /**
      * Returns the {@link StripeType} information of the {@link StripeList}
      * 
@@ -217,6 +303,30 @@ public interface TableInternal<E> extends Table<E>
      */
     public StripeInternal<E> addNewStripe();
     
+    /**
+     * Returns true if the {@link StripeList} contains the given {@link Stripe}
+     * 
+     * @param stripe
+     * @return
+     */
+    public boolean contains( Stripe<E> stripe );
+    
+    /**
+     * Returns true if the {@link StripeList} contains a {@link Stripe} with the given {@link Title#getValue()}
+     * 
+     * @param stripe
+     * @return
+     */
+    public boolean contains( Object titleValue );
+    
+    /**
+     * Returns the {@link Stripe} with the given {@link Title#getValue()}. If no {@link Stripe} has the given {@link Title} null
+     * is returned.
+     * 
+     * @param titleValue
+     * @return
+     */
+    public StripeInternal<E> getStripe( Object titleValue );
   }
   
   /**

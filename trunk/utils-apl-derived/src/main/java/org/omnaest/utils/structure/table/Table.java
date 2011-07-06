@@ -93,7 +93,7 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
     
     /* ********************************************** Methods ********************************************** */
     /**
-     * Get the cell for the given index position.
+     * Get the {@link Cell} for the given index position.
      * 
      * @param indexPosition
      * @return
@@ -101,27 +101,12 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
     public Cell<E> getCell( int indexPosition );
     
     /**
-     * Returns the element for the given title enumeration. The title enumeration is the same as for the underlying table.
+     * Returns the {@link Cell} for the title value of the orthogonal {@link Stripe}
      * 
-     * @param title
+     * @param titleValue
      * @return
      */
-    public Cell<E> getCell( Enum<?> title );
-    
-    /**
-     * Returns the element for the given title of a table column.
-     * 
-     * @param rowTitle
-     * @return
-     */
-    public Cell<E> getCell( String title );
-    
-    /**
-     * Determines the index position.
-     * 
-     * @return
-     */
-    public int determineIndexPosition();
+    public Cell<E> getCell( Object titleValue );
     
     /**
      * Returns the {@link Title}.
@@ -129,15 +114,6 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
      * @return
      */
     public Title getTitle();
-    
-    /**
-     * Returns a stub for the given bean class which matches the {@link Cell}s {@link Title}s by with the name of the Java Bean
-     * properties.
-     * 
-     * @param beanClass
-     * @return proxy stub adapter
-     */
-    public <B> B asBeanAdapter( Class<B> beanClass );
     
     /**
      * Returns true if this {@link Stripe} contains the given {@link Cell}.

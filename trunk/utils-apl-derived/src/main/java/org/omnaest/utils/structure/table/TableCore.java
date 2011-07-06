@@ -173,11 +173,11 @@ public interface TableCore<E, T extends Table<E>>
    * Sets the title for a row with the given index position.
    * 
    * @see #getRowTitleList()
-   * @param title
+   * @param titleValue
    * @param rowIndexPosition
    * @return
    */
-  public T setRowTitle( String title, int rowIndexPosition );
+  public T setRowTitle( Object titleValue, int rowIndexPosition );
   
   /**
    * Sets the title for the rows. This means the visual identifiers at the left of the table.
@@ -217,11 +217,11 @@ public interface TableCore<E, T extends Table<E>>
   /**
    * Sets the title of a column for a given column index position.
    * 
-   * @param title
+   * @param titleValue
    * @param columnIndexPosition
    * @return
    */
-  public T setColumnTitle( String title, int columnIndexPosition );
+  public T setColumnTitle( Object titleValue, int columnIndexPosition );
   
   /**
    * Sets the titles of the columns. The titles can be used to identify a column, or together with a row a single cell.
@@ -239,14 +239,14 @@ public interface TableCore<E, T extends Table<E>>
    * @see #getRowTitle(int)
    * @return
    */
-  public List<String> getRowTitleList();
+  public List<Object> getRowTitleList();
   
   /**
    * @see #getRowTitleList()
    * @param rowIndexPosition
    * @return
    */
-  public String getRowTitle( int rowIndexPosition );
+  public Object getRowTitle( int rowIndexPosition );
   
   /**
    * Returns the column titles for the table.
@@ -254,7 +254,7 @@ public interface TableCore<E, T extends Table<E>>
    * @see #getColumnTitle(int)
    * @return
    */
-  public List<String> getColumnTitleList();
+  public List<Object> getColumnTitleList();
   
   /**
    * Returns the column titles for the table.
@@ -268,7 +268,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param columnIndexPosition
    * @return
    */
-  public String getColumnTitle( int columnIndexPosition );
+  public Object getColumnTitle( int columnIndexPosition );
   
   /**
    * Sets the name of the whole table.

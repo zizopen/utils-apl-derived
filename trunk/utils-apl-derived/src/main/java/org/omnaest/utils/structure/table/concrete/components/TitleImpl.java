@@ -39,29 +39,20 @@ public class TitleImpl<E> implements TitleInternal, CloneableDeep<TitleImpl<E>>
   /**
    * Creates a new {@link Title} instance
    */
-  public TitleImpl()
+  private TitleImpl()
   {
     super();
   }
   
   /**
-   * Determines the index position of this {@link TableTitleList} within its {@link TableTitleList}.
+   * Creates a new {@link Title} instance
    * 
-   * @return
+   * @param stripe
    */
-  public int determineIndexPosition()
+  public TitleImpl( Stripe<E> stripe )
   {
-    //
-    int retval = -1;
-    
-    //
-    if ( this.stripe != null )
-    {
-      retval = this.stripe.determineIndexPosition();
-    }
-    
-    //
-    return retval;
+    super();
+    this.stripe = stripe;
   }
   
   @Override
@@ -82,15 +73,6 @@ public class TitleImpl<E> implements TitleInternal, CloneableDeep<TitleImpl<E>>
   protected Stripe<E> getStripe()
   {
     return this.stripe;
-  }
-  
-  /**
-   * @see Stripe
-   * @param stripe
-   */
-  protected void setStripe( Stripe<E> stripe )
-  {
-    this.stripe = stripe;
   }
   
   @Override
