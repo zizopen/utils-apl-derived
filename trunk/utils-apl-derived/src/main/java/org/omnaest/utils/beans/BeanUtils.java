@@ -222,7 +222,7 @@ public class BeanUtils
    * @param fields
    * @return
    */
-  public static <B> Map<String, BeanPropertyAccessor<B>> determinePropertynameToBeanPropertyAccessorMap( Class<B> beanClass,
+  public static <B> Map<String, BeanPropertyAccessor<B>> determinePropertyNameToBeanPropertyAccessorMap( Class<B> beanClass,
                                                                                                          Field... fields )
   {
     //    
@@ -394,11 +394,11 @@ public class BeanUtils
         };
         
         retmap = MapUtils.mergeAll( mapElementMergeOperation,
-                                    BeanUtils.determinePropertynameToBeanPropertyAccessorMap( beanClass,
+                                    BeanUtils.determinePropertyNameToBeanPropertyAccessorMap( beanClass,
                                                                                               beanClass.getDeclaredFields() ),
                                     BeanUtils.determinePropertyNameToBeanPropertyAccessorMap( beanClass,
                                                                                               beanClass.getDeclaredMethods() ),
-                                    BeanUtils.determinePropertynameToBeanPropertyAccessorMap( beanClass, beanClass.getFields() ),
+                                    BeanUtils.determinePropertyNameToBeanPropertyAccessorMap( beanClass, beanClass.getFields() ),
                                     BeanUtils.determinePropertyNameToBeanPropertyAccessorMap( beanClass, beanClass.getMethods() ) );
         
       }
@@ -413,31 +413,29 @@ public class BeanUtils
   }
   
   /**
-   * Returns a {@link BeanPropertyAccessor} object determined for the given {@link Field}.
+   * Returns a {@link BeanPropertyAccessor} object determined for the given property name
    * 
+   * @see #determineBeanPropertyAccessor(Class, Field)
    * @see #determineBeanPropertyAccessorSet(Class)
    * @see #determinePropertyNameToBeanPropertyAccessorMap(Class)
    * @param beanClass
-   * @param field
+   * @param propertyName
    * @return
    */
-  public static <B> BeanPropertyAccessor<B> determineBeanPropertyAccessor( Class<B> beanClass, Field field )
+  public static <B> BeanPropertyAccessor<B> determineBeanPropertyAccessor( Class<B> beanClass, String propertyName )
   {
     //
     BeanPropertyAccessor<B> retval = null;
     
     //
-    if ( beanClass != null && field != null )
+    if ( beanClass != null && propertyName != null )
     {
       //
       try
       {
         //
-        String fieldname = field.getName();
-        
-        //
         Set<BeanMethodInformation> beanMethodInformationSet = BeanUtils.determinePropertyNameToBeanMethodInformationMap( beanClass )
-                                                                       .get( fieldname );
+                                                                       .get( propertyName );
         
         //     
         Method methodGetter = null;
@@ -455,11 +453,81 @@ public class BeanUtils
         }
         
         //
-        retval = new BeanPropertyAccessor<B>( field, methodGetter, methodSetter, fieldname, beanClass );
+        Field field = null;
+        try
+        {
+          //
+          field = beanClass.getClass().getDeclaredField( propertyName );
+          field = beanClass.getClass().getField( propertyName );
+        }
+        catch ( Exception e )
+        {
+        }
+        
+        //
+        retval = new BeanPropertyAccessor<B>( field, methodGetter, methodSetter, propertyName, beanClass );
       }
       catch ( Exception e )
       {
       }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns a {@link BeanPropertyAccessor} object determined for the given {@link Field}.
+   * 
+   * @see #determineBeanPropertyAccessor(Class, Method)
+   * @see #determineBeanPropertyAccessor(Class, String)
+   * @see #determineBeanPropertyAccessorSet(Class)
+   * @see #determinePropertyNameToBeanPropertyAccessorMap(Class)
+   * @param beanClass
+   * @param field
+   * @return
+   */
+  public static <B> BeanPropertyAccessor<B> determineBeanPropertyAccessor( Class<B> beanClass, Field field )
+  {
+    //
+    BeanPropertyAccessor<B> retval = null;
+    
+    //
+    if ( beanClass != null && field != null )
+    {
+      //
+      String propertyName = field.getName();
+      retval = BeanUtils.determineBeanPropertyAccessor( beanClass, propertyName );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns a {@link BeanPropertyAccessor} object determined for the given {@link Method}.
+   * 
+   * @see #determineBeanPropertyAccessor(Class, Field)
+   * @see #determineBeanPropertyAccessorSet(Class)
+   * @see #determinePropertyNameToBeanPropertyAccessorMap(Class)
+   * @param beanClass
+   * @param method
+   * @return
+   */
+  public static <B> BeanPropertyAccessor<B> determineBeanPropertyAccessor( Class<B> beanClass, Method method )
+  {
+    //
+    BeanPropertyAccessor<B> retval = null;
+    
+    //
+    if ( beanClass != null && method != null )
+    {
+      //
+      BeanMethodInformation beanMethodInformation = BeanUtils.determineBeanMethodInformation( method );
+      
+      //
+      String propertyName = beanMethodInformation.getReferencedFieldName();
+      retval = BeanUtils.determineBeanPropertyAccessor( beanClass, propertyName );
     }
     
     //
@@ -491,8 +559,8 @@ public class BeanUtils
   }
   
   /**
-   * Determines a map with the referenced field names as keys and a {@link Set} of {@link BeanMethodInformation} for every field
-   * name.
+   * Determines a {@link Map} with the referenced field names as keys and a {@link Set} of {@link BeanMethodInformation} for every
+   * field name.
    * 
    * @param clazz
    * @return
@@ -510,6 +578,32 @@ public class BeanUtils
     else
     {
       retmap = new HashMap<String, Set<BeanMethodInformation>>();
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Determines a {@link Map} with the referenced {@link Method#getName()}s as keys and the respective
+   * {@link BeanMethodInformation} name.
+   * 
+   * @param clazz
+   * @return
+   */
+  public static Map<String, BeanMethodInformation> determineMethodNameToBeanMethodInformationMap( Class<?> clazz )
+  {
+    //
+    Map<String, BeanMethodInformation> retmap = null;
+    
+    //
+    if ( clazz != null )
+    {
+      retmap = BeanUtils.determineMethodNameToBeanMethodInformationMap( clazz.getMethods() );
+    }
+    else
+    {
+      retmap = new HashMap<String, BeanMethodInformation>();
     }
     
     //
@@ -548,6 +642,39 @@ public class BeanUtils
           
           //
           retmap.get( referencedFieldName ).add( beanMethodInformation );
+        }
+      }
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Determines a {@link Map} with all {@link Method#getName()}s and the respective {@link BeanMethodInformation} instances.
+   * 
+   * @param methods
+   * @return
+   */
+  public static Map<String, BeanMethodInformation> determineMethodNameToBeanMethodInformationMap( Method... methods )
+  {
+    //
+    Map<String, BeanMethodInformation> retmap = new HashMap<String, BeanMethodInformation>();
+    
+    //
+    if ( methods != null )
+    {
+      for ( Method method : methods )
+      {
+        //
+        BeanMethodInformation beanMethodInformation = BeanUtils.determineBeanMethodInformation( method );
+        if ( beanMethodInformation != null )
+        {
+          //
+          String methodName = method.getName();
+          
+          //          
+          retmap.put( methodName, beanMethodInformation );
         }
       }
     }

@@ -79,6 +79,34 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     return retval;
   }
   
+  @Override
+  public Cell<E> resolveOrCreateCell( RowInternal<E> row, ColumnInternal<E> column )
+  {
+    //
+    Cell<E> retval = null;
+    
+    //
+    if ( row != null && column != null )
+    {
+      //
+      Cell<E> cell = this.resolveCell( row, column );
+      
+      //
+      if ( cell == null )
+      {
+        //
+        cell = new CellImpl<E>();
+        
+        //
+        row.addCell( cell );
+        column.addCell( cell );
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
   /**
    * Resolves a {@link Row} for the given {@link Row} index position.
    * 

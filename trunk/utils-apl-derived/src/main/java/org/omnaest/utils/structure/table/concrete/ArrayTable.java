@@ -31,7 +31,6 @@ import org.omnaest.utils.structure.collection.list.IndexArrayList;
 import org.omnaest.utils.structure.collection.list.ListAbstract;
 import org.omnaest.utils.structure.collection.list.ListToListIteratorAdapter;
 import org.omnaest.utils.structure.table.IndexTable.IndexPositionPair;
-import org.omnaest.utils.structure.table.IndexTable.TableSize;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
@@ -52,6 +51,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   /* ********************************************** Variables ********************************************** */
   protected StripeListContainer      stripeListContainer   = new StripeListContainerImpl<E>( this );
   protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl( this );
+  protected TableSize                tableSize             = new TableSizeImpl();
   
   /* ********************************************** Methods ********************************************** */
 
@@ -699,23 +699,14 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public TableSize getTableSize()
   {
-    return new TableSizeImpl();
+    return this.tableSize;
   }
   
-  public Table<E> setCell( int rowIndexPosition, int columnIndexPosition, E element )
+  @Override
+  public Table<E> setCellElement( int rowIndexPosition, int columnIndexPosition, E element )
   {
-    if ( rowIndexPosition >= 0 && columnIndexPosition >= 0 )
-    {
-      //adapt table dimension if necessary
-      this.expandTableBoundariesToGivenIndexPositionsIfNecessary( rowIndexPosition, columnIndexPosition );
-      
-      //
-      List<E> column = this.columnList.getStripe( columnIndexPosition );
-      List<E> row = this.rowList.getStripe( rowIndexPosition );
-      
-      column.set( rowIndexPosition, element );
-      row.set( columnIndexPosition, element );
-    }
+    //
+    this.cellAndStripeResolver.resolveor
     
     //
     return this;
@@ -726,7 +717,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     //
     for ( int ii = 0; ii < row.size(); ii++ )
     {
-      this.setCell( rowIndexPosition, ii, row.get( ii ) );
+      this.setCellElement( rowIndexPosition, ii, row.get( ii ) );
     }
     
     //
@@ -750,7 +741,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     //
     for ( int ii = 0; ii < column.size(); ii++ )
     {
-      this.setCell( ii, columnIndexPosition, column.get( ii ) );
+      this.setCellElement( ii, columnIndexPosition, column.get( ii ) );
     }
     
     //
@@ -799,7 +790,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     int columnIndexPosition = this.columnList.size() - 1;
     for ( E iElement : column )
     {
-      this.setCell( rowIndexPosition++, columnIndexPosition, iElement );
+      this.setCellElement( rowIndexPosition++, columnIndexPosition, iElement );
     }
     
     //
@@ -817,7 +808,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     int columnIndexPosition = 0;
     for ( E iElement : row )
     {
-      this.setCell( rowIndexPosition, columnIndexPosition++, iElement );
+      this.setCellElement( rowIndexPosition, columnIndexPosition++, iElement );
     }
     
     //
@@ -2201,24 +2192,27 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   /**
-   * Holds methods to return the current table size for rows and columns. If the data of the underlying table changes, the methods
-   * will return the new actual results then, too!
+   * @see TableSize
+   * @author Omnaest
    */
-  public class TableSizeImpl implements TableSize
+  protected class TableSizeImpl implements TableSize
   {
+    @Override
     public int getCellSize()
     {
-      return ArrayTable.this.columnList.size() * ArrayTable.this.rowList.size();
+      return this.getRowSize() * this.getColumnSize();
     }
     
+    @Override
     public int getRowSize()
     {
-      return ArrayTable.this.rowList.size();
+      return ArrayTable.this.stripeListContainer.getRowList().size();
     }
     
+    @Override
     public int getColumnSize()
     {
-      return ArrayTable.this.columnList.size();
+      return ArrayTable.this.stripeListContainer.getColumnList().size();
     }
   }
   
@@ -2313,7 +2307,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     int rowIndexPosition = this.determineRowIndexPositionForCellIndexPosition( cellIndexPosition );
     int columnIndexPosition = this.determineColumnIndexPositionForCellIndexPosition( cellIndexPosition );
-    return this.setCell( rowIndexPosition, columnIndexPosition, element );
+    return this.setCellElement( rowIndexPosition, columnIndexPosition, element );
   }
   
   @Override
@@ -2353,7 +2347,7 @@ public class ArrayTable<E> extends TableAbstract<E>
       @Override
       public void inspect( int rowIndexPosition, int columnIndexPosition, E cell )
       {
-        table.setCell( rowIndexPosition, columnIndexPosition, tableCellConverter.convert( cell ) );
+        table.setCellElement( rowIndexPosition, columnIndexPosition, tableCellConverter.convert( cell ) );
       }
     } );
     

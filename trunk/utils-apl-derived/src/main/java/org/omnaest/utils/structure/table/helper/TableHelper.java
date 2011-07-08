@@ -102,7 +102,7 @@ public class TableHelper
         for ( String iToken : tokens )
         {
           //
-          table.setCell( rowIndexPosition, columnIndexPosition, iToken );
+          table.setCellElement( rowIndexPosition, columnIndexPosition, iToken );
           
           //
           columnIndexPosition++;

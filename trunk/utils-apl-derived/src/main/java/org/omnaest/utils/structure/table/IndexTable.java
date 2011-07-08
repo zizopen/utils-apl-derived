@@ -46,18 +46,7 @@ public interface IndexTable<E extends Comparable<E>> extends Table<E>, TableSele
     public void setJoinTableIndexPosition( int joinTableIndexPosition );
   }
   
-  /**
-   * Holds methods to return the current table size for rows and columns. If the data of the underlying table changes, the methods
-   * will return the new actual results then, too!
-   */
-  public interface TableSize
-  {
-    public int getCellSize();
-    
-    public int getRowSize();
-    
-    public int getColumnSize();
-  }
+  
   
   /* ********************************************** Methods ********************************************** */
 

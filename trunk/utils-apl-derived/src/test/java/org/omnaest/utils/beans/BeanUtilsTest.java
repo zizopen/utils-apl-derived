@@ -203,6 +203,24 @@ public class BeanUtilsTest
     //
     {
       BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.determineBeanPropertyAccessor( TestBeanImpl.class,
+                                                                                                         TestBeanImpl.class.getDeclaredFields()[0].getName() );
+      
+      assertNotNull( beanPropertyAccessor );
+      assertEquals( true, beanPropertyAccessor.hasGetterAndSetter() );
+    }
+    
+    //
+    {
+      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.determineBeanPropertyAccessor( TestBeanImpl.class,
+                                                                                                         TestBeanImpl.class.getDeclaredMethod( "getFieldString" ) );
+      
+      assertNotNull( beanPropertyAccessor );
+      assertEquals( true, beanPropertyAccessor.hasGetterAndSetter() );
+    }
+    
+    //
+    {
+      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.determineBeanPropertyAccessor( TestBeanImpl.class,
                                                                                                          TestBeanImpl.class.getDeclaredField( "fieldString" ) );
       
       assertNotNull( beanPropertyAccessor );

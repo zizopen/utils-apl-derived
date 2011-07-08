@@ -36,6 +36,37 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
 
 {
   /* ********************************************** Classes ********************************************** */
+
+  /**
+   * Holds methods to return the current table size for rows and columns. If the data of the underlying table changes, the methods
+   * will return the new actual results then, too!
+   * 
+   * @see Table
+   */
+  public interface TableSize
+  {
+    /**
+     * Returns the number of all available {@link Cell}s within the {@link Table}
+     * 
+     * @return
+     */
+    public int getCellSize();
+    
+    /**
+     * Returns the number of {@link Row}s for the {@link Table}
+     * 
+     * @return
+     */
+    public int getRowSize();
+    
+    /**
+     * Returns the number of {@link Column}s for the {@link Table}
+     * 
+     * @return
+     */
+    public int getColumnSize();
+  }
+  
   /**
    * Common base for a {@link Column} and a {@link Row}
    * 

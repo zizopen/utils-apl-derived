@@ -19,6 +19,8 @@ import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellAndStripeResolver;
+import org.omnaest.utils.structure.table.internal.TableInternal.ColumnInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.RowInternal;
 
 /**
  * @see CellAndStripeResolver
@@ -62,4 +64,15 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
     return this.resolveCell( this.resolveRow( rowTitleValue ), column );
   }
   
+  @Override
+  public Cell<E> resolveOrCreateCell( int rowIndexPosition, ColumnInternal<E> column )
+  {
+    return this.resolveOrCreateCell( this.resolveOrCreateRow( rowIndexPosition ), column );
+  }
+  
+  @Override
+  public Cell<E> resolveOrCreateCell( RowInternal<E> row, int columnIndexPosition )
+  {
+    return this.resolveOrCreateCell( row, this.resolveOrCreateColumn( columnIndexPosition ) );
+  }
 }
