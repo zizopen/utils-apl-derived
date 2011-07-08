@@ -19,13 +19,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.omnaest.utils.structure.table.IndexTable.TableSize;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.CellIndexPosition;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.RowList;
 import org.omnaest.utils.structure.table.Table.TableCellConverter;
 import org.omnaest.utils.structure.table.Table.TableCellVisitor;
+import org.omnaest.utils.structure.table.Table.TableSize;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 
 /**
@@ -286,8 +286,8 @@ public interface TableCore<E, T extends Table<E>>
   public String getTableName();
   
   /**
-   * Returns a table size object for the table. The object will have always actual results, that will change if the data of the
-   * table is changed.
+   * Returns a {@link TableSize} object for the table. The object will have always actual results, that will change if the data of
+   * the {@link Table} is changed.
    * 
    * @return
    */
@@ -296,7 +296,7 @@ public interface TableCore<E, T extends Table<E>>
   /**
    * Puts a new element to the table at the defined index positions.
    */
-  public T setCell( int rowIndexPosition, int columnIndexPosition, E element );
+  public T setCellElement( int rowIndexPosition, int columnIndexPosition, E element );
   
   /**
    * Puts a new element to the table at the defined cell index position.

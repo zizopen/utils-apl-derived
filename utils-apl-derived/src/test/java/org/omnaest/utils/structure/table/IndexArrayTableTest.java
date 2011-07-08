@@ -316,7 +316,7 @@ public class IndexArrayTableTest
         {
           randomValue = ii;
         }
-        indexedTable.setCell( ii, jj, randomValue );
+        indexedTable.setCellElement( ii, jj, randomValue );
       }
     }
     
@@ -578,13 +578,13 @@ public class IndexArrayTableTest
     Table<String> indexedTable = new IndexArrayTable<String>();
     
     String writtenString = "Hallo";
-    indexedTable.setCell( 0, 0, writtenString );
+    indexedTable.setCellElement( 0, 0, writtenString );
     String resolvedString = indexedTable.getCell( 0, 0 );
     
     assertNotNull( resolvedString );
     assertEquals( writtenString, resolvedString );
     
-    indexedTable.setCell( 10, 20, writtenString );
+    indexedTable.setCellElement( 10, 20, writtenString );
     resolvedString = indexedTable.getCell( 10, 20 );
     
     assertNotNull( resolvedString );
@@ -689,7 +689,7 @@ public class IndexArrayTableTest
     {
       for ( int jj = 0; jj < columnNumber; jj++ )
       {
-        indexedTable.setCell( ii, jj, String.valueOf( Math.abs( Math.random() * rowNumber ) ) );
+        indexedTable.setCellElement( ii, jj, String.valueOf( Math.abs( Math.random() * rowNumber ) ) );
       }
     }
     
@@ -1095,13 +1095,13 @@ public class IndexArrayTableTest
     table.setColumnTitles( TableTitle.values() );
     
     Row<Integer> row = table.getRow( 0 );
-    assertEquals( Integer.valueOf( 11 ), row.get( TableTitle.column1 ) );
-    assertEquals( Integer.valueOf( 12 ), row.get( TableTitle.column2 ) );
-    assertEquals( Integer.valueOf( 13 ), row.get( TableTitle.column3 ) );
+    assertEquals( Integer.valueOf( 11 ), row.getStripe( TableTitle.column1 ) );
+    assertEquals( Integer.valueOf( 12 ), row.getStripe( TableTitle.column2 ) );
+    assertEquals( Integer.valueOf( 13 ), row.getStripe( TableTitle.column3 ) );
     
-    assertEquals( Integer.valueOf( 11 ), row.get( "column1" ) );
-    assertEquals( Integer.valueOf( 12 ), row.get( "column2" ) );
-    assertEquals( Integer.valueOf( 13 ), row.get( "column3" ) );
+    assertEquals( Integer.valueOf( 11 ), row.getStripe( "column1" ) );
+    assertEquals( Integer.valueOf( 12 ), row.getStripe( "column2" ) );
+    assertEquals( Integer.valueOf( 13 ), row.getStripe( "column3" ) );
     
   }
   

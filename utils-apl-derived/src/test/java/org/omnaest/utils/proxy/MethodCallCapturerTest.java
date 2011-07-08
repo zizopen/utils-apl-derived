@@ -106,6 +106,46 @@ public class MethodCallCapturerTest
     
   }
   
+  protected static class TestClass
+  {
+    /* ********************************************** Variables ********************************************** */
+    protected String    fieldString = null;
+    protected Double    fieldDouble = null;
+    protected TestClass testClass   = null;
+    
+    /* ********************************************** Methods ********************************************** */
+    public String getFieldString()
+    {
+      return this.fieldString;
+    }
+    
+    public void setFieldString( String fieldString )
+    {
+      this.fieldString = fieldString;
+    }
+    
+    public Double getFieldDouble()
+    {
+      return this.fieldDouble;
+    }
+    
+    public void setFieldDouble( Double fieldDouble )
+    {
+      this.fieldDouble = fieldDouble;
+    }
+    
+    public TestClass getTestClass()
+    {
+      return new TestClass();
+    }
+    
+    public void setTestClass( TestClass testClass )
+    {
+      this.testClass = testClass;
+    }
+    
+  }
+  
   /* ********************************************** Methods ********************************************** */
   @Before
   public void setUp() throws Exception
@@ -266,6 +306,26 @@ public class MethodCallCapturerTest
                     capturedCanonicalMethodNameListWithMergedHierarchyCalls );
     }
     
+  }
+  
+  @Test
+  public void testGetCapturedCanonicalPropertyNameListWithMergedHierarchyCalls()
+  {
+    //
+    MethodCallCapturer methodCallCapturer = new MethodCallCapturer();
+    TestClass testClass = methodCallCapturer.newInstanceOfTransitivlyCapturedType( TestClass.class );
+    
+    //    
+    testClass.getFieldString();
+    testClass.getFieldDouble();
+    testClass.setFieldDouble( 1.67 );
+    testClass.setFieldString( "test value" );
+    testClass.getTestClass().setFieldString( "other value" );
+    
+    //    
+    List<String> capturedCanonicalPropertyNameListWithMergedHierarchyCalls = methodCallCapturer.getCapturedCanonicalPropertyNameListWithMergedHierarchyCalls( testClass );
+    assertEquals( Arrays.asList( "fieldString", "fieldDouble", "fieldDouble", "fieldString", "testClass.fieldString" ),
+                  capturedCanonicalPropertyNameListWithMergedHierarchyCalls );
   }
   
 }

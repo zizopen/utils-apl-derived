@@ -177,6 +177,36 @@ public interface TableInternal<E> extends Table<E>
      * @return
      */
     public Cell<E> resolveCell( Row<E> row, Object columnTitleValue );
+    
+    /**
+     * Tries to resolve a {@link Cell} by a given {@link RowInternal} and {@link ColumnInternal}. If there is no {@link Cell}
+     * available a new one is created.
+     * 
+     * @param row
+     * @param column
+     * @return
+     */
+    public Cell<E> resolveOrCreateCell( RowInternal<E> row, ColumnInternal<E> column );
+    
+    /**
+     * Tries to resolve a {@link Cell} by the given {@link Row} and {@link Column} index position. If no {@link Cell} is available
+     * a new one will be created.
+     * 
+     * @param row
+     * @param columnIndexPosition
+     * @return
+     */
+    public Cell<E> resolveOrCreateCell( RowInternal<E> row, int columnIndexPosition );
+    
+    /**
+     * Tries to resolve a {@link Cell} by the given {@link Row} index position and a given {@link Column}. If no {@link Cell} is
+     * available a new one will be created.
+     * 
+     * @param rowIndexPosition
+     * @param column
+     * @return
+     */
+    public Cell<E> resolveOrCreateCell( int rowIndexPosition, ColumnInternal<E> column );
   }
   
   /**
@@ -354,6 +384,12 @@ public interface TableInternal<E> extends Table<E>
       public boolean hasEqualValueTo( Title title );
     }
     
+    /* ********************************************** Methods ********************************************** */
+
+    /**
+     * Adds a {@link Cell} to the {@link Stripe}
+     */
+    public void addCell( Cell<E> cell );
   }
   
   /**

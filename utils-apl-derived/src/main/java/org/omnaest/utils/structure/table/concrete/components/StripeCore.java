@@ -70,4 +70,14 @@ public abstract class StripeCore<E> implements StripeInternal<E>
     return this.tableInternal.getCellResolver().resolveCell( this, titleValue );
   }
   
+  @Override
+  public void addCell( Cell<E> cell )
+  {
+    //
+    if ( cell != null )
+    {
+      this.cellSet.add( cell );
+    }
+  }
+  
 }
