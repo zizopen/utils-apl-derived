@@ -37,8 +37,7 @@ Or back to method calls, you can even replay the raised method calls on real obj
 ReplayResult replayResult = methodCallCapturer.replay( testInterfaceObject );
 }}}
 
-For more examples see the [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodCallCapturerTest.java MethodCallCapturerTest]
-
-[http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodNameTest.java MethodNameTest]
-
-[http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/BeanProperty.java BeanPropertyTest]
+For more examples see the 
+* [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodCallCapturerTest.java MethodCallCapturerTest]
+* [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodNameTest.java MethodNameTest]
+* [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/BeanPropertyTest.java BeanPropertyTest]
