@@ -27,7 +27,7 @@ which would result in "testClass.fieldString".
 An advanced example is to get a BeanPropertyAccessor for a given method call statement:
 
 {{{
-BeanPropertyAccessor<Object> beanPropertyAccessor = methodCallCapturer.beanProperty.accessor.of( testInterface.getTestClass().getFieldString() );
+BeanPropertyAccessor<TestInterface> beanPropertyAccessor = methodCallCapturer.beanProperty.accessor.of( testInterface.getTestClass().getFieldString() );
 }}}
 
 A BeanPropertyAccessor lets you access the value and let you copy the property value from one bean object to another.
