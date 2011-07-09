@@ -59,7 +59,7 @@ public class BeanPropertyAccessor<B>
    * @param beanDestination
    * @return true, if no error occurs
    */
-  public boolean copyFieldValue( B beanSource, B beanDestination )
+  public boolean copyPropertyValue( B beanSource, B beanDestination )
   {
     //
     boolean retval = false;

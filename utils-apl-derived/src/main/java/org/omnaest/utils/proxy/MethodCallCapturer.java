@@ -35,7 +35,8 @@ import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
 /**
  * A {@link MethodCallCapturer} allows to create stubs for given java types which capture the calls of methods of this stub.
  * 
- * @see #methodNameOf(Object)
+ * @see #methodName
+ * @see #beanProperty
  * @see #newInstanceOfCapturedType(Class)
  * @see #newInstanceOfCapturedTypeWhichIsMethodCallCapturerAware(Class)
  * @see #newInstanceOfTransitivlyCapturedType(Class)
@@ -47,6 +48,10 @@ import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
  */
 public class MethodCallCapturer
 {
+  /* ********************************************** Constants ********************************************** */
+  public final MethodName                               methodName                            = new MethodName( this );
+  public final BeanProperty                             beanProperty                          = new BeanProperty( this );
+  
   /* ********************************************** Variables ********************************************** */
   protected Map<Object, List<MethodCallCaptureContext>> stubToMethodCallCaptureContextListMap = Collections.synchronizedMap( new IdentityHashMap<Object, List<MethodCallCaptureContext>>() );
   protected Object                                      lastActiveRootStub                    = null;
@@ -400,6 +405,11 @@ public class MethodCallCapturer
       this.returnedStub = returnedStub;
     }
     
+    public MethodCallCaptureContext getPreviousMethodCallCaptureContext()
+    {
+      return this.previousMethodCallCaptureContext;
+    }
+    
   }
   
   /**
@@ -593,6 +603,38 @@ public class MethodCallCapturer
   public List<MethodCallCaptureContext> getMethodCallCaptureContextList( Object stub )
   {
     return new ArrayList<MethodCallCaptureContext>( this.getOrCreateMethodCallCaptureContextListForStub( stub ) );
+  }
+  
+  /**
+   * Returns a new list instance of all {@link MethodCallCaptureContext} instances for the last active stub instance. All
+   * {@link MethodCallCaptureContext} instances coming before an {@link MethodCallCaptureContext} which is based on a nested call
+   * within the previous context will be merged into the nested call {@link MethodCallCaptureContext}.
+   * 
+   * @return
+   */
+  public List<MethodCallCaptureContext> getMethodCallCaptureContextWithMergedHierarchyList()
+  {
+    return this.getMethodCallCaptureContextWithMergedHierarchyList( this.lastActiveRootStub );
+  }
+  
+  /**
+   * Returns a new list instance of all {@link MethodCallCaptureContext} instances for a given stub instance. All
+   * {@link MethodCallCaptureContext} instances coming before an {@link MethodCallCaptureContext} which is based on a nested call
+   * within the previous context will be merged into the nested call {@link MethodCallCaptureContext}.
+   * 
+   * @param stub
+   * @return
+   */
+  public List<MethodCallCaptureContext> getMethodCallCaptureContextWithMergedHierarchyList( Object stub )
+  {
+    //
+    List<MethodCallCaptureContext> retlist = this.getMethodCallCaptureContextList( stub );
+    
+    //
+    this.mergeHierarchicalMethodCallCaptureContextList( retlist );
+    
+    //
+    return retlist;
   }
   
   /**
@@ -858,6 +900,45 @@ public class MethodCallCapturer
     
     //
     Collections.reverse( hierarchicalNameList );
+  }
+  
+  /**
+   * Merges hierarchies of {@link MethodCallCaptureContext}s into the most nested {@link MethodCallCaptureContext} for each group
+   * of {@link MethodCallCaptureContext}s
+   * 
+   * @param hierarchicalMethodCallCaptureContextList
+   */
+  protected void mergeHierarchicalMethodCallCaptureContextList( List<MethodCallCaptureContext> hierarchicalMethodCallCaptureContextList )
+  {
+    
+    //
+    List<MethodCallCaptureContext> hierarchicalMethodCallCaptureContextReversedList = new ArrayList<MethodCallCaptureContext>(
+                                                                                                                               hierarchicalMethodCallCaptureContextList );
+    Collections.reverse( hierarchicalMethodCallCaptureContextReversedList );
+    
+    //
+    hierarchicalMethodCallCaptureContextList.clear();
+    
+    //
+    MethodCallCaptureContext methodCallCaptureContextLast = null;
+    for ( MethodCallCaptureContext methodCallCaptureContext : hierarchicalMethodCallCaptureContextReversedList )
+    {
+      //
+      MethodCallCaptureContext previousMethodCallCaptureContextFromLast = methodCallCaptureContextLast != null ? methodCallCaptureContextLast.getPreviousMethodCallCaptureContext()
+                                                                                                              : null;
+      
+      //
+      if ( methodCallCaptureContextLast == null || !methodCallCaptureContext.equals( previousMethodCallCaptureContextFromLast ) )
+      {
+        hierarchicalMethodCallCaptureContextList.add( methodCallCaptureContext );
+      }
+      
+      //
+      methodCallCaptureContextLast = methodCallCaptureContext;
+    }
+    
+    //
+    Collections.reverse( hierarchicalMethodCallCaptureContextList );
   }
   
   /**

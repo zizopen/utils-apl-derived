@@ -24,7 +24,7 @@ import java.util.Set;
  * 
  * @author Omnaest
  */
-public interface AutowiredPropertyContainer
+public interface AutowiredPropertyContainer extends Iterable<Object>
 {
   /**
    * Adds an {@link Object} to the {@link AutowiredPropertyContainer}. This will update all properties of the underlying Java Bean

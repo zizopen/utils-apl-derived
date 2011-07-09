@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.proxy.MethodCallCapturer.MethodCallCaptureContext;
 import org.omnaest.utils.proxy.MethodCallCapturer.MethodCallCapturerAware;
 import org.omnaest.utils.proxy.MethodCallCapturer.ReplayResult;
@@ -326,6 +327,53 @@ public class MethodCallCapturerTest
     List<String> capturedCanonicalPropertyNameListWithMergedHierarchyCalls = methodCallCapturer.getCapturedCanonicalPropertyNameListWithMergedHierarchyCalls( testClass );
     assertEquals( Arrays.asList( "fieldString", "fieldDouble", "fieldDouble", "fieldString", "testClass.fieldString" ),
                   capturedCanonicalPropertyNameListWithMergedHierarchyCalls );
+  }
+  
+  @Test
+  public void testGetMethodCallCaptureContextWithMergedHierarchyList()
+  {
+    //
+    MethodCallCapturer methodCallCapturer = new MethodCallCapturer();
+    TestClass testClass = methodCallCapturer.newInstanceOfTransitivlyCapturedType( TestClass.class );
+    
+    //    
+    testClass.getFieldString();
+    testClass.getTestClass().setFieldString( "other value" );
+    
+    //    
+    List<MethodCallCaptureContext> methodCallCaptureContextWithMergedHierarchyList = methodCallCapturer.getMethodCallCaptureContextWithMergedHierarchyList( testClass );
+    assertNotNull( methodCallCaptureContextWithMergedHierarchyList );
+    assertEquals( 2, methodCallCaptureContextWithMergedHierarchyList.size() );
+    assertEquals( "getFieldString", methodCallCaptureContextWithMergedHierarchyList.get( 0 )
+                                                                                   .getMethodCallCapture()
+                                                                                   .getMethodName() );
+    assertEquals( "setFieldString", methodCallCaptureContextWithMergedHierarchyList.get( 1 )
+                                                                                   .getMethodCallCapture()
+                                                                                   .getMethodName() );
+    
+  }
+  
+  @Test
+  public void testMethodNameOf()
+  {
+    //
+    MethodCallCapturer methodCallCapturer = new MethodCallCapturer();
+    TestClass testClass = methodCallCapturer.newInstanceOfTransitivlyCapturedType( TestClass.class );
+    
+    //
+    String methodName = methodCallCapturer.methodName.of( testClass.getTestClass().getFieldString() );
+    assertEquals( "getTestClass.getFieldString", methodName );
+    
+    //
+    String propertyName = methodCallCapturer.beanProperty.name.of( testClass.getTestClass().getFieldString() );
+    assertEquals( "testClass.fieldString", propertyName );
+    
+    //
+    BeanPropertyAccessor<Object> beanPropertyAccessor = methodCallCapturer.beanProperty.accessor.of( testClass.getTestClass()
+                                                                                                              .getFieldString() );
+    assertNotNull( beanPropertyAccessor );
+    assertEquals( "fieldString", beanPropertyAccessor.getPropertyName() );
+    
   }
   
 }

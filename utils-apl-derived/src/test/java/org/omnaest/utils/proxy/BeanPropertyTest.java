@@ -17,9 +17,14 @@ package org.omnaest.utils.proxy;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Iterator;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor;
+import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 
 /**
  * @see BeanProperty
@@ -103,6 +108,39 @@ public class BeanPropertyTest
       String[] propertyNames = this.beanProperty.name.of( this.testClass.getTestClass().getFieldDouble(),
                                                           this.testClass.getTestClass().getFieldString() );
       Assert.assertArrayEquals( new String[] { "testClass.fieldDouble", "testClass.fieldString" }, propertyNames );
+    }
+    
+  }
+  
+  @Test
+  public void testOfBeanPropertyAccessor()
+  {
+    //
+    {
+      //
+      BeanPropertyAccessor<TestClass> beanPropertyAccessor = this.beanProperty.accessor.of( this.testClass.getFieldDouble() );
+      
+      //
+      assertNotNull( beanPropertyAccessor );
+      assertEquals( "fieldDouble", beanPropertyAccessor.getPropertyName() );
+      assertTrue( beanPropertyAccessor.hasGetterAndSetter() );
+    }
+    
+    //
+    {
+      //
+      BeanPropertyAccessors<TestClass> beanPropertyAccessors = this.beanProperty.accessor.of( this.testClass.getFieldString(),
+                                                                                              this.testClass.getTestClass()
+                                                                                                            .getFieldDouble() );
+      
+      //
+      assertNotNull( beanPropertyAccessors );
+      assertEquals( 2, beanPropertyAccessors.size() );
+      
+      //
+      Iterator<BeanPropertyAccessor<TestClass>> iterator = beanPropertyAccessors.iterator();
+      assertEquals( "fieldString", iterator.next().getPropertyName() );
+      assertEquals( "fieldDouble", iterator.next().getPropertyName() );
     }
     
   }
