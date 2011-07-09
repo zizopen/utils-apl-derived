@@ -32,7 +32,7 @@ public class TypeToAutowiredPropertyContainerAdapterTest
 {
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * @see TypeToAutowiredPropertyContainerAdapterTest
    */
@@ -120,7 +120,7 @@ public class TypeToAutowiredPropertyContainerAdapterTest
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   @Test
   public void testNewInstance()
   {
@@ -193,6 +193,25 @@ public class TypeToAutowiredPropertyContainerAdapterTest
     
     //
     assertEquals( mockClass.getFieldString(), autowiredPropertyContainer.getValue( String.class ) );
+  }
+  
+  @Test
+  public void testIterator()
+  {
+    //
+    MockClass mockClass = new MockClass();
+    
+    //
+    AutowiredPropertyContainer autowiredPropertyContainer = TypeToAutowiredPropertyContainerAdapter.newInstance( mockClass );
+    
+    //
+    int counter = 0;
+    for ( Object object : autowiredPropertyContainer )
+    {
+      assertNotNull( object );
+      counter++;
+    }
+    assertEquals( 4, counter );
   }
   
 }

@@ -17,6 +17,7 @@ package org.omnaest.utils.beans;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,7 +39,7 @@ public class TypeToAutowiredPropertyContainerAdapter<B> implements AutowiredProp
   protected Map<Class<?>, Set<BeanPropertyAccessor<B>>> propertyTypeToBeanPropertyAccessorSetMap = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Factory method to create a {@link Map} view on a given Java Bean object. Changes to this map will be translated to the Java
    * Bean object and vice versa.
@@ -198,6 +199,12 @@ public class TypeToAutowiredPropertyContainerAdapter<B> implements AutowiredProp
     
     //
     return retval;
+  }
+  
+  @Override
+  public Iterator<Object> iterator()
+  {
+    return this.getValueSet( Object.class ).iterator();
   }
   
 }

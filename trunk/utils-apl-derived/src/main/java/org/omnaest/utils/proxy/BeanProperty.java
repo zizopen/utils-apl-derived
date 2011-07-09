@@ -21,9 +21,18 @@ import java.util.List;
 
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
+import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.proxy.MethodCallCapturer.MethodCallCaptureContext;
 
 /**
+ * A {@link BeanProperty} allows to capture method calls for getter and setter methods on a Java Bean. The captured method calls
+ * can then be transformed to {@link BeanPropertyAccessor} instances or the property names.
+ * 
+ * @see #newInstanceOfCapturedType(Class)
+ * @see #newInstanceOfTransitivlyCapturedType(Class)
+ * @see #accessor
+ * @see #name
+ * @see MethodName
  * @see MethodCallCapturer
  */
 public class BeanProperty
@@ -33,53 +42,121 @@ public class BeanProperty
   public final Name            name               = new Name();
   
   /* ********************************************** Variables ********************************************** */
-  protected MethodCallCapturer methodCallCapturer = new MethodCallCapturer();
+  protected MethodCallCapturer methodCallCapturer = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
-   * {@link Accessor} resolver for a Java {@link BeanProperty}
+   * {@link BeanPropertyAccessor}resolver for a Java {@link BeanProperty}
+   * 
+   * @see #of(Object)
+   * @see #of(Object...)
    */
   public class Accessor
   {
     
-    @SuppressWarnings("unchecked")
+    /**
+     * Returns the {@link BeanPropertyAccessor} related to the last method call done from the stub created by the
+     * {@link BeanProperty#newInstanceOfCapturedType(Class)} method.<br>
+     * <br>
+     * This should be used like <br>
+     * <br>
+     * 
+     * <pre>
+     * {
+     *   TestInterface testInterface = this.beanProperty.newInstanceOfTransitivlyCapturedType( TestInterface.class );
+     *   String propertyName = this.beanProperty.accessor.of( testInterface.getSomething() );
+     * }
+     * </pre>
+     * 
+     * <br>
+     * <br>
+     * where the stub is a previously created stub by this {@link BeanProperty} instance.
+     * 
+     * @see #of(Object...)
+     * @see BeanProperty#newInstanceOfCapturedType(Class)
+     * @param methodCall
+     * @return
+     */
     public <B> BeanPropertyAccessor<B> of( Object methodCall )
     {
+      return this.<B> of( new Object[1] ).iterator().next();
+    }
+    
+    /**
+     * <pre>
+     * {
+     *   TestClass testClass = this.beanProperty.newInstanceOfTransitivlyCapturedType( TestClass.class );
+     *   
+     *   BeanPropertyAccessors&lt;TestClass&gt; beanPropertyAccessors = this.beanProperty.accessor.of( testClass.getFieldString(),
+     *                                                                                           testClass.getTestClass()
+     *                                                                                                    .getFieldDouble() );
+     * }
+     * </pre>
+     * 
+     * @see #of(Object)
+     * @see BeanProperty#newInstanceOfCapturedType(Class)
+     * @param methodCalls
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <B> BeanPropertyAccessors<B> of( Object... methodCalls )
+    {
       //
-      BeanPropertyAccessor<B> retval = null;
+      List<BeanPropertyAccessor<B>> retlist = new ArrayList<BeanPropertyAccessor<B>>();
       
       //
-      MethodCallCaptureContext lastMethodCallContext = BeanProperty.this.methodCallCapturer.getLastMethodCallContext();
-      if ( lastMethodCallContext != null )
+      int methodCallsLength = methodCalls.length;
+      if ( methodCalls != null && methodCalls.length > 0 )
       {
         //
-        MethodCallCapture methodCallCapture = lastMethodCallContext.getMethodCallCapture();
-        if ( methodCallCapture != null )
+        List<MethodCallCaptureContext> methodCallCaptureContextWithMergedHierarchyList = BeanProperty.this.methodCallCapturer.getMethodCallCaptureContextWithMergedHierarchyList();
+        
+        //
+        int canonicalPropertyNameListSize = methodCallCaptureContextWithMergedHierarchyList.size();
+        int indexLimitUpper = canonicalPropertyNameListSize - 1;
+        int indexLimitLower = canonicalPropertyNameListSize - methodCallsLength;
+        for ( int ii = indexLimitLower; ii <= indexLimitUpper; ii++ )
         {
           //
-          Object object = methodCallCapture.getObj();
-          if ( object != null )
+          MethodCallCaptureContext methodCallCaptureContext = methodCallCaptureContextWithMergedHierarchyList.get( ii );
+          if ( methodCallCaptureContext != null )
           {
             //
-            Class<? extends B> beanClass = (Class<? extends B>) object.getClass();
-            
-            //
-            Method method = methodCallCapture.getMethod();
-            
-            //
-            retval = (BeanPropertyAccessor<B>) BeanUtils.determineBeanPropertyAccessor( beanClass, method );
+            MethodCallCapture methodCallCapture = methodCallCaptureContext.getMethodCallCapture();
+            if ( methodCallCapture != null )
+            {
+              //
+              Object object = methodCallCapture.getObj();
+              if ( object != null )
+              {
+                //
+                Class<? extends B> beanClass = (Class<? extends B>) object.getClass();
+                
+                //
+                Method method = methodCallCapture.getMethod();
+                
+                //
+                BeanPropertyAccessor<B> beanPropertyAccessor = (BeanPropertyAccessor<B>) BeanUtils.determineBeanPropertyAccessor( beanClass,
+                                                                                                                                  method );
+                
+                //
+                retlist.add( beanPropertyAccessor );
+              }
+            }
           }
         }
-        
       }
       
-      return retval;
+      //
+      return new BeanPropertyAccessors<B>( retlist );
     }
   }
   
   /**
-   * {@link Name} resolver for a Java {@link BeanProperty}
+   * Property {@link Name} resolver for a Java {@link BeanProperty}
    * 
+   * @see #of(Object)
+   * @see #of(Object...)
    * @see BeanProperty
    * @author Omnaest
    */
@@ -95,17 +172,18 @@ public class BeanProperty
      * 
      * <pre>
      * {
-     *   TestInterface testInterface = this.methodName.newInstanceOfTransitivlyCapturedType( TestInterface.class );
+     *   TestInterface testInterface = this.property.newInstanceOfTransitivlyCapturedType( TestInterface.class );
      *   String propertyName = this.property.name.of( testInterface.getSomething() );
      * }
      * </pre>
      * 
      * <br>
      * <br>
-     * where the <code>stub</code> is a previously created stub by this {@link MethodCallCapturer} instance.
+     * where the stub is a previously created stub by this {@link BeanProperty} instance.
      * 
-     * @see #newInstanceOfCapturedType(Class)
-     * @param object
+     * @see #of(Object...)
+     * @see BeanProperty#newInstanceOfCapturedType(Class)
+     * @param methodCall
      * @return
      */
     public String of( Object methodCall )
@@ -127,6 +205,7 @@ public class BeanProperty
      * </pre>
      * 
      * @see #of(Object)
+     * @see BeanProperty#newInstanceOfCapturedType(Class)
      * @param methodCalls
      * @return
      */
@@ -157,6 +236,25 @@ public class BeanProperty
   
   /* ********************************************** Variables ********************************************** */
 
+  /**
+   * @see BeanProperty
+   * @param methodCallCapturer
+   */
+  protected BeanProperty( MethodCallCapturer methodCallCapturer )
+  {
+    super();
+    this.methodCallCapturer = methodCallCapturer;
+  }
+  
+  /**
+   * @see BeanProperty
+   */
+  public BeanProperty()
+  {
+    super();
+    this.methodCallCapturer = new MethodCallCapturer();
+  }
+  
   /**
    * Creates a new stub instance for the given class or interface type for which the method calls will be captured. The capturing
    * is not transitive which means that method calls of nested objects / fields are not captured.

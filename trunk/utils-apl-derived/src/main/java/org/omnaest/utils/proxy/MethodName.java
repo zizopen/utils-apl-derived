@@ -24,10 +24,28 @@ import java.util.List;
 public class MethodName
 {
   /* ********************************************** Variables ********************************************** */
-  protected MethodCallCapturer methodCallCapturer = new MethodCallCapturer();
+  protected MethodCallCapturer methodCallCapturer = null;
   
   /* ********************************************** Variables ********************************************** */
-
+  /**
+   * @see MethodName
+   * @param methodCallCapturer
+   */
+  protected MethodName( MethodCallCapturer methodCallCapturer )
+  {
+    super();
+    this.methodCallCapturer = methodCallCapturer;
+  }
+  
+  /**
+   * @see MethodName
+   */
+  public MethodName()
+  {
+    super();
+    this.methodCallCapturer = new MethodCallCapturer();
+  }
+  
   /**
    * Returns the canonical method name of the last method call done from the stub created by the
    * {@link MethodName#newInstanceOfCapturedType(Class)} method.<br>

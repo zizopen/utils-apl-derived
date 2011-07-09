@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
+import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.structure.map.MapUtils.MapElementMergeOperation;
 import org.omnaest.utils.tuple.TupleDuad;
@@ -106,6 +107,19 @@ public class BeanUtils
     
     //
     return retset;
+  }
+  
+  /**
+   * Returns the {@link BeanPropertyAccessors} for a given Java Bean type
+   * 
+   * @param <B>
+   * @param beanClass
+   * @return
+   */
+  public static <B> BeanPropertyAccessors<B> determineBeanPropertyAccessors( Class<B> beanClass )
+  {
+    //
+    return new BeanPropertyAccessors<B>( BeanUtils.determineBeanPropertyAccessorSet( beanClass ) );
   }
   
   /**
@@ -404,7 +418,6 @@ public class BeanUtils
       }
       catch ( Exception e )
       {
-        e.printStackTrace();
       }
     }
     
@@ -457,11 +470,23 @@ public class BeanUtils
         try
         {
           //
-          field = beanClass.getClass().getDeclaredField( propertyName );
-          field = beanClass.getClass().getField( propertyName );
+          field = beanClass.getDeclaredField( propertyName );
         }
         catch ( Exception e )
         {
+        }
+        
+        //
+        if ( field == null )
+        {
+          try
+          {
+            //
+            field = beanClass.getField( propertyName );
+          }
+          catch ( Exception e )
+          {
+          }
         }
         
         //
@@ -734,15 +759,45 @@ public class BeanUtils
   }
   
   /**
-   * Copies the property values of one Java Bean to another.
+   * Copies the property values from one Java Bean to another.
    * 
    * @param beanSource
    * @param beanDestination
    * @param <S>
    * @param <D>
    */
-  @SuppressWarnings("unchecked")
   public static <S, D> void copyPropertyValues( S beanSource, D beanDestination )
+  {
+    //
+    Collection<String> propertyNameCollection = null;
+    BeanUtils.copyPropertyValues( beanSource, beanDestination, propertyNameCollection );
+  }
+  
+  /**
+   * Copies the property values for the given property names from one Java Bean to another.
+   * 
+   * @param beanSource
+   * @param beanDestination
+   * @param propertyNames
+   * @param <S>
+   * @param <D>
+   */
+  public static <S, D> void copyPropertyValues( S beanSource, D beanDestination, String... propertyNames )
+  {
+    BeanUtils.copyPropertyValues( beanSource, beanDestination, Arrays.asList( propertyNames ) );
+  }
+  
+  /**
+   * Copies the property values from one Java Bean to another but only for the given property names.
+   * 
+   * @param beanSource
+   * @param beanDestination
+   * @param propertyNameCollection
+   * @param <S>
+   * @param <D>
+   */
+  @SuppressWarnings("unchecked")
+  public static <S, D> void copyPropertyValues( S beanSource, D beanDestination, Collection<String> propertyNameCollection )
   {
     //
     if ( beanSource != null && beanDestination != null )
@@ -763,7 +818,9 @@ public class BeanUtils
         BeanPropertyAccessor<D> beanPropertyDestinationAccessor = tupleDuad.getValueSecond();
         
         //
-        if ( beanPropertySourceAccessor.hasGetter() && beanPropertyDestinationAccessor.hasSetter() )
+        if ( ( propertyNameCollection == null || propertyNameCollection.contains( beanPropertySourceAccessor.getPropertyName() )
+                                                 && beanPropertySourceAccessor.hasGetter()
+                                                 && beanPropertyDestinationAccessor.hasSetter() ) )
         {
           //
           Object propertyValue = beanPropertySourceAccessor.getPropertyValue( beanSource );

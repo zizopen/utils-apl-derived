@@ -16,6 +16,7 @@
 package org.omnaest.utils.beans;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -26,6 +27,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
+import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 
 /**
  * @see BeanUtils
@@ -155,14 +157,31 @@ public class BeanUtilsTest
     beanSource.setFieldDouble( 1.3 );
     
     //
-    TestBeanImpl beanDestination = new TestBeanImpl();
-    assertTrue( !beanSource.equals( beanDestination ) );
+    {
+      //    
+      TestBeanImpl beanDestination = new TestBeanImpl();
+      assertTrue( !beanSource.equals( beanDestination ) );
+      
+      //
+      BeanUtils.copyPropertyValues( beanSource, beanDestination );
+      
+      //
+      assertEquals( beanSource, beanDestination );
+    }
     
     //
-    BeanUtils.copyPropertyValues( beanSource, beanDestination );
-    
-    //
-    assertEquals( beanSource, beanDestination );
+    {
+      //    
+      TestBeanImpl beanDestination = new TestBeanImpl();
+      assertTrue( !beanSource.equals( beanDestination ) );
+      
+      //
+      BeanUtils.copyPropertyValues( beanSource, beanDestination, "fieldDouble" );
+      
+      //
+      assertTrue( !beanSource.equals( beanDestination ) );
+      assertEquals( beanSource.getFieldDouble(), beanDestination.getFieldDouble() );
+    }
   }
   
   @Test
@@ -299,4 +318,48 @@ public class BeanUtilsTest
     assertEquals( beanSource.getFieldString(), propertynameToBeanPropertyValueMap.get( "fieldString" ) );
     
   }
+  
+  @Test
+  public void testDetermineBeanPropertyAccessors()
+  {
+    //      
+    BeanPropertyAccessors<TestBean> beanPropertyAccessors = BeanUtils.determineBeanPropertyAccessors( TestBean.class );
+    assertEquals( 2, beanPropertyAccessors.size() );
+    
+    //
+    TestBeanImpl testBeanSource = new TestBeanImpl();
+    testBeanSource.setFieldString( "lala" );
+    testBeanSource.setFieldDouble( 1.6 );
+    
+    //
+    {
+      //
+      TestBeanImpl testBeanDestination = new TestBeanImpl();
+      
+      //
+      beanPropertyAccessors.copyPropertyValues( testBeanSource, testBeanDestination );
+      
+      //
+      assertEquals( 2, beanPropertyAccessors.size() );
+      assertEquals( testBeanSource, testBeanDestination );
+    }
+    
+    //
+    {
+      //
+      TestBeanImpl testBeanDestination = new TestBeanImpl();
+      
+      //
+      beanPropertyAccessors.remove( 1 );
+      beanPropertyAccessors.copyPropertyValues( testBeanSource, testBeanDestination );
+      
+      //
+      assertEquals( 1, beanPropertyAccessors.size() );
+      assertTrue( testBeanSource.getFieldString().equals( testBeanDestination.getFieldString() )
+                  || testBeanSource.getFieldDouble().equals( testBeanDestination.getFieldDouble() ) );
+      assertFalse( testBeanSource.getFieldString().equals( testBeanDestination.getFieldString() )
+                   && testBeanSource.getFieldDouble().equals( testBeanDestination.getFieldDouble() ) );
+    }
+  }
+  
 }
