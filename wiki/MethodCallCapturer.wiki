@@ -13,12 +13,32 @@ TestInterface testInterface = methodCallCapturer.newInstanceOfTransitivlyCapture
 Once you have created a stub for a given class or interface you can easily track the method names of method calls like:
 
 {{{
-String methodName = methodCallCapturer.methodNameOf( testInterface.doSomething( "text value" ) );
+String methodName = methodCallCapturer.methodName.of( testInterface.getTestClass().getFieldString() );
 }}}
 
-Or even replay the raised method calls on real objects like:
+which would result in "getTestClass.getFieldString".
+The same way you can get the property names with following statement:
+
+{{{
+String propertyName = methodCallCapturer.beanProperty.name.of( testInterface.getTestClass().getFieldString() );
+}}}
+
+which would result in "testClass.fieldString".
+An advanced example is to get a BeanPropertyAccessor for a given method call statement:
+
+{{{
+BeanPropertyAccessor<Object> beanPropertyAccessor = methodCallCapturer.beanProperty.accessor.of( testInterface.getTestClass().getFieldString() );
+}}}
+
+A BeanPropertyAccessor lets you access the value and let you copy the property value from one bean object to another.
+
+Or back to method calls, you can even replay the raised method calls on real objects like:
 {{{
 ReplayResult replayResult = methodCallCapturer.replay( testInterfaceObject );
 }}}
 
 For more examples see the [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodCallCapturerTest.java MethodCallCapturerTest]
+
+[http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodNameTest.java MethodNameTest]
+
+[http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/BeanProperty.java BeanPropertyTest]
