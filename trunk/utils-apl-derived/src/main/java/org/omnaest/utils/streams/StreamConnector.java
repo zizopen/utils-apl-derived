@@ -31,17 +31,134 @@ import java.nio.charset.Charset;
  */
 public class StreamConnector
 {
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  public static class TransferResult
+  {
+    /* ********************************************** Variables ********************************************** */
+    protected boolean   successful          = false;
+    protected int       transferSizeInBytes = 0;
+    protected Exception exception           = null;
+    
+    /* ********************************************** Methods ********************************************** */
+
+    /**
+     * @param successful
+     * @param transferSizeInBytes
+     * @param exception
+     */
+    public TransferResult( boolean successful, int transferSizeInBytes, Exception exception )
+    {
+      super();
+      this.successful = successful;
+      this.transferSizeInBytes = transferSizeInBytes;
+      this.exception = exception;
+    }
+    
+    public boolean isSuccessful()
+    {
+      return this.successful;
+    }
+    
+    public int getTransferSizeInBytes()
+    {
+      return this.transferSizeInBytes;
+    }
+    
+    public Exception getException()
+    {
+      return this.exception;
+    }
+    
+  }
   
-  public static void connect( InputStream source, OutputStream destination ) throws IOException
+  /* ********************************************** Methods ********************************************** */
+
+  /**
+   * Connects a given {@link InputStream} to a given {@link OutputStream} without closing the streams but flushing the
+   * {@link OutputStream}.
+   * 
+   * @param inputStream
+   * @param outputStream
+   * @throws IOException
+   */
+  public static void connect( InputStream inputStream, OutputStream outputStream ) throws IOException
   {
     int reader = 0;
-    BufferedInputStream bis = new BufferedInputStream( source );
-    BufferedOutputStream bos = new BufferedOutputStream( destination );
+    BufferedInputStream bis = new BufferedInputStream( inputStream );
+    BufferedOutputStream bos = new BufferedOutputStream( outputStream );
     while ( ( reader = bis.read() ) != -1 )
     {
       bos.write( reader );
     }
     bos.flush();
+  }
+  
+  /**
+   * Transfers the data from the given {@link InputStream} to the given {@link OutputStream} returning a {@link TransferResult}
+   * 
+   * @param inputStream
+   * @param outputStream
+   * @return {@link TransferResult}
+   */
+  public static TransferResult transfer( InputStream inputStream, OutputStream outputStream )
+  {
+    //
+    TransferResult transferResult = null;
+    
+    //
+    if ( inputStream != null && outputStream != null )
+    {
+      //
+      int numberOfBytesRead = 0;
+      
+      //
+      try
+      {
+        //        
+        BufferedInputStream bis = new BufferedInputStream( inputStream );
+        BufferedOutputStream bos = new BufferedOutputStream( outputStream );
+        
+        //
+        byte[] buffer = new byte[10000];
+        int bufferSizeUsed = 0;
+        while ( ( bufferSizeUsed = bis.read( buffer ) ) != -1 )
+        {
+          //
+          bos.write( buffer, 0, bufferSizeUsed );
+          
+          //
+          numberOfBytesRead += bufferSizeUsed;
+        }
+        
+        //
+        bos.flush();
+        
+        //        
+        Boolean successful = true;
+        Integer transferSizeInBytes = numberOfBytesRead;
+        Exception exception = null;
+        transferResult = new TransferResult( successful, transferSizeInBytes, exception );
+      }
+      catch ( Exception e )
+      {
+        //
+        Boolean successful = false;
+        Integer transferSizeInBytes = numberOfBytesRead;
+        Exception exception = e;
+        transferResult = new TransferResult( successful, transferSizeInBytes, exception );
+      }
+    }
+    else
+    {
+      //
+      Boolean successful = false;
+      Integer transferSizeInBytes = 0;
+      Exception exception = null;
+      transferResult = new TransferResult( successful, transferSizeInBytes, exception );
+    }
+    
+    //
+    return transferResult;
   }
   
   /**

@@ -26,6 +26,8 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeListContainer;
 
 /**
+ * TODO serializable interface is missing
+ * 
  * @author Omnaest
  * @see StripeListContainerAbstract
  * @see StripeListContainer
@@ -34,7 +36,6 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeListContai
 public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
 {
   /* ********************************************** Variables ********************************************** */
-
   protected List<StripeList<E>> stripeListList = null;
   protected TableInternal<E>    tableInternal  = null;
   

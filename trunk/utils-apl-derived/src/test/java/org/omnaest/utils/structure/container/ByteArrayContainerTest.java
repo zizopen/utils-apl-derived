@@ -43,7 +43,7 @@ public class ByteArrayContainerTest
     assertNotNull( bac );
     
     //
-    bac.copy( testString );
+    bac.copyFrom( testString );
     assertNotNull( bac.getContent() );
     
     //

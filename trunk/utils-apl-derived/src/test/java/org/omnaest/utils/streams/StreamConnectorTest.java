@@ -21,11 +21,15 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+import org.omnaest.utils.streams.StreamConnector.TransferResult;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 
 public class StreamConnectorTest
@@ -65,10 +69,10 @@ public class StreamConnectorTest
     
     //
     ByteArrayContainer directBac = new ByteArrayContainer();
-    directBac.copy( testString );
+    directBac.copyFrom( testString );
     assertEquals( testString, directBac.toString( encoding ) );
     
-    directBac.copy( secondBac );
+    directBac.copyFrom( secondBac );
     assertEquals( testString, directBac.toString( encoding ) );
     
     try
@@ -94,7 +98,7 @@ public class StreamConnectorTest
   {
     String test = "asdfsfjlkjflksjfajk�f���spoo93845843850943859435435�$%�$&%$/(%(&/$%�$%/&/()(=)/=";
     ByteArrayContainer testBac = new ByteArrayContainer();
-    testBac.copy( test );
+    testBac.copyFrom( test );
     
     assertNotNull( testBac );
     assertEquals( test, testBac.toString() );
@@ -104,5 +108,29 @@ public class StreamConnectorTest
     
     testBac.unzip();
     assertEquals( test, testBac.toString() );
+  }
+  
+  @Test
+  public void testTransfer()
+  {
+    //
+    String sourceContent = "asdfsfjlkjflksjfajk�f���spoo93845843850943859435435�$%�$&%$/(%(&/$%�$%/&/()(=)/=";
+    
+    //
+    InputStream inputStream = new ByteArrayInputStream( sourceContent.getBytes() );
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    
+    //
+    TransferResult transferResult = StreamConnector.transfer( inputStream, outputStream );
+    
+    //
+    assertTrue( transferResult.isSuccessful() );
+    assertEquals( null, transferResult.getException() );
+    assertEquals( sourceContent.getBytes().length, transferResult.getTransferSizeInBytes() );
+    
+    //    
+    String destinationContent = outputStream.toString();
+    assertEquals( sourceContent, destinationContent );
+    
   }
 }

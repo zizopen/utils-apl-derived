@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.view;
-
-import org.omnaest.utils.structure.table.Table;
+package org.omnaest.utils.structure.table;
 
 /**
- * View of an underlying {@link Table}. A {@link TableView} does not have an own data structure, instead it relies on the data
- * structure of another existing {@link Table}. This implies that all modifications made to a {@link TableView} are made to the
- * underlying {@link Table} and vice versa.
+ * This {@link TableCoreImmutable} provides core methods which do not change the {@link Table} structure.
  * 
  * @author Omnaest
  * @param <E>
  */
-public interface TableView<E>
+public interface TableCoreImmutable<E>
 {
   
 }

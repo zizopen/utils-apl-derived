@@ -24,16 +24,16 @@ import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.TableCellConverter;
 import org.omnaest.utils.structure.table.Table.TableCellVisitor;
 import org.omnaest.utils.structure.table.Table.TableSize;
-import org.omnaest.utils.structure.table.concrete.ArrayTable;
 
 /**
- * Table representation. Allows to create arbitrary table structures. Offers rudimentary methods for joining.
+ * {@link TableCore} representation. Allows to create arbitrary {@link Table} structures. Offers rudimentary methods accessing the
+ * data structure.
  * 
- * @see IndexTable
- * @see ArrayTable
+ * @see Table
+ * @param <E>
  * @author Omnaest
  */
-public interface TableCore<E, T extends Table<E>>
+public interface TableCore<E>
 {
   
   /**
@@ -43,7 +43,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param elementArray
    * @return this
    */
-  public T insertArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition );
+  public Table<E> insertArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition );
   
   /**
    * Inserts a table to the given table. If the insert positions are pointing out of the boundaries, the current table will be
@@ -56,14 +56,14 @@ public interface TableCore<E, T extends Table<E>>
    * @param insertIndexedTable
    * @return the current table
    */
-  public T insertTable( T insertIndexedTable, int rowIndexPosition, int columnIndexPosition );
+  public Table<E> insertTable( Table<E> insertIndexedTable, int rowIndexPosition, int columnIndexPosition );
   
   /**
    * Transposes the whole table, which means to swap rows and columns.
    * 
    * @return this
    */
-  public T transpose();
+  public Table<E> transpose();
   
   /**
    * Compares the data of two {@link Table} instances, if they are the same true is returned.<br>
@@ -71,7 +71,7 @@ public interface TableCore<E, T extends Table<E>>
    * 
    * @return
    */
-  public boolean equals( T table );
+  public boolean equals( Table<E> table );
   
   /**
    * Sets the title for a row with the given index position.
@@ -81,7 +81,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param rowIndexPosition
    * @return
    */
-  public T setRowTitleValue( Object titleValue, int rowIndexPosition );
+  public Table<E> setRowTitleValue( Object titleValue, int rowIndexPosition );
   
   /**
    * Sets the title for the rows. This means the visual identifiers at the left of the table.
@@ -91,7 +91,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param titleList
    * @return
    */
-  public T setRowTitleValues( List<?> titleList );
+  public Table<E> setRowTitleValues( List<?> titleList );
   
   /**
    * Sets the title of a column for a given column index position.
@@ -100,7 +100,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param columnIndexPosition
    * @return
    */
-  public T setColumnTitleValue( Object titleValue, int columnIndexPosition );
+  public Table<E> setColumnTitleValue( Object titleValue, int columnIndexPosition );
   
   /**
    * Sets the titles of the columns. The titles can be used to identify a column, or together with a row a single cell.
@@ -110,7 +110,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param titleValueList
    * @return
    */
-  public T setColumnTitleValues( List<?> titleValueList );
+  public Table<E> setColumnTitleValues( List<?> titleValueList );
   
   /**
    * Returns the row titles for the table.
@@ -148,7 +148,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param tableTitle
    * @return this
    */
-  public T setTableName( Object tableName );
+  public Table<E> setTableName( Object tableName );
   
   /**
    * Returns the name for the whole table.
@@ -168,12 +168,12 @@ public interface TableCore<E, T extends Table<E>>
   /**
    * Puts a new element to the table at the defined index positions.
    */
-  public T setCellElement( int rowIndexPosition, int columnIndexPosition, E element );
+  public Table<E> setCellElement( int rowIndexPosition, int columnIndexPosition, E element );
   
   /**
    * Puts a new element to the table at the defined cell index position.
    */
-  public T setCellElement( int cellIndexPosition, E element );
+  public Table<E> setCellElement( int cellIndexPosition, E element );
   
   /**
    * Puts a row at the given row index position
@@ -182,7 +182,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param rowCellElementList
    * @return this
    */
-  public T setRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
+  public Table<E> setRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
   
   /**
    * Puts a column at the given column index position.
@@ -191,7 +191,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param columnCellElementList
    * @return
    */
-  public T setColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList );
+  public Table<E> setColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList );
   
   /**
    * Puts a foreign table into the current table at the given index position. This means, if there are already filled cells, they
@@ -202,7 +202,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param columnIndexPosition
    * @return
    */
-  public T putTable( T insertIndexedTable, int rowIndexPosition, int columnIndexPosition );
+  public Table<E> putTable( Table<E> insertIndexedTable, int rowIndexPosition, int columnIndexPosition );
   
   /**
    * Puts an array into the table. If there are already filled cells on the given position, they will be overwritten.
@@ -212,11 +212,12 @@ public interface TableCore<E, T extends Table<E>>
    * @param columnIndexPosition
    * @return
    */
-  public T putArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition );
+  public Table<E> putArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition );
   
   /**
    * Resolves an element from the table at the given index positions.
    * 
+   * @see #getCellElement(int)
    * @param rowIndexPosition
    * @param columnIndexPosition
    * @return
@@ -226,10 +227,20 @@ public interface TableCore<E, T extends Table<E>>
   /**
    * Returns the {@link Cell#getElement()} for the given {@link Cell} index position
    * 
+   * @see #getCellElement(int, int)
+   * @see #getCellElementList()
    * @param cellIndexPosition
    * @return
    */
   public E getCellElement( int cellIndexPosition );
+  
+  /**
+   * Returns a serialized {@link List} of all {@link Cell} instances of the {@link Table}.
+   * 
+   * @see #getCellElement(int)
+   * @return
+   */
+  public List<E> getCellElementList();
   
   /**
    * Resolves the {@link Cell} for the given index positions.
@@ -289,7 +300,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param columnCellElementList
    * @return this
    */
-  public T addColumnCellElements( List<? extends E> columnCellElementList );
+  public Table<E> addColumnCellElements( List<? extends E> columnCellElementList );
   
   /**
    * Adds a {@link Column} to the {@link Table} with the given {@link Cell#getElement()}s at the given index position of the
@@ -311,7 +322,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param rowCellElementList
    * @return this
    */
-  public T addRowCellElements( List<? extends E> rowCellElementList );
+  public Table<E> addRowCellElements( List<? extends E> rowCellElementList );
   
   /**
    * Adds a new {@link Row} to the {@link Table} at the given index position. If there is already a {@link Row} or following
@@ -322,7 +333,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param rowCellElementList
    * @return this
    */
-  public T addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
+  public Table<E> addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
   
   /**
    * Removes a {@link Row} at the given index position from the {@link Table}.
@@ -399,19 +410,19 @@ public interface TableCore<E, T extends Table<E>>
    * 
    * @return
    */
-  public T clear();
+  public Table<E> clear();
   
   /**
    * Clones the current table.
    */
-  public T clone();
+  public Table<E> clone();
   
   /**
    * Clones the table structue like table name, titles of columns and rows, and the indexes.
    * 
    * @return
    */
-  public T cloneTableStructure();
+  public Table<E> cloneTableStructure();
   
   /**
    * Returns an {@link Iterator} that goes through every {@link Column} for every {@link Row}. Starting from left to right and
@@ -465,20 +476,20 @@ public interface TableCore<E, T extends Table<E>>
    * @see TableCellVisitor
    * @param tableCellVisitor
    */
-  public T processTableCells( TableCellVisitor<E> tableCellVisitor );
+  public Table<E> processTableCells( TableCellVisitor<E> tableCellVisitor );
   
   /**
    * Takes the first row of the table converts it to text and removes it from the table.
    * 
    * @return this
    */
-  public T convertFirstRowToTitle();
+  public Table<E> convertFirstRowToTitle();
   
   /**
    * Converts the first column to row titles. The first column will be removed from the table data.
    * 
    * @return
    */
-  public T convertFirstColumnToTitle();
+  public Table<E> convertFirstColumnToTitle();
   
 }
