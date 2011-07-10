@@ -37,85 +37,6 @@ public interface TableCore<E, T extends Table<E>>
 {
   
   /**
-   * Returns the rows corresponding to the interval of the given indexes as a new table object. The from and to index position
-   * will be included.
-   * 
-   * @see #getSubTableByRows(int[])
-   * @param rowIndexPositionFrom
-   * @param rowIndexPositionTo
-   */
-  public T getSubTableByRows( int rowIndexPositionFrom, int rowIndexPositionTo );
-  
-  /**
-   * Returns a part of the rows from the table identified by an array of row index positions.<br>
-   * Indexes will be kept as they are in this table, as well as titles will be copied to the new subtable object.<br>
-   * 
-   * @see #getSubTableByRows(int, int)
-   * @see #getSubTableByRows(List)
-   * @param rowIndexPositions
-   * @return
-   */
-  public T getSubTableByRows( int[] rowIndexPositions );
-  
-  /**
-   * @see #getSubTableByRows(int[])
-   * @param rowIndexPositionList
-   * @return
-   */
-  public T getSubTableByRows( List<Integer> rowIndexPositionList );
-  
-  /**
-   * Returns a new table object, with the columns of this object, that are defined by the given index positions.<br>
-   * Indexes and titles are copied to the new table object.
-   * 
-   * @see #getSubTableByColumns(List)
-   * @param columnIndexPositions
-   * @return
-   */
-  public T getSubTableByColumns( int[] columnIndexPositions );
-  
-  /**
-   * @see #getSubTableByColumns(int[])
-   * @param columnIndexPositionList
-   * @return
-   */
-  public T getSubTableByColumns( List<Integer> columnIndexPositionList );
-  
-  /**
-   * Returns a new table object, with the columns and rows of this object, that are defined by the given crossings of the row and
-   * column index positions.<br>
-   * Indexes and titles are copied to the new table object.
-   * 
-   * @param columnIndexPositions
-   * @return
-   */
-  public T getSubTable( int[] rowIndexPositions, int[] columnIndexPositions );
-  
-  /**
-   * Returns a segment of the current table as a new table object with the given boundaries.<br>
-   * The boundary index positions are all included in the new table.<br>
-   * Indexes and titles are copied as well.
-   * 
-   * @see #getSubTable(int[], int[])
-   * @param rowIndexPositionFrom
-   * @param rowIndexPositionTo
-   * @param columnIndexPositionFrom
-   * @param columnIndexPositionTo
-   * @return
-   */
-  public T getSubTable( int rowIndexPositionFrom, int rowIndexPositionTo, int columnIndexPositionFrom, int columnIndexPositionTo );
-  
-  /**
-   * Returns the table columns interval as a new table object. The interval boundaries are included in the new table.
-   * 
-   * @see #getSubTableByColumns(int[])
-   * @param colunmIndexPositionFrom
-   * @param colunmIndexPositionTo
-   * @return
-   */
-  public T getSubTableByColumns( int colunmIndexPositionFrom, int colunmIndexPositionTo );
-  
-  /**
    * Inserts a given array at the given index position into the table. If there are already filled cells, they are moved as much
    * rows down the table as new rows are inserted.
    * 
@@ -145,15 +66,15 @@ public interface TableCore<E, T extends Table<E>>
   public T transpose();
   
   /**
-   * Compares the data of two table, if they are the same true is returned.<br>
+   * Compares the data of two {@link Table} instances, if they are the same true is returned.<br>
    * Titles are not compared.
    * 
-   * @return true:data of the table is equal
+   * @return
    */
-  public boolean equals( T indexedTable );
+  public boolean equals( T table );
   
   /**
-   * @see #setRowTitles(List)
+   * @see #setRowTitleValues(List)
    * @see #setRowTitles(String[])
    * @param rowTitleEnums
    */
@@ -161,7 +82,7 @@ public interface TableCore<E, T extends Table<E>>
   
   /**
    * @see #setRowTitles(Enum[])
-   * @see #setRowTitles(List)
+   * @see #setRowTitleValues(List)
    * @param titles
    * @return
    */
@@ -170,12 +91,12 @@ public interface TableCore<E, T extends Table<E>>
   /**
    * Sets the title for a row with the given index position.
    * 
-   * @see #getRowTitleList()
+   * @see #getRowTitleValueList()
    * @param titleValue
    * @param rowIndexPosition
    * @return
    */
-  public T setRowTitle( Object titleValue, int rowIndexPosition );
+  public T setRowTitleValue( Object titleValue, int rowIndexPosition );
   
   /**
    * Sets the title for the rows. This means the visual identifiers at the left of the table.
@@ -185,10 +106,10 @@ public interface TableCore<E, T extends Table<E>>
    * @param titleList
    * @return
    */
-  public T setRowTitles( List<String> titleList );
+  public T setRowTitleValues( List<?> titleList );
   
   /**
-   * @see #setColumnTitles(List)
+   * @see #setColumnTitleValues(List)
    * @see #setColumnTitles(String[])
    * @param titleEnumerations
    * @return
@@ -196,7 +117,7 @@ public interface TableCore<E, T extends Table<E>>
   public T setColumnTitles( Enum<?>[] titleEnumerations );
   
   /**
-   * @see #setColumnTitles(List)
+   * @see #setColumnTitleValues(List)
    * @see #setColumnTitles(Enum[])
    * @param titles
    * @return
@@ -219,54 +140,47 @@ public interface TableCore<E, T extends Table<E>>
    * @param columnIndexPosition
    * @return
    */
-  public T setColumnTitle( Object titleValue, int columnIndexPosition );
+  public T setColumnTitleValue( Object titleValue, int columnIndexPosition );
   
   /**
    * Sets the titles of the columns. The titles can be used to identify a column, or together with a row a single cell.
    * 
    * @see #setColumnTitles(Enum[])
    * @see #setColumnTitles(String[])
-   * @param titleList
+   * @param titleValueList
    * @return
    */
-  public T setColumnTitles( List<String> titleList );
+  public T setColumnTitleValues( List<?> titleValueList );
   
   /**
    * Returns the row titles for the table.
    * 
-   * @see #getRowTitle(int)
+   * @see #getRowTitleValue(int)
    * @return
    */
-  public List<Object> getRowTitleList();
+  public List<Object> getRowTitleValueList();
   
   /**
-   * @see #getRowTitleList()
+   * @see #getRowTitleValueList()
    * @param rowIndexPosition
    * @return
    */
-  public Object getRowTitle( int rowIndexPosition );
+  public Object getRowTitleValue( int rowIndexPosition );
   
   /**
    * Returns the column titles for the table.
    * 
-   * @see #getColumnTitle(int)
+   * @see #getColumnTitleValue(int)
    * @return
    */
-  public List<Object> getColumnTitleList();
+  public List<Object> getColumnTitleValueList();
   
   /**
-   * Returns the column titles for the table.
-   * 
-   * @return
-   */
-  public String[] getColumnTitles();
-  
-  /**
-   * @see #getColumnTitleList()
+   * @see #getColumnTitleValueList()
    * @param columnIndexPosition
    * @return
    */
-  public Object getColumnTitle( int columnIndexPosition );
+  public Object getColumnTitleValue( int columnIndexPosition );
   
   /**
    * Sets the name of the whole table.
@@ -274,14 +188,14 @@ public interface TableCore<E, T extends Table<E>>
    * @param tableTitle
    * @return this
    */
-  public T setTableName( String tableName );
+  public T setTableName( Object tableName );
   
   /**
    * Returns the name for the whole table.
    * 
    * @return
    */
-  public String getTableName();
+  public Object getTableName();
   
   /**
    * Returns a {@link TableSize} object for the table. The object will have always actual results, that will change if the data of
@@ -299,36 +213,25 @@ public interface TableCore<E, T extends Table<E>>
   /**
    * Puts a new element to the table at the defined cell index position.
    */
-  public T setCell( int cellIndexPosition, E element );
+  public T setCellElement( int cellIndexPosition, E element );
   
   /**
    * Puts a row at the given row index position
    * 
    * @param rowIndexPosition
-   * @param row
+   * @param rowCellElementList
    * @return this
    */
-  public T setRow( int rowIndexPosition, List<E> row );
-  
-  /**
-   * Puts a row at the given row index position. The row will be build by retrieving the values of all getter methods of the given
-   * javaBean, that are matching the column titles. If no column titles are set, they will be set with the property names of the
-   * bean getters.
-   * 
-   * @param rowIndexPosition
-   * @param beanObject
-   * @return
-   */
-  public T setRow( int rowIndexPosition, Object beanObject );
+  public T setRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
   
   /**
    * Puts a column at the given column index position.
    * 
    * @param columnIndexPosition
-   * @param column
+   * @param columnCellElementList
    * @return
    */
-  public T setColumn( int columnIndexPosition, List<E> column );
+  public T setColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList );
   
   /**
    * Puts a foreign table into the current table at the given index position. This means, if there are already filled cells, they
@@ -359,6 +262,14 @@ public interface TableCore<E, T extends Table<E>>
    * @return
    */
   public E getCellElement( int rowIndexPosition, int columnIndexPosition );
+  
+  /**
+   * Returns the {@link Cell#getElement()} for the given {@link Cell} index position
+   * 
+   * @param cellIndexPosition
+   * @return
+   */
+  public E getCellElement( int cellIndexPosition );
   
   /**
    * Resolves the {@link Cell} for the given index positions.
@@ -413,53 +324,61 @@ public interface TableCore<E, T extends Table<E>>
   public List<E> getCellList();
   
   /**
-   * Adds a column to the table.<br>
-   * If the table has less rows, than the given column, the table will be expanded to the number of rows that are necessary to
-   * cover the new column.
+   * Adds a {@link Column} to the {@link Table} with the given {@link Cell#getElement()}s at the end of the {@link Column}s.
    * 
-   * @param column
+   * @param columnCellElementList
+   * @return this
+   */
+  public T addColumnCellElements( List<? extends E> columnCellElementList );
+  
+  /**
+   * Adds a {@link Column} to the {@link Table} with the given {@link Cell#getElement()}s at the given index position of the
+   * {@link Column}s. Already existing {@link Column}s at this index position will be moved one index position further. If the
+   * index position is above the size of the current {@link Column}s, as many {@link Column}s are created as necessary to make the
+   * {@link Column} available at the given index position.
+   * 
+   * @param columnIndexPosition
+   * @param columnCellElementList
    * @return
    */
-  public T addColumn( List<E> column );
+  public Table<E> addColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList );
   
   /**
    * Adds a new row to the table.<br>
    * If the row has more elements, than the table has columns, the table will be expanded with new empty columns to match the row
    * element number.
    * 
-   * @param row
+   * @param rowCellElementList
    * @return this
    */
-  public T addRow( List<E> row );
+  public T addRowCellElements( List<? extends E> rowCellElementList );
   
   /**
-   * Adds a new row to the table at the given index position.
+   * Adds a new {@link Row} to the {@link Table} at the given index position. If there is already a {@link Row} or following
+   * {@link Row}s for the given index position, they are moved one index position forward. If the index position is out of bounds
+   * as many {@link Row}s are created to make it possible to access the {@link Row} at the given index position.
    * 
    * @param rowIndexPosition
-   * @param row
+   * @param rowCellElementList
    * @return this
    */
-  public T addRow( int rowIndexPosition, List<E> row );
+  public T addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
   
   /**
-   * Adds a new row to the table.<br>
-   * This is done by using available javabean getter methods, to determine a new column for every javabean property. <br>
-   * If there are column titles set for the table, only properties matching the column titles will be set.<br>
-   * For example, if a bean has the getter method: "getProperty1", and the table has a column like "property1", the corresponding
-   * column field will get the value retrieved from the getter method.
-   * 
-   * @param beanObject
-   * @return this
-   */
-  public T addRow( Object beanObject );
-  
-  /**
-   * Removes a row at the given index position from the table.
+   * Removes a {@link Row} at the given index position from the {@link Table}.
    * 
    * @param rowIndexPosition
-   * @return the removed row
+   * @return {@link List} of {@link Cell#getElement()} instances of the removed {@link Row}
    */
   public List<E> removeRow( int rowIndexPosition );
+  
+  /**
+   * Removes a {@link Column} at the given index position from the {@link Table}.
+   * 
+   * @param columnIndexPosition
+   * @return {@link List} of {@link Cell#getElement()} instances of the removed {@link Column}
+   */
+  public List<E> removeColumn( int columnIndexPosition );
   
   /**
    * Removes all the given rows.
@@ -467,7 +386,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param rowIndexPositions
    * @return
    */
-  public List<E>[] removeRows( int[] rowIndexPositions );
+  public List<List<E>> removeRows( int[] rowIndexPositions );
   
   /**
    * Returns a new list that holds the object of the row pointed to.
@@ -499,46 +418,13 @@ public interface TableCore<E, T extends Table<E>>
   
   /**
    * Returns a {@link Row} of the {@link Table} identified by the title of a row. Before this can be used, the titles have to be
-   * set by {@link #setRowTitles(List)}
+   * set by {@link #setRowTitleValues(List)}
    * 
    * @see #getRow(int)
    * @param rowTitleValue
    * @return
    */
   public Row<E> getRow( String rowTitleValue );
-  
-  /**
-   * Returns true if the table contains a row, which has the same elements as the given row in the same order.
-   * 
-   * @param row
-   * @return
-   */
-  public boolean containsRow( List<E> row );
-  
-  /**
-   * Returns true, if the row created by the java bean properties with the same name as the table titles, is contained by the
-   * table.
-   * 
-   * @param beanObject
-   * @return
-   */
-  public boolean containsRow( Object beanObject );
-  
-  /**
-   * Returns the row index position of a row, which has the same elements as the given row in the same order.
-   * 
-   * @param row
-   * @return
-   */
-  public int indexOfRow( List<E> row );
-  
-  /**
-   * Returns the row index position of the last row which equals the given row in elements and elements order.
-   * 
-   * @param row
-   * @return
-   */
-  public int lastIndexOfRow( List<E> row );
   
   /**
    * Returns a {@link Column} for the given {@link Column} index position.
@@ -551,7 +437,7 @@ public interface TableCore<E, T extends Table<E>>
   
   /**
    * Returns a {@link Column} for the given {@link Column} title value. The {@link Column} titles have to be set before with
-   * {@link #setColumnTitles(List)}
+   * {@link #setColumnTitleValues(List)}
    * 
    * @see #getColumn(int)
    * @param columnTitleValue
@@ -568,53 +454,12 @@ public interface TableCore<E, T extends Table<E>>
   public boolean contains( E element );
   
   /**
-   * Returns the index position of the first occurrence for an element within a given row.
-   * 
-   * @param columnIndexPosition
-   */
-  public int indexOfFirstColumnWithElementEquals( int rowIndexPosition, E element );
-  
-  /**
-   * Returns the index position of the first occurrence of an element within a given column.
-   * 
-   * @param columnIndexPosition
-   * @param element
-   * @return
-   */
-  public int indexOfFirstRowWithElementEquals( int columnIndexPosition, E element );
-  
-  /**
-   * Returns all indexes, that are matching the given element.
-   * 
-   * @param columnIndexPosition
-   * @param element
-   * @return
-   */
-  public int[] indexesOfRowsWithElementsEquals( int columnIndexPosition, E element );
-  
-  /**
-   * Returns the index position of the last occurrence for an element within a given row.
-   * 
-   * @param columnIndexPosition
-   */
-  public int lastIndexOfElementWithinRow( int rowIndexPosition, E element );
-  
-  /**
    * Clears the table, so that there are no elements left.<br>
    * This removes all indexes set.
    * 
    * @return
    */
   public T clear();
-  
-  /**
-   * Returns the index position of the last occurrence of an element within a given column.
-   * 
-   * @param columnIndexPosition
-   * @param element
-   * @return
-   */
-  public int lastIndexOfElementWithinColumn( int columnIndexPosition, E element );
   
   /**
    * Clones the current table.
@@ -632,32 +477,40 @@ public interface TableCore<E, T extends Table<E>>
    * Returns an {@link Iterator} that goes through every {@link Column} for every {@link Row}. Starting from left to right and
    * then downwards all the {@link Row}s.
    * 
-   * @see #rowIterator()
+   * @see #iteratorRow()
    * @see #iterator()
    * @return
    */
-  public Iterator<Cell<E>> cellIterator();
+  public Iterator<Cell<E>> iteratorCell();
+  
+  /**
+   * {@link Iterable} for the {@link Table}s {@link Cell}s.
+   * 
+   * @see #iteratorCell()
+   * @return
+   */
+  public Iterable<Cell<E>> cells();
   
   /**
    * Returns an iterator over all rows.
    * 
    * @see #iterator()
-   * @see #cellIterator()
+   * @see #iteratorCell()
    * @return
    */
-  public Iterator<Row<E>> rowIterator();
+  public Iterator<Row<E>> iteratorRow();
   
   /**
-   * The same as {@link #rowIterator()}
+   * The same as {@link #iteratorRow()}
    * 
-   * @see #rowIterator()
-   * @see #cellIterator()
+   * @see #iteratorRow()
+   * @see #iteratorCell()
    * @return
    */
   public Iterator<Row<E>> iterator();
   
   /**
-   * Converts the current table into a table with another type.
+   * Converts the current {@link Table} into a {@link Table} with another element type.
    * 
    * @see TableCellConverter
    * @param tableCellConverter
@@ -687,12 +540,5 @@ public interface TableCore<E, T extends Table<E>>
    * @return
    */
   public T convertFirstColumnToTitle();
-  
-  /**
-   * Creates a new table containing only one row of a set of duplicate rows in the current table.
-   * 
-   * @return new table
-   */
-  public T distinct();
   
 }

@@ -42,13 +42,24 @@ public class StripeListArray<E> implements StripeList<E>
   /* ********************************************** Methods ********************************************** */
 
   /**
+   * @param tableInternal
+   * @param stripeType
+   */
+  public StripeListArray( TableInternal<E> tableInternal, StripeType stripeType )
+  {
+    super();
+    this.tableInternal = tableInternal;
+    this.stripeType = stripeType;
+  }
+  
+  /**
    * Adds a new created {@link Stripe} instance to the {@link StripeListArray}.
    */
   @Override
   public StripeInternal<E> addNewStripe()
   {
     //
-    StripeInternal<E> retval = new RowAndColumnImpl<E>( this.tableInternal );
+    StripeInternal<E> retval = new RowAndColumnImpl<E>( this.tableInternal, this );
     
     //
     this.stripeList.add( retval );
@@ -57,22 +68,23 @@ public class StripeListArray<E> implements StripeList<E>
     return retval;
   }
   
-  /**
-   * @param tableInternal
-   */
-  public StripeListArray( TableInternal<E> tableInternal )
+  @Override
+  public StripeInternal<E> addNewStripe( int indexPosition )
   {
-    super();
-    this.tableInternal = tableInternal;
-  }
-  
-  /**
-   * @param stripeType
-   */
-  public StripeListArray( StripeType stripeType )
-  {
-    super();
-    this.stripeType = stripeType;
+    //
+    StripeInternal<E> retval = new RowAndColumnImpl<E>( this.tableInternal, this );
+    
+    //
+    while ( indexPosition > this.size() )
+    {
+      this.addNewStripe();
+    }
+    
+    //
+    this.stripeList.add( indexPosition, retval );
+    
+    //
+    return retval;
   }
   
   @Override
@@ -87,29 +99,10 @@ public class StripeListArray<E> implements StripeList<E>
     return this.stripeList.isEmpty();
   }
   
-  public boolean add( Stripe<E> e )
-  {
-    return this.stripeList.add( (StripeInternal<E>) e );
-  }
-  
-  public boolean remove( Object o )
-  {
-    return this.stripeList.remove( o );
-  }
-  
+  @Override
   public void clear()
   {
     this.stripeList.clear();
-  }
-  
-  public Stripe<E> set( int index, Stripe<E> element )
-  {
-    return this.stripeList.set( index, (StripeInternal<E>) element );
-  }
-  
-  public void add( int index, Stripe<E> element )
-  {
-    this.stripeList.add( index, (StripeInternal<E>) element );
   }
   
   @Override
@@ -203,4 +196,33 @@ public class StripeListArray<E> implements StripeList<E>
     //
     return retval;
   }
+  
+  @Override
+  public void removeStripeAndDetachCellsFromTable( StripeInternal<E> stripe )
+  {
+    //
+    if ( stripe != null )
+    {
+      stripe.detachAllCellsFromTable();
+    }
+    
+    //
+    this.stripeList.remove( stripe );
+  }
+  
+  @Override
+  public void removeStripeAndDetachCellsFromTable( int indexPosition )
+  {
+    //
+    StripeInternal<E> stripeInternal = this.getStripe( indexPosition );
+    if ( stripeInternal != null )
+    {
+      //
+      stripeInternal.detachAllCellsFromTable();
+      
+      //
+      this.stripeList.remove( indexPosition );
+    }
+  }
+  
 }

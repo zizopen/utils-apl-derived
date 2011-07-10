@@ -20,6 +20,7 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 
 /**
@@ -78,10 +79,11 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
     /* ********************************************** Classes/Interfaces ********************************************** */
 
     /**
-     * Marker interface
+     * {@link StripeType} of a {@link Stripe}
      * 
      * @see Stripe
      * @see StripeList
+     * @see StripeTypeHelper
      * @author Omnaest
      */
     public static enum StripeType
@@ -130,12 +132,28 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
     public Cell<E> getCell( int indexPosition );
     
     /**
+     * Returns the {@link Cell#getElement()} for the given index position
+     * 
+     * @param indexPosition
+     * @return
+     */
+    public E getCellElement( int indexPosition );
+    
+    /**
      * Returns the {@link Cell} for the title value of the orthogonal {@link Stripe}
      * 
      * @param titleValue
      * @return
      */
     public Cell<E> getCell( Object titleValue );
+    
+    /**
+     * Returns the {@link Cell#getElement()} for the given index position
+     * 
+     * @param titleValue
+     * @return
+     */
+    public E getCellElement( Object titleValue );
     
     /**
      * Returns the {@link Title}.
@@ -151,6 +169,39 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
      * @return
      */
     public boolean contains( Cell<E> cell );
+    
+    /**
+     * Returns true if one of the {@link Cell}s of this {@link Stripe} contains the given element
+     * 
+     * @param element
+     * @return
+     */
+    public boolean contains( E element );
+    
+    /**
+     * Sets the {@link Cell#setElement(Object)} for the {@link Cell} corresponding to the given title value
+     * 
+     * @param titleValue
+     * @param element
+     * @return
+     */
+    public Stripe<E> setCellElement( Object titleValue, E element );
+    
+    /**
+     * Set the {@link Cell#setElement(Object)} for the {@link Cell} corresponding to the given orthogonal index position
+     * 
+     * @param indexPosition
+     * @param element
+     * @return
+     */
+    public Stripe<E> setCellElement( int indexPosition, E element );
+    
+    /**
+     * Determines the number of {@link Cell}s currently stored within this {@link Stripe}
+     * 
+     * @return
+     */
+    public int determineNumberOfCells();
   }
   
   /**
@@ -200,6 +251,20 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
      * @return
      */
     public boolean hasElement( E element );
+    
+    /**
+     * Returns the {@link Column} this {@link Cell} belongs to
+     * 
+     * @return
+     */
+    public Column<E> getColumn();
+    
+    /**
+     * Returns the {@link Row} this {@link Cell} belongs to
+     * 
+     * @return
+     */
+    public Row<E> getRow();
   }
   
   /**

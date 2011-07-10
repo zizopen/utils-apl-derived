@@ -16,6 +16,8 @@
 package org.omnaest.utils.structure.table.internal;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Set;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
@@ -61,7 +63,7 @@ public interface TableInternal<E> extends Table<E>
      * @param column
      * @return
      */
-    public Cell<E> resolveCell( int rowIndexPosition, Column<E> column );
+    public Cell<E> resolveCell( int rowIndexPosition, ColumnInternal<E> column );
     
     /**
      * Resolves a {@link Cell} by a given {@link Row} and {@link Column}
@@ -70,7 +72,7 @@ public interface TableInternal<E> extends Table<E>
      * @param column
      * @return
      */
-    public Cell<E> resolveCell( Row<E> row, Column<E> column );
+    public Cell<E> resolveCell( RowInternal<E> row, ColumnInternal<E> column );
     
     /**
      * Resolves a {@link Cell} by a given {@link Stripe} and the complementary index position
@@ -79,7 +81,7 @@ public interface TableInternal<E> extends Table<E>
      * @param indexPosition
      * @return
      */
-    public Cell<E> resolveCell( Stripe<E> stripe, int indexPosition );
+    public Cell<E> resolveCell( StripeInternal<E> stripe, int indexPosition );
     
     /**
      * Resolves a {@link Cell} by a given {@link Stripe} and the title value of the orthogonal stripe
@@ -88,7 +90,7 @@ public interface TableInternal<E> extends Table<E>
      * @param titleValue
      * @return
      */
-    public Cell<E> resolveCell( Stripe<E> stripe, Object titleValue );
+    public Cell<E> resolveCell( StripeInternal<E> stripe, Object titleValue );
     
     /**
      * Resolves a {@link ColumnInternal} for the given {@link Column} index position.
@@ -136,6 +138,17 @@ public interface TableInternal<E> extends Table<E>
     public StripeInternal<E> resolveOrCreateStripe( StripeType stripeType, int indexPosition );
     
     /**
+     * Tries to resolve a {@link StripeInternal} instance for the given index position and {@link StripeType}. If no
+     * {@link Stripe} instance could be resolved for the given valid {@link Title#getValue()} a new {@link Stripe} is created with
+     * the given {@link Title#getValue()}.
+     * 
+     * @param stripeType
+     * @param titleValue
+     * @return
+     */
+    public StripeInternal<E> resolveOrCreateStripe( StripeType stripeType, Object titleValue );
+    
+    /**
      * Resolves the {@link Stripe} for the given {@link StripeType} and index position from the internal {@link Table} reference.
      * 
      * @param stripeType
@@ -167,7 +180,7 @@ public interface TableInternal<E> extends Table<E>
      * @param column
      * @return
      */
-    public Cell<E> resolveCell( Object rowTitleValue, Column<E> column );
+    public Cell<E> resolveCell( Object rowTitleValue, ColumnInternal<E> column );
     
     /**
      * Resolves a {@link Cell} by the {@link Row} and the {@link Title#getValue()} of the {@link Column}
@@ -176,7 +189,7 @@ public interface TableInternal<E> extends Table<E>
      * @param columnTitleValue
      * @return
      */
-    public Cell<E> resolveCell( Row<E> row, Object columnTitleValue );
+    public Cell<E> resolveCell( RowInternal<E> row, Object columnTitleValue );
     
     /**
      * Tries to resolve a {@link Cell} by a given {@link RowInternal} and {@link ColumnInternal}. If there is no {@link Cell}
@@ -237,6 +250,44 @@ public interface TableInternal<E> extends Table<E>
      * @return
      */
     public Cell<E> resolveOrCreateCell( int rowIndexPosition, int columnIndexPosition );
+    
+    /**
+     * Resolves a {@link Cell} by two orthogonal {@link Stripe} instances
+     * 
+     * @param stripeFirst
+     * @param stripeSecond
+     * @return
+     */
+    public Cell<E> resolveCell( StripeInternal<E> stripeFirst, StripeInternal<E> stripeSecond );
+    
+    /**
+     * Tries to resolve or creates a {@link Cell} by two orthogonal {@link Stripe} instances
+     * 
+     * @param stripeFirst
+     * @param stripeSecond
+     * @return
+     */
+    public Cell<E> resolveOrCreateCell( StripeInternal<E> stripeFirst, StripeInternal<E> stripeSecond );
+    
+    /**
+     * Tries to resolve or create a {@link Cell} for the given {@link Stripe} instance and its orthogonal {@link Stripe} and index
+     * position relation
+     * 
+     * @param stripeInternal
+     * @param indexPosition
+     * @return
+     */
+    public Cell<E> resolveOrCreateCell( StripeInternal<E> stripeInternal, int indexPosition );
+    
+    /**
+     * Tries to resolve or create a {@link Cell} for the given {@link Stripe} instance and its orthogonal {@link Stripe} with the
+     * given {@link Title#getValue()}
+     * 
+     * @param stripeInternal
+     * @param titleValue
+     * @return
+     */
+    public Cell<E> resolveOrCreateCell( StripeInternal<E> stripeInternal, Object titleValue );
   }
   
   /**
@@ -293,6 +344,19 @@ public interface TableInternal<E> extends Table<E>
      * Switches the {@link StripeList} for the {@link Row} and {@link Column}.
      */
     public void switchRowAndColumnStripeList();
+    
+    /**
+     * Determines the size of the {@link StripeList} for the given {@link StripeType}
+     * 
+     * @param stripeType
+     * @return
+     */
+    public int determineStripeListSize( StripeType stripeType );
+    
+    /**
+     * Clears the {@link StripeListContainer}
+     */
+    public void clear();
     
   }
   
@@ -357,11 +421,25 @@ public interface TableInternal<E> extends Table<E>
     public int size();
     
     /**
+     * Clears the {@link StripeList}.
+     */
+    public void clear();
+    
+    /**
      * Adds a new created {@link Stripe} instance to the end of the {@link StripeList}
      * 
      * @return
      */
     public StripeInternal<E> addNewStripe();
+    
+    /**
+     * Adds a new created {@link Stripe} instance into the given index position of the {@link StripeList}. This moves an already
+     * existing {@link Stripe} at that position and all following {@link Stripe} instances one position further.
+     * 
+     * @param indexPosition
+     * @return
+     */
+    public StripeInternal<E> addNewStripe( int indexPosition );
     
     /**
      * Returns true if the {@link StripeList} contains the given {@link Stripe}
@@ -387,6 +465,20 @@ public interface TableInternal<E> extends Table<E>
      * @return
      */
     public StripeInternal<E> getStripe( Object titleValue );
+    
+    /**
+     * Removes a {@link Stripe} from the {@link StripeList} and detaches its {@link Cell}s too.
+     * 
+     * @param stripe
+     */
+    public void removeStripeAndDetachCellsFromTable( StripeInternal<E> stripe );
+    
+    /**
+     * Removes a {@link Stripe} from the {@link StripeList} and detaches its {@link Cell}s too.
+     * 
+     * @param indexPosition
+     */
+    public void removeStripeAndDetachCellsFromTable( int indexPosition );
   }
   
   /**
@@ -417,9 +509,49 @@ public interface TableInternal<E> extends Table<E>
     /* ********************************************** Methods ********************************************** */
 
     /**
-     * Adds a {@link Cell} to the {@link Stripe}
+     * Adds a {@link Cell} to the {@link Stripe} if it does not contain the {@link Cell} already. This should allow registering
+     * from {@link Cell} constructor.
+     * 
+     * @see #unregisterCell(org.omnaest.utils.structure.table.Table.Cell)
+     * @param cell
      */
-    public void addCell( Cell<E> cell );
+    public void registerCell( CellInternal<E> cell );
+    
+    /**
+     * Removes a {@link Cell} from the {@link Stripe}
+     * 
+     * @see #registerCell(CellInternal<E>)
+     * @param cell
+     */
+    public void unregisterCell( Cell<E> cell );
+    
+    /**
+     * Resolves the {@link StripeType} from the underlying {@link StripeList}
+     * 
+     * @return
+     */
+    public StripeType resolveStripeType();
+    
+    /**
+     * Returns the internal {@link Cell} {@link Set}
+     * 
+     * @return
+     */
+    public Set<CellInternal<E>> getCellSet();
+    
+    /**
+     * Returns all {@link Cell#getElement()} instances as ordered {@link List} as currently ordered within the {@link Table}. If
+     * the {@link Table} order changes the {@link List} will no change. Changes to the {@link List} are not reflected into the
+     * {@link Table}.
+     * 
+     * @return
+     */
+    public List<E> getCellElementList();
+    
+    /**
+     * Detaches all {@link Cell}s within this {@link Stripe} from the {@link Table}
+     */
+    public void detachAllCellsFromTable();
   }
   
   /**
@@ -449,6 +581,13 @@ public interface TableInternal<E> extends Table<E>
    */
   public static interface CellInternal<E> extends Cell<E>
   {
+    
+    /**
+     * Removes a {@link Cell} from its related {@link Row} and {@link Column}.
+     * 
+     * @return
+     */
+    public Cell<E> detachFromTable();
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -463,6 +602,6 @@ public interface TableInternal<E> extends Table<E>
    * 
    * @return
    */
-  public CellAndStripeResolver<E> getCellResolver();
+  public CellAndStripeResolver<E> getCellAndStripeResolver();
   
 }

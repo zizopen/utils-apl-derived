@@ -15,10 +15,16 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.components;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 
 /**
  * @see Cell
@@ -29,13 +35,33 @@ import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
 public class CellImpl<E> implements CellInternal<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID = 4937853192103513084L;
-  protected Row<E>          row              = null;
-  protected Column<E>       column           = null;
-  protected E               element          = null;
+  private static final long         serialVersionUID   = 4937853192103513084L;
+  protected List<StripeInternal<E>> stripeInternalList = new ArrayList<StripeInternal<E>>();
+  protected E                       element            = null;
   
   /* ********************************************** Methods ********************************************** */
 
+  /**
+   * @param stripeInternalCollection
+   */
+  protected CellImpl( Collection<StripeInternal<E>> stripeInternalCollection )
+  {
+    //
+    super();
+    
+    //
+    this.stripeInternalList.addAll( stripeInternalCollection );
+    
+    //
+    for ( StripeInternal<E> stripeInternal : stripeInternalCollection )
+    {
+      if ( stripeInternal != null )
+      {
+        stripeInternal.registerCell( this );
+      }
+    }
+  }
+  
   @Override
   public E getElement()
   {
@@ -52,6 +78,56 @@ public class CellImpl<E> implements CellInternal<E>
   public boolean hasElement( E element )
   {
     return this.element == element || ( this.element != null && this.element.equals( element ) );
+  }
+  
+  @Override
+  public Cell<E> detachFromTable()
+  {
+    //
+    for ( StripeInternal<E> stripeInternal : this.stripeInternalList )
+    {
+      stripeInternal.unregisterCell( this );
+    }
+    
+    //
+    return this;
+  }
+  
+  protected StripeInternal<E> resolveStripe( StripeType stripeType )
+  {
+    //
+    StripeInternal<E> retval = null;
+    
+    //
+    if ( stripeType != null )
+    {
+      for ( StripeInternal<E> stripeInternal : this.stripeInternalList )
+      {
+        if ( stripeType.equals( stripeInternal.resolveStripeType() ) )
+        {
+          //
+          retval = stripeInternal;
+          break;
+        }
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  @Override
+  @SuppressWarnings("unchecked")
+  public Column<E> getColumn()
+  {
+    return (Column<E>) this.resolveStripe( StripeType.COLUMN );
+  }
+  
+  @Override
+  @SuppressWarnings("unchecked")
+  public Row<E> getRow()
+  {
+    return (Row<E>) this.resolveStripe( StripeType.ROW );
   }
   
 }
