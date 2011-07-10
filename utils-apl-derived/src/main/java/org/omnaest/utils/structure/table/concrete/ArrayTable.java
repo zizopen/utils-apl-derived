@@ -23,9 +23,9 @@ import org.omnaest.utils.structure.table.IndexTable.IndexPositionPair;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
-import org.omnaest.utils.structure.table.concrete.components.CellAndStripeResolverImpl;
-import org.omnaest.utils.structure.table.concrete.components.StripeListContainerImpl;
-import org.omnaest.utils.structure.table.concrete.components.TableSizeImpl;
+import org.omnaest.utils.structure.table.concrete.internal.CellAndStripeResolverImpl;
+import org.omnaest.utils.structure.table.concrete.internal.StripeListContainerImpl;
+import org.omnaest.utils.structure.table.concrete.internal.TableSizeImpl;
 
 /**
  * Implementation of {@link Table} that uses two array lists as row and column data structure.
