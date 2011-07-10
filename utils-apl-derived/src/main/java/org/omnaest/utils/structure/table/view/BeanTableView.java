@@ -42,10 +42,11 @@ public class BeanTableView<B>
    * @param beanClass
    * @param table
    */
-  protected BeanTableView( Class<B> beanClass, Table<Object> table )
+  @SuppressWarnings("unchecked")
+  protected BeanTableView( Class<B> beanClass, Table<? extends Object> table )
   {
     super();
-    this.table = table;
+    this.table = (Table<Object>) table;
   }
   
   /**

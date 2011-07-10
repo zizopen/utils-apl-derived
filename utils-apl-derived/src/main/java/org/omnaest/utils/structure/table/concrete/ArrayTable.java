@@ -15,17 +15,26 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.omnaest.utils.structure.table.IndexTable.IndexPositionPair;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.concrete.internal.CellAndStripeResolverImpl;
 import org.omnaest.utils.structure.table.concrete.internal.StripeListContainerImpl;
 import org.omnaest.utils.structure.table.concrete.internal.TableSizeImpl;
+import org.omnaest.utils.structure.table.concrete.selection.SelectionImpl;
+import org.omnaest.utils.xml.XMLHelper;
 
 /**
  * Implementation of {@link Table} that uses two array lists as row and column data structure.
@@ -551,6 +560,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     return null;
   }
   
+  @XmlTransient
   @Override
   public Object getTableName()
   {
@@ -833,20 +843,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> innerJoinByEqualColumn( Table<E> joinTable, int[][] columnIndexPositionPairs )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> innerJoinByEqualColumn( Table<E> joinTable, List<IndexPositionPair> columnIndexPositionPairList )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
   public E getCellElement( int cellIndexPosition )
   {
     //
@@ -861,6 +857,228 @@ public class ArrayTable<E> extends TableAbstract<E>
     
     // 
     return retval;
+  }
+  
+  @Override
+  public Selection<E> select()
+  {
+    return new SelectionImpl<E>( this );
+  }
+  
+  @Override
+  public Table<E> writeAsXMLTo( Appendable appendable )
+  {
+    ArrayList<Object> rowTitleValueList = new ArrayList<Object>( this.getRowTitleValueList() );
+    ArrayList<Object> columnTitleValueList = new ArrayList<Object>( this.getColumnTitleValueList() );
+    ArrayList<E> cellElementList = new ArrayList<E>( this.getCellElementList() );
+    Integer columnSize = this.tableSize.getColumnSize();
+    Integer rowSize = this.tableSize.getRowSize();
+    Object tableName = this.tableName;
+    XMLDataContainer<E> dataContainer = new XMLDataContainer<E>( rowTitleValueList, columnTitleValueList, cellElementList,
+                                                                 columnSize, rowSize, tableName );
+    
+    //
+    XMLHelper.storeObjectAsXML( dataContainer, appendable );
+    
+    // 
+    return this;
+  }
+  
+  @Override
+  public Table<E> writeAsXMLTo( OutputStream outputStream )
+  {
+    
+    //
+    ArrayList<Object> rowTitleValueList = null;
+    ArrayList<Object> columnTitleValueList = null;
+    ArrayList<E> cellElementList = null;
+    Integer columnSize = this.tableSize.getColumnSize();
+    Integer rowSize = this.tableSize.getRowSize();
+    Object tableName = this.tableName;
+    XMLDataContainer<E> dataContainer = new XMLDataContainer<E>( rowTitleValueList, columnTitleValueList, cellElementList,
+                                                                 columnSize, rowSize, tableName );
+    
+    //
+    XMLHelper.storeObjectAsXML( dataContainer, outputStream );
+    
+    //
+    return this;
+  }
+  
+  @SuppressWarnings({ "unchecked" })
+  @Override
+  public Table<E> parseXMLFrom( String xmlContent )
+  {
+    //
+    try
+    {
+      XMLDataContainer<E> xmlDataContainer = XMLHelper.loadObjectFromXML( xmlContent, XMLDataContainer.class );
+      //TODO
+    }
+    catch ( Exception e )
+    {
+    }
+    
+    // 
+    return this;
+  }
+  
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @Override
+  public Table<E> parseXMLFrom( InputStream inputStream )
+  {
+    //
+    try
+    {
+      XMLDataContainer xmlDataContainer = XMLHelper.loadObjectFromXML( inputStream, XMLDataContainer.class );
+      //TODO
+      
+    }
+    catch ( Exception e )
+    {
+    }
+    
+    // 
+    return this;
+  }
+  
+  @Override
+  public Table<E> parseXMLFrom( CharSequence charSequence )
+  {
+    //
+    try
+    {
+      //
+      this.clear();
+      
+      //
+      @SuppressWarnings("unchecked")
+      XMLDataContainer<E> xmlDataContainer = XMLHelper.loadObjectFromXML( charSequence, XMLDataContainer.class );
+      
+      //
+      {
+        int rowIndexPosition = xmlDataContainer.getRowSize() - 1;
+        int columnIndexPosition = xmlDataContainer.getColumnSize() - 1;
+        E element = null;
+        this.setCellElement( rowIndexPosition, columnIndexPosition, element );
+      }
+      
+      //
+      int cellIndexPosition = 0;
+      for ( E element : xmlDataContainer.getCellElementList() )
+      {
+        this.setCellElement( cellIndexPosition++, element );
+      }
+      
+      //
+      this.setColumnTitleValues( xmlDataContainer.getColumnTitleValueList() );
+      this.setRowTitleValues( xmlDataContainer.getRowTitleValueList() );
+      this.tableName = xmlDataContainer.getTableName();
+      
+    }
+    catch ( Exception e )
+    {
+      e.printStackTrace();
+    }
+    
+    // 
+    return this;
+  }
+  
+  @XmlRootElement
+  protected static class XMLDataContainer<E>
+  {
+    /* ********************************************** Variables ********************************************** */
+
+    @XmlElement
+    protected Object            tableName            = null;
+    
+    @XmlAttribute
+    protected Integer           rowSize              = null;
+    
+    @XmlAttribute
+    protected Integer           columnSize           = null;
+    
+    @XmlElementWrapper
+    protected ArrayList<Object> rowTitleValueList    = new ArrayList<Object>();
+    
+    @XmlElementWrapper
+    protected ArrayList<Object> columnTitleValueList = new ArrayList<Object>();
+    
+    @XmlElementWrapper
+    protected ArrayList<E>      cellElementList      = new ArrayList<E>();
+    
+    protected XMLDataContainer()
+    {
+      super();
+    }
+    
+    /**
+     * @param rowTitleValueList
+     * @param columnTitleValueList
+     * @param cellElementList
+     * @param columnSize
+     * @param rowSize
+     * @param tableName
+     */
+    public XMLDataContainer( ArrayList<Object> rowTitleValueList, ArrayList<Object> columnTitleValueList,
+                             ArrayList<E> cellElementList, Integer columnSize, Integer rowSize, Object tableName )
+    {
+      super();
+      this.rowTitleValueList = rowTitleValueList;
+      this.columnTitleValueList = columnTitleValueList;
+      this.cellElementList = cellElementList;
+      this.columnSize = columnSize;
+      this.rowSize = rowSize;
+      this.tableName = tableName;
+    }
+    
+    public Integer getRowSize()
+    {
+      return this.rowSize;
+    }
+    
+    public Integer getColumnSize()
+    {
+      return this.columnSize;
+    }
+    
+    public ArrayList<Object> getRowTitleValueList()
+    {
+      return this.rowTitleValueList;
+    }
+    
+    public ArrayList<Object> getColumnTitleValueList()
+    {
+      return this.columnTitleValueList;
+    }
+    
+    public ArrayList<E> getCellElementList()
+    {
+      return this.cellElementList;
+    }
+    
+    public Object getTableName()
+    {
+      return this.tableName;
+    }
+    
+  }
+  
+  @Override
+  public List<E> getCellElementList()
+  {
+    //    
+    List<E> retlist = new ArrayList<E>();
+    
+    //
+    for ( Cell<E> cell : this.cells() )
+    {
+      retlist.add( cell != null ? cell.getElement() : null );
+    }
+    
+    // 
+    return retlist;
   }
   
 }

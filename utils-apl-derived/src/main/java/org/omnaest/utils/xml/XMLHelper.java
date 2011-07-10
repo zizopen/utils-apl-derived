@@ -59,7 +59,43 @@ public class XMLHelper
   }
   
   /**
-   * Stores the given object as XML als {@link String} using the {@link #ENCODING_UTF_8}
+   * Stores the given objects as XML within the given {@link Appendable} using the {@link #ENCODING_UTF_8}
+   * 
+   * @param object
+   * @param appendable
+   */
+  public static void storeObjectAsXML( Object object, Appendable appendable )
+  {
+    final String encoding = ENCODING_UTF_8;
+    XMLHelper.storeObjectAsXML( appendable, object, encoding );
+  }
+  
+  /**
+   * Stores the given object as XML within the given {@link Appendable} using the given encoding. E.g as {@link Appendable} a
+   * {@link StringBuilder} or {@link StringBuffer} can be used.
+   * 
+   * @param appendable
+   * @param object
+   * @param encoding
+   */
+  public static void storeObjectAsXML( Appendable appendable, Object object, String encoding )
+  {
+    //
+    if ( object != null && appendable != null )
+    {
+      //
+      ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+      
+      //
+      XMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream() );
+      
+      //
+      byteArrayContainer.writeTo( appendable, encoding );
+    }
+  }
+  
+  /**
+   * Stores the given object as XML {@link String} using the {@link #ENCODING_UTF_8}
    * 
    * @see #storeObjectAsXML(Object, String)
    * @param object
@@ -120,11 +156,21 @@ public class XMLHelper
     return retval;
   }
   
+  public static <E> E loadObjectFromXML( CharSequence charSequence, Class<E> typeClazz )
+  {
+    //
+    ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+    byteArrayContainer.copyFrom( charSequence );
+    
+    //
+    return XMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz );
+  }
+  
   public static <E> E loadObjectFromXML( String xmlContent, Class<E> typeClazz )
   {
     //
     ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
-    byteArrayContainer.copy( xmlContent );
+    byteArrayContainer.copyFrom( xmlContent );
     
     //
     return XMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz );

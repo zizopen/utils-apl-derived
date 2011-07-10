@@ -51,11 +51,13 @@ import org.omnaest.utils.streams.StreamConnector;
 public class ByteArrayContainer
 {
   /* ********************************************** Constants ********************************************** */
-  private final String DEFAULTENCODING    = "utf-8";
-  private final String DEFAULTZIPFILENAME = "data.dat";
+  public final static String  ENCODING_UTF8      = "utf-8";
+  
+  private final static String DEFAULTENCODING    = ENCODING_UTF8;
+  private final static String DEFAULTZIPFILENAME = "data.dat";
   
   /* ********************************************** Variables ********************************************** */
-  private byte[]       content            = null;
+  private byte[]              content            = null;
   
   /* ********************************************** Methods ********************************************** */
 
@@ -70,42 +72,43 @@ public class ByteArrayContainer
   /**
    * Creates an {@link ByteArrayContainer} with a copied byte array content.
    * 
+   * @see #copyFrom(byte[])
    * @param content
    */
   public ByteArrayContainer( byte[] content )
   {
     super();
-    this.copy( content );
+    this.copyFrom( content );
   }
   
   /**
-   * @see #copy(String)
+   * @see #copyFrom(String)
    * @param content
    */
   public ByteArrayContainer( String content )
   {
     super();
-    this.copy( content );
+    this.copyFrom( content );
   }
   
   /**
-   * @see #copy(String, String)
+   * @see #copyFrom(String, String)
    * @param content
    */
   public ByteArrayContainer( String content, String encoding )
   {
     super();
-    this.copy( content, encoding );
+    this.copyFrom( content, encoding );
   }
   
   /**
-   * @see #copy(StringBuffer, String)
-   * @param content
+   * @see #copyFrom(CharSequence)
+   * @param charsequence
    */
-  public ByteArrayContainer( StringBuffer content, String encoding )
+  public ByteArrayContainer( CharSequence charsequence, String encoding )
   {
     super();
-    this.copy( content, encoding );
+    this.copyFrom( charsequence, encoding );
   }
   
   /**
@@ -126,6 +129,10 @@ public class ByteArrayContainer
     return !this.isEmpty();
   }
   
+  /**
+   * @see #download(URL)
+   * @param uri
+   */
   public void download( URI uri )
   {
     this.download( URIHelper.getURLfromURI( uri ) );
@@ -144,7 +151,7 @@ public class ByteArrayContainer
     {
       DownloadConnection downloadConnection = new DownloadConnection();
       downloadConnection.download( url );
-      this.copy( downloadConnection.getContentAsBytes() );
+      this.copyFrom( downloadConnection.getContentAsBytes() );
     }
     else
     {
@@ -180,6 +187,12 @@ public class ByteArrayContainer
     this.content = baos.toByteArray();
   }
   
+  /**
+   * Saves the content of the {@link ByteArrayContainer} to a given {@link File}
+   * 
+   * @param file
+   * @throws IOException
+   */
   public void save( File file ) throws IOException
   {
     FileOutputStream fos = new FileOutputStream( file );
@@ -190,20 +203,27 @@ public class ByteArrayContainer
   /**
    * Copies the content from another container into this one.
    * 
-   * @param source
+   * @param sourceByteArrayContainer
+   * @return this
    */
-  public void copy( ByteArrayContainer source )
+  public ByteArrayContainer copyFrom( ByteArrayContainer sourceByteArrayContainer )
   {
-    this.copy( source.getInputStream() );
+    //
+    this.copyFrom( sourceByteArrayContainer.getInputStream() );
+    
+    //
+    return this;
   }
   
   /**
-   * Copies the content from an InputStream into the container.
+   * Copies the content from an {@link InputStream} into the {@link ByteArrayContainer}
    * 
    * @param sourceInputStream
+   * @return this
    */
-  public void copy( InputStream sourceInputStream )
+  public ByteArrayContainer copyFrom( InputStream sourceInputStream )
   {
+    //
     try
     {
       StreamConnector.connect( sourceInputStream, this.getOutputStream() );
@@ -212,15 +232,21 @@ public class ByteArrayContainer
     {
       e.printStackTrace();
     }
+    
+    //
+    return this;
   }
   
   /**
    * Copies the content of a String into the container.
    * 
    * @param string
+   * @param encoding
+   * @return this
    */
-  public ByteArrayContainer copy( String string, String encoding )
+  public ByteArrayContainer copyFrom( String string, String encoding )
   {
+    //
     try
     {
       OutputStreamWriter osw = new OutputStreamWriter( this.getOutputStream(), encoding );
@@ -240,31 +266,62 @@ public class ByteArrayContainer
    * Copies the content of a String into the container.
    * 
    * @param string
+   * @return this
    */
-  public ByteArrayContainer copy( String string )
+  public ByteArrayContainer copyFrom( String string )
   {
-    return this.copy( string, DEFAULTENCODING );
+    //
+    this.copyFrom( string, DEFAULTENCODING );
+    
+    //
+    return this;
   }
   
   /**
-   * Copies the content of a StringBuffer into the container.
+   * Copies the content of a {@link CharSequence} into the {@link ByteArrayContainer} using the {@link #DEFAULTENCODING}.
    * 
-   * @param stringBuffer
+   * @param charSequence
+   * @return this
    */
-  public ByteArrayContainer copy( StringBuffer stringBuffer, String encoding )
+  public ByteArrayContainer copyFrom( CharSequence charSequence )
   {
-    return this.copy( stringBuffer.toString(), DEFAULTENCODING );
+    //
+    this.copyFrom( charSequence, DEFAULTENCODING );
+    
+    //
+    return this;
+  }
+  
+  /**
+   * Copies the content of a {@link CharSequence} into the {@link ByteArrayContainer}.
+   * 
+   * @param charSequence
+   * @param encoding
+   * @return this
+   */
+  public ByteArrayContainer copyFrom( CharSequence charSequence, String encoding )
+  {
+    //
+    this.copyFrom( charSequence.toString(), DEFAULTENCODING );
+    
+    //
+    return this;
   }
   
   /**
    * Copies the content from a byte array into the container. The data is copied and not the given byte array is used.
    * 
    * @param source
+   * @return this
    */
-  public void copy( byte[] source )
+  public ByteArrayContainer copyFrom( byte[] source )
   {
+    //
     ByteArrayInputStream bis = new ByteArrayInputStream( source );
-    this.copy( bis );
+    this.copyFrom( bis );
+    
+    //
+    return this;
   }
   
   /**
@@ -327,18 +384,76 @@ public class ByteArrayContainer
   public List<String> toStringList( String encoding )
   {
     //
+    final String regExDelimiter = "[\r\n]+";
+    return this.toStringList( encoding, regExDelimiter );
+  }
+  
+  /**
+   * Returns the content as a list of strings, separated by an arbitrary regular expression.
+   * 
+   * @param encoding
+   *          : for example = "utf-8"
+   * @see #ENCODING_UTF8
+   * @return
+   */
+  public List<String> toStringList( String encoding, String regExDelimiter )
+  {
+    //
     List<String> retlist = new ArrayList<String>();
     
     //
     String content = this.toString( encoding );
     
     //
-    content = content.replaceAll( "[\r\n]+", "\n" );
-    String[] lines = StringUtils.splitPreserveAllTokens( content, "\n" );
+    final String tokenDelimiter = "°}>|<{°";
+    content = content.replaceAll( regExDelimiter, tokenDelimiter );
+    String[] lines = StringUtils.splitByWholeSeparatorPreserveAllTokens( content, tokenDelimiter );
     CollectionUtils.addAll( retlist, lines );
     
     //
     return retlist;
+  }
+  
+  /**
+   * Writes the content of the {@link ByteArrayContainer} to an {@link Appendable} e.g. a {@link StringBuilder} or
+   * {@link StringBuffer}
+   * 
+   * @param appendable
+   * @param encoding
+   * @return true : transfer successful
+   */
+  public boolean writeTo( Appendable appendable, String encoding )
+  {
+    //
+    boolean retval = true;
+    
+    //
+    try
+    {
+      StringBuffer sb = new StringBuffer();
+      StreamConnector.connect( this.getInputStream(), sb, encoding );
+      
+      //
+      appendable.append( sb );
+    }
+    catch ( IOException e )
+    {
+      retval = false;
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Writes the content of the {@link ByteArrayContainer} to a given {@link OutputStream}
+   * 
+   * @param outputStream
+   * @return true : transfer was succesful
+   */
+  public boolean writeTo( OutputStream outputStream )
+  {
+    return StreamConnector.transfer( this.getInputStream(), outputStream ).isSuccessful();
   }
   
   /**
@@ -476,7 +591,7 @@ public class ByteArrayContainer
    */
   private String generateRandomDefaultFileName()
   {
-    return this.DEFAULTZIPFILENAME + String.valueOf( System.currentTimeMillis() )
+    return DEFAULTZIPFILENAME + String.valueOf( System.currentTimeMillis() )
            + String.valueOf( Math.round( Math.random() * 1000000000l ) );
   }
   
@@ -499,7 +614,7 @@ public class ByteArrayContainer
     if ( retmap != null && retmap.size() > 0 )
     {
       this.content = null;
-      this.copy( retmap.values().iterator().next() );
+      this.copyFrom( retmap.values().iterator().next() );
     }
     else
     {

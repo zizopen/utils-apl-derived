@@ -670,4 +670,28 @@ public class ArrayTableTest
     }
     assertEquals( rows, counterRows );
   }
+  
+  @Test
+  public void testParseXMLFrom()
+  {
+    //
+    final int rows = 3;
+    final int columns = 5;
+    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    StringBuilder stringBuilder = new StringBuilder();
+    
+    //
+    this.table.writeAsXMLTo( stringBuilder );
+    this.table.clear();
+    this.table.parseXMLFrom( stringBuilder );
+    
+    //
+    System.out.println( stringBuilder );
+    
+    //
+    assertEquals( rows, this.table.getTableSize().getRowSize() );
+    
+  }
 }

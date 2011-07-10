@@ -41,10 +41,12 @@ public abstract class StripeCore<E> implements StripeInternal<E>
   /* ********************************************** Constants ********************************************** */
   private static final long      serialVersionUID = 5552519174349074630L;
   /* ********************************************** Variables ********************************************** */
+
   protected TitleInternal        title            = new TitleImpl<E>( this );
   protected Set<CellInternal<E>> cellSet          = new HashSet<CellInternal<E>>();
   
   /* ********************************************** Beans / Services ********************************************** */
+
   protected TableInternal<E>     tableInternal    = null;
   protected StripeList<E>        stripeList       = null;
   

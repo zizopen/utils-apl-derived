@@ -17,8 +17,7 @@ package org.omnaest.utils.structure.table;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
+import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
@@ -30,8 +29,8 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
  * @see ArrayTable
  * @author Omnaest
  */
-@XmlRootElement
-public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>, Serializable, TableJoinable<Table<E>>
+public interface Table<E> extends TableCore<E>, TableCoreImmutable<E>, TableSelectable<E>, Iterable<Row<E>>,
+                          TableXMLSerializable<E>, Serializable
 
 {
   /* ********************************************** Classes ********************************************** */

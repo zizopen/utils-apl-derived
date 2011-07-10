@@ -30,6 +30,7 @@ public class TitleImpl<E> implements TitleInternal, CloneableDeep<TitleImpl<E>>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = -4806596052790124334L;
+  
   /* ********************************************** Variables ********************************************** */
   protected Object          value            = null;
   protected Stripe<E>       stripe           = null;
