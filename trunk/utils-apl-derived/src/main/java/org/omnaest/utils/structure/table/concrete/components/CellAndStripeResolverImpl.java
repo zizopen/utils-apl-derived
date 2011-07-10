@@ -360,4 +360,38 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     // 
     return retval;
   }
+  
+  @Override
+  protected int determineRowIndexPositionForCellIndexPosition( int cellIndexPosition )
+  {
+    //
+    int retval = -1;
+    
+    //
+    int columnListSize = this.tableInternal.getStripeListContainer().getColumnList().size();
+    if ( columnListSize > 0 )
+    {
+      retval = cellIndexPosition / columnListSize;
+    }
+    
+    //
+    return retval;
+  }
+  
+  @Override
+  protected int determineColumnIndexPositionForCellIndexPosition( int cellIndexPosition )
+  {
+    //
+    int retval = -1;
+    
+    //
+    int columnListSize = this.tableInternal.getStripeListContainer().getColumnList().size();
+    if ( columnListSize > 0 )
+    {
+      retval = cellIndexPosition % columnListSize;
+    }
+    
+    //
+    return retval;
+  }
 }

@@ -17,12 +17,10 @@ package org.omnaest.utils.structure.table;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.omnaest.utils.structure.table.Table.Cell;
-import org.omnaest.utils.structure.table.Table.CellIndexPosition;
+import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
-import org.omnaest.utils.structure.table.Table.RowList;
 import org.omnaest.utils.structure.table.Table.TableCellConverter;
 import org.omnaest.utils.structure.table.Table.TableCellVisitor;
 import org.omnaest.utils.structure.table.Table.TableSize;
@@ -372,61 +370,38 @@ public interface TableCore<E, T extends Table<E>>
   public Cell<E> getCell( int rowIndexPosition, int columnIndexPosition );
   
   /**
-   * Returns the cell element determined by the given cell index position. The cell index position starts with 0 and increases
-   * with each cell of a row and this through every single row.
+   * Returns the {@link Cell} determined by the given {@link Cell} index position. The {@link Cell} index position starts with 0
+   * and increases horizontally with each {@link Column} and this through every single {@link Row} down to the bottom of the
+   * {@link Table}. Returns null if the {@link Cell} index position is out of {@link Table} bounds.
    * 
    * @param cellIndexPosition
    * @return
    */
-  public E getCell( int cellIndexPosition );
+  public Cell<E> getCell( int cellIndexPosition );
   
   /**
    * @see #getCell(int, int)
-   * @param rowTitle
-   * @param columnTitle
+   * @param rowTitleValue
+   * @param columnTitleValue
    * @return
    */
-  public E getCell( String rowTitle, String columnTitle );
+  public Cell<E> getCell( String rowTitleValue, String columnTitleValue );
   
   /**
    * @see #getCell(int, int)
-   * @param rowTitle
+   * @param rowTitleValue
    * @param columnIndexPosition
    * @return
    */
-  public E getCell( String rowTitle, int columnIndexPosition );
+  public Cell<E> getCell( Object rowTitleValue, int columnIndexPosition );
   
   /**
    * @see #getCell(int, int)
    * @param rowIndexPosition
-   * @param columnTitle
+   * @param columnTitleValue
    * @return
    */
-  public E getCell( int rowIndexPosition, String columnTitle );
-  
-  /**
-   * @see #getCell(int, int)
-   * @param rowTitleEnum
-   * @param columnTitleEnum
-   * @return
-   */
-  public E getCell( Enum<?> rowTitleEnum, Enum<?> columnTitleEnum );
-  
-  /**
-   * @see #getCell(int, int)
-   * @param rowTitleEnum
-   * @param columnIndexPosition
-   * @return
-   */
-  public E getCell( Enum<?> rowTitleEnum, int columnIndexPosition );
-  
-  /**
-   * @see #getCell(int, int)
-   * @param rowIndexPosition
-   * @param columnTitleEnumeration
-   * @return
-   */
-  public E getCell( int rowIndexPosition, Enum<?> columnTitleEnumeration );
+  public Cell<E> getCell( int rowIndexPosition, Object columnTitleValue );
   
   /**
    * Returns a to the table backed list of all cells. The cells are ordered from the first row from the left column to right
@@ -523,33 +498,14 @@ public interface TableCore<E, T extends Table<E>>
   public <C> C getRow( int rowIndexPosition, C emptyBeanObject );
   
   /**
-   * Returns a row of the table identified by the title of a row. Before this can be used, the titles have to be set by
-   * {@link #setRowTitles(List)}
-   * 
-   * @see #getRow(Enum)
-   * @see #getRow(int)
-   * @param rowTitle
-   * @return
-   */
-  public Row<E> getRow( String rowTitle );
-  
-  /**
-   * Returns a to the table backed list of rows.
-   * 
-   * @return
-   */
-  public RowList<E> getRowList();
-  
-  /**
-   * Returns a row of the table definded by a given name of a row. Before this can be used, row titles have to be set with
-   * {@link #setRowTitles(Enum[])}
+   * Returns a {@link Row} of the {@link Table} identified by the title of a row. Before this can be used, the titles have to be
+   * set by {@link #setRowTitles(List)}
    * 
    * @see #getRow(int)
-   * @see #getRow(String)
-   * @param rowTitleEnum
+   * @param rowTitleValue
    * @return
    */
-  public Row<E> getRow( Enum<?> rowTitleEnum );
+  public Row<E> getRow( String rowTitleValue );
   
   /**
    * Returns true if the table contains a row, which has the same elements as the given row in the same order.
@@ -585,53 +541,23 @@ public interface TableCore<E, T extends Table<E>>
   public int lastIndexOfRow( List<E> row );
   
   /**
-   * Returns a new list that holds the object of the row pointed to.
+   * Returns a {@link Column} for the given {@link Column} index position.
    * 
-   * @see #getColumn(Enum)
    * @see #getColumn(String)
-   * @param rowIndexPosition
+   * @param columnIndexPosition
    * @return
    */
-  public List<E> getColumn( int columnIndexPosition );
+  public Column<E> getColumn( int columnIndexPosition );
   
   /**
-   * Returns a column identified by a enumeration value. Before the column titles have to be set with @link
-   * {@link #setColumnTitles(Enum[])}
-   * 
-   * @see #getColumn(int)
-   * @see #getColumn(String)
-   * @param columnTitleEnum
-   * @return
-   */
-  public List<E> getColumn( Enum<?> columnTitleEnum );
-  
-  /**
-   * Returns a column for the given column title. The column titles have to be set before with @link
+   * Returns a {@link Column} for the given {@link Column} title value. The {@link Column} titles have to be set before with
    * {@link #setColumnTitles(List)}
    * 
-   * @see #getColumn(Enum)
    * @see #getColumn(int)
-   * @param columnTitle
+   * @param columnTitleValue
    * @return
    */
-  public List<E> getColumn( String columnTitle );
-  
-  /**
-   * Returns the index position of a given element.
-   * 
-   * @see CellIndexPosition
-   * @param element
-   * @return
-   */
-  public CellIndexPosition indexOf( E element );
-  
-  /**
-   * Returns the index position of a given element.
-   * 
-   * @param element
-   * @return
-   */
-  public CellIndexPosition lastIndexOf( E element );
+  public Column<E> getColumn( String columnTitleValue );
   
   /**
    * Returns true, if the whole table contains the given element.
@@ -703,26 +629,14 @@ public interface TableCore<E, T extends Table<E>>
   public T cloneTableStructure();
   
   /**
-   * Returns an iterator that goes through every line and every column within every line. This means it returns the complete first
-   * line than the complete second line, ... .
+   * Returns an {@link Iterator} that goes through every {@link Column} for every {@link Row}. Starting from left to right and
+   * then downwards all the {@link Row}s.
    * 
-   * @see #cellListIterator()
    * @see #rowIterator()
    * @see #iterator()
    * @return
    */
-  public Iterator<E> cellIterator();
-  
-  /**
-   * Returns an iterator that goes through every line and every column within every line. This means it returns the complete first
-   * line than the complete second line, ... .
-   * 
-   * @see #cellIterator()
-   * @see #rowIterator()
-   * @see #iterator()
-   * @return
-   */
-  public ListIterator<E> cellListIterator();
+  public Iterator<Cell<E>> cellIterator();
   
   /**
    * Returns an iterator over all rows.
@@ -734,16 +648,6 @@ public interface TableCore<E, T extends Table<E>>
   public Iterator<Row<E>> rowIterator();
   
   /**
-   * Returns a list iterator over all rows.
-   * 
-   * @see #getRowList()
-   * @see #rowIterator()
-   * @see #cellIterator()
-   * @return
-   */
-  public ListIterator<Row<E>> rowListIterator();
-  
-  /**
    * The same as {@link #rowIterator()}
    * 
    * @see #rowIterator()
@@ -751,15 +655,6 @@ public interface TableCore<E, T extends Table<E>>
    * @return
    */
   public Iterator<Row<E>> iterator();
-  
-  /**
-   * The same as {@link #rowIterator()}
-   * 
-   * @see #rowIterator()
-   * @see #cellIterator()
-   * @return
-   */
-  public ListIterator<Row<E>> listIterator();
   
   /**
    * Converts the current table into a table with another type.

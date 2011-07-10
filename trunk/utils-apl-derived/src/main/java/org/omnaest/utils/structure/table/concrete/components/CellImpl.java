@@ -43,9 +43,15 @@ public class CellImpl<E> implements CellInternal<E>
   }
   
   @Override
-  public void setValue( E element )
+  public void setElement( E element )
   {
     this.element = element;
+  }
+  
+  @Override
+  public boolean hasElement( E element )
+  {
+    return this.element == element || ( this.element != null && this.element.equals( element ) );
   }
   
 }

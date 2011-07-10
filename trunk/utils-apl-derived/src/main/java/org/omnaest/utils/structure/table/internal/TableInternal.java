@@ -207,6 +207,36 @@ public interface TableInternal<E> extends Table<E>
      * @return
      */
     public Cell<E> resolveOrCreateCell( int rowIndexPosition, ColumnInternal<E> column );
+    
+    /**
+     * Resolves a {@link Cell} by its {@link Cell} index position. The {@link Cell} index position is counted from left to right
+     * starting from top to bottom of the {@link Table}. First index position is 0. If the {@link Cell} index position is out of
+     * boundary null is returned.
+     * 
+     * @param cellIndexPosition
+     * @return
+     */
+    public Cell<E> resolveCell( int cellIndexPosition );
+    
+    /**
+     * Resolves a {@link Cell} by its {@link Cell} index position or creates it if it cannot be resolved. The {@link Cell} index
+     * position is counted from left to right starting from top to bottom of the {@link Table}. First index position is 0. If the
+     * {@link Cell} index position is out of boundary null is returned.
+     * 
+     * @param cellIndexPosition
+     * @return
+     */
+    public Cell<E> resolveOrCreateCell( int cellIndexPosition );
+    
+    /**
+     * Resolves a {@link Cell} by its {@link Row} and {@link Column} index positions. If no {@link Cell} can be resolved a new one
+     * is created.
+     * 
+     * @param rowIndexPosition
+     * @param columnIndexPosition
+     * @return
+     */
+    public Cell<E> resolveOrCreateCell( int rowIndexPosition, int columnIndexPosition );
   }
   
   /**

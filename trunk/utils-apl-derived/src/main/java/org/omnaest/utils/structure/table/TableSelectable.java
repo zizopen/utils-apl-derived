@@ -17,6 +17,8 @@ package org.omnaest.utils.structure.table;
 
 import java.util.Map;
 
+import org.omnaest.utils.structure.table.view.TableView;
+
 /**
  * @see Table
  * @author Omnaest
@@ -28,12 +30,32 @@ public interface TableSelectable<E, T extends Table<E>>
   /* ********************************************** Classes/Interfaces ********************************************** */
 
   /**
-   * {@link Selection} of a {@link Table}
+   * {@link Selection} from a {@link Table}
    * 
+   * @see Join
+   * @see Where
+   * @see Order
+   * @see SelectionResult
    * @see TableSelectable
+   * @see Table
    */
   public static interface Selection<E> extends Table<E>
   {
+    /**
+     * Sets the {@link Column}s of the {@link Selection}.
+     * 
+     * @param columns
+     * @return
+     */
+    public Selection<E> setColumns( Column<E>... columns );
+    
+    /**
+     * Sets the {@link Table}
+     * 
+     * @param table
+     * @return
+     */
+    public Selection<E> setTable( Table<E> table );
     
     /**
      * {@link Join} clause of a {@link Selection}
@@ -58,6 +80,26 @@ public interface TableSelectable<E, T extends Table<E>>
      * @return
      */
     public Selection<E> orderBy( Order order );
+    
+    /**
+     * Creates the {@link SelectionResult} of the {@link Selection}. This should be called after all other configurations have
+     * been set.
+     * 
+     * @return selection {@link SelectionResult}
+     */
+    public SelectionResult<E> selectionResult();
+  }
+  
+  /**
+   * @see Table
+   * @see TableView
+   * @see Selection
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface SelectionResult<E> extends TableView<E>
+  {
+    
   }
   
   /**
@@ -97,7 +139,7 @@ public interface TableSelectable<E, T extends Table<E>>
    * @see Table
    * @see Selection
    */
-  public Selection select();
+  public Selection<E> select();
   
   /**
    * @see #whereElementEquals(int, Comparable)

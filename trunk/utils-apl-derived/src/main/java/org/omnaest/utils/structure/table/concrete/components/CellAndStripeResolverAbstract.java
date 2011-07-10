@@ -65,6 +65,12 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   }
   
   @Override
+  public Cell<E> resolveOrCreateCell( int rowIndexPosition, int columnIndexPosition )
+  {
+    return this.resolveOrCreateCell( this.resolveRow( rowIndexPosition ), this.resolveColumn( columnIndexPosition ) );
+  }
+  
+  @Override
   public Cell<E> resolveOrCreateCell( int rowIndexPosition, ColumnInternal<E> column )
   {
     return this.resolveOrCreateCell( this.resolveOrCreateRow( rowIndexPosition ), column );
@@ -75,4 +81,39 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   {
     return this.resolveOrCreateCell( row, this.resolveOrCreateColumn( columnIndexPosition ) );
   }
+  
+  @Override
+  public Cell<E> resolveCell( int cellIndexPosition )
+  {
+    //
+    int rowIndexPosition = this.determineRowIndexPositionForCellIndexPosition( cellIndexPosition );
+    int columnIndexPosition = this.determineColumnIndexPositionForCellIndexPosition( cellIndexPosition );
+    
+    //
+    return this.resolveCell( rowIndexPosition, columnIndexPosition );
+  }
+  
+  @Override
+  public Cell<E> resolveOrCreateCell( int cellIndexPosition )
+  {
+    //
+    int rowIndexPosition = this.determineRowIndexPositionForCellIndexPosition( cellIndexPosition );
+    int columnIndexPosition = this.determineColumnIndexPositionForCellIndexPosition( cellIndexPosition );
+    
+    //
+    return this.resolveOrCreateCell( rowIndexPosition, columnIndexPosition );
+  }
+  
+  /**
+   * @param cellIndexPosition
+   * @return
+   */
+  protected abstract int determineRowIndexPositionForCellIndexPosition( int cellIndexPosition );
+  
+  /**
+   * @param cellIndexPosition
+   * @return
+   */
+  protected abstract int determineColumnIndexPositionForCellIndexPosition( int cellIndexPosition );
+  
 }
