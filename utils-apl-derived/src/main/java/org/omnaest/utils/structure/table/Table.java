@@ -16,8 +16,6 @@
 package org.omnaest.utils.structure.table;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -193,7 +191,15 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
      * 
      * @param element
      */
-    public void setValue( E element );
+    public void setElement( E element );
+    
+    /**
+     * Returns true if the given element equals the current {@link Cell#getElement()}
+     * 
+     * @param element
+     * @return
+     */
+    public boolean hasElement( E element );
   }
   
   /**
@@ -205,13 +211,13 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
   public static interface TableCellConverter<FROM, TO>
   {
     /**
-     * This method is called for every cell element, which should be converted.
+     * This method is called for every {@link Cell} element, which should be converted.
      * 
      * @see TableCellConverter
-     * @param cell
+     * @param cellElement
      * @return converted value
      */
-    public TO convert( FROM cell );
+    public TO convert( FROM cellElement );
   }
   
   /**
@@ -222,76 +228,14 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
    */
   public static interface TableCellVisitor<E>
   {
-    public void inspect( int rowIndexPosition, int columnIndexPosition, E cell );
-  }
-  
-  /**
-   * Holds the index position for a cell. This is the row and column, as well as the cell index position.
-   * 
-   * @author Omnaest
-   */
-  public interface CellIndexPosition
-  {
-    public int getRowIndexPosition();
-    
-    public void setRowIndexPosition( int rowIndexPosition );
-    
-    public int getColumnIndexPosition();
-    
-    public void setColumnIndexPosition( int columnIndexPosition );
-    
-    public int getCellIndexPosition();
-    
-    public void setCellIndexPosition( int cellIndexPosition );
-    
-  }
-  
-  /**
-   * An advanced list interface for a list of rows.
-   * 
-   * @author Omnaest
-   * @param <E>
-   */
-  public interface RowList<E> extends List<Row<E>>, Serializable
-  {
-    
     /**
-     * @see List#add(Object)
-     * @param e
-     * @return
+     * Inspect method
+     * 
+     * @param rowIndexPosition
+     * @param columnIndexPosition
+     * @param cell
      */
-    public boolean add( List<E> e );
-    
-    /**
-     * @see List#add(int, Object)
-     * @param index
-     * @param element
-     */
-    public void add( int index, List<E> element );
-    
-    /**
-     * @see List#addAll(Collection)
-     * @param c
-     * @return
-     */
-    public boolean addAll( List<? extends List<E>> c );
-    
-    /**
-     * @see List#addAll(int, Collection)
-     * @param index
-     * @param c
-     * @return
-     */
-    public boolean addAll( int index, List<? extends List<E>> c );
-    
-    /**
-     * @see List#set(int, Object)
-     * @param index
-     * @param element
-     * @return
-     */
-    public List<E> set( int index, List<E> element );
-    
+    public void inspect( int rowIndexPosition, int columnIndexPosition, Cell<E> cell );
   }
   
 }
