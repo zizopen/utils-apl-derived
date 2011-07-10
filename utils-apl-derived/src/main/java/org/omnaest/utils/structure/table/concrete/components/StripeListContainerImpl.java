@@ -15,7 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.components;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
+import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeListContainer;
@@ -29,30 +34,37 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeListContai
 public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
 {
   /* ********************************************** Variables ********************************************** */
-  @SuppressWarnings("unchecked")
-  protected StripeList<E>[]  stripeLists   = new StripeList[] { new StripeListArray<E>( StripeType.ROW ),
-      new StripeListArray<E>( StripeType.ROW ) };
-  
-  protected TableInternal<E> tableInternal = null;
+
+  protected List<StripeList<E>> stripeListList = null;
+  protected TableInternal<E>    tableInternal  = null;
   
   /* ********************************************** Methods ********************************************** */
 
   /**
    * @param tableInternal
    */
+  @SuppressWarnings("unchecked")
   public StripeListContainerImpl( TableInternal<E> tableInternal )
   {
+    //
     super();
     this.tableInternal = tableInternal;
+    
+    //
+    this.stripeListList = new ArrayList<StripeList<E>>(
+                                                        Arrays.asList( new StripeListArray<E>( this.tableInternal, StripeType.ROW ),
+                                                                       new StripeListArray<E>( this.tableInternal,
+                                                                                               StripeType.COLUMN ) ) );
   }
   
   @Override
   public void switchRowAndColumnStripeList()
   {
     //
-    StripeList<E> stripeList = this.stripeLists[0];
-    this.stripeLists[0] = this.stripeLists[1];
-    this.stripeLists[1] = stripeList;
+    for ( StripeList<E> stripeList : this.stripeListList )
+    {
+      stripeList.setStripeType( StripeTypeHelper.determineInvertedStripeType( stripeList.getStripeType() ) );
+    }
   }
   
   /**
@@ -70,12 +82,12 @@ public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
     //
     if ( stripeType != null )
     {
-      for ( StripeList<E> stripeList : this.stripeLists )
+      for ( StripeList<E> stripeList : this.stripeListList )
       {
         if ( stripeType.equals( stripeList.getStripeType() ) )
         {
           //
-          retval = this.stripeLists[0];
+          retval = stripeList;
           break;
         }
       }
@@ -83,5 +95,31 @@ public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
     
     //
     return retval;
+  }
+  
+  @Override
+  public int determineStripeListSize( StripeType stripeType )
+  {
+    //
+    int retval = -1;
+    
+    //
+    StripeList<E> stripeList = this.getStripeList( stripeType );
+    if ( stripeList != null )
+    {
+      retval = stripeList.size();
+    }
+    
+    //
+    return retval;
+  }
+  
+  @Override
+  public void clear()
+  {
+    for ( StripeList<E> stripeList : this.stripeListList )
+    {
+      stripeList.clear();
+    }
   }
 }

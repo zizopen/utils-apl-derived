@@ -15,6 +15,9 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 
@@ -31,5 +34,70 @@ public abstract class TableAbstract<E> implements TableInternal<E>
   /* ********************************************** Methods ********************************************** */
   @Override
   public abstract Table<E> clone();
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean equals( Object object )
+  {
+    return object instanceof Table && this.equals( (Table<E>) object );
+  }
+  
+  @Override
+  public List<List<E>> removeRows( int[] rowIndexPositions )
+  {
+    //
+    List<List<E>> retlist = new ArrayList<List<E>>();
+    
+    //
+    for ( int rowIndexPosition : rowIndexPositions )
+    {
+      //
+      List<E> rowElementList = this.removeRow( rowIndexPosition );
+      
+      //
+      retlist.add( rowElementList );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  @Override
+  public Table<E> convertFirstRowToTitle()
+  {
+    //
+    final int rowIndexPosition = 0;
+    for ( int columnIndexPosition = 0; columnIndexPosition < this.getTableSize().getColumnSize(); columnIndexPosition++ )
+    {
+      //
+      Object titleValue = this.getCellElement( rowIndexPosition, columnIndexPosition );
+      this.setColumnTitleValue( titleValue, columnIndexPosition );
+    }
+    
+    //
+    this.removeRow( 0 );
+    
+    // 
+    return this;
+  }
+  
+  @Override
+  public Table<E> convertFirstColumnToTitle()
+  {
+    //
+    final int columnIndexPosition = 0;
+    for ( int rowIndexPosition = 0; rowIndexPosition < this.getTableSize().getRowSize(); rowIndexPosition++ )
+    {
+      //
+      Object titleValue = this.getCellElement( rowIndexPosition, columnIndexPosition );
+      this.setRowTitleValue( titleValue, rowIndexPosition );
+    }
+    
+    //
+    this.removeColumn( 0 );
+    
+    // 
+    return this;
+  }
   
 }

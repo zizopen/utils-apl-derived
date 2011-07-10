@@ -362,8 +362,8 @@ public class IndexArrayTableTest
     row.add( "e" );
     row.add( "f" );
     
-    insertIndexedTable.addColumn( column );
-    insertIndexedTable.addRow( row );
+    insertIndexedTable.addColumnCellElements( column );
+    insertIndexedTable.addRowCellElements( row );
     insertIndexedTable.setColumnTitles( ColumnTitleEnum.values() );
     
     IndexArrayTable<String> indexedTable = new IndexArrayTable<String>();
@@ -403,8 +403,8 @@ public class IndexArrayTableTest
     row.add( "e" );
     row.add( "f" );
     
-    insertIndexedTable.addColumn( column );
-    insertIndexedTable.addRow( row );
+    insertIndexedTable.addColumnCellElements( column );
+    insertIndexedTable.addRowCellElements( row );
     insertIndexedTable.setColumnTitles( ColumnTitleEnum.values() );
     
     IndexArrayTable<String> indexedTable = new IndexArrayTable<String>();
@@ -606,8 +606,8 @@ public class IndexArrayTableTest
     row.add( "e" );
     row.add( "f" );
     
-    indexedTable.addColumn( column );
-    indexedTable.addRow( row );
+    indexedTable.addColumnCellElements( column );
+    indexedTable.addRowCellElements( row );
     
     //IndexedArrayTable.printTable(indexedTable.printTable);
     
@@ -635,8 +635,8 @@ public class IndexArrayTableTest
     row.add( "e" );
     row.add( "f" );
     
-    indexedTable.addColumn( column );
-    indexedTable.addRow( row );
+    indexedTable.addColumnCellElements( column );
+    indexedTable.addRowCellElements( row );
     
     indexedTable.setIndexColumn( 0, true );
     indexedTable.setIndexRow( 3, true );
@@ -763,8 +763,8 @@ public class IndexArrayTableTest
     row.add( "e" );
     row.add( "f" );
     
-    indexedTable.addColumn( column );
-    indexedTable.addRow( row );
+    indexedTable.addColumnCellElements( column );
+    indexedTable.addRowCellElements( row );
     
     //indexedTable.printTable();
     
@@ -850,8 +850,8 @@ public class IndexArrayTableTest
     row.add( "e" );
     row.add( "f" );
     
-    indexedTable.addColumn( column );
-    indexedTable.addRow( row );
+    indexedTable.addColumnCellElements( column );
+    indexedTable.addRowCellElements( row );
     
     //
     Table<String> subTable;
@@ -934,7 +934,7 @@ public class IndexArrayTableTest
     backedRowList.addAll( rowList );
     for ( List<Integer> iRow : rowList )
     {
-      naturalIndexedTable.addRow( iRow );
+      naturalIndexedTable.addRowCellElements( iRow );
     }
     
     assertEquals( true, naturalIndexedTable.equals( listbackedIndexedTable ) );
@@ -947,7 +947,7 @@ public class IndexArrayTableTest
       int rowIndexPosition = 0;
       for ( List<Integer> iRow : rowList )
       {
-        naturalIndexedTable.addRow( rowIndexPosition++, iRow );
+        naturalIndexedTable.addRowCellElements( rowIndexPosition++, iRow );
       }
     }
     
@@ -973,7 +973,7 @@ public class IndexArrayTableTest
     rowList.add( Arrays.asList( new Integer[] { 7, 8, 9 } ) );
     
     backedRowList.retainAll( rowList );
-    backedRowList.remove( 1 );
+    backedRowList.removeStripeAndDetachCellsFromTable( 1 );
     {
       //
       List<Integer> rowIndexPositionList = new ArrayList<Integer>();
@@ -1015,7 +1015,7 @@ public class IndexArrayTableTest
      * set
      */
     backedRowList.set( 1, Arrays.asList( new Integer[] { 1, 2, 3 } ) );
-    naturalIndexedTable.setRow( 1, Arrays.asList( new Integer[] { 1, 2, 3 } ) );
+    naturalIndexedTable.setRowCellElements( 1, Arrays.asList( new Integer[] { 1, 2, 3 } ) );
     assertEquals( true, naturalIndexedTable.equals( listbackedIndexedTable ) );
     
     /*
@@ -1043,7 +1043,7 @@ public class IndexArrayTableTest
     List<Integer> valueList = new ArrayList<Integer>( Arrays.asList( new Integer[] { 11, 12, 13, 21, 22, 23, 31, 32, 33 } ) );
     
     //
-    Iterator<Integer> iterator = naturalIndexedTable.cellIterator();
+    Iterator<Integer> iterator = naturalIndexedTable.iteratorCell();
     int index = 0;
     while ( iterator.hasNext() )
     {
@@ -1317,8 +1317,8 @@ public class IndexArrayTableTest
     } );
     
     //
-    Iterator<Integer> integerCellIterator = integerTable.cellIterator();
-    Iterator<String> stringCellIterator = stringTable.cellIterator();
+    Iterator<Integer> integerCellIterator = integerTable.iteratorCell();
+    Iterator<String> stringCellIterator = stringTable.iteratorCell();
     boolean atLeastOneLoop = false;
     while ( integerCellIterator.hasNext() && stringCellIterator.hasNext() )
     {

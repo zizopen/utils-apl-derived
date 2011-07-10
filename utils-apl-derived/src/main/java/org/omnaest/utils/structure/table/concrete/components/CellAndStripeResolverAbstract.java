@@ -16,11 +16,12 @@
 package org.omnaest.utils.structure.table.concrete.components;
 
 import org.omnaest.utils.structure.table.Table.Cell;
-import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellAndStripeResolver;
 import org.omnaest.utils.structure.table.internal.TableInternal.ColumnInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.RowInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 
 /**
  * @see CellAndStripeResolver
@@ -47,19 +48,19 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   }
   
   @Override
-  public Cell<E> resolveCell( Row<E> row, Object columnTitleValue )
+  public Cell<E> resolveCell( RowInternal<E> row, Object columnTitleValue )
   {
     return this.resolveCell( row, this.resolveColumn( columnTitleValue ) );
   }
   
   @Override
-  public Cell<E> resolveCell( int rowIndexPosition, Column<E> column )
+  public Cell<E> resolveCell( int rowIndexPosition, ColumnInternal<E> column )
   {
     return this.resolveCell( this.resolveRow( rowIndexPosition ), column );
   }
   
   @Override
-  public Cell<E> resolveCell( Object rowTitleValue, Column<E> column )
+  public Cell<E> resolveCell( Object rowTitleValue, ColumnInternal<E> column )
   {
     return this.resolveCell( this.resolveRow( rowTitleValue ), column );
   }
@@ -67,7 +68,8 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   @Override
   public Cell<E> resolveOrCreateCell( int rowIndexPosition, int columnIndexPosition )
   {
-    return this.resolveOrCreateCell( this.resolveRow( rowIndexPosition ), this.resolveColumn( columnIndexPosition ) );
+    return this.resolveOrCreateCell( this.resolveOrCreateRow( rowIndexPosition ),
+                                     this.resolveOrCreateColumn( columnIndexPosition ) );
   }
   
   @Override
@@ -80,6 +82,14 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   public Cell<E> resolveOrCreateCell( RowInternal<E> row, int columnIndexPosition )
   {
     return this.resolveOrCreateCell( row, this.resolveOrCreateColumn( columnIndexPosition ) );
+  }
+  
+  @Override
+  public Cell<E> resolveOrCreateCell( StripeInternal<E> stripeInternal, int indexPosition )
+  {
+    return this.resolveOrCreateCell( stripeInternal,
+                                     this.resolveOrCreateStripe( StripeTypeHelper.determineInvertedStripeType( stripeInternal.resolveStripeType() ),
+                                                                 indexPosition ) );
   }
   
   @Override
@@ -115,5 +125,13 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
    * @return
    */
   protected abstract int determineColumnIndexPositionForCellIndexPosition( int cellIndexPosition );
+  
+  @Override
+  public Cell<E> resolveOrCreateCell( StripeInternal<E> stripeInternal, Object titleValue )
+  {
+    return this.resolveOrCreateCell( stripeInternal,
+                                     this.resolveOrCreateStripe( StripeTypeHelper.determineInvertedStripeType( stripeInternal.resolveStripeType() ),
+                                                                 titleValue ) );
+  }
   
 }

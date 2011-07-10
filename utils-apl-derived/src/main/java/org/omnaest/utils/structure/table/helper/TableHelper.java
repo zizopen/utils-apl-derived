@@ -179,10 +179,10 @@ public class TableHelper
     List<Integer> columnWidthList = new ArrayList<Integer>( table.getTableSize().getColumnSize() );
     
     //if there are row titles, calculate their width values first
-    if ( table.getRowTitleList().size() > 0 )
+    if ( table.getRowTitleValueList().size() > 0 )
     {
       int maxWidth = 0;
-      for ( String iTitle : table.getRowTitleList() )
+      for ( String iTitle : table.getRowTitleValueList() )
       {
         //determine maxwidth
         int width = iTitle.length();
@@ -201,7 +201,7 @@ public class TableHelper
       
       //title
       int columnTitleWidth = -1;
-      String columnTitle = table.getColumnTitle( columnIndexPosition );
+      String columnTitle = table.getColumnTitleValue( columnIndexPosition );
       if ( columnTitle != null )
       {
         columnTitleWidth = columnTitle.length();
@@ -256,17 +256,17 @@ public class TableHelper
       int columnWidthListIndex = 0;
       
       //
-      if ( ii == -1 && table.getColumnTitleList().size() > 0 )//add column title if available first
+      if ( ii == -1 && table.getColumnTitleValueList().size() > 0 )//add column title if available first
       {
         sb.append( titleRowDelimiter );
         
-        if ( table.getRowTitleList().size() > 0 )
+        if ( table.getRowTitleValueList().size() > 0 )
         {
           int columnWidth = columnWidthList.get( columnWidthListIndex++ );
           sb.append( StringUtil.setFixedWitdth( " ", columnWidth ) + titleRowDelimiter );
         }
         
-        for ( String iColumnTitle : table.getColumnTitleList() )
+        for ( String iColumnTitle : table.getColumnTitleValueList() )
         {
           int columnWidth = columnWidthList.get( columnWidthListIndex++ );
           sb.append( StringUtil.setFixedWitdth( iColumnTitle, columnWidth ) + titleRowDelimiter );
@@ -283,11 +283,11 @@ public class TableHelper
         {
           if ( jj == -1 )
           {
-            if ( table.getRowTitleList().size() > 0 )
+            if ( table.getRowTitleValueList().size() > 0 )
             {
               //
               int columnWidth = columnWidthList.get( columnWidthListIndex++ );
-              String rowTitle = table.getRowTitleList().size() > ii ? table.getRowTitleList().get( ii ) : " ";
+              String rowTitle = table.getRowTitleValueList().size() > ii ? table.getRowTitleValueList().get( ii ) : " ";
               sb.append( StringUtil.setFixedWitdth( rowTitle, columnWidth ) + titleRowDelimiter );
             }
           }

@@ -88,6 +88,13 @@ public interface TableSelectable<E, T extends Table<E>>
      * @return selection {@link SelectionResult}
      */
     public SelectionResult<E> selectionResult();
+    
+    /**
+     * Merges {@link Row}s if there {@link Cell} elements are all equal
+     * 
+     * @return this
+     */
+    public Selection<E> distinct();
   }
   
   /**

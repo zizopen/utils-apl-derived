@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.table.IndexTable.IndexPositionPair;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.concrete.components.CellAndStripeResolverImpl;
 import org.omnaest.utils.structure.table.concrete.components.StripeListContainerImpl;
+import org.omnaest.utils.structure.table.concrete.components.TableSizeImpl;
 
 /**
  * Implementation of {@link Table} that uses two array lists as row and column data structure.
@@ -41,7 +41,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   /* ********************************************** Variables ********************************************** */
   protected StripeListContainer<E>   stripeListContainer   = new StripeListContainerImpl<E>( this );
   protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl<E>( this );
-  protected TableSize                tableSize             = new TableSizeImpl();
+  protected TableSize                tableSize             = new TableSizeImpl( this );
   protected Object                   tableName             = null;
   
   /* ********************************************** Methods ********************************************** */
@@ -49,26 +49,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   public ArrayTable()
   {
     super();
-  }
-  
-  /**
-   * Removes the subtractIndexPositions from the baseIndexPositions.
-   * 
-   * @param baseIndexPositions
-   * @param subtractIndexPositions
-   * @return
-   */
-  protected int[] determineSubtractedIndexPositions( int[] baseIndexPositions, int[] subtractIndexPositions )
-  {
-    List<Integer> subtractedRowIndexPositionList = new ArrayList<Integer>( 0 );
-    CollectionUtils.addAll( subtractedRowIndexPositionList, baseIndexPositions );
-    
-    for ( int iRowIndexPosition : subtractIndexPositions )
-    {
-      subtractedRowIndexPositionList.remove( Integer.valueOf( iRowIndexPosition ) );
-    }
-    
-    return CollectionUtils.toArrayInt( subtractedRowIndexPositionList );
   }
   
   //  /**
@@ -170,30 +150,41 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this;
   }
   
-  /**
-   * Returns true if two cells are equal.
-   * 
-   * @see #equals(Table)
-   * @param cell1
-   * @param cell2
-   * @return
-   */
-  protected boolean areCellsEqual( E cell1, E cell2 )
-  {
-    return cell1 == cell2 || cell1 != null && cell2 != null && cell1.equals( cell2 );
-  }
-  
   @Override
   public boolean equals( Table<E> table )
   {
-    //TODO
+    //
+    boolean retval = this.tableSize.equals( table.getTableSize() );
     
     //
-    return false;
+    if ( retval )
+    {
+      //      
+      Iterator<Cell<E>> iteratorCellThis = this.iteratorCell();
+      Iterator<Cell<E>> iteratorCellOther = table.iteratorCell();
+      
+      //
+      while ( retval && iteratorCellThis.hasNext() && iteratorCellOther.hasNext() )
+      {
+        //
+        Cell<E> cellThis = iteratorCellThis.next();
+        Cell<E> cellOther = iteratorCellOther.next();
+        
+        //
+        retval &= ( cellThis == null && cellOther == null )
+                  || ( cellThis != null && cellOther != null && cellThis.hasElement( cellOther.getElement() ) );
+      }
+      
+      //
+      retval &= !iteratorCellThis.hasNext() && !iteratorCellOther.hasNext();
+    }
+    
+    //
+    return retval;
   }
   
   @Override
-  public Table<E> setRowTitle( Object titleValue, int rowIndexPosition )
+  public Table<E> setRowTitleValue( Object titleValue, int rowIndexPosition )
   {
     //
     RowInternal<E> row = this.cellAndStripeResolver.resolveOrCreateRow( rowIndexPosition );
@@ -204,10 +195,10 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> setRowTitles( List<String> titleList )
+  public Table<E> setRowTitleValues( List<?> titleValueList )
   {
     //
-    this.setStripeTitleValueList( titleList, StripeType.ROW );
+    this.setStripeTitleValueList( titleValueList, StripeType.ROW );
     
     //
     return this;
@@ -238,7 +229,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> setColumnTitle( Object titleValue, int columnIndexPosition )
+  public Table<E> setColumnTitleValue( Object titleValue, int columnIndexPosition )
   {
     //
     ColumnInternal<E> column = this.cellAndStripeResolver.resolveOrCreateColumn( columnIndexPosition );
@@ -249,17 +240,17 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> setColumnTitles( List<String> titleList )
+  public Table<E> setColumnTitleValues( List<?> titleValueList )
   {
     //
-    this.setStripeTitleValueList( titleList, StripeType.COLUMN );
+    this.setStripeTitleValueList( titleValueList, StripeType.COLUMN );
     
     //
     return this;
   }
   
   @Override
-  public List<Object> getRowTitleList()
+  public List<Object> getRowTitleValueList()
   {
     return this.getStripeTitleValueList( StripeType.ROW );
   }
@@ -294,7 +285,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Object getRowTitle( int rowIndexPosition )
+  public Object getRowTitleValue( int rowIndexPosition )
   {
     return this.getStripeTitleValue( StripeType.ROW, rowIndexPosition );
   }
@@ -330,19 +321,13 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public List<Object> getColumnTitleList()
+  public List<Object> getColumnTitleValueList()
   {
     return this.getStripeTitleValueList( StripeType.COLUMN );
   }
   
   @Override
-  public String[] getColumnTitles()
-  {
-    return this.getColumnTitleList().toArray( new String[0] );
-  }
-  
-  @Override
-  public Object getColumnTitle( int columnIndexPosition )
+  public Object getColumnTitleValue( int columnIndexPosition )
   {
     return this.getStripeTitleValue( StripeType.COLUMN, columnIndexPosition );
   }
@@ -367,33 +352,32 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this;
   }
   
-  public Table<E> setRow( int rowIndexPosition, List<E> row )
+  @Override
+  public Table<E> setRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList )
   {
     //
-    for ( int ii = 0; ii < row.size(); ii++ )
+    if ( rowCellElementList != null )
     {
-      this.setCellElement( rowIndexPosition, ii, row.get( ii ) );
+      for ( int columnIndexPosition = 0; columnIndexPosition < rowCellElementList.size(); columnIndexPosition++ )
+      {
+        this.setCellElement( rowIndexPosition, columnIndexPosition, rowCellElementList.get( columnIndexPosition ) );
+      }
     }
     
     //
     return this;
   }
   
-  public Table<E> setRow( int rowIndexPosition, Object beanObject )
+  @Override
+  public Table<E> setColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList )
   {
     //
-    //TODO
-    
-    //
-    return this;
-  }
-  
-  public Table<E> setColumn( int columnIndexPosition, List<E> column )
-  {
-    //
-    for ( int ii = 0; ii < column.size(); ii++ )
+    if ( columnCellElementList != null )
     {
-      this.setCellElement( ii, columnIndexPosition, column.get( ii ) );
+      for ( int rowIndexPosition = 0; rowIndexPosition < columnCellElementList.size(); rowIndexPosition++ )
+      {
+        this.setCellElement( rowIndexPosition, columnIndexPosition, columnCellElementList.get( rowIndexPosition ) );
+      }
     }
     
     //
@@ -409,57 +393,110 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public E getCellElement( int rowIndexPosition, int columnIndexPosition )
   {
-    return this.getCell( rowIndexPosition, columnIndexPosition ).getElement();
+    //
+    E retval = null;
+    
+    //
+    Cell<E> cell = this.getCell( rowIndexPosition, columnIndexPosition );
+    if ( cell != null )
+    {
+      retval = cell.getElement();
+    }
+    
+    //
+    return retval;
   }
   
-  public Table<E> addColumn( List<E> columnValues )
+  @Override
+  public Table<E> addColumnCellElements( List<? extends E> columnCellElementList )
   {
-    //TODO
+    //
+    int columnIndexPosition = this.tableSize.getColumnSize();
+    this.setColumnCellElements( columnIndexPosition, columnCellElementList );
     
     //
     return this;
   }
   
   @Override
-  public Table<E> addRow( List<E> row )
+  public Table<E> addColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList )
   {
-    //TODO
+    //    
+    StripeInternal<E> newStripe = this.stripeListContainer.getColumnList().addNewStripe( columnIndexPosition );
+    if ( newStripe != null )
+    {
+      this.setColumnCellElements( columnIndexPosition, columnCellElementList );
+    }
+    
     //
     return this;
   }
   
   @Override
-  public Table<E> addRow( int rowIndexPosition, List<E> row )
+  public Table<E> addRowCellElements( List<? extends E> rowCellElementList )
   {
-    //TODO
+    //
+    int rowIndexPosition = this.tableSize.getRowSize();
+    this.setRowCellElements( rowIndexPosition, rowCellElementList );
     
     //
+    return this;
+  }
+  
+  @Override
+  public Table<E> addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList )
+  {
+    //
+    StripeInternal<E> newStripe = this.stripeListContainer.getRowList().addNewStripe( rowIndexPosition );
+    if ( newStripe != null )
+    {
+      this.setRowCellElements( rowIndexPosition, rowCellElementList );
+    }
+    
+    // 
     return this;
   }
   
   @Override
   public List<E> removeRow( int rowIndexPosition )
   {
-    //TODO
+    //
+    List<E> retlist = new ArrayList<E>();
     
     //
-    return null;
+    RowInternal<E> rowInternal = this.cellAndStripeResolver.resolveRow( rowIndexPosition );
+    if ( rowInternal != null )
+    {
+      //
+      retlist.addAll( rowInternal.getCellElementList() );
+      
+      //
+      this.stripeListContainer.getRowList().removeStripeAndDetachCellsFromTable( rowIndexPosition );
+    }
+    
+    //
+    return retlist;
   }
   
+  @Override
   public List<E> removeColumn( int columnIndexPosition )
   {
-    //TODO
+    //
+    List<E> retlist = new ArrayList<E>();
     
     //
-    return null;
-  }
-  
-  public List<E>[] removeRows( int[] rowIndexPositions )
-  {
-    //TODO
+    ColumnInternal<E> columnInternal = this.cellAndStripeResolver.resolveColumn( columnIndexPosition );
+    if ( columnInternal != null )
+    {
+      //
+      retlist.addAll( columnInternal.getCellElementList() );
+      
+      //
+      this.stripeListContainer.getColumnList().removeStripeAndDetachCellsFromTable( columnIndexPosition );
+    }
     
     //
-    return null;
+    return retlist;
   }
   
   @Override
@@ -469,9 +506,9 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Row<E> getRow( String rowTitle )
+  public Row<E> getRow( String rowTitleValue )
   {
-    return this.cellAndStripeResolver.resolveRow( rowTitle );
+    return this.cellAndStripeResolver.resolveRow( rowTitleValue );
   }
   
   @Override
@@ -486,14 +523,18 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this.cellAndStripeResolver.resolveColumn( columnTitleValue );
   }
   
+  @Override
   public Table<E> clear()
   {
-    //TODO
+    //
+    this.tableName = null;
+    this.stripeListContainer.clear();
     
     //
     return this;
   }
   
+  @Override
   public Table<E> cloneTableStructure()
   {
     //TODO
@@ -510,14 +551,13 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public String getTableName()
+  public Object getTableName()
   {
-    //TODO
-    return null;
+    return this.tableName;
   }
   
   @Override
-  public Table<E> setTableName( String tableName )
+  public Table<E> setTableName( Object tableName )
   {
     //
     this.tableName = tableName;
@@ -526,48 +566,38 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this;
   }
   
-  int[] generateIndexArrayForBetween( int indexPositionFrom, int indexPositionTo )
-  {
-    int[] indexes = new int[indexPositionTo - indexPositionFrom + 1];
-    for ( int ii = indexPositionFrom; ii <= indexPositionTo; ii++ )
-    {
-      indexes[ii - indexPositionFrom] = ii;
-    }
-    return indexes;
-  }
-  
-  /* ********************************************** Classes ********************************************** */
-
-  /**
-   * @see TableSize
-   * @author Omnaest
-   */
-  protected class TableSizeImpl implements TableSize
-  {
-    @Override
-    public int getCellSize()
-    {
-      return this.getRowSize() * this.getColumnSize();
-    }
-    
-    @Override
-    public int getRowSize()
-    {
-      return ArrayTable.this.stripeListContainer.getRowList().size();
-    }
-    
-    @Override
-    public int getColumnSize()
-    {
-      return ArrayTable.this.stripeListContainer.getColumnList().size();
-    }
-  }
-  
   @Override
-  public Iterator<Cell<E>> cellIterator()
+  public Iterator<Cell<E>> iteratorCell()
   {
-    //TODO
-    return null;
+    return new Iterator<Cell<E>>()
+    {
+      /* ********************************************** Variables ********************************************** */
+      protected int cellIndexPosition = -1;
+      
+      /* ********************************************** Methods ********************************************** */
+
+      @Override
+      public boolean hasNext()
+      {
+        return this.cellIndexPosition + 1 < ArrayTable.this.tableSize.getCellSize();
+      }
+      
+      @Override
+      public Cell<E> next()
+      {
+        return ArrayTable.this.getCell( ++this.cellIndexPosition );
+      }
+      
+      @Override
+      public void remove()
+      {
+        Cell<E> cell = ArrayTable.this.getCell( this.cellIndexPosition-- );
+        if ( cell != null )
+        {
+          cell.setElement( null );
+        }
+      }
+    };
   }
   
   @Override
@@ -577,7 +607,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> setCell( int cellIndexPosition, E element )
+  public Table<E> setCellElement( int cellIndexPosition, E element )
   {
     //
     Cell<E> cell = this.cellAndStripeResolver.resolveOrCreateCell( cellIndexPosition );
@@ -634,17 +664,17 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public Iterator<Row<E>> iterator()
   {
-    return this.rowIterator();
+    return this.iteratorRow();
   }
   
-  public Iterable<Cell<E>> cellIterable()
+  public Iterable<Cell<E>> cells()
   {
     return new Iterable<Cell<E>>()
     {
       @Override
       public Iterator<Cell<E>> iterator()
       {
-        return ArrayTable.this.cellIterator();
+        return ArrayTable.this.iteratorCell();
       }
     };
   }
@@ -658,7 +688,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     //TODO can this be optimized by indexes?
     
     //
-    for ( Cell<E> cell : this.cellIterable() )
+    for ( Cell<E> cell : this.cells() )
     {
       if ( cell.hasElement( element ) )
       {
@@ -674,17 +704,16 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public String toString()
   {
+    //TODO take the implementation of the tablehelper to enhance this
+    //
     StringBuilder sb = new StringBuilder();
-    sb.append( "[" );
-    Iterator<Row<E>> rowIterator = this.rowIterator();
+    
+    //
     String rowDelimiter = "";
-    while ( rowIterator.hasNext() )
+    for ( Row<E> row : this )
     {
       //
       sb.append( rowDelimiter + "[" );
-      
-      //
-      Row<E> row = rowIterator.next();
       
       //
       String elementDelimiter = "";
@@ -701,9 +730,9 @@ public class ArrayTable<E> extends TableAbstract<E>
       
       //
       sb.append( "]" );
-      rowDelimiter = ",";
+      rowDelimiter = "\n";
     }
-    sb.append( "]" );
+    
     return sb.toString();
   }
   
@@ -714,68 +743,9 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public CellAndStripeResolver<E> getCellResolver()
+  public CellAndStripeResolver<E> getCellAndStripeResolver()
   {
     return this.cellAndStripeResolver;
-  }
-  
-  @Override
-  public Table<E> getSubTableByRows( int rowIndexPositionFrom, int rowIndexPositionTo )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> getSubTableByRows( int[] rowIndexPositions )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> getSubTableByRows( List<Integer> rowIndexPositionList )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> getSubTableByColumns( int[] columnIndexPositions )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> getSubTableByColumns( List<Integer> columnIndexPositionList )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> getSubTable( int[] rowIndexPositions, int[] columnIndexPositions )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> getSubTable( int rowIndexPositionFrom,
-                               int rowIndexPositionTo,
-                               int columnIndexPositionFrom,
-                               int columnIndexPositionTo )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> getSubTableByColumns( int colunmIndexPositionFrom, int colunmIndexPositionTo )
-  {
-    // TODO Auto-generated method stub
-    return null;
   }
   
   @Override
@@ -870,13 +840,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> addRow( Object beanObject )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
   public <B> B getRowAsBean( B beanObject, int rowIndexPosition )
   {
     // TODO Auto-generated method stub
@@ -891,94 +854,30 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public boolean containsRow( List<E> row )
+  public Iterator<Row<E>> iteratorRow()
   {
-    // TODO Auto-generated method stub
-    return false;
-  }
-  
-  @Override
-  public boolean containsRow( Object beanObject )
-  {
-    // TODO Auto-generated method stub
-    return false;
-  }
-  
-  @Override
-  public int indexOfRow( List<E> row )
-  {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-  
-  @Override
-  public int lastIndexOfRow( List<E> row )
-  {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-  
-  @Override
-  public int indexOfFirstColumnWithElementEquals( int rowIndexPosition, E element )
-  {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-  
-  @Override
-  public int indexOfFirstRowWithElementEquals( int columnIndexPosition, E element )
-  {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-  
-  @Override
-  public int[] indexesOfRowsWithElementsEquals( int columnIndexPosition, E element )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public int lastIndexOfElementWithinRow( int rowIndexPosition, E element )
-  {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-  
-  @Override
-  public int lastIndexOfElementWithinColumn( int columnIndexPosition, E element )
-  {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-  
-  @Override
-  public Iterator<org.omnaest.utils.structure.table.Table.Row<E>> rowIterator()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> convertFirstRowToTitle()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> convertFirstColumnToTitle()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> distinct()
-  {
-    // TODO Auto-generated method stub
-    return null;
+    return new Iterator<Row<E>>()
+    {
+      protected int rowIndexPosition = -1;
+      
+      @Override
+      public boolean hasNext()
+      {
+        return this.rowIndexPosition + 1 < ArrayTable.this.getTableSize().getRowSize();
+      }
+      
+      @Override
+      public Row<E> next()
+      {
+        return ArrayTable.this.getRow( ++this.rowIndexPosition );
+      }
+      
+      @Override
+      public void remove()
+      {
+        ArrayTable.this.removeRow( this.rowIndexPosition-- );
+      }
+    };
   }
   
   @Override
@@ -993,6 +892,23 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     // TODO Auto-generated method stub
     return null;
+  }
+  
+  @Override
+  public E getCellElement( int cellIndexPosition )
+  {
+    //
+    E retval = null;
+    
+    //
+    Cell<E> cell = this.getCell( cellIndexPosition );
+    if ( cell != null )
+    {
+      retval = cell.getElement();
+    }
+    
+    // 
+    return retval;
   }
   
 }

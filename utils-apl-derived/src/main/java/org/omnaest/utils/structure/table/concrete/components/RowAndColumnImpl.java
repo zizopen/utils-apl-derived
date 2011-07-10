@@ -18,6 +18,9 @@ package org.omnaest.utils.structure.table.concrete.components;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.internal.TableInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.ColumnInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.RowInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
 
 /**
  * @see StripeCore
@@ -26,7 +29,7 @@ import org.omnaest.utils.structure.table.internal.TableInternal;
  * @author Omnaest
  * @param <E>
  */
-public class RowAndColumnImpl<E> extends StripeCore<E> implements Row<E>, Column<E>
+public class RowAndColumnImpl<E> extends StripeCore<E> implements RowInternal<E>, ColumnInternal<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = -2038384778853074830L;
@@ -35,14 +38,12 @@ public class RowAndColumnImpl<E> extends StripeCore<E> implements Row<E>, Column
 
   /**
    * @param tableInternal
+   * @param stripeList
    */
-  protected RowAndColumnImpl( TableInternal<E> tableInternal )
+  protected RowAndColumnImpl( TableInternal<E> tableInternal, StripeList<E> stripeList )
   {
     //
-    super();
-    
-    //
-    this.tableInternal = tableInternal;
+    super( tableInternal, stripeList );
   }
   
 }
