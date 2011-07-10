@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,8 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.Table.TableCellConverter;
+import org.omnaest.utils.structure.table.Table.TableCellVisitor;
 import org.omnaest.utils.structure.table.Table.TableSize;
 
 public class ArrayTableTest
@@ -423,6 +426,9 @@ public class ArrayTableTest
     assertEquals( null, this.table.getCellElement( 1, 4 ) );
     assertEquals( null, this.table.getCellElement( 2, 4 ) );
     
+    //
+    this.table.addColumnCellElements( Arrays.asList( "a", "b", "c" ) );
+    assertEquals( 8, this.table.getTableSize().getColumnSize() );
   }
   
   @Test
@@ -461,6 +467,10 @@ public class ArrayTableTest
     assertEquals( null, this.table.getCellElement( 4, 0 ) );
     assertEquals( null, this.table.getCellElement( 4, 1 ) );
     assertEquals( null, this.table.getCellElement( 4, 2 ) );
+    
+    //
+    this.table.addRowCellElements( Arrays.asList( "a", "b", "c" ) );
+    assertEquals( 8, this.table.getTableSize().getRowSize() );
   }
   
   @Test
@@ -479,4 +489,185 @@ public class ArrayTableTest
     assertEquals( 0, this.table.getTableSize().getColumnSize() );
   }
   
+  @Test
+  public void testGetRowTitleValueList()
+  {
+    //
+    List<String> titleValueList = Arrays.asList( "title1", "title2", "title3" );
+    this.table.setRowTitleValues( titleValueList );
+    
+    //
+    assertEquals( titleValueList, this.table.getRowTitleValueList() );
+  }
+  
+  @Test
+  public void testGetColumnTitleValueList()
+  {
+    //
+    List<String> titleValueList = Arrays.asList( "title1", "title2", "title3" );
+    this.table.setColumnTitleValues( titleValueList );
+    
+    //
+    assertEquals( titleValueList, this.table.getColumnTitleValueList() );
+  }
+  
+  @Test
+  public void testRemoveRow()
+  {
+    //
+    final int rows = 5;
+    final int columns = 3;
+    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    this.table.removeRow( 1 );
+    
+    //
+    assertEquals( rows - 1, this.table.getTableSize().getRowSize() );
+    assertEquals( columns, this.table.getTableSize().getColumnSize() );
+    assertEquals( "0:0", this.table.getCellElement( 0, 0 ) );
+    assertEquals( "2:0", this.table.getCellElement( 1, 0 ) );
+    assertEquals( "3:0", this.table.getCellElement( 2, 0 ) );
+    assertEquals( "4:0", this.table.getCellElement( 3, 0 ) );
+  }
+  
+  @Test
+  public void testRemoveColumn()
+  {
+    //
+    final int rows = 3;
+    final int columns = 5;
+    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    this.table.removeColumn( 1 );
+    
+    //
+    assertEquals( rows, this.table.getTableSize().getRowSize() );
+    assertEquals( columns - 1, this.table.getTableSize().getColumnSize() );
+    assertEquals( "0:0", this.table.getCellElement( 0, 0 ) );
+    assertEquals( "0:2", this.table.getCellElement( 0, 1 ) );
+    assertEquals( "0:3", this.table.getCellElement( 0, 2 ) );
+  }
+  
+  @Test
+  public void testGetRow()
+  {
+    //
+    this.table.setRowTitleValues( Arrays.asList( "title1", "title2", "title3" ) );
+    
+    //
+    Row<Object> row = this.table.getRow( "title2" );
+    assertNotNull( row );
+  }
+  
+  @Test
+  public void testGetColumn()
+  {
+    //
+    this.table.setColumnTitleValues( Arrays.asList( "title1", "title2", "title3" ) );
+    
+    //
+    Column<Object> column = this.table.getColumn( "title2" );
+    assertNotNull( column );
+  }
+  
+  @Test
+  public void testGetTableName()
+  {
+    //
+    final String tableName = "table name";
+    
+    //
+    this.table.setTableName( tableName );
+    
+    //
+    assertEquals( tableName, this.table.getTableName() );
+  }
+  
+  @Test
+  public void testProcessTableCells()
+  {
+    //
+    final int rows = 3;
+    final int columns = 5;
+    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //    
+    TableCellVisitor<Object> tableCellVisitor = new TableCellVisitor<Object>()
+    {
+      @Override
+      public void process( int rowIndexPosition, int columnIndexPosition, Cell<Object> cell )
+      {
+        cell.setElement( cell.getElement() + "+" );
+      }
+    };
+    
+    //
+    this.table.processTableCells( tableCellVisitor );
+    
+    //
+    for ( Cell<Object> cell : this.table.cells() )
+    {
+      String value = (String) cell.getElement();
+      assertTrue( value.endsWith( "+" ) );
+    }
+    
+  }
+  
+  @Test
+  public void testConvert()
+  {
+    //
+    final int rows = 3;
+    final int columns = 5;
+    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    TableCellConverter<Object, String> tableCellConverter = new TableCellConverter<Object, String>()
+    {
+      @Override
+      public String convert( Object cellElement )
+      {
+        return (String) cellElement;
+      }
+    };
+    
+    //
+    Table<String> tableConverted = this.table.convert( tableCellConverter );
+    
+    //
+    assertEquals( this.table, tableConverted );
+  }
+  
+  @Test
+  public void testIteratorRow()
+  {
+    //
+    final int rows = 3;
+    final int columns = 5;
+    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    Iterator<Row<Object>> iteratorRow = this.table.iteratorRow();
+    
+    //
+    assertNotNull( iteratorRow );
+    
+    //
+    int counterRows = 0;
+    while ( iteratorRow.hasNext() )
+    {
+      //
+      Row<Object> row = iteratorRow.next();
+      assertNotNull( row );
+      
+      //
+      assertEquals( counterRows + ":0", row.getCellElement( 0 ) );
+      
+      //
+      counterRows++;
+    }
+    assertEquals( rows, counterRows );
+  }
 }

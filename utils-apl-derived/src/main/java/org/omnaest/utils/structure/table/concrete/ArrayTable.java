@@ -506,7 +506,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Row<E> getRow( String rowTitleValue )
+  public Row<E> getRow( Object rowTitleValue )
   {
     return this.cellAndStripeResolver.resolveRow( rowTitleValue );
   }
@@ -518,7 +518,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Column<E> getColumn( String columnTitleValue )
+  public Column<E> getColumn( Object columnTitleValue )
   {
     return this.cellAndStripeResolver.resolveColumn( columnTitleValue );
   }
@@ -543,6 +543,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     return null;
   }
   
+  @Override
   public Table<E> clone()
   {
     //TODO
@@ -632,7 +633,7 @@ public class ArrayTable<E> extends TableAbstract<E>
       {
         for ( int columnIndexPosition = 0; columnIndexPosition < this.getTableSize().getColumnSize(); columnIndexPosition++ )
         {
-          tableCellVisitor.inspect( rowIndexPosition, columnIndexPosition, this.getCell( rowIndexPosition, columnIndexPosition ) );
+          tableCellVisitor.process( rowIndexPosition, columnIndexPosition, this.getCell( rowIndexPosition, columnIndexPosition ) );
         }
       }
     }
@@ -651,7 +652,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     this.processTableCells( new TableCellVisitor<E>()
     {
       @Override
-      public void inspect( int rowIndexPosition, int columnIndexPosition, Cell<E> cell )
+      public void process( int rowIndexPosition, int columnIndexPosition, Cell<E> cell )
       {
         table.setCellElement( rowIndexPosition, columnIndexPosition, tableCellConverter.convert( cell.getElement() ) );
       }
@@ -763,41 +764,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> setRowTitles( Enum<?>[] rowTitleEnums )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> setRowTitles( String[] titles )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> setColumnTitles( Enum<?>[] titleEnumerations )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> setColumnTitles( String... titles )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public Table<E> setColumnTitles( Class<?> beanClass )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
   public Table<E> putTable( Table<E> insertIndexedTable, int rowIndexPosition, int columnIndexPosition )
   {
     // TODO Auto-generated method stub
@@ -834,20 +800,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   
   @Override
   public List<E> getCellList()
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public <B> B getRowAsBean( B beanObject, int rowIndexPosition )
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-  
-  @Override
-  public <C> C getRow( int rowIndexPosition, C emptyBeanObject )
   {
     // TODO Auto-generated method stub
     return null;
