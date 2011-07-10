@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.components;
+package org.omnaest.utils.structure.table.concrete.internal;
 
 import org.omnaest.utils.structure.table.Table.TableSize;
 import org.omnaest.utils.structure.table.internal.TableInternal;
