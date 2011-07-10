@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
@@ -254,7 +253,7 @@ public class ArrayTableTest
     this.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
-    Assert.assertArrayEquals( new Object[] { "c0", "c1", "c2" }, this.table.getColumnTitleValues() );
+    assertEquals( Arrays.asList( "c0", "c1", "c2" ), this.table.getColumnTitleValueList() );
   }
   
   @Test
