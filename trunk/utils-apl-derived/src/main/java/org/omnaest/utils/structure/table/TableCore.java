@@ -74,21 +74,6 @@ public interface TableCore<E, T extends Table<E>>
   public boolean equals( T table );
   
   /**
-   * @see #setRowTitleValues(List)
-   * @see #setRowTitles(String[])
-   * @param rowTitleEnums
-   */
-  public T setRowTitles( Enum<?>[] rowTitleEnums );
-  
-  /**
-   * @see #setRowTitles(Enum[])
-   * @see #setRowTitleValues(List)
-   * @param titles
-   * @return
-   */
-  public T setRowTitles( String[] titles );
-  
-  /**
    * Sets the title for a row with the given index position.
    * 
    * @see #getRowTitleValueList()
@@ -107,31 +92,6 @@ public interface TableCore<E, T extends Table<E>>
    * @return
    */
   public T setRowTitleValues( List<?> titleList );
-  
-  /**
-   * @see #setColumnTitleValues(List)
-   * @see #setColumnTitles(String[])
-   * @param titleEnumerations
-   * @return
-   */
-  public T setColumnTitles( Enum<?>[] titleEnumerations );
-  
-  /**
-   * @see #setColumnTitleValues(List)
-   * @see #setColumnTitles(Enum[])
-   * @param titles
-   * @return
-   */
-  public T setColumnTitles( String... titles );
-  
-  /**
-   * Determines the javabean property names and sets them as column titles. This will only include bean properties, that are at
-   * least readable.
-   * 
-   * @param beanClass
-   * @return this
-   */
-  public T setColumnTitles( Class<?> beanClass );
   
   /**
    * Sets the title of a column for a given column index position.
@@ -397,26 +357,6 @@ public interface TableCore<E, T extends Table<E>>
   public Row<E> getRow( int rowIndexPosition );
   
   /**
-   * Returns the given java bean object with the values of the row indicated by the given row index position.
-   * 
-   * @param beanObject
-   * @param rowIndexPosition
-   * @return
-   */
-  public <B> B getRowAsBean( B beanObject, int rowIndexPosition );
-  
-  /**
-   * Returns the given javaBean object filled with the data of the table row pointed at with the given index position.
-   * 
-   * @param <C>
-   * @param rowIndexPosition
-   * @param emptyBeanObject
-   *          : has to be a new created object, that will be filled with the data from the row.
-   * @return
-   */
-  public <C> C getRow( int rowIndexPosition, C emptyBeanObject );
-  
-  /**
    * Returns a {@link Row} of the {@link Table} identified by the title of a row. Before this can be used, the titles have to be
    * set by {@link #setRowTitleValues(List)}
    * 
@@ -424,12 +364,12 @@ public interface TableCore<E, T extends Table<E>>
    * @param rowTitleValue
    * @return
    */
-  public Row<E> getRow( String rowTitleValue );
+  public Row<E> getRow( Object rowTitleValue );
   
   /**
    * Returns a {@link Column} for the given {@link Column} index position.
    * 
-   * @see #getColumn(String)
+   * @see #getColumn(Object)
    * @param columnIndexPosition
    * @return
    */
@@ -443,7 +383,7 @@ public interface TableCore<E, T extends Table<E>>
    * @param columnTitleValue
    * @return
    */
-  public Column<E> getColumn( String columnTitleValue );
+  public Column<E> getColumn( Object columnTitleValue );
   
   /**
    * Returns true, if the whole table contains the given element.

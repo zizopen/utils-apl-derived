@@ -268,8 +268,11 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
   }
   
   /**
-   * Interface that is used to convert a table into another table form. For example convert a Table<String> to a Table<Integer>.
+   * Interface that is used to convert a {@link Table} into another {@link Table} generics form. For example convert a
+   * Table&lt;String&gt; to a Table&lt;Integer&gt;.
    * 
+   * @param <FROM>
+   * @param <TO>
    * @author Omnaest
    * @see TableCore#convert(TableCellConverter)
    */
@@ -300,7 +303,7 @@ public interface Table<E> extends TableCore<E, Table<E>>, Iterable<Table.Row<E>>
      * @param columnIndexPosition
      * @param cell
      */
-    public void inspect( int rowIndexPosition, int columnIndexPosition, Cell<E> cell );
+    public void process( int rowIndexPosition, int columnIndexPosition, Cell<E> cell );
   }
   
 }

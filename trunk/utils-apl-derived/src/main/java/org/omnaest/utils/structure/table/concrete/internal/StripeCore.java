@@ -280,7 +280,7 @@ public abstract class StripeCore<E> implements StripeInternal<E>
   @Override
   public void detachAllCellsFromTable()
   {
-    for ( CellInternal<E> cellInternal : this.cellSet )
+    for ( CellInternal<E> cellInternal : new HashSet<CellInternal<E>>( this.cellSet ) )
     {
       cellInternal.detachFromTable();
     }
