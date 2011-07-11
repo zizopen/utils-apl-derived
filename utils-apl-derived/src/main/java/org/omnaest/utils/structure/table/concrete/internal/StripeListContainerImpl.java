@@ -22,21 +22,21 @@ import java.util.List;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeListContainer;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
+import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
 /**
  * TODO serializable interface is missing
  * 
  * @author Omnaest
  * @see StripeListContainerAbstract
- * @see StripeListContainer
+ * @see TableContent
  * @param <E>
  */
 public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected List<StripeList<E>> stripeListList = null;
+  protected List<StripeDataList<E>> stripeListList = null;
   protected TableInternal<E>    tableInternal  = null;
   
   /* ********************************************** Methods ********************************************** */
@@ -52,7 +52,7 @@ public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
     this.tableInternal = tableInternal;
     
     //
-    this.stripeListList = new ArrayList<StripeList<E>>(
+    this.stripeListList = new ArrayList<StripeDataList<E>>(
                                                         Arrays.asList( new StripeListArray<E>( this.tableInternal, StripeType.ROW ),
                                                                        new StripeListArray<E>( this.tableInternal,
                                                                                                StripeType.COLUMN ) ) );
@@ -62,7 +62,7 @@ public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
   public void switchRowAndColumnStripeList()
   {
     //
-    for ( StripeList<E> stripeList : this.stripeListList )
+    for ( StripeDataList<E> stripeList : this.stripeListList )
     {
       stripeList.setStripeType( StripeTypeHelper.determineInvertedStripeType( stripeList.getStripeType() ) );
     }
@@ -75,15 +75,15 @@ public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
    * @return
    */
   @Override
-  public StripeList<E> getStripeList( StripeType stripeType )
+  public StripeDataList<E> getStripeDataList( StripeType stripeType )
   {
     //    
-    StripeList<E> retval = null;
+    StripeDataList<E> retval = null;
     
     //
     if ( stripeType != null )
     {
-      for ( StripeList<E> stripeList : this.stripeListList )
+      for ( StripeDataList<E> stripeList : this.stripeListList )
       {
         if ( stripeType.equals( stripeList.getStripeType() ) )
         {
@@ -105,7 +105,7 @@ public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
     int retval = -1;
     
     //
-    StripeList<E> stripeList = this.getStripeList( stripeType );
+    StripeDataList<E> stripeList = this.getStripeDataList( stripeType );
     if ( stripeList != null )
     {
       retval = stripeList.size();
@@ -118,7 +118,7 @@ public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
   @Override
   public void clear()
   {
-    for ( StripeList<E> stripeList : this.stripeListList )
+    for ( StripeDataList<E> stripeList : this.stripeListList )
     {
       stripeList.clear();
     }

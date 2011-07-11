@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.collection;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,6 +45,20 @@ public class ListUtilsTest
     assertEquals( collections[0].toArray()[1], mergedList.get( 1 ) );
     assertEquals( collections[1].toArray()[0], mergedList.get( 2 ) );
     assertEquals( collections[1].toArray()[1], mergedList.get( 3 ) );
+  }
+  
+  @Test
+  public void testCreateListFrom()
+  {
+    //
+    List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
+    
+    //
+    List<String> listFromIterator = ListUtils.createListFrom( testList.iterator() );
+    
+    //
+    assertEquals( testList, listFromIterator );
+    
   }
   
 }

@@ -20,28 +20,36 @@ import java.io.Serializable;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 
 /**
- * Table representation. Allows to create arbitrary table structures. Offers rudimentary methods for joining.
+ * {@link Table} representation. Allows to create arbitrary {@link Table} structures. Offers rudimentary methods for joining.
  * 
  * @see IndexTable
  * @see ArrayTable
  * @author Omnaest
  */
-public interface Table<E> extends TableCore<E>, TableCoreImmutable<E>, TableSelectable<E>, Iterable<Row<E>>,
-                          TableXMLSerializable<E>, Serializable
+public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row<E>>, TableXMLSerializable<E>, Serializable
 
 {
   /* ********************************************** Classes ********************************************** */
-
+  
+  /**
+   * Marker interface for components of a {@link Table}
+   * 
+   * @author Omnaest
+   */
+  public interface TableComponent extends Serializable
+  {
+  }
+  
   /**
    * Holds methods to return the current table size for rows and columns. If the data of the underlying table changes, the methods
    * will return the new actual results then, too!
    * 
    * @see Table
    */
-  public interface TableSize
+  public interface TableSize extends TableComponent
   {
     /**
      * Returns the number of all available {@link Cell}s within the {@link Table}
@@ -72,16 +80,16 @@ public interface Table<E> extends TableCore<E>, TableCoreImmutable<E>, TableSele
    * @author Omnaest
    * @param <E>
    */
-  public static interface Stripe<E> extends Serializable, Iterable<Cell<E>>
+  public static interface Stripe<E> extends TableComponent, Iterable<Cell<E>>
   {
     
     /* ********************************************** Classes/Interfaces ********************************************** */
-
+    
     /**
      * {@link StripeType} of a {@link Stripe}
      * 
      * @see Stripe
-     * @see StripeList
+     * @see StripeDataList
      * @see StripeTypeHelper
      * @author Omnaest
      */
@@ -96,7 +104,7 @@ public interface Table<E> extends TableCore<E>, TableCoreImmutable<E>, TableSele
      * 
      * @see Stripe
      */
-    public static interface Title extends Serializable
+    public static interface Title extends TableComponent
     {
       
       /**
@@ -226,7 +234,7 @@ public interface Table<E> extends TableCore<E>, TableCoreImmutable<E>, TableSele
    * @author Omnaest
    * @param <E>
    */
-  public static interface Cell<E> extends Serializable
+  public static interface Cell<E> extends TableComponent
   {
     
     /**

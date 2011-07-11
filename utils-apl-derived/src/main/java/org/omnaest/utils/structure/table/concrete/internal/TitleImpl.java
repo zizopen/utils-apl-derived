@@ -15,66 +15,24 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal;
 
-import org.omnaest.utils.structure.CloneableDeep;
 import org.omnaest.utils.structure.table.Table;
-import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal.TitleInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeData.TitleInternal;
 
 /**
  * @see Table
  * @see Title
  * @author Omnaest
  */
-public class TitleImpl<E> implements TitleInternal, CloneableDeep<TitleImpl<E>>
+public class TitleImpl<E> implements TitleInternal
 {
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = -4806596052790124334L;
   
   /* ********************************************** Variables ********************************************** */
   protected Object          value            = null;
-  protected Stripe<E>       stripe           = null;
   
   /* ********************************************** Methods ********************************************** */
-
-  /**
-   * Creates a new {@link Title} instance
-   */
-  private TitleImpl()
-  {
-    super();
-  }
-  
-  /**
-   * Creates a new {@link Title} instance
-   * 
-   * @param stripe
-   */
-  public TitleImpl( Stripe<E> stripe )
-  {
-    super();
-    this.stripe = stripe;
-  }
-  
-  @Override
-  public TitleImpl<E> cloneDeep()
-  {
-    //
-    TitleImpl<E> clone = new TitleImpl<E>();
-    clone.value = this.value;
-    
-    //
-    return clone;
-  }
-  
-  /**
-   * @see Stripe
-   * @return
-   */
-  protected Stripe<E> getStripe()
-  {
-    return this.stripe;
-  }
   
   @Override
   public Object getValue()

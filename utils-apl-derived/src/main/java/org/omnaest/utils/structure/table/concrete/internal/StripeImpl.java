@@ -15,64 +15,57 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 import org.omnaest.utils.structure.table.Table.Cell;
+import org.omnaest.utils.structure.table.Table.Column;
+import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
-import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.ColumnInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.RowInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeListContainer;
+import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
 /**
  * @see Stripe
+ * @see Row
+ * @see Column
  * @see StripeInternal
+ * @see RowInternal
+ * @see ColumnInternal
+ * @see TableInternal
  * @author Omnaest
  * @param <E>
  */
-public abstract class StripeCore<E> implements StripeInternal<E>
+public class StripeImpl<E> implements RowInternal<E>, ColumnInternal<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long      serialVersionUID = 5552519174349074630L;
-  /* ********************************************** Variables ********************************************** */
-
-  protected TitleInternal        title            = new TitleImpl<E>( this );
-  protected Set<CellInternal<E>> cellSet          = new HashSet<CellInternal<E>>();
+  private static final long  serialVersionUID = 5552519174349074630L;
   
-  /* ********************************************** Beans / Services ********************************************** */
-
-  protected TableInternal<E>     tableInternal    = null;
-  protected StripeList<E>        stripeList       = null;
+  /* ********************************************** Variables ********************************************** */
+  protected TableInternal<E> tableInternal    = null;
+  protected StripeData<E>    stripeData       = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * @param tableInternal
-   * @param stripeList
+   * @param stripeData
    */
-  public StripeCore( TableInternal<E> tableInternal, StripeList<E> stripeList )
+  public StripeImpl( TableInternal<E> tableInternal, StripeData<E> stripeData )
   {
     super();
     this.tableInternal = tableInternal;
-    this.stripeList = stripeList;
-  }
-  
-  @Override
-  public StripeType resolveStripeType()
-  {
-    return this.stripeList.getStripeType();
+    this.stripeData = stripeData;
   }
   
   @Override
   public Title getTitle()
   {
-    return this.title;
+    return this.stripeData.getTitleInternal();
   }
   
   @Override
@@ -84,23 +77,28 @@ public abstract class StripeCore<E> implements StripeInternal<E>
       protected int indexPosition = -1;
       
       /* ********************************************** Methods ********************************************** */
-
+      
       @Override
       public boolean hasNext()
       {
-        return this.indexPosition + 1 < StripeCore.this.cellSet.size();
+        //
+        StripeType stripeType = StripeImpl.this.stripeData.resolveStripeType();
+        int size = StripeImpl.this.tableInternal.getTableContent().determineStripeListSize( stripeType );
+        
+        //
+        return this.indexPosition + 1 < size;
       }
       
       @Override
       public Cell<E> next()
       {
-        return StripeCore.this.getCell( ++this.indexPosition );
+        return StripeImpl.this.getCell( ++this.indexPosition );
       }
       
       @Override
       public void remove()
       {
-        StripeCore.this.setCellElement( this.indexPosition--, null );
+        StripeImpl.this.setCellElement( this.indexPosition--, null );
       }
     };
   }
@@ -108,48 +106,19 @@ public abstract class StripeCore<E> implements StripeInternal<E>
   @Override
   public boolean contains( Cell<E> cell )
   {
-    return this.cellSet.contains( cell );
+    return this.stripeData.contains( cell );
   }
   
   @Override
   public Cell<E> getCell( int indexPosition )
   {
-    return this.tableInternal.getCellAndStripeResolver().resolveCell( this, indexPosition );
-  }
-  
-  public Cell<E> resolvesOrCreateCell( int indexPosition )
-  {
-    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this, indexPosition );
-  }
-  
-  public Cell<E> resolvesOrCreateCell( Object titleValue )
-  {
-    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this, titleValue );
+    return this.tableInternal.getCellAndStripeResolver().resolveCell( this.stripeData, indexPosition );
   }
   
   @Override
   public Cell<E> getCell( Object titleValue )
   {
-    return this.tableInternal.getCellAndStripeResolver().resolveCell( this, titleValue );
-  }
-  
-  @Override
-  public void registerCell( CellInternal<E> cell )
-  {
-    //
-    if ( cell != null )
-    {
-      this.cellSet.add( cell );
-    }
-  }
-  
-  @Override
-  public void unregisterCell( Cell<E> cell )
-  {
-    if ( cell != null )
-    {
-      this.cellSet.remove( cell );
-    }
+    return this.tableInternal.getCellAndStripeResolver().resolveCell( this.stripeData, titleValue );
   }
   
   @Override
@@ -215,35 +184,16 @@ public abstract class StripeCore<E> implements StripeInternal<E>
   }
   
   @Override
-  public List<E> getCellElementList()
-  {
-    //
-    List<E> retlist = new ArrayList<E>();
-    
-    //
-    int cellSize = this.determineNumberOfCells();
-    for ( int indexPosition = 0; indexPosition < cellSize; indexPosition++ )
-    {
-      //
-      Cell<E> cell = this.tableInternal.getCellAndStripeResolver().resolveCell( this, indexPosition );
-      retlist.add( cell == null ? null : cell.getElement() );
-    }
-    
-    //
-    return retlist;
-  }
-  
-  @Override
   public int determineNumberOfCells()
   {
     //
     int retval = -1;
     
     //
-    StripeType stripeTypeInverted = StripeTypeHelper.determineInvertedStripeType( this.resolveStripeType() );
+    StripeType stripeTypeInverted = StripeTypeHelper.determineInvertedStripeType( this.stripeData.resolveStripeType() );
     
     //
-    StripeListContainer<E> stripeListContainer = this.tableInternal.getStripeListContainer();
+    TableContent<E> stripeListContainer = this.tableInternal.getTableContent();
     retval = stripeListContainer.determineStripeListSize( stripeTypeInverted );
     
     //
@@ -253,39 +203,31 @@ public abstract class StripeCore<E> implements StripeInternal<E>
   @Override
   public boolean contains( E element )
   {
-    //
-    boolean retval = false;
-    
-    //
-    if ( element != null )
-    {
-      for ( Cell<E> cell : this.cellSet )
-      {
-        if ( element.equals( cell.getElement() ) )
-        {
-          retval = true;
-          break;
-        }
-      }
-    }
-    
-    // 
-    return retval;
+    return this.stripeData.contains( element );
   }
   
   @Override
-  public Set<CellInternal<E>> getCellSet()
+  public StripeData<E> getStripeData()
   {
-    return this.cellSet;
+    return this.stripeData;
   }
   
-  @Override
-  public void detachAllCellsFromTable()
+  /**
+   * @param indexPosition
+   * @return
+   */
+  protected Cell<E> resolvesOrCreateCell( int indexPosition )
   {
-    for ( CellInternal<E> cellInternal : new HashSet<CellInternal<E>>( this.cellSet ) )
-    {
-      cellInternal.detachFromTable();
-    }
+    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this.stripeData, indexPosition );
+  }
+  
+  /**
+   * @param titleValue
+   * @return
+   */
+  protected Cell<E> resolvesOrCreateCell( Object titleValue )
+  {
+    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this.stripeData, titleValue );
   }
   
 }

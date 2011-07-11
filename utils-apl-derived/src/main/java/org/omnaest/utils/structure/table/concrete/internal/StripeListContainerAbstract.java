@@ -16,27 +16,27 @@
 package org.omnaest.utils.structure.table.concrete.internal;
 
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeList;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeListContainer;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
+import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
 /**
- * @see StripeListContainer
+ * @see TableContent
  * @author Omnaest
  * @param <E>
  */
-public abstract class StripeListContainerAbstract<E> implements StripeListContainer<E>
+public abstract class StripeListContainerAbstract<E> implements TableContent<E>
 {
   
   @Override
-  public StripeList<E> getRowList()
+  public StripeDataList<E> getRowList()
   {
-    return this.getStripeList( StripeType.ROW );
+    return this.getStripeDataList( StripeType.ROW );
   }
   
   @Override
-  public StripeList<E> getColumnList()
+  public StripeDataList<E> getColumnList()
   {
-    return this.getStripeList( StripeType.COLUMN );
+    return this.getStripeDataList( StripeType.COLUMN );
   }
   
 }

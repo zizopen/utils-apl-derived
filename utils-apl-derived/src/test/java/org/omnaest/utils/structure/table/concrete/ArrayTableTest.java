@@ -40,7 +40,7 @@ public class ArrayTableTest
   protected Table<Object> table = new ArrayTable<Object>();
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Fills the given {@link Table} with <br>
    * ["0:0","0:1",...,"0:n"]<br>
@@ -692,6 +692,60 @@ public class ArrayTableTest
     
     //
     assertEquals( rows, this.table.getTableSize().getRowSize() );
+    
+  }
+  
+  @Test
+  public void testPutTable()
+  {
+    //
+    Table<Object> insertTable = new ArrayTable<Object>();
+    
+    //
+    final int rowsInsert = 4;
+    final int columnsInsert = 15;
+    this.fillTableWithMatrixNumbers( rowsInsert, columnsInsert, insertTable );
+    
+    //
+    final int rows = 20;
+    final int columns = 10;
+    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    final int rowIndexPosition = 3;
+    final int columnIndexPosition = 2;
+    this.table.putTable( insertTable, rowIndexPosition, columnIndexPosition );
+    
+    //
+    assertEquals( rows, this.table.getTableSize().getRowSize() );
+    assertEquals( columnsInsert + columnIndexPosition, this.table.getTableSize().getColumnSize() );
+    
+    assertEquals( "0:0", this.table.getCellElement( 0, 0 ) );
+    assertEquals( "0:0", this.table.getCellElement( rowIndexPosition, columnIndexPosition ) );
+    assertEquals( ( rowsInsert - 1 ) + ":" + ( columnsInsert - 1 ),
+                  this.table.getCellElement( rowIndexPosition + rowsInsert - 1, columnIndexPosition + columnsInsert - 1 ) );
+    
+  }
+  
+  @Test
+  public void testGetCell()
+  {
+    //
+    final int rows = 5;
+    final int columns = 3;
+    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    this.table.setColumnTitleValues( Arrays.asList( "c0", "c1", "c2" ) );
+    this.table.setRowTitleValues( Arrays.asList( "r0", "r1", "r2", "r3", "r4" ) );
+    
+    //
+    assertNotNull( this.table.getCell( "r0", "c0" ) );
+    assertNotNull( this.table.getCell( "r4", "c2" ) );
+    assertEquals( "0:0", this.table.getCell( "r0", "c0" ).getElement() );
+    assertEquals( "4:2", this.table.getCell( "r4", "c2" ).getElement() );
+    
+    assertEquals( null, this.table.getCell( "a", "b" ) );
     
   }
 }
