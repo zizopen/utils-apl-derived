@@ -24,7 +24,7 @@ import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 
 /**
  * @see Cell
@@ -36,7 +36,7 @@ public class CellImpl<E> implements CellInternal<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long         serialVersionUID   = 4937853192103513084L;
-  protected List<StripeInternal<E>> stripeInternalList = new ArrayList<StripeInternal<E>>();
+  protected List<StripeData<E>> stripeInternalList = new ArrayList<StripeData<E>>();
   protected E                       element            = null;
   
   /* ********************************************** Methods ********************************************** */
@@ -44,7 +44,7 @@ public class CellImpl<E> implements CellInternal<E>
   /**
    * @param stripeInternalCollection
    */
-  protected CellImpl( Collection<StripeInternal<E>> stripeInternalCollection )
+  protected CellImpl( Collection<StripeData<E>> stripeInternalCollection )
   {
     //
     super();
@@ -53,7 +53,7 @@ public class CellImpl<E> implements CellInternal<E>
     this.stripeInternalList.addAll( stripeInternalCollection );
     
     //
-    for ( StripeInternal<E> stripeInternal : stripeInternalCollection )
+    for ( StripeData<E> stripeInternal : stripeInternalCollection )
     {
       if ( stripeInternal != null )
       {
@@ -84,7 +84,7 @@ public class CellImpl<E> implements CellInternal<E>
   public Cell<E> detachFromTable()
   {
     //
-    for ( StripeInternal<E> stripeInternal : this.stripeInternalList )
+    for ( StripeData<E> stripeInternal : this.stripeInternalList )
     {
       stripeInternal.unregisterCell( this );
     }
@@ -93,15 +93,15 @@ public class CellImpl<E> implements CellInternal<E>
     return this;
   }
   
-  protected StripeInternal<E> resolveStripe( StripeType stripeType )
+  protected StripeData<E> resolveStripe( StripeType stripeType )
   {
     //
-    StripeInternal<E> retval = null;
+    StripeData<E> retval = null;
     
     //
     if ( stripeType != null )
     {
-      for ( StripeInternal<E> stripeInternal : this.stripeInternalList )
+      for ( StripeData<E> stripeInternal : this.stripeInternalList )
       {
         if ( stripeType.equals( stripeInternal.resolveStripeType() ) )
         {

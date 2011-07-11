@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.table.view;
 
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.TableCoreImmutable;
 
 /**
  * View of an underlying {@link Table}. A {@link TableView} does not have an own data structure, instead it relies on the data
@@ -25,7 +26,8 @@ import org.omnaest.utils.structure.table.Table;
  * @author Omnaest
  * @param <E>
  */
-public interface TableView<E>
+public interface TableView<E> extends TableCoreImmutable<E>
 {
   
+  public boolean equals( TableView<E> tableView );
 }

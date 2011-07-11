@@ -27,13 +27,16 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.concrete.internal.CellAndStripeResolverImpl;
+import org.omnaest.utils.structure.table.concrete.internal.StripeImpl;
 import org.omnaest.utils.structure.table.concrete.internal.StripeListContainerImpl;
 import org.omnaest.utils.structure.table.concrete.internal.TableSizeImpl;
 import org.omnaest.utils.structure.table.concrete.selection.SelectionImpl;
+import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.xml.XMLHelper;
 
 /**
@@ -48,156 +51,112 @@ public class ArrayTable<E> extends TableAbstract<E>
   private static final long          serialVersionUID      = 1763808639838518679L;
   
   /* ********************************************** Variables ********************************************** */
-  protected StripeListContainer<E>   stripeListContainer   = new StripeListContainerImpl<E>( this );
-  protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl<E>( this );
-  protected TableSize                tableSize             = new TableSizeImpl( this );
   protected Object                   tableName             = null;
+  protected TableContent<E>          tableContent          = new StripeListContainerImpl<E>( this );
+  protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl<E>( this.tableContent );
+  protected TableSize                tableSize             = new TableSizeImpl( this.tableContent );
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * Transfer data class for XML serialization
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  @XmlRootElement
+  protected static class XMLDataContainer<E>
+  {
+    /* ********************************************** Variables ********************************************** */
+    
+    @XmlElement
+    protected Object            tableName            = null;
+    
+    @XmlAttribute
+    protected Integer           rowSize              = null;
+    
+    @XmlAttribute
+    protected Integer           columnSize           = null;
+    
+    @XmlElementWrapper
+    protected ArrayList<Object> rowTitleValueList    = new ArrayList<Object>();
+    
+    @XmlElementWrapper
+    protected ArrayList<Object> columnTitleValueList = new ArrayList<Object>();
+    
+    @XmlElementWrapper
+    protected ArrayList<E>      cellElementList      = new ArrayList<E>();
+    
+    protected XMLDataContainer()
+    {
+      super();
+    }
+    
+    /**
+     * @param rowTitleValueList
+     * @param columnTitleValueList
+     * @param cellElementList
+     * @param columnSize
+     * @param rowSize
+     * @param tableName
+     */
+    public XMLDataContainer( ArrayList<Object> rowTitleValueList, ArrayList<Object> columnTitleValueList,
+                             ArrayList<E> cellElementList, Integer columnSize, Integer rowSize, Object tableName )
+    {
+      super();
+      this.rowTitleValueList = rowTitleValueList;
+      this.columnTitleValueList = columnTitleValueList;
+      this.cellElementList = cellElementList;
+      this.columnSize = columnSize;
+      this.rowSize = rowSize;
+      this.tableName = tableName;
+    }
+    
+    public Integer getRowSize()
+    {
+      return this.rowSize;
+    }
+    
+    public Integer getColumnSize()
+    {
+      return this.columnSize;
+    }
+    
+    public ArrayList<Object> getRowTitleValueList()
+    {
+      return this.rowTitleValueList;
+    }
+    
+    public ArrayList<Object> getColumnTitleValueList()
+    {
+      return this.columnTitleValueList;
+    }
+    
+    public ArrayList<E> getCellElementList()
+    {
+      return this.cellElementList;
+    }
+    
+    public Object getTableName()
+    {
+      return this.tableName;
+    }
+    
+  }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   public ArrayTable()
   {
     super();
-  }
-  
-  //  /**
-  //   * Inserts empty rows at the given position and moves existing rows behind the new created rows.
-  //   * 
-  //   * @param rowIndexPosition
-  //   * @param numberOfRows
-  //   */
-  //  private void insertEmptyRows( int rowIndexPosition, int numberOfRows )
-  //  {
-  //    for ( int ii = this.rowList.size() - 1 + numberOfRows; ii >= rowIndexPosition + numberOfRows; ii-- )
-  //    {
-  //      this.setRow( ii, this.rowList.get( ii - numberOfRows ) );
-  //    }
-  //    for ( int ii = 0; ii < numberOfRows; ii++ )
-  //    {
-  //      this.setRow( ii + rowIndexPosition, this.createNewEmptyRow() );
-  //    }
-  //  }
-  //  
-  //  public Table<E> insertArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition )
-  //  {
-  //    //
-  //    this.insertEmptyRows( rowIndexPosition, elementArray.length );
-  //    //
-  //    this.putArray( elementArray, rowIndexPosition, columnIndexPosition );
-  //    
-  //    //
-  //    return this;
-  //  }
-  //  
-  //  public Table<E> insertTable( Table<E> insertIndexedTable, int rowIndexPosition, int columnIndexPosition )
-  //  {
-  //    //
-  //    this.insertEmptyRows( rowIndexPosition, insertIndexedTable.getTableSize().getRowSize() );
-  //    
-  //    //
-  //    this.putTable( insertIndexedTable, rowIndexPosition, columnIndexPosition );
-  //    
-  //    //
-  //    return this;
-  //  }
-  //  
-  //  public Table<E> putTable( Table<E> insertTable, int rowIndexPosition, int columnIndexPosition )
-  //  {
-  //    if ( insertTable != null )
-  //    {
-  //      //copy the foreign table to the current table cell for cell
-  //      for ( int ii = 0; ii < insertTable.getTableSize().getRowSize(); ii++ )
-  //      {
-  //        for ( int jj = 0; jj < insertTable.getTableSize().getColumnSize(); jj++ )
-  //        {
-  //          this.setCell( ii + rowIndexPosition, jj + columnIndexPosition, insertTable.getCell( ii, jj ) );
-  //        }
-  //      }
-  //      
-  //      //copy titles for rows and columns if necessary
-  //      for ( int ii = 0; ii < insertTable.getTableSize().getRowSize(); ii++ )
-  //      {
-  //        if ( this.getRowTitle( ii + rowIndexPosition ) == null && insertTable.getRowTitle( ii ) != null )
-  //        {
-  //          this.setRowTitle( insertTable.getRowTitle( ii ), ii + rowIndexPosition );
-  //        }
-  //      }
-  //      for ( int jj = 0; jj < insertTable.getTableSize().getColumnSize(); jj++ )
-  //      {
-  //        if ( this.getColumnTitle( jj + columnIndexPosition ) == null && insertTable.getColumnTitle( jj ) != null )
-  //        {
-  //          this.setColumnTitle( insertTable.getColumnTitle( jj ), jj + columnIndexPosition );
-  //        }
-  //      }
-  //    }
-  //    //
-  //    return this;
-  //  }
-  //  
-  //  public Table<E> putArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition )
-  //  {
-  //    //
-  //    for ( int ii = 0; ii < elementArray.length; ii++ )
-  //    {
-  //      for ( int jj = 0; jj < elementArray[ii].length; jj++ )
-  //      {
-  //        this.setCell( rowIndexPosition + ii, columnIndexPosition + jj, elementArray[ii][jj] );
-  //      }
-  //    }
-  //    
-  //    //
-  //    return this;
-  //  }
-  
-  @Override
-  public Table<E> transpose()
-  {
-    //
-    this.stripeListContainer.switchRowAndColumnStripeList();
-    
-    //
-    return this;
-  }
-  
-  @Override
-  public boolean equals( Table<E> table )
-  {
-    //
-    boolean retval = this.tableSize.equals( table.getTableSize() );
-    
-    //
-    if ( retval )
-    {
-      //      
-      Iterator<Cell<E>> iteratorCellThis = this.iteratorCell();
-      Iterator<Cell<E>> iteratorCellOther = table.iteratorCell();
-      
-      //
-      while ( retval && iteratorCellThis.hasNext() && iteratorCellOther.hasNext() )
-      {
-        //
-        Cell<E> cellThis = iteratorCellThis.next();
-        Cell<E> cellOther = iteratorCellOther.next();
-        
-        //
-        retval &= ( cellThis == null && cellOther == null )
-                  || ( cellThis != null && cellOther != null && cellThis.hasElement( cellOther.getElement() ) );
-      }
-      
-      //
-      retval &= !iteratorCellThis.hasNext() && !iteratorCellOther.hasNext();
-    }
-    
-    //
-    return retval;
   }
   
   @Override
   public Table<E> setRowTitleValue( Object titleValue, int rowIndexPosition )
   {
     //
-    RowInternal<E> row = this.cellAndStripeResolver.resolveOrCreateRow( rowIndexPosition );
-    row.getTitle().setValue( titleValue );
+    StripeData<E> rowStripeData = this.cellAndStripeResolver.resolveOrCreateRowStripeData( rowIndexPosition );
+    rowStripeData.getTitleInternal().setValue( titleValue );
     
     //
     return this;
@@ -228,10 +187,10 @@ public class ArrayTable<E> extends TableAbstract<E>
       for ( int indexPosition = 0; indexPosition < titleValueList.size(); indexPosition++ )
       {
         //
-        StripeInternal<E> stripe = this.cellAndStripeResolver.resolveOrCreateStripe( stripeType, indexPosition );
+        StripeData<E> stripe = this.cellAndStripeResolver.resolveOrCreateStripeData( stripeType, indexPosition );
         
         //
-        Title title = stripe.getTitle();
+        Title title = stripe.getTitleInternal();
         title.setValue( titleValueList.get( indexPosition ) );
       }
     }
@@ -241,8 +200,8 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> setColumnTitleValue( Object titleValue, int columnIndexPosition )
   {
     //
-    ColumnInternal<E> column = this.cellAndStripeResolver.resolveOrCreateColumn( columnIndexPosition );
-    column.getTitle().setValue( titleValue );
+    StripeData<E> columnStripeData = this.cellAndStripeResolver.resolveOrCreateColumnStripeData( columnIndexPosition );
+    columnStripeData.getTitleInternal().setValue( titleValue );
     
     //
     return this;
@@ -279,13 +238,13 @@ public class ArrayTable<E> extends TableAbstract<E>
     if ( stripeType != null )
     {
       //
-      StripeList<E> stripeList = this.stripeListContainer.getStripeList( stripeType );
+      StripeDataList<E> stripeDataList = this.tableContent.getStripeDataList( stripeType );
       
       //
-      for ( Stripe<E> stripe : stripeList )
+      for ( StripeData<E> stripeData : stripeDataList )
       {
         //
-        retlist.add( stripe.getTitle().getValue() );
+        retlist.add( stripeData.getTitleInternal().getValue() );
       }
     }
     
@@ -301,7 +260,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   
   /**
    * Returns the {@link Title#getValue()} object for the given index position within the respective
-   * {@link StripeListContainer#getStripeList(StripeType)}
+   * {@link TableContent#getStripeDataList(StripeType)}
    * 
    * @param stripeType
    * @param indexPosition
@@ -316,12 +275,12 @@ public class ArrayTable<E> extends TableAbstract<E>
     if ( stripeType != null && indexPosition >= 0 )
     {
       //
-      StripeInternal<E> stripe = this.cellAndStripeResolver.resolveStripe( stripeType, indexPosition );
+      StripeData<E> stripe = this.cellAndStripeResolver.resolveStripeData( stripeType, indexPosition );
       
       //
       if ( stripe != null )
       {
-        retval = stripe.getTitle().getValue();
+        retval = stripe.getTitleInternal().getValue();
       }
     }
     
@@ -431,7 +390,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList )
   {
     //    
-    StripeInternal<E> newStripe = this.stripeListContainer.getColumnList().addNewStripe( columnIndexPosition );
+    StripeData<E> newStripe = this.tableContent.getColumnList().addNewStripe( columnIndexPosition );
     if ( newStripe != null )
     {
       this.setColumnCellElements( columnIndexPosition, columnCellElementList );
@@ -456,7 +415,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList )
   {
     //
-    StripeInternal<E> newStripe = this.stripeListContainer.getRowList().addNewStripe( rowIndexPosition );
+    StripeData<E> newStripe = this.tableContent.getRowList().addNewStripe( rowIndexPosition );
     if ( newStripe != null )
     {
       this.setRowCellElements( rowIndexPosition, rowCellElementList );
@@ -473,14 +432,14 @@ public class ArrayTable<E> extends TableAbstract<E>
     List<E> retlist = new ArrayList<E>();
     
     //
-    RowInternal<E> rowInternal = this.cellAndStripeResolver.resolveRow( rowIndexPosition );
-    if ( rowInternal != null )
+    StripeData<E> rowStripeData = this.cellAndStripeResolver.resolveRowStripeData( rowIndexPosition );
+    if ( rowStripeData != null )
     {
       //
-      retlist.addAll( rowInternal.getCellElementList() );
+      retlist.addAll( rowStripeData.getCellElementList() );
       
       //
-      this.stripeListContainer.getRowList().removeStripeAndDetachCellsFromTable( rowIndexPosition );
+      this.tableContent.getRowList().removeStripeDataAndDetachCellsFromTable( rowIndexPosition );
     }
     
     //
@@ -494,14 +453,14 @@ public class ArrayTable<E> extends TableAbstract<E>
     List<E> retlist = new ArrayList<E>();
     
     //
-    ColumnInternal<E> columnInternal = this.cellAndStripeResolver.resolveColumn( columnIndexPosition );
-    if ( columnInternal != null )
+    StripeData<E> columnStripeData = this.cellAndStripeResolver.resolveColumnStripeData( columnIndexPosition );
+    if ( columnStripeData != null )
     {
       //
-      retlist.addAll( columnInternal.getCellElementList() );
+      retlist.addAll( columnStripeData.getCellElementList() );
       
       //
-      this.stripeListContainer.getColumnList().removeStripeAndDetachCellsFromTable( columnIndexPosition );
+      this.tableContent.getColumnList().removeStripeDataAndDetachCellsFromTable( columnIndexPosition );
     }
     
     //
@@ -511,25 +470,37 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public Row<E> getRow( int rowIndexPosition )
   {
-    return this.cellAndStripeResolver.resolveRow( rowIndexPosition );
+    //
+    StripeData<E> stripeData = this.cellAndStripeResolver.resolveRowStripeData( rowIndexPosition );
+    TableInternal<E> tableInternal = this;
+    return new StripeImpl<E>( tableInternal, stripeData );
   }
   
   @Override
   public Row<E> getRow( Object rowTitleValue )
   {
-    return this.cellAndStripeResolver.resolveRow( rowTitleValue );
+    //
+    StripeData<E> stripeData = this.cellAndStripeResolver.resolveRowStripeData( rowTitleValue );
+    TableInternal<E> tableInternal = this;
+    return new StripeImpl<E>( tableInternal, stripeData );
   }
   
   @Override
   public Column<E> getColumn( int columnIndexPosition )
   {
-    return this.cellAndStripeResolver.resolveColumn( columnIndexPosition );
+    //
+    StripeData<E> stripeData = this.cellAndStripeResolver.resolveColumnStripeData( columnIndexPosition );
+    TableInternal<E> tableInternal = this;
+    return new StripeImpl<E>( tableInternal, stripeData );
   }
   
   @Override
   public Column<E> getColumn( Object columnTitleValue )
   {
-    return this.cellAndStripeResolver.resolveColumn( columnTitleValue );
+    //
+    StripeData<E> stripeData = this.cellAndStripeResolver.resolveColumnStripeData( columnTitleValue );
+    TableInternal<E> tableInternal = this;
+    return new StripeImpl<E>( tableInternal, stripeData );
   }
   
   @Override
@@ -537,7 +508,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     //
     this.tableName = null;
-    this.stripeListContainer.clear();
+    this.tableContent.clear();
     
     //
     return this;
@@ -586,7 +557,7 @@ public class ArrayTable<E> extends TableAbstract<E>
       protected int cellIndexPosition = -1;
       
       /* ********************************************** Methods ********************************************** */
-
+      
       @Override
       public boolean hasNext()
       {
@@ -748,9 +719,9 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public StripeListContainer<E> getStripeListContainer()
+  public TableContent<E> getTableContent()
   {
-    return this.stripeListContainer;
+    return this.tableContent;
   }
   
   @Override
@@ -760,59 +731,123 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> insertArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition )
+  public Table<E> putTable( Table<E> table, int rowIndexPosition, int columnIndexPosition )
   {
-    // TODO Auto-generated method stub
-    return null;
+    //
+    if ( table != null )
+    {
+      //
+      for ( int ii = 0; ii < table.getTableSize().getRowSize(); ii++ )
+      {
+        for ( int jj = 0; jj < table.getTableSize().getColumnSize(); jj++ )
+        {
+          this.setCellElement( ii + rowIndexPosition, jj + columnIndexPosition, table.getCellElement( ii, jj ) );
+        }
+      }
+      
+    }
+    
+    //
+    return this;
   }
   
   @Override
-  public Table<E> insertTable( Table<E> insertIndexedTable, int rowIndexPosition, int columnIndexPosition )
+  public Table<E> transpose()
   {
-    // TODO Auto-generated method stub
-    return null;
+    //
+    this.tableContent.switchRowAndColumnStripeList();
+    
+    //
+    return this;
   }
   
   @Override
-  public Table<E> putTable( Table<E> insertIndexedTable, int rowIndexPosition, int columnIndexPosition )
+  public boolean equals( Table<E> table )
   {
-    // TODO Auto-generated method stub
-    return null;
+    //
+    boolean retval = this.tableSize.equals( table.getTableSize() );
+    
+    //
+    if ( retval )
+    {
+      //      
+      Iterator<Cell<E>> iteratorCellThis = this.iteratorCell();
+      Iterator<Cell<E>> iteratorCellOther = table.iteratorCell();
+      
+      //
+      while ( retval && iteratorCellThis.hasNext() && iteratorCellOther.hasNext() )
+      {
+        //
+        Cell<E> cellThis = iteratorCellThis.next();
+        Cell<E> cellOther = iteratorCellOther.next();
+        
+        //
+        retval &= ( cellThis == null && cellOther == null )
+                  || ( cellThis != null && cellOther != null && cellThis.hasElement( cellOther.getElement() ) );
+      }
+      
+      //
+      retval &= !iteratorCellThis.hasNext() && !iteratorCellOther.hasNext();
+    }
+    
+    //
+    return retval;
   }
   
   @Override
   public Table<E> putArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition )
   {
-    // TODO Auto-generated method stub
-    return null;
+    //
+    for ( int ii = 0; ii < elementArray.length; ii++ )
+    {
+      for ( int jj = 0; jj < elementArray[ii].length; jj++ )
+      {
+        this.setCellElement( rowIndexPosition + ii, columnIndexPosition + jj, elementArray[ii][jj] );
+      }
+    }
+    
+    //
+    return this;
   }
   
   @Override
-  public org.omnaest.utils.structure.table.Table.Cell<E> getCell( String rowTitleValue, String columnTitleValue )
+  public Cell<E> getCell( String rowTitleValue, String columnTitleValue )
   {
-    // TODO Auto-generated method stub
-    return null;
+    return this.cellAndStripeResolver.resolveCell( rowTitleValue, columnTitleValue );
   }
   
   @Override
-  public org.omnaest.utils.structure.table.Table.Cell<E> getCell( Object rowTitleValue, int columnIndexPosition )
+  public Cell<E> getCell( Object rowTitleValue, int columnIndexPosition )
   {
-    // TODO Auto-generated method stub
-    return null;
+    return this.cellAndStripeResolver.resolveCell( rowTitleValue, columnIndexPosition );
   }
   
   @Override
-  public org.omnaest.utils.structure.table.Table.Cell<E> getCell( int rowIndexPosition, Object columnTitleValue )
+  public Cell<E> getCell( int rowIndexPosition, Object columnTitleValue )
   {
-    // TODO Auto-generated method stub
-    return null;
+    return this.cellAndStripeResolver.resolveCell( rowIndexPosition, columnTitleValue );
   }
   
   @Override
-  public List<E> getCellList()
+  public List<Cell<E>> getCellList()
   {
-    // TODO Auto-generated method stub
-    return null;
+    return ListUtils.createListFrom( this.iteratorCell() );
+  }
+  
+  @Override
+  public List<E> getCellElementList()
+  {
+    //    
+    List<E> retlist = new ArrayList<E>();
+    
+    //
+    for ( Cell<E> cell : this.cells() )
+    {
+      retlist.add( cell != null ? cell.getElement() : null );
+    }
+    
+    // 
+    return retlist;
   }
   
   @Override
@@ -865,9 +900,14 @@ public class ArrayTable<E> extends TableAbstract<E>
     return new SelectionImpl<E>( this );
   }
   
-  @Override
-  public Table<E> writeAsXMLTo( Appendable appendable )
+  /**
+   * Creates a {@link XMLDataContainer} from the {@link Table} content
+   * 
+   * @return
+   */
+  protected XMLDataContainer<E> createXMLDataContainerFromTableContent()
   {
+    //
     ArrayList<Object> rowTitleValueList = new ArrayList<Object>( this.getRowTitleValueList() );
     ArrayList<Object> columnTitleValueList = new ArrayList<Object>( this.getColumnTitleValueList() );
     ArrayList<E> cellElementList = new ArrayList<E>( this.getCellElementList() );
@@ -878,7 +918,14 @@ public class ArrayTable<E> extends TableAbstract<E>
                                                                  columnSize, rowSize, tableName );
     
     //
-    XMLHelper.storeObjectAsXML( dataContainer, appendable );
+    return dataContainer;
+  }
+  
+  @Override
+  public Table<E> writeAsXMLTo( Appendable appendable )
+  {
+    //
+    XMLHelper.storeObjectAsXML( this.createXMLDataContainerFromTableContent(), appendable );
     
     // 
     return this;
@@ -887,19 +934,8 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public Table<E> writeAsXMLTo( OutputStream outputStream )
   {
-    
     //
-    ArrayList<Object> rowTitleValueList = null;
-    ArrayList<Object> columnTitleValueList = null;
-    ArrayList<E> cellElementList = null;
-    Integer columnSize = this.tableSize.getColumnSize();
-    Integer rowSize = this.tableSize.getRowSize();
-    Object tableName = this.tableName;
-    XMLDataContainer<E> dataContainer = new XMLDataContainer<E>( rowTitleValueList, columnTitleValueList, cellElementList,
-                                                                 columnSize, rowSize, tableName );
-    
-    //
-    XMLHelper.storeObjectAsXML( dataContainer, outputStream );
+    XMLHelper.storeObjectAsXML( this.createXMLDataContainerFromTableContent(), outputStream );
     
     //
     return this;
@@ -912,11 +948,15 @@ public class ArrayTable<E> extends TableAbstract<E>
     //
     try
     {
+      //
       XMLDataContainer<E> xmlDataContainer = XMLHelper.loadObjectFromXML( xmlContent, XMLDataContainer.class );
-      //TODO
+      
+      //
+      this.writeXMLDataContainerToTableContent( xmlDataContainer );
     }
     catch ( Exception e )
     {
+      e.printStackTrace();
     }
     
     // 
@@ -930,51 +970,11 @@ public class ArrayTable<E> extends TableAbstract<E>
     //
     try
     {
+      //
       XMLDataContainer xmlDataContainer = XMLHelper.loadObjectFromXML( inputStream, XMLDataContainer.class );
-      //TODO
-      
-    }
-    catch ( Exception e )
-    {
-    }
-    
-    // 
-    return this;
-  }
-  
-  @Override
-  public Table<E> parseXMLFrom( CharSequence charSequence )
-  {
-    //
-    try
-    {
-      //
-      this.clear();
       
       //
-      @SuppressWarnings("unchecked")
-      XMLDataContainer<E> xmlDataContainer = XMLHelper.loadObjectFromXML( charSequence, XMLDataContainer.class );
-      
-      //
-      {
-        int rowIndexPosition = xmlDataContainer.getRowSize() - 1;
-        int columnIndexPosition = xmlDataContainer.getColumnSize() - 1;
-        E element = null;
-        this.setCellElement( rowIndexPosition, columnIndexPosition, element );
-      }
-      
-      //
-      int cellIndexPosition = 0;
-      for ( E element : xmlDataContainer.getCellElementList() )
-      {
-        this.setCellElement( cellIndexPosition++, element );
-      }
-      
-      //
-      this.setColumnTitleValues( xmlDataContainer.getColumnTitleValueList() );
-      this.setRowTitleValues( xmlDataContainer.getRowTitleValueList() );
-      this.tableName = xmlDataContainer.getTableName();
-      
+      this.writeXMLDataContainerToTableContent( xmlDataContainer );
     }
     catch ( Exception e )
     {
@@ -985,100 +985,57 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this;
   }
   
-  @XmlRootElement
-  protected static class XMLDataContainer<E>
+  /**
+   * Clears the {@link Table} and writes the data of a {@link XMLDataContainer} to it
+   * 
+   * @param xmlDataContainer
+   */
+  protected void writeXMLDataContainerToTableContent( XMLDataContainer<E> xmlDataContainer )
   {
-    /* ********************************************** Variables ********************************************** */
-
-    @XmlElement
-    protected Object            tableName            = null;
+    //
+    this.clear();
     
-    @XmlAttribute
-    protected Integer           rowSize              = null;
-    
-    @XmlAttribute
-    protected Integer           columnSize           = null;
-    
-    @XmlElementWrapper
-    protected ArrayList<Object> rowTitleValueList    = new ArrayList<Object>();
-    
-    @XmlElementWrapper
-    protected ArrayList<Object> columnTitleValueList = new ArrayList<Object>();
-    
-    @XmlElementWrapper
-    protected ArrayList<E>      cellElementList      = new ArrayList<E>();
-    
-    protected XMLDataContainer()
+    //
     {
-      super();
+      int rowIndexPosition = xmlDataContainer.getRowSize() - 1;
+      int columnIndexPosition = xmlDataContainer.getColumnSize() - 1;
+      E element = null;
+      this.setCellElement( rowIndexPosition, columnIndexPosition, element );
     }
     
-    /**
-     * @param rowTitleValueList
-     * @param columnTitleValueList
-     * @param cellElementList
-     * @param columnSize
-     * @param rowSize
-     * @param tableName
-     */
-    public XMLDataContainer( ArrayList<Object> rowTitleValueList, ArrayList<Object> columnTitleValueList,
-                             ArrayList<E> cellElementList, Integer columnSize, Integer rowSize, Object tableName )
+    //
+    int cellIndexPosition = 0;
+    for ( E element : xmlDataContainer.getCellElementList() )
     {
-      super();
-      this.rowTitleValueList = rowTitleValueList;
-      this.columnTitleValueList = columnTitleValueList;
-      this.cellElementList = cellElementList;
-      this.columnSize = columnSize;
-      this.rowSize = rowSize;
-      this.tableName = tableName;
+      this.setCellElement( cellIndexPosition++, element );
     }
     
-    public Integer getRowSize()
-    {
-      return this.rowSize;
-    }
-    
-    public Integer getColumnSize()
-    {
-      return this.columnSize;
-    }
-    
-    public ArrayList<Object> getRowTitleValueList()
-    {
-      return this.rowTitleValueList;
-    }
-    
-    public ArrayList<Object> getColumnTitleValueList()
-    {
-      return this.columnTitleValueList;
-    }
-    
-    public ArrayList<E> getCellElementList()
-    {
-      return this.cellElementList;
-    }
-    
-    public Object getTableName()
-    {
-      return this.tableName;
-    }
-    
+    //
+    this.setColumnTitleValues( xmlDataContainer.getColumnTitleValueList() );
+    this.setRowTitleValues( xmlDataContainer.getRowTitleValueList() );
+    this.tableName = xmlDataContainer.getTableName();
   }
   
   @Override
-  public List<E> getCellElementList()
+  public Table<E> parseXMLFrom( CharSequence charSequence )
   {
-    //    
-    List<E> retlist = new ArrayList<E>();
-    
     //
-    for ( Cell<E> cell : this.cells() )
+    try
     {
-      retlist.add( cell != null ? cell.getElement() : null );
+      //      
+      @SuppressWarnings("unchecked")
+      XMLDataContainer<E> xmlDataContainer = XMLHelper.loadObjectFromXML( charSequence, XMLDataContainer.class );
+      
+      //
+      this.writeXMLDataContainerToTableContent( xmlDataContainer );
+    }
+    catch ( Exception e )
+    {
+      e.printStackTrace();
     }
     
     // 
-    return retlist;
+    return this;
   }
   
 }

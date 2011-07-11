@@ -973,7 +973,7 @@ public class IndexArrayTableTest
     rowList.add( Arrays.asList( new Integer[] { 7, 8, 9 } ) );
     
     backedRowList.retainAll( rowList );
-    backedRowList.removeStripeAndDetachCellsFromTable( 1 );
+    backedRowList.removeStripeDataAndDetachCellsFromTable( 1 );
     {
       //
       List<Integer> rowIndexPositionList = new ArrayList<Integer>();

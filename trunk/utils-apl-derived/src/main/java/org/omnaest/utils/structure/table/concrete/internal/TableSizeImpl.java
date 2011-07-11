@@ -16,7 +16,7 @@
 package org.omnaest.utils.structure.table.concrete.internal;
 
 import org.omnaest.utils.structure.table.Table.TableSize;
-import org.omnaest.utils.structure.table.internal.TableInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
 /**
  * @see TableSize
@@ -25,17 +25,17 @@ import org.omnaest.utils.structure.table.internal.TableInternal;
 public class TableSizeImpl implements TableSize
 {
   /* ********************************************** Variables ********************************************** */
-  protected TableInternal<?> tableInternal = null;
+  protected TableContent<?> tableContent = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
-   * @param tableInternal
+   * @param stripeListContainer
    */
-  public TableSizeImpl( TableInternal<?> tableInternal )
+  public TableSizeImpl( TableContent<?> stripeListContainer )
   {
     super();
-    this.tableInternal = tableInternal;
+    this.tableContent = stripeListContainer;
   }
   
   @Override
@@ -47,13 +47,13 @@ public class TableSizeImpl implements TableSize
   @Override
   public int getRowSize()
   {
-    return this.tableInternal.getStripeListContainer().getRowList().size();
+    return this.getStripeListContainer().getRowList().size();
   }
   
   @Override
   public int getColumnSize()
   {
-    return this.tableInternal.getStripeListContainer().getColumnList().size();
+    return this.getStripeListContainer().getColumnList().size();
   }
   
   @Override
@@ -84,5 +84,10 @@ public class TableSizeImpl implements TableSize
     
     //
     return retval;
+  }
+  
+  protected TableContent<?> getStripeListContainer()
+  {
+    return this.tableContent;
   }
 }

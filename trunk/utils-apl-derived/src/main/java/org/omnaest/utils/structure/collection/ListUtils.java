@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.collection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -28,7 +29,7 @@ import java.util.List;
 public class ListUtils
 {
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * The provides the transformation method to transform one generic element instance into another.
    * 
@@ -82,7 +83,31 @@ public class ListUtils
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
+  /**
+   * Creates a {@link List} from a given {@link Iterator}
+   * 
+   * @param iterator
+   * @return
+   */
+  public static <E> List<E> createListFrom( Iterator<E> iterator )
+  {
+    //    
+    List<E> retlist = new ArrayList<E>();
+    
+    //
+    if ( iterator != null )
+    {
+      while ( iterator.hasNext() )
+      {
+        retlist.add( iterator.next() );
+      }
+    }
+    
+    //
+    return retlist;
+  }
+  
   /**
    * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementTransformer}.
    * 
