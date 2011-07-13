@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -33,6 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @param <E>
  */
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class JAXBList<E> implements List<E>
 {
   /* ********************************************** Variables ********************************************** */
@@ -40,7 +43,7 @@ public class JAXBList<E> implements List<E>
   protected List<E> list = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Creates a new instance of a {@link JAXBList} for a given {@link List}.
    * 

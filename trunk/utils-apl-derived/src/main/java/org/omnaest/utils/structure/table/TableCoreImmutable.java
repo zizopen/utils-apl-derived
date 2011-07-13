@@ -21,6 +21,7 @@ import java.util.List;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.Table.TableCellConverter;
 import org.omnaest.utils.structure.table.Table.TableCellVisitor;
 import org.omnaest.utils.structure.table.Table.TableSize;
@@ -207,6 +208,11 @@ public interface TableCoreImmutable<E>
   public Row<E> getRow( int rowIndexPosition );
   
   /**
+   * Returns a {@link List} of all {@link Row}s
+   */
+  public List<Row<E>> getRowList();
+  
+  /**
    * Returns a {@link Row} of the {@link Table} identified by the title of a row. Before this can be used, the titles have to be
    * set by {@link #setRowTitleValues(List)}
    * 
@@ -224,6 +230,13 @@ public interface TableCoreImmutable<E>
    * @return
    */
   public Column<E> getColumn( int columnIndexPosition );
+  
+  /**
+   * Returns a {@link List} of all {@link Column}s
+   * 
+   * @return
+   */
+  public List<Column<E>> getColumnList();
   
   /**
    * Returns a {@link Column} for the given {@link Column} title value. The {@link Column} titles have to be set before with
@@ -274,6 +287,20 @@ public interface TableCoreImmutable<E>
   public Iterable<Cell<E>> cells();
   
   /**
+   * {@link Iterable} over all {@link Row}s
+   * 
+   * @return
+   */
+  public Iterable<Row<E>> rows();
+  
+  /**
+   * {@link Iterable} over all {@link Column}s
+   * 
+   * @return
+   */
+  public Iterable<Column<E>> columns();
+  
+  /**
    * Returns an {@link Iterator} over all {@link Row}s.
    * 
    * @see #iterator()
@@ -281,6 +308,13 @@ public interface TableCoreImmutable<E>
    * @return
    */
   public Iterator<Row<E>> iteratorRow();
+  
+  /**
+   * Returns an {@link Iterator} over all {@link Column}s
+   * 
+   * @return
+   */
+  public Iterator<Column<E>> iteratorColumn();
   
   /**
    * The same as {@link #iteratorRow()}
@@ -309,4 +343,24 @@ public interface TableCoreImmutable<E>
    */
   public Table<E> processTableCells( TableCellVisitor<E> tableCellVisitor );
   
+  /**
+   * Returns true if at least one {@link Column} has a {@link Title}
+   * 
+   * @return
+   */
+  public boolean hasColumnTitles();
+  
+  /**
+   * Returns true if at least one {@link Row} has a {@link Title}
+   * 
+   * @return
+   */
+  public boolean hasRowTitles();
+  
+  /**
+   * Returns true if the {@link Table#getTableName()} is not null
+   * 
+   * @return
+   */
+  public boolean hasTableName();
 }

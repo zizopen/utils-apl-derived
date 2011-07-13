@@ -230,4 +230,10 @@ public class StripeImpl<E> implements RowInternal<E>, ColumnInternal<E>
     return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this.stripeData, titleValue );
   }
   
+  @Override
+  public boolean hasTitle()
+  {
+    return this.stripeData.getTitleInternal().getValue() != null;
+  }
+  
 }

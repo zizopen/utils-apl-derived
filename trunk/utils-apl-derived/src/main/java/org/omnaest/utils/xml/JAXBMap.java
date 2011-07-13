@@ -20,8 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * The {@link JAXBMap} is a artificial {@link XmlRootElement} for an arbitrary {@link Map} instance. It just stores an internal
@@ -33,6 +36,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @param <V>
  */
 @XmlRootElement(name = "map")
+@XmlType
+@XmlAccessorType(XmlAccessType.FIELD)
 public class JAXBMap<K, V> implements Map<K, V>
 {
   /* ********************************************** Variables ********************************************** */
@@ -40,7 +45,7 @@ public class JAXBMap<K, V> implements Map<K, V>
   protected Map<K, V> map = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   protected JAXBMap()
   {
     this.map = new HashMap<K, V>();

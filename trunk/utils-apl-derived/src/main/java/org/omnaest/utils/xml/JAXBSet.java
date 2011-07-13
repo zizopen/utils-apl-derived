@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -32,6 +34,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @param <E>
  */
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class JAXBSet<E> implements Set<E>
 {
   /* ********************************************** Variables ********************************************** */
@@ -39,7 +42,7 @@ public class JAXBSet<E> implements Set<E>
   protected Set<E> set = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Creates a new instance of a {@link JAXBSet} for a given {@link Set}.
    * 
