@@ -23,6 +23,8 @@ import org.apache.commons.lang.StringUtils;
 import org.omnaest.utils.strings.StringUtil;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.Table.Cell;
+import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 
 /**
@@ -36,7 +38,7 @@ public class TableHelper
   private static final String defaultCSVColumnSeparator = ";";
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Converts a array of given index positions into a sorted list.
    * 
@@ -173,9 +175,139 @@ public class TableHelper
     return content.toString();
   }
   
-  public static <E> void printTable( Table<E> table )
+  /**
+   * Converts a given {@link Table} to a readable {@link String}
+   * 
+   * @param table
+   * @return
+   */
+  public static <E> String renderToString( Table<E> table )
   {
-    //resolve the needed maximum width for every column separately
+    //
+    /**
+     * Converter for a table
+     * 
+     * @author Omnaest
+     */
+    class TableToStringConverter
+    {
+      /* ********************************************** Variables ********************************************** */
+      protected Table<E> table = null;
+      
+      /* ********************************************** Methods ********************************************** */
+      
+      /**
+       * @param table
+       */
+      public TableToStringConverter( Table<E> table )
+      {
+        super();
+        this.table = table;
+      }
+      
+      /**
+       * Resolves the meta data for a given table. This includes the width for each column
+       * 
+       * @param table
+       * @return
+       */
+      private List<Integer> resolveColumnWidthList( Table<E> table )
+      {
+        //
+        List<Integer> retlist = new ArrayList<Integer>();
+        
+        //
+        for ( Column<E> column : table.columns() )
+        {
+          //
+          int lengthMax = 0;
+          
+          //
+          {
+            String content = this.convertObjectContentToString( column.getTitle().getValue() );
+            if ( content != null )
+            {
+              lengthMax = content.length();
+            }
+          }
+          
+          //
+          for ( Cell<E> cell : column )
+          {
+            //
+            String content = this.convertObjectContentToString( cell.getElement() );
+            if ( content != null )
+            {
+              lengthMax = Math.max( lengthMax, content.length() );
+            }
+          }
+          
+          //
+          retlist.add( lengthMax );
+        }
+        
+        //
+        return retlist;
+      }
+      
+      /**
+       * @param value
+       * @return
+       */
+      private String convertObjectContentToString( Object value )
+      {
+        return String.valueOf( value );
+      }
+      
+      /**
+       * Converts the table to a string representation
+       * 
+       * @return
+       */
+      public String convertTableToString()
+      {
+        //
+        StringBuilder retval = new StringBuilder();
+        
+        //
+        final String delimiterLine = ".";
+        final String delimiterRow = ":";
+        final String delimiterTitleRow = "!";
+        
+        //
+        List<Integer> columnWidthList = this.resolveColumnWidthList( this.table );
+        
+        //
+        boolean hasColumnTitles = this.table.hasColumnTitles();
+        boolean hasRowTitles = this.table.hasRowTitles();
+        boolean hasTableName = this.table.hasTableName();
+        
+        //
+        int tableCharacterWidth = CollectionUtils.sumOfCollectionInteger( columnWidthList ) + columnWidthList.size();
+        
+        //
+        if ( hasTableName )
+        {
+          retval.append( StringUtils.repeat( delimiterTitleRow, tableCharacterWidth ) );
+          retval.append( delimiterTitleRow
+                         + StringUtils.center( this.convertObjectContentToString( this.table.getTableName() ),
+                                               tableCharacterWidth - 2 ) + delimiterTitleRow );
+          retval.append( StringUtils.repeat( delimiterTitleRow, tableCharacterWidth ) );
+        }
+        
+        //
+        
+        //        
+        return retval.toString();
+      }
+    }
+    
+    //
+    return new TableToStringConverter( table ).convertTableToString();
+  }
+  
+  public void lla()
+  { //resolve the needed maximum width for every column separately
     List<Integer> columnWidthList = new ArrayList<Integer>( table.getTableSize().getColumnSize() );
     
     //if there are row titles, calculate their width values first
@@ -232,7 +364,7 @@ public class TableHelper
     String titleRowDelimiter = "!";
     
     //
-    int printOutTableWidth = columnWidthList.size() + CollectionUtils.sumOfIntegerCollection( columnWidthList ) + 1;
+    int printOutTableWidth = columnWidthList.size() + CollectionUtils.sumOfCollectionInteger( columnWidthList ) + 1;
     String lineRepeatedDelimiter = StringUtil.repeatString( printOutTableWidth, lineDelimiter );
     System.out.println( lineRepeatedDelimiter );
     

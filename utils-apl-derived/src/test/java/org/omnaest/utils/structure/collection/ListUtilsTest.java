@@ -48,17 +48,17 @@ public class ListUtilsTest
   }
   
   @Test
-  public void testCreateListFrom()
-  {
-    //
-    List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
-    
-    //
-    List<String> listFromIterator = ListUtils.createListFrom( testList.iterator() );
-    
-    //
-    assertEquals( testList, listFromIterator );
-    
-  }
+    public void testIteratorAsList()
+    {
+      //
+      List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
+      
+      //
+      List<String> listFromIterator = ListUtils.iteratorAsList( testList.iterator() );
+      
+      //
+      assertEquals( testList, listFromIterator );
+      
+    }
   
 }

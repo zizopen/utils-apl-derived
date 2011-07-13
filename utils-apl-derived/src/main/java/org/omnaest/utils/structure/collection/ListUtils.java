@@ -90,7 +90,7 @@ public class ListUtils
    * @param iterator
    * @return
    */
-  public static <E> List<E> createListFrom( Iterator<E> iterator )
+  public static <E> List<E> iteratorAsList( Iterator<E> iterator )
   {
     //    
     List<E> retlist = new ArrayList<E>();

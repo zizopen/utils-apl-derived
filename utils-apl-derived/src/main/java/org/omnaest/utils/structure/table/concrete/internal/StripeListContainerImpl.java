@@ -53,8 +53,8 @@ public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
     
     //
     this.stripeListList = new ArrayList<StripeDataList<E>>(
-                                                        Arrays.asList( new StripeListArray<E>( this.tableInternal, StripeType.ROW ),
-                                                                       new StripeListArray<E>( this.tableInternal,
+                                                        Arrays.asList( new StripeDataListImpl<E>( this.tableInternal, StripeType.ROW ),
+                                                                       new StripeDataListImpl<E>( this.tableInternal,
                                                                                                StripeType.COLUMN ) ) );
   }
   

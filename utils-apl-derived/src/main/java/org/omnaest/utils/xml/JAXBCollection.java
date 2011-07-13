@@ -18,6 +18,8 @@ package org.omnaest.utils.xml;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -31,6 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @param <E>
  */
 @XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class JAXBCollection<E> implements Collection<E>
 {
   /* ********************************************** Variables ********************************************** */
@@ -38,7 +41,7 @@ public class JAXBCollection<E> implements Collection<E>
   protected Collection<E> collection = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Creates a new instance of a {@link JAXBCollection} for a given {@link Collection}.
    * 

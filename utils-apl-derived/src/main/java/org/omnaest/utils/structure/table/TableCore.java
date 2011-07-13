@@ -191,4 +191,35 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    */
   public Table<E> convertFirstColumnToTitle();
   
+  /**
+   * Sets the number of {@link Column}s
+   * 
+   * @param numberOfColumns
+   * @return this
+   */
+  public Table<E> setNumberOfColumns( int numberOfColumns );
+  
+  /**
+   * Ensures the number of {@link Column}s to be present
+   * 
+   * @param numberOfColumns
+   * @return this
+   */
+  public Table<E> ensureNumberOfColumns( int numberOfColumns );
+  
+  /**
+   * Sets the number of {@link Row}s
+   * 
+   * @param numberOfRows
+   * @return
+   */
+  public Table<E> setNumberOfRows( int numberOfRows );
+  
+  /**
+   * Ensures the number of {@link Row}s to be present
+   * 
+   * @param numberOfRows
+   * @return
+   */
+  public Table<E> ensureNumberOfRows( int numberOfRows );
 }

@@ -209,6 +209,13 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      * @return
      */
     public int determineNumberOfCells();
+    
+    /**
+     * Returns true if the {@link Stripe} has a {@link Title} value not null
+     * 
+     * @return
+     */
+    public boolean hasTitle();
   }
   
   /**

@@ -23,7 +23,7 @@ public class CollectionUtils
 {
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * Used to convert a collection element.
    * 
@@ -57,20 +57,41 @@ public class CollectionUtils
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
-   * Returns the sum of the values within an Integer collection.
+   * Returns the sum of the values within an {@link Integer} {@link Collection}.
    * 
-   * @param integerCollection
+   * @param collectionInteger
    * @return
    */
-  public static int sumOfIntegerCollection( Collection<Integer> integerCollection )
+  public static int sumOfCollectionInteger( Collection<Integer> collectionInteger )
   {
     //
     int retval = 0;
     
     //
-    for ( Integer iValue : integerCollection )
+    for ( Integer iValue : collectionInteger )
+    {
+      retval += iValue;
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns the sum of the values within an {@link Double} {@link Collection}.
+   * 
+   * @param collectionDouble
+   * @return
+   */
+  public static double sumOfCollectionDouble( Collection<Double> collectionDouble )
+  {
+    //
+    double retval = 0;
+    
+    //
+    for ( Double iValue : collectionDouble )
     {
       retval += iValue;
     }

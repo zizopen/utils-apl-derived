@@ -32,13 +32,13 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
  * @author Omnaest
  * @param <E>
  */
-public class StripeListArray<E> implements StripeDataList<E>
+public class StripeDataListImpl<E> implements StripeDataList<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long     serialVersionUID = -3102496365938486288L;
   
   /* ********************************************** Variables ********************************************** */
-  protected List<StripeData<E>> stripeList       = new ArrayList<StripeData<E>>();
+  protected List<StripeData<E>> stripeDataList   = new ArrayList<StripeData<E>>();
   protected StripeType          stripeType       = null;
   protected TableInternal<E>    tableInternal    = null;
   
@@ -48,7 +48,7 @@ public class StripeListArray<E> implements StripeDataList<E>
    * @param tableInternal
    * @param stripeType
    */
-  public StripeListArray( TableInternal<E> tableInternal, StripeType stripeType )
+  public StripeDataListImpl( TableInternal<E> tableInternal, StripeType stripeType )
   {
     super();
     this.tableInternal = tableInternal;
@@ -56,7 +56,7 @@ public class StripeListArray<E> implements StripeDataList<E>
   }
   
   /**
-   * Adds a new created {@link Stripe} instance to the {@link StripeListArray}.
+   * Adds a new created {@link Stripe} instance to the {@link StripeDataListImpl}.
    */
   @Override
   public StripeData<E> addNewStripe()
@@ -65,7 +65,7 @@ public class StripeListArray<E> implements StripeDataList<E>
     StripeData<E> retval = new StripeDataImpl<E>( this.tableInternal, this );
     
     //
-    this.stripeList.add( retval );
+    this.stripeDataList.add( retval );
     
     //
     return retval;
@@ -84,7 +84,7 @@ public class StripeListArray<E> implements StripeDataList<E>
     }
     
     //
-    this.stripeList.add( indexPosition, retval );
+    this.stripeDataList.add( indexPosition, retval );
     
     //
     return retval;
@@ -93,25 +93,25 @@ public class StripeListArray<E> implements StripeDataList<E>
   @Override
   public int size()
   {
-    return this.stripeList.size();
+    return this.stripeDataList.size();
   }
   
   @Override
   public boolean isEmpty()
   {
-    return this.stripeList.isEmpty();
+    return this.stripeDataList.isEmpty();
   }
   
   @Override
   public void clear()
   {
-    this.stripeList.clear();
+    this.stripeDataList.clear();
   }
   
   @Override
   public int indexOf( Stripe<E> stripe )
   {
-    return this.stripeList.indexOf( stripe );
+    return this.stripeDataList.indexOf( stripe );
   }
   
   @Override
@@ -129,13 +129,13 @@ public class StripeListArray<E> implements StripeDataList<E>
   @Override
   public StripeData<E> getStripe( int index )
   {
-    return index >= 0 && index < this.stripeList.size() ? this.stripeList.get( index ) : null;
+    return index >= 0 && index < this.stripeDataList.size() ? this.stripeDataList.get( index ) : null;
   }
   
   @Override
   public Iterator<StripeData<E>> iterator()
   {
-    return this.stripeList.iterator();
+    return this.stripeDataList.iterator();
   }
   
   @Override
@@ -147,7 +147,7 @@ public class StripeListArray<E> implements StripeDataList<E>
     //
     if ( cell != null )
     {
-      for ( StripeData<E> stripe : this.stripeList )
+      for ( StripeData<E> stripe : this.stripeDataList )
       {
         if ( stripe.contains( cell ) )
         {
@@ -165,7 +165,7 @@ public class StripeListArray<E> implements StripeDataList<E>
   @Override
   public boolean contains( Stripe<E> stripe )
   {
-    return this.stripeList.contains( stripe );
+    return this.stripeDataList.contains( stripe );
   }
   
   @Override
@@ -183,7 +183,7 @@ public class StripeListArray<E> implements StripeDataList<E>
     //
     if ( titleValue != null )
     {
-      for ( StripeData<E> stripe : this.stripeList )
+      for ( StripeData<E> stripe : this.stripeDataList )
       {
         //
         Object value = stripe.getTitleInternal().getValue();
@@ -210,7 +210,7 @@ public class StripeListArray<E> implements StripeDataList<E>
     }
     
     //
-    this.stripeList.remove( stripe );
+    this.stripeDataList.remove( stripe );
   }
   
   @Override
@@ -224,7 +224,7 @@ public class StripeListArray<E> implements StripeDataList<E>
       stripeInternal.detachAllCellsFromTable();
       
       //
-      this.stripeList.remove( indexPosition );
+      this.stripeDataList.remove( indexPosition );
     }
   }
   

@@ -15,19 +15,9 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
@@ -37,7 +27,6 @@ import org.omnaest.utils.structure.table.concrete.internal.StripeListContainerIm
 import org.omnaest.utils.structure.table.concrete.internal.TableSizeImpl;
 import org.omnaest.utils.structure.table.concrete.selection.SelectionImpl;
 import org.omnaest.utils.structure.table.internal.TableInternal;
-import org.omnaest.utils.xml.XMLHelper;
 
 /**
  * Implementation of {@link Table} that uses two array lists as row and column data structure.
@@ -56,94 +45,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl<E>( this.tableContent );
   protected TableSize                tableSize             = new TableSizeImpl( this.tableContent );
   
-  /* ********************************************** Classes/Interfaces ********************************************** */
-  
-  /**
-   * Transfer data class for XML serialization
-   * 
-   * @author Omnaest
-   * @param <E>
-   */
-  @XmlRootElement
-  protected static class XMLDataContainer<E>
-  {
-    /* ********************************************** Variables ********************************************** */
-    
-    @XmlElement
-    protected Object            tableName            = null;
-    
-    @XmlAttribute
-    protected Integer           rowSize              = null;
-    
-    @XmlAttribute
-    protected Integer           columnSize           = null;
-    
-    @XmlElementWrapper
-    protected ArrayList<Object> rowTitleValueList    = new ArrayList<Object>();
-    
-    @XmlElementWrapper
-    protected ArrayList<Object> columnTitleValueList = new ArrayList<Object>();
-    
-    @XmlElementWrapper
-    protected ArrayList<E>      cellElementList      = new ArrayList<E>();
-    
-    protected XMLDataContainer()
-    {
-      super();
-    }
-    
-    /**
-     * @param rowTitleValueList
-     * @param columnTitleValueList
-     * @param cellElementList
-     * @param columnSize
-     * @param rowSize
-     * @param tableName
-     */
-    public XMLDataContainer( ArrayList<Object> rowTitleValueList, ArrayList<Object> columnTitleValueList,
-                             ArrayList<E> cellElementList, Integer columnSize, Integer rowSize, Object tableName )
-    {
-      super();
-      this.rowTitleValueList = rowTitleValueList;
-      this.columnTitleValueList = columnTitleValueList;
-      this.cellElementList = cellElementList;
-      this.columnSize = columnSize;
-      this.rowSize = rowSize;
-      this.tableName = tableName;
-    }
-    
-    public Integer getRowSize()
-    {
-      return this.rowSize;
-    }
-    
-    public Integer getColumnSize()
-    {
-      return this.columnSize;
-    }
-    
-    public ArrayList<Object> getRowTitleValueList()
-    {
-      return this.rowTitleValueList;
-    }
-    
-    public ArrayList<Object> getColumnTitleValueList()
-    {
-      return this.columnTitleValueList;
-    }
-    
-    public ArrayList<E> getCellElementList()
-    {
-      return this.cellElementList;
-    }
-    
-    public Object getTableName()
-    {
-      return this.tableName;
-    }
-    
-  }
-  
   /* ********************************************** Methods ********************************************** */
   
   public ArrayTable()
@@ -156,28 +57,16 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     //
     StripeData<E> rowStripeData = this.cellAndStripeResolver.resolveOrCreateRowStripeData( rowIndexPosition );
-    rowStripeData.getTitleInternal().setValue( titleValue );
+    if ( rowStripeData != null )
+    {
+      rowStripeData.getTitleInternal().setValue( titleValue );
+    }
     
     //
     return this;
   }
   
   @Override
-  public Table<E> setRowTitleValues( List<?> titleValueList )
-  {
-    //
-    this.setStripeTitleValueList( titleValueList, StripeType.ROW );
-    
-    //
-    return this;
-  }
-  
-  /**
-   * Sets the {@link Title} elements of the {@link Row}s or {@link Column}s
-   * 
-   * @param titleValueList
-   * @param stripeType
-   */
   protected void setStripeTitleValueList( List<? extends Object> titleValueList, StripeType stripeType )
   {
     //
@@ -201,34 +90,16 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     //
     StripeData<E> columnStripeData = this.cellAndStripeResolver.resolveOrCreateColumnStripeData( columnIndexPosition );
-    columnStripeData.getTitleInternal().setValue( titleValue );
+    if ( columnStripeData != null )
+    {
+      columnStripeData.getTitleInternal().setValue( titleValue );
+    }
     
     //
     return this;
   }
   
   @Override
-  public Table<E> setColumnTitleValues( List<?> titleValueList )
-  {
-    //
-    this.setStripeTitleValueList( titleValueList, StripeType.COLUMN );
-    
-    //
-    return this;
-  }
-  
-  @Override
-  public List<Object> getRowTitleValueList()
-  {
-    return this.getStripeTitleValueList( StripeType.ROW );
-  }
-  
-  /**
-   * Returns the {@link Title#getValue()} elements within a {@link List}
-   * 
-   * @param stripeType
-   * @return
-   */
   protected List<Object> getStripeTitleValueList( StripeType stripeType )
   {
     //
@@ -253,19 +124,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Object getRowTitleValue( int rowIndexPosition )
-  {
-    return this.getStripeTitleValue( StripeType.ROW, rowIndexPosition );
-  }
-  
-  /**
-   * Returns the {@link Title#getValue()} object for the given index position within the respective
-   * {@link TableContent#getStripeDataList(StripeType)}
-   * 
-   * @param stripeType
-   * @param indexPosition
-   * @return
-   */
   protected Object getStripeTitleValue( StripeType stripeType, int indexPosition )
   {
     //
@@ -289,18 +147,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public List<Object> getColumnTitleValueList()
-  {
-    return this.getStripeTitleValueList( StripeType.COLUMN );
-  }
-  
-  @Override
-  public Object getColumnTitleValue( int columnIndexPosition )
-  {
-    return this.getStripeTitleValue( StripeType.COLUMN, columnIndexPosition );
-  }
-  
-  @Override
   public TableSize getTableSize()
   {
     return this.tableSize;
@@ -314,38 +160,6 @@ public class ArrayTable<E> extends TableAbstract<E>
     if ( cell != null )
     {
       cell.setElement( element );
-    }
-    
-    //
-    return this;
-  }
-  
-  @Override
-  public Table<E> setRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList )
-  {
-    //
-    if ( rowCellElementList != null )
-    {
-      for ( int columnIndexPosition = 0; columnIndexPosition < rowCellElementList.size(); columnIndexPosition++ )
-      {
-        this.setCellElement( rowIndexPosition, columnIndexPosition, rowCellElementList.get( columnIndexPosition ) );
-      }
-    }
-    
-    //
-    return this;
-  }
-  
-  @Override
-  public Table<E> setColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList )
-  {
-    //
-    if ( columnCellElementList != null )
-    {
-      for ( int rowIndexPosition = 0; rowIndexPosition < columnCellElementList.size(); rowIndexPosition++ )
-      {
-        this.setCellElement( rowIndexPosition, columnIndexPosition, columnCellElementList.get( rowIndexPosition ) );
-      }
     }
     
     //
@@ -531,7 +345,6 @@ public class ArrayTable<E> extends TableAbstract<E>
     return null;
   }
   
-  @XmlTransient
   @Override
   public Object getTableName()
   {
@@ -546,40 +359,6 @@ public class ArrayTable<E> extends TableAbstract<E>
     
     //
     return this;
-  }
-  
-  @Override
-  public Iterator<Cell<E>> iteratorCell()
-  {
-    return new Iterator<Cell<E>>()
-    {
-      /* ********************************************** Variables ********************************************** */
-      protected int cellIndexPosition = -1;
-      
-      /* ********************************************** Methods ********************************************** */
-      
-      @Override
-      public boolean hasNext()
-      {
-        return this.cellIndexPosition + 1 < ArrayTable.this.tableSize.getCellSize();
-      }
-      
-      @Override
-      public Cell<E> next()
-      {
-        return ArrayTable.this.getCell( ++this.cellIndexPosition );
-      }
-      
-      @Override
-      public void remove()
-      {
-        Cell<E> cell = ArrayTable.this.getCell( this.cellIndexPosition-- );
-        if ( cell != null )
-        {
-          cell.setElement( null );
-        }
-      }
-    };
   }
   
   @Override
@@ -602,85 +381,6 @@ public class ArrayTable<E> extends TableAbstract<E>
     
     //
     return this;
-  }
-  
-  @Override
-  public Table<E> processTableCells( TableCellVisitor<E> tableCellVisitor )
-  {
-    //
-    if ( tableCellVisitor != null )
-    {
-      for ( int rowIndexPosition = 0; rowIndexPosition < this.getTableSize().getRowSize(); rowIndexPosition++ )
-      {
-        for ( int columnIndexPosition = 0; columnIndexPosition < this.getTableSize().getColumnSize(); columnIndexPosition++ )
-        {
-          tableCellVisitor.process( rowIndexPosition, columnIndexPosition, this.getCell( rowIndexPosition, columnIndexPosition ) );
-        }
-      }
-    }
-    
-    //
-    return this;
-  }
-  
-  @Override
-  public <TO> Table<TO> convert( final TableCellConverter<E, TO> tableCellConverter )
-  {
-    //
-    final Table<TO> table = new ArrayTable<TO>();
-    
-    //
-    this.processTableCells( new TableCellVisitor<E>()
-    {
-      @Override
-      public void process( int rowIndexPosition, int columnIndexPosition, Cell<E> cell )
-      {
-        table.setCellElement( rowIndexPosition, columnIndexPosition, tableCellConverter.convert( cell.getElement() ) );
-      }
-    } );
-    
-    //
-    return table;
-  }
-  
-  @Override
-  public Iterator<Row<E>> iterator()
-  {
-    return this.iteratorRow();
-  }
-  
-  public Iterable<Cell<E>> cells()
-  {
-    return new Iterable<Cell<E>>()
-    {
-      @Override
-      public Iterator<Cell<E>> iterator()
-      {
-        return ArrayTable.this.iteratorCell();
-      }
-    };
-  }
-  
-  @Override
-  public boolean contains( E element )
-  {
-    //
-    boolean retval = false;
-    
-    //TODO can this be optimized by indexes?
-    
-    //
-    for ( Cell<E> cell : this.cells() )
-    {
-      if ( cell.hasElement( element ) )
-      {
-        retval = true;
-        break;
-      }
-    }
-    
-    //
-    return retval;
   }
   
   @Override
@@ -731,80 +431,10 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> putTable( Table<E> table, int rowIndexPosition, int columnIndexPosition )
-  {
-    //
-    if ( table != null )
-    {
-      //
-      for ( int ii = 0; ii < table.getTableSize().getRowSize(); ii++ )
-      {
-        for ( int jj = 0; jj < table.getTableSize().getColumnSize(); jj++ )
-        {
-          this.setCellElement( ii + rowIndexPosition, jj + columnIndexPosition, table.getCellElement( ii, jj ) );
-        }
-      }
-      
-    }
-    
-    //
-    return this;
-  }
-  
-  @Override
   public Table<E> transpose()
   {
     //
     this.tableContent.switchRowAndColumnStripeList();
-    
-    //
-    return this;
-  }
-  
-  @Override
-  public boolean equals( Table<E> table )
-  {
-    //
-    boolean retval = this.tableSize.equals( table.getTableSize() );
-    
-    //
-    if ( retval )
-    {
-      //      
-      Iterator<Cell<E>> iteratorCellThis = this.iteratorCell();
-      Iterator<Cell<E>> iteratorCellOther = table.iteratorCell();
-      
-      //
-      while ( retval && iteratorCellThis.hasNext() && iteratorCellOther.hasNext() )
-      {
-        //
-        Cell<E> cellThis = iteratorCellThis.next();
-        Cell<E> cellOther = iteratorCellOther.next();
-        
-        //
-        retval &= ( cellThis == null && cellOther == null )
-                  || ( cellThis != null && cellOther != null && cellThis.hasElement( cellOther.getElement() ) );
-      }
-      
-      //
-      retval &= !iteratorCellThis.hasNext() && !iteratorCellOther.hasNext();
-    }
-    
-    //
-    return retval;
-  }
-  
-  @Override
-  public Table<E> putArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition )
-  {
-    //
-    for ( int ii = 0; ii < elementArray.length; ii++ )
-    {
-      for ( int jj = 0; jj < elementArray[ii].length; jj++ )
-      {
-        this.setCellElement( rowIndexPosition + ii, columnIndexPosition + jj, elementArray[ii][jj] );
-      }
-    }
     
     //
     return this;
@@ -829,55 +459,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public List<Cell<E>> getCellList()
-  {
-    return ListUtils.createListFrom( this.iteratorCell() );
-  }
-  
-  @Override
-  public List<E> getCellElementList()
-  {
-    //    
-    List<E> retlist = new ArrayList<E>();
-    
-    //
-    for ( Cell<E> cell : this.cells() )
-    {
-      retlist.add( cell != null ? cell.getElement() : null );
-    }
-    
-    // 
-    return retlist;
-  }
-  
-  @Override
-  public Iterator<Row<E>> iteratorRow()
-  {
-    return new Iterator<Row<E>>()
-    {
-      protected int rowIndexPosition = -1;
-      
-      @Override
-      public boolean hasNext()
-      {
-        return this.rowIndexPosition + 1 < ArrayTable.this.getTableSize().getRowSize();
-      }
-      
-      @Override
-      public Row<E> next()
-      {
-        return ArrayTable.this.getRow( ++this.rowIndexPosition );
-      }
-      
-      @Override
-      public void remove()
-      {
-        ArrayTable.this.removeRow( this.rowIndexPosition-- );
-      }
-    };
-  }
-  
-  @Override
   public E getCellElement( int cellIndexPosition )
   {
     //
@@ -898,144 +479,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Selection<E> select()
   {
     return new SelectionImpl<E>( this );
-  }
-  
-  /**
-   * Creates a {@link XMLDataContainer} from the {@link Table} content
-   * 
-   * @return
-   */
-  protected XMLDataContainer<E> createXMLDataContainerFromTableContent()
-  {
-    //
-    ArrayList<Object> rowTitleValueList = new ArrayList<Object>( this.getRowTitleValueList() );
-    ArrayList<Object> columnTitleValueList = new ArrayList<Object>( this.getColumnTitleValueList() );
-    ArrayList<E> cellElementList = new ArrayList<E>( this.getCellElementList() );
-    Integer columnSize = this.tableSize.getColumnSize();
-    Integer rowSize = this.tableSize.getRowSize();
-    Object tableName = this.tableName;
-    XMLDataContainer<E> dataContainer = new XMLDataContainer<E>( rowTitleValueList, columnTitleValueList, cellElementList,
-                                                                 columnSize, rowSize, tableName );
-    
-    //
-    return dataContainer;
-  }
-  
-  @Override
-  public Table<E> writeAsXMLTo( Appendable appendable )
-  {
-    //
-    XMLHelper.storeObjectAsXML( this.createXMLDataContainerFromTableContent(), appendable );
-    
-    // 
-    return this;
-  }
-  
-  @Override
-  public Table<E> writeAsXMLTo( OutputStream outputStream )
-  {
-    //
-    XMLHelper.storeObjectAsXML( this.createXMLDataContainerFromTableContent(), outputStream );
-    
-    //
-    return this;
-  }
-  
-  @SuppressWarnings({ "unchecked" })
-  @Override
-  public Table<E> parseXMLFrom( String xmlContent )
-  {
-    //
-    try
-    {
-      //
-      XMLDataContainer<E> xmlDataContainer = XMLHelper.loadObjectFromXML( xmlContent, XMLDataContainer.class );
-      
-      //
-      this.writeXMLDataContainerToTableContent( xmlDataContainer );
-    }
-    catch ( Exception e )
-    {
-      e.printStackTrace();
-    }
-    
-    // 
-    return this;
-  }
-  
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  @Override
-  public Table<E> parseXMLFrom( InputStream inputStream )
-  {
-    //
-    try
-    {
-      //
-      XMLDataContainer xmlDataContainer = XMLHelper.loadObjectFromXML( inputStream, XMLDataContainer.class );
-      
-      //
-      this.writeXMLDataContainerToTableContent( xmlDataContainer );
-    }
-    catch ( Exception e )
-    {
-      e.printStackTrace();
-    }
-    
-    // 
-    return this;
-  }
-  
-  /**
-   * Clears the {@link Table} and writes the data of a {@link XMLDataContainer} to it
-   * 
-   * @param xmlDataContainer
-   */
-  protected void writeXMLDataContainerToTableContent( XMLDataContainer<E> xmlDataContainer )
-  {
-    //
-    this.clear();
-    
-    //
-    {
-      int rowIndexPosition = xmlDataContainer.getRowSize() - 1;
-      int columnIndexPosition = xmlDataContainer.getColumnSize() - 1;
-      E element = null;
-      this.setCellElement( rowIndexPosition, columnIndexPosition, element );
-    }
-    
-    //
-    int cellIndexPosition = 0;
-    for ( E element : xmlDataContainer.getCellElementList() )
-    {
-      this.setCellElement( cellIndexPosition++, element );
-    }
-    
-    //
-    this.setColumnTitleValues( xmlDataContainer.getColumnTitleValueList() );
-    this.setRowTitleValues( xmlDataContainer.getRowTitleValueList() );
-    this.tableName = xmlDataContainer.getTableName();
-  }
-  
-  @Override
-  public Table<E> parseXMLFrom( CharSequence charSequence )
-  {
-    //
-    try
-    {
-      //      
-      @SuppressWarnings("unchecked")
-      XMLDataContainer<E> xmlDataContainer = XMLHelper.loadObjectFromXML( charSequence, XMLDataContainer.class );
-      
-      //
-      this.writeXMLDataContainerToTableContent( xmlDataContainer );
-    }
-    catch ( Exception e )
-    {
-      e.printStackTrace();
-    }
-    
-    // 
-    return this;
   }
   
 }
