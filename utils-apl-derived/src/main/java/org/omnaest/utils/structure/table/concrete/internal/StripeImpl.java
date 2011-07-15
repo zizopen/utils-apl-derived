@@ -23,9 +23,8 @@ import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
-import org.omnaest.utils.structure.table.internal.TableInternal.ColumnInternal;
-import org.omnaest.utils.structure.table.internal.TableInternal.RowInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
@@ -34,13 +33,13 @@ import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
  * @see Row
  * @see Column
  * @see StripeInternal
- * @see RowInternal
- * @see ColumnInternal
+ * @see StripeInternal
+ * @see StripeInternal
  * @see TableInternal
  * @author Omnaest
  * @param <E>
  */
-public class StripeImpl<E> implements RowInternal<E>, ColumnInternal<E>
+public class StripeImpl<E> implements StripeInternal<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long  serialVersionUID = 5552519174349074630L;
@@ -110,15 +109,28 @@ public class StripeImpl<E> implements RowInternal<E>, ColumnInternal<E>
   }
   
   @Override
+  public Iterable<Cell<E>> cells()
+  {
+    return new Iterable<Cell<E>>()
+    {
+      @Override
+      public Iterator<Cell<E>> iterator()
+      {
+        return StripeImpl.this.iterator();
+      }
+    };
+  }
+  
+  @Override
   public Cell<E> getCell( int indexPosition )
   {
-    return this.tableInternal.getCellAndStripeResolver().resolveCell( this.stripeData, indexPosition );
+    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this.stripeData, indexPosition );
   }
   
   @Override
   public Cell<E> getCell( Object titleValue )
   {
-    return this.tableInternal.getCellAndStripeResolver().resolveCell( this.stripeData, titleValue );
+    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this.stripeData, titleValue );
   }
   
   @Override
@@ -142,7 +154,7 @@ public class StripeImpl<E> implements RowInternal<E>, ColumnInternal<E>
   public Stripe<E> setCellElement( int indexPosition, E element )
   {
     //
-    Cell<E> cell = this.resolvesOrCreateCell( indexPosition );
+    Cell<E> cell = this.resolvesOrCreateCellWithinNewTableArea( indexPosition );
     if ( cell != null )
     {
       cell.setElement( element );
@@ -156,7 +168,7 @@ public class StripeImpl<E> implements RowInternal<E>, ColumnInternal<E>
   public Stripe<E> setCellElement( Object titleValue, E element )
   {
     //
-    Cell<E> cell = this.resolvesOrCreateCell( titleValue );
+    Cell<E> cell = this.resolvesOrCreateCellWithinNewTableArea( titleValue );
     if ( cell != null )
     {
       cell.setElement( null );
@@ -216,18 +228,18 @@ public class StripeImpl<E> implements RowInternal<E>, ColumnInternal<E>
    * @param indexPosition
    * @return
    */
-  protected Cell<E> resolvesOrCreateCell( int indexPosition )
+  protected Cell<E> resolvesOrCreateCellWithinNewTableArea( int indexPosition )
   {
-    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this.stripeData, indexPosition );
+    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCellWithinNewTableArea( this.stripeData, indexPosition );
   }
   
   /**
    * @param titleValue
    * @return
    */
-  protected Cell<E> resolvesOrCreateCell( Object titleValue )
+  protected Cell<E> resolvesOrCreateCellWithinNewTableArea( Object titleValue )
   {
-    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this.stripeData, titleValue );
+    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCellWithinNewTableArea( this.stripeData, titleValue );
   }
   
   @Override
@@ -236,4 +248,21 @@ public class StripeImpl<E> implements RowInternal<E>, ColumnInternal<E>
     return this.stripeData.getTitleInternal().getValue() != null;
   }
   
+  @Override
+  public int determineIndexPosition()
+  {
+    //
+    int retval = -1;
+    
+    //
+    StripeDataList<E> stripeDataList = this.tableInternal.getTableContent()
+                                                         .getStripeDataList( this.stripeData.resolveStripeType() );
+    if ( stripeDataList != null )
+    {
+      retval = stripeDataList.indexOf( this.stripeData );
+    }
+    
+    //
+    return retval;
+  }
 }

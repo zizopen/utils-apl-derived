@@ -27,14 +27,14 @@ import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.TableXMLSerializable;
 import org.omnaest.utils.structure.table.helper.TableHelper;
-import org.omnaest.utils.structure.table.internal.TableInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
 /**
  * @see Table
  * @author Omnaest
  * @param <E>
  */
-public abstract class TableAbstract<E> implements TableInternal<E>
+public abstract class TableAbstract<E> implements Table<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long         serialVersionUID     = 413819072598819746L;
@@ -51,6 +51,23 @@ public abstract class TableAbstract<E> implements TableInternal<E>
   public boolean equals( Object object )
   {
     return object instanceof Table && this.equals( (Table<E>) object );
+  }
+  
+  @Override
+  public E getCellElement( int rowIndexPosition, int columnIndexPosition )
+  {
+    //
+    E retval = null;
+    
+    //
+    Cell<E> cell = this.getCell( rowIndexPosition, columnIndexPosition );
+    if ( cell != null )
+    {
+      retval = cell.getElement();
+    }
+    
+    //
+    return retval;
   }
   
   @Override

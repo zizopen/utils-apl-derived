@@ -19,15 +19,21 @@ import java.util.List;
 import java.util.Set;
 
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.Table.Cell;
+import org.omnaest.utils.structure.table.Table.Column;
+import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
+import org.omnaest.utils.structure.table.Table.TableComponent;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 
 /**
  * @see Table
  * @author Omnaest
  * @param <E>
  */
-public interface TableInternal<E> extends Table<E>
+public interface TableInternal<E>
 {
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -58,13 +64,13 @@ public interface TableInternal<E> extends Table<E>
     public Cell<E> resolveCell( int rowIndexPosition, int columnIndexPosition );
     
     /**
-     * Resolves a {@link Cell} for the given {@link Row} and column index position.
+     * Resolves a {@link Cell} for the given {@link Row} and {@link Column} index position.
      * 
      * @param row
      * @param columnIndexPosition
      * @return
      */
-    public Cell<E> resolveCell( RowInternal<E> row, int columnIndexPosition );
+    public Cell<E> resolveCell( StripeInternal<E> row, int columnIndexPosition );
     
     /**
      * Resolves a {@link Cell} by a row index position and a {@link Column}.
@@ -73,7 +79,7 @@ public interface TableInternal<E> extends Table<E>
      * @param column
      * @return
      */
-    public Cell<E> resolveCell( int rowIndexPosition, ColumnInternal<E> column );
+    public Cell<E> resolveCell( int rowIndexPosition, StripeInternal<E> column );
     
     /**
      * Resolves a {@link Cell} by a given {@link Row} and {@link Column}
@@ -82,7 +88,7 @@ public interface TableInternal<E> extends Table<E>
      * @param column
      * @return
      */
-    public Cell<E> resolveCell( RowInternal<E> row, ColumnInternal<E> column );
+    public Cell<E> resolveCell( StripeInternal<E> row, StripeInternal<E> column );
     
     /**
      * Resolves a {@link Cell} by a given {@link Stripe} and the complementary index position
@@ -190,7 +196,7 @@ public interface TableInternal<E> extends Table<E>
      * @param column
      * @return
      */
-    public Cell<E> resolveCell( Object rowTitleValue, ColumnInternal<E> column );
+    public Cell<E> resolveCell( Object rowTitleValue, StripeInternal<E> column );
     
     /**
      * Resolves a {@link Cell} by the {@link Row} and the {@link Title#getValue()} of the {@link Column}
@@ -199,7 +205,7 @@ public interface TableInternal<E> extends Table<E>
      * @param columnTitleValue
      * @return
      */
-    public Cell<E> resolveCell( RowInternal<E> row, Object columnTitleValue );
+    public Cell<E> resolveCell( StripeInternal<E> row, Object columnTitleValue );
     
     /**
      * Tries to resolve a {@link Cell} by a given {@link RowInternal} and {@link ColumnInternal}. If there is no {@link Cell}
@@ -209,7 +215,7 @@ public interface TableInternal<E> extends Table<E>
      * @param column
      * @return
      */
-    public Cell<E> resolveOrCreateCell( RowInternal<E> row, ColumnInternal<E> column );
+    public Cell<E> resolveOrCreateCell( StripeInternal<E> row, StripeInternal<E> column );
     
     /**
      * Tries to resolve a {@link Cell} by the given {@link Row} and {@link Column} index position. If no {@link Cell} is available
@@ -219,7 +225,7 @@ public interface TableInternal<E> extends Table<E>
      * @param columnIndexPosition
      * @return
      */
-    public Cell<E> resolveOrCreateCell( RowInternal<E> row, int columnIndexPosition );
+    public Cell<E> resolveOrCreateCell( StripeInternal<E> row, int columnIndexPosition );
     
     /**
      * Tries to resolve a {@link Cell} by the given {@link Row} index position and a given {@link Column}. If no {@link Cell} is
@@ -229,7 +235,7 @@ public interface TableInternal<E> extends Table<E>
      * @param column
      * @return
      */
-    public Cell<E> resolveOrCreateCell( int rowIndexPosition, ColumnInternal<E> column );
+    public Cell<E> resolveOrCreateCell( int rowIndexPosition, StripeInternal<E> column );
     
     /**
      * Resolves a {@link Cell} by its {@link Cell} index position. The {@link Cell} index position is counted from left to right
@@ -325,6 +331,59 @@ public interface TableInternal<E> extends Table<E>
      * @return
      */
     public Cell<E> resolveCell( Object rowTitleValue, Object columnTitleValue );
+    
+    /**
+     * Resolves or creates a {@link Cell} even if it is out of the current {@link Table} area
+     * 
+     * @param rowIndexPosition
+     * @param columnIndexPosition
+     * @return
+     */
+    public Cell<E> resolveOrCreateCellWithinNewTableArea( int rowIndexPosition, int columnIndexPosition );
+    
+    /**
+     * Resolves or creates a {@link Cell} even if it is out of the current {@link Table} area
+     * 
+     * @param rowIndexPosition
+     * @param column
+     * @return
+     */
+    public Cell<E> resolveOrCreateCellWithinNewTableArea( int rowIndexPosition, StripeInternal<E> column );
+    
+    /**
+     * Resolves or creates a {@link Cell} even if it is out of the current {@link Table} area
+     * 
+     * @param row
+     * @param columnIndexPosition
+     * @return
+     */
+    public Cell<E> resolveOrCreateCellWithinNewTableArea( StripeInternal<E> row, int columnIndexPosition );
+    
+    /**
+     * Resolves or creates a {@link Cell} even if it is out of the current {@link Table} area
+     * 
+     * @param stripeData
+     * @param indexPosition
+     * @return
+     */
+    public Cell<E> resolveOrCreateCellWithinNewTableArea( StripeData<E> stripeData, int indexPosition );
+    
+    /**
+     * Resolves or creates a {@link Cell} even if it is out of the current {@link Table} area
+     * 
+     * @param cellIndexPosition
+     * @return
+     */
+    public Cell<E> resolveOrCreateCellWithinNewTableArea( int cellIndexPosition );
+    
+    /**
+     * Resolves or creates a {@link Cell} even if it is out of the current {@link Table} area
+     * 
+     * @param stripeData
+     * @param titleValue
+     * @return
+     */
+    public Cell<E> resolveOrCreateCellWithinNewTableArea( StripeData<E> stripeData, Object titleValue );
   }
   
   /**
@@ -422,10 +481,10 @@ public interface TableInternal<E> extends Table<E>
     /**
      * Returns the index of a given {@link Stripe}
      * 
-     * @param stripe
+     * @param stripeData
      * @return
      */
-    public int indexOf( Stripe<E> stripe );
+    public int indexOf( StripeData<E> stripeData );
     
     /**
      * Returns the stripe at the given index position. If the index position is out of bounds null is returned.
@@ -619,7 +678,7 @@ public interface TableInternal<E> extends Table<E>
    * @author Omnaest
    * @param <E>
    */
-  public static interface StripeInternal<E> extends Stripe<E>
+  public static interface StripeInternal<E> extends Column<E>, Row<E>
   {
     /**
      * Returns the underlying {@link StripeData}
@@ -627,26 +686,6 @@ public interface TableInternal<E> extends Table<E>
      * @return
      */
     public StripeData<E> getStripeData();
-  }
-  
-  /**
-   * @see Row
-   * @see StripeInternal
-   * @author Omnaest
-   * @param <E>
-   */
-  public static interface RowInternal<E> extends Row<E>, StripeInternal<E>, TableComponentInternal
-  {
-  }
-  
-  /**
-   * @see Column
-   * @see StripeInternal
-   * @author Omnaest
-   * @param <E>
-   */
-  public static interface ColumnInternal<E> extends Column<E>, StripeInternal<E>, TableComponentInternal
-  {
   }
   
   /**

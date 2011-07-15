@@ -74,9 +74,11 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
   }
   
   /**
-   * Common base for a {@link Column} and a {@link Row}
+   * Common abstraction for a {@link Column} and a {@link Row}
    * 
    * @see Table
+   * @see Row
+   * @see Column
    * @author Omnaest
    * @param <E>
    */
@@ -216,6 +218,20 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      * @return
      */
     public boolean hasTitle();
+    
+    /**
+     * Determines the index position of this {@link Stripe} within the {@link Table}
+     * 
+     * @return
+     */
+    public int determineIndexPosition();
+    
+    /**
+     * Returns an {@link Iterable} for all {@link Cell}s of this {@link Stripe}
+     * 
+     * @return
+     */
+    public Iterable<Cell<E>> cells();
   }
   
   /**
@@ -266,19 +282,6 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      */
     public boolean hasElement( E element );
     
-    /**
-     * Returns the {@link Column} this {@link Cell} belongs to
-     * 
-     * @return
-     */
-    public Column<E> getColumn();
-    
-    /**
-     * Returns the {@link Row} this {@link Cell} belongs to
-     * 
-     * @return
-     */
-    public Row<E> getRow();
   }
   
   /**

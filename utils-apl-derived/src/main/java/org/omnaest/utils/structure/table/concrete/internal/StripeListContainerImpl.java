@@ -26,8 +26,6 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
 /**
- * TODO serializable interface is missing
- * 
  * @author Omnaest
  * @see StripeListContainerAbstract
  * @see TableContent
@@ -35,12 +33,14 @@ import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
  */
 public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long         serialVersionUID = -1286089813999328668L;
   /* ********************************************** Variables ********************************************** */
-  protected List<StripeDataList<E>> stripeListList = null;
-  protected TableInternal<E>    tableInternal  = null;
+  protected List<StripeDataList<E>> stripeListList   = null;
+  protected TableInternal<E>        tableInternal    = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * @param tableInternal
    */
@@ -52,10 +52,10 @@ public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
     this.tableInternal = tableInternal;
     
     //
-    this.stripeListList = new ArrayList<StripeDataList<E>>(
-                                                        Arrays.asList( new StripeDataListImpl<E>( this.tableInternal, StripeType.ROW ),
-                                                                       new StripeDataListImpl<E>( this.tableInternal,
-                                                                                               StripeType.COLUMN ) ) );
+    this.stripeListList = new ArrayList<StripeDataList<E>>( Arrays.asList( new StripeDataListImpl<E>( this.tableInternal,
+                                                                                                      StripeType.ROW ),
+                                                                           new StripeDataListImpl<E>( this.tableInternal,
+                                                                                                      StripeType.COLUMN ) ) );
   }
   
   @Override

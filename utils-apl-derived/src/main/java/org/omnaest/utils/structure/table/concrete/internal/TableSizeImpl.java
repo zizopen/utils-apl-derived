@@ -24,8 +24,10 @@ import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
  */
 public class TableSizeImpl implements TableSize
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long serialVersionUID = -3977701815617289460L;
   /* ********************************************** Variables ********************************************** */
-  protected TableContent<?> tableContent = null;
+  protected TableContent<?> tableContent     = null;
   
   /* ********************************************** Methods ********************************************** */
   

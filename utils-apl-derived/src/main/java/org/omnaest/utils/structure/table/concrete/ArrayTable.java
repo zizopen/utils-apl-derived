@@ -22,11 +22,15 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.concrete.internal.CellAndStripeResolverImpl;
-import org.omnaest.utils.structure.table.concrete.internal.StripeImpl;
+import org.omnaest.utils.structure.table.concrete.internal.StripeFactory;
 import org.omnaest.utils.structure.table.concrete.internal.StripeListContainerImpl;
 import org.omnaest.utils.structure.table.concrete.internal.TableSizeImpl;
 import org.omnaest.utils.structure.table.concrete.selection.SelectionImpl;
 import org.omnaest.utils.structure.table.internal.TableInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.CellAndStripeResolver;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
+import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
 /**
  * Implementation of {@link Table} that uses two array lists as row and column data structure.
@@ -40,10 +44,36 @@ public class ArrayTable<E> extends TableAbstract<E>
   private static final long          serialVersionUID      = 1763808639838518679L;
   
   /* ********************************************** Variables ********************************************** */
+  protected ArrayTableInternal       arrayTableInternal    = new ArrayTableInternal();
   protected Object                   tableName             = null;
-  protected TableContent<E>          tableContent          = new StripeListContainerImpl<E>( this );
+  protected StripeFactory<E>         stripeFactory         = new StripeFactory<E>( this.arrayTableInternal );
+  protected TableContent<E>          tableContent          = new StripeListContainerImpl<E>( this.arrayTableInternal );
   protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl<E>( this.tableContent );
   protected TableSize                tableSize             = new TableSizeImpl( this.tableContent );
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * @see ArrayTable
+   * @see TableInternal
+   * @author Omnaest
+   */
+  public class ArrayTableInternal implements TableInternal<E>
+  {
+    
+    @Override
+    public TableContent<E> getTableContent()
+    {
+      return ArrayTable.this.tableContent;
+    }
+    
+    @Override
+    public CellAndStripeResolver<E> getCellAndStripeResolver()
+    {
+      return ArrayTable.this.cellAndStripeResolver;
+    }
+    
+  }
   
   /* ********************************************** Methods ********************************************** */
   
@@ -156,7 +186,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> setCellElement( int rowIndexPosition, int columnIndexPosition, E element )
   {
     //
-    Cell<E> cell = this.cellAndStripeResolver.resolveOrCreateCell( rowIndexPosition, columnIndexPosition );
+    Cell<E> cell = this.cellAndStripeResolver.resolveOrCreateCellWithinNewTableArea( rowIndexPosition, columnIndexPosition );
     if ( cell != null )
     {
       cell.setElement( element );
@@ -169,24 +199,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public Cell<E> getCell( int rowIndexPosition, int columnIndexPosition )
   {
-    return this.cellAndStripeResolver.resolveCell( rowIndexPosition, columnIndexPosition );
-  }
-  
-  @Override
-  public E getCellElement( int rowIndexPosition, int columnIndexPosition )
-  {
-    //
-    E retval = null;
-    
-    //
-    Cell<E> cell = this.getCell( rowIndexPosition, columnIndexPosition );
-    if ( cell != null )
-    {
-      retval = cell.getElement();
-    }
-    
-    //
-    return retval;
+    return this.cellAndStripeResolver.resolveOrCreateCell( rowIndexPosition, columnIndexPosition );
   }
   
   @Override
@@ -286,8 +299,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     //
     StripeData<E> stripeData = this.cellAndStripeResolver.resolveRowStripeData( rowIndexPosition );
-    TableInternal<E> tableInternal = this;
-    return new StripeImpl<E>( tableInternal, stripeData );
+    return this.stripeFactory.newInstanceOfStripeInternal( stripeData );
   }
   
   @Override
@@ -295,8 +307,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     //
     StripeData<E> stripeData = this.cellAndStripeResolver.resolveRowStripeData( rowTitleValue );
-    TableInternal<E> tableInternal = this;
-    return new StripeImpl<E>( tableInternal, stripeData );
+    return this.stripeFactory.newInstanceOfStripeInternal( stripeData );
   }
   
   @Override
@@ -304,8 +315,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     //
     StripeData<E> stripeData = this.cellAndStripeResolver.resolveColumnStripeData( columnIndexPosition );
-    TableInternal<E> tableInternal = this;
-    return new StripeImpl<E>( tableInternal, stripeData );
+    return this.stripeFactory.newInstanceOfStripeInternal( stripeData );
   }
   
   @Override
@@ -313,8 +323,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     //
     StripeData<E> stripeData = this.cellAndStripeResolver.resolveColumnStripeData( columnTitleValue );
-    TableInternal<E> tableInternal = this;
-    return new StripeImpl<E>( tableInternal, stripeData );
+    return this.stripeFactory.newInstanceOfStripeInternal( stripeData );
   }
   
   @Override
@@ -371,7 +380,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> setCellElement( int cellIndexPosition, E element )
   {
     //
-    Cell<E> cell = this.cellAndStripeResolver.resolveOrCreateCell( cellIndexPosition );
+    Cell<E> cell = this.cellAndStripeResolver.resolveOrCreateCellWithinNewTableArea( cellIndexPosition );
     
     //
     if ( cell != null )
@@ -381,53 +390,6 @@ public class ArrayTable<E> extends TableAbstract<E>
     
     //
     return this;
-  }
-  
-  @Override
-  public String toString()
-  {
-    //TODO take the implementation of the tablehelper to enhance this
-    //
-    StringBuilder sb = new StringBuilder();
-    
-    //
-    String rowDelimiter = "";
-    for ( Row<E> row : this )
-    {
-      //
-      sb.append( rowDelimiter + "[" );
-      
-      //
-      String elementDelimiter = "";
-      for ( Cell<E> cell : row )
-      {
-        //
-        E element = cell.getElement();
-        
-        //
-        String elementValue = String.valueOf( element );
-        sb.append( elementDelimiter + elementValue );
-        elementDelimiter = ",";
-      }
-      
-      //
-      sb.append( "]" );
-      rowDelimiter = "\n";
-    }
-    
-    return sb.toString();
-  }
-  
-  @Override
-  public TableContent<E> getTableContent()
-  {
-    return this.tableContent;
-  }
-  
-  @Override
-  public CellAndStripeResolver<E> getCellAndStripeResolver()
-  {
-    return this.cellAndStripeResolver;
   }
   
   @Override
@@ -478,7 +440,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public Selection<E> select()
   {
-    return new SelectionImpl<E>( this );
+    return new SelectionImpl<E>( this.arrayTableInternal );
   }
   
 }

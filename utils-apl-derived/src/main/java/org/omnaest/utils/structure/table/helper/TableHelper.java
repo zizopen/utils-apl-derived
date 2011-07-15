@@ -17,14 +17,15 @@ package org.omnaest.utils.structure.table.helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.omnaest.utils.strings.StringUtil;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
+import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 
 /**
@@ -206,12 +207,46 @@ public class TableHelper
       }
       
       /**
+       * Resolves the width of the row titles of the given table
+       * 
+       * @param table
+       * @return
+       */
+      private Integer determineRowTitleWidth( Table<E> table )
+      {
+        //
+        Integer retval = null;
+        
+        //
+        for ( Row<E> row : table.rows() )
+        {
+          //
+          int lengthMax = 0;
+          
+          //
+          {
+            String content = this.convertObjectContentToString( row.getTitle().getValue() );
+            if ( content != null )
+            {
+              lengthMax = content.length();
+            }
+          }
+          
+          //
+          retval = lengthMax;
+        }
+        
+        //
+        return retval;
+      }
+      
+      /**
        * Resolves the meta data for a given table. This includes the width for each column
        * 
        * @param table
        * @return
        */
-      private List<Integer> resolveColumnWidthList( Table<E> table )
+      private List<Integer> determineColumnWidthList( Table<E> table )
       {
         //
         List<Integer> retlist = new ArrayList<Integer>();
@@ -256,7 +291,7 @@ public class TableHelper
        */
       private String convertObjectContentToString( Object value )
       {
-        return String.valueOf( value );
+        return value != null ? String.valueOf( value ) : "";
       }
       
       /**
@@ -270,12 +305,13 @@ public class TableHelper
         StringBuilder retval = new StringBuilder();
         
         //
-        final String delimiterLine = ".";
-        final String delimiterRow = ":";
-        final String delimiterTitleRow = "!";
+        final String delimiterRow = "-";
+        final String delimiterColumn = "|";
+        final String delimiterTitleColumn = "!";
+        final String delimiterTableTitle = "=";
         
         //
-        List<Integer> columnWidthList = this.resolveColumnWidthList( this.table );
+        List<Integer> columnWidthList = this.determineColumnWidthList( this.table );
         
         //
         boolean hasColumnTitles = this.table.hasColumnTitles();
@@ -283,19 +319,90 @@ public class TableHelper
         boolean hasTableName = this.table.hasTableName();
         
         //
-        int tableCharacterWidth = CollectionUtils.sumOfCollectionInteger( columnWidthList ) + columnWidthList.size();
+        int tableCharacterWidth = CollectionUtils.sumOfCollectionInteger( columnWidthList ) + columnWidthList.size() + 1;
+        int rowTitlesCharacterWidth = 0;
+        
+        //
+        if ( hasRowTitles )
+        {
+          tableCharacterWidth += ( rowTitlesCharacterWidth = this.determineRowTitleWidth( this.table ) ) + 1;
+        }
         
         //
         if ( hasTableName )
         {
-          retval.append( StringUtils.repeat( delimiterTitleRow, tableCharacterWidth ) );
-          retval.append( delimiterTitleRow
-                         + StringUtils.center( this.convertObjectContentToString( this.table.getTableName() ),
-                                               tableCharacterWidth - 2 ) + delimiterTitleRow );
-          retval.append( StringUtils.repeat( delimiterTitleRow, tableCharacterWidth ) );
+          //
+          retval.append( StringUtils.center( this.convertObjectContentToString( this.table.getTableName() ), tableCharacterWidth,
+                                             delimiterTableTitle ) + "\n" );
+        }
+        else
+        {
+          //
+          retval.append( StringUtils.repeat( delimiterRow, tableCharacterWidth ) + "\n" );
         }
         
         //
+        if ( hasColumnTitles )
+        {
+          //
+          if ( hasRowTitles )
+          {
+            //
+            retval.append( delimiterTitleColumn );
+            retval.append( StringUtils.repeat( " ", rowTitlesCharacterWidth ) );
+          }
+          
+          //
+          Iterator<Integer> iteratorColumnWidthList = columnWidthList.iterator();
+          for ( Column<E> column : this.table.columns() )
+          {
+            //
+            retval.append( delimiterTitleColumn );
+            
+            //
+            Object titleValue = column.getTitle().getValue();
+            retval.append( StringUtils.center( this.convertObjectContentToString( titleValue ), iteratorColumnWidthList.next() ) );
+          }
+          
+          //
+          retval.append( delimiterTitleColumn + "\n" );
+        }
+        
+        //
+        for ( Row<E> row : this.table.rows() )
+        {
+          //
+          if ( hasRowTitles )
+          {
+            //
+            retval.append( delimiterTitleColumn );
+            retval.append( StringUtils.center( this.convertObjectContentToString( row.getTitle().getValue() ),
+                                               rowTitlesCharacterWidth ) );
+            retval.append( delimiterTitleColumn );
+          }
+          else
+          {
+            //
+            retval.append( delimiterColumn );
+          }
+          
+          //
+          Iterator<Integer> iteratorColumnWidthList = columnWidthList.iterator();
+          for ( Cell<E> cell : row.cells() )
+          {
+            //            
+            retval.append( StringUtils.center( this.convertObjectContentToString( cell.getElement() ),
+                                               iteratorColumnWidthList.next() ) );
+            //
+            retval.append( delimiterColumn );
+          }
+          
+          //
+          retval.append( "\n" );
+        }
+        
+        //
+        retval.append( StringUtils.repeat( delimiterRow, tableCharacterWidth ) + "\n" );
         
         //        
         return retval.toString();
@@ -306,140 +413,4 @@ public class TableHelper
     return new TableToStringConverter( table ).convertTableToString();
   }
   
-  public void lla()
-  { //resolve the needed maximum width for every column separately
-    List<Integer> columnWidthList = new ArrayList<Integer>( table.getTableSize().getColumnSize() );
-    
-    //if there are row titles, calculate their width values first
-    if ( table.getRowTitleValueList().size() > 0 )
-    {
-      int maxWidth = 0;
-      for ( String iTitle : table.getRowTitleValueList() )
-      {
-        //determine maxwidth
-        int width = iTitle.length();
-        if ( maxWidth < width )
-        {
-          maxWidth = width;
-        }
-      }
-      columnWidthList.add( maxWidth );
-    }
-    //calculate data column width values
-    for ( int columnIndexPosition = 0; columnIndexPosition < table.getTableSize().getColumnSize(); columnIndexPosition++ )
-    {
-      //
-      List<E> iColumn = table.getColumn( columnIndexPosition );
-      
-      //title
-      int columnTitleWidth = -1;
-      String columnTitle = table.getColumnTitleValue( columnIndexPosition );
-      if ( columnTitle != null )
-      {
-        columnTitleWidth = columnTitle.length();
-      }
-      
-      //data
-      int maxWidth = 0;
-      for ( E iElement : iColumn )
-      {
-        int width = String.valueOf( iElement ).length();
-        if ( maxWidth < width )
-        {
-          maxWidth = width;
-        }
-      }
-      
-      //
-      if ( columnTitleWidth > maxWidth )
-      {
-        maxWidth = columnTitleWidth;
-      }
-      columnWidthList.add( maxWidth );
-    }
-    
-    //
-    String lineDelimiter = ".";
-    String rowDelimiter = ":";
-    String titleRowDelimiter = "!";
-    
-    //
-    int printOutTableWidth = columnWidthList.size() + CollectionUtils.sumOfCollectionInteger( columnWidthList ) + 1;
-    String lineRepeatedDelimiter = StringUtil.repeatString( printOutTableWidth, lineDelimiter );
-    System.out.println( lineRepeatedDelimiter );
-    
-    //table name
-    {
-      String tableName = table.getTableName();
-      if ( tableName != null )
-      {
-        String title = rowDelimiter + StringUtil.repeatString( printOutTableWidth - 2, " " ) + rowDelimiter;
-        title = StringUtil.insertString( title, tableName, ( printOutTableWidth - tableName.length() ) / 2, true );
-        System.out.println( title );
-        System.out.println( lineRepeatedDelimiter );
-      }
-    }
-    
-    //columns and rows with titles
-    for ( int ii = -1; ii < table.getTableSize().getRowSize(); ii++ )
-    {
-      //
-      StringBuffer sb = new StringBuffer();
-      int columnWidthListIndex = 0;
-      
-      //
-      if ( ii == -1 && table.getColumnTitleValueList().size() > 0 )//add column title if available first
-      {
-        sb.append( titleRowDelimiter );
-        
-        if ( table.getRowTitleValueList().size() > 0 )
-        {
-          int columnWidth = columnWidthList.get( columnWidthListIndex++ );
-          sb.append( StringUtil.setFixedWitdth( " ", columnWidth ) + titleRowDelimiter );
-        }
-        
-        for ( String iColumnTitle : table.getColumnTitleValueList() )
-        {
-          int columnWidth = columnWidthList.get( columnWidthListIndex++ );
-          sb.append( StringUtil.setFixedWitdth( iColumnTitle, columnWidth ) + titleRowDelimiter );
-        }
-        
-      }
-      else if ( ii >= 0 ) //data rows
-      {
-        sb.append( rowDelimiter );
-        List<E> row = table.getRow( ii );
-        
-        //add column for the row
-        for ( int jj = -1; jj < row.size(); jj++ )
-        {
-          if ( jj == -1 )
-          {
-            if ( table.getRowTitleValueList().size() > 0 )
-            {
-              //
-              int columnWidth = columnWidthList.get( columnWidthListIndex++ );
-              String rowTitle = table.getRowTitleValueList().size() > ii ? table.getRowTitleValueList().get( ii ) : " ";
-              sb.append( StringUtil.setFixedWitdth( rowTitle, columnWidth ) + titleRowDelimiter );
-            }
-          }
-          else if ( jj >= 0 ) //row cells
-          {
-            E element = row.get( jj );
-            int columnWidth = columnWidthList.get( columnWidthListIndex++ );
-            
-            String elementValue = String.valueOf( element );
-            sb.append( StringUtil.setFixedWitdth( elementValue, columnWidth ) + rowDelimiter );
-          }
-        }
-        
-      }
-      
-      if ( sb.length() > 0 )
-      {
-        System.out.println( sb.toString() );
-      }
-    }
-    System.out.println( lineRepeatedDelimiter );
-  }
 }
