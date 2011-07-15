@@ -20,8 +20,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table.Cell;
-import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
@@ -35,12 +33,12 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 public class CellImpl<E> implements CellInternal<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long         serialVersionUID   = 4937853192103513084L;
+  private static final long     serialVersionUID   = 4937853192103513084L;
   protected List<StripeData<E>> stripeInternalList = new ArrayList<StripeData<E>>();
-  protected E                       element            = null;
+  protected E                   element            = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * @param stripeInternalCollection
    */
@@ -93,7 +91,7 @@ public class CellImpl<E> implements CellInternal<E>
     return this;
   }
   
-  protected StripeData<E> resolveStripe( StripeType stripeType )
+  protected StripeData<E> resolveStripeData( StripeType stripeType )
   {
     //
     StripeData<E> retval = null;
@@ -114,20 +112,6 @@ public class CellImpl<E> implements CellInternal<E>
     
     //
     return retval;
-  }
-  
-  @Override
-  @SuppressWarnings("unchecked")
-  public Column<E> getColumn()
-  {
-    return (Column<E>) this.resolveStripe( StripeType.COLUMN );
-  }
-  
-  @Override
-  @SuppressWarnings("unchecked")
-  public Row<E> getRow()
-  {
-    return (Row<E>) this.resolveStripe( StripeType.ROW );
   }
   
 }

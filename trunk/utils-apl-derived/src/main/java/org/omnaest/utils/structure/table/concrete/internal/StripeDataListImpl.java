@@ -109,9 +109,9 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   }
   
   @Override
-  public int indexOf( Stripe<E> stripe )
+  public int indexOf( StripeData<E> stripeData )
   {
-    return this.stripeDataList.indexOf( stripe );
+    return this.stripeDataList.indexOf( stripeData );
   }
   
   @Override

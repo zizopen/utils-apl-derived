@@ -26,6 +26,10 @@ import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
  */
 public abstract class StripeListContainerAbstract<E> implements TableContent<E>
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long serialVersionUID = 58312083803417020L;
+  
+  /* ********************************************** Methods ********************************************** */
   
   @Override
   public StripeDataList<E> getRowList()

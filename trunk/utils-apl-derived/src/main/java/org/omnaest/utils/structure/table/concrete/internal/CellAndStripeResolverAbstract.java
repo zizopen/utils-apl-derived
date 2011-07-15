@@ -20,9 +20,8 @@ import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellAndStripeResolver;
-import org.omnaest.utils.structure.table.internal.TableInternal.ColumnInternal;
-import org.omnaest.utils.structure.table.internal.TableInternal.RowInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 
 /**
  * @see CellAndStripeResolver
@@ -58,13 +57,13 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   protected abstract StripeData<E> resolveStripeData( StripeType stripeType, Object titleValue );
   
   @Override
-  public Cell<E> resolveCell( RowInternal<E> row, ColumnInternal<E> column )
+  public Cell<E> resolveCell( StripeInternal<E> row, StripeInternal<E> column )
   {
     return this.resolveCell( row.getStripeData(), column.getStripeData() );
   }
   
   @Override
-  public Cell<E> resolveOrCreateCell( RowInternal<E> row, ColumnInternal<E> column )
+  public Cell<E> resolveOrCreateCell( StripeInternal<E> row, StripeInternal<E> column )
   {
     return this.resolveOrCreateCell( row.getStripeData(), column.getStripeData() );
   }
@@ -94,25 +93,25 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   }
   
   @Override
-  public Cell<E> resolveCell( RowInternal<E> row, int columnIndexPosition )
+  public Cell<E> resolveCell( StripeInternal<E> row, int columnIndexPosition )
   {
     return this.resolveCell( row.getStripeData(), this.resolveColumnStripeData( columnIndexPosition ) );
   }
   
   @Override
-  public Cell<E> resolveCell( RowInternal<E> row, Object columnTitleValue )
+  public Cell<E> resolveCell( StripeInternal<E> row, Object columnTitleValue )
   {
     return this.resolveCell( row.getStripeData(), this.resolveColumnStripeData( columnTitleValue ) );
   }
   
   @Override
-  public Cell<E> resolveCell( int rowIndexPosition, ColumnInternal<E> column )
+  public Cell<E> resolveCell( int rowIndexPosition, StripeInternal<E> column )
   {
     return this.resolveCell( this.resolveRowStripeData( rowIndexPosition ), column.getStripeData() );
   }
   
   @Override
-  public Cell<E> resolveCell( Object rowTitleValue, ColumnInternal<E> column )
+  public Cell<E> resolveCell( Object rowTitleValue, StripeInternal<E> column )
   {
     return this.resolveCell( this.resolveRowStripeData( rowTitleValue ), column.getStripeData() );
   }
@@ -120,24 +119,51 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   @Override
   public Cell<E> resolveOrCreateCell( int rowIndexPosition, int columnIndexPosition )
   {
+    return this.resolveOrCreateCell( this.resolveRowStripeData( rowIndexPosition ),
+                                     this.resolveColumnStripeData( columnIndexPosition ) );
+  }
+  
+  @Override
+  public Cell<E> resolveOrCreateCellWithinNewTableArea( int rowIndexPosition, int columnIndexPosition )
+  {
     return this.resolveOrCreateCell( this.resolveOrCreateRowStripeData( rowIndexPosition ),
                                      this.resolveOrCreateColumnStripeData( columnIndexPosition ) );
   }
   
   @Override
-  public Cell<E> resolveOrCreateCell( int rowIndexPosition, ColumnInternal<E> column )
+  public Cell<E> resolveOrCreateCell( int rowIndexPosition, StripeInternal<E> column )
+  {
+    return this.resolveOrCreateCell( this.resolveRowStripeData( rowIndexPosition ), column.getStripeData() );
+  }
+  
+  @Override
+  public Cell<E> resolveOrCreateCellWithinNewTableArea( int rowIndexPosition, StripeInternal<E> column )
   {
     return this.resolveOrCreateCell( this.resolveOrCreateRowStripeData( rowIndexPosition ), column.getStripeData() );
   }
   
   @Override
-  public Cell<E> resolveOrCreateCell( RowInternal<E> row, int columnIndexPosition )
+  public Cell<E> resolveOrCreateCell( StripeInternal<E> row, int columnIndexPosition )
+  {
+    return this.resolveOrCreateCell( row.getStripeData(), this.resolveColumnStripeData( columnIndexPosition ) );
+  }
+  
+  @Override
+  public Cell<E> resolveOrCreateCellWithinNewTableArea( StripeInternal<E> row, int columnIndexPosition )
   {
     return this.resolveOrCreateCell( row.getStripeData(), this.resolveOrCreateColumnStripeData( columnIndexPosition ) );
   }
   
   @Override
   public Cell<E> resolveOrCreateCell( StripeData<E> stripeData, int indexPosition )
+  {
+    return this.resolveOrCreateCell( stripeData,
+                                     this.resolveStripeData( StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() ),
+                                                             indexPosition ) );
+  }
+  
+  @Override
+  public Cell<E> resolveOrCreateCellWithinNewTableArea( StripeData<E> stripeData, int indexPosition )
   {
     return this.resolveOrCreateCell( stripeData,
                                      this.resolveOrCreateStripeData( StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() ),
@@ -167,6 +193,17 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   }
   
   @Override
+  public Cell<E> resolveOrCreateCellWithinNewTableArea( int cellIndexPosition )
+  {
+    //
+    int rowIndexPosition = this.determineRowIndexPositionForCellIndexPosition( cellIndexPosition );
+    int columnIndexPosition = this.determineColumnIndexPositionForCellIndexPosition( cellIndexPosition );
+    
+    //
+    return this.resolveOrCreateCellWithinNewTableArea( rowIndexPosition, columnIndexPosition );
+  }
+  
+  @Override
   public StripeData<E> resolveRowStripeData( int rowIndexPosition )
   {
     return this.resolveStripeData( StripeType.ROW, rowIndexPosition );
@@ -192,6 +229,14 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   
   @Override
   public Cell<E> resolveOrCreateCell( StripeData<E> stripeData, Object titleValue )
+  {
+    return this.resolveOrCreateCell( stripeData,
+                                     this.resolveStripeData( StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() ),
+                                                             titleValue ) );
+  }
+  
+  @Override
+  public Cell<E> resolveOrCreateCellWithinNewTableArea( StripeData<E> stripeData, Object titleValue )
   {
     return this.resolveOrCreateCell( stripeData,
                                      this.resolveOrCreateStripeData( StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() ),
