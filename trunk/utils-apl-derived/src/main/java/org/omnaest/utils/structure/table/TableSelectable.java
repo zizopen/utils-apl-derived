@@ -20,6 +20,7 @@ import java.util.Map;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.TableSelectable.Where;
 import org.omnaest.utils.structure.table.view.TableView;
 
 /**
@@ -33,15 +34,16 @@ import org.omnaest.utils.structure.table.view.TableView;
 public interface TableSelectable<E>
 {
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * {@link Selection} from a {@link Table}. The {@link Selection} uses a builder pattern to create a {@link TableView} as a
    * {@link Result}
    * 
    * @see Table#select()
    * @see Selection#columns(Column...)
+   * @see Selection#allColumns()
    * @see Selection#from(Table)
-   * @see Selection#where(Where)
+   * @see Selection#where(Where...)
    * @see Selection#orderBy(Order)
    * @see Selection#result()
    * @see Join
@@ -57,46 +59,53 @@ public interface TableSelectable<E>
      * Sets the {@link Column}s of the {@link Selection}.
      * 
      * @param columns
-     * @return
+     * @return this
      */
     public Selection<E> columns( Column<E>... columns );
     
     /**
+     * Sets all {@link Column}s to be selected
+     * 
+     * @return this
+     */
+    public Selection<E> allColumns();
+    
+    /**
      * Sets the {@link Table}
      * 
-     * @param table
-     * @return
+     * @param tables
+     * @return this
      */
-    public Selection<E> from( Table<E> table );
+    public Selection<E> from( Table<E>... tables );
     
     /**
      * {@link Join} clause of a {@link Selection}
      * 
      * @param join
-     * @return
+     * @return this
      */
     public Selection<E> join( Join join );
     
     /**
      * {@link Where} clause of a {@link Selection}
      * 
-     * @param where
-     * @return
+     * @param wheres
+     * @return this
      */
-    public Selection<E> where( Where<E> where );
+    public Selection<E> where( Where<E>... wheres );
     
     /**
      * {@link Order} clause of a {@link Selection}
      * 
      * @param order
-     * @return
+     * @return this
      */
     public Selection<E> orderBy( Order<E> order );
     
     /**
      * Creates the {@link Result} of the {@link Selection}. This should be called after all other configurations have been set.
      * 
-     * @return selection {@link Result}
+     * @return {@link Result}
      */
     public Result<E> result();
     
@@ -344,7 +353,7 @@ public interface TableSelectable<E>
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Selects a subset of {@link Row}s and {@link Column}s of a {@link Table}.
    * 
