@@ -22,7 +22,6 @@ import java.util.List;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
-import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 
@@ -40,18 +39,15 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   /* ********************************************** Variables ********************************************** */
   protected List<StripeData<E>> stripeDataList   = new ArrayList<StripeData<E>>();
   protected StripeType          stripeType       = null;
-  protected TableInternal<E>    tableInternal    = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @param tableInternal
    * @param stripeType
    */
-  public StripeDataListImpl( TableInternal<E> tableInternal, StripeType stripeType )
+  public StripeDataListImpl( StripeType stripeType )
   {
     super();
-    this.tableInternal = tableInternal;
     this.stripeType = stripeType;
   }
   
@@ -59,10 +55,10 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
    * Adds a new created {@link Stripe} instance to the {@link StripeDataListImpl}.
    */
   @Override
-  public StripeData<E> addNewStripe()
+  public StripeData<E> addNewStripeData()
   {
     //
-    StripeData<E> retval = new StripeDataImpl<E>( this.tableInternal, this );
+    StripeData<E> retval = new StripeDataImpl<E>( this );
     
     //
     this.stripeDataList.add( retval );
@@ -72,15 +68,15 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   }
   
   @Override
-  public StripeData<E> addNewStripe( int indexPosition )
+  public StripeData<E> addNewStripeData( int indexPosition )
   {
     //
-    StripeData<E> retval = new StripeDataImpl<E>( this.tableInternal, this );
+    StripeData<E> retval = new StripeDataImpl<E>( this );
     
     //
     while ( indexPosition > this.size() )
     {
-      this.addNewStripe();
+      this.addNewStripeData();
     }
     
     //
@@ -127,7 +123,7 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   }
   
   @Override
-  public StripeData<E> getStripe( int index )
+  public StripeData<E> getStripeData( int index )
   {
     return index >= 0 && index < this.stripeDataList.size() ? this.stripeDataList.get( index ) : null;
   }
@@ -139,7 +135,7 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   }
   
   @Override
-  public StripeData<E> getStripe( Cell<E> cell )
+  public StripeData<E> findStripeDataContaining( Cell<E> cell )
   {
     //
     StripeData<E> retval = null;
@@ -163,19 +159,19 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   }
   
   @Override
-  public boolean contains( Stripe<E> stripe )
+  public boolean contains( StripeData<E> stripeData )
   {
-    return this.stripeDataList.contains( stripe );
+    return this.stripeDataList.contains( stripeData );
   }
   
   @Override
   public boolean contains( Object titleValue )
   {
-    return this.getStripe( titleValue ) != null;
+    return this.getStripeData( titleValue ) != null;
   }
   
   @Override
-  public StripeData<E> getStripe( Object titleValue )
+  public StripeData<E> getStripeData( Object titleValue )
   {
     //
     StripeData<E> retval = null;
@@ -217,7 +213,7 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   public void removeStripeDataAndDetachCellsFromTable( int indexPosition )
   {
     //
-    StripeData<E> stripeInternal = this.getStripe( indexPosition );
+    StripeData<E> stripeInternal = this.getStripeData( indexPosition );
     if ( stripeInternal != null )
     {
       //
@@ -226,6 +222,29 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
       //
       this.stripeDataList.remove( indexPosition );
     }
+  }
+  
+  @Override
+  public void addStripeData( StripeData<E> stripeData )
+  {
+    //
+    if ( stripeData != null )
+    {
+      this.stripeDataList.add( stripeData );
+    }
+  }
+  
+  @Override
+  public void addAllStripeData( Iterable<StripeData<E>> stripeDataIterable )
+  {
+    if ( stripeDataIterable != null )
+    {
+      for ( StripeData<E> stripeData : stripeDataIterable )
+      {
+        this.addStripeData( stripeData );
+      }
+    }
+    
   }
   
 }

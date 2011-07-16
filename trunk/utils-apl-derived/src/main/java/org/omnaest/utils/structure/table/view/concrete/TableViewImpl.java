@@ -211,7 +211,7 @@ public class TableViewImpl<E> implements TableView<E>
   }
   
   @Override
-  public Table<E> cloneTableStructure()
+  public Table<E> cloneDeep()
   {
     // TODO Auto-generated method stub
     return null;

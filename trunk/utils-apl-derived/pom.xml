@@ -101,6 +101,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>uk.com.robust-it</groupId>
+            <artifactId>cloning</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
@@ -155,6 +160,12 @@
                 <artifactId>poi</artifactId>
                 <version>3.7</version>
                 <type>jar</type>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>uk.com.robust-it</groupId>
+                <artifactId>cloning</artifactId>
+                <version>1.7.5-SNAPSHOT</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>

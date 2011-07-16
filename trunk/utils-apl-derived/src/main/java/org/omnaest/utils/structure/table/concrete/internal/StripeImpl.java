@@ -64,7 +64,17 @@ public class StripeImpl<E> implements StripeInternal<E>
   @Override
   public Title getTitle()
   {
-    return this.stripeData.getTitleInternal();
+    //
+    Title retval = null;
+    
+    //
+    if ( this.stripeData != null )
+    {
+      retval = this.stripeData.getTitleInternal();
+    }
+    
+    //
+    return retval;
   }
   
   @Override
@@ -81,11 +91,21 @@ public class StripeImpl<E> implements StripeInternal<E>
       public boolean hasNext()
       {
         //
-        StripeType stripeType = StripeImpl.this.stripeData.resolveStripeType();
-        int size = StripeImpl.this.tableInternal.getTableContent().determineStripeListSize( stripeType );
+        boolean retval = false;
         
         //
-        return this.indexPosition + 1 < size;
+        if ( StripeImpl.this.stripeData != null && StripeImpl.this.tableInternal != null )
+        {
+          //
+          StripeType stripeType = StripeImpl.this.stripeData.resolveStripeType();
+          int size = StripeImpl.this.tableInternal.getTableContent().determineStripeListSize( stripeType );
+          
+          //
+          retval = this.indexPosition + 1 < size;
+        }
+        
+        //
+        return retval;
       }
       
       @Override
@@ -245,7 +265,17 @@ public class StripeImpl<E> implements StripeInternal<E>
   @Override
   public boolean hasTitle()
   {
-    return this.stripeData.getTitleInternal().getValue() != null;
+    //
+    boolean retval = false;
+    
+    //
+    if ( this.stripeData != null )
+    {
+      retval = this.stripeData.getTitleInternal().getValue() != null;
+    }
+    
+    //
+    return retval;
   }
   
   @Override

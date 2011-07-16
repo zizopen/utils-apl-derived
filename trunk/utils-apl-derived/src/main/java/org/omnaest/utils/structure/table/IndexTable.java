@@ -176,9 +176,9 @@ public interface IndexTable<E extends Comparable<E>> extends Table<E>, TableSele
   /**
    * Additional to the basic structure clone all index settings are cloned, too.
    * 
-   * @see Table#cloneTableStructure()
+   * @see Table#cloneDeep()
    */
-  public IndexTable<E> cloneTableStructure();
+  public IndexTable<E> cloneDeep();
   
   /**
    * Returns the index positions of all rows, where the column elements are greater than the given element.

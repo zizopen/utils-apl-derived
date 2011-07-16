@@ -139,7 +139,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   @Override
   public boolean isRowIndexed( int rowIndexPosition )
   {
-    return this.isIndexedList( this.rowList.getStripe( rowIndexPosition ) );
+    return this.isIndexedList( this.rowList.findStripeDataContaining( rowIndexPosition ) );
   }
   
   /* (non-Javadoc)
@@ -160,7 +160,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   
   public boolean isColumnIndexed( int columnIndexPosition )
   {
-    return this.isColumnInTableBoundary( columnIndexPosition ) && this.isIndexedList( this.columnList.getStripe( columnIndexPosition ) );
+    return this.isColumnInTableBoundary( columnIndexPosition ) && this.isIndexedList( this.columnList.findStripeDataContaining( columnIndexPosition ) );
   }
   
   /* (non-Javadoc)
@@ -195,7 +195,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     //
     if ( this.isRowInTableBoundary( rowIndexPosition ) )
     {
-      List<E> row = this.rowList.getStripe( rowIndexPosition );
+      List<E> row = this.rowList.findStripeDataContaining( rowIndexPosition );
       if ( indexed && !this.isIndexedList( row ) )
       {
         List<E> newRow = this.indexedListFactory.<E> create();
@@ -250,7 +250,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     //
     if ( this.isColumnInTableBoundary( columnIndexPosition ) )
     {
-      List<E> column = this.columnList.getStripe( columnIndexPosition );
+      List<E> column = this.columnList.findStripeDataContaining( columnIndexPosition );
       if ( indexed && !this.isIndexedList( column ) )
       {
         List<E> newColumn = this.indexedListFactory.<E> create();
@@ -311,7 +311,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
       int columnIndexPosition = 0;
       for ( int iColumnIndexPosition : columnIndexPositionList )
       {
-        List<E> iColumn = this.columnList.getStripe( iColumnIndexPosition );
+        List<E> iColumn = this.columnList.findStripeDataContaining( iColumnIndexPosition );
         if ( this.isIndexedList( iColumn ) )
         {
           rettable.setIndexColumn( columnIndexPosition++, true );
@@ -320,7 +320,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
       int rowIndexPosition = 0;
       for ( int iRowIndexPosition : rowIndexPositionList )
       {
-        List<E> iRow = this.rowList.getStripe( iRowIndexPosition );
+        List<E> iRow = this.rowList.findStripeDataContaining( iRowIndexPosition );
         if ( this.isIndexedList( iRow ) )
         {
           rettable.setIndexRow( rowIndexPosition++, true );
@@ -424,7 +424,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     {
       if ( this.isColumnIndexed( columnIndexPosition ) )
       {
-        int[] largerElementsIndexPositions = ( (IndexList<E>) this.columnList.getStripe( columnIndexPosition ) ).indexesOfElementsGreaterThan( element );
+        int[] largerElementsIndexPositions = ( (IndexList<E>) this.columnList.findStripeDataContaining( columnIndexPosition ) ).indexesOfElementsGreaterThan( element );
         
         retvals = this.determineAllRowIndexPositions();
         
@@ -464,7 +464,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     {
       if ( this.isColumnIndexed( columnIndexPosition ) )
       {
-        int[] smallerElementsIndexPositions = ( (IndexList<E>) this.columnList.getStripe( columnIndexPosition ) ).indexesOfElementsGreaterThan( element );
+        int[] smallerElementsIndexPositions = ( (IndexList<E>) this.columnList.findStripeDataContaining( columnIndexPosition ) ).indexesOfElementsGreaterThan( element );
         
         retvals = this.determineAllRowIndexPositions();
         
@@ -503,8 +503,8 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     {
       if ( this.isColumnIndexed( columnIndexPosition ) )
       {
-        int[] largerElementsIndexPositions = ( (IndexList<E>) this.columnList.getStripe( columnIndexPosition ) ).indexesOfElementsGreaterThan( upperElement );
-        int[] smallerElementsIndexPositions = ( (IndexList<E>) this.columnList.getStripe( columnIndexPosition ) ).indexesOfElementsLessThan( lowerElement );
+        int[] largerElementsIndexPositions = ( (IndexList<E>) this.columnList.findStripeDataContaining( columnIndexPosition ) ).indexesOfElementsGreaterThan( upperElement );
+        int[] smallerElementsIndexPositions = ( (IndexList<E>) this.columnList.findStripeDataContaining( columnIndexPosition ) ).indexesOfElementsLessThan( lowerElement );
         
         retvals = this.determineAllRowIndexPositions();
         retvals = this.determineSubtractedIndexPositions( retvals, smallerElementsIndexPositions );
@@ -550,7 +550,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   public IndexTable<E> whereElementIsGreaterThan( int columnIndexPosition, E element )
   {
     //
-    IndexTable<E> table = this.cloneTableStructure();
+    IndexTable<E> table = this.cloneDeep();
     
     //
     if ( this.isRowAndColumnInTableBoundary( 0, columnIndexPosition ) )
@@ -647,7 +647,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   public IndexTable<E> whereElementIsLesserThan( int columnIndexPosition, E element )
   {
     //
-    IndexTable<E> table = this.cloneTableStructure();
+    IndexTable<E> table = this.cloneDeep();
     
     //
     if ( this.isRowAndColumnInTableBoundary( 0, columnIndexPosition ) )
@@ -680,7 +680,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   public IndexTable<E> whereElementEquals( int columnIndexPosition, E element )
   {
     //
-    IndexTable<E> table = this.cloneTableStructure();
+    IndexTable<E> table = this.cloneDeep();
     
     //
     if ( this.isRowAndColumnInTableBoundary( 0, columnIndexPosition ) )
@@ -799,7 +799,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   public IndexTable<E> whereElementIsBetween( int columnIndexPosition, E lowerElement, E upperElement )
   {
     //
-    IndexTable<E> table = this.cloneTableStructure();
+    IndexTable<E> table = this.cloneDeep();
     
     //
     if ( this.isRowAndColumnInTableBoundary( 0, columnIndexPosition ) )
@@ -818,7 +818,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   }
   
   @Override
-  public IndexTable<E> cloneTableStructure()
+  public IndexTable<E> cloneDeep()
   {
     //
     IndexTable<E> rettable = new IndexArrayTable<E>();
@@ -869,7 +869,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
       if ( this.isColumnIndexed( columnIndexPosition ) )
       {
         //use the index to find all the index positions
-        IndexList<E> columnIndex = (IndexList<E>) this.columnList.getStripe( columnIndexPosition );
+        IndexList<E> columnIndex = (IndexList<E>) this.columnList.findStripeDataContaining( columnIndexPosition );
         retvals = columnIndex.indexesOf( element );
       }
       else
@@ -952,7 +952,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     {
       for ( int ii = 0; ii < this.columnList.size(); ii++ )
       {
-        int indexOf = this.columnList.getStripe( ii ).indexOf( element );
+        int indexOf = this.columnList.findStripeDataContaining( ii ).indexOf( element );
         if ( indexOf >= 0 )
         {
           CellIndexPosition cellIndexPosition = this.determineCellIndexPosition( indexOf, ii );
@@ -967,7 +967,7 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
     {
       for ( int ii = 0; ii < this.rowList.size(); ii++ )
       {
-        int indexOf = this.rowList.getStripe( ii ).indexOf( element );
+        int indexOf = this.rowList.findStripeDataContaining( ii ).indexOf( element );
         if ( indexOf >= 0 )
         {
           retval = this.determineCellIndexPosition( ii, indexOf );
@@ -981,9 +981,9 @@ public class IndexArrayTable<E extends Comparable<E>> extends ArrayTable<E> impl
   }
   
   @Override
-  public IndexTable<E> clone()
+  public IndexTable<E> cloneStructure()
   {
-    IndexTable<E> rettable = new IndexArrayTable<E>( super.clone() );
+    IndexTable<E> rettable = new IndexArrayTable<E>( super.cloneStructure() );
     
     //set the indexes
     for ( int ii = 0; ii < this.rowList.size(); ii++ )

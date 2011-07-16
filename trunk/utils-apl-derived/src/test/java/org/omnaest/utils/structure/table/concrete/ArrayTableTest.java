@@ -88,7 +88,7 @@ public class ArrayTableTest
     this.table.transpose();
     
     //
-    TableSize tableSize = table.getTableSize();
+    TableSize tableSize = this.table.getTableSize();
     assertNotNull( tableSize );
     assertEquals( columns, tableSize.getRowSize() );
     assertEquals( rows, tableSize.getColumnSize() );
@@ -107,7 +107,7 @@ public class ArrayTableTest
     this.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
-    TableSize tableSize = table.getTableSize();
+    TableSize tableSize = this.table.getTableSize();
     assertNotNull( tableSize );
     assertEquals( rows, tableSize.getRowSize() );
     assertEquals( columns, tableSize.getColumnSize() );
@@ -747,5 +747,43 @@ public class ArrayTableTest
     
     assertEquals( null, this.table.getCell( "a", "b" ) );
     
+  }
+  
+  @Test
+  public void testCloneStructureWithContent()
+  {
+    //
+    final int rows = 5;
+    final int columns = 3;
+    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    Table<Object> tableClonedStructure = this.table.cloneStructureWithContent();
+    assertEquals( this.table, tableClonedStructure );
+    
+    //
+    int cellIndexPosition = 2;
+    Object element = "other";
+    this.table.setCellElement( cellIndexPosition, element );
+    assertFalse( this.table.equals( tableClonedStructure ) );
+  }
+  
+  @Test
+  public void testCloneStructure()
+  {
+    //
+    final int rows = 5;
+    final int columns = 3;
+    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    Table<Object> tableClonedStructure = this.table.cloneStructure();
+    assertEquals( this.table, tableClonedStructure );
+    
+    //
+    int cellIndexPosition = 2;
+    Object element = "other";
+    this.table.setCellElement( cellIndexPosition, element );
+    assertEquals( this.table, tableClonedStructure );
   }
 }

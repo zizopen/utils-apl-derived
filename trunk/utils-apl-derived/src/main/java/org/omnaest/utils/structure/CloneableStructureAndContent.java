@@ -15,20 +15,25 @@
  ******************************************************************************/
 package org.omnaest.utils.structure;
 
+import java.util.Map;
+
 /**
- * Interface for types which have to implement a {@link #cloneDeep()} method.
+ * Interface for types which have to implement a {@link #cloneStructureWithContent()} method.
  * 
  * @author Omnaest
+ * @see Cloneable
+ * @see CloneableStructure
  * @param <T>
  */
-public interface CloneableDeep<T>
+public interface CloneableStructureAndContent<T>
 {
   /**
-   * Returns a deep copy of this object, instead of a shallow copy like {@link Object#clone()}.
+   * Returns a copy of this object, instead of a shallow copy like {@link Object#clone()}. For high level structures like e.g. a
+   * {@link Map} the {@link Map} structure and its content is cloned.
    * 
    * @param <T>
    * @return
    */
-  public T cloneDeep();
+  public T cloneStructureWithContent();
   
 }

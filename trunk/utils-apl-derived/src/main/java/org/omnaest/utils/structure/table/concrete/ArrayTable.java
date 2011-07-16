@@ -23,14 +23,16 @@ import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.concrete.internal.CellAndStripeResolverImpl;
 import org.omnaest.utils.structure.table.concrete.internal.StripeFactory;
-import org.omnaest.utils.structure.table.concrete.internal.StripeListContainerImpl;
-import org.omnaest.utils.structure.table.concrete.internal.TableSizeImpl;
+import org.omnaest.utils.structure.table.concrete.internal.TableContentImpl;
 import org.omnaest.utils.structure.table.concrete.selection.SelectionImpl;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellAndStripeResolver;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
+import org.omnaest.utils.structure.table.internal.TableInternal.TableContentResolver;
+
+import com.rits.cloning.Cloner;
 
 /**
  * Implementation of {@link Table} that uses two array lists as row and column data structure.
@@ -45,11 +47,18 @@ public class ArrayTable<E> extends TableAbstract<E>
   
   /* ********************************************** Variables ********************************************** */
   protected ArrayTableInternal       arrayTableInternal    = new ArrayTableInternal();
+  protected TableContentResolver<E>  tableContentResolver  = new TableContentResolver<E>()
+                                                           {
+                                                             @Override
+                                                             public TableContent<E> resolveTableContent()
+                                                             {
+                                                               return ArrayTable.this.tableContent;
+                                                             }
+                                                           };
   protected Object                   tableName             = null;
   protected StripeFactory<E>         stripeFactory         = new StripeFactory<E>( this.arrayTableInternal );
-  protected TableContent<E>          tableContent          = new StripeListContainerImpl<E>( this.arrayTableInternal );
-  protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl<E>( this.tableContent );
-  protected TableSize                tableSize             = new TableSizeImpl( this.tableContent );
+  protected TableContent<E>          tableContent          = new TableContentImpl<E>();
+  protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl<E>( this.tableContentResolver );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -179,7 +188,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public TableSize getTableSize()
   {
-    return this.tableSize;
+    return this.tableContent.getTableSize();
   }
   
   @Override
@@ -206,7 +215,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addColumnCellElements( List<? extends E> columnCellElementList )
   {
     //
-    int columnIndexPosition = this.tableSize.getColumnSize();
+    int columnIndexPosition = this.getTableSize().getColumnSize();
     this.setColumnCellElements( columnIndexPosition, columnCellElementList );
     
     //
@@ -217,7 +226,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList )
   {
     //    
-    StripeData<E> newStripe = this.tableContent.getColumnList().addNewStripe( columnIndexPosition );
+    StripeData<E> newStripe = this.tableContent.getColumnList().addNewStripeData( columnIndexPosition );
     if ( newStripe != null )
     {
       this.setColumnCellElements( columnIndexPosition, columnCellElementList );
@@ -231,7 +240,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addRowCellElements( List<? extends E> rowCellElementList )
   {
     //
-    int rowIndexPosition = this.tableSize.getRowSize();
+    int rowIndexPosition = this.getTableSize().getRowSize();
     this.setRowCellElements( rowIndexPosition, rowCellElementList );
     
     //
@@ -242,7 +251,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList )
   {
     //
-    StripeData<E> newStripe = this.tableContent.getRowList().addNewStripe( rowIndexPosition );
+    StripeData<E> newStripe = this.tableContent.getRowList().addNewStripeData( rowIndexPosition );
     if ( newStripe != null )
     {
       this.setRowCellElements( rowIndexPosition, rowCellElementList );
@@ -338,20 +347,56 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> cloneTableStructure()
+  public Table<E> cloneStructure()
   {
-    //TODO
+    //
+    ArrayTable<E> retval = new ArrayTable<E>();
+    retval.tableContent = this.tableContent.cloneStructure();
+    retval.tableName = this.tableName;
     
     //
-    return null;
+    return retval;
   }
   
   @Override
-  public Table<E> clone()
+  public Table<E> cloneStructureWithContent()
   {
-    //TODO
     //
-    return null;
+    ArrayTable<E> retval = new ArrayTable<E>();
+    retval.setNumberOfColumns( this.getTableSize().getColumnSize() );
+    retval.setNumberOfRows( this.getTableSize().getRowSize() );
+    TableCellVisitor<E> tableCellVisitor = new TableCellVisitor<E>()
+    {
+      /* ********************************************** Variables ********************************************** */
+      private Cloner cloner = new Cloner();
+      
+      /* ********************************************** Methods ********************************************** */
+      
+      @Override
+      public void process( int rowIndexPosition, int columnIndexPosition, Cell<E> cell )
+      {
+        //
+        E elementClone = null;
+        
+        //
+        E cellElement = ArrayTable.this.getCellElement( rowIndexPosition, columnIndexPosition );
+        if ( cellElement != null )
+        {
+          //
+          elementClone = this.cloner.deepClone( cellElement );
+        }
+        
+        //
+        cell.setElement( elementClone );
+      }
+    };
+    retval.processTableCells( tableCellVisitor );
+    retval.setColumnTitleValues( this.getColumnTitleValueList() );
+    retval.setRowTitleValues( this.getRowTitleValueList() );
+    retval.tableName = this.tableName;
+    
+    //
+    return retval;
   }
   
   @Override

@@ -25,6 +25,7 @@ import org.omnaest.utils.structure.table.internal.TableInternal.CellAndStripeRes
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
+import org.omnaest.utils.structure.table.internal.TableInternal.TableContentResolver;
 
 /**
  * @see TableInternal
@@ -36,20 +37,20 @@ import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID = 7793892246619215531L;
+  private static final long         serialVersionUID     = 7793892246619215531L;
   
   /* ********************************************** Variables ********************************************** */
-  protected TableContent<E> tableContent     = null;
+  protected TableContentResolver<E> tableContentResolver = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @param stripeListContainer
+   * @param tableContentResolver
    */
-  public CellAndStripeResolverImpl( TableContent<E> stripeListContainer )
+  public CellAndStripeResolverImpl( TableContentResolver<E> tableContentResolver )
   {
     super();
-    this.tableContent = stripeListContainer;
+    this.tableContentResolver = tableContentResolver;
   }
   
   @Override
@@ -111,13 +112,13 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     if ( stripeType != null )
     {
       //
-      TableContent<E> stripeListContainer = this.getTableContent();
+      TableContent<E> stripeListContainer = this.resolveTableContent();
       
       //
       StripeDataList<E> stripeList = stripeListContainer.getStripeDataList( stripeType );
       
       //
-      retval = stripeList.getStripe( titleValue );
+      retval = stripeList.getStripeData( titleValue );
     }
     
     //
@@ -134,14 +135,14 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     if ( stripeType != null )
     {
       //
-      TableContent<E> stripeListContainer = this.getTableContent();
+      TableContent<E> stripeListContainer = this.resolveTableContent();
       
       //
       StripeDataList<E> stripeList = stripeListContainer.getStripeDataList( stripeType );
       if ( stripeList != null )
       {
         //      
-        retval = stripeList.getStripe( indexPosition );
+        retval = stripeList.getStripeData( indexPosition );
       }
     }
     
@@ -159,13 +160,13 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     if ( indexPosition >= 0 )
     {
       //
-      StripeDataList<E> stripeList = this.getTableContent().getStripeDataList( stripeType );
+      StripeDataList<E> stripeList = this.resolveTableContent().getStripeDataList( stripeType );
       if ( stripeList != null )
       {
         //
         while ( ( stripe = this.resolveStripeData( stripeType, indexPosition ) ) == null )
         {
-          stripeList.addNewStripe();
+          stripeList.addNewStripeData();
         }
       }
     }
@@ -184,7 +185,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     if ( titleValue != null )
     {
       //
-      StripeDataList<E> stripeList = this.getTableContent().getStripeDataList( stripeType );
+      StripeDataList<E> stripeList = this.resolveTableContent().getStripeDataList( stripeType );
       if ( stripeList != null )
       {
         //
@@ -194,7 +195,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
         if ( stripe == null )
         {
           //
-          stripe = stripeList.addNewStripe();
+          stripe = stripeList.addNewStripeData();
           
           //
           stripe.getTitleInternal().setValue( titleValue );
@@ -216,7 +217,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     if ( stripeData != null && indexPosition >= 0 )
     {
       //
-      TableContent<E> stripeListContainer = this.getTableContent();
+      TableContent<E> stripeListContainer = this.resolveTableContent();
       
       //
       StripeType stripeTypeInverted = StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() );
@@ -226,7 +227,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
       if ( stripeList != null )
       {
         //
-        StripeData<E> stripeOrthogonal = stripeList.getStripe( indexPosition );
+        StripeData<E> stripeOrthogonal = stripeList.getStripeData( indexPosition );
         if ( stripeOrthogonal != null )
         {
           retval = this.resolveCell( stripeData, stripeOrthogonal );
@@ -248,7 +249,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     if ( stripeData != null && titleValue != null )
     {
       //
-      TableContent<E> stripeListContainer = this.getTableContent();
+      TableContent<E> stripeListContainer = this.resolveTableContent();
       
       //
       StripeType stripeTypeInverted = StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() );
@@ -258,7 +259,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
       if ( stripeList != null )
       {
         //
-        StripeData<E> stripeOrthogonal = stripeList.getStripe( titleValue );
+        StripeData<E> stripeOrthogonal = stripeList.getStripeData( titleValue );
         if ( stripeOrthogonal != null )
         {
           retval = this.resolveCell( stripeData, stripeOrthogonal );
@@ -277,7 +278,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     int retval = -1;
     
     //
-    int columnListSize = this.getTableContent().getColumnList().size();
+    int columnListSize = this.resolveTableContent().getColumnList().size();
     if ( columnListSize > 0 )
     {
       retval = cellIndexPosition / columnListSize;
@@ -294,7 +295,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     int retval = -1;
     
     //
-    int columnListSize = this.getTableContent().getColumnList().size();
+    int columnListSize = this.resolveTableContent().getColumnList().size();
     if ( columnListSize > 0 )
     {
       retval = cellIndexPosition % columnListSize;
@@ -304,9 +305,12 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     return retval;
   }
   
-  protected TableContent<E> getTableContent()
+  /**
+   * @return
+   */
+  protected TableContent<E> resolveTableContent()
   {
-    return this.tableContent;
+    return this.tableContentResolver.resolveTableContent();
   }
   
 }
