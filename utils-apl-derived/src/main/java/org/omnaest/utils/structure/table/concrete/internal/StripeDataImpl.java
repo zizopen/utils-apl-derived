@@ -24,7 +24,6 @@ import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
-import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
@@ -45,19 +44,16 @@ public class StripeDataImpl<E> implements StripeData<E>
   
   /* ********************************************** Beans / Services ********************************************** */
   
-  protected TableInternal<E>     tableInternal    = null;
   protected StripeDataList<E>    stripeDataList   = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @param tableInternal
    * @param stripeDataList
    */
-  public StripeDataImpl( TableInternal<E> tableInternal, StripeDataList<E> stripeDataList )
+  public StripeDataImpl( StripeDataList<E> stripeDataList )
   {
     super();
-    this.tableInternal = tableInternal;
     this.stripeDataList = stripeDataList;
   }
   
@@ -100,16 +96,6 @@ public class StripeDataImpl<E> implements StripeData<E>
     
     // 
     return retval;
-  }
-  
-  public Cell<E> resolvesOrCreateCell( int indexPosition )
-  {
-    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this, indexPosition );
-  }
-  
-  public Cell<E> resolvesOrCreateCell( Object titleValue )
-  {
-    return this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this, titleValue );
   }
   
   @Override

@@ -255,30 +255,39 @@ public class TableHelper
         for ( Column<E> column : table.columns() )
         {
           //
-          int lengthMax = 0;
-          
-          //
-          {
-            String content = this.convertObjectContentToString( column.getTitle().getValue() );
-            if ( content != null )
-            {
-              lengthMax = content.length();
-            }
-          }
-          
-          //
-          for ( Cell<E> cell : column )
+          if ( column != null )
           {
             //
-            String content = this.convertObjectContentToString( cell.getElement() );
-            if ( content != null )
+            int lengthMax = 0;
+            
+            //
+            if ( column.getTitle() != null )
             {
-              lengthMax = Math.max( lengthMax, content.length() );
+              String content = this.convertObjectContentToString( column.getTitle().getValue() );
+              if ( content != null )
+              {
+                lengthMax = content.length();
+              }
             }
+            
+            //
+            for ( Cell<E> cell : column )
+            {
+              //
+              if ( cell != null )
+              {
+                //
+                String content = this.convertObjectContentToString( cell.getElement() );
+                if ( content != null )
+                {
+                  lengthMax = Math.max( lengthMax, content.length() );
+                }
+              }
+            }
+            
+            //
+            retlist.add( lengthMax );
           }
-          
-          //
-          retlist.add( lengthMax );
         }
         
         //
@@ -390,11 +399,15 @@ public class TableHelper
           Iterator<Integer> iteratorColumnWidthList = columnWidthList.iterator();
           for ( Cell<E> cell : row.cells() )
           {
-            //            
-            retval.append( StringUtils.center( this.convertObjectContentToString( cell.getElement() ),
-                                               iteratorColumnWidthList.next() ) );
             //
-            retval.append( delimiterColumn );
+            if ( iteratorColumnWidthList.hasNext() )
+            {
+              //            
+              retval.append( StringUtils.center( this.convertObjectContentToString( cell != null ? cell.getElement() : null ),
+                                                 iteratorColumnWidthList.next() ) );
+              //
+              retval.append( delimiterColumn );
+            }
           }
           
           //

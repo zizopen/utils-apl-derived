@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.table.concrete.internal;
 
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
+import org.omnaest.utils.structure.table.Table.TableSize;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
@@ -24,10 +25,12 @@ import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
  * @author Omnaest
  * @param <E>
  */
-public abstract class StripeListContainerAbstract<E> implements TableContent<E>
+public abstract class TableContentAbstract<E> implements TableContent<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = 58312083803417020L;
+  /* ********************************************** Variables ********************************************** */
+  protected TableSize       tableSize        = new TableSizeImpl( this );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -41,6 +44,12 @@ public abstract class StripeListContainerAbstract<E> implements TableContent<E>
   public StripeDataList<E> getColumnList()
   {
     return this.getStripeDataList( StripeType.COLUMN );
+  }
+  
+  @Override
+  public TableSize getTableSize()
+  {
+    return this.tableSize;
   }
   
 }

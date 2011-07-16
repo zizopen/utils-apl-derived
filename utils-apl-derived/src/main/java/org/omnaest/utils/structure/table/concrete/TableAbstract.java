@@ -43,15 +43,6 @@ public abstract class TableAbstract<E> implements Table<E>
   protected TableXMLSerializable<E> tableXMLSerializable = new TableXMLSerializableImpl<E>( this );
   
   /* ********************************************** Methods ********************************************** */
-  @Override
-  public abstract Table<E> clone();
-  
-  @SuppressWarnings("unchecked")
-  @Override
-  public boolean equals( Object object )
-  {
-    return object instanceof Table && this.equals( (Table<E>) object );
-  }
   
   @Override
   public E getCellElement( int rowIndexPosition, int columnIndexPosition )
@@ -250,6 +241,9 @@ public abstract class TableAbstract<E> implements Table<E>
   {
     //
     final Table<TO> table = new ArrayTable<TO>();
+    table.setTableName( this.getTableName() );
+    table.setColumnTitleValues( this.getColumnTitleValueList() );
+    table.setRowTitleValues( this.getRowTitleValueList() );
     
     //
     this.processTableCells( new TableCellVisitor<E>()
@@ -488,32 +482,66 @@ public abstract class TableAbstract<E> implements Table<E>
   }
   
   @Override
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    for ( Cell<E> cell : this.cells() )
+    {
+      result = prime * result + ( ( cell == null ) ? 0 : cell.hashCode() );
+    }
+    return result;
+  }
+  
+  @Override
+  @SuppressWarnings("unchecked")
+  public boolean equals( Object object )
+  {
+    return object instanceof Table && this.equals( (Table<E>) object );
+  }
+  
+  @Override
   public boolean equals( Table<E> table )
   {
     //
-    boolean retval = this.getTableSize().equals( table.getTableSize() );
+    boolean retval = table != null;
     
     //
     if ( retval )
     {
-      //      
-      Iterator<Cell<E>> iteratorCellThis = this.iteratorCell();
-      Iterator<Cell<E>> iteratorCellOther = table.iteratorCell();
+      //
+      retval = this.getTableSize().equals( table.getTableSize() );
       
       //
-      while ( retval && iteratorCellThis.hasNext() && iteratorCellOther.hasNext() )
+      retval &= this.getTableName() == table.getTableName()
+                || ( this.getTableName() != null && this.getTableName().equals( table.getTableName() ) );
+      
+      //
+      retval &= this.getColumnTitleValueList().equals( table.getColumnTitleValueList() );
+      retval &= this.getRowTitleValueList().equals( table.getRowTitleValueList() );
+      
+      //
+      if ( retval )
       {
-        //
-        Cell<E> cellThis = iteratorCellThis.next();
-        Cell<E> cellOther = iteratorCellOther.next();
+        //      
+        Iterator<Cell<E>> iteratorCellThis = this.iteratorCell();
+        Iterator<Cell<E>> iteratorCellOther = table.iteratorCell();
         
         //
-        retval &= ( cellThis == null && cellOther == null )
-                  || ( cellThis != null && cellOther != null && cellThis.hasElement( cellOther.getElement() ) );
+        while ( retval && iteratorCellThis.hasNext() && iteratorCellOther.hasNext() )
+        {
+          //
+          Cell<E> cellThis = iteratorCellThis.next();
+          Cell<E> cellOther = iteratorCellOther.next();
+          
+          //
+          retval &= ( cellThis == null && cellOther == null )
+                    || ( cellThis != null && cellOther != null && cellThis.hasElement( cellOther.getElement() ) );
+        }
+        
+        //
+        retval &= !iteratorCellThis.hasNext() && !iteratorCellOther.hasNext();
       }
-      
-      //
-      retval &= !iteratorCellThis.hasNext() && !iteratorCellOther.hasNext();
     }
     
     //

@@ -21,41 +21,36 @@ import java.util.List;
 
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
-import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
 /**
  * @author Omnaest
- * @see StripeListContainerAbstract
+ * @see TableContentAbstract
  * @see TableContent
  * @param <E>
  */
-public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
+public class TableContentImpl<E> extends TableContentAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long         serialVersionUID = -1286089813999328668L;
   /* ********************************************** Variables ********************************************** */
   protected List<StripeDataList<E>> stripeListList   = null;
-  protected TableInternal<E>        tableInternal    = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @param tableInternal
+   * 
    */
   @SuppressWarnings("unchecked")
-  public StripeListContainerImpl( TableInternal<E> tableInternal )
+  public TableContentImpl()
   {
     //
     super();
-    this.tableInternal = tableInternal;
     
     //
-    this.stripeListList = new ArrayList<StripeDataList<E>>( Arrays.asList( new StripeDataListImpl<E>( this.tableInternal,
-                                                                                                      StripeType.ROW ),
-                                                                           new StripeDataListImpl<E>( this.tableInternal,
-                                                                                                      StripeType.COLUMN ) ) );
+    this.stripeListList = new ArrayList<StripeDataList<E>>( Arrays.asList( new StripeDataListImpl<E>( StripeType.ROW ),
+                                                                           new StripeDataListImpl<E>( StripeType.COLUMN ) ) );
   }
   
   @Override
@@ -123,4 +118,17 @@ public class StripeListContainerImpl<E> extends StripeListContainerAbstract<E>
       stripeList.clear();
     }
   }
+  
+  @Override
+  public TableContent<E> cloneStructure()
+  {
+    //
+    TableContentImpl<E> retval = new TableContentImpl<E>();
+    retval.getRowList().addAllStripeData( this.getRowList() );
+    retval.getColumnList().addAllStripeData( this.getColumnList() );
+    
+    //
+    return retval;
+  }
+  
 }

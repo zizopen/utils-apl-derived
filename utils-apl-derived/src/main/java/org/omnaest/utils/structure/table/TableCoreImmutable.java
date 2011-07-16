@@ -18,6 +18,8 @@ package org.omnaest.utils.structure.table;
 import java.util.Iterator;
 import java.util.List;
 
+import org.omnaest.utils.structure.CloneableStructure;
+import org.omnaest.utils.structure.CloneableStructureAndContent;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
@@ -32,7 +34,7 @@ import org.omnaest.utils.structure.table.Table.TableSize;
  * @author Omnaest
  * @param <E>
  */
-public interface TableCoreImmutable<E>
+public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, CloneableStructureAndContent<Table<E>>
 {
   
   /**
@@ -257,16 +259,19 @@ public interface TableCoreImmutable<E>
   public boolean contains( E element );
   
   /**
-   * Clones the current {@link Table}.
+   * Clones the current {@link Table} structure excluding the {@link Cell}s. This results in a {@link Table} clone which will not
+   * have the {@link Table} content cloned but can have a different subset of {@link Row}s and {@link Column}s as the original
+   * {@link Table}
    */
-  public Table<E> clone();
+  @Override
+  public Table<E> cloneStructure();
   
   /**
-   * Clones the {@link Table} structure like {@link Table} name, titles of {@link Column}s and {@link Row}s, and possibly indexes.
-   * 
-   * @return
+   * Clones the current {@link Table} structure and the {@link Cell}s and their {@link Cell#getElement()} content using
+   * {@link Object#clone()} on the {@link Cell} elements
    */
-  public Table<E> cloneTableStructure();
+  @Override
+  public Table<E> cloneStructureWithContent();
   
   /**
    * Returns an {@link Iterator} that goes through every {@link Column} for every {@link Row}. Starting from left to right and

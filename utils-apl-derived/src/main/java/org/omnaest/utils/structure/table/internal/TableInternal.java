@@ -15,9 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.internal;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.omnaest.utils.structure.CloneableStructure;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
@@ -26,7 +28,7 @@ import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.Table.TableComponent;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
+import org.omnaest.utils.structure.table.Table.TableSize;
 
 /**
  * @see Table
@@ -45,6 +47,22 @@ public interface TableInternal<E>
    */
   public static interface TableComponentInternal extends TableComponent
   {
+  }
+  
+  /**
+   * @see TableContent
+   * @see Table
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface TableContentResolver<E>
+  {
+    /**
+     * Resolves the {@link TableContent}
+     * 
+     * @return
+     */
+    public TableContent<E> resolveTableContent();
   }
   
   /**
@@ -411,7 +429,7 @@ public interface TableInternal<E>
    * 
    * @author Omnaest
    */
-  public static interface TableContent<E> extends TableComponentInternal
+  public static interface TableContent<E> extends TableComponentInternal, CloneableStructure<TableContent<E>>
   {
     
     /**
@@ -454,6 +472,13 @@ public interface TableInternal<E>
      */
     public void clear();
     
+    /**
+     * Returns a {@link TableSize} instance
+     * 
+     * @return
+     */
+    public TableSize getTableSize();
+    
   }
   
   /**
@@ -492,7 +517,7 @@ public interface TableInternal<E>
      * @param indexPosition
      * @return
      */
-    public StripeData<E> getStripe( int indexPosition );
+    public StripeData<E> getStripeData( int indexPosition );
     
     /**
      * Returns the {@link Stripe} which contains the given {@link Cell}
@@ -500,7 +525,7 @@ public interface TableInternal<E>
      * @param cell
      * @return
      */
-    public StripeData<E> getStripe( Cell<E> cell );
+    public StripeData<E> findStripeDataContaining( Cell<E> cell );
     
     /**
      * Returns true if the {@link StripeDataList} does not contain any {@link Stripe} instance.
@@ -522,28 +547,42 @@ public interface TableInternal<E>
     public void clear();
     
     /**
-     * Adds a new created {@link Stripe} instance to the end of the {@link StripeDataList}
+     * Adds a new created {@link StripeData} instance to the end of the {@link StripeDataList}
      * 
      * @return
      */
-    public StripeData<E> addNewStripe();
+    public StripeData<E> addNewStripeData();
     
     /**
-     * Adds a new created {@link Stripe} instance into the given index position of the {@link StripeDataList}. This moves an
+     * Adds a new created {@link StripeData} instance into the given index position of the {@link StripeDataList}. This moves an
      * already existing {@link Stripe} at that position and all following {@link Stripe} instances one position further.
      * 
      * @param indexPosition
      * @return
      */
-    public StripeData<E> addNewStripe( int indexPosition );
+    public StripeData<E> addNewStripeData( int indexPosition );
     
     /**
-     * Returns true if the {@link StripeDataList} contains the given {@link Stripe}
+     * Adds a {@link StripeData} instance to the current {@link StripeDataList}
      * 
-     * @param stripe
+     * @see #addAllStripeData(Collection)
+     * @param stripeData
+     */
+    public void addStripeData( StripeData<E> stripeData );
+    
+    /**
+     * @see #addStripeData(StripeData)
+     * @param stripeDataIterable
+     */
+    public void addAllStripeData( Iterable<StripeData<E>> stripeDataIterable );
+    
+    /**
+     * Returns true if the {@link StripeDataList} contains the given {@link StripeData}
+     * 
+     * @param stripeData
      * @return
      */
-    public boolean contains( Stripe<E> stripe );
+    public boolean contains( StripeData<E> stripeData );
     
     /**
      * Returns true if the {@link StripeDataList} contains a {@link Stripe} with the given {@link Title#getValue()}
@@ -554,23 +593,23 @@ public interface TableInternal<E>
     public boolean contains( Object titleValue );
     
     /**
-     * Returns the {@link Stripe} with the given {@link Title#getValue()}. If no {@link Stripe} has the given {@link Title} null
-     * is returned.
+     * Returns the {@link StripeData} with the given {@link Title#getValue()}. If no {@link Stripe} has the given {@link Title}
+     * null is returned.
      * 
      * @param titleValue
      * @return
      */
-    public StripeData<E> getStripe( Object titleValue );
+    public StripeData<E> getStripeData( Object titleValue );
     
     /**
-     * Removes a {@link Stripe} from the {@link StripeDataList} and detaches its {@link Cell}s too.
+     * Removes a {@link StripeData} from the {@link StripeDataList} and detaches its {@link Cell}s too.
      * 
-     * @param stripe
+     * @param stripeData
      */
-    public void removeStripeAndDetachCellsFromTable( StripeData<E> stripe );
+    public void removeStripeAndDetachCellsFromTable( StripeData<E> stripeData );
     
     /**
-     * Removes a {@link Stripe} from the {@link StripeDataList} and detaches its {@link Cell}s too.
+     * Removes a {@link StripeData} from the {@link StripeDataList} and detaches its {@link Cell}s too.
      * 
      * @param indexPosition
      */

@@ -900,7 +900,7 @@ public class IndexArrayTableTest
     Table<Integer> naturalIndexedTable = new IndexArrayTable<Integer>();
     naturalIndexedTable.putArray( new Integer[][] { { 11, 12, 13 }, { 21, 22, 23 }, { 31, 32, 33 } }, 0, 0 );
     
-    Table<Integer> listbackedIndexedTable = naturalIndexedTable.clone();
+    Table<Integer> listbackedIndexedTable = naturalIndexedTable.cloneStructure();
     assertEquals( true, naturalIndexedTable.equals( listbackedIndexedTable ) );
     
     /*
@@ -1095,13 +1095,13 @@ public class IndexArrayTableTest
     table.setColumnTitles( TableTitle.values() );
     
     Row<Integer> row = table.getRow( 0 );
-    assertEquals( Integer.valueOf( 11 ), row.getStripe( TableTitle.column1 ) );
-    assertEquals( Integer.valueOf( 12 ), row.getStripe( TableTitle.column2 ) );
-    assertEquals( Integer.valueOf( 13 ), row.getStripe( TableTitle.column3 ) );
+    assertEquals( Integer.valueOf( 11 ), row.findStripeDataContaining( TableTitle.column1 ) );
+    assertEquals( Integer.valueOf( 12 ), row.findStripeDataContaining( TableTitle.column2 ) );
+    assertEquals( Integer.valueOf( 13 ), row.findStripeDataContaining( TableTitle.column3 ) );
     
-    assertEquals( Integer.valueOf( 11 ), row.getStripe( "column1" ) );
-    assertEquals( Integer.valueOf( 12 ), row.getStripe( "column2" ) );
-    assertEquals( Integer.valueOf( 13 ), row.getStripe( "column3" ) );
+    assertEquals( Integer.valueOf( 11 ), row.findStripeDataContaining( "column1" ) );
+    assertEquals( Integer.valueOf( 12 ), row.findStripeDataContaining( "column2" ) );
+    assertEquals( Integer.valueOf( 13 ), row.findStripeDataContaining( "column3" ) );
     
   }
   
