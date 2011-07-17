@@ -162,7 +162,7 @@ public class SelectionImpl<E> implements Selection<E>
   }
   
   @Override
-  public Result<E> result()
+  public Result<E> asView()
   {
     //
     Result<E> result = null;
@@ -181,6 +181,13 @@ public class SelectionImpl<E> implements Selection<E>
     
     // 
     return result;
+  }
+  
+  @Override
+  public Table<E> asTable()
+  {
+    //TODO
+    return null;
   }
   
 }

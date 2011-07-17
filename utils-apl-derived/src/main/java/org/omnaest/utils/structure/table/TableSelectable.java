@@ -20,7 +20,6 @@ import java.util.Map;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
-import org.omnaest.utils.structure.table.TableSelectable.Where;
 import org.omnaest.utils.structure.table.view.TableView;
 
 /**
@@ -36,8 +35,8 @@ public interface TableSelectable<E>
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * {@link Selection} from a {@link Table}. The {@link Selection} uses a builder pattern to create a {@link TableView} as a
-   * {@link Result}
+   * {@link Selection} from a {@link Table}. The {@link Selection} uses a builder pattern to create a {@link TableView} or a new
+   * {@link Table} instance
    * 
    * @see Table#select()
    * @see Selection#columns(Column...)
@@ -45,7 +44,8 @@ public interface TableSelectable<E>
    * @see Selection#from(Table)
    * @see Selection#where(Where...)
    * @see Selection#orderBy(Order)
-   * @see Selection#result()
+   * @see Selection#asView()
+   * @see Selection#asTable()
    * @see Join
    * @see Where
    * @see Order
@@ -103,11 +103,11 @@ public interface TableSelectable<E>
     public Selection<E> orderBy( Order<E> order );
     
     /**
-     * Creates the {@link Result} of the {@link Selection}. This should be called after all other configurations have been set.
+     * Creates a {@link TableView} of the {@link Selection}. This should be called after all other configurations have been set.
      * 
      * @return {@link Result}
      */
-    public Result<E> result();
+    public Result<E> asView();
     
     /**
      * Merges {@link Row}s if there {@link Cell} elements are all equal
@@ -115,6 +115,14 @@ public interface TableSelectable<E>
      * @return this
      */
     public Selection<E> distinct();
+    
+    /**
+     * Returns the declared {@link Selection} as a new {@link Table} instance. . This should be called after all other
+     * configurations have been set.
+     * 
+     * @return
+     */
+    public Table<E> asTable();
   }
   
   /**
@@ -350,6 +358,14 @@ public interface TableSelectable<E>
    */
   public static interface Join
   {
+    /**
+     * @see Join
+     * @author Omnaest
+     */
+    public static interface ON
+    {
+      
+    }
   }
   
   /* ********************************************** Methods ********************************************** */
