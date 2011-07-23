@@ -18,7 +18,7 @@ package org.omnaest.utils.reflection;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Helper for Java Reflection.

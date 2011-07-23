@@ -96,7 +96,7 @@ public class DurationCaptureTypeFactoryTest
     long durationInMillisecondsWithinMethod = testClass.getDurationCaptureInternal().getDurationInMilliseconds();
     
     //
-    assertTrue( durationInMillisecondsWithinMethod * 1.75 > durationInMillisecondsAroundMethod );
+    assertTrue( durationInMillisecondsWithinMethod * 3.0 > durationInMillisecondsAroundMethod );
     
     //
     //    System.out.println( durationCapture.calculateIntervalStatisticLogMessage() );

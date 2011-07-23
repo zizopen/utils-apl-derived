@@ -17,8 +17,6 @@ package org.omnaest.utils.structure.collection.list;
 
 import java.util.List;
 
-import org.omnaest.utils.structure.table.IndexTable;
-
 /**
  * Defines an interface for lists that are based on an index structure. The performance of queries are much better, but
  * performance of inserting is reduced.

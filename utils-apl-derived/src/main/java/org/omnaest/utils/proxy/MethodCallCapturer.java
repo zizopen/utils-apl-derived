@@ -24,8 +24,8 @@ import java.util.Map;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.proxy.StubCreator.MethodInvocationHandler;
@@ -57,7 +57,7 @@ public class MethodCallCapturer
   protected Object                                      lastActiveRootStub                    = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * Interface stubs are implementing when they are created by
    * {@link MethodCallCapturer#newInstanceOfCapturedTypeWhichIsMethodCallCapturerAware(Class)}.
@@ -85,7 +85,7 @@ public class MethodCallCapturer
     protected CapturedTypeInstanceCreationConfiguration capturedTypeInstanceCreationConfiguration = null;
     
     /* ********************************************** Methods ********************************************** */
-
+    
     public MethodCaptureMethodInvocationHandler( CapturedTypeInstanceCreationConfiguration capturedTypeInstanceCreationConfiguration )
     {
       this.capturedTypeInstanceCreationConfiguration = capturedTypeInstanceCreationConfiguration;
@@ -159,7 +159,7 @@ public class MethodCallCapturer
     protected MethodCallCaptureContext previousMethodCallCaptureContext = null;
     
     /* ********************************************** Methods ********************************************** */
-
+    
     public CapturedTypeInstanceCreationConfiguration( Class<?> clazz, Class<?>[] interfaces, boolean isCreatingTransitiveStubs )
     {
       super();
@@ -252,7 +252,7 @@ public class MethodCallCapturer
     protected Object                   returnedStub                     = null;
     
     /* ********************************************** Methods ********************************************** */
-
+    
     public MethodCallCaptureContext( MethodCallCapture methodCallCapture,
                                      MethodCallCaptureContext previousMethodCallCaptureContext )
     {
@@ -425,7 +425,7 @@ public class MethodCallCapturer
     protected boolean   isReplaySuccessful = false;
     
     /* ********************************************** Methods ********************************************** */
-
+    
     /**
      * Returns true if the replay action was successful without an exception been thrown.
      * 
@@ -459,7 +459,7 @@ public class MethodCallCapturer
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Creates a new stub instance for the given class or interface which records all method invocations to this
    * {@link MethodCallCapturer}.

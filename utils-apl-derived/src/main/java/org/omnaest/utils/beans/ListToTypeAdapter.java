@@ -25,7 +25,7 @@ import java.util.Set;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.proxy.StubCreator;
@@ -52,7 +52,7 @@ public class ListToTypeAdapter<T, L extends List<?>>
   protected boolean            hasAccessToUnderlyingData = false;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * This interface makes a derivative type aware of an underlying map implementation. This is normally used in combination with
    * an {@link ListToTypeAdapter}.
@@ -201,7 +201,7 @@ public class ListToTypeAdapter<T, L extends List<?>>
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Factory method to create a new {@link ListToTypeAdapter} for a given {@link List} with the given {@link Class} as facade. The
    * list will contain as many elements as properties are possible and for each property an immutable index position is reserved.

@@ -18,7 +18,7 @@ package org.omnaest.utils.beans.result;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Java Bean property access object for {@link Method}s and {@link Field} of a special Java Bean type.
@@ -37,7 +37,7 @@ public class BeanPropertyAccessor<B>
   protected Class<B> beanClass    = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   public BeanPropertyAccessor( Field field, Method methodGetter, Method methodSetter, String propertyName, Class<B> beanClass )
   {
     //

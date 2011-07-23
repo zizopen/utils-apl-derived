@@ -31,7 +31,7 @@ import java.util.ListIterator;
 public abstract class ListAbstract<E> implements List<E>
 {
   /* ********************************************** Methods ********************************************** */
-
+  
   @Override
   public boolean equals( Object object )
   {
