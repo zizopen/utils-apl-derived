@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
@@ -193,6 +193,7 @@ public class TableHelper
     class TableToStringConverter
     {
       /* ********************************************** Variables ********************************************** */
+      @SuppressWarnings("hiding")
       protected Table<E> table = null;
       
       /* ********************************************** Methods ********************************************** */

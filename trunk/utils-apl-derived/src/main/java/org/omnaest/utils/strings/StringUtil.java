@@ -15,7 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.strings;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class StringUtil
 {
@@ -94,16 +94,15 @@ public class StringUtil
     {
       if ( StringUtils.isNotBlank( value ) )
       {
+        //
         return String.format( "%" + width + "s", value );
       }
-      else
-      {
-        return StringUtils.repeat( " ", width );
-      }
+      
+      //
+      return StringUtils.repeat( " ", width );
     }
-    else
-    {
-      return "";
-    }
+    
+    //
+    return "";
   }
 }

@@ -36,7 +36,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.download.DownloadConnection;
 import org.omnaest.utils.download.URIHelper;
 import org.omnaest.utils.download.URLHelper;
@@ -60,7 +60,7 @@ public class ByteArrayContainer
   private byte[]              content            = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Default {@link ByteArrayContainer} creating an instance with no content.
    */
@@ -356,7 +356,6 @@ public class ByteArrayContainer
     }
     catch ( IOException e )
     {
-      retval = null;
     }
     
     //
@@ -466,7 +465,7 @@ public class ByteArrayContainer
   
   public byte[] getContent()
   {
-    return content;
+    return this.content;
   }
   
   public ByteArrayContainer setContent( byte[] content )
@@ -540,7 +539,7 @@ public class ByteArrayContainer
    */
   public void zip()
   {
-    this.zip( this.generateRandomDefaultFileName() );
+    this.zip( ByteArrayContainer.generateRandomDefaultFileName() );
   }
   
   /**
@@ -589,7 +588,7 @@ public class ByteArrayContainer
    * 
    * @return
    */
-  private String generateRandomDefaultFileName()
+  private static String generateRandomDefaultFileName()
   {
     return DEFAULTZIPFILENAME + String.valueOf( System.currentTimeMillis() )
            + String.valueOf( Math.round( Math.random() * 1000000000l ) );
@@ -661,7 +660,7 @@ public class ByteArrayContainer
   }
   
   /* ********************************************** STATIC FACTORY METHOD PART ********************************************** */
-
+  
   /**
    * Used by the factory method.
    * 

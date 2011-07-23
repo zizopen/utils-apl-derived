@@ -83,7 +83,7 @@ public class IndexArrayList<E extends Comparable<? super E>> implements IndexLis
   /*
    * Methods
    */
-
+  
   /**
    * Creates a new empty indexed list.
    */
@@ -910,8 +910,7 @@ public class IndexArrayList<E extends Comparable<? super E>> implements IndexLis
     int retval = -1;
     
     //
-    DataListWithIndexListIndexPosition dataListWithIndexListIndexPosition = this.determineDataListAndIndexListIndexPositionBoundaries(
-                                                                                                                                       (E) o )
+    DataListWithIndexListIndexPosition dataListWithIndexListIndexPosition = this.determineDataListAndIndexListIndexPositionBoundaries( (E) o )
                                                                                 .getUpper();
     if ( dataListWithIndexListIndexPosition != null )
     {
@@ -941,8 +940,7 @@ public class IndexArrayList<E extends Comparable<? super E>> implements IndexLis
     boolean retval = false;
     
     //
-    DataListWithIndexListIndexPosition dataListWithIndexListIndexPosition = this.determineDataListAndIndexListIndexPositionBoundaries(
-                                                                                                                                       (E) o )
+    DataListWithIndexListIndexPosition dataListWithIndexListIndexPosition = this.determineDataListAndIndexListIndexPositionBoundaries( (E) o )
                                                                                 .getLower();
     if ( dataListWithIndexListIndexPosition != null )
     {

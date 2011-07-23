@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.array.ArrayUtil;
 import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
 
@@ -49,7 +49,7 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
   private final static String[] PROPERTY_PREFIXES = { "get", "is", "set" };
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Returns a map with the values of the given bean object. If property names are specified, only those values are extracted,
    * whose property names are specified. If no property name is specified all properties are read.
@@ -69,7 +69,7 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
       /*
        * only specified properties
        */
-
+      
       //
       Map<String, BeanProperty> propertyToBeanPropertyMap = new HashMap<String, BeanProperty>( 0 );
       
@@ -101,7 +101,7 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
       /*
        * all properties
        */
-
+      
       //
       BeanProperty[] beanObjectProperties = BeanUtil.determineBeanProperties( beanObject );
       

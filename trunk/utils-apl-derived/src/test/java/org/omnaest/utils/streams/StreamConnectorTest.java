@@ -27,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.omnaest.utils.streams.StreamConnector.TransferResult;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
@@ -39,7 +39,7 @@ public class StreamConnectorTest
   public void testConnectInputStreamStringBufferString()
   {
     //
-    String testString = "test����������";
+    String testString = "testßßßßßßüäöäöäöä##+#+~~~";
     for ( int ii = 1; ii <= 10; ii++ )
     {
       testString += testString;
@@ -96,7 +96,7 @@ public class StreamConnectorTest
   @Test
   public void testZippedBac()
   {
-    String test = "asdfsfjlkjflksjfajk�f���spoo93845843850943859435435�$%�$&%$/(%(&/$%�$%/&/()(=)/=";
+    String test = "asdfsfjlkjflksjspoo9384584385094385943543=)?=)(=)098ß}]}]}[]}[{]{6[";
     ByteArrayContainer testBac = new ByteArrayContainer();
     testBac.copyFrom( test );
     
@@ -114,7 +114,7 @@ public class StreamConnectorTest
   public void testTransfer()
   {
     //
-    String sourceContent = "asdfsfjlkjflksjfajk�f���spoo93845843850943859435435�$%�$&%$/(%(&/$%�$%/&/()(=)/=";
+    String sourceContent = "asdfsfjlßßß+ö#äö#äöäö#äö@@@@µµµµµ";
     
     //
     InputStream inputStream = new ByteArrayInputStream( sourceContent.getBytes() );
