@@ -34,7 +34,7 @@ public class LinkedHashDualMap<FIRSTELEMENT, SECONDELEMENT> implements DualMap<F
   protected Map<SECONDELEMENT, FIRSTELEMENT> secondElementToFirstElementMap = new LinkedHashMap<SECONDELEMENT, FIRSTELEMENT>();
   
   /* ********************************************** Methods ********************************************** */
-
+  
   @Override
   public void clear()
   {
@@ -130,7 +130,7 @@ public class LinkedHashDualMap<FIRSTELEMENT, SECONDELEMENT> implements DualMap<F
     {
       //
       Map<? extends FIRSTELEMENT, ? extends SECONDELEMENT> firstElementToSecondElementMap = firstElementAndSecondElementDualMap.getFirstElementToSecondElementMap();
-      if ( firstElementAndSecondElementDualMap != null )
+      if ( firstElementToSecondElementMap != null )
       {
         this.putAllFirstElementToSecondElement( firstElementToSecondElementMap );
       }

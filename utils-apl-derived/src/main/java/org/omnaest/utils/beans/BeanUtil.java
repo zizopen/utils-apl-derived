@@ -235,7 +235,9 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
     {
       try
       {
-        BeanUtil.copyProperty( targetBean, iPropertyName, BeanUtil.getProperty( sourceBean, iPropertyName ) );
+        org.apache.commons.beanutils.BeanUtils.copyProperty( targetBean, iPropertyName,
+                                                             org.apache.commons.beanutils.BeanUtils.getProperty( sourceBean,
+                                                                                                                 iPropertyName ) );
       }
       catch ( Exception e )
       {
@@ -354,7 +356,7 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
       
       try
       {
-        BeanUtil.copyProperties( targetBean, sourceBean );
+        org.apache.commons.beanutils.BeanUtils.copyProperties( targetBean, sourceBean );
       }
       catch ( Exception e )
       {
@@ -461,7 +463,7 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
     
     public String getPropertyName()
     {
-      return propertyName;
+      return this.propertyName;
     }
     
     public void setPropertyName( String name )
@@ -471,7 +473,7 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
     
     public String getGetterMethodName()
     {
-      return getterMethodName;
+      return this.getterMethodName;
     }
     
     public void setGetterMethodName( String getterMethodName )
@@ -481,7 +483,7 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
     
     public String getSetterMethodName()
     {
-      return setterMethodName;
+      return this.setterMethodName;
     }
     
     public void setSetterMethodName( String setterMethodName )
@@ -503,9 +505,9 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
   public static String[] determineBeanPropertiesForAnnotations( Class<?> beanClass,
                                                                 Class<? extends Annotation>... annotationClasses )
   {
-    String[] annotationNames = (String[]) ArrayUtil.convertArrayExcludingNullElements( (Class<Annotation>[]) annotationClasses,
-                                                                                       new String[0],
-                                                                                       new ElementConverterClassAnnotationToString() );
+    String[] annotationNames = ArrayUtil.convertArrayExcludingNullElements( (Class<Annotation>[]) annotationClasses,
+                                                                            new String[0],
+                                                                            new ElementConverterClassAnnotationToString() );
     return BeanUtil.determineBeanPropertiesForAnnotations( beanClass, annotationNames );
   }
   

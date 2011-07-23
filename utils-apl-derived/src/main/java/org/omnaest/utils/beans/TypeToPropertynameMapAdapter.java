@@ -39,7 +39,7 @@ public class TypeToPropertynameMapAdapter<B> extends AbstractMap<String, Object>
   protected Map<String, BeanPropertyAccessor<B>> propertynameToBeanPropertyAccessorMap = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Factory method to create a {@link Map} view on a given Java Bean object. Changes to this map will be translated to the Java
    * Bean object and vice versa.
@@ -117,7 +117,7 @@ public class TypeToPropertynameMapAdapter<B> extends AbstractMap<String, Object>
       //
       if ( beanPropertyAccessor.hasSetter() )
       {
-        beanPropertyAccessor.setPropertyValue( bean, value );
+        beanPropertyAccessor.setPropertyValue( this.bean, value );
       }
     }
     

@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class ObjectToStringMap extends LinkedHashMap<String, String>
 {
   //
@@ -181,7 +182,7 @@ public class ObjectToStringMap extends LinkedHashMap<String, String>
               }
               else
               {
-                Class<?> estimatedWrapperClass = this.determineEstimatedWrapperClass( parameterType.getName() );
+                Class<?> estimatedWrapperClass = ObjectToStringMap.determineEstimatedWrapperClass( parameterType.getName() );
                 if ( estimatedWrapperClass != null )
                 {
                   parameterValueOfMethod = estimatedWrapperClass.getDeclaredMethod( "valueOf", String.class );
@@ -198,7 +199,7 @@ public class ObjectToStringMap extends LinkedHashMap<String, String>
             {
               try
               {
-                valueObject = (Object) parameterValueOfMethod.invoke( null, value );
+                valueObject = parameterValueOfMethod.invoke( null, value );
               }
               catch ( Exception e )
               {
@@ -225,7 +226,7 @@ public class ObjectToStringMap extends LinkedHashMap<String, String>
     return this;
   }
   
-  private Class<?> determineEstimatedWrapperClass( String typeFullQualifiedName )
+  private static Class<?> determineEstimatedWrapperClass( String typeFullQualifiedName )
   {
     //
     Class<?> retval = null;
