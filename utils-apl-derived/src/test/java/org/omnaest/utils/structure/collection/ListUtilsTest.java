@@ -48,17 +48,37 @@ public class ListUtilsTest
   }
   
   @Test
-    public void testIteratorAsList()
-    {
-      //
-      List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
-      
-      //
-      List<String> listFromIterator = ListUtils.iteratorAsList( testList.iterator() );
-      
-      //
-      assertEquals( testList, listFromIterator );
-      
-    }
+  public void testIteratorAsList()
+  {
+    //
+    List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
+    
+    //
+    List<String> listFromIterator = ListUtils.iteratorAsList( testList.iterator() );
+    
+    //
+    assertEquals( testList, listFromIterator );
+    
+  }
+  
+  @Test
+  public void testLastElementOf()
+  {
+    //
+    List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
+    
+    //
+    assertEquals( "c", ListUtils.lastElementOf( testList ) );
+    assertEquals( "c", ListUtils.lastElementOf( testList, 0 ) );
+    assertEquals( "b", ListUtils.lastElementOf( testList, 1 ) );
+    
+    assertEquals( null, ListUtils.lastElementOf( Arrays.asList() ) );
+    assertEquals( null, ListUtils.lastElementOf( Arrays.asList(), 0 ) );
+    assertEquals( null, ListUtils.lastElementOf( Arrays.asList(), 1 ) );
+    assertEquals( null, ListUtils.lastElementOf( testList, testList.size() ) );
+    
+    assertEquals( null, ListUtils.lastElementOf( null ) );
+    assertEquals( null, ListUtils.lastElementOf( null, 0 ) );
+  }
   
 }
