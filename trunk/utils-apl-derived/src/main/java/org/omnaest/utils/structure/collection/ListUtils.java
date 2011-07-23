@@ -288,4 +288,29 @@ public class ListUtils
     return retlist;
   }
   
+  /**
+   * Returns the last element of the given {@link List}. Returns null if the list is null or empty.
+   * 
+   * @param list
+   * @return
+   */
+  public static <E> E lastElementOf( List<E> list )
+  {
+    return list == null || list.isEmpty() ? null : list.get( list.size() - 1 );
+  }
+  
+  /**
+   * Returns the element of the given {@link List} at the given reverse index position which is counted beginning from the last
+   * element. This means the last element has the reversed index position 0. Returns null if the list is null or empty.
+   * 
+   * @param list
+   * @param reverseIndexPosition
+   * @return
+   */
+  public static <E> E lastElementOf( List<E> list, int reverseIndexPosition )
+  {
+    return list == null || list.isEmpty() || list.size() - reverseIndexPosition <= 0 ? null : list.get( list.size() - 1
+                                                                                                        - reverseIndexPosition );
+  }
+  
 }
