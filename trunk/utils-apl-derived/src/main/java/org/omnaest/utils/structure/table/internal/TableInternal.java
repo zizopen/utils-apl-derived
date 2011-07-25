@@ -725,6 +725,13 @@ public interface TableInternal<E>
      * @return
      */
     public StripeData<E> getStripeData();
+    
+    /**
+     * Returns the {@link TableInternal} reference the current {@link StripeInternal} belongs to
+     * 
+     * @return
+     */
+    public TableInternal<E> getTableInternal();
   }
   
   /**
@@ -756,5 +763,12 @@ public interface TableInternal<E>
    * @return
    */
   public CellAndStripeResolver<E> getCellAndStripeResolver();
+  
+  /**
+   * Returns the underlying {@link Table} instance
+   * 
+   * @return
+   */
+  public Table<E> getUnderlyingTable();
   
 }

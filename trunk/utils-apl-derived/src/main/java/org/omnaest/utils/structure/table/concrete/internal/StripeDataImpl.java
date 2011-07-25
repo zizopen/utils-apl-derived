@@ -38,12 +38,10 @@ public class StripeDataImpl<E> implements StripeData<E>
   /* ********************************************** Constants ********************************************** */
   private static final long      serialVersionUID = 5552519174349074630L;
   /* ********************************************** Variables ********************************************** */
-  
-  protected TitleInternal        title            = new TitleImpl<E>();
+    protected TitleInternal        title            = new TitleImpl<E>();
   protected Set<CellInternal<E>> cellSet          = new HashSet<CellInternal<E>>();
   
-  /* ********************************************** Beans / Services ********************************************** */
-  
+  /* ********************************************** Beans / Services / References ********************************************** */
   protected StripeDataList<E>    stripeDataList   = null;
   
   /* ********************************************** Methods ********************************************** */

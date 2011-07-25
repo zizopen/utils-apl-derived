@@ -46,7 +46,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   private static final long          serialVersionUID      = 1763808639838518679L;
   
   /* ********************************************** Variables ********************************************** */
-  protected ArrayTableInternal       arrayTableInternal    = new ArrayTableInternal();
+  protected TableInternal<E>         arrayTableInternal    = new ArrayTableInternal();
   protected TableContentResolver<E>  tableContentResolver  = new TableContentResolver<E>()
                                                            {
                                                              @Override
@@ -80,6 +80,12 @@ public class ArrayTable<E> extends TableAbstract<E>
     public CellAndStripeResolver<E> getCellAndStripeResolver()
     {
       return ArrayTable.this.cellAndStripeResolver;
+    }
+    
+    @Override
+    public Table<E> getUnderlyingTable()
+    {
+      return ArrayTable.this;
     }
     
   }
@@ -486,6 +492,11 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Selection<E> select()
   {
     return new SelectionImpl<E>( this.arrayTableInternal );
+  }
+  
+  protected TableInternal<E> getArrayTableInternal()
+  {
+    return this.arrayTableInternal;
   }
   
 }

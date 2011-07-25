@@ -17,8 +17,11 @@ package org.omnaest.utils.structure.table.concrete.selection;
 
 import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.TableSelectable.Result;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+
+import com.sun.rowset.internal.Row;
 
 /**
  * @see SelectionImpl
@@ -31,15 +34,59 @@ public class SelectionImplTest
   
   /* ********************************************** Methods ********************************************** */
   
+  @Test
+  public void testAsView()
+  {
+    Result<String> result = this.table.select().allColumns().asView();
+  }
   
-
-  /* ********************************************** Methods ********************************************** */
+  @Test
+  public void testAsTable()
+  {
+    //
+    int numberOfRows = 4;
+    int numberOfColumns = 3;
+    this.fillTable( numberOfRows, numberOfColumns );
     
-    @Test
-    public void testAsView()
-    {
-      Result<String> result = this.table.select().allColumns().asView();
-    }
+    //
+    Table<String> tableResult = this.table.select().allColumns().asTable();
+    
+    //FIXME go on here
+    
+    //
+    System.out.println( tableResult.toString() );
+    
+  }
   
+  /**
+   * Fills the {@link Table} with the given number of {@link Row}s and {@link Column}s
+   * 
+   * @param numberOfRows
+   * @param numberOfColumns
+   */
+  protected void fillTable( int numberOfRows, int numberOfColumns )
+  {
+    //
+    for ( int rowIndexPosition = 0; rowIndexPosition < numberOfRows; rowIndexPosition++ )
+    {
+      for ( int columnIndexPosition = 0; columnIndexPosition < numberOfColumns; columnIndexPosition++ )
+      {
+        //
+        String element = rowIndexPosition + ":" + columnIndexPosition;
+        this.table.setCellElement( rowIndexPosition, columnIndexPosition, element );
+        
+        //
+        String titleValue = "c" + columnIndexPosition;
+        this.table.setColumnTitleValue( titleValue, columnIndexPosition );
+      }
+      
+      //
+      String titleValue = "r" + rowIndexPosition;
+      this.table.setRowTitleValue( titleValue, rowIndexPosition );
+    }
+    
+    //
+    
+  }
   
 }
