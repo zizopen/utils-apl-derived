@@ -41,6 +41,7 @@ public class SelectionImpl<E> implements Selection<E>
   protected List<Where<E>>         whereList         = new ArrayList<Where<E>>();
   protected List<Order<E>>         orderList         = new ArrayList<Order<E>>();
   protected boolean                selectAllColumns  = true;
+  protected SelectionExecutor<E>   selectionExecutor = new SelectionExecutor<E>( this );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -186,8 +187,103 @@ public class SelectionImpl<E> implements Selection<E>
   @Override
   public Table<E> asTable()
   {
-    //TODO
-    return null;
+    return this.selectionExecutor.execute();
+  }
+  
+  /**
+   * @return
+   */
+  protected List<TableInternal<E>> getTableInternalList()
+  {
+    return this.tableInternalList;
+  }
+  
+  /**
+   * @param tableInternalList
+   */
+  protected void setTableInternalList( List<TableInternal<E>> tableInternalList )
+  {
+    this.tableInternalList = tableInternalList;
+  }
+  
+  /**
+   * @return
+   */
+  protected List<Column<E>> getColumnList()
+  {
+    return this.columnList;
+  }
+  
+  /**
+   * @param columnList
+   */
+  protected void setColumnList( List<Column<E>> columnList )
+  {
+    this.columnList = columnList;
+  }
+  
+  /**
+   * @return
+   */
+  protected List<Join> getJoinList()
+  {
+    return this.joinList;
+  }
+  
+  /**
+   * @param joinList
+   */
+  protected void setJoinList( List<Join> joinList )
+  {
+    this.joinList = joinList;
+  }
+  
+  /**
+   * @return
+   */
+  protected List<Where<E>> getWhereList()
+  {
+    return this.whereList;
+  }
+  
+  /**
+   * @param whereList
+   */
+  protected void setWhereList( List<Where<E>> whereList )
+  {
+    this.whereList = whereList;
+  }
+  
+  /**
+   * @return
+   */
+  protected List<Order<E>> getOrderList()
+  {
+    return this.orderList;
+  }
+  
+  /**
+   * @param orderList
+   */
+  protected void setOrderList( List<Order<E>> orderList )
+  {
+    this.orderList = orderList;
+  }
+  
+  /**
+   * @return
+   */
+  protected boolean isSelectAllColumns()
+  {
+    return this.selectAllColumns;
+  }
+  
+  /**
+   * @param selectAllColumns
+   */
+  protected void setSelectAllColumns( boolean selectAllColumns )
+  {
+    this.selectAllColumns = selectAllColumns;
   }
   
 }

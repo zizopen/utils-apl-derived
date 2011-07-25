@@ -295,4 +295,10 @@ public class StripeImpl<E> implements StripeInternal<E>
     //
     return retval;
   }
+  
+  @Override
+  public TableInternal<E> getTableInternal()
+  {
+    return this.tableInternal;
+  }
 }
