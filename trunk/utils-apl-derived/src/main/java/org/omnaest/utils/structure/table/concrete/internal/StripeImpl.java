@@ -23,6 +23,7 @@ import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
@@ -125,7 +126,7 @@ public class StripeImpl<E> implements StripeInternal<E>
   @Override
   public boolean contains( Cell<E> cell )
   {
-    return this.stripeData.contains( cell );
+    return cell instanceof CellInternal && this.stripeData.contains( ( (CellInternal<E>) cell ).getCellData() );
   }
   
   @Override

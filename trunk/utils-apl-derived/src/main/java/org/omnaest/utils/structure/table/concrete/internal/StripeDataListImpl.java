@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
+import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 
@@ -135,17 +135,17 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   }
   
   @Override
-  public StripeData<E> findStripeDataContaining( Cell<E> cell )
+  public StripeData<E> findStripeDataContaining( CellData<E> cellData )
   {
     //
     StripeData<E> retval = null;
     
     //
-    if ( cell != null )
+    if ( cellData != null )
     {
       for ( StripeData<E> stripe : this.stripeDataList )
       {
-        if ( stripe.contains( cell ) )
+        if ( stripe.contains( cellData ) )
         {
           //
           retval = stripe;
@@ -197,31 +197,24 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   }
   
   @Override
-  public void removeStripeAndDetachCellsFromTable( StripeData<E> stripe )
+  public void removeStripeData( StripeData<E> stripe )
   {
-    //
-    if ( stripe != null )
-    {
-      stripe.detachAllCellsFromTable();
-    }
-    
-    //
     this.stripeDataList.remove( stripe );
   }
   
   @Override
-  public void removeStripeDataAndDetachCellsFromTable( int indexPosition )
+  public StripeData<E> removeStripeData( int indexPosition )
   {
     //
-    StripeData<E> stripeInternal = this.getStripeData( indexPosition );
-    if ( stripeInternal != null )
+    StripeData<E> stripeData = this.getStripeData( indexPosition );
+    if ( stripeData != null )
     {
-      //
-      stripeInternal.detachAllCellsFromTable();
-      
       //
       this.stripeDataList.remove( indexPosition );
     }
+    
+    //
+    return stripeData;
   }
   
   @Override

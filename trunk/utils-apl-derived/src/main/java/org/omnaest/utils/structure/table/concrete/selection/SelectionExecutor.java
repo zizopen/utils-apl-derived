@@ -21,8 +21,10 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.helper.StripeDataHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 
 /**
@@ -134,6 +136,8 @@ public class SelectionExecutor<E>
     rettable = this.createTableWithDeclaredColumns();
     
     //
+    
+    //
     return rettable;
   }
   
@@ -189,7 +193,19 @@ public class SelectionExecutor<E>
       if ( stripeInternalData != null )
       {
         //
-        tableInternal.getTableContent().getColumnList().addStripeData( stripeInternalData.getStripeData() );
+        StripeDataList<E> columnStripeDataList = tableInternal.getTableContent().getColumnStripeDataList();
+        
+        //        
+        StripeData<E> stripeDataOld = stripeInternalData.getStripeData();
+        if ( stripeDataOld != null )
+        {
+          //
+          StripeData<E> stripeDataNew = StripeDataHelper.createNewStripeDataFromExisting( columnStripeDataList, stripeDataOld );
+          
+          //
+          columnStripeDataList.addStripeData( stripeDataNew );
+        }
+        
       }
     }
     

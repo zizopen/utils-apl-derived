@@ -15,41 +15,43 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal;
 
-import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
-import org.omnaest.utils.structure.table.Table.TableSize;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
-import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
+import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
+import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 
 /**
- * @see TableContent
+ * Wrapper for an element, which can be shared between {@link Table}s to allow the modification from all of them. As a difference
+ * to {@link CellImpl} this wrapper has no reference to any {@link StripeData} instance.
+ * 
+ * @see CellInternal
+ * @see CellImpl
+ * @see CellData
  * @author Omnaest
  * @param <E>
  */
-public abstract class TableContentAbstract<E> implements TableContent<E>
+public class CellDataImpl<E> implements CellData<E>
 {
-  /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID = 58312083803417020L;
   /* ********************************************** Variables ********************************************** */
-  protected TableSize       tableSize        = new TableSizeImpl( this );
+  protected E element = null;
   
   /* ********************************************** Methods ********************************************** */
   
   @Override
-  public StripeDataList<E> getRowStripeDataList()
+  public E getElement()
   {
-    return this.getStripeDataList( StripeType.ROW );
+    return this.element;
   }
   
   @Override
-  public StripeDataList<E> getColumnStripeDataList()
+  public void setElement( E element )
   {
-    return this.getStripeDataList( StripeType.COLUMN );
+    this.element = element;
   }
   
   @Override
-  public TableSize getTableSize()
+  public boolean hasElement( E element )
   {
-    return this.tableSize;
+    return this.element == element || ( this.element != null && this.element.equals( element ) );
   }
-  
 }

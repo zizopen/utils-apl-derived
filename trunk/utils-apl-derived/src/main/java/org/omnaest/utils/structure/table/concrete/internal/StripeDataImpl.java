@@ -22,9 +22,8 @@ import java.util.Set;
 
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
-import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
-import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 
@@ -36,13 +35,13 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 public class StripeDataImpl<E> implements StripeData<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long      serialVersionUID = 5552519174349074630L;
+  private static final long   serialVersionUID = 5552519174349074630L;
   /* ********************************************** Variables ********************************************** */
-    protected TitleInternal        title            = new TitleImpl<E>();
-  protected Set<CellInternal<E>> cellSet          = new HashSet<CellInternal<E>>();
+  protected TitleInternal     title            = new TitleImpl<E>();
+  protected Set<CellData<E>>  cellDataSet      = new HashSet<CellData<E>>();
   
   /* ********************************************** Beans / Services / References ********************************************** */
-  protected StripeDataList<E>    stripeDataList   = null;
+  protected StripeDataList<E> stripeDataList   = null;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -68,9 +67,9 @@ public class StripeDataImpl<E> implements StripeData<E>
   }
   
   @Override
-  public boolean contains( Cell<E> cell )
+  public boolean contains( CellData<E> cellData )
   {
-    return this.cellSet.contains( cell );
+    return this.cellDataSet.contains( cellData );
   }
   
   @Override
@@ -82,7 +81,7 @@ public class StripeDataImpl<E> implements StripeData<E>
     //
     if ( element != null )
     {
-      for ( Cell<E> cell : this.cellSet )
+      for ( CellData<E> cell : this.cellDataSet )
       {
         if ( element.equals( cell.getElement() ) )
         {
@@ -97,54 +96,71 @@ public class StripeDataImpl<E> implements StripeData<E>
   }
   
   @Override
-  public void registerCell( CellInternal<E> cell )
+  public void registerCell( CellData<E> cellData )
   {
     //
-    if ( cell != null )
+    if ( cellData != null )
     {
-      this.cellSet.add( cell );
+      this.cellDataSet.add( cellData );
     }
   }
   
   @Override
-  public void unregisterCell( Cell<E> cell )
+  public void unregisterCell( CellData<E> cellData )
   {
-    if ( cell != null )
+    if ( cellData != null )
     {
-      this.cellSet.remove( cell );
+      this.cellDataSet.remove( cellData );
     }
   }
   
   @Override
-  public Set<CellInternal<E>> getCellSet()
+  public Set<CellData<E>> getCellDataSet()
   {
-    return this.cellSet;
-  }
-  
-  @Override
-  public void detachAllCellsFromTable()
-  {
-    for ( CellInternal<E> cellInternal : new HashSet<CellInternal<E>>( this.cellSet ) )
-    {
-      cellInternal.detachFromTable();
-    }
+    return this.cellDataSet;
   }
   
   @Override
   public List<E> getCellElementList()
   {
     //
-    Collection<CellInternal<E>> collection = this.cellSet;
-    ElementTransformer<CellInternal<E>, E> elementTransformer = new ElementTransformer<CellInternal<E>, E>()
+    Collection<CellData<E>> collection = this.cellDataSet;
+    ElementTransformer<CellData<E>, E> elementTransformer = new ElementTransformer<CellData<E>, E>()
     {
       @Override
-      public E transformElement( CellInternal<E> cell )
+      public E transformElement( CellData<E> cell )
       {
         // 
         return cell == null ? null : cell.getElement();
       }
     };
     return ListUtils.transform( collection, elementTransformer );
+  }
+  
+  @Override
+  public void unregisterCells( Collection<CellData<E>> cellDataCollection )
+  {
+    //
+    if ( cellDataCollection != null )
+    {
+      for ( CellData<E> cellData : cellDataCollection )
+      {
+        this.unregisterCell( cellData );
+      }
+    }
+  }
+  
+  @Override
+  public void registerCells( Collection<CellData<E>> cellDataCollection )
+  {
+    //
+    if ( cellDataCollection != null )
+    {
+      for ( CellData<E> cellData : cellDataCollection )
+      {
+        this.registerCell( cellData );
+      }
+    }
   }
   
 }

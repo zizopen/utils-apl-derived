@@ -232,7 +232,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList )
   {
     //    
-    StripeData<E> newStripe = this.tableContent.getColumnList().addNewStripeData( columnIndexPosition );
+    StripeData<E> newStripe = this.tableContent.getColumnStripeDataList().addNewStripeData( columnIndexPosition );
     if ( newStripe != null )
     {
       this.setColumnCellElements( columnIndexPosition, columnCellElementList );
@@ -257,7 +257,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList )
   {
     //
-    StripeData<E> newStripe = this.tableContent.getRowList().addNewStripeData( rowIndexPosition );
+    StripeData<E> newStripe = this.tableContent.getRowStripeDataList().addNewStripeData( rowIndexPosition );
     if ( newStripe != null )
     {
       this.setRowCellElements( rowIndexPosition, rowCellElementList );
@@ -281,7 +281,14 @@ public class ArrayTable<E> extends TableAbstract<E>
       retlist.addAll( rowStripeData.getCellElementList() );
       
       //
-      this.tableContent.getRowList().removeStripeDataAndDetachCellsFromTable( rowIndexPosition );
+      StripeData<E> removedStripeData = this.tableContent.getRowStripeDataList().removeStripeData( rowIndexPosition );
+      if ( removedStripeData != null )
+      {
+        for ( StripeData<E> stripeData : this.tableContent.getColumnStripeDataList() )
+        {
+          stripeData.unregisterCells( removedStripeData.getCellDataSet() );
+        }
+      }
     }
     
     //
@@ -302,7 +309,14 @@ public class ArrayTable<E> extends TableAbstract<E>
       retlist.addAll( columnStripeData.getCellElementList() );
       
       //
-      this.tableContent.getColumnList().removeStripeDataAndDetachCellsFromTable( columnIndexPosition );
+      StripeData<E> removedStripeData = this.tableContent.getColumnStripeDataList().removeStripeData( columnIndexPosition );
+      if ( removedStripeData != null )
+      {
+        for ( StripeData<E> stripeData : this.tableContent.getRowStripeDataList() )
+        {
+          stripeData.unregisterCells( removedStripeData.getCellDataSet() );
+        }
+      }
     }
     
     //
