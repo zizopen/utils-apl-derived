@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.omnaest.utils.structure.table.Table.Cell;
@@ -178,10 +179,25 @@ public interface TableSelectable<E>
    * {@link Where} clause of a {@link Selection}
    * 
    * @see Selection
+   * @see Predicate
    * @author Omnaest
    */
   public static interface Where<E>
   {
+    /* ********************************************** Classes/Interfaces ********************************************** */
+    
+    /**
+     * A {@link Predicate} defines the condition which has to full filled by a {@link Row} to make her included into the result of
+     * a {@link Selection}
+     * 
+     * @param <E>
+     * @see Where
+     * @author Omnaest
+     */
+    public static interface Predicate<E> extends Serializable
+    {
+    }
+    
     /**
      * @see #whereElementEquals(int, Comparable)
      * @param columnTitleEnum

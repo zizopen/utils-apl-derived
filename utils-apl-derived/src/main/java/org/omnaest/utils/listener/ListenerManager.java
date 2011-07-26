@@ -27,7 +27,7 @@ import java.util.Map;
  * null. <br>
  * <br>
  * To add new {@link Listener} instances use the {@link ListenerRegistration} instance which can be retrieved via
- * {@link #getListenerRegistration()}. Its best practice to make this method available to clients.
+ * {@link #getListenerRegistration()}. Its best practice to make this method available to clients by a delegate method.
  * 
  * @param <PARAMETER>
  * @param <RETURN_INFO>
@@ -44,7 +44,7 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
   protected Map<ListenerRegistration<?, ?>, Listener<?, ?>>     connectedListenerRegistrationToListenerMap = new HashMap<ListenerRegistration<?, ?>, Listener<?, ?>>();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * @see ListenerManager
    */
@@ -208,6 +208,11 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
       Listener<OTHER_PARAMETER, OTHER_RETURN_INFO> listener = new Listener<OTHER_PARAMETER, OTHER_RETURN_INFO>()
       {
         
+        /* ********************************************** Constants ********************************************** */
+        private static final long serialVersionUID = -100666254531161206L;
+        
+        /* ********************************************** Methods ********************************************** */
+        
         @Override
         public List<OTHER_RETURN_INFO> handleEvent( OTHER_PARAMETER otherParameter,
                                                     ListenerRegistration<OTHER_PARAMETER, OTHER_RETURN_INFO> listenerRegistration )
@@ -236,19 +241,16 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
             }
           }
           
-          //
-          if ( returnInfoList != null )
+          //          
+          for ( RETURN_INFO returnInfo : returnInfoList )
           {
-            for ( RETURN_INFO returnInfo : returnInfoList )
+            //
+            List<OTHER_RETURN_INFO> singleOtherReturnInfoList = listenerAdapter.adaptReturnInfo( returnInfo );
+            
+            //
+            if ( singleOtherReturnInfoList != null )
             {
-              //
-              List<OTHER_RETURN_INFO> singleOtherReturnInfoList = listenerAdapter.adaptReturnInfo( returnInfo );
-              
-              //
-              if ( singleOtherReturnInfoList != null )
-              {
-                otherReturnInfoList.addAll( singleOtherReturnInfoList );
-              }
+              otherReturnInfoList.addAll( singleOtherReturnInfoList );
             }
           }
           

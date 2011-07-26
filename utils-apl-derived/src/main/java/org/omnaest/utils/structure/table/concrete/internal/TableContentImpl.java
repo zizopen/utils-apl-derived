@@ -124,8 +124,8 @@ public class TableContentImpl<E> extends TableContentAbstract<E>
   {
     //
     TableContentImpl<E> retval = new TableContentImpl<E>();
-    retval.getRowList().addAllStripeData( this.getRowList() );
-    retval.getColumnList().addAllStripeData( this.getColumnList() );
+    retval.getRowStripeDataList().addAllStripeData( this.getRowStripeDataList() );
+    retval.getColumnStripeDataList().addAllStripeData( this.getColumnStripeDataList() );
     
     //
     return retval;

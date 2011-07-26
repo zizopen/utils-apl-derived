@@ -21,70 +21,63 @@ import java.util.List;
 
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
+import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 
 /**
+ * Wrapper for a {@link CellDataImpl} instance which additionally holds references to the {@link StripeData} instances which led
+ * to the underlying {@link CellDataImpl}
+ * 
  * @see Cell
  * @see CellInternal
+ * @see CellDataImpl
  * @author Omnaest
  * @param <E>
  */
 public class CellImpl<E> implements CellInternal<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long     serialVersionUID   = 4937853192103513084L;
-  protected List<StripeData<E>> stripeInternalList = new ArrayList<StripeData<E>>();
-  protected E                   element            = null;
+  private static final long     serialVersionUID = 4937853192103513084L;
+  
+  /* ********************************************** Variables ********************************************** */
+  protected List<StripeData<E>> stripeDataList   = new ArrayList<StripeData<E>>();
+  protected CellData<E>         cellData         = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @param stripeInternalCollection
+   * @param stripeDataCollection
    */
-  protected CellImpl( Collection<StripeData<E>> stripeInternalCollection )
+  protected CellImpl( Collection<StripeData<E>> stripeDataCollection, CellData<E> cellData )
   {
     //
     super();
     
     //
-    this.stripeInternalList.addAll( stripeInternalCollection );
+    this.stripeDataList.addAll( stripeDataCollection );
+    this.cellData = cellData;
     
     //
-    for ( StripeData<E> stripeInternal : stripeInternalCollection )
+    if ( cellData != null )
     {
-      if ( stripeInternal != null )
+      for ( StripeData<E> stripeData : stripeDataCollection )
       {
-        stripeInternal.registerCell( this );
+        if ( stripeData != null )
+        {
+          stripeData.registerCell( cellData );
+        }
       }
     }
-  }
-  
-  @Override
-  public E getElement()
-  {
-    return this.element;
-  }
-  
-  @Override
-  public void setElement( E element )
-  {
-    this.element = element;
-  }
-  
-  @Override
-  public boolean hasElement( E element )
-  {
-    return this.element == element || ( this.element != null && this.element.equals( element ) );
   }
   
   @Override
   public Cell<E> detachFromTable()
   {
     //
-    for ( StripeData<E> stripeInternal : this.stripeInternalList )
+    for ( StripeData<E> stripeInternal : this.stripeDataList )
     {
-      stripeInternal.unregisterCell( this );
+      stripeInternal.unregisterCell( this.cellData );
     }
     
     //
@@ -99,7 +92,7 @@ public class CellImpl<E> implements CellInternal<E>
     //
     if ( stripeType != null )
     {
-      for ( StripeData<E> stripeInternal : this.stripeInternalList )
+      for ( StripeData<E> stripeInternal : this.stripeDataList )
       {
         if ( stripeType.equals( stripeInternal.resolveStripeType() ) )
         {
@@ -112,6 +105,69 @@ public class CellImpl<E> implements CellInternal<E>
     
     //
     return retval;
+  }
+  
+  @Override
+  public E getElement()
+  {
+    return this.cellData.getElement();
+  }
+  
+  @Override
+  public void setElement( E element )
+  {
+    this.cellData.setElement( element );
+  }
+  
+  @Override
+  public boolean hasElement( E element )
+  {
+    return this.cellData.hasElement( element );
+  }
+  
+  @Override
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( this.cellData == null ) ? 0 : this.cellData.hashCode() );
+    return result;
+  }
+  
+  @Override
+  public boolean equals( Object obj )
+  {
+    if ( this == obj )
+    {
+      return true;
+    }
+    if ( obj == null )
+    {
+      return false;
+    }
+    if ( !( obj instanceof CellImpl ) )
+    {
+      return false;
+    }
+    CellImpl<?> other = (CellImpl<?>) obj;
+    if ( this.cellData == null )
+    {
+      if ( other.cellData != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.cellData.equals( other.cellData ) )
+    {
+      return false;
+    }
+    return true;
+  }
+  
+  @Override
+  public CellData<E> getCellData()
+  {
+    return this.cellData;
   }
   
 }

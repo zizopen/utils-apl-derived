@@ -17,13 +17,13 @@ package org.omnaest.utils.structure.table.concrete.internal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
-import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 
@@ -58,7 +58,7 @@ public class StripeDataAggregate<E> implements StripeData<E>
   }
   
   @Override
-  public boolean contains( Cell<E> cell )
+  public boolean contains( CellData<E> cellData )
   {
     //
     boolean retval = false;
@@ -66,7 +66,7 @@ public class StripeDataAggregate<E> implements StripeData<E>
     //
     for ( StripeData<E> stripeData : this.stripeDataList )
     {
-      if ( stripeData.contains( cell ) )
+      if ( stripeData.contains( cellData ) )
       {
         retval = true;
         break;
@@ -98,15 +98,15 @@ public class StripeDataAggregate<E> implements StripeData<E>
   }
   
   @Override
-  public void registerCell( CellInternal<E> cell )
+  public void registerCell( CellData<E> cellData )
   {
-    this.stripeDataModification.registerCell( cell );
+    this.stripeDataModification.registerCell( cellData );
   }
   
   @Override
-  public void unregisterCell( Cell<E> cell )
+  public void unregisterCell( CellData<E> cellData )
   {
-    this.stripeDataModification.unregisterCell( cell );
+    this.stripeDataModification.unregisterCell( cellData );
   }
   
   @Override
@@ -116,15 +116,15 @@ public class StripeDataAggregate<E> implements StripeData<E>
   }
   
   @Override
-  public Set<CellInternal<E>> getCellSet()
+  public Set<CellData<E>> getCellDataSet()
   {
     //
-    Set<CellInternal<E>> retset = new HashSet<CellInternal<E>>();
+    Set<CellData<E>> retset = new HashSet<CellData<E>>();
     
     //
     for ( StripeData<E> stripeData : this.stripeDataAggregateList )
     {
-      retset.addAll( stripeData.getCellSet() );
+      retset.addAll( stripeData.getCellDataSet() );
     }
     
     // 
@@ -148,12 +148,28 @@ public class StripeDataAggregate<E> implements StripeData<E>
   }
   
   @Override
-  public void detachAllCellsFromTable()
+  public void unregisterCells( Collection<CellData<E>> cellDataCollection )
   {
     //
-    for ( StripeData<E> stripeData : this.stripeDataAggregateList )
+    if ( cellDataCollection != null )
     {
-      stripeData.detachAllCellsFromTable();
+      for ( CellData<E> cellData : cellDataCollection )
+      {
+        this.unregisterCell( cellData );
+      }
+    }
+  }
+  
+  @Override
+  public void registerCells( Collection<CellData<E>> cellDataCollection )
+  {
+    //
+    if ( cellDataCollection != null )
+    {
+      for ( CellData<E> cellData : cellDataCollection )
+      {
+        this.registerCell( cellData );
+      }
     }
   }
   

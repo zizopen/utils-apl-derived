@@ -49,13 +49,13 @@ public class TableSizeImpl implements TableSize
   @Override
   public int getRowSize()
   {
-    return this.getStripeListContainer().getRowList().size();
+    return this.getStripeListContainer().getRowStripeDataList().size();
   }
   
   @Override
   public int getColumnSize()
   {
-    return this.getStripeListContainer().getColumnList().size();
+    return this.getStripeListContainer().getColumnStripeDataList().size();
   }
   
   @Override

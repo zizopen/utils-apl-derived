@@ -25,18 +25,20 @@ import java.util.List;
  */
 public abstract class ListenerAbstract<PARAMETER, RETURN_INFO> implements Listener<PARAMETER, RETURN_INFO>
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long       serialVersionUID       = 1250853029881040746L;
   /* ********************************************** Variables ********************************************** */
   private final List<RETURN_INFO> EMPTY_RETURN_INFO_LIST = new ArrayList<RETURN_INFO>();
   
   /* ********************************************** Methods ********************************************** */
-
+  
   public void handleEventSilently( PARAMETER parameter )
   {
   }
   
   public List<RETURN_INFO> handleEvent( PARAMETER parameter )
   {
-    return EMPTY_RETURN_INFO_LIST;
+    return this.EMPTY_RETURN_INFO_LIST;
   }
   
   public void handleEventSilently( PARAMETER parameter, ListenerRegistration<PARAMETER, RETURN_INFO> listenerRegistration )

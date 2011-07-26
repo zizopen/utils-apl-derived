@@ -445,14 +445,14 @@ public interface TableInternal<E>
      * 
      * @return
      */
-    public StripeDataList<E> getRowList();
+    public StripeDataList<E> getRowStripeDataList();
     
     /**
      * Returns the {@link Column} list
      * 
      * @return
      */
-    public StripeDataList<E> getColumnList();
+    public StripeDataList<E> getColumnStripeDataList();
     
     /**
      * Switches the {@link StripeDataList} for the {@link Row} and {@link Column}.
@@ -522,10 +522,10 @@ public interface TableInternal<E>
     /**
      * Returns the {@link Stripe} which contains the given {@link Cell}
      * 
-     * @param cell
+     * @param cellData
      * @return
      */
-    public StripeData<E> findStripeDataContaining( Cell<E> cell );
+    public StripeData<E> findStripeDataContaining( CellData<E> cellData );
     
     /**
      * Returns true if the {@link StripeDataList} does not contain any {@link Stripe} instance.
@@ -602,18 +602,21 @@ public interface TableInternal<E>
     public StripeData<E> getStripeData( Object titleValue );
     
     /**
-     * Removes a {@link StripeData} from the {@link StripeDataList} and detaches its {@link Cell}s too.
+     * Removes a {@link StripeData} from the {@link StripeDataList} without detaching its {@link CellData} instances from the
+     * orthogonal {@link StripeData} instances
      * 
      * @param stripeData
      */
-    public void removeStripeAndDetachCellsFromTable( StripeData<E> stripeData );
+    public void removeStripeData( StripeData<E> stripeData );
     
     /**
-     * Removes a {@link StripeData} from the {@link StripeDataList} and detaches its {@link Cell}s too.
+     * Removes a {@link StripeData} from the {@link StripeDataList} without detaching its {@link CellData} from the orthogonal
+     * {@link StripeData} instances.
      * 
      * @param indexPosition
+     * @return the removed {@link StripeData} instance
      */
-    public void removeStripeDataAndDetachCellsFromTable( int indexPosition );
+    public StripeData<E> removeStripeData( int indexPosition );
   }
   
   /**
@@ -651,12 +654,12 @@ public interface TableInternal<E>
     public TitleInternal getTitleInternal();
     
     /**
-     * Returns true if this {@link StripeData} contains the given {@link Cell}.
+     * Returns true if this {@link StripeData} contains the given {@link CellData}.
      * 
-     * @param cell
+     * @param cellData
      * @return
      */
-    public boolean contains( Cell<E> cell );
+    public boolean contains( CellData<E> cellData );
     
     /**
      * Returns true if one of the {@link Cell}s of this {@link StripeData} contains the given element
@@ -667,21 +670,33 @@ public interface TableInternal<E>
     public boolean contains( E element );
     
     /**
-     * Adds a {@link Cell} to the {@link Stripe} if it does not contain the {@link Cell} already. This should allow registering
-     * from {@link Cell} constructor.
+     * Adds a {@link CellData} to the {@link StripeData} if it does not contain the {@link CellData} already. This should allow
+     * registering from {@link Cell} constructor.
      * 
-     * @see #unregisterCell(org.omnaest.utils.structure.table.Table.Cell)
-     * @param cell
+     * @see #unregisterCell(CellData)
+     * @param cellData
      */
-    public void registerCell( CellInternal<E> cell );
+    public void registerCell( CellData<E> cellData );
     
     /**
-     * Removes a {@link Cell} from the {@link Stripe}
-     * 
-     * @see #registerCell(CellInternal<E>)
-     * @param cell
+     * @see #registerCells(Collection)
+     * @param cellDataCollection
      */
-    public void unregisterCell( Cell<E> cell );
+    public void registerCells( Collection<CellData<E>> cellDataCollection );
+    
+    /**
+     * Removes a {@link CellData} from the {@link StripeData}
+     * 
+     * @see #registerCell(CellData)<E>)
+     * @param cellData
+     */
+    public void unregisterCell( CellData<E> cellData );
+    
+    /**
+     * @see #unregisterCell(CellData)
+     * @param cellDataSet
+     */
+    public void unregisterCells( Collection<CellData<E>> cellDataSet );
     
     /**
      * Resolves the {@link StripeType} from the underlying {@link StripeDataList}
@@ -695,7 +710,7 @@ public interface TableInternal<E>
      * 
      * @return
      */
-    public Set<CellInternal<E>> getCellSet();
+    public Set<CellData<E>> getCellDataSet();
     
     /**
      * Returns all {@link Cell#getElement()} instances as ordered {@link List} as currently ordered within the {@link Table}. If
@@ -706,10 +721,6 @@ public interface TableInternal<E>
      */
     public List<E> getCellElementList();
     
-    /**
-     * Detaches all {@link Cell}s within this {@link Stripe} from the {@link Table}
-     */
-    public void detachAllCellsFromTable();
   }
   
   /**
@@ -735,6 +746,8 @@ public interface TableInternal<E>
   }
   
   /**
+   * Internal {@link Cell} representation which wraps a {@link CellData} instance
+   * 
    * @see Cell
    * @author Omnaest
    * @param <E>
@@ -748,6 +761,43 @@ public interface TableInternal<E>
      * @return
      */
     public Cell<E> detachFromTable();
+    
+    /**
+     * Returns the underlying {@link CellData} instance
+     * 
+     * @return
+     */
+    public CellData<E> getCellData();
+  }
+  
+  /**
+   * @author Omnaest
+   * @param <E>
+   */
+  public interface CellData<E>
+  {
+    
+    /**
+     * Returns the element hold by the {@link CellData}
+     * 
+     * @return
+     */
+    public E getElement();
+    
+    /**
+     * Returns true if the {@link CellData} element is equal to the given element
+     * 
+     * @param element
+     * @return
+     */
+    public boolean hasElement( E element );
+    
+    /**
+     * Sets the given element to the {@link CellData}
+     * 
+     * @param element
+     */
+    public void setElement( E element );
   }
   
   /* ********************************************** Methods ********************************************** */

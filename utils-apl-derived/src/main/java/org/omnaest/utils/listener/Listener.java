@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.listener;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -24,21 +25,24 @@ import java.util.List;
  * @param <RETURN_INFO>
  * @author Omnaest
  */
-public interface Listener<PARAMETER, RETURN_INFO>
+public interface Listener<PARAMETER, RETURN_INFO> extends Serializable
 {
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * Generic default {@link Listener} return info implementation.
    */
-  public static class ListenerReturnInfo<CLIENT, RESULT>
+  public static class ListenerReturnInfo<CLIENT, RESULT> implements Serializable
   {
+    /* ********************************************** Constants ********************************************** */
+    private static final long serialVersionUID = -8069531864203403670L;
+    
     /* ********************************************** Variables ********************************************** */
-    protected CLIENT client = null;
-    protected RESULT result = null;
+    protected CLIENT          client           = null;
+    protected RESULT          result           = null;
     
     /* ********************************************** Methods ********************************************** */
-
+    
     public ListenerReturnInfo()
     {
     }

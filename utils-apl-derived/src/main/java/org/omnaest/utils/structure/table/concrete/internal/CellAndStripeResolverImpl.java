@@ -22,6 +22,7 @@ import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellAndStripeResolver;
+import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
@@ -53,6 +54,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     this.tableContentResolver = tableContentResolver;
   }
   
+  @SuppressWarnings("unchecked")
   @Override
   public Cell<E> resolveCell( StripeData<E> stripeData, StripeData<E> stripeDataOrthogonal )
   {
@@ -63,11 +65,11 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     if ( stripeData != null && stripeDataOrthogonal != null )
     {
       //
-      for ( Cell<E> cell : stripeData.getCellSet() )
+      for ( CellData<E> cellData : stripeData.getCellDataSet() )
       {
-        if ( stripeDataOrthogonal.contains( cell ) )
+        if ( stripeDataOrthogonal.contains( cellData ) )
         {
-          retval = cell;
+          retval = new CellImpl<E>( Arrays.asList( stripeData, stripeDataOrthogonal ), cellData );
           break;
         }
       }
@@ -94,7 +96,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
       if ( retval == null )
       {
         //
-        retval = new CellImpl<E>( Arrays.asList( stripeData, stripeDataOrthogonal ) );
+        retval = new CellImpl<E>( Arrays.asList( stripeData, stripeDataOrthogonal ), new CellDataImpl<E>() );
       }
     }
     
@@ -278,7 +280,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     int retval = -1;
     
     //
-    int columnListSize = this.resolveTableContent().getColumnList().size();
+    int columnListSize = this.resolveTableContent().getColumnStripeDataList().size();
     if ( columnListSize > 0 )
     {
       retval = cellIndexPosition / columnListSize;
@@ -295,7 +297,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     int retval = -1;
     
     //
-    int columnListSize = this.resolveTableContent().getColumnList().size();
+    int columnListSize = this.resolveTableContent().getColumnStripeDataList().size();
     if ( columnListSize > 0 )
     {
       retval = cellIndexPosition % columnListSize;
