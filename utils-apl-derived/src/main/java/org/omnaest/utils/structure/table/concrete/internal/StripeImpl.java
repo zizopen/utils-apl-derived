@@ -15,13 +15,15 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.Stripe;
-import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
+import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
@@ -223,7 +225,7 @@ public class StripeImpl<E> implements StripeInternal<E>
     int retval = -1;
     
     //
-    StripeType stripeTypeInverted = StripeTypeHelper.determineInvertedStripeType( this.stripeData.resolveStripeType() );
+    StripeType stripeTypeInverted = StripeTypeHelper.determineOrthogonalStripeType( this.stripeData.resolveStripeType() );
     
     //
     TableContent<E> stripeListContainer = this.tableInternal.getTableContent();
@@ -301,5 +303,21 @@ public class StripeImpl<E> implements StripeInternal<E>
   public TableInternal<E> getTableInternal()
   {
     return this.tableInternal;
+  }
+  
+  @Override
+  public List<E> asListOfCellElements()
+  {
+    //
+    List<E> retlist = new ArrayList<E>();
+    
+    //
+    for ( Cell<E> cell : this )
+    {
+      retlist.add( cell.getElement() );
+    }
+    
+    // 
+    return retlist;
   }
 }

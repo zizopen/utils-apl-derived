@@ -20,7 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
-import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
+import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
@@ -54,12 +55,33 @@ public class TableContentImpl<E> extends TableContentAbstract<E>
   }
   
   @Override
+  public void removeStripeDataAndItsCellDatasInOrthogonalStripeDatas( StripeData<E> stripeData )
+  {
+    //
+    if ( stripeData != null )
+    {
+      //
+      StripeType stripeType = stripeData.resolveStripeType();
+      if ( stripeType != null )
+      {
+        //
+        StripeDataList<E> stripeDataList = this.getStripeDataList( stripeType );
+        StripeDataList<E> stripeDataListOrthogonal = this.getStripeDataList( StripeTypeHelper.determineOrthogonalStripeType( stripeType ) );
+        
+        //
+        stripeDataList.removeStripeData( stripeData );
+        stripeDataListOrthogonal.unregisterCells( stripeData.getCellDataSet() );
+      }
+    }
+  }
+  
+  @Override
   public void switchRowAndColumnStripeList()
   {
     //
     for ( StripeDataList<E> stripeList : this.stripeListList )
     {
-      stripeList.setStripeType( StripeTypeHelper.determineInvertedStripeType( stripeList.getStripeType() ) );
+      stripeList.setStripeType( StripeTypeHelper.determineOrthogonalStripeType( stripeList.getStripeType() ) );
     }
   }
   
@@ -123,7 +145,7 @@ public class TableContentImpl<E> extends TableContentAbstract<E>
   public TableContent<E> cloneStructure()
   {
     //
-    TableContentImpl<E> retval = new TableContentImpl<E>();
+    TableContentAbstract<E> retval = new TableContentImpl<E>();
     retval.getRowStripeDataList().addAllStripeData( this.getRowStripeDataList() );
     retval.getColumnStripeDataList().addAllStripeData( this.getColumnStripeDataList() );
     

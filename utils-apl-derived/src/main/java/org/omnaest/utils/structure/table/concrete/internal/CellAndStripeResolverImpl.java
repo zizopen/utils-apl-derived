@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
-import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
+import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellAndStripeResolver;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
@@ -222,7 +222,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
       TableContent<E> stripeListContainer = this.resolveTableContent();
       
       //
-      StripeType stripeTypeInverted = StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() );
+      StripeType stripeTypeInverted = StripeTypeHelper.determineOrthogonalStripeType( stripeData.resolveStripeType() );
       
       //
       StripeDataList<E> stripeList = stripeListContainer.getStripeDataList( stripeTypeInverted );
@@ -254,7 +254,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
       TableContent<E> stripeListContainer = this.resolveTableContent();
       
       //
-      StripeType stripeTypeInverted = StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() );
+      StripeType stripeTypeInverted = StripeTypeHelper.determineOrthogonalStripeType( stripeData.resolveStripeType() );
       
       //
       StripeDataList<E> stripeList = stripeListContainer.getStripeDataList( stripeTypeInverted );

@@ -18,7 +18,7 @@ package org.omnaest.utils.structure.table.concrete.internal;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
-import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
+import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellAndStripeResolver;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
@@ -158,7 +158,7 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   public Cell<E> resolveOrCreateCell( StripeData<E> stripeData, int indexPosition )
   {
     return this.resolveOrCreateCell( stripeData,
-                                     this.resolveStripeData( StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() ),
+                                     this.resolveStripeData( StripeTypeHelper.determineOrthogonalStripeType( stripeData.resolveStripeType() ),
                                                              indexPosition ) );
   }
   
@@ -166,7 +166,7 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   public Cell<E> resolveOrCreateCellWithinNewTableArea( StripeData<E> stripeData, int indexPosition )
   {
     return this.resolveOrCreateCell( stripeData,
-                                     this.resolveOrCreateStripeData( StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() ),
+                                     this.resolveOrCreateStripeData( StripeTypeHelper.determineOrthogonalStripeType( stripeData.resolveStripeType() ),
                                                                      indexPosition ) );
   }
   
@@ -231,7 +231,7 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   public Cell<E> resolveOrCreateCell( StripeData<E> stripeData, Object titleValue )
   {
     return this.resolveOrCreateCell( stripeData,
-                                     this.resolveStripeData( StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() ),
+                                     this.resolveStripeData( StripeTypeHelper.determineOrthogonalStripeType( stripeData.resolveStripeType() ),
                                                              titleValue ) );
   }
   
@@ -239,7 +239,7 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   public Cell<E> resolveOrCreateCellWithinNewTableArea( StripeData<E> stripeData, Object titleValue )
   {
     return this.resolveOrCreateCell( stripeData,
-                                     this.resolveOrCreateStripeData( StripeTypeHelper.determineInvertedStripeType( stripeData.resolveStripeType() ),
+                                     this.resolveOrCreateStripeData( StripeTypeHelper.determineOrthogonalStripeType( stripeData.resolveStripeType() ),
                                                                      titleValue ) );
   }
   

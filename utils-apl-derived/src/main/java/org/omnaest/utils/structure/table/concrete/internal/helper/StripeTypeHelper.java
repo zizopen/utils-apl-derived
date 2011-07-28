@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.helper;
+package org.omnaest.utils.structure.table.concrete.internal.helper;
 
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 
@@ -31,7 +31,7 @@ public class StripeTypeHelper
    * @param stripeType
    * @return
    */
-  public static StripeType determineInvertedStripeType( StripeType stripeType )
+  public static StripeType determineOrthogonalStripeType( StripeType stripeType )
   {
     //
     StripeType retval = null;

@@ -479,6 +479,14 @@ public interface TableInternal<E>
      */
     public TableSize getTableSize();
     
+    /**
+     * Removes the given {@link StripeData} from the {@link TableContent} including the {@link CellData} contained in the
+     * orthogonal {@link StripeData} instances. This should be used to remove complete {@link Row}s or {@link Column}s
+     * 
+     * @param stripeData
+     */
+    public void removeStripeDataAndItsCellDatasInOrthogonalStripeDatas( StripeData<E> stripeData );
+    
   }
   
   /**
@@ -617,6 +625,29 @@ public interface TableInternal<E>
      * @return the removed {@link StripeData} instance
      */
     public StripeData<E> removeStripeData( int indexPosition );
+    
+    /**
+     * Registers a {@link StripeData} instance for the given {@link CellData} instances
+     * 
+     * @param cellDataCollection
+     * @param stripeData
+     */
+    public void registerStripeDataForCellDatas( Collection<CellData<E>> cellDataCollection, StripeData<E> stripeData );
+    
+    /**
+     * Unregisters the given {@link Collection} of {@link CellData} instances for the {@link StripeData}
+     * 
+     * @param cellDataCollection
+     * @param stripeData
+     */
+    public void unregisterStripeDataForCellDatas( Collection<CellData<E>> cellDataCollection, StripeData<E> stripeData );
+    
+    /**
+     * Unregisters the given {@link CellData} instances from all {@link StripeData} contained within this {@link StripeDataList}
+     * 
+     * @param cellDataIterable
+     */
+    public void unregisterCells( Iterable<CellData<E>> cellDataIterable );
   }
   
   /**

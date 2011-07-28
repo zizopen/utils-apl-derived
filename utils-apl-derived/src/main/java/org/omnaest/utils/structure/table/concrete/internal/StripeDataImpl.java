@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -95,22 +96,32 @@ public class StripeDataImpl<E> implements StripeData<E>
     return retval;
   }
   
+  @SuppressWarnings("unchecked")
   @Override
   public void registerCell( CellData<E> cellData )
   {
     //
     if ( cellData != null )
     {
+      //
       this.cellDataSet.add( cellData );
+      
+      //
+      this.stripeDataList.registerStripeDataForCellDatas( Arrays.asList( cellData ), this );
     }
   }
   
+  @SuppressWarnings("unchecked")
   @Override
   public void unregisterCell( CellData<E> cellData )
   {
     if ( cellData != null )
     {
+      //
       this.cellDataSet.remove( cellData );
+      
+      //
+      this.stripeDataList.unregisterStripeDataForCellDatas( Arrays.asList( cellData ), this );
     }
   }
   
