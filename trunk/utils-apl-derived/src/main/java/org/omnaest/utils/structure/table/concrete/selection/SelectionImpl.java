@@ -25,6 +25,7 @@ import org.omnaest.utils.structure.table.TableSelectable.Order;
 import org.omnaest.utils.structure.table.TableSelectable.Result;
 import org.omnaest.utils.structure.table.TableSelectable.Selection;
 import org.omnaest.utils.structure.table.TableSelectable.Where;
+import org.omnaest.utils.structure.table.concrete.internal.helper.TableInternalHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 
 /**
@@ -51,6 +52,7 @@ public class SelectionImpl<E> implements Selection<E>
    */
   public SelectionImpl( TableInternal<E> tableInternal )
   {
+    //
     super();
     
     //
@@ -80,7 +82,6 @@ public class SelectionImpl<E> implements Selection<E>
     return this;
   }
   
-  @SuppressWarnings("unchecked")
   @Override
   public Selection<E> from( Table<E>... tables )
   {
@@ -89,9 +90,15 @@ public class SelectionImpl<E> implements Selection<E>
     {
       for ( Table<E> table : tables )
       {
-        if ( table instanceof TableInternal )
+        if ( table != null )
         {
-          this.tableInternalList.add( (TableInternal<E>) table );
+          //
+          TableInternal<E> tableInternal = TableInternalHelper.extractTableInternalFromTable( table );
+          if ( tableInternal != null )
+          {
+            //
+            this.tableInternalList.add( tableInternal );
+          }
         }
       }
     }

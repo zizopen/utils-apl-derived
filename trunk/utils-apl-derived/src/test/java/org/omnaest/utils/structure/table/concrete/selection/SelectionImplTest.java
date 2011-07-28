@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.selection;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
@@ -30,7 +34,8 @@ import com.sun.rowset.internal.Row;
 public class SelectionImplTest
 {
   /* ********************************************** Variables ********************************************** */
-  protected Table<String> table = new ArrayTable<String>();
+  protected Table<String> table  = new ArrayTable<String>();
+  protected Table<String> table2 = new ArrayTable<String>();
   
   /* ********************************************** Methods ********************************************** */
   
@@ -41,21 +46,62 @@ public class SelectionImplTest
   }
   
   @Test
-  public void testAsTable()
+  public void testAsTableSelectAllColumnsFromOneTable()
   {
     //
     int numberOfRows = 4;
     int numberOfColumns = 3;
-    this.fillTable( numberOfRows, numberOfColumns );
+    this.fillTable( numberOfRows, numberOfColumns, this.table );
     
     //
     Table<String> tableResult = this.table.select().allColumns().asTable();
     
-    //FIXME go on here
+    //
+    System.out.println( tableResult.toString() );
+    assertEquals( this.table, tableResult );
+  }
+  
+  @Test
+  public void testAsTableSelectAllColumnsFromTwoTables()
+  {
+    //
+    {
+      //
+      int numberOfRows = 2;
+      int numberOfColumns = 2;
+      this.fillTable( numberOfRows, numberOfColumns, this.table, "t1" );
+    }
+    
+    //
+    {
+      //
+      int numberOfRows = 2;
+      int numberOfColumns = 2;
+      this.fillTable( numberOfRows, numberOfColumns, this.table2, "t2" );
+    }
+    
+    //
+    @SuppressWarnings("unchecked")
+    Table<String> tableResult = this.table.select().allColumns().from( this.table2 ).asTable();
     
     //
     System.out.println( tableResult.toString() );
-    
+    assertEquals( Arrays.asList( "0:0", "0:1", "0:0", "0:1" ), tableResult.getRow( 0 ).asListOfCellElements() );
+    assertEquals( Arrays.asList( "1:0", "1:1", "0:0", "0:1" ), tableResult.getRow( 1 ).asListOfCellElements() );
+    assertEquals( Arrays.asList( "0:0", "0:1", "1:0", "1:1" ), tableResult.getRow( 2 ).asListOfCellElements() );
+    assertEquals( Arrays.asList( "1:0", "1:1", "1:0", "1:1" ), tableResult.getRow( 3 ).asListOfCellElements() );
+  }
+  
+  /**
+   * @see #fillTable(int, int, Table, String)
+   * @param numberOfRows
+   * @param numberOfColumns
+   * @param table
+   */
+  protected void fillTable( int numberOfRows, int numberOfColumns, Table<String> table )
+  {
+    String title = "";
+    this.fillTable( numberOfRows, numberOfColumns, table, title );
   }
   
   /**
@@ -63,8 +109,9 @@ public class SelectionImplTest
    * 
    * @param numberOfRows
    * @param numberOfColumns
+   * @param table
    */
-  protected void fillTable( int numberOfRows, int numberOfColumns )
+  protected void fillTable( int numberOfRows, int numberOfColumns, Table<String> table, String title )
   {
     //
     for ( int rowIndexPosition = 0; rowIndexPosition < numberOfRows; rowIndexPosition++ )
@@ -73,20 +120,20 @@ public class SelectionImplTest
       {
         //
         String element = rowIndexPosition + ":" + columnIndexPosition;
-        this.table.setCellElement( rowIndexPosition, columnIndexPosition, element );
+        table.setCellElement( rowIndexPosition, columnIndexPosition, element );
         
         //
-        String titleValue = "c" + columnIndexPosition;
-        this.table.setColumnTitleValue( titleValue, columnIndexPosition );
+        String titleValue = title + "c" + columnIndexPosition;
+        table.setColumnTitleValue( titleValue, columnIndexPosition );
       }
       
       //
-      String titleValue = "r" + rowIndexPosition;
-      this.table.setRowTitleValue( titleValue, rowIndexPosition );
+      String titleValue = title + "r" + rowIndexPosition;
+      table.setRowTitleValue( titleValue, rowIndexPosition );
     }
     
     //
-    
+    table.setTableName( title );
   }
   
 }

@@ -19,9 +19,9 @@ import java.util.Set;
 
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.TableSelectable.Where.Predicate;
-import org.omnaest.utils.structure.table.helper.StripeDataHelper;
+import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
-import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
+import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 
 /**
@@ -59,9 +59,9 @@ public class ColumnValueEquals<E> implements PredicateInternal<E>
     StripeData<E> stripeData = StripeDataHelper.extractStripeDataFromStripe( this.column );
     
     //
-    Set<CellInternal<E>> cellSet = stripeData.getCellDataSet();
+    Set<CellData<E>> cellDataSet = stripeData.getCellDataSet();
     
-    
+    //FIXME
   }
   
 }

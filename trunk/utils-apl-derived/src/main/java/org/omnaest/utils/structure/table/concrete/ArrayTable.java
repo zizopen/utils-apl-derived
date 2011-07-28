@@ -46,7 +46,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   private static final long          serialVersionUID      = 1763808639838518679L;
   
   /* ********************************************** Variables ********************************************** */
-  protected TableInternal<E>         arrayTableInternal    = new ArrayTableInternal();
+  protected TableInternal<E>         tableInternal    = new ArrayTableInternal();
   protected TableContentResolver<E>  tableContentResolver  = new TableContentResolver<E>()
                                                            {
                                                              @Override
@@ -56,7 +56,7 @@ public class ArrayTable<E> extends TableAbstract<E>
                                                              }
                                                            };
   protected Object                   tableName             = null;
-  protected StripeFactory<E>         stripeFactory         = new StripeFactory<E>( this.arrayTableInternal );
+  protected StripeFactory<E>         stripeFactory         = new StripeFactory<E>( this.tableInternal );
   protected TableContent<E>          tableContent          = new TableContentImpl<E>();
   protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl<E>( this.tableContentResolver );
   
@@ -281,14 +281,7 @@ public class ArrayTable<E> extends TableAbstract<E>
       retlist.addAll( rowStripeData.getCellElementList() );
       
       //
-      StripeData<E> removedStripeData = this.tableContent.getRowStripeDataList().removeStripeData( rowIndexPosition );
-      if ( removedStripeData != null )
-      {
-        for ( StripeData<E> stripeData : this.tableContent.getColumnStripeDataList() )
-        {
-          stripeData.unregisterCells( removedStripeData.getCellDataSet() );
-        }
-      }
+      this.tableContent.removeStripeDataAndItsCellDatasInOrthogonalStripeDatas( rowStripeData );
     }
     
     //
@@ -309,14 +302,7 @@ public class ArrayTable<E> extends TableAbstract<E>
       retlist.addAll( columnStripeData.getCellElementList() );
       
       //
-      StripeData<E> removedStripeData = this.tableContent.getColumnStripeDataList().removeStripeData( columnIndexPosition );
-      if ( removedStripeData != null )
-      {
-        for ( StripeData<E> stripeData : this.tableContent.getRowStripeDataList() )
-        {
-          stripeData.unregisterCells( removedStripeData.getCellDataSet() );
-        }
-      }
+      this.tableContent.removeStripeDataAndItsCellDatasInOrthogonalStripeDatas( columnStripeData );
     }
     
     //
@@ -505,12 +491,12 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public Selection<E> select()
   {
-    return new SelectionImpl<E>( this.arrayTableInternal );
+    return new SelectionImpl<E>( this.tableInternal );
   }
   
-  protected TableInternal<E> getArrayTableInternal()
+  protected TableInternal<E> getTableInternal()
   {
-    return this.arrayTableInternal;
+    return this.tableInternal;
   }
   
 }

@@ -16,10 +16,11 @@
 package org.omnaest.utils.structure.table;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
-import org.omnaest.utils.structure.table.helper.StripeTypeHelper;
+import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 
 /**
@@ -84,7 +85,6 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
    */
   public static interface Stripe<E> extends TableComponent, Iterable<Cell<E>>
   {
-    
     /* ********************************************** Classes/Interfaces ********************************************** */
     
     /**
@@ -232,6 +232,13 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      * @return
      */
     public Iterable<Cell<E>> cells();
+    
+    /**
+     * Returns a new {@link List} instance with all {@link Cell#getElement()}s
+     * 
+     * @return
+     */
+    public List<E> asListOfCellElements();
   }
   
   /**
