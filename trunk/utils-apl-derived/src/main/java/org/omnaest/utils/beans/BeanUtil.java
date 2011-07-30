@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.omnaest.utils.structure.array.ArrayUtil;
+import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
 
 /**
@@ -505,7 +505,7 @@ public class BeanUtil extends org.apache.commons.beanutils.BeanUtils
   public static String[] determineBeanPropertiesForAnnotations( Class<?> beanClass,
                                                                 Class<? extends Annotation>... annotationClasses )
   {
-    String[] annotationNames = ArrayUtil.convertArrayExcludingNullElements( (Class<Annotation>[]) annotationClasses,
+    String[] annotationNames = ArrayUtils.convertArrayExcludingNullElements( (Class<Annotation>[]) annotationClasses,
                                                                             new String[0],
                                                                             new ElementConverterClassAnnotationToString() );
     return BeanUtil.determineBeanPropertiesForAnnotations( beanClass, annotationNames );

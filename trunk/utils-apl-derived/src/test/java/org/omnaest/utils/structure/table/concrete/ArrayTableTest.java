@@ -33,8 +33,9 @@ import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.TableCellConverter;
 import org.omnaest.utils.structure.table.Table.TableCellVisitor;
 import org.omnaest.utils.structure.table.Table.TableSize;
-import org.omnaest.utils.structure.table.serializer.TableMarshallerFactory;
-import org.omnaest.utils.structure.table.serializer.TableUnmarshallerFactory;
+import org.omnaest.utils.structure.table.TableFiller;
+import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerXML;
+import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerXML;
 
 /**
  * @see ArrayTable
@@ -46,35 +47,6 @@ public class ArrayTableTest
   protected Table<Object> table = new ArrayTable<Object>();
   
   /* ********************************************** Methods ********************************************** */
-  
-  /**
-   * Fills the given {@link Table} with <br>
-   * ["0:0","0:1",...,"0:n"]<br>
-   * ["1:0","1:1",...,"1:n"]<br>
-   * ...<br>
-   * ["m:0","m:1",...,"m:n"]<br>
-   * <br>
-   * and adds titles to {@link Row}s and {@link Column}s like "r0",...,"rm" and "c0",...,"cn"
-   */
-  protected void fillTableWithMatrixNumbers( int rows, int columns, Table<Object> table )
-  {
-    //
-    for ( int rowIndexPosition = 0; rowIndexPosition < rows; rowIndexPosition++ )
-    {
-      //
-      table.setRowTitleValue( "r" + rowIndexPosition, rowIndexPosition );
-      
-      //
-      for ( int columnIndexPosition = 0; columnIndexPosition < columns; columnIndexPosition++ )
-      {
-        //
-        table.setColumnTitleValue( "c" + columnIndexPosition, columnIndexPosition );
-        
-        //
-        table.setCellElement( rowIndexPosition, columnIndexPosition, "" + rowIndexPosition + ":" + columnIndexPosition );
-      }
-    }
-  }
   
   @Before
   public void setUp()
@@ -88,7 +60,7 @@ public class ArrayTableTest
     //
     final int rows = 5;
     final int columns = 2;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     this.table.transpose();
@@ -110,7 +82,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 5;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     TableSize tableSize = this.table.getTableSize();
@@ -126,7 +98,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 2;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     assertEquals( "0:0", this.table.getCellElement( 0, 0 ) );
@@ -141,7 +113,7 @@ public class ArrayTableTest
     //
     final int rows = 3;
     final int columns = 2;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     {
@@ -177,7 +149,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     {
@@ -213,7 +185,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     assertEquals( "0:0", this.table.getCellElement( 0 ) );
@@ -230,7 +202,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     assertTrue( this.table.contains( "0:0" ) );
@@ -244,7 +216,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     assertNotNull( this.table.getColumnTitleValue( 0 ) );
@@ -259,7 +231,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     assertEquals( Arrays.asList( "c0", "c1", "c2" ), this.table.getColumnTitleValueList() );
@@ -271,7 +243,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     assertNotNull( this.table.getRowTitleValue( 0 ) );
@@ -291,10 +263,10 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, tableFirst );
-    this.fillTableWithMatrixNumbers( rows, columns, tableEqual );
-    this.fillTableWithMatrixNumbers( columns, rows, tableUnequalBySize );
-    this.fillTableWithMatrixNumbers( rows, columns, tableUnequalByContent );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, tableFirst );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, tableEqual );
+    TableFiller.fillTableWithMatrixNumbers( columns, rows, tableUnequalBySize );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, tableUnequalByContent );
     tableUnequalByContent.setCellElement( 0, "changed" );
     
     //
@@ -311,7 +283,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     Iterator<Cell<Object>> iteratorCell = this.table.iteratorCell();
@@ -340,7 +312,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     this.table.setRowCellElements( 0, Arrays.asList( "a", "b", "c" ) );
@@ -370,7 +342,7 @@ public class ArrayTableTest
     //
     final int rows = 3;
     final int columns = 2;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     this.table.setColumnCellElements( 0, Arrays.asList( "a", "b", "c" ) );
@@ -401,7 +373,7 @@ public class ArrayTableTest
     //
     final int rows = 3;
     final int columns = 2;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     this.table.addColumnCellElements( 1, Arrays.asList( "a", "b", "c" ) );
@@ -443,7 +415,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     this.table.addRowCellElements( 1, Arrays.asList( "a", "b", "c" ) );
@@ -485,7 +457,7 @@ public class ArrayTableTest
     //
     final int rows = 2;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     this.table.clear();
@@ -523,7 +495,7 @@ public class ArrayTableTest
     //
     final int rows = 5;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     this.table.removeRow( 1 );
@@ -543,7 +515,7 @@ public class ArrayTableTest
     //
     final int rows = 3;
     final int columns = 5;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     this.table.removeColumn( 1 );
@@ -597,7 +569,7 @@ public class ArrayTableTest
     //
     final int rows = 3;
     final int columns = 5;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //    
     TableCellVisitor<Object> tableCellVisitor = new TableCellVisitor<Object>()
@@ -627,7 +599,7 @@ public class ArrayTableTest
     //
     final int rows = 3;
     final int columns = 5;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     TableCellConverter<Object, String> tableCellConverter = new TableCellConverter<Object, String>()
@@ -652,7 +624,7 @@ public class ArrayTableTest
     //
     final int rows = 3;
     final int columns = 5;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     Iterator<Row<Object>> iteratorRow = this.table.iteratorRow();
@@ -683,14 +655,14 @@ public class ArrayTableTest
     //
     final int rows = 3;
     final int columns = 5;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     StringBuilder stringBuilder = new StringBuilder();
     
     //
-    this.table.serializer().marshal( TableMarshallerFactory.XML() ).appendTo( stringBuilder );
-    this.table.serializer().unmarshal( TableUnmarshallerFactory.XML() ).from( stringBuilder );
+    this.table.serializer().marshal( new TableMarshallerXML<Object>() ).appendTo( stringBuilder );
+    this.table.serializer().unmarshal( new TableUnmarshallerXML<Object>() ).from( stringBuilder );
     
     //
     //System.out.println( stringBuilder );
@@ -709,12 +681,12 @@ public class ArrayTableTest
     //
     final int rowsInsert = 4;
     final int columnsInsert = 15;
-    this.fillTableWithMatrixNumbers( rowsInsert, columnsInsert, insertTable );
+    TableFiller.fillTableWithMatrixNumbers( rowsInsert, columnsInsert, insertTable );
     
     //
     final int rows = 20;
     final int columns = 10;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     final int rowIndexPosition = 3;
@@ -738,7 +710,7 @@ public class ArrayTableTest
     //
     final int rows = 5;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     this.table.setColumnTitleValues( Arrays.asList( "c0", "c1", "c2" ) );
@@ -760,7 +732,7 @@ public class ArrayTableTest
     //
     final int rows = 5;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     Table<Object> tableClonedStructure = this.table.cloneStructureWithContent();
@@ -779,7 +751,7 @@ public class ArrayTableTest
     //
     final int rows = 5;
     final int columns = 3;
-    this.fillTableWithMatrixNumbers( rows, columns, this.table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
     Table<Object> tableClonedStructure = this.table.cloneStructure();
