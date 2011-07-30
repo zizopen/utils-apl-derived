@@ -13,21 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.view;
+package org.omnaest.utils.structure.table.serializer;
 
-import org.omnaest.utils.structure.table.Table;
-import org.omnaest.utils.structure.table.subspecification.TableCoreImmutable;
+import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerXML;
 
 /**
- * View of an underlying {@link Table}. A {@link TableView} does not have an own data structure, instead it relies on the data
- * structure of another existing {@link Table}. This implies that all modifications made to a {@link TableView} are made to the
- * underlying {@link Table} and vice versa.
- * 
+ * @see TableMarshaller
+ * @see TableUnmarshallerFactory
  * @author Omnaest
- * @param <E>
  */
-public interface TableView<E> extends TableCoreImmutable<E>
+public class TableMarshallerFactory
 {
+  /**
+   * Creates new {@link TableMarshallerXML} instance
+   * 
+   * @see #XML(String)
+   * @return
+   */
+  public static <E> TableMarshaller<E> XML()
+  {
+    return new TableMarshallerXML<E>();
+  }
   
-  public boolean equals( TableView<E> tableView );
+  /**
+   * Creates new {@link TableMarshallerXML} instance
+   * 
+   * @see #XML()
+   * @param encoding
+   * @return
+   */
+  public static <E> TableMarshaller<E> XML( String encoding )
+  {
+    return new TableMarshallerXML<E>( encoding );
+  }
 }

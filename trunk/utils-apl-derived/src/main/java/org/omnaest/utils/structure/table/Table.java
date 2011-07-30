@@ -22,6 +22,9 @@ import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
+import org.omnaest.utils.structure.table.subspecification.TableCore;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable;
+import org.omnaest.utils.structure.table.subspecification.TableSerializable;
 
 /**
  * {@link Table} representation. Allows to create arbitrary {@link Table} structures. Offers rudimentary methods for joining.
@@ -30,7 +33,7 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
  * @see ArrayTable
  * @author Omnaest
  */
-public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row<E>>, TableXMLSerializable<E>, Serializable
+public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row<E>>, TableSerializable<E>, Serializable
 
 {
   /* ********************************************** Classes ********************************************** */

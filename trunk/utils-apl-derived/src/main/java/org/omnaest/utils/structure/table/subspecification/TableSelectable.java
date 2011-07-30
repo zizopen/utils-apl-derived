@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table;
+package org.omnaest.utils.structure.table.subspecification;
 
 import java.io.Serializable;
 import java.util.Map;
 
+import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
@@ -43,7 +44,7 @@ public interface TableSelectable<E>
    * @see Selection#columns(Column...)
    * @see Selection#allColumns()
    * @see Selection#from(Table)
-   * @see Selection#where(Where...)
+   * @see Selection#where(Predicate...)
    * @see Selection#orderBy(Order)
    * @see Selection#asView()
    * @see Selection#asTable()
@@ -88,12 +89,12 @@ public interface TableSelectable<E>
     public Selection<E> join( Join join );
     
     /**
-     * {@link Where} clause of a {@link Selection}
+     * Where clause of a {@link Selection} which declares one ore multiple {@link Predicate}s
      * 
-     * @param wheres
+     * @param predicates
      * @return this
      */
-    public Selection<E> where( Where<E>... wheres );
+    public Selection<E> where( Predicate<E>... predicates );
     
     /**
      * {@link Order} clause of a {@link Selection}
@@ -176,27 +177,29 @@ public interface TableSelectable<E>
   }
   
   /**
+   * A {@link Predicate} defines the condition which has to full filled by a {@link Row} to make her included into the result of a
+   * {@link Selection}
+   * 
+   * @param <E>
+   * @see Where
+   * @author Omnaest
+   */
+  public static interface Predicate<E> extends Serializable
+  {
+  }
+  
+  /**
    * {@link Where} clause of a {@link Selection}
    * 
    * @see Selection
    * @see Predicate
    * @author Omnaest
+   * @deprecated
    */
+  @Deprecated
   public static interface Where<E>
   {
     /* ********************************************** Classes/Interfaces ********************************************** */
-    
-    /**
-     * A {@link Predicate} defines the condition which has to full filled by a {@link Row} to make her included into the result of
-     * a {@link Selection}
-     * 
-     * @param <E>
-     * @see Where
-     * @author Omnaest
-     */
-    public static interface Predicate<E> extends Serializable
-    {
-    }
     
     /**
      * @see #whereElementEquals(int, Comparable)

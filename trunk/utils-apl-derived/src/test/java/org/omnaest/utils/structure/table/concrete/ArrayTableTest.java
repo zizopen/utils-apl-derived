@@ -33,7 +33,13 @@ import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.TableCellConverter;
 import org.omnaest.utils.structure.table.Table.TableCellVisitor;
 import org.omnaest.utils.structure.table.Table.TableSize;
+import org.omnaest.utils.structure.table.serializer.TableMarshallerFactory;
+import org.omnaest.utils.structure.table.serializer.TableUnmarshallerFactory;
 
+/**
+ * @see ArrayTable
+ * @author Omnaest
+ */
 public class ArrayTableTest
 {
   /* ********************************************** Variables ********************************************** */
@@ -683,12 +689,11 @@ public class ArrayTableTest
     StringBuilder stringBuilder = new StringBuilder();
     
     //
-    this.table.writeAsXMLTo( stringBuilder );
-    this.table.clear();
-    this.table.parseXMLFrom( stringBuilder );
+    this.table.serializer().marshal( TableMarshallerFactory.XML() ).appendTo( stringBuilder );
+    this.table.serializer().unmarshal( TableUnmarshallerFactory.XML() ).from( stringBuilder );
     
     //
-    System.out.println( stringBuilder );
+    //System.out.println( stringBuilder );
     
     //
     assertEquals( rows, this.table.getTableSize().getRowSize() );

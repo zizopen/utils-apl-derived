@@ -15,8 +15,6 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,22 +23,23 @@ import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
-import org.omnaest.utils.structure.table.TableXMLSerializable;
+import org.omnaest.utils.structure.table.concrete.internal.serializer.TableSerializerImpl;
 import org.omnaest.utils.structure.table.helper.TableHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
 /**
  * @see Table
+ * @see TableSerializer
  * @author Omnaest
  * @param <E>
  */
 public abstract class TableAbstract<E> implements Table<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long         serialVersionUID     = 413819072598819746L;
+  private static final long    serialVersionUID = 413819072598819746L;
   
   /* ********************************************** Variables ********************************************** */
-  protected TableXMLSerializable<E> tableXMLSerializable = new TableXMLSerializableImpl<E>( this );
+  protected TableSerializer<E> tableSerializer  = new TableSerializerImpl<E>( this );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -555,36 +554,6 @@ public abstract class TableAbstract<E> implements Table<E>
   }
   
   @Override
-  public Table<E> writeAsXMLTo( Appendable appendable )
-  {
-    return this.tableXMLSerializable.writeAsXMLTo( appendable );
-  }
-  
-  @Override
-  public Table<E> writeAsXMLTo( OutputStream outputStream )
-  {
-    return this.tableXMLSerializable.writeAsXMLTo( outputStream );
-  }
-  
-  @Override
-  public Table<E> parseXMLFrom( CharSequence charSequence )
-  {
-    return this.tableXMLSerializable.parseXMLFrom( charSequence );
-  }
-  
-  @Override
-  public Table<E> parseXMLFrom( String xmlContent )
-  {
-    return this.tableXMLSerializable.parseXMLFrom( xmlContent );
-  }
-  
-  @Override
-  public Table<E> parseXMLFrom( InputStream inputStream )
-  {
-    return this.tableXMLSerializable.parseXMLFrom( inputStream );
-  }
-  
-  @Override
   public List<Row<E>> getRowList()
   {
     return ListUtils.iteratorAsList( this.iteratorRow() );
@@ -706,6 +675,12 @@ public abstract class TableAbstract<E> implements Table<E>
     
     // 
     return this;
+  }
+  
+  @Override
+  public TableSerializer<E> serializer()
+  {
+    return this.tableSerializer;
   }
   
 }
