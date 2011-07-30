@@ -18,7 +18,7 @@ package org.omnaest.utils.listener;
 import java.io.Serializable;
 import java.util.List;
 
-import org.omnaest.utils.listener.synchronous.ListenerRegistrationImpl;
+import org.omnaest.utils.listener.concrete.ListenerRegistrationImpl;
 
 /**
  * Simple listener which allows to handle events.

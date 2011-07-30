@@ -23,7 +23,7 @@ import org.omnaest.utils.listener.Listener;
 /**
  * Registration for {@link Listener} instances. Allows to add and remove {@link Listener} instances. Intended for client use.
  * 
- * @see ListenerManagerAsynchronous
+ * @see ListenerManagerAsynchronousImpl
  * @param <EVENT>
  * @param <RESULT>
  */

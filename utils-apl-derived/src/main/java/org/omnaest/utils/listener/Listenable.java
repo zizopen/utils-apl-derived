@@ -15,7 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.listener;
 
-import org.omnaest.utils.listener.synchronous.ListenerRegistrationImpl;
+import org.omnaest.utils.listener.concrete.ListenerRegistrationImpl;
 
 /**
  * Interface for classes which allows to register {@link Listener}s at a {@link ListenerRegistrationImpl}.
