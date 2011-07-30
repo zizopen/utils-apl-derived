@@ -113,7 +113,7 @@ public class TableUnmarshallerPlainTextTest
                                                TableUnmarshallerPlainTextTest.createTableContent( this.tableConfiguration ) );
     
     //
-    System.out.println( this.table );
+    //System.out.println( this.table );
     
     //
     
