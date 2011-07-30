@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.asynchronous;
+package org.omnaest.utils.listener.asynchronous.concrete;
 
 import java.util.concurrent.Future;
 
 import org.omnaest.utils.listener.ListenerManager;
+import org.omnaest.utils.listener.asynchronous.ListenerManagerAsynchronous;
+import org.omnaest.utils.listener.asynchronous.ListenerRegistrationAsynchronous;
 import org.omnaest.utils.listener.concrete.ListenerManagerImpl;
 
 /**
  * @see ListenerManagerAsynchronous
  * @see ListenerManager
  * @see ListenerManagerImpl
- * @see ListenerRegistrationAsynchronous
+ * @see ListenerRegistrationAsynchronousImpl
  * @author Omnaest
  * @param <EVENT>
  * @param <RESULT>
@@ -40,7 +42,7 @@ public class ListenerManagerAsynchronousImpl<EVENT, RESULT> extends ListenerMana
   @Override
   public ListenerRegistrationAsynchronous<EVENT, RESULT> getListenerRegistration()
   {
-    return new ListenerRegistrationAsynchronous<EVENT, RESULT>( super.getListenerRegistration() );
+    return new ListenerRegistrationAsynchronousImpl<EVENT, RESULT>( super.getListenerRegistration() );
   }
   
 }

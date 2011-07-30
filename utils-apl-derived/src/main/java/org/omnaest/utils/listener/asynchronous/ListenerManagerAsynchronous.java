@@ -27,6 +27,7 @@ import org.omnaest.utils.listener.ListenerManager;
  * @param <EVENT>
  * @param <RESULT>
  */
-public interface ListenerManagerAsynchronous<EVENT, RESULT> extends ListenerManager<Future<EVENT>, Future<RESULT>>
+public interface ListenerManagerAsynchronous<EVENT, RESULT> extends ListenerManager<Future<EVENT>, Future<RESULT>>,
+                                                            ListenableAsynchronous<EVENT, RESULT>
 {
 }

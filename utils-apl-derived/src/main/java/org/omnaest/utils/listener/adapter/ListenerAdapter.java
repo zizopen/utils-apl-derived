@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener;
+package org.omnaest.utils.listener.adapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.omnaest.utils.listener.Listener;
 import org.omnaest.utils.listener.concrete.ListenerManagerImpl;
 import org.omnaest.utils.listener.concrete.ListenerRegistrationImpl;
 import org.omnaest.utils.tuple.Tuple;

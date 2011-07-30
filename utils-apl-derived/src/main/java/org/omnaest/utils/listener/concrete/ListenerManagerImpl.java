@@ -24,8 +24,8 @@ import java.util.Map;
 import org.omnaest.utils.listener.ListenerManager;
 import org.omnaest.utils.listener.Listenable;
 import org.omnaest.utils.listener.Listener;
-import org.omnaest.utils.listener.ListenerAdapter;
 import org.omnaest.utils.listener.ListenerRegistration;
+import org.omnaest.utils.listener.adapter.ListenerAdapter;
 
 /**
  * Manager for {@link Listener} instances which implements the {@link Listener} interface, too. The

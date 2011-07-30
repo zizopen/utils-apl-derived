@@ -17,6 +17,7 @@ package org.omnaest.utils.listener;
 
 import java.util.List;
 
+import org.omnaest.utils.listener.adapter.ListenerAdapter;
 import org.omnaest.utils.listener.concrete.ListenerManagerImpl;
 import org.omnaest.utils.listener.concrete.ListenerRegistrationImpl;
 
