@@ -17,6 +17,7 @@ package org.omnaest.utils.structure.table.view;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.subspecification.TableCoreImmutable;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
 
 /**
  * View of an underlying {@link Table}. A {@link TableView} does not have an own data structure, instead it relies on the data
@@ -30,4 +31,11 @@ public interface TableView<E> extends TableCoreImmutable<E>
 {
   
   public boolean equals( TableView<E> tableView );
+  
+  /**
+   * Recalculates the underlying {@link Selection} and updates the {@link TableView} with the new results
+   * 
+   * @return
+   */
+  public TableView<E> refresh();
 }

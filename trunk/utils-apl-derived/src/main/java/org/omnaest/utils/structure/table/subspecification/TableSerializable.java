@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.subspecification;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -72,9 +73,18 @@ public interface TableSerializable<E>
       public void appendTo( Appendable appendable );
       
       /**
+       * Writes the marshalled {@link Table} content to the given {@link OutputStream}
+       * 
        * @param outputStream
        */
       public void writeTo( OutputStream outputStream );
+      
+      /**
+       * Writes the marshalled {@link Table} content to the given {@link File}
+       * 
+       * @param file
+       */
+      public void writeTo( File file );
     }
     
     /**
@@ -105,6 +115,13 @@ public interface TableSerializable<E>
        * @param inputStream
        */
       public void from( InputStream inputStream );
+      
+      /**
+       * Reads the given {@link File} and unmarshalls it into the underlying {@link Table}
+       * 
+       * @param file
+       */
+      public void from( File file );
       
     }
     

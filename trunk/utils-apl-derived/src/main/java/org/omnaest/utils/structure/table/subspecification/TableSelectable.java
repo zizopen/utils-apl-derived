@@ -51,7 +51,7 @@ public interface TableSelectable<E>
    * @see Join
    * @see Where
    * @see Order
-   * @see Result
+   * @see TableView
    * @see TableSelectable
    * @see Table
    */
@@ -107,9 +107,9 @@ public interface TableSelectable<E>
     /**
      * Creates a {@link TableView} of the {@link Selection}. This should be called after all other configurations have been set.
      * 
-     * @return {@link Result}
+     * @return {@link TableView}
      */
-    public Result<E> asView();
+    public TableView<E> asView();
     
     /**
      * Merges {@link Row}s if there {@link Cell} elements are all equal
@@ -125,18 +125,6 @@ public interface TableSelectable<E>
      * @return
      */
     public Table<E> asTable();
-  }
-  
-  /**
-   * @see Table
-   * @see TableView
-   * @see Selection
-   * @author Omnaest
-   * @param <E>
-   */
-  public static interface Result<E> extends TableView<E>
-  {
-    
   }
   
   /**
