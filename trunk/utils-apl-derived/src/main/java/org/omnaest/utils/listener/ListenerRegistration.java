@@ -15,29 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.listener;
 
-import java.util.List;
-
-/**
- * Registration for {@link Listener} instances. Allows to add and remove {@link Listener} instances. Intended for client use.
- * 
- * @see ListenerManager
- * @param <EVENT>
- * @param <RESULT>
- */
-public class ListenerRegistration<EVENT, RESULT>
+public interface ListenerRegistration<EVENT, RESULT>
 {
-  /* ********************************************** Variables ********************************************** */
-  protected List<Listener<EVENT, RESULT>> listenerList = null;
-  
-  /* ********************************************** Methods ********************************************** */
-  
-  /**
-   * @param listenerList
-   */
-  protected ListenerRegistration( List<Listener<EVENT, RESULT>> listenerList )
-  {
-    this.listenerList = listenerList;
-  }
   
   /**
    * Adds a new {@link Listener} to the handler.
@@ -45,17 +24,7 @@ public class ListenerRegistration<EVENT, RESULT>
    * @param listener
    * @return this
    */
-  public ListenerRegistration<EVENT, RESULT> addListener( Listener<EVENT, RESULT> listener )
-  {
-    //
-    if ( listener != null && !this.listenerList.contains( listener ) )
-    {
-      this.listenerList.add( listener );
-    }
-    
-    //
-    return this;
-  }
+  public ListenerRegistration<EVENT, RESULT> addListener( Listener<EVENT, RESULT> listener );
   
   /**
    * Removes a given {@link Listener} instance from the handler.
@@ -63,15 +32,6 @@ public class ListenerRegistration<EVENT, RESULT>
    * @param listener
    * @return this
    */
-  public ListenerRegistration<EVENT, RESULT> removeListener( Listener<EVENT, RESULT> listener )
-  {
-    //
-    if ( listener != null )
-    {
-      this.listenerList.remove( listener );
-    }
-    
-    //
-    return this;
-  }
+  public ListenerRegistration<EVENT, RESULT> removeListener( Listener<EVENT, RESULT> listener );
+  
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener;
+package org.omnaest.utils.listener.synchronous;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,15 +23,19 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.omnaest.utils.listener.Listener;
+import org.omnaest.utils.listener.ListenerAbstract;
+import org.omnaest.utils.listener.ListenerAdapter;
 import org.omnaest.utils.listener.Listener.ListenerExtendedEvent;
 import org.omnaest.utils.listener.Listener.ListenerExtendedResult;
+import org.omnaest.utils.listener.synchronous.ListenerManager;
 
 
 /**
  * @see ListenerManager
  * @author Omnaest
  */
-public class ListenerManagerTest
+public class ListenerManagerAsynchronousTest
 {
   
   /* ********************************************** Classes/Interfaces ********************************************** */
@@ -80,17 +84,17 @@ public class ListenerManagerTest
   public void testConnectToListenerManager()
   {
     //
-    ListenerManager<ListenerParameterA, ListenerReturnInfoA> listenerManagerSource = new ListenerManager<ListenerManagerTest.ListenerParameterA, ListenerManagerTest.ListenerReturnInfoA>();
-    ListenerManager<ListenerParameterB, ListenerReturnInfoB> listenerManagerFacade = new ListenerManager<ListenerManagerTest.ListenerParameterB, ListenerManagerTest.ListenerReturnInfoB>();
+    ListenerManager<ListenerParameterA, ListenerReturnInfoA> listenerManagerSource = new ListenerManager<ListenerManagerAsynchronousTest.ListenerParameterA, ListenerManagerAsynchronousTest.ListenerReturnInfoA>();
+    ListenerManager<ListenerParameterB, ListenerReturnInfoB> listenerManagerFacade = new ListenerManager<ListenerManagerAsynchronousTest.ListenerParameterB, ListenerManagerAsynchronousTest.ListenerReturnInfoB>();
     
     //
-    ListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB> listenerAdapter = new ListenerAdapter<ListenerManagerTest.ListenerParameterA, ListenerManagerTest.ListenerReturnInfoA, ListenerManagerTest.ListenerParameterB, ListenerManagerTest.ListenerReturnInfoB>()
+    ListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB> listenerAdapter = new ListenerAdapter<ListenerManagerAsynchronousTest.ListenerParameterA, ListenerManagerAsynchronousTest.ListenerReturnInfoA, ListenerManagerAsynchronousTest.ListenerParameterB, ListenerManagerAsynchronousTest.ListenerReturnInfoB>()
     {
       @Override
       public List<ListenerParameterB> adaptParameter( ListenerParameterA otherParameter )
       {
         //
-        List<ListenerParameterB> retlist = new ArrayList<ListenerManagerTest.ListenerParameterB>();
+        List<ListenerParameterB> retlist = new ArrayList<ListenerManagerAsynchronousTest.ListenerParameterB>();
         
         //        
         String source = (String) otherParameter.getSource();
@@ -106,7 +110,7 @@ public class ListenerManagerTest
       public List<ListenerReturnInfoA> adaptReturnInfo( ListenerReturnInfoB returninfo )
       {
         //
-        List<ListenerReturnInfoA> retlist = new ArrayList<ListenerManagerTest.ListenerReturnInfoA>();
+        List<ListenerReturnInfoA> retlist = new ArrayList<ListenerManagerAsynchronousTest.ListenerReturnInfoA>();
         
         //
         String client = returninfo.getClient();
@@ -131,7 +135,7 @@ public class ListenerManagerTest
       public List<ListenerReturnInfoB> handleEvent( ListenerParameterB parameter )
       {
         //
-        List<ListenerReturnInfoB> retlist = new ArrayList<ListenerManagerTest.ListenerReturnInfoB>();
+        List<ListenerReturnInfoB> retlist = new ArrayList<ListenerManagerAsynchronousTest.ListenerReturnInfoB>();
         
         //
         String source = parameter.getSource();
