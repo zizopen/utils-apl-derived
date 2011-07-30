@@ -21,18 +21,18 @@ import java.util.List;
 /**
  * Simple listener which allows to handle events.
  * 
- * @param <PARAMETER>
- * @param <RETURN_INFO>
+ * @param <EVENT>
+ * @param <RESULT>
  * @author Omnaest
  */
-public interface Listener<PARAMETER, RETURN_INFO> extends Serializable
+public interface Listener<EVENT, RESULT> extends Serializable
 {
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * Generic default {@link Listener} return info implementation.
+   * Generic default {@link Listener} event result implementation.
    */
-  public static class ListenerReturnInfo<CLIENT, RESULT> implements Serializable
+  public static class ListenerExtendedResult<CLIENT, RESULT> implements Serializable
   {
     /* ********************************************** Constants ********************************************** */
     private static final long serialVersionUID = -8069531864203403670L;
@@ -43,48 +43,51 @@ public interface Listener<PARAMETER, RETURN_INFO> extends Serializable
     
     /* ********************************************** Methods ********************************************** */
     
-    public ListenerReturnInfo()
+    /**
+     * 
+     */
+    public ListenerExtendedResult()
     {
     }
     
-    public ListenerReturnInfo( CLIENT client, RESULT result )
+    /**
+     * @param client
+     * @param result
+     */
+    public ListenerExtendedResult( CLIENT client, RESULT result )
     {
       super();
       this.client = client;
       this.result = result;
     }
     
+    /**
+     * @return
+     */
     public CLIENT getClient()
     {
       return this.client;
     }
     
-    public void setClient( CLIENT client )
-    {
-      this.client = client;
-    }
-    
+    /**
+     * @return
+     */
     public RESULT getResult()
     {
       return this.result;
     }
     
-    public void setResult( RESULT result )
-    {
-      this.result = result;
-    }
-    
   }
   
   /**
-   * Generic default {@link Listener} parameter implementation.
+   * Generic extended {@link Listener} event implementation.
    * 
    * @author Omnaest
    * @param <SOURCE>
    * @param <EVENT>
    * @param <DATA>
    */
-  public static class ListenerParameter<SOURCE, EVENT, DATA>
+  public static class ListenerExtendedEvent<SOURCE, EVENT, DATA>
   {
     /* ********************************************** Variables ********************************************** */
     protected SOURCE source = null;
@@ -92,11 +95,19 @@ public interface Listener<PARAMETER, RETURN_INFO> extends Serializable
     protected DATA   data   = null;
     
     /* ********************************************** Methods ********************************************** */
-    public ListenerParameter()
+    /**
+     * 
+     */
+    public ListenerExtendedEvent()
     {
     }
     
-    public ListenerParameter( SOURCE source, EVENT event, DATA data )
+    /**
+     * @param source
+     * @param event
+     * @param data
+     */
+    public ListenerExtendedEvent( SOURCE source, EVENT event, DATA data )
     {
       super();
       this.source = source;
@@ -104,34 +115,28 @@ public interface Listener<PARAMETER, RETURN_INFO> extends Serializable
       this.data = data;
     }
     
+    /**
+     * @return
+     */
     public SOURCE getSource()
     {
       return this.source;
     }
     
-    public void setSource( SOURCE source )
-    {
-      this.source = source;
-    }
-    
+    /**
+     * @return
+     */
     public EVENT getEvent()
     {
       return this.event;
     }
     
-    public void setEvent( EVENT event )
-    {
-      this.event = event;
-    }
-    
+    /**
+     * @return
+     */
     public DATA getData()
     {
       return this.data;
-    }
-    
-    public void setData( DATA data )
-    {
-      this.data = data;
     }
     
   }
@@ -147,5 +152,5 @@ public interface Listener<PARAMETER, RETURN_INFO> extends Serializable
    * @param listenerRegistration
    * @return map<client,result>
    */
-  public List<RETURN_INFO> handleEvent( PARAMETER parameter, ListenerRegistration<PARAMETER, RETURN_INFO> listenerRegistration );
+  public List<RESULT> handleEvent( EVENT parameter, ListenerRegistration<EVENT, RESULT> listenerRegistration );
 }

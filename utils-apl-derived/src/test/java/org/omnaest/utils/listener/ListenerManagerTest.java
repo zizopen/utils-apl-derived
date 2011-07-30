@@ -23,8 +23,8 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.omnaest.utils.listener.Listener.ListenerParameter;
-import org.omnaest.utils.listener.Listener.ListenerReturnInfo;
+import org.omnaest.utils.listener.Listener.ListenerExtendedEvent;
+import org.omnaest.utils.listener.Listener.ListenerExtendedResult;
 
 
 /**
@@ -36,7 +36,7 @@ public class ListenerManagerTest
   
   /* ********************************************** Classes/Interfaces ********************************************** */
 
-  protected class ListenerParameterA extends ListenerParameter<Object, Object, Object>
+  protected class ListenerParameterA extends ListenerExtendedEvent<Object, Object, Object>
   {
     public ListenerParameterA( Object source, Object event, Object data )
     {
@@ -44,7 +44,7 @@ public class ListenerManagerTest
     }
   }
   
-  protected class ListenerParameterB extends ListenerParameter<String, Object, Long>
+  protected class ListenerParameterB extends ListenerExtendedEvent<String, Object, Long>
   {
     public ListenerParameterB( String source, Object event, Long data )
     {
@@ -52,7 +52,7 @@ public class ListenerManagerTest
     }
   }
   
-  protected class ListenerReturnInfoA extends ListenerReturnInfo<Object, Object>
+  protected class ListenerReturnInfoA extends ListenerExtendedResult<Object, Object>
   {
     public ListenerReturnInfoA( Object client, Object result )
     {
@@ -61,7 +61,7 @@ public class ListenerManagerTest
     }
   }
   
-  protected class ListenerReturnInfoB extends ListenerReturnInfo<String, Double>
+  protected class ListenerReturnInfoB extends ListenerExtendedResult<String, Double>
   {
     public ListenerReturnInfoB( String client, Double result )
     {
