@@ -23,33 +23,33 @@ import java.util.List;
  * 
  * @author Omnaest
  */
-public abstract class ListenerAbstract<PARAMETER, RETURN_INFO> implements Listener<PARAMETER, RETURN_INFO>
+public abstract class ListenerAbstract<EVENT, RESULT> implements Listener<EVENT, RESULT>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long       serialVersionUID       = 1250853029881040746L;
+  private static final long  serialVersionUID       = 1250853029881040746L;
   /* ********************************************** Variables ********************************************** */
-  private final List<RETURN_INFO> EMPTY_RETURN_INFO_LIST = new ArrayList<RETURN_INFO>();
+  private final List<RESULT> EMPTY_RETURN_INFO_LIST = new ArrayList<RESULT>();
   
   /* ********************************************** Methods ********************************************** */
   
-  public void handleEventSilently( PARAMETER parameter )
+  public void handleEventSilently( EVENT parameter )
   {
   }
   
-  public List<RETURN_INFO> handleEvent( PARAMETER parameter )
+  public List<RESULT> handleEvent( EVENT parameter )
   {
     return this.EMPTY_RETURN_INFO_LIST;
   }
   
-  public void handleEventSilently( PARAMETER parameter, ListenerRegistration<PARAMETER, RETURN_INFO> listenerRegistration )
+  public void handleEventSilently( EVENT parameter, ListenerRegistration<EVENT, RESULT> listenerRegistration )
   {
   }
   
   @Override
-  public List<RETURN_INFO> handleEvent( PARAMETER parameter, ListenerRegistration<PARAMETER, RETURN_INFO> listenerRegistration )
+  public List<RESULT> handleEvent( EVENT parameter, ListenerRegistration<EVENT, RESULT> listenerRegistration )
   {
     //
-    List<RETURN_INFO> retlist = new ArrayList<RETURN_INFO>();
+    List<RESULT> retlist = new ArrayList<RESULT>();
     
     //
     retlist.addAll( this.handleEvent( parameter ) );

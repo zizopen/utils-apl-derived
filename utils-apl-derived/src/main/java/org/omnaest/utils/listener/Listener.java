@@ -18,6 +18,8 @@ package org.omnaest.utils.listener;
 import java.io.Serializable;
 import java.util.List;
 
+import org.omnaest.utils.listener.synchronous.ListenerRegistrationImpl;
+
 /**
  * Simple listener which allows to handle events.
  * 
@@ -144,7 +146,7 @@ public interface Listener<EVENT, RESULT> extends Serializable
   /* ********************************************** Methods ********************************************** */
   /**
    * Is triggered if a event comes in from a given source. The listenerRegistration parameter can be used to modify the underlying
-   * {@link ListenerRegistration} instance.
+   * {@link ListenerRegistrationImpl} instance.
    * 
    * @param source
    * @param event
