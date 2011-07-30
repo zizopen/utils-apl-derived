@@ -17,25 +17,16 @@ package org.omnaest.utils.listener.asynchronous;
 
 import java.util.concurrent.Future;
 
-import org.omnaest.utils.listener.synchronous.ListenerManager;
+import org.omnaest.utils.listener.ListenerManager;
 
 /**
  * @see Future
+ * @see ListenerAsynchronous
  * @see ListenerManager
  * @author Omnaest
  * @param <EVENT>
  * @param <RESULT>
  */
-public class ListenerManagerAsynchronous<EVENT, RESULT> extends ListenerManager<Future<EVENT>, Future<RESULT>>
+public interface ListenerManagerAsynchronous<EVENT, RESULT> extends ListenerManager<Future<EVENT>, Future<RESULT>>
 {
-  /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID = -1779193308279798570L;
-  
-  /* ********************************************** Methods ********************************************** */
-  @Override
-  public ListenerRegistrationAsynchronous<EVENT, RESULT> getListenerRegistration()
-  {
-    return new ListenerRegistrationAsynchronous<EVENT, RESULT>( super.getListenerRegistration() );
-  }
-  
 }

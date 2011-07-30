@@ -18,21 +18,21 @@ package org.omnaest.utils.listener;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omnaest.utils.listener.synchronous.ListenerManager;
-import org.omnaest.utils.listener.synchronous.ListenerRegistrationImpl;
+import org.omnaest.utils.listener.concrete.ListenerManagerImpl;
+import org.omnaest.utils.listener.concrete.ListenerRegistrationImpl;
 import org.omnaest.utils.tuple.Tuple;
 import org.omnaest.utils.tuple.TupleDuad;
 import org.omnaest.utils.tuple.TupleTriple;
 
 
 /**
- * Adapter interface used to connect two {@link ListenerManager} instances with
- * {@link ListenerManager#listenTo(ListenerRegistrationImpl, ListenerAdapter)}. Converts the source and event from another
+ * Adapter interface used to connect two {@link ListenerManagerImpl} instances with
+ * {@link ListenerManagerImpl#listenTo(ListenerRegistrationImpl, ListenerAdapter)}. Converts the source and event from another
  * {@link Listener} to a current source and event. And the result and client coming from a current {@link Listener} back to the
  * other {@link Listener}s client and result.
  * 
  * @see Listener
- * @see ListenerManager
+ * @see ListenerManagerImpl
  * @see ListenerRegistrationImpl
  * @author Omnaest
  * @param <OTHER_PARAMETER>

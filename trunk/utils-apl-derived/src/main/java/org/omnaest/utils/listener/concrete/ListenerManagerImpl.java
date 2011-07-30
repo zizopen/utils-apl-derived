@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.synchronous;
+package org.omnaest.utils.listener.concrete;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,15 +21,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.omnaest.utils.listener.ListenerRegistration;
+import org.omnaest.utils.listener.ListenerManager;
 import org.omnaest.utils.listener.Listenable;
 import org.omnaest.utils.listener.Listener;
 import org.omnaest.utils.listener.ListenerAdapter;
+import org.omnaest.utils.listener.ListenerRegistration;
 
 /**
  * Manager for {@link Listener} instances which implements the {@link Listener} interface, too. The
- * {@link Listener#handleEvent(Object, ListenerRegistrationImpl)} is executed for all of the {@link Listener} instances which are not
- * null. <br>
+ * {@link Listener#handleEvent(Object, ListenerRegistrationImpl)} is executed for all of the {@link Listener} instances which are
+ * not null. <br>
  * <br>
  * To add new {@link Listener} instances use the {@link ListenerRegistrationImpl} instance which can be retrieved via
  * {@link #getListenerRegistration()}. Its best practice to make this method available to clients by a delegate method.
@@ -39,32 +40,34 @@ import org.omnaest.utils.listener.ListenerAdapter;
  * @param <RESULT>
  * @author Omnaest
  */
-public class ListenerManager<EVENT, RESULT> implements Listener<EVENT, RESULT>, Listenable<EVENT, RESULT>
+public class ListenerManagerImpl<EVENT, RESULT> implements Listener<EVENT, RESULT>, Listenable<EVENT, RESULT>,
+                                            ListenerManager<EVENT, RESULT>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long                                  serialVersionUID                           = 185487616795626165L;
+  private static final long                                 serialVersionUID                           = 185487616795626165L;
   
   /* ********************************************** Variables ********************************************** */
-  protected List<Listener<EVENT, RESULT>>                    listenerList                               = new ArrayList<Listener<EVENT, RESULT>>();
+  protected List<Listener<EVENT, RESULT>>                   listenerList                               = new ArrayList<Listener<EVENT, RESULT>>();
   protected ListenerRegistration<EVENT, RESULT>             listenerRegistration                       = new ListenerRegistrationImpl<EVENT, RESULT>(
-                                                                                                                                                   this.listenerList );
+                                                                                                                                                      this.listenerList );
   protected Map<ListenerRegistration<?, ?>, Listener<?, ?>> connectedListenerRegistrationToListenerMap = new HashMap<ListenerRegistration<?, ?>, Listener<?, ?>>();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * @see ListenerManager
+   * @see ListenerManagerImpl
    */
-  public ListenerManager()
+  public ListenerManagerImpl()
   {
     super();
   }
   
   /**
-   * Removes all listeners from the {@link ListenerManager} instance.
+   * Removes all listeners from the {@link ListenerManagerImpl} instance.
    * 
    * @return this
    */
+  @Override
   public ListenerManager<EVENT, RESULT> clearListeners()
   {
     //
@@ -81,6 +84,7 @@ public class ListenerManager<EVENT, RESULT> implements Listener<EVENT, RESULT>, 
    * @param parameter
    * @return
    */
+  @Override
   public List<RESULT> handleEvent( EVENT parameter )
   {
     return this.handleEvent( parameter, this.getListenerRegistration() );
@@ -119,23 +123,24 @@ public class ListenerManager<EVENT, RESULT> implements Listener<EVENT, RESULT>, 
   }
   
   /**
-   * Connects the current {@link ListenerManager} to the {@link ListenerRegistrationImpl} from another {@link ListenerManager}
-   * instance. This allows to chain {@link ListenerManager} instances.
+   * Connects the current {@link ListenerManagerImpl} to the {@link ListenerRegistrationImpl} from another {@link ListenerManagerImpl}
+   * instance. This allows to chain {@link ListenerManagerImpl} instances.
    * 
-   * @see #listenTo(ListenerManager, ListenerAdapter)
+   * @see #listenTo(ListenerManagerImpl, ListenerAdapter)
    * @see #listenTo(ListenerRegistrationImpl, ListenerAdapter)
    * @see #disconnectFrom(ListenerRegistrationImpl)
    * @see ListenerAdapter
    * @param listenerRegistration
    * @return this
    */
+  @Override
   @SuppressWarnings("rawtypes")
-  public ListenerManager<EVENT, RESULT> disconnectFrom( final ListenerManager listenerManager )
+  public ListenerManager<EVENT, RESULT> disconnectFrom( final ListenerManagerImpl listenerManagerImpl )
   {
     //
-    if ( listenerManager != null )
+    if ( listenerManagerImpl != null )
     {
-      this.disconnectFrom( listenerManager.getListenerRegistration() );
+      this.disconnectFrom( listenerManagerImpl.getListenerRegistration() );
     }
     
     //
@@ -143,12 +148,13 @@ public class ListenerManager<EVENT, RESULT> implements Listener<EVENT, RESULT>, 
   }
   
   /**
-   * @see #disconnectFrom(ListenerManager)
+   * @see #disconnectFrom(ListenerManagerImpl)
    * @see #listenTo(ListenerRegistrationImpl, ListenerAdapter)
    * @see ListenerAdapter
    * @param listenerRegistration
    * @return this
    */
+  @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public ListenerManager<EVENT, RESULT> disconnectFrom( final ListenerRegistration listenerRegistration )
   {
@@ -174,6 +180,7 @@ public class ListenerManager<EVENT, RESULT> implements Listener<EVENT, RESULT>, 
    * @param listenerRegistration
    * @return this
    */
+  @Override
   public ListenerManager<EVENT, RESULT> listenTo( final ListenerRegistration<EVENT, RESULT> listenerRegistration )
   {
     ListenerAdapter<EVENT, RESULT, EVENT, RESULT> listenerAdapter = new ListenerAdapter<EVENT, RESULT, EVENT, RESULT>()
@@ -198,11 +205,11 @@ public class ListenerManager<EVENT, RESULT> implements Listener<EVENT, RESULT>, 
   }
   
   /**
-   * Connects the current {@link ListenerManager} to the {@link ListenerRegistrationImpl} from another {@link ListenerManager}
-   * instance. This allows to chain {@link ListenerManager} instances.
+   * Connects the current {@link ListenerManagerImpl} to the {@link ListenerRegistrationImpl} from another {@link ListenerManagerImpl}
+   * instance. This allows to chain {@link ListenerManagerImpl} instances.
    * 
    * @see ListenerAdapter
-   * @see #listenTo(ListenerManager, ListenerAdapter)
+   * @see #listenTo(ListenerManagerImpl, ListenerAdapter)
    * @see #disconnectFrom(ListenerRegistrationImpl)
    * @param <OTHER_EVENT>
    * @param <OTHER_RESULT>
@@ -210,8 +217,9 @@ public class ListenerManager<EVENT, RESULT> implements Listener<EVENT, RESULT>, 
    * @param listenerAdapter
    * @return this
    */
+  @Override
   public <OTHER_EVENT, OTHER_RESULT> ListenerManager<EVENT, RESULT> listenTo( final ListenerRegistration<OTHER_EVENT, OTHER_RESULT> listenerRegistration,
-                                                                              final ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT> listenerAdapter )
+                                                                               final ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT> listenerAdapter )
   {
     //
     if ( listenerRegistration != null && listenerAdapter != null
@@ -243,8 +251,8 @@ public class ListenerManager<EVENT, RESULT> implements Listener<EVENT, RESULT>, 
             for ( EVENT parameter : parameterList )
             {
               //              
-              List<RESULT> singleReturnInfoList = ListenerManager.this.handleEvent( parameter,
-                                                                                    ListenerManager.this.getListenerRegistration() );
+              List<RESULT> singleReturnInfoList = ListenerManagerImpl.this.handleEvent( parameter,
+                                                                                    ListenerManagerImpl.this.getListenerRegistration() );
               
               //
               if ( singleReturnInfoList != null )
@@ -288,21 +296,23 @@ public class ListenerManager<EVENT, RESULT> implements Listener<EVENT, RESULT>, 
    * @param listenerManager
    * @return
    */
-  public ListenerManager<EVENT, RESULT> listenTo( ListenerManager<EVENT, RESULT> listenerManager )
+  @Override
+  public ListenerManager<EVENT, RESULT> listenTo( ListenerManagerImpl<EVENT, RESULT> listenerManager )
   {
     return this.listenTo( listenerManager.getListenerRegistration() );
   }
   
   /**
-   * @see #disconnectFrom(ListenerManager)
+   * @see #disconnectFrom(ListenerManagerImpl)
    * @see #listenTo(ListenerRegistrationImpl, ListenerAdapter)
    * @param <OTHER_EVENT>
    * @param <OTHER_RESULT>
    * @param listenerManager
    * @param listenerAdapter
    */
-  public <OTHER_EVENT, OTHER_RESULT> ListenerManager<EVENT, RESULT> listenTo( ListenerManager<OTHER_EVENT, OTHER_RESULT> listenerManager,
-                                                                              ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT> listenerAdapter )
+  @Override
+  public <OTHER_EVENT, OTHER_RESULT> ListenerManager<EVENT, RESULT> listenTo( ListenerManagerImpl<OTHER_EVENT, OTHER_RESULT> listenerManager,
+                                                                               ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT> listenerAdapter )
   {
     //
     if ( listenerManager != null )

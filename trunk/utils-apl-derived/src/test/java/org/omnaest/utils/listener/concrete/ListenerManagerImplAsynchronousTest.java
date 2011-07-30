@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.synchronous;
+package org.omnaest.utils.listener.concrete;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -28,14 +28,14 @@ import org.omnaest.utils.listener.ListenerAbstract;
 import org.omnaest.utils.listener.ListenerAdapter;
 import org.omnaest.utils.listener.Listener.ListenerExtendedEvent;
 import org.omnaest.utils.listener.Listener.ListenerExtendedResult;
-import org.omnaest.utils.listener.synchronous.ListenerManager;
+import org.omnaest.utils.listener.concrete.ListenerManagerImpl;
 
 
 /**
- * @see ListenerManager
+ * @see ListenerManagerImpl
  * @author Omnaest
  */
-public class ListenerManagerAsynchronousTest
+public class ListenerManagerImplAsynchronousTest
 {
   
   /* ********************************************** Classes/Interfaces ********************************************** */
@@ -84,17 +84,17 @@ public class ListenerManagerAsynchronousTest
   public void testConnectToListenerManager()
   {
     //
-    ListenerManager<ListenerParameterA, ListenerReturnInfoA> listenerManagerSource = new ListenerManager<ListenerManagerAsynchronousTest.ListenerParameterA, ListenerManagerAsynchronousTest.ListenerReturnInfoA>();
-    ListenerManager<ListenerParameterB, ListenerReturnInfoB> listenerManagerFacade = new ListenerManager<ListenerManagerAsynchronousTest.ListenerParameterB, ListenerManagerAsynchronousTest.ListenerReturnInfoB>();
+    ListenerManagerImpl<ListenerParameterA, ListenerReturnInfoA> listenerManagerSource = new ListListenerManagerImplAsynchronousTestAsynchronousTest.ListListenerManagerImplAsynchronousTestAsynchronousTest.ListenerReturnInfoA>();
+    ListenerManagerImpl<ListenerParameterB, ListenerReturnInfoB> listenerManagerFacade = ListenerManagerImplAsynchronousTestrManagerAsynchronousTListenerManagerImplAsynchronousTestrManagerAsynchronousTest.ListenerReturnInfoB>();
     
     //
-    ListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB> listenerAdapter = new ListenerAdapter<ListenerManagerAsynchronousTest.ListenerParameterA, ListenerManagerAsynchronousTest.ListenerReturnInfoA, ListenerManagerAsynchronousTest.ListenerParameterB, ListenerManagerAsynchronousTest.ListenerReturnInfoB>()
+    ListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB> listenerAdapteListenerManagerImplAsynchronousTestrManagerAsynchronousTListenerManagerImplAsynchronousTestrManagerAsynchronousTeListenerManagerImplAsynchronousTestrManagerAsynchronousTListenerManagerImplAsynchronousTestrManagerAsynchronousTest.ListenerReturnInfoB>()
     {
       @Override
       public List<ListenerParameterB> adaptParameter( ListenerParameterA otherParameter )
       {
         //
-        List<ListenerParameterB> retlist = new ArrayList<ListenerManagerAsynchronousTest.ListenerParameterB>();
+        List<ListenerParameterB> ListenerManagerImplAsynchronousTestrManagerAsynchronousTest.ListenerParameterB>();
         
         //        
         String source = (String) otherParameter.getSource();
@@ -110,7 +110,7 @@ public class ListenerManagerAsynchronousTest
       public List<ListenerReturnInfoA> adaptReturnInfo( ListenerReturnInfoB returninfo )
       {
         //
-        List<ListenerReturnInfoA> retlist = new ArrayList<ListenerManagerAsynchronousTest.ListenerReturnInfoA>();
+        List<ListenerReturnInfoA> ListenerManagerImplAsynchronousTestrManagerAsynchronousTest.ListenerReturnInfoA>();
         
         //
         String client = returninfo.getClient();
@@ -135,7 +135,7 @@ public class ListenerManagerAsynchronousTest
       public List<ListenerReturnInfoB> handleEvent( ListenerParameterB parameter )
       {
         //
-        List<ListenerReturnInfoB> retlist = new ArrayList<ListenerManagerAsynchronousTest.ListenerReturnInfoB>();
+        List<ListenerReturnInfoB> ListenerManagerImplAsynchronousTestrManagerAsynchronousTest.ListenerReturnInfoB>();
         
         //
         String source = parameter.getSource();

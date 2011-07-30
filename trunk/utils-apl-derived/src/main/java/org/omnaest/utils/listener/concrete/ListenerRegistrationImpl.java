@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.synchronous;
+package org.omnaest.utils.listener.concrete;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ import org.omnaest.utils.listener.Listener;
 /**
  * Registration for {@link Listener} instances. Allows to add and remove {@link Listener} instances. Intended for client use.
  * 
- * @see ListenerManager
+ * @see ListenerManagerImpl
  * @param <EVENT>
  * @param <RESULT>
  */

@@ -21,7 +21,7 @@ import org.omnaest.utils.listener.Listener;
 
 /**
  * @see Listener
- * @see future
+ * @see Future
  * @author Omnaest
  * @param <EVENT>
  * @param <RESULT>
