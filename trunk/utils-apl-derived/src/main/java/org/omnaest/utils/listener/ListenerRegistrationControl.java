@@ -23,13 +23,17 @@ import java.util.List;
  * 
  * @see ListenerRegistration
  * @author Omnaest
- * @param <PARAMETER>
- * @param <RETURN_INFO>
+ * @param <EVENT>
+ * @param <RESULT>
  */
-public class ListenerRegistrationControl<PARAMETER, RETURN_INFO> extends ListenerRegistration<PARAMETER, RETURN_INFO>
+public class ListenerRegistrationControl<EVENT, RESULT> extends ListenerRegistration<EVENT, RESULT>
 {
   /* ********************************************** Methods ********************************************** */
-  protected ListenerRegistrationControl( List<Listener<PARAMETER, RETURN_INFO>> listenerList )
+  
+  /**
+   * @param listenerList
+   */
+  protected ListenerRegistrationControl( List<Listener<EVENT, RESULT>> listenerList )
   {
     super( listenerList );
   }
@@ -39,7 +43,7 @@ public class ListenerRegistrationControl<PARAMETER, RETURN_INFO> extends Listene
    * 
    * @return this
    */
-  public ListenerRegistrationControl<PARAMETER, RETURN_INFO> clear()
+  public ListenerRegistrationControl<EVENT, RESULT> clear()
   {
     //
     this.listenerList.clear();

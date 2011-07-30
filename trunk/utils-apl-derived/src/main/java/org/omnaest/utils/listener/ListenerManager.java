@@ -29,19 +29,20 @@ import java.util.Map;
  * To add new {@link Listener} instances use the {@link ListenerRegistration} instance which can be retrieved via
  * {@link #getListenerRegistration()}. Its best practice to make this method available to clients by a delegate method.
  * 
- * @param <PARAMETER>
- * @param <RETURN_INFO>
+ * @see Listenable
+ * @param <EVENT>
+ * @param <RESULT>
  * @author Omnaest
  */
-public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMETER, RETURN_INFO>
+public class ListenerManager<EVENT, RESULT> implements Listener<EVENT, RESULT>, Listenable<EVENT, RESULT>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long                                     serialVersionUID                           = 185487616795626165L;
+  private static final long                                 serialVersionUID                           = 185487616795626165L;
   
   /* ********************************************** Variables ********************************************** */
-  protected List<Listener<PARAMETER, RETURN_INFO>>              listenerList                               = new ArrayList<Listener<PARAMETER, RETURN_INFO>>();
-  protected ListenerRegistrationControl<PARAMETER, RETURN_INFO> listenerRegistration                       = null;
-  protected Map<ListenerRegistration<?, ?>, Listener<?, ?>>     connectedListenerRegistrationToListenerMap = new HashMap<ListenerRegistration<?, ?>, Listener<?, ?>>();
+  protected List<Listener<EVENT, RESULT>>                   listenerList                               = new ArrayList<Listener<EVENT, RESULT>>();
+  protected ListenerRegistrationControl<EVENT, RESULT>      listenerRegistration                       = null;
+  protected Map<ListenerRegistration<?, ?>, Listener<?, ?>> connectedListenerRegistrationToListenerMap = new HashMap<ListenerRegistration<?, ?>, Listener<?, ?>>();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -50,7 +51,7 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
    */
   public ListenerManager()
   {
-    this.listenerRegistration = new ListenerRegistrationControl<PARAMETER, RETURN_INFO>( this.listenerList );
+    this.listenerRegistration = new ListenerRegistrationControl<EVENT, RESULT>( this.listenerList );
   }
   
   /**
@@ -60,24 +61,24 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
    * @param parameter
    * @return
    */
-  public List<RETURN_INFO> handleEvent( PARAMETER parameter )
+  public List<RESULT> handleEvent( EVENT parameter )
   {
     return this.handleEvent( parameter, this.getListenerRegistration() );
   }
   
   @Override
-  public List<RETURN_INFO> handleEvent( PARAMETER parameter, ListenerRegistration<PARAMETER, RETURN_INFO> listenerRegistration )
+  public List<RESULT> handleEvent( EVENT parameter, ListenerRegistration<EVENT, RESULT> listenerRegistration )
   {
     //
-    List<RETURN_INFO> retlist = new ArrayList<RETURN_INFO>();
+    List<RESULT> retlist = new ArrayList<RESULT>();
     
     //
-    for ( Listener<PARAMETER, RETURN_INFO> listener : new ArrayList<Listener<PARAMETER, RETURN_INFO>>( this.listenerList ) )
+    for ( Listener<EVENT, RESULT> listener : new ArrayList<Listener<EVENT, RESULT>>( this.listenerList ) )
     {
       if ( listener != null )
       {
         //
-        List<RETURN_INFO> singleReturnList = listener.handleEvent( parameter, this.getListenerRegistration() );
+        List<RESULT> singleReturnList = listener.handleEvent( parameter, this.getListenerRegistration() );
         
         //
         if ( singleReturnList != null )
@@ -91,16 +92,13 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
     return retlist;
   }
   
-  /**
-   * @see ListenerRegistration
-   * @return
-   */
-  public ListenerRegistration<PARAMETER, RETURN_INFO> getListenerRegistration()
+  @Override
+  public ListenerRegistration<EVENT, RESULT> getListenerRegistration()
   {
     return this.listenerRegistration;
   }
   
-  public ListenerRegistrationControl<PARAMETER, RETURN_INFO> getListenerRegistrationFullControl()
+  public ListenerRegistrationControl<EVENT, RESULT> getListenerRegistrationFullControl()
   {
     return this.listenerRegistration;
   }
@@ -117,7 +115,7 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
    * @return this
    */
   @SuppressWarnings("rawtypes")
-  public ListenerManager<PARAMETER, RETURN_INFO> disconnectFrom( final ListenerManager listenerManager )
+  public ListenerManager<EVENT, RESULT> disconnectFrom( final ListenerManager listenerManager )
   {
     //
     if ( listenerManager != null )
@@ -137,7 +135,7 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
    * @return this
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public ListenerManager<PARAMETER, RETURN_INFO> disconnectFrom( final ListenerRegistration listenerRegistration )
+  public ListenerManager<EVENT, RESULT> disconnectFrom( final ListenerRegistration listenerRegistration )
   {
     //
     if ( listenerRegistration != null && this.connectedListenerRegistrationToListenerMap.containsKey( listenerRegistration ) )
@@ -161,13 +159,13 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
    * @param listenerRegistration
    * @return this
    */
-  public ListenerManager<PARAMETER, RETURN_INFO> listenTo( final ListenerRegistration<PARAMETER, RETURN_INFO> listenerRegistration )
+  public ListenerManager<EVENT, RESULT> listenTo( final ListenerRegistration<EVENT, RESULT> listenerRegistration )
   {
-    ListenerAdapter<PARAMETER, RETURN_INFO, PARAMETER, RETURN_INFO> listenerAdapter = new ListenerAdapter<PARAMETER, RETURN_INFO, PARAMETER, RETURN_INFO>()
+    ListenerAdapter<EVENT, RESULT, EVENT, RESULT> listenerAdapter = new ListenerAdapter<EVENT, RESULT, EVENT, RESULT>()
     {
       @SuppressWarnings("unchecked")
       @Override
-      public List<PARAMETER> adaptParameter( PARAMETER otherParameter )
+      public List<EVENT> adaptParameter( EVENT otherParameter )
       {
         //
         return Arrays.asList( otherParameter );
@@ -175,7 +173,7 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
       
       @SuppressWarnings("unchecked")
       @Override
-      public List<RETURN_INFO> adaptReturnInfo( RETURN_INFO returninfo )
+      public List<RESULT> adaptReturnInfo( RESULT returninfo )
       {
         // 
         return Arrays.asList( returninfo );
@@ -191,21 +189,21 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
    * @see ListenerAdapter
    * @see #listenTo(ListenerManager, ListenerAdapter)
    * @see #disconnectFrom(ListenerRegistration)
-   * @param <OTHER_PARAMETER>
-   * @param <OTHER_RETURN_INFO>
+   * @param <OTHER_EVENT>
+   * @param <OTHER_RESULT>
    * @param listenerRegistration
    * @param listenerAdapter
    * @return this
    */
-  public <OTHER_PARAMETER, OTHER_RETURN_INFO> ListenerManager<PARAMETER, RETURN_INFO> listenTo( final ListenerRegistration<OTHER_PARAMETER, OTHER_RETURN_INFO> listenerRegistration,
-                                                                                                final ListenerAdapter<OTHER_PARAMETER, OTHER_RETURN_INFO, PARAMETER, RETURN_INFO> listenerAdapter )
+  public <OTHER_EVENT, OTHER_RESULT> ListenerManager<EVENT, RESULT> listenTo( final ListenerRegistration<OTHER_EVENT, OTHER_RESULT> listenerRegistration,
+                                                                              final ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT> listenerAdapter )
   {
     //
     if ( listenerRegistration != null && listenerAdapter != null
          && !this.connectedListenerRegistrationToListenerMap.containsKey( listenerRegistration ) )
     {
       //
-      Listener<OTHER_PARAMETER, OTHER_RETURN_INFO> listener = new Listener<OTHER_PARAMETER, OTHER_RETURN_INFO>()
+      Listener<OTHER_EVENT, OTHER_RESULT> listener = new Listener<OTHER_EVENT, OTHER_RESULT>()
       {
         
         /* ********************************************** Constants ********************************************** */
@@ -214,24 +212,24 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
         /* ********************************************** Methods ********************************************** */
         
         @Override
-        public List<OTHER_RETURN_INFO> handleEvent( OTHER_PARAMETER otherParameter,
-                                                    ListenerRegistration<OTHER_PARAMETER, OTHER_RETURN_INFO> listenerRegistration )
+        public List<OTHER_RESULT> handleEvent( OTHER_EVENT otherParameter,
+                                               ListenerRegistration<OTHER_EVENT, OTHER_RESULT> listenerRegistration )
         {
           //
-          List<OTHER_RETURN_INFO> otherReturnInfoList = new ArrayList<OTHER_RETURN_INFO>();
+          List<OTHER_RESULT> otherReturnInfoList = new ArrayList<OTHER_RESULT>();
           
           //
-          List<PARAMETER> parameterList = listenerAdapter.adaptParameter( otherParameter );
+          List<EVENT> parameterList = listenerAdapter.adaptParameter( otherParameter );
           
           //
-          List<RETURN_INFO> returnInfoList = new ArrayList<RETURN_INFO>();
+          List<RESULT> returnInfoList = new ArrayList<RESULT>();
           if ( parameterList != null )
           {
-            for ( PARAMETER parameter : parameterList )
+            for ( EVENT parameter : parameterList )
             {
               //              
-              List<RETURN_INFO> singleReturnInfoList = ListenerManager.this.handleEvent( parameter,
-                                                                                         ListenerManager.this.getListenerRegistration() );
+              List<RESULT> singleReturnInfoList = ListenerManager.this.handleEvent( parameter,
+                                                                                    ListenerManager.this.getListenerRegistration() );
               
               //
               if ( singleReturnInfoList != null )
@@ -242,10 +240,10 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
           }
           
           //          
-          for ( RETURN_INFO returnInfo : returnInfoList )
+          for ( RESULT returnInfo : returnInfoList )
           {
             //
-            List<OTHER_RETURN_INFO> singleOtherReturnInfoList = listenerAdapter.adaptReturnInfo( returnInfo );
+            List<OTHER_RESULT> singleOtherReturnInfoList = listenerAdapter.adaptReturnInfo( returnInfo );
             
             //
             if ( singleOtherReturnInfoList != null )
@@ -275,7 +273,7 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
    * @param listenerManager
    * @return
    */
-  public ListenerManager<PARAMETER, RETURN_INFO> listenTo( ListenerManager<PARAMETER, RETURN_INFO> listenerManager )
+  public ListenerManager<EVENT, RESULT> listenTo( ListenerManager<EVENT, RESULT> listenerManager )
   {
     return this.listenTo( listenerManager.getListenerRegistration() );
   }
@@ -283,13 +281,13 @@ public class ListenerManager<PARAMETER, RETURN_INFO> implements Listener<PARAMET
   /**
    * @see #disconnectFrom(ListenerManager)
    * @see #listenTo(ListenerRegistration, ListenerAdapter)
-   * @param <OTHER_PARAMETER>
-   * @param <OTHER_RETURN_INFO>
+   * @param <OTHER_EVENT>
+   * @param <OTHER_RESULT>
    * @param listenerManager
    * @param listenerAdapter
    */
-  public <OTHER_PARAMETER, OTHER_RETURN_INFO> ListenerManager<PARAMETER, RETURN_INFO> listenTo( ListenerManager<OTHER_PARAMETER, OTHER_RETURN_INFO> listenerManager,
-                                                                                                ListenerAdapter<OTHER_PARAMETER, OTHER_RETURN_INFO, PARAMETER, RETURN_INFO> listenerAdapter )
+  public <OTHER_EVENT, OTHER_RESULT> ListenerManager<EVENT, RESULT> listenTo( ListenerManager<OTHER_EVENT, OTHER_RESULT> listenerManager,
+                                                                              ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT> listenerAdapter )
   {
     //
     if ( listenerManager != null )

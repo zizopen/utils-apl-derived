@@ -20,16 +20,21 @@ import java.util.List;
 /**
  * Registration for {@link Listener} instances. Allows to add and remove {@link Listener} instances. Intended for client use.
  * 
- * @param <PARAMETER>
- * @param <RETURN_INFO>
+ * @see ListenerManager
+ * @param <EVENT>
+ * @param <RESULT>
  */
-public class ListenerRegistration<PARAMETER, RETURN_INFO>
+public class ListenerRegistration<EVENT, RESULT>
 {
   /* ********************************************** Variables ********************************************** */
-  protected List<Listener<PARAMETER, RETURN_INFO>> listenerList = null;
+  protected List<Listener<EVENT, RESULT>> listenerList = null;
   
   /* ********************************************** Methods ********************************************** */
-  protected ListenerRegistration( List<Listener<PARAMETER, RETURN_INFO>> listenerList )
+  
+  /**
+   * @param listenerList
+   */
+  protected ListenerRegistration( List<Listener<EVENT, RESULT>> listenerList )
   {
     this.listenerList = listenerList;
   }
@@ -40,7 +45,7 @@ public class ListenerRegistration<PARAMETER, RETURN_INFO>
    * @param listener
    * @return this
    */
-  public ListenerRegistration<PARAMETER, RETURN_INFO> addListener( Listener<PARAMETER, RETURN_INFO> listener )
+  public ListenerRegistration<EVENT, RESULT> addListener( Listener<EVENT, RESULT> listener )
   {
     //
     if ( listener != null && !this.listenerList.contains( listener ) )
@@ -58,7 +63,7 @@ public class ListenerRegistration<PARAMETER, RETURN_INFO>
    * @param listener
    * @return this
    */
-  public ListenerRegistration<PARAMETER, RETURN_INFO> removeListener( Listener<PARAMETER, RETURN_INFO> listener )
+  public ListenerRegistration<EVENT, RESULT> removeListener( Listener<EVENT, RESULT> listener )
   {
     //
     if ( listener != null )
