@@ -16,8 +16,8 @@
 package org.omnaest.utils.structure.table.concrete.predicates;
 
 import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.TableSelectable.Where.Predicate;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.ColumnValueEquals;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
 
 public class PredicateFactory<E>
 {

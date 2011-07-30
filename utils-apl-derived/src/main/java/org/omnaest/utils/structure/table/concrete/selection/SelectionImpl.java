@@ -20,13 +20,14 @@ import java.util.List;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.TableSelectable.Join;
-import org.omnaest.utils.structure.table.TableSelectable.Order;
-import org.omnaest.utils.structure.table.TableSelectable.Result;
-import org.omnaest.utils.structure.table.TableSelectable.Selection;
-import org.omnaest.utils.structure.table.TableSelectable.Where;
 import org.omnaest.utils.structure.table.concrete.internal.helper.TableInternalHelper;
+import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Join;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Order;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Result;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
 
 /**
  * @see Selection
@@ -36,13 +37,13 @@ import org.omnaest.utils.structure.table.internal.TableInternal;
 public class SelectionImpl<E> implements Selection<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected List<TableInternal<E>> tableInternalList = new ArrayList<TableInternal<E>>();
-  protected List<Column<E>>        columnList        = new ArrayList<Column<E>>();
-  protected List<Join>             joinList          = new ArrayList<Join>();
-  protected List<Where<E>>         whereList         = new ArrayList<Where<E>>();
-  protected List<Order<E>>         orderList         = new ArrayList<Order<E>>();
-  protected boolean                selectAllColumns  = true;
-  protected SelectionExecutor<E>   selectionExecutor = new SelectionExecutor<E>( this );
+  protected List<TableInternal<E>>     tableInternalList  = new ArrayList<TableInternal<E>>();
+  protected List<Column<E>>            columnList         = new ArrayList<Column<E>>();
+  protected List<Join>                 joinList           = new ArrayList<Join>();
+  protected List<PredicateInternal<E>> wherePredicateList = new ArrayList<PredicateInternal<E>>();
+  protected List<Order<E>>             orderList          = new ArrayList<Order<E>>();
+  protected boolean                    selectAllColumns   = true;
+  protected SelectionExecutor<E>       selectionExecutor  = new SelectionExecutor<E>( this );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -127,17 +128,18 @@ public class SelectionImpl<E> implements Selection<E>
     return this;
   }
   
+  @SuppressWarnings("unchecked")
   @Override
-  public Selection<E> where( Where<E>... wheres )
+  public Selection<E> where( Predicate<E>... predicates )
   {
     //
-    if ( wheres != null )
+    if ( predicates != null )
     {
-      for ( Where<E> where : wheres )
+      for ( Predicate<E> predicate : predicates )
       {
-        if ( where != null )
+        if ( predicate instanceof PredicateInternal )
         {
-          this.whereList.add( where );
+          this.wherePredicateList.add( (PredicateInternal<E>) predicate );
         }
       }
     }
@@ -248,17 +250,17 @@ public class SelectionImpl<E> implements Selection<E>
   /**
    * @return
    */
-  protected List<Where<E>> getWhereList()
+  protected List<PredicateInternal<E>> getWherePredicateList()
   {
-    return this.whereList;
+    return this.wherePredicateList;
   }
   
   /**
-   * @param whereList
+   * @param wherePredicateList
    */
-  protected void setWhereList( List<Where<E>> whereList )
+  protected void setWherePredicateList( List<PredicateInternal<E>> wherePredicateList )
   {
-    this.whereList = whereList;
+    this.wherePredicateList = wherePredicateList;
   }
   
   /**

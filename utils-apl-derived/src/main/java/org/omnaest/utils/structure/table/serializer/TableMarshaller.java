@@ -13,27 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.predicates.internal;
+package org.omnaest.utils.structure.table.serializer;
 
-import org.omnaest.utils.structure.table.concrete.predicates.PredicateFactory;
-import org.omnaest.utils.structure.table.internal.TableInternal;
-import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
-import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
+import java.io.OutputStream;
+import java.io.Serializable;
 
-import com.sun.rowset.internal.Row;
+import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer;
 
 /**
- * Every {@link PredicateInternal} should be represented by a static factory method within the {@link PredicateFactory}.
- * 
- * @see PredicateFactory
- * @see Predicate
+ * @see TableMarshallerFactory
+ * @see TableUnmarshaller
+ * @see TableSerializer
  * @author Omnaest
  * @param <E>
  */
-public interface PredicateInternal<E> extends Predicate<E>
+public interface TableMarshaller<E> extends Serializable
 {
+  
   /**
-   * Removes the {@link StripeData} instances of {@link Row}s from a given {@link TableInternal}
+   * Marshals the given {@link Table} into an {@link OutputStream}
+   * 
+   * @param table
+   * @param outputStream
    */
-  public void filterStripeDataSet( TableInternal<E> tableInternal );
+  public void marshal( Table<E> table, OutputStream outputStream );
+  
+  /**
+   * Marshals and appends the given {@link Table} to the given {@link Appendable}
+   * 
+   * @param table
+   * @param appendable
+   */
+  public void marshal( Table<E> table, Appendable appendable );
 }

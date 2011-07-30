@@ -25,8 +25,8 @@ import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.TableCellConverter;
 import org.omnaest.utils.structure.table.Table.TableCellVisitor;
 import org.omnaest.utils.structure.table.Table.TableSize;
-import org.omnaest.utils.structure.table.TableSelectable.Result;
-import org.omnaest.utils.structure.table.TableSelectable.Selection;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Result;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
 import org.omnaest.utils.structure.table.view.TableView;
 
 /**

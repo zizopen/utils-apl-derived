@@ -18,11 +18,11 @@ package org.omnaest.utils.structure.table.concrete.predicates.internal;
 import java.util.Set;
 
 import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.TableSelectable.Where.Predicate;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
 
 /**
  * @see Predicate
@@ -61,7 +61,9 @@ public class ColumnValueEquals<E> implements PredicateInternal<E>
     //
     Set<CellData<E>> cellDataSet = stripeData.getCellDataSet();
     
-    //FIXME
+    //FIXME go on here
+    
+    
   }
   
 }

@@ -31,11 +31,13 @@ import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
+import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
 
 import com.sun.rowset.internal.Row;
 
@@ -156,15 +158,29 @@ public class SelectionExecutor<E>
     
     //
     tableInternal = this.createTableWithDeclaredColumns();
-    
-    //
-    this.determineAndMergeRowStripeDataList( tableInternal );
-    
-    //
     this.mergeTableNames( tableInternal );
+    
+    //fill and filter rows
+    this.determineAndMergeRowStripeDataList( tableInternal );
+    this.executeWhereClauses( tableInternal );
     
     //
     return tableInternal.getUnderlyingTable();
+  }
+  
+  /**
+   * Executes the {@link PredicateInternal}s declared for the
+   * {@link Selection#where(org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate...)} clause
+   * 
+   * @param tableInternal
+   */
+  private void executeWhereClauses( TableInternal<E> tableInternal )
+  {
+    //
+    for ( PredicateInternal<E> wherePredicateInternal : this.selectionImpl.getWherePredicateList() )
+    {
+      wherePredicateInternal.filterStripeDataSet( tableInternal );
+    }
   }
   
   /**
@@ -406,6 +422,7 @@ public class SelectionExecutor<E>
         if ( stripeDataOld != null )
         {
           //
+          @SuppressWarnings("unchecked")
           StripeData<E> stripeDataNew = StripeDataHelper.createNewStripeDataFromExisting( columnStripeDataList, stripeDataOld );
           
           //
