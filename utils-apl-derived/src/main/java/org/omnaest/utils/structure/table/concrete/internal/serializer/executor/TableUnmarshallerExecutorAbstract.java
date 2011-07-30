@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal.serializer.executor;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
 import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer.TableUnmarshallerExecutor;
@@ -55,6 +59,25 @@ public abstract class TableUnmarshallerExecutorAbstract<E> implements TableUnmar
       //
       CharSequence charSequence = new StringBuffer( string );
       this.from( charSequence );
+    }
+  }
+  
+  @Override
+  public void from( File file )
+  {
+    //
+    if ( file != null && file.exists() )
+    {
+      //
+      try
+      {
+        //
+        InputStream inputStream = new FileInputStream( file );
+        this.from( inputStream );
+      }
+      catch ( Exception e )
+      {
+      }
     }
   }
   

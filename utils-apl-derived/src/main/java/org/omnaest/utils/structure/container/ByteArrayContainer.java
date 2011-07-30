@@ -112,6 +112,16 @@ public class ByteArrayContainer
   }
   
   /**
+   * @see #copyFrom(CharSequence)
+   * @param charsequence
+   */
+  public ByteArrayContainer( CharSequence charsequence )
+  {
+    super();
+    this.copyFrom( charsequence );
+  }
+  
+  /**
    * @return true: content is empty, false: container has content with size > 0
    * @see #isNotEmpty()
    */

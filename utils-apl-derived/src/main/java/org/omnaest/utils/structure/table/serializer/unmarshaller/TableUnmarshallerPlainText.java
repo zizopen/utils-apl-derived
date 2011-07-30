@@ -34,7 +34,12 @@ import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
 public class TableUnmarshallerPlainText<E> implements TableUnmarshaller<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID = -6885465933583394486L;
+  private static final long     serialVersionUID     = -6885465933583394486L;
+  
+  protected static final String delimiterRow         = "-";
+  protected static final String delimiterColumn      = "|";
+  protected static final String delimiterTitleColumn = "!";
+  protected static final String delimiterTableTitle  = "=";
   
   /* ********************************************** Methods ********************************************** */
   @Override
@@ -62,13 +67,7 @@ public class TableUnmarshallerPlainText<E> implements TableUnmarshaller<E>
     */
     
     //
-    final String delimiterRow = "-";
-    final String delimiterColumn = "|";
-    final String delimiterTitleColumn = "!";
-    final String delimiterTableTitle = "=";
-    
-    //
-    if ( table != null )
+    if ( table != null && charSequence != null )
     {
       //
       table.clear();

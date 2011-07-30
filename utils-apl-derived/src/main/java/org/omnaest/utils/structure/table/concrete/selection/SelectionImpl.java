@@ -26,8 +26,9 @@ import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Join;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Order;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
-import org.omnaest.utils.structure.table.subspecification.TableSelectable.Result;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
+import org.omnaest.utils.structure.table.view.TableView;
+import org.omnaest.utils.structure.table.view.concrete.TableViewImpl;
 
 /**
  * @see Selection
@@ -128,7 +129,6 @@ public class SelectionImpl<E> implements Selection<E>
     return this;
   }
   
-  @SuppressWarnings("unchecked")
   @Override
   public Selection<E> where( Predicate<E>... predicates )
   {
@@ -172,22 +172,14 @@ public class SelectionImpl<E> implements Selection<E>
   }
   
   @Override
-  public Result<E> asView()
+  public TableView<E> asView()
   {
     //
-    Result<E> result = null;
+    TableView<E> result = null;
     
     //
-    if ( this.selectAllColumns )
-    {
-      //FIXME go on here
-    }
-    else
-    {
-      
-    }
-    
-    //
+    result = new TableViewImpl<E>( this );
+    result.refresh();
     
     // 
     return result;

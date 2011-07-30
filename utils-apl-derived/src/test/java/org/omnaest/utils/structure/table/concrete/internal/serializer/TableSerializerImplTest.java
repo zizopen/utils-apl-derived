@@ -31,8 +31,10 @@ import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.serializer.TableMarshaller;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
+import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerCSV;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerPlainText;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerXML;
+import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerCSV;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerPlainText;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerXML;
 import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer;
@@ -51,6 +53,7 @@ public class TableSerializerImplTest
     List<Object[]> retlist = new ArrayList<Object[]>();
     retlist.add( new Object[] { new TableMarshallerPlainText<Object>(), new TableUnmarshallerPlainText<Object>() } );
     retlist.add( new Object[] { new TableMarshallerXML<Object>(), new TableUnmarshallerXML<Object>() } );
+    retlist.add( new Object[] { new TableMarshallerCSV<Object>(), new TableUnmarshallerCSV<Object>() } );
     
     //
     return retlist;

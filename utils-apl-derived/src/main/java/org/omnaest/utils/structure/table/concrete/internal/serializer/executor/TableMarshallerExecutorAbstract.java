@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal.serializer.executor;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.serializer.TableMarshaller;
 import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer.TableMarshallerExecutor;
@@ -55,6 +59,25 @@ public abstract class TableMarshallerExecutorAbstract<E> implements TableMarshal
     
     //
     return stringBuilder.toString();
+  }
+  
+  @Override
+  public void writeTo( File file )
+  {
+    //
+    if ( this.tableMarshaller != null && file != null )
+    {
+      //
+      try
+      {
+        //
+        OutputStream outputStream = new FileOutputStream( file );
+        this.writeTo( outputStream );
+      }
+      catch ( Exception e )
+      {
+      }
+    }
   }
   
 }
