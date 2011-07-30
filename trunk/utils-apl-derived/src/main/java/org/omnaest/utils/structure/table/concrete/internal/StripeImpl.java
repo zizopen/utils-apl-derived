@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.table.concrete.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -101,6 +102,7 @@ public class StripeImpl<E> implements StripeInternal<E>
         {
           //
           StripeType stripeType = StripeImpl.this.stripeData.resolveStripeType();
+          stripeType = StripeTypeHelper.determineOrthogonalStripeType( stripeType );
           int size = StripeImpl.this.tableInternal.getTableContent().determineStripeListSize( stripeType );
           
           //
@@ -306,7 +308,7 @@ public class StripeImpl<E> implements StripeInternal<E>
   }
   
   @Override
-  public List<E> asListOfCellElements()
+  public List<E> asNewListOfCellElements()
   {
     //
     List<E> retlist = new ArrayList<E>();
@@ -323,4 +325,56 @@ public class StripeImpl<E> implements StripeInternal<E>
     // 
     return retlist;
   }
+  
+  @Override
+  public Stripe<E> setCellElements( Iterable<E> elements )
+  {
+    //
+    this.clearCellElements();
+    
+    //
+    int indexPosition = 0;
+    for ( E element : elements )
+    {
+      //
+      Cell<E> cell = this.resolvesOrCreateCellWithinNewTableArea( indexPosition );
+      if ( cell != null )
+      {
+        cell.setElement( element );
+      }
+      
+      //
+      indexPosition++;
+    }
+    
+    // 
+    return this;
+  }
+  
+  @Override
+  public Stripe<E> clearCellElements()
+  {
+    //
+    for ( Cell<E> cell : this )
+    {
+      if ( cell != null )
+      {
+        cell.setElement( null );
+      }
+    }
+    
+    // 
+    return this;
+  }
+  
+  @Override
+  public Stripe<E> setCellElements( E... elements )
+  {
+    //
+    this.setCellElements( Arrays.asList( elements ) );
+    
+    //
+    return this;
+  }
+  
 }

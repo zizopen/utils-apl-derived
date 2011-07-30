@@ -32,7 +32,8 @@ public class TableMarshallerPlainTextTest
 {
   /* ********************************************** Variables ********************************************** */
   protected TableMarshallerPlainText<String> tableMarshallerPlainText = new TableMarshallerPlainText<String>();
-  protected Table<String>                    table                    = new ArrayTable<String>();
+  protected Table<String>                    table1                   = new ArrayTable<String>();
+  protected Table<String>                    table2                   = new ArrayTable<String>();
   
   /* ********************************************** Methods ********************************************** */
   
@@ -40,9 +41,20 @@ public class TableMarshallerPlainTextTest
   public void prepareTable()
   {
     //
-    int rows = 3;
-    int columns = 2;
-    TableFiller.fillTableWithMatrixNumbers( rows, columns, "Table1", this.table );
+    {
+      //
+      int rows = 4;
+      int columns = 2;
+      TableFiller.fillTableWithMatrixNumbers( rows, columns, "Table1", this.table1 );
+    }
+    
+    //
+    {
+      //
+      int rows = 2;
+      int columns = 4;
+      TableFiller.fillTableWithMatrixNumbers( rows, columns, "Table2", this.table2 );
+    }
   }
   
   @Test
@@ -50,13 +62,13 @@ public class TableMarshallerPlainTextTest
   {
     //
     ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
-    this.tableMarshallerPlainText.marshal( this.table, byteArrayContainer.getOutputStream() );
+    this.tableMarshallerPlainText.marshal( this.table1, byteArrayContainer.getOutputStream() );
     
     //
     //System.out.println( stringBuffer );
     
     //
-    TableMarshallerPlainTextTest.assertTableContent( new StringBuffer( byteArrayContainer.toString() ) );
+    TableMarshallerPlainTextTest.assertTable1Content( new StringBuffer( byteArrayContainer.toString() ) );
   }
   
   @Test
@@ -64,23 +76,34 @@ public class TableMarshallerPlainTextTest
   {
     //
     StringBuffer stringBuffer = new StringBuffer();
-    this.tableMarshallerPlainText.marshal( this.table, stringBuffer );
+    this.tableMarshallerPlainText.marshal( this.table2, stringBuffer );
     
     //
-    //System.out.println( stringBuffer );
+    System.out.println( stringBuffer );
     
     //
-    TableMarshallerPlainTextTest.assertTableContent( stringBuffer );
+    TableMarshallerPlainTextTest.assertTable2Content( stringBuffer );
   }
   
   /**
    * @param stringBuffer
    */
-  private static void assertTableContent( StringBuffer stringBuffer )
+  private static void assertTable1Content( StringBuffer stringBuffer )
   {
     //
     final String estimatedTableContent = "===Table1===\n" + "!  !c0 !c1 !\n" + "!r0!0:0|0:1|\n" + "!r1!1:0|1:1|\n"
-                                         + "!r2!2:0|2:1|\n" + "------------\n";
+                                         + "!r2!2:0|2:1|\n" + "!r3!3:0|3:1|\n" + "------------\n";
+    assertEquals( estimatedTableContent, stringBuffer.toString() );
+  }
+  
+  /**
+   * @param stringBuffer
+   */
+  private static void assertTable2Content( StringBuffer stringBuffer )
+  {
+    //   
+    final String estimatedTableContent = "=======Table2=======\n" + "!  !c0 !c1 !c2 !c3 !\n" + "!r0!0:0|0:1|0:2|0:3|\n"
+                                         + "!r1!1:0|1:1|1:2|1:3|\n" + "--------------------\n";
     assertEquals( estimatedTableContent, stringBuffer.toString() );
   }
   

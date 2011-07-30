@@ -86,10 +86,10 @@ public class SelectionImplTest
     
     //
     System.out.println( tableResult.toString() );
-    assertEquals( Arrays.asList( "0:0", "0:1", "0:0", "0:1" ), tableResult.getRow( 0 ).asListOfCellElements() );
-    assertEquals( Arrays.asList( "1:0", "1:1", "0:0", "0:1" ), tableResult.getRow( 1 ).asListOfCellElements() );
-    assertEquals( Arrays.asList( "0:0", "0:1", "1:0", "1:1" ), tableResult.getRow( 2 ).asListOfCellElements() );
-    assertEquals( Arrays.asList( "1:0", "1:1", "1:0", "1:1" ), tableResult.getRow( 3 ).asListOfCellElements() );
+    assertEquals( Arrays.asList( "0:0", "0:1", "0:0", "0:1" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "1:0", "1:1", "0:0", "0:1" ), tableResult.getRow( 1 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "0:0", "0:1", "1:0", "1:1" ), tableResult.getRow( 2 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "1:0", "1:1", "1:0", "1:1" ), tableResult.getRow( 3 ).asNewListOfCellElements() );
   }
   
   /**

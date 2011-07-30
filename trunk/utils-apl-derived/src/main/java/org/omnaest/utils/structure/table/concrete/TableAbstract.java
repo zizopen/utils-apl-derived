@@ -18,11 +18,14 @@ package org.omnaest.utils.structure.table.concrete;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.collection.list.iterator.ListIterable;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
+import org.omnaest.utils.structure.table.concrete.internal.iterator.TableRowListIterator;
 import org.omnaest.utils.structure.table.concrete.internal.serializer.TableSerializerImpl;
 import org.omnaest.utils.structure.table.helper.TableHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
@@ -261,7 +264,7 @@ public abstract class TableAbstract<E> implements Table<E>
   @Override
   public Iterator<Row<E>> iterator()
   {
-    return this.iteratorRow();
+    return this.rows().iterator();
   }
   
   @Override
@@ -319,14 +322,14 @@ public abstract class TableAbstract<E> implements Table<E>
   }
   
   @Override
-  public Iterable<Row<E>> rows()
+  public ListIterable<Row<E>> rows()
   {
-    return new Iterable<Row<E>>()
+    return new ListIterable<Row<E>>()
     {
       @Override
-      public Iterator<Row<E>> iterator()
+      public ListIterator<Row<E>> iterator()
       {
-        return TableAbstract.this.iteratorRow();
+        return new TableRowListIterator<E>( TableAbstract.this );
       }
     };
   }
@@ -451,36 +454,6 @@ public abstract class TableAbstract<E> implements Table<E>
   }
   
   @Override
-  public Iterator<Row<E>> iteratorRow()
-  {
-    return new Iterator<Row<E>>()
-    {
-      /* ********************************************** Variables ********************************************** */
-      protected int rowIndexPosition = -1;
-      
-      /* ********************************************** Methods ********************************************** */
-      
-      @Override
-      public boolean hasNext()
-      {
-        return this.rowIndexPosition + 1 < TableAbstract.this.getTableSize().getRowSize();
-      }
-      
-      @Override
-      public Row<E> next()
-      {
-        return TableAbstract.this.getRow( ++this.rowIndexPosition );
-      }
-      
-      @Override
-      public void remove()
-      {
-        TableAbstract.this.removeRow( this.rowIndexPosition-- );
-      }
-    };
-  }
-  
-  @Override
   public int hashCode()
   {
     final int prime = 31;
@@ -556,7 +529,7 @@ public abstract class TableAbstract<E> implements Table<E>
   @Override
   public List<Row<E>> getRowList()
   {
-    return ListUtils.iteratorAsList( this.iteratorRow() );
+    return ListUtils.iteratorAsList( this.rows().iterator() );
   }
   
   @Override

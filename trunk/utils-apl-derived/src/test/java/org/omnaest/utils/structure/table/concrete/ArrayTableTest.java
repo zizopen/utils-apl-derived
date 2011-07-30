@@ -619,7 +619,7 @@ public class ArrayTableTest
   }
   
   @Test
-  public void testIteratorRow()
+  public void testRowsIterator()
   {
     //
     final int rows = 3;
@@ -627,7 +627,7 @@ public class ArrayTableTest
     TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
-    Iterator<Row<Object>> iteratorRow = this.table.iteratorRow();
+    Iterator<Row<Object>> iteratorRow = this.table.rows().iterator();
     
     //
     assertNotNull( iteratorRow );
