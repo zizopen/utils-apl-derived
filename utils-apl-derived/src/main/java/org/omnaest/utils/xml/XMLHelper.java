@@ -35,21 +35,42 @@ public class XMLHelper
   final static public String ENCODING_UTF_8 = "utf-8";
   
   /* ********************************************** Methods ********************************************** */
+  
   /**
-   * Stores a given JAXB annotated object to the given {@link OutputStream}.
+   * Stores a given JAXB annotated object to the given {@link OutputStream} using the {@link #ENCODING_UTF_8}
    * 
+   * @see #storeObjectAsXML(Object, OutputStream, String)
    * @param object
    * @param outputStream
    */
   public static void storeObjectAsXML( Object object, OutputStream outputStream )
   {
+    String encoding = ENCODING_UTF_8;
+    XMLHelper.storeObjectAsXML( object, outputStream, encoding );
+  }
+  
+  /**
+   * Stores a given JAXB annotated object to the given {@link OutputStream} using the given character encoding
+   * 
+   * @see #storeObjectAsXML(Object, OutputStream)
+   * @param object
+   * @param outputStream
+   * @param encoding
+   */
+  public static void storeObjectAsXML( Object object, OutputStream outputStream, String encoding )
+  {
     // 
     try
     {
+      //
       JAXBContext context = JAXBContext.newInstance( object.getClass() );
-      Marshaller m = context.createMarshaller();
-      m.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-      m.marshal( object, outputStream );
+      Marshaller marshaller = context.createMarshaller();
+      marshaller.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
+      if ( encoding != null )
+      {
+        marshaller.setProperty( Marshaller.JAXB_ENCODING, encoding );
+      }
+      marshaller.marshal( object, outputStream );
       outputStream.flush();
     }
     catch ( Exception e )
@@ -67,18 +88,18 @@ public class XMLHelper
   public static void storeObjectAsXML( Object object, Appendable appendable )
   {
     final String encoding = ENCODING_UTF_8;
-    XMLHelper.storeObjectAsXML( appendable, object, encoding );
+    XMLHelper.storeObjectAsXML( object, appendable, encoding );
   }
   
   /**
    * Stores the given object as XML within the given {@link Appendable} using the given encoding. E.g as {@link Appendable} a
    * {@link StringBuilder} or {@link StringBuffer} can be used.
    * 
-   * @param appendable
    * @param object
+   * @param appendable
    * @param encoding
    */
-  public static void storeObjectAsXML( Appendable appendable, Object object, String encoding )
+  public static void storeObjectAsXML( Object object, Appendable appendable, String encoding )
   {
     //
     if ( object != null && appendable != null )
@@ -87,7 +108,7 @@ public class XMLHelper
       ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
       
       //
-      XMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream() );
+      XMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream(), encoding );
       
       //
       byteArrayContainer.writeTo( appendable, encoding );
@@ -121,7 +142,7 @@ public class XMLHelper
     ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
     
     //
-    XMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream() );
+    XMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream(), encoding );
     
     //
     return byteArrayContainer.toString( encoding );

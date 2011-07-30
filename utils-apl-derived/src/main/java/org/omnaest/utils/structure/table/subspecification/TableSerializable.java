@@ -22,9 +22,7 @@ import java.io.Serializable;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.TableComponent;
 import org.omnaest.utils.structure.table.serializer.TableMarshaller;
-import org.omnaest.utils.structure.table.serializer.TableMarshallerFactory;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
-import org.omnaest.utils.structure.table.serializer.TableUnmarshallerFactory;
 
 /**
  * This interface adds methods which allows a {@link Table} to serialize into XML format and restore from there.
@@ -40,8 +38,8 @@ public interface TableSerializable<E>
    * underlying {@link Table} instance into serializable format.
    * 
    * @see TableSerializable
-   * @see TableMarshallerFactory
-   * @see TableUnmarshallerFactory
+   * @see TableMarshaller
+   * @see TableUnmarshaller
    * @author Omnaest
    * @param <E>
    */

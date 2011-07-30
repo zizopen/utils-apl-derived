@@ -28,7 +28,7 @@ import org.omnaest.utils.structure.collection.list.ListUtil;
  * @see CollectionUtils
  * @author Omnaest
  */
-public class ArrayUtil
+public class ArrayUtils
 {
   /**
    * Converts a given array into a new array with a new element type.
@@ -61,5 +61,38 @@ public class ArrayUtil
   {
     List<TO> listTo = ListUtil.convertListExcludingNullElements( Arrays.asList( arrayFrom ), elementConverter );
     return listTo == null ? null : listTo.toArray( arrayTo );
+  }
+  
+  /**
+   * Returns a new array with all tokens of the given string array being trimmed
+   * 
+   * @param stringArray
+   * @return new array with all trimmed tokens
+   */
+  public static String[] trimStringArrayTokens( String[] stringArray )
+  {
+    //
+    String[] retvals = null;
+    
+    //
+    if ( stringArray != null )
+    {
+      //
+      retvals = new String[stringArray.length];
+      
+      //
+      for ( int ii = 0; ii < retvals.length; ii++ )
+      {
+        //
+        String value = stringArray[ii];
+        value = value != null ? value.trim() : null;
+        
+        //
+        retvals[ii] = value;
+      }
+    }
+    
+    //
+    return retvals;
   }
 }

@@ -314,7 +314,10 @@ public class StripeImpl<E> implements StripeInternal<E>
     //
     for ( Cell<E> cell : this )
     {
-      retlist.add( cell.getElement() );
+      if ( cell != null )
+      {
+        retlist.add( cell.getElement() );
+      }
     }
     
     // 

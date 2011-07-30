@@ -24,7 +24,6 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
-import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.Table.TableCellConverter;
 import org.omnaest.utils.structure.table.Table.TableCellVisitor;

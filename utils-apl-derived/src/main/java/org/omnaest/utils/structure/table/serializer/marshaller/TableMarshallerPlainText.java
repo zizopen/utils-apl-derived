@@ -16,21 +16,19 @@
 package org.omnaest.utils.structure.table.serializer.marshaller;
 
 import java.io.OutputStream;
-import java.util.ArrayList;
 
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.helper.TableHelper;
 import org.omnaest.utils.structure.table.serializer.TableMarshaller;
-import org.omnaest.utils.structure.table.serializer.common.XMLDataContainer;
 import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer;
-import org.omnaest.utils.xml.XMLHelper;
 
 /**
  * @see TableMarshaller
  * @author Omnaest
  * @param <E>
  */
-public class TableMarshallerXML<E> implements TableMarshaller<E>
+public class TableMarshallerPlainText<E> implements TableMarshaller<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = 729579410301748875L;
@@ -43,7 +41,7 @@ public class TableMarshallerXML<E> implements TableMarshaller<E>
   /**
    * 
    */
-  public TableMarshallerXML()
+  public TableMarshallerPlainText()
   {
     super();
   }
@@ -51,7 +49,7 @@ public class TableMarshallerXML<E> implements TableMarshaller<E>
   /**
    * @param encoding
    */
-  public TableMarshallerXML( String encoding )
+  public TableMarshallerPlainText( String encoding )
   {
     super();
     this.encoding = encoding;
@@ -64,7 +62,17 @@ public class TableMarshallerXML<E> implements TableMarshaller<E>
     if ( table != null && outputStream != null )
     {
       //
-      XMLHelper.storeObjectAsXML( this.createXMLDataContainerFromTableContent( table ), outputStream, this.encoding );
+      StringBuffer stringBuffer = new StringBuffer();
+      
+      //
+      this.marshal( table, stringBuffer );
+      
+      //
+      ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+      byteArrayContainer.copyFrom( stringBuffer );
+      
+      //
+      byteArrayContainer.writeTo( outputStream );
     }
   }
   
@@ -75,43 +83,19 @@ public class TableMarshallerXML<E> implements TableMarshaller<E>
     if ( table != null && appendable != null )
     {
       //
-      ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+      String renderToString = TableHelper.renderToString( table );
       
       //
-      OutputStream outputStream = byteArrayContainer.getOutputStream();
-      this.marshal( table, outputStream );
-      
-      //
-      byteArrayContainer.writeTo( appendable, this.encoding );
-    }
-  }
-  
-  /**
-   * Creates a {@link XMLDataContainer} from the {@link Table} content
-   * 
-   * @return
-   */
-  protected XMLDataContainer<E> createXMLDataContainerFromTableContent( Table<E> table )
-  {
-    //
-    XMLDataContainer<E> retval = null;
-    
-    //
-    if ( table != null )
-    {
-      //      
-      ArrayList<Object> rowTitleValueList = new ArrayList<Object>( table.getRowTitleValueList() );
-      ArrayList<Object> columnTitleValueList = new ArrayList<Object>( table.getColumnTitleValueList() );
-      ArrayList<E> cellElementList = new ArrayList<E>( table.getCellElementList() );
-      Integer columnSize = table.getTableSize().getColumnSize();
-      Integer rowSize = table.getTableSize().getRowSize();
-      Object tableName = table.getTableName();
-      
-      retval = new XMLDataContainer<E>( rowTitleValueList, columnTitleValueList, cellElementList, columnSize, rowSize, tableName );
+      try
+      {
+        //
+        appendable.append( renderToString );
+      }
+      catch ( Exception e )
+      {
+      }
     }
     
-    //
-    return retval;
   }
   
 }
