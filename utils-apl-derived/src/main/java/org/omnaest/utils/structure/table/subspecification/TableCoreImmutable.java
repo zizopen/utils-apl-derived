@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.omnaest.utils.structure.CloneableStructure;
 import org.omnaest.utils.structure.CloneableStructureAndContent;
+import org.omnaest.utils.structure.collection.list.iterator.ListIterable;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
@@ -293,11 +294,11 @@ public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, Clo
   public Iterable<Cell<E>> cells();
   
   /**
-   * {@link Iterable} over all {@link Row}s
+   * {@link ListIterable} over all {@link Row}s
    * 
    * @return
    */
-  public Iterable<Row<E>> rows();
+  public ListIterable<Row<E>> rows();
   
   /**
    * {@link Iterable} over all {@link Column}s
@@ -305,15 +306,6 @@ public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, Clo
    * @return
    */
   public Iterable<Column<E>> columns();
-  
-  /**
-   * Returns an {@link Iterator} over all {@link Row}s.
-   * 
-   * @see #iterator()
-   * @see #iteratorCell()
-   * @return
-   */
-  public Iterator<Row<E>> iteratorRow();
   
   /**
    * Returns an {@link Iterator} over all {@link Column}s

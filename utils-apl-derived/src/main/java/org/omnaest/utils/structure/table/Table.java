@@ -195,16 +195,31 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      * 
      * @param titleValue
      * @param element
-     * @return
+     * @return this
      */
     public Stripe<E> setCellElement( Object titleValue, E element );
+    
+    /**
+     * Sets the {@link Cell#setElement(Object)} of the whole {@link Stripe}
+     * 
+     * @param elements
+     * @return this
+     */
+    public Stripe<E> setCellElements( Iterable<E> elements );
+    
+    /**
+     * @see #setCellElements(Iterable)
+     * @param elements
+     * @return
+     */
+    public Stripe<E> setCellElements( E... elements );
     
     /**
      * Set the {@link Cell#setElement(Object)} for the {@link Cell} corresponding to the given orthogonal index position
      * 
      * @param indexPosition
      * @param element
-     * @return
+     * @return this
      */
     public Stripe<E> setCellElement( int indexPosition, E element );
     
@@ -241,7 +256,14 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      * 
      * @return
      */
-    public List<E> asListOfCellElements();
+    public List<E> asNewListOfCellElements();
+    
+    /**
+     * Sets all available {@link Cell#setElement(Object)} to null
+     * 
+     * @return
+     */
+    public Stripe<E> clearCellElements();
   }
   
   /**
