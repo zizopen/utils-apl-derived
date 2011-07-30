@@ -13,22 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener;
+package org.omnaest.utils.listener.asynchronous;
+
+import java.util.concurrent.Future;
+
+import org.omnaest.utils.listener.Listenable;
+import org.omnaest.utils.listener.Listener;
+import org.omnaest.utils.listener.ListenerRegistration;
 
 /**
- * Interface for classes which allows to register {@link Listener}s at a {@link ListenerRegistration}.
+ * Interface for classes which allows to register {@link ListenerAsynchronous}s at a {@link ListenerRegistrationAsynchronous}.
  * 
  * @author Omnaest
  */
-public interface Listenable<EVENT, RESULT>
+public interface ListenableAsynchronous<EVENT, RESULT> extends Listenable<Future<EVENT>, Future<RESULT>>
 {
   /**
-   * Offers the {@link ListenerRegistration} to register {@link Listener} to this instance. All events will be signaled to the
-   * {@link Listener}s from the time on they get registered.
+   * Offers the {@link ListenerRegistrationAsynchronous} to register {@link ListenerAsynchronous} to this instance. All events
+   * will be signaled to the {@link Listener}s from the time on they get registered.
    * 
    * @see ListenerRegistration
-   * @see Listenable
+   * @see ListenableAsynchronous
    * @return
    */
-  public ListenerRegistration<EVENT, RESULT> getListenerRegistration();
+  public ListenerRegistrationAsynchronous<EVENT, RESULT> getListenerRegistration();
 }

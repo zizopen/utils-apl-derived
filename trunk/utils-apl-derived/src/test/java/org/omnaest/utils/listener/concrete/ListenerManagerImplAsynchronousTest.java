@@ -25,9 +25,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.omnaest.utils.listener.Listener;
 import org.omnaest.utils.listener.ListenerAbstract;
-import org.omnaest.utils.listener.ListenerAdapter;
 import org.omnaest.utils.listener.Listener.ListenerExtendedEvent;
 import org.omnaest.utils.listener.Listener.ListenerExtendedResult;
+import org.omnaest.utils.listener.adapter.ListenerAdapter;
 import org.omnaest.utils.listener.concrete.ListenerManagerImpl;
 
 

@@ -18,40 +18,27 @@ package org.omnaest.utils.listener.asynchronous;
 import java.util.concurrent.Future;
 
 import org.omnaest.utils.listener.ListenerRegistration;
-import org.omnaest.utils.listener.Listener;
 
 /**
- * Registration for {@link Listener} instances. Allows to add and remove {@link Listener} instances. Intended for client use.
- * 
- * @see ListenerManagerAsynchronousImpl
+ * @see ListenerRegistration
+ * @see ListenerAsynchronous
+ * @see ListenerManagerAsynchronous
+ * @author Omnaest
  * @param <EVENT>
  * @param <RESULT>
  */
-public class ListenerRegistrationAsynchronous<EVENT, RESULT> implements ListenerRegistration<Future<EVENT>, Future<RESULT>>
+public interface ListenerRegistrationAsynchronous<EVENT, RESULT> extends ListenerRegistration<Future<EVENT>, Future<RESULT>>
 {
-  /* ********************************************** Variables ********************************************** */
-  protected ListenerRegistration<Future<EVENT>, Future<RESULT>> listenerRegistration = null;
-  
-  /* ********************************************** Methods ********************************************** */
   /**
-   * @param listenerRegistration
+   * @param listener
+   * @return
    */
-  public ListenerRegistrationAsynchronous( ListenerRegistration<Future<EVENT>, Future<RESULT>> listenerRegistration )
-  {
-    super();
-    this.listenerRegistration = listenerRegistration;
-  }
+  public ListenerRegistrationAsynchronous<EVENT, RESULT> addListener( ListenerAsynchronous<EVENT, RESULT> listener );
   
-  @Override
-  public ListenerRegistration<Future<EVENT>, Future<RESULT>> addListener( Listener<Future<EVENT>, Future<RESULT>> listener )
-  {
-    return this.listenerRegistration.addListener( listener );
-  }
-  
-  @Override
-  public ListenerRegistration<Future<EVENT>, Future<RESULT>> removeListener( Listener<Future<EVENT>, Future<RESULT>> listener )
-  {
-    return this.listenerRegistration.removeListener( listener );
-  }
+  /**
+   * @param listener
+   * @return
+   */
+  public ListenerRegistrationAsynchronous<EVENT, RESULT> removeListener( ListenerAsynchronous<EVENT, RESULT> listener );
   
 }
