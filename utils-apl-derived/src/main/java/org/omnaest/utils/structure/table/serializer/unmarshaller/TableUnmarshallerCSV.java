@@ -78,6 +78,19 @@ public class TableUnmarshallerCSV<E> implements TableUnmarshaller<E>
   }
   
   /**
+   * @param hasTableName
+   * @param hasColumnTitles
+   * @param hasRowTitles
+   */
+  public TableUnmarshallerCSV( boolean hasTableName, boolean hasColumnTitles, boolean hasRowTitles )
+  {
+    super();
+    this.hasTableName = hasTableName;
+    this.hasColumnTitles = hasColumnTitles;
+    this.hasRowTitles = hasRowTitles;
+  }
+  
+  /**
    * @param encoding
    * @param delimiter
    * @param hasTableName

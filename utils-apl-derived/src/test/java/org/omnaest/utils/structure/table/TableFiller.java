@@ -54,9 +54,37 @@ public class TableFiller
    * @param tableName
    * @param table
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static void fillTableWithMatrixNumbers( int rows, int columns, String tableName, Table table )
+  public static void fillTableWithMatrixNumbers( int rows,
+                                                 int columns,
+                                                 String tableName,
+                                                 @SuppressWarnings("rawtypes") Table table )
   {
+    boolean hasTableName = true;
+    boolean hasColumnTitles = true;
+    boolean hasRowTitles = true;
+    fillTableWithMatrixNumbers( rows, columns, tableName, hasTableName, hasColumnTitles, hasRowTitles, table );
+  }
+  
+  /**
+   * @see #fillTableWithMatrixNumbers(int, int, String, Table)
+   * @param rows
+   * @param columns
+   * @param tableName
+   * @param hasTableName
+   * @param hasColumnTitles
+   * @param hasRowTitles
+   * @param table
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public static void fillTableWithMatrixNumbers( int rows,
+                                                 int columns,
+                                                 String tableName,
+                                                 boolean hasTableName,
+                                                 boolean hasColumnTitles,
+                                                 boolean hasRowTitles,
+                                                 Table table )
+  {
+    
     //
     if ( table != null )
     {
@@ -64,13 +92,21 @@ public class TableFiller
       for ( int rowIndexPosition = 0; rowIndexPosition < rows; rowIndexPosition++ )
       {
         //
-        table.setRowTitleValue( "r" + rowIndexPosition, rowIndexPosition );
+        if ( hasRowTitles )
+        {
+          //
+          table.setRowTitleValue( "r" + rowIndexPosition, rowIndexPosition );
+        }
         
         //
         for ( int columnIndexPosition = 0; columnIndexPosition < columns; columnIndexPosition++ )
         {
           //
-          table.setColumnTitleValue( "c" + columnIndexPosition, columnIndexPosition );
+          if ( hasColumnTitles )
+          {
+            //
+            table.setColumnTitleValue( "c" + columnIndexPosition, columnIndexPosition );
+          }
           
           //
           table.setCellElement( rowIndexPosition, columnIndexPosition, ( "" + rowIndexPosition + ":" + columnIndexPosition ) );
@@ -78,7 +114,7 @@ public class TableFiller
       }
       
       //
-      if ( tableName != null )
+      if ( tableName != null && hasTableName )
       {
         //
         table.setTableName( tableName );
