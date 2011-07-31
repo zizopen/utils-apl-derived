@@ -8,3 +8,30 @@ The utils-apl-derived project has one highlight which is its Table implementatio
 Since Java and other frameworks provides maps and lists but lack of a direct Table, this implementation aims to fill this space of need.
 
 The central [http://www.google.com/codesearch#agM0M4Gok3c/trunk/utils-apl-derived/src/main/java/org/omnaest/utils/structure/table/Table.java&q=Table%20package:http://utils-apl-derived%5C.googlecode%5C.com Table interface] has one major implementation call [http://www.google.com/codesearch#agM0M4Gok3c/trunk/utils-apl-derived/src/main/java/org/omnaest/utils/structure/table/ArrayTable.java ArrayTable]
+
+The Table can be marshalled to and unmarshalled from
+ * CSV
+ * Plain text
+ * XML (JAXB)
+
+Two Tables can be joined together using a Selection which looks like:
+{{{
+================
+!  !c0 !c1 !c2 !
+!r0!0:0|0:1|0:2|
+!r1!1:0|1:1|1:2|
+!r2!2:0|2:1|2:2|
+!r3!3:0|3:1|3:2|
+----------------
+}}}
+
+
+{{{
+=============[t1, t2]=============
+!            !t1c0!t1c1!t2c0!t2c1!
+![t1r0, t2r0]!0:0 |0:1 |0:0 |0:1 |
+![t1r1, t2r0]!1:0 |1:1 |0:0 |0:1 |
+![t1r0, t2r1]!0:0 |0:1 |1:0 |1:1 |
+![t1r1, t2r1]!1:0 |1:1 |1:0 |1:1 |
+----------------------------------
+}}}
