@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.concrete;
+package org.omnaest.utils.listener.event;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,23 +23,24 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.omnaest.utils.listener.Listener;
-import org.omnaest.utils.listener.Listener.ListenerExtendedEvent;
-import org.omnaest.utils.listener.Listener.ListenerExtendedResult;
-import org.omnaest.utils.listener.ListenerAbstract;
-import org.omnaest.utils.listener.ListenerManager;
+import org.omnaest.utils.listener.EventListener;
+import org.omnaest.utils.listener.EventListenerBasic;
+import org.omnaest.utils.listener.EventManager;
 import org.omnaest.utils.listener.adapter.ListenerAdapter;
+import org.omnaest.utils.listener.event.Event;
+import org.omnaest.utils.listener.eveimport org.omnaest.utils.listener.concrete.EventManagerImpl;
+nt.Result;
 
 /**
- * @see ListenerManagerImpl
+ * @see EventManagerImpl
  * @author Omnaest
  */
-public class ListenerManagerImplAsynchronousTest
+public class EventManagerImplAsynchronousTest
 {
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
-  protected class ListenerParameterA extends ListenerExtendedEvent<Object, Object, Object>
+  protected class ListenerParameterA extends Event<Object, Object, Object>
   {
     public ListenerParameterA( Object source, Object event, Object data )
     {
@@ -47,7 +48,7 @@ public class ListenerManagerImplAsynchronousTest
     }
   }
   
-  protected class ListenerParameterB extends ListenerExtendedEvent<String, Object, Long>
+  protected class ListenerParameterB extends Event<String, Object, Long>
   {
     public ListenerParameterB( String source, Object event, Long data )
     {
@@ -55,7 +56,7 @@ public class ListenerManagerImplAsynchronousTest
     }
   }
   
-  protected class ListenerReturnInfoA extends ListenerExtendedResult<Object, Object>
+  protected class ListenerReturnInfoA extends Result<Object, Object>
   {
     public ListenerReturnInfoA( Object client, Object result )
     {
@@ -64,7 +65,7 @@ public class ListenerManagerImplAsynchronousTest
     }
   }
   
-  protected class ListenerReturnInfoB extends ListenerExtendedResult<String, Double>
+  protected class ListenerReturnInfoB extends Result<String, Double>
   {
     public ListenerReturnInfoB( String client, Double result )
     {
@@ -83,8 +84,8 @@ public class ListenerManagerImplAsynchronousTest
   public void testConnectToListenerManager()
   {
     //
-    ListenerManager<ListenerParameterA, ListenerReturnInfoA> listenerManagerSource = new ListenerManagerImpl<ListenerParameterA, ListenerReturnInfoA>();
-    ListenerManager<ListenerParameterB, ListenerReturnInfoB> listenerManagerFacade = new ListenerManagerImpl<ListenerParameterB, ListenerReturnInfoB>();
+    EventManager<ListenerParameterA, ListenerReturnInfoA> listenerManagerSource = new EventManagerImpl<ListenerParameterA, ListenerReturnInfoA>();
+    EventManager<ListenerParameterB, ListenerReturnInfoB> listenerManagerFacade = new EventManagerImpl<ListenerParameterB, ListenerReturnInfoB>();
     
     //
     ListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB> listenerAdapter = new ListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB>()
@@ -128,7 +129,7 @@ public class ListenerManagerImplAsynchronousTest
     final int resultAddition = 1;
     final String clientAddition = "_to_client";
     
-    Listener<ListenerParameterB, ListenerReturnInfoB> listener = new ListenerAbstract<ListenerParameterB, ListenerReturnInfoB>()
+    EventListener<ListenerParameterB, ListenerReturnInfoB> listener = new EventListenerBasic<ListenerParameterB, ListenerReturnInfoB>()
     {
       @Override
       public List<ListenerReturnInfoB> handleEvent( ListenerParameterB parameter )
@@ -145,7 +146,7 @@ public class ListenerManagerImplAsynchronousTest
         return retlist;
       }
     };
-    listenerManagerFacade.getListenerRegistration().addListener( listener );
+    listenerManagerFacade.getEventListenerRegistration().addEventListener( listener );
     
     //
     final String source = "source";
@@ -153,7 +154,7 @@ public class ListenerManagerImplAsynchronousTest
     final Long data = Long.valueOf( 10000 );
     
     //
-    List<ListenerReturnInfoA> returnInfoList = listenerManagerSource.handleEvent( new ListenerParameterA( source, event, data ) );
+    List<ListenerReturnInfoA> returnInfoList = listenerManagerSource.fireEvent( new ListenerParameterA( source, event, data ) );
     assertNotNull( returnInfoList );
     assertEquals( 1, returnInfoList.size() );
     ListenerReturnInfoA returnInfoA = returnInfoList.get( 0 );
