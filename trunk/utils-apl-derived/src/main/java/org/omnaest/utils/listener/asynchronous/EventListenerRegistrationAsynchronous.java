@@ -27,8 +27,7 @@ import org.omnaest.utils.listener.EventListenerRegistration;
  * @param <EVENT>
  * @param <RESULT>
  */
-public interface EventListenerRegistrationAsynchronous<EVENT, RESULT> extends
-                                                                      EventListenerRegistration<Future<EVENT>, Future<RESULT>>
+public interface EventListenerRegistrationAsynchronous<EVENT, RESULT> extends EventListenerRegistration<EVENT, Future<RESULT>>
 {
   /**
    * @param listener

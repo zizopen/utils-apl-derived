@@ -19,21 +19,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.omnaest.utils.listener.EventListener;
+import org.omnaest.utils.listener.EventListenerRegistration;
+import org.omnaest.utils.listener.EventManager;
 import org.omnaest.utils.listener.concrete.EventManagerImpl;
-import org.omnaest.utils.listener.concrete.EventListenerRegistrationImpl;
 import org.omnaest.utils.tuple.Tuple;
 import org.omnaest.utils.tuple.TupleDuad;
 import org.omnaest.utils.tuple.TupleTriple;
 
 /**
- * Adapter interface used to connect two {@link EventManagerImpl} instances with
- * {@link EventManagerImpl#listenTo(EventListenerRegistrationImpl, ListenerAdapter)}. Converts the source and event from another
- * {@link EventListener} to a current source and event. And the result and client coming from a current {@link EventListener} back to the
- * other {@link EventListener}s client and result.
+ * Adapter interface used to connect two {@link EventManager} instances with
+ * {@link EventManagerImpl#listenTo(EventListenerRegistration, EventListenerAdapter)}. Converts the source and event from another
+ * {@link EventListener} to a current source and event. And the result and client coming from a current {@link EventListener} back
+ * to the other {@link EventListener}s client and result.
  * 
  * @see EventListener
- * @see EventManagerImpl
- * @see EventListenerRegistrationImpl
+ * @see EventManager
+ * @see EventListenerRegistration
  * @author Omnaest
  * @param <OTHER_EVENT>
  *          parameter coming from the source listener
@@ -44,7 +45,7 @@ import org.omnaest.utils.tuple.TupleTriple;
  * @param <RESULT>
  *          return tuple returned by the adapter
  */
-public interface ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
+public interface EventListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
 {
   
   /* ********************************************** Classes/Interfaces ********************************************** */
@@ -52,7 +53,7 @@ public interface ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
   /**
    * Container which allows storage of <source,event,data> tuples.
    * 
-   * @see ListenerAdapter
+   * @see EventListenerAdapter
    */
   public static class SourceEventDataContainer<SOURCE, EVENT, DATA>
   {
@@ -81,7 +82,7 @@ public interface ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
   }
   
   /**
-   * @see ListenerAdapter
+   * @see EventListenerAdapter
    * @author Omnaest
    * @param <CLIENT>
    * @param <RESULT>
@@ -120,7 +121,7 @@ public interface ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
    * @param otherParameter
    * @return
    */
-  public List<EVENT> adaptParameter( OTHER_EVENT otherParameter );
+  public List<EVENT> adaptEvent( OTHER_EVENT otherParameter );
   
   /**
    * Adapts the given result from a given client. Result is a tuple of return information, this allows to generate multiple
@@ -129,6 +130,6 @@ public interface ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
    * @param returninfo
    * @return
    */
-  public List<OTHER_RESULT> adaptReturnInfo( RESULT returninfo );
+  public List<OTHER_RESULT> adaptResult( RESULT returninfo );
   
 }

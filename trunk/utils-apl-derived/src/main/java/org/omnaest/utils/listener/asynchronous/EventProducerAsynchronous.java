@@ -22,19 +22,21 @@ import org.omnaest.utils.listener.EventListenerRegistration;
 import org.omnaest.utils.listener.EventProducer;
 
 /**
- * Interface for classes which allows to register {@link EventListenerAsynchronous}s at a {@link EventListenerRegistrationAsynchronous}.
+ * Interface for classes which allows to register {@link EventListenerAsynchronous}s at a
+ * {@link EventListenerRegistrationAsynchronous}.
  * 
  * @author Omnaest
  */
-public interface EventProducerAsynchronous<EVENT, RESULT> extends EventProducer<Future<EVENT>, Future<RESULT>>
+public interface EventProducerAsynchronous<EVENT, RESULT> extends EventProducer<EVENT, Future<RESULT>>
 {
   /**
-   * Offers the {@link EventListenerRegistrationAsynchronous} to register {@link EventListenerAsynchronous} to this instance. All events
-   * will be signaled to the {@link EventListener}s from the time on they get registered.
+   * Offers the {@link EventListenerRegistrationAsynchronous} to register {@link EventListenerAsynchronous} to this instance. All
+   * events will be signaled to the {@link EventListener}s from the time on they get registered.
    * 
    * @see EventListenerRegistration
    * @see EventProducerAsynchronous
-   * @return
+   * @return {@link EventListenerRegistrationAsynchronous}
    */
   public EventListenerRegistrationAsynchronous<EVENT, RESULT> getEventListenerRegistration();
+  
 }

@@ -15,16 +15,18 @@
  ******************************************************************************/
 package org.omnaest.utils.listener;
 
+import java.io.Serializable;
+
 /**
  * Interface for classes which allows to register {@link EventListener}s at a {@link EventListenerRegistration}.
  * 
  * @author Omnaest
  */
-public interface EventProducer<EVENT, RESULT>
+public interface EventProducer<EVENT, RESULT> extends Serializable
 {
   /**
-   * Offers the {@link EventListenerRegistration} to register {@link EventListener} to this instance. All events will be signaled to the
-   * {@link EventListener}s from the time on they get registered.
+   * Offers the {@link EventListenerRegistration} to register {@link EventListener} to this instance. All events will be signaled
+   * to the {@link EventListener}s from the time on they get registered.
    * 
    * @see EventListenerRegistration
    * @see EventProducer
