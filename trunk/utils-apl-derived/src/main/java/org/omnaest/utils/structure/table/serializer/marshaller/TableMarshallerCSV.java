@@ -76,6 +76,19 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
   }
   
   /**
+   * @param writeTableName
+   * @param writeColumnTitles
+   * @param writeRowTiles
+   */
+  public TableMarshallerCSV( boolean writeTableName, boolean writeColumnTitles, boolean writeRowTiles )
+  {
+    super();
+    this.writeTableName = writeTableName;
+    this.writeColumnTitles = writeColumnTitles;
+    this.writeRowTiles = writeRowTiles;
+  }
+  
+  /**
    * @param encoding
    * @param delimiter
    * @param writeTableName

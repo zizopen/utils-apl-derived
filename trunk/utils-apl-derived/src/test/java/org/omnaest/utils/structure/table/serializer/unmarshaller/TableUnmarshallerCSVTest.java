@@ -17,11 +17,19 @@ package org.omnaest.utils.structure.table.serializer.unmarshaller;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.serializer.TableMarshaller;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerCSV;
 
@@ -29,12 +37,54 @@ import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerCS
  * @see TableUnmarshallerCSV
  * @author Omnaest
  */
+@RunWith(value = Parameterized.class)
 public class TableUnmarshallerCSVTest
 {
+  @Parameters
+  public static Collection<Object[]> configurationDataCollection()
+  {
+    //
+    List<Object[]> retlist = new ArrayList<Object[]>();
+    retlist.add( new Object[] { true, true, true } );
+    retlist.add( new Object[] { true, true, false } );
+    retlist.add( new Object[] { true, false, true } );
+    retlist.add( new Object[] { true, false, false } );
+    retlist.add( new Object[] { false, true, true } );
+    retlist.add( new Object[] { false, true, false } );
+    retlist.add( new Object[] { false, false, true } );
+    retlist.add( new Object[] { false, false, false } );
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * @param hasTableName
+   * @param hasColumnTitles
+   * @param hasRowTitles
+   * @param tableUnmarshaller
+   */
+  public TableUnmarshallerCSVTest( boolean hasTableName, boolean hasColumnTitles, boolean hasRowTitles )
+  {
+    //
+    super();
+    
+    //
+    this.tableUnmarshaller = new TableUnmarshallerCSV<Object>( hasTableName, hasColumnTitles, hasRowTitles );
+    this.tableMarshaller = new TableMarshallerCSV<Object>( hasTableName, hasColumnTitles, hasRowTitles );
+    
+    //
+    this.csvContent = this.generateCSVContent( hasTableName, hasColumnTitles, hasRowTitles );
+  }
+  
   /* ********************************************** Variables ********************************************** */
   protected Table<Object>             tableAfter        = new ArrayTable<Object>();
   protected Table<Object>             tableBefore       = new ArrayTable<Object>();
-  protected TableUnmarshaller<Object> tableUnmarshaller = new TableUnmarshallerCSV<Object>();
+  
+  protected TableUnmarshaller<Object> tableUnmarshaller = null;
+  protected TableMarshaller<Object>   tableMarshaller   = null;
+  
+  protected StringBuffer              csvContent        = null;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -42,10 +92,7 @@ public class TableUnmarshallerCSVTest
   public void testUnmarshalTableOfEInputStream()
   {
     //
-    StringBuffer csvContent = this.generateCSVContent();
-    
-    //
-    ByteArrayContainer byteArrayContainer = new ByteArrayContainer( csvContent );
+    ByteArrayContainer byteArrayContainer = new ByteArrayContainer( this.csvContent );
     
     //
     this.tableUnmarshaller.unmarshal( this.tableAfter, byteArrayContainer.getInputStream() );
@@ -58,19 +105,19 @@ public class TableUnmarshallerCSVTest
   public void testUnmarshalTableOfECharSequence()
   {
     //
-    StringBuffer csvContent = this.generateCSVContent();
-    
-    //
-    this.tableUnmarshaller.unmarshal( this.tableAfter, csvContent );
+    this.tableUnmarshaller.unmarshal( this.tableAfter, this.csvContent );
     
     //
     assertEquals( this.tableBefore, this.tableAfter );
   }
   
   /**
+   * @param hasTableName
+   * @param hasColumnTitles
+   * @param hasRowTitles
    * @return
    */
-  protected StringBuffer generateCSVContent()
+  protected StringBuffer generateCSVContent( boolean hasTableName, boolean hasColumnTitles, boolean hasRowTitles )
   {
     //
     StringBuffer retval = new StringBuffer();
@@ -82,10 +129,10 @@ public class TableUnmarshallerCSVTest
     int rows = 3;
     int columns = 10;
     String tableName = "Table1";
-    TableFiller.fillTableWithMatrixNumbers( rows, columns, tableName, table );
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, tableName, hasTableName, hasColumnTitles, hasRowTitles, table );
     
     //
-    new TableMarshallerCSV<Object>().marshal( table, retval );
+    this.tableMarshaller.marshal( table, retval );
     
     //
     return retval;
