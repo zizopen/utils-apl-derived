@@ -14,9 +14,9 @@ The Table can be marshalled to and unmarshalled from
  * Plain text
  * XML (JAXB)
 
-Two Tables can be joined together using a Selection which looks like:
+An example for plain text will look like:
 {{{
-================
+=====Table1=====
 !  !c0 !c1 !c2 !
 !r0!0:0|0:1|0:2|
 !r1!1:0|1:1|1:2|
@@ -25,6 +25,7 @@ Two Tables can be joined together using a Selection which looks like:
 ----------------
 }}}
 
+or a joined Table:
 
 {{{
 =============[t1, t2]=============
@@ -35,3 +36,18 @@ Two Tables can be joined together using a Selection which looks like:
 ![t1r1, t2r1]!1:0 |1:1 |1:0 |1:1 |
 ----------------------------------
 }}}
+
+== Adapter == 
+
+The Table class can be used in combination with adapters. E.g.:
+
+ * TableListToCallableStatementAdapter
+ * TableToResultSetAdapter
+
+=== Mocking SQL CallableStatement and ResultSet ===
+
+With help of the SQL adapters for a 
+ * CallableStatement
+ * ResultSet
+it is possible to mock JDBC connection calls with the content of the Table. Since the Table has many input sources like XML or CSV even small to middlesized tables can be mocked easily.
+
