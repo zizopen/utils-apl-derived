@@ -15,18 +15,22 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.selection;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.internal.helper.TableInternalHelper;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
+import org.omnaest.utils.structure.table.concrete.selection.internal.SelectionExecutor;
+import org.omnaest.utils.structure.table.concrete.selection.internal.data.ColumnOrder;
+import org.omnaest.utils.structure.table.concrete.selection.internal.data.SelectionData;
+import org.omnaest.utils.structure.table.concrete.selection.internal.data.TableAndJoin;
+import org.omnaest.utils.structure.table.concrete.selection.internal.join.Join;
+import org.omnaest.utils.structure.table.concrete.selection.internal.join.JoinInner;
 import org.omnaest.utils.structure.table.internal.TableInternal;
-import org.omnaest.utils.structure.table.subspecification.TableSelectable.Join;
-import org.omnaest.utils.structure.table.subspecification.TableSelectable.Order;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.SelectionJoin;
 import org.omnaest.utils.structure.table.view.TableView;
 import org.omnaest.utils.structure.table.view.concrete.TableViewImpl;
 
@@ -35,16 +39,10 @@ import org.omnaest.utils.structure.table.view.concrete.TableViewImpl;
  * @author Omnaest
  * @param <E>
  */
-public class SelectionImpl<E> implements Selection<E>
+public class SelectionImpl<E> implements SelectionJoin<E>
 {
-  /* ********************************************** Variables ********************************************** */
-  protected List<TableInternal<E>>     tableInternalList  = new ArrayList<TableInternal<E>>();
-  protected List<Column<E>>            columnList         = new ArrayList<Column<E>>();
-  protected List<Join>                 joinList           = new ArrayList<Join>();
-  protected List<PredicateInternal<E>> wherePredicateList = new ArrayList<PredicateInternal<E>>();
-  protected List<Order<E>>             orderList          = new ArrayList<Order<E>>();
-  protected boolean                    selectAllColumns   = true;
-  protected SelectionExecutor<E>       selectionExecutor  = new SelectionExecutor<E>( this );
+  protected SelectionData<E>     selectionData     = new SelectionData<E>();
+  protected SelectionExecutor<E> selectionExecutor = new SelectionExecutor<E>( this.selectionData );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -60,8 +58,33 @@ public class SelectionImpl<E> implements Selection<E>
     //
     if ( tableInternal != null )
     {
-      this.tableInternalList.add( tableInternal );
+      this.selectionData.getTableInternalList().add( tableInternal );
     }
+  }
+  
+  @Override
+  public SelectionJoin<E> innerJoin( Table<E> table )
+  {
+    //    
+    if ( table != null )
+    {
+      //
+      Join<E> join = new JoinInner<E>();
+      this.selectionData.getTableAndJoinList().add( new TableAndJoin<E>( table, join ) );
+    }
+    
+    // 
+    return this;
+  }
+  
+  @Override
+  public SelectionJoin<E> on( Predicate<E>... predicates )
+  {
+    //
+    this.where( predicates );
+    
+    //
+    return this;
   }
   
   @Override
@@ -73,11 +96,11 @@ public class SelectionImpl<E> implements Selection<E>
       //
       for ( Column<E> column : columns )
       {
-        this.columnList.add( column );
+        this.selectionData.getColumnList().add( column );
       }
       
       //
-      this.selectAllColumns = false;
+      this.selectionData.setSelectAllColumns( false );
     }
     
     // 
@@ -99,26 +122,13 @@ public class SelectionImpl<E> implements Selection<E>
           if ( tableInternal != null )
           {
             //
-            this.tableInternalList.add( tableInternal );
+            this.selectionData.getTableInternalList().add( tableInternal );
           }
         }
       }
     }
     
     // 
-    return this;
-  }
-  
-  @Override
-  public Selection<E> join( Join join )
-  {
-    //
-    if ( join != null )
-    {
-      this.joinList.add( join );
-    }
-    
-    //
     return this;
   }
   
@@ -139,7 +149,7 @@ public class SelectionImpl<E> implements Selection<E>
       {
         if ( predicate instanceof PredicateInternal )
         {
-          this.wherePredicateList.add( (PredicateInternal<E>) predicate );
+          this.selectionData.getPredicateList().add( (PredicateInternal<E>) predicate );
         }
       }
     }
@@ -149,13 +159,26 @@ public class SelectionImpl<E> implements Selection<E>
   }
   
   @Override
-  public Selection<E> orderBy( Order<E> order )
+  public Selection<E> orderBy( Column<E> column, Order order )
   {
     //
-    if ( order != null )
+    if ( column != null )
     {
-      this.orderList.add( order );
+      //
+      order = order == null ? Order.ASCENDING : order;
+      this.selectionData.getColumnOrderList().add( new ColumnOrder<E>( column, order ) );
     }
+    
+    // 
+    return this;
+  }
+  
+  @Override
+  public Selection<E> orderBy( Column<E> column )
+  {
+    //    
+    Order order = null;
+    this.orderBy( column, order );
     
     // 
     return this;
@@ -165,7 +188,7 @@ public class SelectionImpl<E> implements Selection<E>
   public Selection<E> allColumns()
   {
     //
-    this.selectAllColumns = true;
+    this.selectionData.setSelectAllColumns( true );
     
     // 
     return this;
@@ -196,7 +219,7 @@ public class SelectionImpl<E> implements Selection<E>
    */
   protected List<TableInternal<E>> getTableInternalList()
   {
-    return this.tableInternalList;
+    return this.selectionData.getTableInternalList();
   }
   
   /**
@@ -204,7 +227,7 @@ public class SelectionImpl<E> implements Selection<E>
    */
   protected void setTableInternalList( List<TableInternal<E>> tableInternalList )
   {
-    this.tableInternalList = tableInternalList;
+    this.selectionData.setTableInternalList( tableInternalList );
   }
   
   /**
@@ -212,7 +235,7 @@ public class SelectionImpl<E> implements Selection<E>
    */
   protected List<Column<E>> getColumnList()
   {
-    return this.columnList;
+    return this.selectionData.getColumnList();
   }
   
   /**
@@ -220,23 +243,7 @@ public class SelectionImpl<E> implements Selection<E>
    */
   protected void setColumnList( List<Column<E>> columnList )
   {
-    this.columnList = columnList;
-  }
-  
-  /**
-   * @return
-   */
-  protected List<Join> getJoinList()
-  {
-    return this.joinList;
-  }
-  
-  /**
-   * @param joinList
-   */
-  protected void setJoinList( List<Join> joinList )
-  {
-    this.joinList = joinList;
+    this.selectionData.setColumnList( columnList );
   }
   
   /**
@@ -244,7 +251,7 @@ public class SelectionImpl<E> implements Selection<E>
    */
   protected List<PredicateInternal<E>> getWherePredicateList()
   {
-    return this.wherePredicateList;
+    return this.selectionData.getPredicateList();
   }
   
   /**
@@ -252,23 +259,7 @@ public class SelectionImpl<E> implements Selection<E>
    */
   protected void setWherePredicateList( List<PredicateInternal<E>> wherePredicateList )
   {
-    this.wherePredicateList = wherePredicateList;
-  }
-  
-  /**
-   * @return
-   */
-  protected List<Order<E>> getOrderList()
-  {
-    return this.orderList;
-  }
-  
-  /**
-   * @param orderList
-   */
-  protected void setOrderList( List<Order<E>> orderList )
-  {
-    this.orderList = orderList;
+    this.selectionData.setPredicateList( wherePredicateList );
   }
   
   /**
@@ -276,7 +267,7 @@ public class SelectionImpl<E> implements Selection<E>
    */
   protected boolean isSelectAllColumns()
   {
-    return this.selectAllColumns;
+    return this.selectionData.isSelectAllColumns();
   }
   
   /**
@@ -284,7 +275,7 @@ public class SelectionImpl<E> implements Selection<E>
    */
   protected void setSelectAllColumns( boolean selectAllColumns )
   {
-    this.selectAllColumns = selectAllColumns;
+    this.selectionData.setSelectAllColumns( selectAllColumns );
   }
   
 }

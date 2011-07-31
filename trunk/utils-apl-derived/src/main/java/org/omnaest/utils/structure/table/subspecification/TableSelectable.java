@@ -22,6 +22,7 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.concrete.selection.internal.join.Join;
 import org.omnaest.utils.structure.table.view.TableView;
 
 /**
@@ -48,8 +49,8 @@ public interface TableSelectable<E>
    * @see Selection#orderBy(Order)
    * @see Selection#asView()
    * @see Selection#asTable()
-   * @see Join
-   * @see Where
+   * @see SelectionJoin
+   * @see Predicate
    * @see Order
    * @see TableView
    * @see TableSelectable
@@ -57,6 +58,21 @@ public interface TableSelectable<E>
    */
   public static interface Selection<E>
   {
+    /* ********************************************** Classes/Interfaces ********************************************** */
+    
+    /**
+     * @see Selection
+     * @see Selection#orderBy(Column, Order)
+     * @author Omnaest
+     */
+    public static enum Order
+    {
+      ASCENDING,
+      DESCENDING;
+    }
+    
+    /* ********************************************** Methods ********************************************** */
+    
     /**
      * Sets the {@link Column}s of the {@link Selection}.
      * 
@@ -83,10 +99,10 @@ public interface TableSelectable<E>
     /**
      * {@link Join} clause of a {@link Selection}
      * 
-     * @param join
-     * @return this
+     * @param table
+     * @return this as {@link SelectionJoin}
      */
-    public Selection<E> join( Join join );
+    public SelectionJoin<E> innerJoin( Table<E> table );
     
     /**
      * Where clause of a {@link Selection} which declares one ore multiple {@link Predicate}s
@@ -97,12 +113,25 @@ public interface TableSelectable<E>
     public Selection<E> where( Predicate<E>... predicates );
     
     /**
-     * {@link Order} clause of a {@link Selection}
+     * Adds a {@link Column} and {@link Order} declaration for a {@link Selection} which results in an ordered {@link Table} after
+     * the given {@link Column} by the given {@link Order}. If this method is called multiple times the {@link Column}s and
+     * {@link Order} will be chained together.
      * 
+     * @see #orderBy(Column)
+     * @param column
      * @param order
      * @return this
      */
-    public Selection<E> orderBy( Order<E> order );
+    public Selection<E> orderBy( Column<E> column, Order order );
+    
+    /**
+     * Orders the {@link Selection} after the given {@link Column} by {@link Order#ASCENDING}
+     * 
+     * @see #orderBy(Column, Order)
+     * @param column
+     * @return
+     */
+    public Selection<E> orderBy( Column<E> column );
     
     /**
      * Creates a {@link TableView} of the {@link Selection}. This should be called after all other configurations have been set.
@@ -125,43 +154,6 @@ public interface TableSelectable<E>
      * @return
      */
     public Table<E> asTable();
-  }
-  
-  /**
-   * {@link Order} clause of a {@link Selection}.
-   * 
-   * @see Table
-   * @see Selection
-   * @author Omnaest
-   */
-  public static interface Order<E>
-  {
-    /**
-     * Sorts the whole current table by the content of a given column.<br>
-     * The underlying sort uses a merge sort algorithm.
-     * 
-     * @param columnIndexPosition
-     * @param ascending
-     *          true:ascending false:descending
-     * @return this
-     */
-    public Table<E> orderRowsBy( final int columnIndexPosition, final boolean ascending );
-    
-    /**
-     * Orders the rows ascending by the property of a java bean which is not null. <br>
-     * If more than one property is not null, it is unspecified by which property the table is sorted.<br>
-     * The property, which is not null, has to equal a column title.
-     * 
-     * @param beanObject
-     * @return this
-     */
-    public <B> Table<E> orderRowsAscendingByBeanObjectPropertyNotNull( B beanObject );
-    
-    /**
-     * @param columnTitle
-     * @return
-     */
-    public Table<E> orderRowsAscendingBy( String columnTitle );
   }
   
   /**
@@ -359,20 +351,21 @@ public interface TableSelectable<E>
   }
   
   /**
-   * {@link Join} clause of a {@link Selection}.
+   * A {@link SelectionJoin} represents the underlying {@link Selection} and allows additionally to add further {@link Predicate}s
+   * to a join using the {@link #on(Predicate...)} method.
    * 
+   * @param
    * @author Omnaest
    */
-  public static interface Join
+  public static interface SelectionJoin<E> extends Selection<E>
   {
     /**
-     * @see Join
-     * @author Omnaest
+     * Adds further {@link Predicate}s to an {@link SelectionJoin}
+     * 
+     * @param predicate
+     * @return this
      */
-    public static interface ON
-    {
-      
-    }
+    public SelectionJoin<E> on( Predicate<E>... predicates );
   }
   
   /* ********************************************** Methods ********************************************** */
