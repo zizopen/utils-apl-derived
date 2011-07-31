@@ -26,16 +26,14 @@ import org.junit.Test;
 import org.omnaest.utils.listener.EventListener;
 import org.omnaest.utils.listener.EventListenerBasic;
 import org.omnaest.utils.listener.EventManager;
-import org.omnaest.utils.listener.adapter.ListenerAdapter;
-import org.omnaest.utils.listener.event.Event;
-import org.omnaest.utils.listener.eveimport org.omnaest.utils.listener.concrete.EventManagerImpl;
-nt.Result;
+import org.omnaest.utils.listener.adapter.EventListenerAdapter;
+import org.omnaest.utils.listener.concrete.EventManagerImpl;
 
 /**
  * @see EventManagerImpl
  * @author Omnaest
  */
-public class EventManagerImplAsynchronousTest
+public class EventManagerImplTest
 {
   
   /* ********************************************** Classes/Interfaces ********************************************** */
@@ -58,6 +56,8 @@ public class EventManagerImplAsynchronousTest
   
   protected class ListenerReturnInfoA extends Result<Object, Object>
   {
+    private static final long serialVersionUID = -2119707514452115820L;
+    
     public ListenerReturnInfoA( Object client, Object result )
     {
       super( client, result );
@@ -67,6 +67,8 @@ public class EventManagerImplAsynchronousTest
   
   protected class ListenerReturnInfoB extends Result<String, Double>
   {
+    private static final long serialVersionUID = -2801413542572657004L;
+    
     public ListenerReturnInfoB( String client, Double result )
     {
       super( client, result );
@@ -88,10 +90,10 @@ public class EventManagerImplAsynchronousTest
     EventManager<ListenerParameterB, ListenerReturnInfoB> listenerManagerFacade = new EventManagerImpl<ListenerParameterB, ListenerReturnInfoB>();
     
     //
-    ListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB> listenerAdapter = new ListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB>()
+    EventListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB> listenerAdapter = new EventListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB>()
     {
       @Override
-      public List<ListenerParameterB> adaptParameter( ListenerParameterA otherParameter )
+      public List<ListenerParameterB> adaptEvent( ListenerParameterA otherParameter )
       {
         //
         List<ListenerParameterB> retlist = new ArrayList<ListenerParameterB>();
@@ -107,7 +109,7 @@ public class EventManagerImplAsynchronousTest
       }
       
       @Override
-      public List<ListenerReturnInfoA> adaptReturnInfo( ListenerReturnInfoB returninfo )
+      public List<ListenerReturnInfoA> adaptResult( ListenerReturnInfoB returninfo )
       {
         //
         List<ListenerReturnInfoA> retlist = new ArrayList<ListenerReturnInfoA>();
@@ -123,7 +125,7 @@ public class EventManagerImplAsynchronousTest
       }
       
     };
-    listenerManagerFacade.listenTo( listenerManagerSource, listenerAdapter );
+    listenerManagerFacade.getEventManagerConnector().listenTo( listenerManagerSource, listenerAdapter );
     
     //
     final int resultAddition = 1;
@@ -131,6 +133,8 @@ public class EventManagerImplAsynchronousTest
     
     EventListener<ListenerParameterB, ListenerReturnInfoB> listener = new EventListenerBasic<ListenerParameterB, ListenerReturnInfoB>()
     {
+      private static final long serialVersionUID = 1586783633343970943L;
+      
       @Override
       public List<ListenerReturnInfoB> handleEvent( ListenerParameterB parameter )
       {
@@ -154,7 +158,9 @@ public class EventManagerImplAsynchronousTest
     final Long data = Long.valueOf( 10000 );
     
     //
-    List<ListenerReturnInfoA> returnInfoList = listenerManagerSource.fireEvent( new ListenerParameterA( source, event, data ) );
+    EventResults<ListenerReturnInfoA> returnInfoList = listenerManagerSource.fireEvent( new ListenerParameterA( source, event,
+                                                                                                                data ) );
+    
     assertNotNull( returnInfoList );
     assertEquals( 1, returnInfoList.size() );
     ListenerReturnInfoA returnInfoA = returnInfoList.get( 0 );
