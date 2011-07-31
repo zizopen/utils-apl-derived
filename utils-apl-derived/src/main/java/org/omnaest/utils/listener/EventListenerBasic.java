@@ -26,27 +26,27 @@ import java.util.List;
 public abstract class EventListenerBasic<EVENT, RESULT> implements EventListener<EVENT, RESULT>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long  serialVersionUID       = 1250853029881040746L;
-  /* ********************************************** Variables ********************************************** */
-  private final List<RESULT> EMPTY_RETURN_INFO_LIST = new ArrayList<RESULT>();
+  private static final long serialVersionUID = 1250853029881040746L;
   
   /* ********************************************** Methods ********************************************** */
   
+  /**
+   * @param parameter
+   */
   public void handleEventSilently( EVENT parameter )
   {
   }
   
-  public List<RESULT> handleEvent( EVENT parameter )
-  {
-    return this.EMPTY_RETURN_INFO_LIST;
-  }
-  
+  /**
+   * @param parameter
+   * @param listenerRegistration
+   */
   public void handleEventSilently( EVENT parameter, EventListenerRegistration<EVENT, RESULT> listenerRegistration )
   {
   }
   
   @Override
-  public List<RESULT> handleEvent( EVENT parameter, EventListenerRegistration<EVENT, RESULT> listenerRegistration )
+  public List<RESULT> handleEvent( EVENT parameter )
   {
     //
     List<RESULT> retlist = new ArrayList<RESULT>();
@@ -55,7 +55,6 @@ public abstract class EventListenerBasic<EVENT, RESULT> implements EventListener
     retlist.addAll( this.handleEvent( parameter ) );
     
     //
-    this.handleEventSilently( parameter, listenerRegistration );
     this.handleEventSilently( parameter );
     
     // 

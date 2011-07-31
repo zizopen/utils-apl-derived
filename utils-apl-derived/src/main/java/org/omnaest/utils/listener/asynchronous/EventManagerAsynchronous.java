@@ -15,9 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.listener.asynchronous;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 
+import org.omnaest.utils.listener.EventHandler;
 import org.omnaest.utils.listener.EventManager;
+import org.omnaest.utils.listener.event.EventResults;
 
 /**
  * @see Future
@@ -27,7 +30,33 @@ import org.omnaest.utils.listener.EventManager;
  * @param <EVENT>
  * @param <RESULT>
  */
-public interface EventManagerAsynchronous<EVENT, RESULT> extends EventManager<Future<EVENT>, Future<RESULT>>,
-                                                            EventProducerAsynchronous<EVENT, RESULT>
+public interface EventManagerAsynchronous<EVENT, RESULT> extends EventManager<EVENT, Future<RESULT>>,
+                                                         EventProducerAsynchronous<EVENT, RESULT>
 {
+  
+  /**
+   * Fires an event but puts it into an internal {@link BlockingQueue} which has to be pulled from {@link EventHandler}s actively. <br>
+   * If the internal {@link BlockingQueue} is filled this method call block until the {@link BlockingQueue} gets free event slots
+   * again. For a non blocking behavior see {@link #tryToFireQueuedEvent(Object)} instead, or use the regular push behaviored
+   * {@link #fireEvent(Object)}.
+   * 
+   * @see #fireEvent(Object)
+   * @see #tryToFireQueuedEvent(Object)
+   * @param event
+   * @return {@link EventResults}
+   */
+  public EventResults<RESULT> fireQueuedEvent( EVENT event );
+  
+  /**
+   * Tries to fire the given event if the internal {@link BlockingQueue} has {@link BlockingQueue#remainingCapacity()} left.
+   * Otherwise the event is discarded.<br>
+   * Because of this behavior only non critical event should be fired by using this method. For critical events use
+   * {@link #fireQueuedEvent(Object)} or {@link #fireEvent(Object)} instead.
+   * 
+   * @see #fireEvent(Object)
+   * @see #fireQueuedEvent(Object)
+   * @param event
+   * @return {@link EventResults}
+   */
+  public EventResults<RESULT> tryToFireQueuedEvent( EVENT event );
 }

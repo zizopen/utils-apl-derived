@@ -15,11 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.listener.asynchronous.concrete;
 
+import java.util.List;
 import java.util.concurrent.Future;
 
 import org.omnaest.utils.listener.EventManager;
-import org.omnaest.utils.listener.asynchronous.EventManagerAsynchronous;
 import org.omnaest.utils.listener.asynchronous.EventListenerRegistrationAsynchronous;
+import org.omnaest.utils.listener.asynchronous.EventManagerAsynchronous;
 import org.omnaest.utils.listener.concrete.EventManagerImpl;
 
 /**
@@ -32,8 +33,8 @@ import org.omnaest.utils.listener.concrete.EventManagerImpl;
  * @param <RESULT>
  */
 public class EventManagerAsynchronousImpl<EVENT, RESULT> extends EventManagerImpl<Future<EVENT>, Future<RESULT>>
-                                                                                                                      implements
-                                                                                                                      EventManagerAsynchronous<EVENT, RESULT>
+                                                                                                                implements
+                                                                                                                EventManagerAsynchronous<EVENT, RESULT>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = -1779193308279798570L;
@@ -43,6 +44,21 @@ public class EventManagerAsynchronousImpl<EVENT, RESULT> extends EventManagerImp
   public EventListenerRegistrationAsynchronous<EVENT, RESULT> getEventListenerRegistration()
   {
     return new EventListenerRegistrationAsynchronousImpl<EVENT, RESULT>( super.getEventListenerRegistration() );
+  }
+
+  @Override
+  public List<RESULT> fireQueuedEvent( EVENT event )
+  {
+    
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public List<RESULT> tryToFireQueuedEvent( EVENT event )
+  {
+    // TODO Auto-generated method stub
+    return null;
   }
   
 }
