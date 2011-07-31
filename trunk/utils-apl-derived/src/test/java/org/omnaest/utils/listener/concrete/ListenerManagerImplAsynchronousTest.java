@@ -24,12 +24,11 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.omnaest.utils.listener.Listener;
-import org.omnaest.utils.listener.ListenerAbstract;
 import org.omnaest.utils.listener.Listener.ListenerExtendedEvent;
 import org.omnaest.utils.listener.Listener.ListenerExtendedResult;
+import org.omnaest.utils.listener.ListenerAbstract;
+import org.omnaest.utils.listener.ListenerManager;
 import org.omnaest.utils.listener.adapter.ListenerAdapter;
-import org.omnaest.utils.listener.concrete.ListenerManagerImpl;
-
 
 /**
  * @see ListenerManagerImpl
@@ -39,7 +38,7 @@ public class ListenerManagerImplAsynchronousTest
 {
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   protected class ListenerParameterA extends ListenerExtendedEvent<Object, Object, Object>
   {
     public ListenerParameterA( Object source, Object event, Object data )
@@ -74,7 +73,7 @@ public class ListenerManagerImplAsynchronousTest
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   @Before
   public void setUp() throws Exception
   {
@@ -84,17 +83,17 @@ public class ListenerManagerImplAsynchronousTest
   public void testConnectToListenerManager()
   {
     //
-    ListenerManagerImpl<ListenerParameterA, ListenerReturnInfoA> listenerManagerSource = new ListListenerManagerImplAsynchronousTestAsynchronousTest.ListListenerManagerImplAsynchronousTestAsynchronousTest.ListenerReturnInfoA>();
-    ListenerManagerImpl<ListenerParameterB, ListenerReturnInfoB> listenerManagerFacade = ListenerManagerImplAsynchronousTestrManagerAsynchronousTListenerManagerImplAsynchronousTestrManagerAsynchronousTest.ListenerReturnInfoB>();
+    ListenerManager<ListenerParameterA, ListenerReturnInfoA> listenerManagerSource = new ListenerManagerImpl<ListenerParameterA, ListenerReturnInfoA>();
+    ListenerManager<ListenerParameterB, ListenerReturnInfoB> listenerManagerFacade = new ListenerManagerImpl<ListenerParameterB, ListenerReturnInfoB>();
     
     //
-    ListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB> listenerAdapteListenerManagerImplAsynchronousTestrManagerAsynchronousTListenerManagerImplAsynchronousTestrManagerAsynchronousTeListenerManagerImplAsynchronousTestrManagerAsynchronousTListenerManagerImplAsynchronousTestrManagerAsynchronousTest.ListenerReturnInfoB>()
+    ListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB> listenerAdapter = new ListenerAdapter<ListenerParameterA, ListenerReturnInfoA, ListenerParameterB, ListenerReturnInfoB>()
     {
       @Override
       public List<ListenerParameterB> adaptParameter( ListenerParameterA otherParameter )
       {
         //
-        List<ListenerParameterB> ListenerManagerImplAsynchronousTestrManagerAsynchronousTest.ListenerParameterB>();
+        List<ListenerParameterB> retlist = new ArrayList<ListenerParameterB>();
         
         //        
         String source = (String) otherParameter.getSource();
@@ -110,7 +109,7 @@ public class ListenerManagerImplAsynchronousTest
       public List<ListenerReturnInfoA> adaptReturnInfo( ListenerReturnInfoB returninfo )
       {
         //
-        List<ListenerReturnInfoA> ListenerManagerImplAsynchronousTestrManagerAsynchronousTest.ListenerReturnInfoA>();
+        List<ListenerReturnInfoA> retlist = new ArrayList<ListenerReturnInfoA>();
         
         //
         String client = returninfo.getClient();
@@ -135,7 +134,7 @@ public class ListenerManagerImplAsynchronousTest
       public List<ListenerReturnInfoB> handleEvent( ListenerParameterB parameter )
       {
         //
-        List<ListenerReturnInfoB> ListenerManagerImplAsynchronousTestrManagerAsynchronousTest.ListenerReturnInfoB>();
+        List<ListenerReturnInfoB> retlist = new ArrayList<ListenerReturnInfoB>();
         
         //
         String source = parameter.getSource();
@@ -161,5 +160,4 @@ public class ListenerManagerImplAsynchronousTest
     assertEquals( source + clientAddition, returnInfoA.getClient() );
     assertEquals( data.longValue() + resultAddition, ( (Double) returnInfoA.getResult() ).longValue() );
   }
-  
 }
