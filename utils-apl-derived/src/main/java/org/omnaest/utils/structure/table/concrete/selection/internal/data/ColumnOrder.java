@@ -13,68 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.event;
+package org.omnaest.utils.structure.table.concrete.selection.internal.data;
 
-import org.omnaest.utils.listener.EventListener;
+import org.omnaest.utils.structure.table.Table.Column;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection.Order;
 
 /**
- * Generic extended {@link EventListener} event implementation.
- * 
+ * @see Selection
+ * @see Selection#orderBy(Column, Order)
  * @author Omnaest
- * @param <SOURCE>
- * @param <EVENT>
- * @param <DATA>
  */
-public class Event<SOURCE, EVENT, DATA>
+public class ColumnOrder<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected SOURCE source = null;
-  protected EVENT  event  = null;
-  protected DATA   data   = null;
+  protected Column<E> column = null;
+  protected Order     order  = null;
   
   /* ********************************************** Methods ********************************************** */
   /**
-   * 
+   * @see Selection#orderBy(ColumnOrder<E>...)
+   * @see ColumnOrder
+   * @param column
+   * @param order
    */
-  public Event()
-  {
-  }
-  
-  /**
-   * @param source
-   * @param event
-   * @param data
-   */
-  public Event( SOURCE source, EVENT event, DATA data )
+  public ColumnOrder( Column<E> column, Order order )
   {
     super();
-    this.source = source;
-    this.event = event;
-    this.data = data;
+    this.column = column;
+    this.order = order;
   }
   
   /**
    * @return
    */
-  public SOURCE getSource()
+  protected Column<E> getColumn()
   {
-    return this.source;
+    return this.column;
   }
   
   /**
    * @return
    */
-  public EVENT getEvent()
+  protected Order getOrder()
   {
-    return this.event;
-  }
-  
-  /**
-   * @return
-   */
-  public DATA getData()
-  {
-    return this.data;
+    return this.order;
   }
   
 }

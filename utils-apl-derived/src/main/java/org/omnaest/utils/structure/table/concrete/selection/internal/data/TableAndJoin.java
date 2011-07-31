@@ -13,68 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.event;
+package org.omnaest.utils.structure.table.concrete.selection.internal.data;
 
-import org.omnaest.utils.listener.EventListener;
+import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.concrete.selection.internal.join.Join;
 
 /**
- * Generic extended {@link EventListener} event implementation.
- * 
  * @author Omnaest
- * @param <SOURCE>
- * @param <EVENT>
- * @param <DATA>
+ * @param <E>
  */
-public class Event<SOURCE, EVENT, DATA>
+public class TableAndJoin<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected SOURCE source = null;
-  protected EVENT  event  = null;
-  protected DATA   data   = null;
+  protected Table<E> table = null;
+  protected Join<E>  join  = null;
   
   /* ********************************************** Methods ********************************************** */
-  /**
-   * 
-   */
-  public Event()
-  {
-  }
-  
-  /**
-   * @param source
-   * @param event
-   * @param data
-   */
-  public Event( SOURCE source, EVENT event, DATA data )
+  public TableAndJoin( Table<E> table, Join<E> join )
   {
     super();
-    this.source = source;
-    this.event = event;
-    this.data = data;
+    this.table = table;
+    this.join = join;
   }
   
   /**
    * @return
    */
-  public SOURCE getSource()
+  protected Table<E> getTable()
   {
-    return this.source;
+    return this.table;
   }
   
   /**
    * @return
    */
-  public EVENT getEvent()
+  protected Join<E> getJoin()
   {
-    return this.event;
-  }
-  
-  /**
-   * @return
-   */
-  public DATA getData()
-  {
-    return this.data;
+    return this.join;
   }
   
 }

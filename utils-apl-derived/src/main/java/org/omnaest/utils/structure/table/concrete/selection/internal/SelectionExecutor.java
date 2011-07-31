@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.selection;
+package org.omnaest.utils.structure.table.concrete.selection.internal;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,6 +32,8 @@ import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
+import org.omnaest.utils.structure.table.concrete.selection.SelectionImpl;
+import org.omnaest.utils.structure.table.concrete.selection.internal.data.SelectionData;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
@@ -49,7 +51,7 @@ import com.sun.rowset.internal.Row;
 public class SelectionExecutor<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected SelectionImpl<E> selectionImpl = null;
+  protected SelectionData<E> selectionData = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -135,10 +137,10 @@ public class SelectionExecutor<E>
   /**
    * @param selectionImpl
    */
-  public SelectionExecutor( SelectionImpl<E> selectionImpl )
+  public SelectionExecutor( SelectionData<E> selectionData )
   {
     super();
-    this.selectionImpl = selectionImpl;
+    this.selectionData = selectionData;
   }
   
   /**
@@ -151,7 +153,7 @@ public class SelectionExecutor<E>
     TableInternal<E> tableInternal = null;
     
     //
-    if ( this.selectionImpl.isSelectAllColumns() )
+    if ( this.selectionData.isSelectAllColumns() )
     {
       this.resolveAllColumnsFromTablesAndAttachThemToTheSelectionColumnList();
     }
@@ -177,9 +179,9 @@ public class SelectionExecutor<E>
   private void executeWhereClauses( TableInternal<E> tableInternal )
   {
     //
-    for ( PredicateInternal<E> wherePredicateInternal : this.selectionImpl.getWherePredicateList() )
+    for ( PredicateInternal<E> predicateInternal : this.selectionData.getPredicateList() )
     {
-      wherePredicateInternal.filterStripeDataSet( tableInternal );
+      predicateInternal.filterStripeDataSet( tableInternal );
     }
   }
   
@@ -295,7 +297,7 @@ public class SelectionExecutor<E>
     Map<TableInternal<E>, Set<CellData<E>>> retmap = new LinkedHashMap<TableInternal<E>, Set<CellData<E>>>();
     
     //
-    for ( Column<E> column : this.selectionImpl.getColumnList() )
+    for ( Column<E> column : this.selectionData.getColumnList() )
     {
       //
       SelectionExecutor.ensureColumnHasCellDataInstancesForAllRows( column );
@@ -334,7 +336,7 @@ public class SelectionExecutor<E>
     List<TableInternal<E>> retlist = new ArrayList<TableInternal<E>>();
     
     //
-    for ( Column<E> column : this.selectionImpl.getColumnList() )
+    for ( Column<E> column : this.selectionData.getColumnList() )
     {
       //
       StripeInternalData<E> stripeInternalData = SelectionExecutor.<E> determineStripeDataFromStripe( column );
@@ -372,7 +374,7 @@ public class SelectionExecutor<E>
    */
   private void resolveAllColumnsFromTablesAndAttachThemToTheSelectionColumnList()
   {
-    for ( TableInternal<E> tableInternal : this.selectionImpl.getTableInternalList() )
+    for ( TableInternal<E> tableInternal : this.selectionData.getTableInternalList() )
     {
       //
       if ( tableInternal != null )
@@ -382,7 +384,7 @@ public class SelectionExecutor<E>
         if ( table != null )
         {
           //
-          List<Column<E>> columnList = this.selectionImpl.getColumnList();
+          List<Column<E>> columnList = this.selectionData.getColumnList();
           for ( Column<E> column : table.getColumnList() )
           {
             if ( !columnList.contains( column ) )
@@ -408,7 +410,7 @@ public class SelectionExecutor<E>
     retval = table.getTableInternal();
     
     //
-    for ( Column<E> column : this.selectionImpl.getColumnList() )
+    for ( Column<E> column : this.selectionData.getColumnList() )
     {
       //
       StripeInternalData<E> stripeInternalData = SelectionExecutor.<E> determineStripeDataFromStripe( column );
