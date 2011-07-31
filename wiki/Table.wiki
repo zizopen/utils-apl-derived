@@ -1,0 +1,10 @@
+#summary Table implementation for many purposes
+#labels Table,ArrayTable
+
+= Table =
+
+The utils-apl-derived project has one highlight which is its Table implementation.
+
+Since Java and other frameworks provides maps and lists but lack of a direct Table, this implementation aims to fill this space of need.
+
+The central [http://www.google.com/codesearch#agM0M4Gok3c/trunk/utils-apl-derived/src/main/java/org/omnaest/utils/structure/table/Table.java&q=Table%20package:http://utils-apl-derived%5C.googlecode%5C.com Table interface] has one major implementation call [http://www.google.com/codesearch#agM0M4Gok3c/trunk/utils-apl-derived/src/main/java/org/omnaest/utils/structure/table/ArrayTable.java ArrayTable]
