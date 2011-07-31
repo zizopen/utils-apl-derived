@@ -17,28 +17,24 @@ package org.omnaest.utils.listener.asynchronous;
 
 import java.util.concurrent.Future;
 
-import org.omnaest.utils.listener.ListenerRegistration;
+import org.omnaest.utils.listener.EventListener;
+import org.omnaest.utils.listener.EventListenerRegistration;
+import org.omnaest.utils.listener.EventProducer;
 
 /**
- * @see ListenerRegistration
- * @see ListenerAsynchronous
- * @see ListenerManagerAsynchronous
+ * Interface for classes which allows to register {@link EventListenerAsynchronous}s at a {@link EventListenerRegistrationAsynchronous}.
+ * 
  * @author Omnaest
- * @param <EVENT>
- * @param <RESULT>
  */
-public interface ListenerRegistrationAsynchronous<EVENT, RESULT> extends ListenerRegistration<Future<EVENT>, Future<RESULT>>
+public interface EventProducerAsynchronous<EVENT, RESULT> extends EventProducer<Future<EVENT>, Future<RESULT>>
 {
   /**
-   * @param listener
+   * Offers the {@link EventListenerRegistrationAsynchronous} to register {@link EventListenerAsynchronous} to this instance. All events
+   * will be signaled to the {@link EventListener}s from the time on they get registered.
+   * 
+   * @see EventListenerRegistration
+   * @see EventProducerAsynchronous
    * @return
    */
-  public ListenerRegistrationAsynchronous<EVENT, RESULT> addListener( ListenerAsynchronous<EVENT, RESULT> listener );
-  
-  /**
-   * @param listener
-   * @return
-   */
-  public ListenerRegistrationAsynchronous<EVENT, RESULT> removeListener( ListenerAsynchronous<EVENT, RESULT> listener );
-  
+  public EventListenerRegistrationAsynchronous<EVENT, RESULT> getEventListenerRegistration();
 }

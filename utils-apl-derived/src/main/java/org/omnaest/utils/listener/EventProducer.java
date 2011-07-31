@@ -16,19 +16,19 @@
 package org.omnaest.utils.listener;
 
 /**
- * Interface for classes which allows to register {@link Listener}s at a {@link ListenerRegistration}.
+ * Interface for classes which allows to register {@link EventListener}s at a {@link EventListenerRegistration}.
  * 
  * @author Omnaest
  */
-public interface Listenable<EVENT, RESULT>
+public interface EventProducer<EVENT, RESULT>
 {
   /**
-   * Offers the {@link ListenerRegistration} to register {@link Listener} to this instance. All events will be signaled to the
-   * {@link Listener}s from the time on they get registered.
+   * Offers the {@link EventListenerRegistration} to register {@link EventListener} to this instance. All events will be signaled to the
+   * {@link EventListener}s from the time on they get registered.
    * 
-   * @see ListenerRegistration
-   * @see Listenable
+   * @see EventListenerRegistration
+   * @see EventProducer
    * @return
    */
-  public ListenerRegistration<EVENT, RESULT> getListenerRegistration();
+  public EventListenerRegistration<EVENT, RESULT> getEventListenerRegistration();
 }

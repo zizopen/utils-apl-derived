@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Simple abstract implementation of a {@link Listener} which offers several overwritable methods to handle the event.
+ * Simple abstract implementation of a {@link EventListener} which offers several overwritable methods to handle the event.
  * 
  * @author Omnaest
  */
-public abstract class ListenerAbstract<EVENT, RESULT> implements Listener<EVENT, RESULT>
+public abstract class EventListenerBasic<EVENT, RESULT> implements EventListener<EVENT, RESULT>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long  serialVersionUID       = 1250853029881040746L;
@@ -41,12 +41,12 @@ public abstract class ListenerAbstract<EVENT, RESULT> implements Listener<EVENT,
     return this.EMPTY_RETURN_INFO_LIST;
   }
   
-  public void handleEventSilently( EVENT parameter, ListenerRegistration<EVENT, RESULT> listenerRegistration )
+  public void handleEventSilently( EVENT parameter, EventListenerRegistration<EVENT, RESULT> listenerRegistration )
   {
   }
   
   @Override
-  public List<RESULT> handleEvent( EVENT parameter, ListenerRegistration<EVENT, RESULT> listenerRegistration )
+  public List<RESULT> handleEvent( EVENT parameter, EventListenerRegistration<EVENT, RESULT> listenerRegistration )
   {
     //
     List<RESULT> retlist = new ArrayList<RESULT>();

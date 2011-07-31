@@ -17,17 +17,15 @@ package org.omnaest.utils.listener.asynchronous;
 
 import java.util.concurrent.Future;
 
-import org.omnaest.utils.listener.ListenerManager;
+import org.omnaest.utils.listener.EventListener;
 
 /**
+ * @see EventListener
  * @see Future
- * @see ListenerAsynchronous
- * @see ListenerManager
  * @author Omnaest
  * @param <EVENT>
  * @param <RESULT>
  */
-public interface ListenerManagerAsynchronous<EVENT, RESULT> extends ListenerManager<Future<EVENT>, Future<RESULT>>,
-                                                            ListenableAsynchronous<EVENT, RESULT>
+public interface EventListenerAsynchronous<EVENT, RESULT> extends EventListener<Future<EVENT>, Future<RESULT>>
 {
 }

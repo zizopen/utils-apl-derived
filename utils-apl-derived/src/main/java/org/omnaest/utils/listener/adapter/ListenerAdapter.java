@@ -18,22 +18,22 @@ package org.omnaest.utils.listener.adapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omnaest.utils.listener.Listener;
-import org.omnaest.utils.listener.concrete.ListenerManagerImpl;
-import org.omnaest.utils.listener.concrete.ListenerRegistrationImpl;
+import org.omnaest.utils.listener.EventListener;
+import org.omnaest.utils.listener.concrete.EventManagerImpl;
+import org.omnaest.utils.listener.concrete.EventListenerRegistrationImpl;
 import org.omnaest.utils.tuple.Tuple;
 import org.omnaest.utils.tuple.TupleDuad;
 import org.omnaest.utils.tuple.TupleTriple;
 
 /**
- * Adapter interface used to connect two {@link ListenerManagerImpl} instances with
- * {@link ListenerManagerImpl#listenTo(ListenerRegistrationImpl, ListenerAdapter)}. Converts the source and event from another
- * {@link Listener} to a current source and event. And the result and client coming from a current {@link Listener} back to the
- * other {@link Listener}s client and result.
+ * Adapter interface used to connect two {@link EventManagerImpl} instances with
+ * {@link EventManagerImpl#listenTo(EventListenerRegistrationImpl, ListenerAdapter)}. Converts the source and event from another
+ * {@link EventListener} to a current source and event. And the result and client coming from a current {@link EventListener} back to the
+ * other {@link EventListener}s client and result.
  * 
- * @see Listener
- * @see ListenerManagerImpl
- * @see ListenerRegistrationImpl
+ * @see EventListener
+ * @see EventManagerImpl
+ * @see EventListenerRegistrationImpl
  * @author Omnaest
  * @param <OTHER_EVENT>
  *          parameter coming from the source listener

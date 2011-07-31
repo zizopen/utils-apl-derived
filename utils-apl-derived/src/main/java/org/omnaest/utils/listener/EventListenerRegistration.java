@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.asynchronous;
+package org.omnaest.utils.listener;
 
-import java.util.concurrent.Future;
-
-import org.omnaest.utils.listener.Listener;
-
-/**
- * @see Listener
- * @see Future
- * @author Omnaest
- * @param <EVENT>
- * @param <RESULT>
- */
-public interface ListenerAsynchronous<EVENT, RESULT> extends Listener<Future<EVENT>, Future<RESULT>>
+public interface EventListenerRegistration<EVENT, RESULT>
 {
+  
+  /**
+   * Adds a new {@link EventListener} to the handler.
+   * 
+   * @param listener
+   * @return this
+   */
+  public EventListenerRegistration<EVENT, RESULT> addEventListener( EventListener<EVENT, RESULT> listener );
+  
+  /**
+   * Removes a given {@link EventListener} instance from the handler.
+   * 
+   * @param listener
+   * @return this
+   */
+  public EventListenerRegistration<EVENT, RESULT> removeEventListener( EventListener<EVENT, RESULT> listener );
+  
 }
