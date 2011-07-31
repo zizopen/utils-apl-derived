@@ -25,7 +25,6 @@ import org.omnaest.utils.tuple.Tuple;
 import org.omnaest.utils.tuple.TupleDuad;
 import org.omnaest.utils.tuple.TupleTriple;
 
-
 /**
  * Adapter interface used to connect two {@link ListenerManagerImpl} instances with
  * {@link ListenerManagerImpl#listenTo(ListenerRegistrationImpl, ListenerAdapter)}. Converts the source and event from another
@@ -36,20 +35,20 @@ import org.omnaest.utils.tuple.TupleTriple;
  * @see ListenerManagerImpl
  * @see ListenerRegistrationImpl
  * @author Omnaest
- * @param <OTHER_PARAMETER>
+ * @param <OTHER_EVENT>
  *          parameter coming from the source listener
- * @param <OTHER_RETURN>
+ * @param <OTHER_RESULT>
  *          return tuple coming from the source listener
- * @param <PARAMETER>
+ * @param <EVENT>
  *          paramter returned by the adapter
- * @param <RETURNINFO>
+ * @param <RESULT>
  *          return tuple returned by the adapter
  */
-public interface ListenerAdapter<OTHER_PARAMETER, OTHER_RETURN, PARAMETER, RETURNINFO>
+public interface ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
 {
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * Container which allows storage of <source,event,data> tuples.
    * 
@@ -61,7 +60,7 @@ public interface ListenerAdapter<OTHER_PARAMETER, OTHER_RETURN, PARAMETER, RETUR
     protected List<TupleTriple<SOURCE, EVENT, DATA>> sourceEventDataList = new ArrayList<TupleTriple<SOURCE, EVENT, DATA>>();
     
     /* ********************************************** Methods ********************************************** */
-
+    
     /**
      * Adds a new {@link Tuple} to the {@link SourceEventDataContainer}.
      * 
@@ -93,7 +92,7 @@ public interface ListenerAdapter<OTHER_PARAMETER, OTHER_RETURN, PARAMETER, RETUR
     protected List<TupleDuad<CLIENT, RESULT>> clientResultList = new ArrayList<TupleDuad<CLIENT, RESULT>>();
     
     /* ********************************************** Methods ********************************************** */
-
+    
     /**
      * Adds a new {@link Tuple} to the {@link ClientResultContainer}.
      * 
@@ -113,7 +112,7 @@ public interface ListenerAdapter<OTHER_PARAMETER, OTHER_RETURN, PARAMETER, RETUR
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Adapts a given source and its event listener. Result is a parameter tuple, this allows to generate multiple results and
    * multiple clients.
@@ -121,7 +120,7 @@ public interface ListenerAdapter<OTHER_PARAMETER, OTHER_RETURN, PARAMETER, RETUR
    * @param otherParameter
    * @return
    */
-  public List<PARAMETER> adaptParameter( OTHER_PARAMETER otherParameter );
+  public List<EVENT> adaptParameter( OTHER_EVENT otherParameter );
   
   /**
    * Adapts the given result from a given client. Result is a tuple of return information, this allows to generate multiple
@@ -130,6 +129,6 @@ public interface ListenerAdapter<OTHER_PARAMETER, OTHER_RETURN, PARAMETER, RETUR
    * @param returninfo
    * @return
    */
-  public List<OTHER_RETURN> adaptReturnInfo( RETURNINFO returninfo );
+  public List<OTHER_RESULT> adaptReturnInfo( RESULT returninfo );
   
 }

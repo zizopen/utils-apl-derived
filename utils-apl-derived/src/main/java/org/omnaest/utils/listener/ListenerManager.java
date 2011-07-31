@@ -25,7 +25,7 @@ public interface ListenerManager<EVENT, RESULT> extends Listenable<EVENT, RESULT
 {
   
   /**
-   * Removes all listeners from the {@link ListenerManagerImpl} instance.
+   * Removes all listeners from the {@link ListenerManager} instance.
    * 
    * @return this
    */
@@ -34,7 +34,7 @@ public interface ListenerManager<EVENT, RESULT> extends Listenable<EVENT, RESULT
   /**
    * Simple method for handling events.
    * 
-   * @see #handleEvent(Object, ListenerRegistrationImpl)
+   * @see #handleEvent(Object, ListenerRegistration)
    * @param parameter
    * @return
    */
@@ -43,18 +43,17 @@ public interface ListenerManager<EVENT, RESULT> extends Listenable<EVENT, RESULT
   public List<RESULT> handleEvent( EVENT parameter, ListenerRegistration<EVENT, RESULT> listenerRegistration );
   
   /**
-   * Connects the current {@link ListenerManagerImpl} to the {@link ListenerRegistrationImpl} from another {@link ListenerManagerImpl}
-   * instance. This allows to chain {@link ListenerManagerImpl} instances.
+   * Connects the current {@link ListenerManager} to the {@link ListenerRegistration} from another {@link ListenerManager}
+   * instance. This allows to chain {@link ListenerManager} instances.
    * 
    * @see #listenTo(ListenerManagerImpl, ListenerAdapter)
    * @see #listenTo(ListenerRegistrationImpl, ListenerAdapter)
-   * @see #disconnectFrom(ListenerRegistrationImpl)
+   * @see #disconnectFrom(ListenerRegistration)
    * @see ListenerAdapter
    * @param listenerRegistration
    * @return this
    */
-  @SuppressWarnings("rawtypes")
-  public ListenerManager<EVENT, RESULT> disconnectFrom( final ListenerManagerImpl listenerManagerImpl );
+  public ListenerManager<EVENT, RESULT> disconnectFrom( final ListenerManager<EVENT, RESULT> listenerManager );
   
   /**
    * @see #disconnectFrom(ListenerManagerImpl)
@@ -63,10 +62,10 @@ public interface ListenerManager<EVENT, RESULT> extends Listenable<EVENT, RESULT
    * @param listenerRegistration
    * @return this
    */
-  public ListenerManager<EVENT, RESULT> disconnectFrom( @SuppressWarnings("rawtypes") final ListenerRegistration listenerRegistration );
+  public ListenerManager<EVENT, RESULT> disconnectFrom( final ListenerRegistration<EVENT, RESULT> listenerRegistration );
   
   /**
-   * @see #listenTo(ListenerRegistrationImpl, ListenerAdapter)
+   * @see #listenTo(ListenerRegistration, ListenerAdapter)
    * @param <OTHER_PARAMETER>
    * @param <OTHER_RETURN_INFO>
    * @param listenerRegistration
@@ -75,12 +74,12 @@ public interface ListenerManager<EVENT, RESULT> extends Listenable<EVENT, RESULT
   public ListenerManager<EVENT, RESULT> listenTo( final ListenerRegistration<EVENT, RESULT> listenerRegistration );
   
   /**
-   * Connects the current {@link ListenerManagerImpl} to the {@link ListenerRegistrationImpl} from another {@link ListenerManagerImpl}
-   * instance. This allows to chain {@link ListenerManagerImpl} instances.
+   * Connects the current {@link ListenerManager} to the {@link ListenerRegistration} from another {@link ListenerManager}
+   * instance. This allows to chain {@link ListenerManager} instances.
    * 
    * @see ListenerAdapter
-   * @see #listenTo(ListenerManagerImpl, ListenerAdapter)
-   * @see #disconnectFrom(ListenerRegistrationImpl)
+   * @see #listenTo(ListenerManager, ListenerAdapter)
+   * @see #disconnectFrom(ListenerRegistration)
    * @param <OTHER_EVENT>
    * @param <OTHER_RESULT>
    * @param listenerRegistration
@@ -88,24 +87,24 @@ public interface ListenerManager<EVENT, RESULT> extends Listenable<EVENT, RESULT
    * @return this
    */
   public <OTHER_EVENT, OTHER_RESULT> ListenerManager<EVENT, RESULT> listenTo( final ListenerRegistration<OTHER_EVENT, OTHER_RESULT> listenerRegistration,
-                                                                               final ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT> listenerAdapter );
+                                                                              final ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT> listenerAdapter );
   
   /**
-   * @see #listenTo(ListenerRegistrationImpl)
+   * @see #listenTo(ListenerRegistration)
    * @param listenerManager
    * @return
    */
   public ListenerManager<EVENT, RESULT> listenTo( ListenerManagerImpl<EVENT, RESULT> listenerManager );
   
   /**
-   * @see #disconnectFrom(ListenerManagerImpl)
-   * @see #listenTo(ListenerRegistrationImpl, ListenerAdapter)
+   * @see #disconnectFrom(ListenerManager)
+   * @see #listenTo(ListenerRegistration, ListenerAdapter)
    * @param <OTHER_EVENT>
    * @param <OTHER_RESULT>
    * @param listenerManager
    * @param listenerAdapter
    */
-  public <OTHER_EVENT, OTHER_RESULT> ListenerManager<EVENT, RESULT> listenTo( ListenerManagerImpl<OTHER_EVENT, OTHER_RESULT> listenerManager,
-                                                                               ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT> listenerAdapter );
+  public <OTHER_EVENT, OTHER_RESULT> ListenerManager<EVENT, RESULT> listenTo( ListenerManager<OTHER_EVENT, OTHER_RESULT> listenerManager,
+                                                                              ListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT> listenerAdapter );
   
 }
