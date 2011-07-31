@@ -18,7 +18,7 @@ package org.omnaest.utils.listener;
 import java.io.Serializable;
 import java.util.List;
 
-import org.omnaest.utils.listener.concrete.ListenerRegistrationImpl;
+import org.omnaest.utils.listener.concrete.EventListenerRegistrationImpl;
 
 /**
  * Simple listener which allows to handle events.
@@ -27,12 +27,12 @@ import org.omnaest.utils.listener.concrete.ListenerRegistrationImpl;
  * @param <RESULT>
  * @author Omnaest
  */
-public interface Listener<EVENT, RESULT> extends Serializable
+public interface EventListener<EVENT, RESULT> extends Serializable
 {
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * Generic default {@link Listener} event result implementation.
+   * Generic default {@link EventListener} event result implementation.
    */
   public static class ListenerExtendedResult<CLIENT, RESULT> implements Serializable
   {
@@ -82,7 +82,7 @@ public interface Listener<EVENT, RESULT> extends Serializable
   }
   
   /**
-   * Generic extended {@link Listener} event implementation.
+   * Generic extended {@link EventListener} event implementation.
    * 
    * @author Omnaest
    * @param <SOURCE>
@@ -146,7 +146,7 @@ public interface Listener<EVENT, RESULT> extends Serializable
   /* ********************************************** Methods ********************************************** */
   /**
    * Is triggered if a event comes in from a given source. The listenerRegistration parameter can be used to modify the underlying
-   * {@link ListenerRegistrationImpl} instance.
+   * {@link EventListenerRegistrationImpl} instance.
    * 
    * @param source
    * @param event
@@ -154,5 +154,5 @@ public interface Listener<EVENT, RESULT> extends Serializable
    * @param listenerRegistration
    * @return map<client,result>
    */
-  public List<RESULT> handleEvent( EVENT parameter, ListenerRegistration<EVENT, RESULT> listenerRegistration );
+  public List<RESULT> handleEvent( EVENT parameter, EventListenerRegistration<EVENT, RESULT> listenerRegistration );
 }

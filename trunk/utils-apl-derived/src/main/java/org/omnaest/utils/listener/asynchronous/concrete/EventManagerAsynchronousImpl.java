@@ -17,32 +17,32 @@ package org.omnaest.utils.listener.asynchronous.concrete;
 
 import java.util.concurrent.Future;
 
-import org.omnaest.utils.listener.ListenerManager;
-import org.omnaest.utils.listener.asynchronous.ListenerManagerAsynchronous;
-import org.omnaest.utils.listener.asynchronous.ListenerRegistrationAsynchronous;
-import org.omnaest.utils.listener.concrete.ListenerManagerImpl;
+import org.omnaest.utils.listener.EventManager;
+import org.omnaest.utils.listener.asynchronous.EventManagerAsynchronous;
+import org.omnaest.utils.listener.asynchronous.EventListenerRegistrationAsynchronous;
+import org.omnaest.utils.listener.concrete.EventManagerImpl;
 
 /**
- * @see ListenerManagerAsynchronous
- * @see ListenerManager
- * @see ListenerManagerImpl
- * @see ListenerRegistrationAsynchronousImpl
+ * @see EventManagerAsynchronous
+ * @see EventManager
+ * @see EventManagerImpl
+ * @see EventListenerRegistrationAsynchronousImpl
  * @author Omnaest
  * @param <EVENT>
  * @param <RESULT>
  */
-public class ListenerManagerAsynchronousImpl<EVENT, RESULT> extends ListenerManagerImpl<Future<EVENT>, Future<RESULT>>
+public class EventManagerAsynchronousImpl<EVENT, RESULT> extends EventManagerImpl<Future<EVENT>, Future<RESULT>>
                                                                                                                       implements
-                                                                                                                      ListenerManagerAsynchronous<EVENT, RESULT>
+                                                                                                                      EventManagerAsynchronous<EVENT, RESULT>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = -1779193308279798570L;
   
   /* ********************************************** Methods ********************************************** */
   @Override
-  public ListenerRegistrationAsynchronous<EVENT, RESULT> getListenerRegistration()
+  public EventListenerRegistrationAsynchronous<EVENT, RESULT> getEventListenerRegistration()
   {
-    return new ListenerRegistrationAsynchronousImpl<EVENT, RESULT>( super.getListenerRegistration() );
+    return new EventListenerRegistrationAsynchronousImpl<EVENT, RESULT>( super.getEventListenerRegistration() );
   }
   
 }

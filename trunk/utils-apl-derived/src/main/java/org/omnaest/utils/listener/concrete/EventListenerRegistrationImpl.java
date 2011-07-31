@@ -17,20 +17,20 @@ package org.omnaest.utils.listener.concrete;
 
 import java.util.List;
 
-import org.omnaest.utils.listener.ListenerRegistration;
-import org.omnaest.utils.listener.Listener;
+import org.omnaest.utils.listener.EventListenerRegistration;
+import org.omnaest.utils.listener.EventListener;
 
 /**
- * Registration for {@link Listener} instances. Allows to add and remove {@link Listener} instances. Intended for client use.
+ * Registration for {@link EventListener} instances. Allows to add and remove {@link EventListener} instances. Intended for client use.
  * 
- * @see ListenerManagerImpl
+ * @see EventManagerImpl
  * @param <EVENT>
  * @param <RESULT>
  */
-public class ListenerRegistrationImpl<EVENT, RESULT> implements ListenerRegistration<EVENT, RESULT>
+public class EventListenerRegistrationImpl<EVENT, RESULT> implements EventListenerRegistration<EVENT, RESULT>
 {
   /* ********************************************** Variables ********************************************** */
-  protected List<Listener<EVENT, RESULT>> listenerList = null;
+  protected List<EventListener<EVENT, RESULT>> listenerList = null;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -38,19 +38,19 @@ public class ListenerRegistrationImpl<EVENT, RESULT> implements ListenerRegistra
    * @param listenerList
    */
   @SuppressWarnings("unchecked")
-  protected ListenerRegistrationImpl( List<? extends Listener<EVENT, RESULT>> listenerList )
+  protected EventListenerRegistrationImpl( List<? extends EventListener<EVENT, RESULT>> listenerList )
   {
-    this.listenerList = (List<Listener<EVENT, RESULT>>) listenerList;
+    this.listenerList = (List<EventListener<EVENT, RESULT>>) listenerList;
   }
   
   /**
-   * Adds a new {@link Listener} to the handler.
+   * Adds a new {@link EventListener} to the handler.
    * 
    * @param listener
    * @return this
    */
   @Override
-  public ListenerRegistration<EVENT, RESULT> addListener( Listener<EVENT, RESULT> listener )
+  public EventListenerRegistration<EVENT, RESULT> addEventListener( EventListener<EVENT, RESULT> listener )
   {
     //
     if ( listener != null && !this.listenerList.contains( listener ) )
@@ -63,13 +63,13 @@ public class ListenerRegistrationImpl<EVENT, RESULT> implements ListenerRegistra
   }
   
   /**
-   * Removes a given {@link Listener} instance from the handler.
+   * Removes a given {@link EventListener} instance from the handler.
    * 
    * @param listener
    * @return this
    */
   @Override
-  public ListenerRegistration<EVENT, RESULT> removeListener( Listener<EVENT, RESULT> listener )
+  public EventListenerRegistration<EVENT, RESULT> removeEventListener( EventListener<EVENT, RESULT> listener )
   {
     //
     if ( listener != null )
