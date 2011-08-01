@@ -174,4 +174,23 @@ public class StripeDataImpl<E> implements StripeData<E>
     }
   }
   
+  @Override
+  public Set<CellData<E>> findCellDataSetHavingCellElement( E element )
+  {
+    //
+    Set<CellData<E>> retset = new HashSet<CellData<E>>();
+    
+    //FIXME use index here
+    for ( CellData<E> cellData : this.cellDataSet )
+    {
+      if ( cellData != null && cellData.hasElement( element ) )
+      {
+        retset.add( cellData );
+      }
+    }
+    
+    // 
+    return retset;
+  }
+  
 }

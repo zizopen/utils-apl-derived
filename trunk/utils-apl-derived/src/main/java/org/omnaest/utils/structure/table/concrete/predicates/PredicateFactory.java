@@ -28,7 +28,7 @@ public class PredicateFactory<E>
    * @param element
    * @return
    */
-  public static <E> Predicate<E> columnValueEquals( Column<E> column, Object element )
+  public static <E> Predicate<E> columnValueEquals( Column<E> column, E element )
   {
     //    
     Predicate<E> retval = null;

@@ -744,8 +744,16 @@ public interface TableInternal<E>
     public Set<CellData<E>> getCellDataSet();
     
     /**
+     * Returns a new {@link Set} of {@link CellData} instances which contains the given element
+     * 
+     * @param element
+     * @return
+     */
+    public Set<CellData<E>> findCellDataSetHavingCellElement( E element );
+    
+    /**
      * Returns all {@link Cell#getElement()} instances as ordered {@link List} as currently ordered within the {@link Table}. If
-     * the {@link Table} order changes the {@link List} will no change. Changes to the {@link List} are not reflected into the
+     * the {@link Table} order changes the {@link List} will not change. Changes to the {@link List} are not reflected into the
      * {@link Table}.
      * 
      * @return
@@ -774,6 +782,13 @@ public interface TableInternal<E>
      * @return
      */
     public TableInternal<E> getTableInternal();
+    
+    /**
+     * Determines the index position of this {@link Stripe} within the {@link Table}
+     * 
+     * @return
+     */
+    public int determineIndexPosition();
   }
   
   /**

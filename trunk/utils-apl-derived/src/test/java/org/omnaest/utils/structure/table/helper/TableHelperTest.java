@@ -65,11 +65,11 @@ public class TableHelperTest
     this.table.ensureNumberOfRows( 5 );
     for ( Row<Object> row : this.table.rows() )
     {
-      row.title().setValue( "r" + row.determineIndexPosition() );
+      row.title().setValue( "r" + row.determineRowIndexPosition() );
     }
     for ( Column<Object> column : this.table.columns() )
     {
-      column.title().setValue( "c" + column.determineIndexPosition() );
+      column.title().setValue( "c" + column.determineColumnIndexPosition() );
     }
     
     this.table.processTableCells( tableCellVisitor );
@@ -103,11 +103,11 @@ public class TableHelperTest
     this.table.ensureNumberOfRows( 5 );
     for ( Row<Object> row : this.table.rows() )
     {
-      row.title().setValue( "r" + row.determineIndexPosition() );
+      row.title().setValue( "r" + row.determineRowIndexPosition() );
     }
     for ( Column<Object> column : this.table.columns() )
     {
-      column.title().setValue( "c" + column.determineIndexPosition() );
+      column.title().setValue( "c" + column.determineColumnIndexPosition() );
     }
     
     this.table.processTableCells( tableCellVisitor );
@@ -141,7 +141,7 @@ public class TableHelperTest
     
     for ( Column<Object> column : this.table.columns() )
     {
-      column.title().setValue( "c" + column.determineIndexPosition() );
+      column.title().setValue( "c" + column.determineColumnIndexPosition() );
     }
     
     this.table.processTableCells( tableCellVisitor );
@@ -164,7 +164,7 @@ public class TableHelperTest
     this.table.ensureNumberOfRows( 5 );
     for ( Row<Object> row : this.table.rows() )
     {
-      row.title().setValue( "r" + row.determineIndexPosition() );
+      row.title().setValue( "r" + row.determineRowIndexPosition() );
     }
     
     this.table.processTableCells( this.tableCellVisitor );

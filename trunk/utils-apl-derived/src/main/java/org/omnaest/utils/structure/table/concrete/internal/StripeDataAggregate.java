@@ -173,4 +173,20 @@ public class StripeDataAggregate<E> implements StripeData<E>
     }
   }
   
+  @Override
+  public Set<CellData<E>> findCellDataSetHavingCellElement( E element )
+  {
+    //
+    Set<CellData<E>> retset = new HashSet<CellData<E>>();
+    
+    //
+    for ( StripeData<E> stripeData : this.stripeDataAggregateList )
+    {
+      retset.addAll( stripeData.findCellDataSetHavingCellElement( element ) );
+    }
+    
+    // 
+    return retset;
+  }
+  
 }
