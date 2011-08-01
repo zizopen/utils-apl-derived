@@ -53,10 +53,10 @@ import org.omnaest.utils.structure.table.Table;
 @SuppressWarnings("rawtypes")
 public class TableListToCallableStatementAdapter implements CallableStatement
 {
-  protected ResultSet                 resultSet     = null;
-  protected Iterator<? extends Table> tableIterator = null;
   /* ********************************************** Variables ********************************************** */
   protected List<? extends Table>     tableList     = null;
+  protected ResultSet                 resultSet     = null;
+  protected Iterator<? extends Table> tableIterator = null;
   
   /* ********************************************** Methods ********************************************** */
   

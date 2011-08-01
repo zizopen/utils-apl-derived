@@ -36,7 +36,8 @@ import org.omnaest.utils.structure.table.Table.TableSize;
  * @author Omnaest
  * @param <E>
  */
-public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, CloneableStructureAndContent<Table<E>>
+public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, CloneableStructureAndContent<Table<E>>,
+                                       TableDataSource<E>
 {
   
   /**
@@ -48,21 +49,12 @@ public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, Clo
   public boolean equals( Table<E> table );
   
   /**
-   * Sets the titles of the columns. The titles can be used to identify a column, or together with a row a single cell.
-   * 
-   * @see #setColumnTitles(Enum[])
-   * @see #setColumnTitles(String[])
-   * @param titleValueList
-   * @return
-   */
-  public Table<E> setColumnTitleValues( List<?> titleValueList );
-  
-  /**
-   * Returns the row titles for the table.
+   * Returns a new {@link List} with all the {@link Row#getTitleValue()} for the {@link Table}.
    * 
    * @see #getRowTitleValue(int)
    * @return
    */
+  @Override
   public List<Object> getRowTitleValueList();
   
   /**
@@ -73,11 +65,12 @@ public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, Clo
   public Object getRowTitleValue( int rowIndexPosition );
   
   /**
-   * Returns the column titles for the table.
+   * Returns a new {@link List} of all {@link Column}s {@link Title#getValue()} for the {@link Table}.
    * 
    * @see #getColumnTitleValue(int)
    * @return
    */
+  @Override
   public List<Object> getColumnTitleValueList();
   
   /**
@@ -93,35 +86,15 @@ public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, Clo
    * 
    * @return
    */
-  public TableSize getTableSize();
+  public TableSize tableSize();
   
   /**
-   * Puts a new element to the table at the defined index positions.
-   */
-  public Table<E> setCellElement( int rowIndexPosition, int columnIndexPosition, E element );
-  
-  /**
-   * Puts a new element to the table at the defined cell index position.
-   */
-  public Table<E> setCellElement( int cellIndexPosition, E element );
-  
-  /**
-   * Puts a row at the given row index position
+   * Returns the name for the whole table.
    * 
-   * @param rowIndexPosition
-   * @param rowCellElementList
-   * @return this
-   */
-  public Table<E> setRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
-  
-  /**
-   * Puts a column at the given column index position.
-   * 
-   * @param columnIndexPosition
-   * @param columnCellElementList
    * @return
    */
-  public Table<E> setColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList );
+  @Override
+  public Object getTableName();
   
   /**
    * Resolves an element from the table at the given index positions.
@@ -144,7 +117,7 @@ public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, Clo
   public E getCellElement( int cellIndexPosition );
   
   /**
-   * Returns a serialized {@link List} of all {@link Cell} instances of the {@link Table}.
+   * Returns a new {@link List} of all {@link Cell} instances of the {@link Table} serialized .
    * 
    * @see #getCellElement(int)
    * @return

@@ -46,7 +46,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   private static final long          serialVersionUID      = 1763808639838518679L;
   
   /* ********************************************** Variables ********************************************** */
-  protected TableInternal<E>         tableInternal    = new ArrayTableInternal();
+  protected TableInternal<E>         tableInternal         = new ArrayTableInternal();
   protected TableContentResolver<E>  tableContentResolver  = new TableContentResolver<E>()
                                                            {
                                                              @Override
@@ -92,9 +92,27 @@ public class ArrayTable<E> extends TableAbstract<E>
   
   /* ********************************************** Methods ********************************************** */
   
+  /**
+   * @see ArrayTable
+   */
   public ArrayTable()
   {
     super();
+  }
+  
+  /**
+   * @see #putArray(Object[][], int, int)
+   * @param elementArray
+   */
+  public ArrayTable( E[][] elementArray )
+  {
+    //
+    this();
+    
+    //
+    int rowIndexPosition = 0;
+    int columnIndexPosition = 0;
+    this.putArray( elementArray, rowIndexPosition, columnIndexPosition );
   }
   
   @Override
@@ -192,7 +210,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public TableSize getTableSize()
+  public TableSize tableSize()
   {
     return this.tableContent.getTableSize();
   }
@@ -221,7 +239,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addColumnCellElements( List<? extends E> columnCellElementList )
   {
     //
-    int columnIndexPosition = this.getTableSize().getColumnSize();
+    int columnIndexPosition = this.tableSize().getColumnSize();
     this.setColumnCellElements( columnIndexPosition, columnCellElementList );
     
     //
@@ -246,7 +264,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addRowCellElements( List<? extends E> rowCellElementList )
   {
     //
-    int rowIndexPosition = this.getTableSize().getRowSize();
+    int rowIndexPosition = this.tableSize().getRowSize();
     this.setRowCellElements( rowIndexPosition, rowCellElementList );
     
     //
@@ -369,8 +387,8 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     //
     ArrayTable<E> retval = new ArrayTable<E>();
-    retval.setNumberOfColumns( this.getTableSize().getColumnSize() );
-    retval.setNumberOfRows( this.getTableSize().getRowSize() );
+    retval.setNumberOfColumns( this.tableSize().getColumnSize() );
+    retval.setNumberOfRows( this.tableSize().getRowSize() );
     TableCellVisitor<E> tableCellVisitor = new TableCellVisitor<E>()
     {
       /* ********************************************** Variables ********************************************** */

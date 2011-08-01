@@ -66,7 +66,7 @@ public class StripeImpl<E> implements StripeInternal<E>
   }
   
   @Override
-  public Title getTitle()
+  public Title title()
   {
     //
     Title retval = null;
@@ -375,6 +375,12 @@ public class StripeImpl<E> implements StripeInternal<E>
     
     //
     return this;
+  }
+  
+  @Override
+  public Object getTitleValue()
+  {
+    return this.title() != null ? this.title().getValue() : null;
   }
   
 }

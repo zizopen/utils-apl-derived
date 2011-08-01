@@ -74,12 +74,6 @@ public class TableViewImpl<E> implements TableView<E>
   }
   
   @Override
-  public Table<E> setColumnTitleValues( List<?> titleValueList )
-  {
-    return this.resultTable.setColumnTitleValues( titleValueList );
-  }
-  
-  @Override
   public List<Object> getRowTitleValueList()
   {
     return this.resultTable.getRowTitleValueList();
@@ -104,33 +98,9 @@ public class TableViewImpl<E> implements TableView<E>
   }
   
   @Override
-  public TableSize getTableSize()
+  public TableSize tableSize()
   {
-    return this.resultTable.getTableSize();
-  }
-  
-  @Override
-  public Table<E> setCellElement( int rowIndexPosition, int columnIndexPosition, E element )
-  {
-    return this.resultTable.setCellElement( rowIndexPosition, columnIndexPosition, element );
-  }
-  
-  @Override
-  public Table<E> setCellElement( int cellIndexPosition, E element )
-  {
-    return this.resultTable.setCellElement( cellIndexPosition, element );
-  }
-  
-  @Override
-  public Table<E> setRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList )
-  {
-    return this.resultTable.setRowCellElements( rowIndexPosition, rowCellElementList );
-  }
-  
-  @Override
-  public Table<E> setColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList )
-  {
-    return this.resultTable.setColumnCellElements( columnIndexPosition, columnCellElementList );
+    return this.resultTable.tableSize();
   }
   
   @Override
@@ -305,6 +275,12 @@ public class TableViewImpl<E> implements TableView<E>
   public boolean hasTableName()
   {
     return this.resultTable.hasTableName();
+  }
+  
+  @Override
+  public Object getTableName()
+  {
+    return this.resultTable.getTableName();
   }
   
 }

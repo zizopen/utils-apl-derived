@@ -21,6 +21,7 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.Table.Stripe.Title;
 
 /**
  * {@link TableCore} representation. Allows to create arbitrary {@link Table} structures. Offers rudimentary methods accessing the
@@ -32,17 +33,16 @@ import org.omnaest.utils.structure.table.Table.Row;
  */
 public interface TableCore<E> extends TableCoreImmutable<E>
 {
-  
   /**
    * Puts a foreign table into the current table at the given index position. This means, if there are already filled cells, they
    * will be overwritten.
    * 
-   * @param insertIndexedTable
+   * @param tableCellElementSource
    * @param rowIndexPosition
    * @param columnIndexPosition
-   * @return
+   * @return this
    */
-  public Table<E> putTable( Table<E> insertIndexedTable, int rowIndexPosition, int columnIndexPosition );
+  public Table<E> putTable( TableDataSource<E> tableCellElementSource, int rowIndexPosition, int columnIndexPosition );
   
   /**
    * Puts an array into the table. If there are already filled cells on the given position, they will be overwritten.
@@ -50,7 +50,7 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * @param elementArray
    * @param rowIndexPosition
    * @param columnIndexPosition
-   * @return
+   * @return this
    */
   public Table<E> putArray( E[][] elementArray, int rowIndexPosition, int columnIndexPosition );
   
@@ -62,40 +62,57 @@ public interface TableCore<E> extends TableCoreImmutable<E>
   public Table<E> transpose();
   
   /**
-   * Sets the title for a row with the given index position.
+   * Sets the {@link Title} for a {@link Row} with the given index position.
    * 
-   * @see #getRowTitleValueList()
+   * @see #getRowTitleValue(int)
    * @param titleValue
    * @param rowIndexPosition
-   * @return
+   * @return this
    */
   public Table<E> setRowTitleValue( Object titleValue, int rowIndexPosition );
   
   /**
-   * Sets the title for the rows. This means the visual identifiers at the left of the table.
+   * Sets the {@link Title} for the {@link Row}s. This means the visual identifiers at the left of the {@link Table}.
    * 
-   * @see #setRowTitles(Enum[])
-   * @see #setRowTitles(String[])
-   * @param titleList
+   * @see #setRowTitleValue(Object, int)
+   * @see #setRowTitleValues(Object...)
+   * @param titleValueList
+   * @return this
+   */
+  public Table<E> setRowTitleValues( List<?> titleValueList );
+  
+  /**
+   * @see #setRowTitleValues(List)
+   * @param titleValues
    * @return
    */
-  public Table<E> setRowTitleValues( List<?> titleList );
+  public Table<E> setRowTitleValues( Object... titleValues );
+  
+  /**
+   * Sets the {@link Title}s of the {@link Column}s. The {@link Title}s can be used to identify a {@link Column}, or together with
+   * a {@link Row} a single {@link Cell}.
+   * 
+   * @see #setColumnTitleValues(Object...)
+   * @param titleValueList
+   * @return
+   */
+  public Table<E> setColumnTitleValues( List<?> titleValueList );
+  
+  /**
+   * @see #setColumnTitleValues(List)
+   * @param titleValues
+   * @return
+   */
+  public Table<E> setColumnTitleValues( Object... titleValues );
   
   /**
    * Sets the title of a column for a given column index position.
    * 
    * @param titleValue
    * @param columnIndexPosition
-   * @return
+   * @return this
    */
   public Table<E> setColumnTitleValue( Object titleValue, int columnIndexPosition );
-  
-  /**
-   * Returns the name for the whole table.
-   * 
-   * @return
-   */
-  public Object getTableName();
   
   /**
    * Sets the name of the whole table.
@@ -120,6 +137,34 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * @return this
    */
   public Table<E> addColumnCellElements( List<? extends E> columnCellElementList );
+  
+  /**
+   * Puts a new element to the table at the defined index positions.
+   */
+  public Table<E> setCellElement( int rowIndexPosition, int columnIndexPosition, E element );
+  
+  /**
+   * Puts a new element to the table at the defined cell index position.
+   */
+  public Table<E> setCellElement( int cellIndexPosition, E element );
+  
+  /**
+   * Puts a row at the given row index position
+   * 
+   * @param rowIndexPosition
+   * @param rowCellElementList
+   * @return this
+   */
+  public Table<E> setRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
+  
+  /**
+   * Puts a column at the given column index position.
+   * 
+   * @param columnIndexPosition
+   * @param columnCellElementList
+   * @return
+   */
+  public Table<E> setColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList );
   
   /**
    * Adds a {@link Column} to the {@link Table} with the given {@link Cell#getElement()}s at the given index position of the
@@ -188,7 +233,7 @@ public interface TableCore<E> extends TableCoreImmutable<E>
   /**
    * Converts the first column to row titles. The first column will be removed from the table data.
    * 
-   * @return
+   * @return this
    */
   public Table<E> convertFirstColumnToTitle();
   
@@ -212,7 +257,7 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * Sets the number of {@link Row}s
    * 
    * @param numberOfRows
-   * @return
+   * @return this
    */
   public Table<E> setNumberOfRows( int numberOfRows );
   
@@ -220,7 +265,16 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * Ensures the number of {@link Row}s to be present
    * 
    * @param numberOfRows
-   * @return
+   * @return this
    */
   public Table<E> ensureNumberOfRows( int numberOfRows );
+  
+  /**
+   * Clears the {@link Table} and copies the {@link Cell#getElement()} values from a given {@link TableDataSource} Copyies the
+   * cell
+   * 
+   * @param tableCellElementSource
+   * @return this
+   */
+  public Table<E> copyFrom( TableDataSource<E> tableCellElementSource );
 }

@@ -23,14 +23,48 @@ import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.subspecification.TableCore;
+import org.omnaest.utils.structure.table.subspecification.TableDataSource;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable;
 import org.omnaest.utils.structure.table.subspecification.TableSerializable;
 
 /**
- * {@link Table} representation. Allows to create arbitrary {@link Table} structures. Offers rudimentary methods for joining.
+ * This is a structure representing a fully qualified {@link Table}. <br>
+ * <br>
+ * A {@link Table} divides in several {@link Row}s or/and {@link Column}s. Each {@link Row} and {@link Column} can contain
+ * {@link Cell}s. In the regular case one {@link Cell} has only one {@link Row} and one {@link Column} it belongs to. (After a
+ * selection the case can occur that one {@link Cell} is shared by multiple {@link Row}s) <br>
+ * <br>
+ * The {@link Table} supports basic CRUD operations:
+ * <ul>
+ * <li>{@link #addRowCellElements(List)} or {@link #addColumnCellElements(List)}</li>
+ * <li>{@link #getRow(int)} or {@link #getColumn(int)}</li>
+ * <li>{@link #setRowCellElements(int, List)} or {@link #setColumnCellElements(int, List)}</li>
+ * <li>{@link #removeRow(int)} or {@link #removeColumn(int)}</li>
+ * </ul>
+ * as well as additional operations nodes like:
+ * <ul>
+ * <li>{@link #select()}</li>
+ * <li>{@link #serializer()}</li>
+ * </ul>
+ * or simple helper methods like:
+ * <ul>
+ * <li>{@link #putArray(Object[][], int, int)}</li>
+ * <li>{@link #putTable(TableDataSource, int, int)}</li>
+ * <li>{@link #transpose()}</li>
+ * </ul>
+ * To iterate over {@link Row}s you can use the {@link Table} instance itself. The {@link Table} allows to iterate over
+ * {@link Cell}s and {@link Column}s too of course:
+ * <ul>
+ * <li>{@link #cells()}</li>
+ * <li>{@link #rows()}</li>
+ * <li>{@link #columns()}</li>
+ * </ul>
  * 
- * @see IndexTable
  * @see ArrayTable
+ * @see #setTableName(Object)
+ * @see #tableSize()
+ * @param <E>
+ *          type of the {@link Table} elements
  * @author Omnaest
  */
 public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row<E>>, TableSerializable<E>, Serializable
@@ -172,7 +206,14 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      * 
      * @return
      */
-    public Title getTitle();
+    public Title title();
+    
+    /**
+     * Returns the {@link Title#getValue()}
+     * 
+     * @return
+     */
+    public Object getTitleValue();
     
     /**
      * Returns true if this {@link Stripe} contains the given {@link Cell}.
@@ -267,6 +308,10 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
   }
   
   /**
+   * A {@link Row} represents the horizontal {@link Stripe} of a {@link Table}. It contains {@link Cell}s which hold the specific
+   * values of the {@link Table}. A {@link Row} can have a {@link Title}.
+   * 
+   * @see Cell
    * @see Table
    * @author Omnaest
    * @param <E>
@@ -276,6 +321,9 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
   }
   
   /**
+   * A {@link Column} represents the vertical {@link Stripe} of a {@link Table}. It contains {@link Cell}s which hold the specific
+   * values of the {@link Table}. A {@link Column} can have a {@link Title}
+   * 
    * @see Table
    * @author Omnaest
    * @param <E>
@@ -285,13 +333,31 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
   }
   
   /**
+   * A {@link Cell} is the atomic part of a {@link Table}. It is normally part of a {@link Row} and a {@link Column}.
+   * 
    * @see Table
+   * @see CellImmutable
    * @author Omnaest
    * @param <E>
    */
-  public static interface Cell<E> extends TableComponent
+  public static interface Cell<E> extends CellImmutable<E>, TableComponent
   {
+    /**
+     * Sets the value of the {@link Cell}
+     * 
+     * @param element
+     */
+    public void setElement( E element );
     
+  }
+  
+  /**
+   * @see Cell
+   * @author Omnaest
+   * @param <E>
+   */
+  public interface CellImmutable<E>
+  {
     /**
      * Returns the value of the {@link Cell}
      * 
@@ -300,20 +366,12 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
     public E getElement();
     
     /**
-     * Sets the value of the {@link Cell}
-     * 
-     * @param element
-     */
-    public void setElement( E element );
-    
-    /**
      * Returns true if the given element equals the current {@link Cell#getElement()}
      * 
      * @param element
      * @return
      */
     public boolean hasElement( E element );
-    
   }
   
   /**

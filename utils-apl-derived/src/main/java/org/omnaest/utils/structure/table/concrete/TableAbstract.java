@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.table.concrete;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -29,6 +30,7 @@ import org.omnaest.utils.structure.table.concrete.internal.iterator.TableRowList
 import org.omnaest.utils.structure.table.concrete.internal.serializer.TableSerializerImpl;
 import org.omnaest.utils.structure.table.helper.TableHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
+import org.omnaest.utils.structure.table.subspecification.TableDataSource;
 
 /**
  * @see Table
@@ -198,7 +200,7 @@ public abstract class TableAbstract<E> implements Table<E>
       @Override
       public boolean hasNext()
       {
-        return this.cellIndexPosition + 1 < TableAbstract.this.getTableSize().getCellSize();
+        return this.cellIndexPosition + 1 < TableAbstract.this.tableSize().getCellSize();
       }
       
       @Override
@@ -225,9 +227,9 @@ public abstract class TableAbstract<E> implements Table<E>
     //
     if ( tableCellVisitor != null )
     {
-      for ( int rowIndexPosition = 0; rowIndexPosition < this.getTableSize().getRowSize(); rowIndexPosition++ )
+      for ( int rowIndexPosition = 0; rowIndexPosition < this.tableSize().getRowSize(); rowIndexPosition++ )
       {
-        for ( int columnIndexPosition = 0; columnIndexPosition < this.getTableSize().getColumnSize(); columnIndexPosition++ )
+        for ( int columnIndexPosition = 0; columnIndexPosition < this.tableSize().getColumnSize(); columnIndexPosition++ )
         {
           tableCellVisitor.process( rowIndexPosition, columnIndexPosition, this.getCell( rowIndexPosition, columnIndexPosition ) );
         }
@@ -288,20 +290,43 @@ public abstract class TableAbstract<E> implements Table<E>
   }
   
   @Override
-  public Table<E> putTable( Table<E> table, int rowIndexPosition, int columnIndexPosition )
+  public Table<E> putTable( TableDataSource<E> tableDataSource, int rowIndexPosition, int columnIndexPosition )
   {
     //
-    if ( table != null )
+    if ( tableDataSource != null )
     {
       //
-      for ( int ii = 0; ii < table.getTableSize().getRowSize(); ii++ )
+      Iterable<? extends Iterable<? extends CellImmutable<E>>> rows = tableDataSource.rows();
+      if ( rows != null )
       {
-        for ( int jj = 0; jj < table.getTableSize().getColumnSize(); jj++ )
+        //
+        Iterator<? extends Iterable<? extends CellImmutable<E>>> iteratorRows = rows.iterator();
+        if ( iteratorRows != null )
         {
-          this.setCellElement( ii + rowIndexPosition, jj + columnIndexPosition, table.getCellElement( ii, jj ) );
+          for ( int rowIndexPositionCurrent = rowIndexPosition; iteratorRows.hasNext(); rowIndexPositionCurrent++ )
+          {
+            //
+            Iterable<? extends CellImmutable<E>> iterableCells = iteratorRows.next();
+            if ( iterableCells != null )
+            {
+              //
+              Iterator<? extends CellImmutable<E>> iteratorCells = iterableCells.iterator();
+              if ( iteratorCells != null )
+              {
+                for ( int columnIndexPositionCurrent = columnIndexPosition; iteratorCells.hasNext(); columnIndexPositionCurrent++ )
+                {
+                  //
+                  CellImmutable<E> cellImmutable = iteratorCells.next();
+                  
+                  //
+                  this.setCellElement( rowIndexPositionCurrent, columnIndexPositionCurrent,
+                                       cellImmutable != null ? cellImmutable.getElement() : null );
+                }
+              }
+            }
+          }
         }
       }
-      
     }
     
     //
@@ -352,7 +377,7 @@ public abstract class TableAbstract<E> implements Table<E>
   {
     //
     final int rowIndexPosition = 0;
-    for ( int columnIndexPosition = 0; columnIndexPosition < this.getTableSize().getColumnSize(); columnIndexPosition++ )
+    for ( int columnIndexPosition = 0; columnIndexPosition < this.tableSize().getColumnSize(); columnIndexPosition++ )
     {
       //
       Object titleValue = this.getCellElement( rowIndexPosition, columnIndexPosition );
@@ -371,7 +396,7 @@ public abstract class TableAbstract<E> implements Table<E>
   {
     //
     final int columnIndexPosition = 0;
-    for ( int rowIndexPosition = 0; rowIndexPosition < this.getTableSize().getRowSize(); rowIndexPosition++ )
+    for ( int rowIndexPosition = 0; rowIndexPosition < this.tableSize().getRowSize(); rowIndexPosition++ )
     {
       //
       Object titleValue = this.getCellElement( rowIndexPosition, columnIndexPosition );
@@ -436,7 +461,7 @@ public abstract class TableAbstract<E> implements Table<E>
       @Override
       public boolean hasNext()
       {
-        return this.columnIndexPosition + 1 < TableAbstract.this.getTableSize().getColumnSize();
+        return this.columnIndexPosition + 1 < TableAbstract.this.tableSize().getColumnSize();
       }
       
       @Override
@@ -482,7 +507,7 @@ public abstract class TableAbstract<E> implements Table<E>
     if ( retval )
     {
       //
-      retval = this.getTableSize().equals( table.getTableSize() );
+      retval = this.tableSize().equals( table.tableSize() );
       
       //
       retval &= this.getTableName() == table.getTableName()
@@ -588,7 +613,7 @@ public abstract class TableAbstract<E> implements Table<E>
   public Table<E> setNumberOfColumns( int numberOfColumns )
   {
     //
-    for ( int columnIndexPosition = this.getTableSize().getColumnSize() - 1; columnIndexPosition >= numberOfColumns; columnIndexPosition-- )
+    for ( int columnIndexPosition = this.tableSize().getColumnSize() - 1; columnIndexPosition >= numberOfColumns; columnIndexPosition-- )
     {
       this.removeColumn( columnIndexPosition );
     }
@@ -604,7 +629,7 @@ public abstract class TableAbstract<E> implements Table<E>
   public Table<E> ensureNumberOfColumns( int numberOfColumns )
   {
     //
-    if ( numberOfColumns > 0 && this.getTableSize().getColumnSize() < numberOfColumns )
+    if ( numberOfColumns > 0 && this.tableSize().getColumnSize() < numberOfColumns )
     {
       //
       int rowIndexPosition = 0;
@@ -621,7 +646,7 @@ public abstract class TableAbstract<E> implements Table<E>
   public Table<E> setNumberOfRows( int numberOfRows )
   {
     //
-    for ( int rowIndexPosition = this.getTableSize().getColumnSize() - 1; rowIndexPosition >= numberOfRows; rowIndexPosition-- )
+    for ( int rowIndexPosition = this.tableSize().getColumnSize() - 1; rowIndexPosition >= numberOfRows; rowIndexPosition-- )
     {
       this.removeRow( rowIndexPosition );
     }
@@ -637,7 +662,7 @@ public abstract class TableAbstract<E> implements Table<E>
   public Table<E> ensureNumberOfRows( int numberOfRows )
   {
     //
-    if ( numberOfRows > 0 && this.getTableSize().getRowSize() < numberOfRows )
+    if ( numberOfRows > 0 && this.tableSize().getRowSize() < numberOfRows )
     {
       //
       int rowIndexPosition = numberOfRows - 1;
@@ -654,6 +679,50 @@ public abstract class TableAbstract<E> implements Table<E>
   public TableSerializer<E> serializer()
   {
     return this.tableSerializer;
+  }
+  
+  @Override
+  public Table<E> copyFrom( TableDataSource<E> tableDataSource )
+  {
+    //
+    if ( tableDataSource != null )
+    {
+      //
+      this.clear();
+      
+      //
+      int rowIndexPosition = 0;
+      int columnIndexPosition = 0;
+      this.putTable( tableDataSource, rowIndexPosition, columnIndexPosition );
+      
+      //
+      this.setRowTitleValues( tableDataSource.getRowTitleValueList() );
+      this.setColumnTitleValues( tableDataSource.getColumnTitleValueList() );
+      this.setTableName( tableDataSource.getTableName() );
+    }
+    
+    // 
+    return this;
+  }
+  
+  @Override
+  public Table<E> setRowTitleValues( Object... titleValues )
+  {
+    //
+    this.setRowTitleValues( Arrays.asList( titleValues ) );
+    
+    // 
+    return this;
+  }
+  
+  @Override
+  public Table<E> setColumnTitleValues( Object... titleValues )
+  {
+    //
+    this.setColumnTitleValues( Arrays.asList( titleValues ) );
+    
+    //
+    return this;
   }
   
 }

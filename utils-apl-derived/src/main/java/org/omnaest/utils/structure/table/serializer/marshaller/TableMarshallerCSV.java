@@ -180,7 +180,7 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
           if ( processRowTitles )
           {
             //
-            appendable.append( row.getTitle().getValueAsString() );
+            appendable.append( row.title().getValueAsString() );
             appendable.append( this.delimiter );
           }
           

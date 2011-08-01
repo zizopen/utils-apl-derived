@@ -39,7 +39,7 @@ public interface TableSelectable<E>
   
   /**
    * {@link Selection} from a {@link Table}. The {@link Selection} uses a builder pattern to create a {@link TableView} or a new
-   * {@link Table} instance
+   * {@link Table} instance based on parameters like {@link Table}s, {@link Predicate}s and {@link Order}
    * 
    * @see Table#select()
    * @see Selection#columns(Column...)
@@ -371,7 +371,8 @@ public interface TableSelectable<E>
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * Selects a subset of {@link Row}s and {@link Column}s of a {@link Table}.
+   * A {@link Selection} offers methods to select a subset of {@link Row}s and {@link Column}s of a {@link Table} and provide the
+   * result as further {@link Table} or {@link TableView}
    * 
    * @see Selection
    * @see Table
