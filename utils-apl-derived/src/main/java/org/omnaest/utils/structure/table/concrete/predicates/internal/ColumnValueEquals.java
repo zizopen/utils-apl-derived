@@ -15,11 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.predicates.internal;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
-import org.omnaest.utils.structure.table.internal.TableInternal;
+import org.omnaest.utils.structure.table.concrete.selection.internal.data.TableBlock;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
@@ -35,41 +36,65 @@ public class ColumnValueEquals<E> implements PredicateInternal<E>
   private static final long serialVersionUID = -8287655781277028388L;
   
   /* ********************************************** Variables ********************************************** */
-  
   protected Column<E>       column           = null;
-  protected Object          cellElement      = null;
+  protected E               element          = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
    * @param column
-   * @param cellElement
+   * @param element
    */
-  public ColumnValueEquals( Column<E> column, Object cellElement )
+  public ColumnValueEquals( Column<E> column, E element )
   {
     super();
     this.column = column;
-    this.cellElement = cellElement;
+    this.element = element;
   }
   
   @Override
-  public void filterStripeDataSet( TableInternal<E> tableInternal )
+  public void filterStripeDataSet( TableBlock<E> tableBlock )
   {
     //
-    StripeData<E> stripeData = StripeDataHelper.extractStripeDataFromStripe( this.column );
+    Set<StripeData<E>> remainingStripeDataSet = new HashSet<StripeData<E>>();
     
     //
-    Set<CellData<E>> cellDataSet = stripeData.getCellDataSet();
+    StripeData<E> columnStripeData = StripeDataHelper.extractStripeDataFromStripe( this.column );
+    if ( columnStripeData != null )
+    {
+      //
+      Set<CellData<E>> cellDataSet = columnStripeData.findCellDataSetHavingCellElement( this.element );
+      if ( cellDataSet != null )
+      {
+        for ( CellData<E> cellData : cellDataSet )
+        {
+          //
+          StripeData<E> stripeData = tableBlock.getTableInternal()
+                                               .getTableContent()
+                                               .getRowStripeDataList()
+                                               .findStripeDataContaining( cellData );
+          
+          //
+          if ( stripeData != null )
+          {
+            remainingStripeDataSet.add( stripeData );
+          }
+        }
+        
+      }
+      
+    }
     
-    //FIXME go on here
+    //
+    tableBlock.getRowStripeDataSet().retainAll( remainingStripeDataSet );
     
+    //FIXME improve performance here
   }
   
+  @SuppressWarnings("unchecked")
   @Override
   public Column<E>[] requiredColumns()
   {
-    // TODO Auto-generated method stub
-    return null;
+    return new Column[] { this.column };
   }
-  
 }

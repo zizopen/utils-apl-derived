@@ -16,13 +16,10 @@
 package org.omnaest.utils.structure.table.concrete.internal;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table.Cell;
-import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
@@ -33,24 +30,15 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 
 /**
- * @see Stripe
- * @see Row
- * @see Column
  * @see StripeInternal
- * @see StripeInternal
- * @see StripeInternal
- * @see TableInternal
+ * @see StripeAbstract
  * @author Omnaest
  * @param <E>
  */
-public class StripeImpl<E> implements StripeInternal<E>
+public class StripeImpl<E> extends StripeAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long  serialVersionUID = 5552519174349074630L;
-  
-  /* ********************************************** Variables ********************************************** */
-  protected TableInternal<E> tableInternal    = null;
-  protected StripeData<E>    stripeData       = null;
+  private static final long serialVersionUID = 5552519174349074630L;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -60,9 +48,7 @@ public class StripeImpl<E> implements StripeInternal<E>
    */
   public StripeImpl( TableInternal<E> tableInternal, StripeData<E> stripeData )
   {
-    super();
-    this.tableInternal = tableInternal;
-    this.stripeData = stripeData;
+    super( tableInternal, stripeData );
   }
   
   @Override
@@ -302,12 +288,6 @@ public class StripeImpl<E> implements StripeInternal<E>
   }
   
   @Override
-  public TableInternal<E> getTableInternal()
-  {
-    return this.tableInternal;
-  }
-  
-  @Override
   public List<E> asNewListOfCellElements()
   {
     //
@@ -364,16 +344,6 @@ public class StripeImpl<E> implements StripeInternal<E>
     }
     
     // 
-    return this;
-  }
-  
-  @Override
-  public Stripe<E> setCellElements( E... elements )
-  {
-    //
-    this.setCellElements( Arrays.asList( elements ) );
-    
-    //
     return this;
   }
   

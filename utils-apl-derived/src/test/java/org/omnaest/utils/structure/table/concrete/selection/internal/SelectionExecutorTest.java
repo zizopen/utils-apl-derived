@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.selection;
+package org.omnaest.utils.structure.table.concrete.selection.internal;
 
 import static org.junit.Assert.assertEquals;
 
@@ -23,15 +23,16 @@ import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.concrete.selection.internal.SelectionExecutor;
 import org.omnaest.utils.structure.table.view.TableView;
 
 import com.sun.rowset.internal.Row;
 
 /**
- * @see SelectionImpl
+ * @see SelectionExecutor
  * @author Omnaest
  */
-public class SelectionImplTest
+public class SelectionExecutorTest
 {
   /* ********************************************** Variables ********************************************** */
   protected Table<String> table  = new ArrayTable<String>();

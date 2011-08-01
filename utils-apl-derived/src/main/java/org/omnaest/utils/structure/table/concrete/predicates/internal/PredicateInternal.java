@@ -17,7 +17,7 @@ package org.omnaest.utils.structure.table.concrete.predicates.internal;
 
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.predicates.PredicateFactory;
-import org.omnaest.utils.structure.table.internal.TableInternal;
+import org.omnaest.utils.structure.table.concrete.selection.internal.data.TableBlock;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
 
@@ -28,15 +28,16 @@ import com.sun.rowset.internal.Row;
  * 
  * @see PredicateFactory
  * @see Predicate
+ * @see TableBlock
  * @author Omnaest
  * @param <E>
  */
 public interface PredicateInternal<E> extends Predicate<E>
 {
   /**
-   * Removes the {@link StripeData} instances of {@link Row}s from a given {@link TableInternal}
+   * Removes the {@link StripeData} instances of {@link Row}s from a given {@link TableBlock#getRowStripeDataSet()}
    */
-  public void filterStripeDataSet( TableInternal<E> tableInternal );
+  public void filterStripeDataSet( TableBlock<E> tableBlock );
   
   /**
    * Returns the {@link Column}s which are required for this {@link Predicate}

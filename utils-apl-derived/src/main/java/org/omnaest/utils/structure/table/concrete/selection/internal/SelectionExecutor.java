@@ -34,6 +34,7 @@ import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelp
 import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
 import org.omnaest.utils.structure.table.concrete.selection.SelectionImpl;
 import org.omnaest.utils.structure.table.concrete.selection.internal.data.SelectionData;
+import org.omnaest.utils.structure.table.concrete.selection.internal.data.TableBlock;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
@@ -153,10 +154,7 @@ public class SelectionExecutor<E>
     TableInternal<E> tableInternal = null;
     
     //
-    if ( this.selectionData.isSelectAllColumns() )
-    {
-      this.resolveAllColumnsFromTablesAndAttachThemToTheSelectionColumnList();
-    }
+    this.normalizeSelectionData();
     
     //
     tableInternal = this.createTableWithDeclaredColumns();
@@ -170,6 +168,15 @@ public class SelectionExecutor<E>
     return tableInternal.getUnderlyingTable();
   }
   
+  private void normalizeSelectionData()
+  {
+    //
+    if ( this.selectionData.isSelectAllColumns() )
+    {
+      this.resolveAllColumnsFromTablesAndAttachThemToTheSelectionColumnList();
+    }
+  }
+  
   /**
    * Executes the {@link PredicateInternal}s declared for the
    * {@link Selection#where(org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate...)} clause
@@ -178,10 +185,14 @@ public class SelectionExecutor<E>
    */
   private void executeWhereClauses( TableInternal<E> tableInternal )
   {
+    //FIXME
+    TableBlock<E> tableBlock = new TableBlock<E>();
+    tableBlock.setTableInternal( tableInternal );
+    
     //
     for ( PredicateInternal<E> predicateInternal : this.selectionData.getPredicateList() )
     {
-      predicateInternal.filterStripeDataSet( tableInternal );
+      predicateInternal.filterStripeDataSet( tableBlock );
     }
   }
   

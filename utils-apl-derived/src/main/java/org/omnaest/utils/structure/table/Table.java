@@ -279,13 +279,6 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
     public boolean hasTitle();
     
     /**
-     * Determines the index position of this {@link Stripe} within the {@link Table}
-     * 
-     * @return
-     */
-    public int determineIndexPosition();
-    
-    /**
      * Returns an {@link Iterable} for all {@link Cell}s of this {@link Stripe}
      * 
      * @return
@@ -318,6 +311,12 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
    */
   public static interface Row<E> extends Stripe<E>
   {
+    /**
+     * Determines the index position of this {@link Row} within the {@link Table}
+     * 
+     * @return
+     */
+    public int determineRowIndexPosition();
   }
   
   /**
@@ -330,6 +329,13 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
    */
   public static interface Column<E> extends Stripe<E>
   {
+    /**
+     * Determines the index position of this {@link Column} within the {@link Table}
+     * 
+     * @return
+     */
+    public int determineColumnIndexPosition();
+    
   }
   
   /**
