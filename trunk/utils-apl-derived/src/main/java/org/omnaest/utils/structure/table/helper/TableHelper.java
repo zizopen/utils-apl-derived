@@ -144,7 +144,7 @@ public class TableHelper
     //
     if ( table != null )
     {
-      for ( int rowIndexPosition = 0; rowIndexPosition < table.getTableSize().getRowSize(); rowIndexPosition++ )
+      for ( int rowIndexPosition = 0; rowIndexPosition < table.tableSize().getRowSize(); rowIndexPosition++ )
       {
         //
         if ( rowIndexPosition > 0 )
@@ -153,7 +153,7 @@ public class TableHelper
         }
         
         //
-        for ( int columnIndexPosition = 0; columnIndexPosition < table.getTableSize().getColumnSize(); columnIndexPosition++ )
+        for ( int columnIndexPosition = 0; columnIndexPosition < table.tableSize().getColumnSize(); columnIndexPosition++ )
         {
           //
           if ( columnIndexPosition > 0 )

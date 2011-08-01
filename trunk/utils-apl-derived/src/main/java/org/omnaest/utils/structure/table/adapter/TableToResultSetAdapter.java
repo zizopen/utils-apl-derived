@@ -324,7 +324,8 @@ public class TableToResultSetAdapter implements ResultSet
   @Override
   public String getCursorName() throws SQLException
   {
-    throw new UnsupportedOperationException();
+    Object rowTitleValue = this.table.getRowTitleValue( this.getRow() );
+    return rowTitleValue != null ? String.valueOf( rowTitleValue ) : null;
   }
   
   @Override
@@ -402,7 +403,8 @@ public class TableToResultSetAdapter implements ResultSet
       @Override
       public String getTableName( int column ) throws SQLException
       {
-        return String.valueOf( TableToResultSetAdapter.this.table.getTableName() );
+        Object tableName = TableToResultSetAdapter.this.table.getTableName();
+        return tableName != null ? String.valueOf( tableName ) : null;
       }
       
       @Override
@@ -438,7 +440,8 @@ public class TableToResultSetAdapter implements ResultSet
       @Override
       public String getColumnName( int column ) throws SQLException
       {
-        return String.valueOf( TableToResultSetAdapter.this.table.getColumnTitleValue( column ) );
+        Object columnTitleValue = TableToResultSetAdapter.this.table.getColumnTitleValue( column );
+        return columnTitleValue != null ? String.valueOf( columnTitleValue ) : null;
       }
       
       @Override
@@ -456,7 +459,7 @@ public class TableToResultSetAdapter implements ResultSet
       @Override
       public int getColumnCount() throws SQLException
       {
-        return TableToResultSetAdapter.this.table.getTableSize().getColumnSize();
+        return TableToResultSetAdapter.this.table.tableSize().getColumnSize();
       }
       
       @Override
@@ -476,7 +479,7 @@ public class TableToResultSetAdapter implements ResultSet
   @Override
   public Object getObject( int columnIndex ) throws SQLException
   {
-    throw new UnsupportedOperationException();
+    return this.row.getCellElement( columnIndex );
   }
   
   @Override
@@ -720,19 +723,30 @@ public class TableToResultSetAdapter implements ResultSet
   @Override
   public int getRow() throws SQLException
   {
-    return this.rowIterator.nextIndex() - 1;
+    return this.directionForward ? this.rowIterator.previousIndex() : this.rowIterator.nextIndex();
   }
   
   @Override
   public boolean absolute( int row ) throws SQLException
   {
-    throw new UnsupportedOperationException();
+    this.first();
+    return this.relative( row );
   }
   
   @Override
   public boolean relative( int rows ) throws SQLException
   {
-    throw new UnsupportedOperationException();
+    //
+    boolean retval = true;
+    
+    //
+    for ( int ii = 0; ii < rows; ii++ )
+    {
+      retval = this.next();
+    }
+    
+    //
+    return retval;
   }
   
   @Override

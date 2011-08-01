@@ -66,7 +66,7 @@ public class ArrayTableTest
     this.table.transpose();
     
     //
-    TableSize tableSize = this.table.getTableSize();
+    TableSize tableSize = this.table.tableSize();
     assertNotNull( tableSize );
     assertEquals( columns, tableSize.getRowSize() );
     assertEquals( rows, tableSize.getColumnSize() );
@@ -77,20 +77,20 @@ public class ArrayTableTest
   }
   
   @Test
-  public void testGetTableSize()
-  {
-    //
-    final int rows = 2;
-    final int columns = 5;
-    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
-    
-    //
-    TableSize tableSize = this.table.getTableSize();
-    assertNotNull( tableSize );
-    assertEquals( rows, tableSize.getRowSize() );
-    assertEquals( columns, tableSize.getColumnSize() );
-    assertEquals( rows * columns, tableSize.getCellSize() );
-  }
+    public void testTableSize()
+    {
+      //
+      final int rows = 2;
+      final int columns = 5;
+      TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
+      
+      //
+      TableSize tableSize = this.table.tableSize();
+      assertNotNull( tableSize );
+      assertEquals( rows, tableSize.getRowSize() );
+      assertEquals( columns, tableSize.getColumnSize() );
+      assertEquals( rows * columns, tableSize.getCellSize() );
+    }
   
   @Test
   public void testGetCellIntInt()
@@ -318,7 +318,7 @@ public class ArrayTableTest
     this.table.setRowCellElements( 0, Arrays.asList( "a", "b", "c" ) );
     
     //
-    assertEquals( 3, this.table.getTableSize().getColumnSize() );
+    assertEquals( 3, this.table.tableSize().getColumnSize() );
     assertEquals( "a", this.table.getCellElement( 0 ) );
     assertEquals( "b", this.table.getCellElement( 1 ) );
     assertEquals( "c", this.table.getCellElement( 2 ) );
@@ -328,7 +328,7 @@ public class ArrayTableTest
     
     //
     this.table.setRowCellElements( 0, Arrays.asList( "a", "b", "c", "d" ) );
-    assertEquals( 4, this.table.getTableSize().getColumnSize() );
+    assertEquals( 4, this.table.tableSize().getColumnSize() );
     assertEquals( "a", this.table.getCellElement( 0 ) );
     assertEquals( "b", this.table.getCellElement( 1 ) );
     assertEquals( "c", this.table.getCellElement( 2 ) );
@@ -348,7 +348,7 @@ public class ArrayTableTest
     this.table.setColumnCellElements( 0, Arrays.asList( "a", "b", "c" ) );
     
     //
-    assertEquals( 3, this.table.getTableSize().getRowSize() );
+    assertEquals( 3, this.table.tableSize().getRowSize() );
     assertEquals( "a", this.table.getCellElement( 0, 0 ) );
     assertEquals( "b", this.table.getCellElement( 1, 0 ) );
     assertEquals( "c", this.table.getCellElement( 2, 0 ) );
@@ -358,7 +358,7 @@ public class ArrayTableTest
     
     //
     this.table.setColumnCellElements( 0, Arrays.asList( "a", "b", "c", "d" ) );
-    assertEquals( 4, this.table.getTableSize().getRowSize() );
+    assertEquals( 4, this.table.tableSize().getRowSize() );
     assertEquals( "a", this.table.getCellElement( 0, 0 ) );
     assertEquals( "b", this.table.getCellElement( 1, 0 ) );
     assertEquals( "c", this.table.getCellElement( 2, 0 ) );
@@ -379,8 +379,8 @@ public class ArrayTableTest
     this.table.addColumnCellElements( 1, Arrays.asList( "a", "b", "c" ) );
     
     //
-    assertEquals( 3, this.table.getTableSize().getRowSize() );
-    assertEquals( 3, this.table.getTableSize().getColumnSize() );
+    assertEquals( 3, this.table.tableSize().getRowSize() );
+    assertEquals( 3, this.table.tableSize().getColumnSize() );
     assertEquals( "0:0", this.table.getCellElement( 0, 0 ) );
     assertEquals( "1:0", this.table.getCellElement( 1, 0 ) );
     assertEquals( "2:0", this.table.getCellElement( 2, 0 ) );
@@ -393,7 +393,7 @@ public class ArrayTableTest
     
     //
     this.table.addColumnCellElements( 6, Arrays.asList( "a", "b", "c" ) );
-    assertEquals( 7, this.table.getTableSize().getColumnSize() );
+    assertEquals( 7, this.table.tableSize().getColumnSize() );
     assertEquals( "a", this.table.getCellElement( 0, 6 ) );
     assertEquals( "b", this.table.getCellElement( 1, 6 ) );
     assertEquals( "c", this.table.getCellElement( 2, 6 ) );
@@ -406,7 +406,7 @@ public class ArrayTableTest
     
     //
     this.table.addColumnCellElements( Arrays.asList( "a", "b", "c" ) );
-    assertEquals( 8, this.table.getTableSize().getColumnSize() );
+    assertEquals( 8, this.table.tableSize().getColumnSize() );
   }
   
   @Test
@@ -421,8 +421,8 @@ public class ArrayTableTest
     this.table.addRowCellElements( 1, Arrays.asList( "a", "b", "c" ) );
     
     //
-    assertEquals( 3, this.table.getTableSize().getRowSize() );
-    assertEquals( 3, this.table.getTableSize().getColumnSize() );
+    assertEquals( 3, this.table.tableSize().getRowSize() );
+    assertEquals( 3, this.table.tableSize().getColumnSize() );
     assertEquals( "0:0", this.table.getCellElement( 0, 0 ) );
     assertEquals( "0:1", this.table.getCellElement( 0, 1 ) );
     assertEquals( "0:2", this.table.getCellElement( 0, 2 ) );
@@ -435,7 +435,7 @@ public class ArrayTableTest
     
     //
     this.table.addRowCellElements( 6, Arrays.asList( "a", "b", "c" ) );
-    assertEquals( 7, this.table.getTableSize().getRowSize() );
+    assertEquals( 7, this.table.tableSize().getRowSize() );
     assertEquals( "a", this.table.getCellElement( 6, 0 ) );
     assertEquals( "b", this.table.getCellElement( 6, 1 ) );
     assertEquals( "c", this.table.getCellElement( 6, 2 ) );
@@ -448,7 +448,7 @@ public class ArrayTableTest
     
     //
     this.table.addRowCellElements( Arrays.asList( "a", "b", "c" ) );
-    assertEquals( 8, this.table.getTableSize().getRowSize() );
+    assertEquals( 8, this.table.tableSize().getRowSize() );
   }
   
   @Test
@@ -463,8 +463,8 @@ public class ArrayTableTest
     this.table.clear();
     
     //
-    assertEquals( 0, this.table.getTableSize().getRowSize() );
-    assertEquals( 0, this.table.getTableSize().getColumnSize() );
+    assertEquals( 0, this.table.tableSize().getRowSize() );
+    assertEquals( 0, this.table.tableSize().getColumnSize() );
   }
   
   @Test
@@ -501,8 +501,8 @@ public class ArrayTableTest
     this.table.removeRow( 1 );
     
     //
-    assertEquals( rows - 1, this.table.getTableSize().getRowSize() );
-    assertEquals( columns, this.table.getTableSize().getColumnSize() );
+    assertEquals( rows - 1, this.table.tableSize().getRowSize() );
+    assertEquals( columns, this.table.tableSize().getColumnSize() );
     assertEquals( "0:0", this.table.getCellElement( 0, 0 ) );
     assertEquals( "2:0", this.table.getCellElement( 1, 0 ) );
     assertEquals( "3:0", this.table.getCellElement( 2, 0 ) );
@@ -521,8 +521,8 @@ public class ArrayTableTest
     this.table.removeColumn( 1 );
     
     //
-    assertEquals( rows, this.table.getTableSize().getRowSize() );
-    assertEquals( columns - 1, this.table.getTableSize().getColumnSize() );
+    assertEquals( rows, this.table.tableSize().getRowSize() );
+    assertEquals( columns - 1, this.table.tableSize().getColumnSize() );
     assertEquals( "0:0", this.table.getCellElement( 0, 0 ) );
     assertEquals( "0:2", this.table.getCellElement( 0, 1 ) );
     assertEquals( "0:3", this.table.getCellElement( 0, 2 ) );
@@ -668,39 +668,7 @@ public class ArrayTableTest
     //System.out.println( stringBuilder );
     
     //
-    assertEquals( rows, this.table.getTableSize().getRowSize() );
-    
-  }
-  
-  @Test
-  public void testPutTable()
-  {
-    //
-    Table<Object> insertTable = new ArrayTable<Object>();
-    
-    //
-    final int rowsInsert = 4;
-    final int columnsInsert = 15;
-    TableFiller.fillTableWithMatrixNumbers( rowsInsert, columnsInsert, insertTable );
-    
-    //
-    final int rows = 20;
-    final int columns = 10;
-    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
-    
-    //
-    final int rowIndexPosition = 3;
-    final int columnIndexPosition = 2;
-    this.table.putTable( insertTable, rowIndexPosition, columnIndexPosition );
-    
-    //
-    assertEquals( rows, this.table.getTableSize().getRowSize() );
-    assertEquals( columnsInsert + columnIndexPosition, this.table.getTableSize().getColumnSize() );
-    
-    assertEquals( "0:0", this.table.getCellElement( 0, 0 ) );
-    assertEquals( "0:0", this.table.getCellElement( rowIndexPosition, columnIndexPosition ) );
-    assertEquals( ( rowsInsert - 1 ) + ":" + ( columnsInsert - 1 ),
-                  this.table.getCellElement( rowIndexPosition + rowsInsert - 1, columnIndexPosition + columnsInsert - 1 ) );
+    assertEquals( rows, this.table.tableSize().getRowSize() );
     
   }
   

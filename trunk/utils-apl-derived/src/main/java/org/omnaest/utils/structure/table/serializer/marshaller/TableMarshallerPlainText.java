@@ -84,7 +84,7 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
         
         //
         {
-          String content = this.convertObjectContentToString( row.getTitle().getValue() );
+          String content = this.convertObjectContentToString( row.title().getValue() );
           if ( content != null )
           {
             lengthMax = content.length();
@@ -120,9 +120,9 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
           int lengthMax = 0;
           
           //
-          if ( column.getTitle() != null )
+          if ( column.title() != null )
           {
-            String content = this.convertObjectContentToString( column.getTitle().getValue() );
+            String content = this.convertObjectContentToString( column.title().getValue() );
             if ( content != null )
             {
               lengthMax = content.length();
@@ -229,7 +229,7 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
             appendable.append( delimiterTitleColumn );
             
             //
-            Object titleValue = column.getTitle().getValue();
+            Object titleValue = column.title().getValue();
             appendable.append( StringUtils.center( this.convertObjectContentToString( titleValue ),
                                                    iteratorColumnWidthList.next() ) );
           }
@@ -246,7 +246,7 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
           {
             //
             appendable.append( delimiterTitleColumn );
-            appendable.append( StringUtils.center( this.convertObjectContentToString( row.getTitle().getValue() ),
+            appendable.append( StringUtils.center( this.convertObjectContentToString( row.title().getValue() ),
                                                    rowTitlesCharacterWidth ) );
             appendable.append( delimiterTitleColumn );
           }

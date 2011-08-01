@@ -201,8 +201,8 @@ public class TableUnmarshallerPlainTextTest
     }
     
     //
-    Assert.assertEquals( 3, table.getTableSize().getRowSize() );
-    Assert.assertEquals( 2, table.getTableSize().getColumnSize() );
+    Assert.assertEquals( 3, table.tableSize().getRowSize() );
+    Assert.assertEquals( 2, table.tableSize().getColumnSize() );
     
     //
     if ( hasRowTitles )

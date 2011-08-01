@@ -63,7 +63,13 @@ public class ColumnValueEquals<E> implements PredicateInternal<E>
     
     //FIXME go on here
     
-    
+  }
+  
+  @Override
+  public Column<E>[] requiredColumns()
+  {
+    // TODO Auto-generated method stub
+    return null;
   }
   
 }

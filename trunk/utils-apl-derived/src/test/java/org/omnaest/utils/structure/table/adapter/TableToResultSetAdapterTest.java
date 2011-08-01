@@ -79,17 +79,20 @@ public class TableToResultSetAdapterTest
   public void testNext() throws SQLException
   {
     //
-    final int rows = this.table.getTableSize().getRowSize();
+    final int rows = this.table.tableSize().getRowSize();
     
     //
     assertTrue( this.resultSet.isBeforeFirst() );
     assertFalse( this.resultSet.isFirst() );
     assertFalse( this.resultSet.isAfterLast() );
     assertFalse( this.resultSet.isLast() );
+    assertEquals( -1, this.resultSet.getRow() );
     for ( int ii = 0; ii < rows; ii++ )
     {
       //
       assertTrue( this.resultSet.next() );
+      assertEquals( ii, this.resultSet.getRow() );
+      assertEquals( "r" + ii, this.resultSet.getCursorName() );
       
       //
       if ( ii == 0 )
@@ -125,6 +128,7 @@ public class TableToResultSetAdapterTest
     assertFalse( this.resultSet.isBeforeFirst() );
     assertFalse( this.resultSet.isLast() );
     assertTrue( this.resultSet.isAfterLast() );
+    assertEquals( rows, this.resultSet.getRow() );
     
   }
   
@@ -160,6 +164,8 @@ public class TableToResultSetAdapterTest
       assertEquals( this.elementValueList.get( ii ), this.resultSet.getString( ii++ ) );
       assertEquals( new Date( (Long) this.elementValueList.get( ii ) ), this.resultSet.getDate( ii++ ) );
       assertEquals( new Time( (Long) this.elementValueList.get( ii ) ), this.resultSet.getTime( ii++ ) );
+      
+      assertEquals( this.elementValueList.get( 0 ), this.resultSet.getObject( 0 ) );
     }
     
     //
@@ -178,6 +184,14 @@ public class TableToResultSetAdapterTest
       assertEquals( this.elementValueList.get( ii ), this.resultSet.getString( "c" + ii++ ) );
       assertEquals( new Date( (Long) this.elementValueList.get( ii ) ), this.resultSet.getDate( "c" + ii++ ) );
       assertEquals( new Time( (Long) this.elementValueList.get( ii ) ), this.resultSet.getTime( "c" + ii++ ) );
+    }
+    
+    //
+    for ( int ii = 0; ii < this.elementValueList.size(); ii++ )
+    {
+      //
+      assertEquals( this.elementValueList.get( ii ), this.resultSet.getObject( ii ) );
+      assertEquals( this.elementValueList.get( ii ), this.resultSet.getObject( "c" + ii ) );
     }
   }
   
@@ -266,7 +280,7 @@ public class TableToResultSetAdapterTest
   public void testPrevious() throws SQLException
   {
     //
-    final int rows = this.table.getTableSize().getRowSize();
+    final int rows = this.table.tableSize().getRowSize();
     
     //
     while ( this.resultSet.next() )
@@ -279,10 +293,12 @@ public class TableToResultSetAdapterTest
     assertFalse( this.resultSet.isFirst() );
     assertTrue( this.resultSet.isAfterLast() );
     assertFalse( this.resultSet.isLast() );
+    assertEquals( rows, this.resultSet.getRow() );
     for ( int ii = 0; ii < rows; ii++ )
     {
       //
       assertTrue( this.resultSet.previous() );
+      assertEquals( rows - ii - 1, this.resultSet.getRow() );
       
       //
       if ( ii == 0 )
@@ -318,6 +334,18 @@ public class TableToResultSetAdapterTest
     assertTrue( this.resultSet.isBeforeFirst() );
     assertFalse( this.resultSet.isLast() );
     assertFalse( this.resultSet.isAfterLast() );
+    assertEquals( -1, this.resultSet.getRow() );
+  }
+  
+  @Test
+  public void testAbsolute() throws SQLException
+  {
+    for ( int ii = 0; ii < this.table.tableSize().getRowSize(); ii++ )
+    {
+      //
+      this.resultSet.absolute( ii );
+      assertEquals( ii, this.resultSet.getRow() );
+    }
   }
   
 }
