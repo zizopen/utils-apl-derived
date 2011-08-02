@@ -16,7 +16,7 @@
 package org.omnaest.utils.structure.table.concrete.predicates.internal;
 
 import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.concrete.internal.selection.internal.data.TableBlock;
+import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableBlock;
 import org.omnaest.utils.structure.table.concrete.predicates.PredicateFactory;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
