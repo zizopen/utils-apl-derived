@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.concrete;
+package org.omnaest.utils.events.concrete;
 
 import java.util.List;
 
-import org.omnaest.utils.listener.EventListenerRegistration;
-import org.omnaest.utils.listener.EventListener;
+import org.omnaest.utils.events.EventListener;
+import org.omnaest.utils.events.EventListenerRegistration;
 
 /**
  * Registration for {@link EventListener} instances. Allows to add and remove {@link EventListener} instances. Intended for client use.

@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.concrete;
+package org.omnaest.utils.events.concrete;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omnaest.utils.listener.EventListener;
-import org.omnaest.utils.listener.EventListenerRegistration;
-import org.omnaest.utils.listener.EventManager;
-import org.omnaest.utils.listener.EventManagerConnector;
-import org.omnaest.utils.listener.EventProducer;
-import org.omnaest.utils.listener.event.EventResults;
+import org.omnaest.utils.events.EventListener;
+import org.omnaest.utils.events.EventListenerRegistration;
+import org.omnaest.utils.events.EventManager;
+import org.omnaest.utils.events.EventManagerConnector;
+import org.omnaest.utils.events.EventProducer;
+import org.omnaest.utils.events.event.EventResults;
 
 /**
  * Manager for {@link EventListener} instances which implements the {@link EventListener} interface, too. The

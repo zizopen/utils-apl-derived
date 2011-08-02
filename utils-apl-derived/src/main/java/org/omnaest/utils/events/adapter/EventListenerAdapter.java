@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.adapter;
+package org.omnaest.utils.events.adapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omnaest.utils.listener.EventListener;
-import org.omnaest.utils.listener.EventListenerRegistration;
-import org.omnaest.utils.listener.EventManager;
-import org.omnaest.utils.listener.concrete.EventManagerImpl;
+import org.omnaest.utils.events.EventListener;
+import org.omnaest.utils.events.EventListenerRegistration;
+import org.omnaest.utils.events.EventManager;
+import org.omnaest.utils.events.concrete.EventManagerImpl;
 import org.omnaest.utils.tuple.Tuple;
 import org.omnaest.utils.tuple.TupleDuad;
 import org.omnaest.utils.tuple.TupleTriple;

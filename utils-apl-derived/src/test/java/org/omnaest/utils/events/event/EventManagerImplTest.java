@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.event;
+package org.omnaest.utils.events.event;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,11 +23,14 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.omnaest.utils.listener.EventListener;
-import org.omnaest.utils.listener.EventListenerBasic;
-import org.omnaest.utils.listener.EventManager;
-import org.omnaest.utils.listener.adapter.EventListenerAdapter;
-import org.omnaest.utils.listener.concrete.EventManagerImpl;
+import org.omnaest.utils.events.EventListener;
+import org.omnaest.utils.events.EventListenerBasic;
+import org.omnaest.utils.events.EventManager;
+import org.omnaest.utils.events.adapter.EventListenerAdapter;
+import org.omnaest.utils.events.concrete.EventManagerImpl;
+import org.omnaest.utils.events.event.Event;
+import org.omnaest.utils.events.event.EventResults;
+import org.omnaest.utils.events.event.Result;
 
 /**
  * @see EventManagerImpl

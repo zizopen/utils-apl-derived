@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener.event;
+package org.omnaest.utils.events.event;
 
 import java.io.Serializable;
 
-import org.omnaest.utils.listener.EventListener;
+import org.omnaest.utils.events.EventListener;
 
 /**
  * Generic default {@link EventListener} event result implementation.
