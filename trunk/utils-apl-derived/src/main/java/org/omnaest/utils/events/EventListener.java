@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener;
+package org.omnaest.utils.events;
 
-public interface EventListenerRegistration<EVENT, RESULT>
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * Simple listener which allows to handle events.
+ * 
+ * @param <EVENT>
+ * @param <RESULT>
+ * @author Omnaest
+ */
+public interface EventListener<EVENT, RESULT> extends Serializable
 {
+  /* ********************************************** Classes/Interfaces ********************************************** */
   
+  /* ********************************************** Methods ********************************************** */
   /**
-   * Adds a new {@link EventListener} to the handler.
+   * This method will be called from an {@link EventManager} when events are being fired.
    * 
-   * @param listener
-   * @return this
+   * @param event
+   * @return map<client,result>
    */
-  public EventListenerRegistration<EVENT, RESULT> addEventListener( EventListener<EVENT, RESULT> listener );
-  
-  /**
-   * Removes a given {@link EventListener} instance from the handler.
-   * 
-   * @param listener
-   * @return this
-   */
-  public EventListenerRegistration<EVENT, RESULT> removeEventListener( EventListener<EVENT, RESULT> listener );
-  
+  public List<RESULT> handleEvent( EVENT event );
 }

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener;
+package org.omnaest.utils.events;
 
 import java.io.Serializable;
 
-import org.omnaest.utils.listener.adapter.EventListenerAdapter;
+import org.omnaest.utils.events.adapter.EventListenerAdapter;
 
 /**
  * Offers methods to connect an {@link EventManager} to another {@link EventManager} or {@link EventListenerRegistration}.

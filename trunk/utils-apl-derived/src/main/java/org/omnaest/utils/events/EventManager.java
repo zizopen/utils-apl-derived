@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.listener;
+package org.omnaest.utils.events;
 
-import org.omnaest.utils.listener.event.EventResults;
+import org.omnaest.utils.events.event.EventResults;
 
 /**
  * The {@link EventManager} is the central control unit within a client class which want to fire events. It holds references to an
