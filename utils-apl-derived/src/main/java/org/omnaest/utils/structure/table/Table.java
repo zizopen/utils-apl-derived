@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.adapter.TableAdapter;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
@@ -26,6 +27,7 @@ import org.omnaest.utils.structure.table.subspecification.TableCore;
 import org.omnaest.utils.structure.table.subspecification.TableDataSource;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable;
 import org.omnaest.utils.structure.table.subspecification.TableSerializable;
+import org.omnaest.utils.structure.table.view.TableView;
 
 /**
  * This is a structure representing a fully qualified {@link Table}. <br>
@@ -61,6 +63,9 @@ import org.omnaest.utils.structure.table.subspecification.TableSerializable;
  * </ul>
  * 
  * @see ArrayTable
+ * @see TableDataSource
+ * @see TableAdapter
+ * @see TableView
  * @see #setTableName(Object)
  * @see #tableSize()
  * @param <E>

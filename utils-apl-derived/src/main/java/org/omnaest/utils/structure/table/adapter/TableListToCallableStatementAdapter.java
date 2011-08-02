@@ -48,10 +48,11 @@ import org.omnaest.utils.structure.table.Table;
  * Adapter to make a {@link List} of {@link Table} instances available as {@link ResultSet}s returned by a
  * {@link CallableStatement}
  * 
+ * @see TableAdapter
  * @author Omnaest
  */
 @SuppressWarnings("rawtypes")
-public class TableListToCallableStatementAdapter implements CallableStatement
+public class TableListToCallableStatementAdapter implements CallableStatement, TableAdapter
 {
   /* ********************************************** Variables ********************************************** */
   protected List<? extends Table>     tableList     = null;
