@@ -142,7 +142,7 @@ public class ListUtils
    * @param collection
    * @param elementTransformer
    */
-  public static <FROM, TO> List<TO> transformListEliminatingNullValues( Collection<FROM> collection,
+  public static <FROM, TO> List<TO> transformListExcludingNullElements( Collection<FROM> collection,
                                                                         ElementTransformer<FROM, TO> elementTransformer )
   {
     return ListUtils.transform( collection, elementTransformer, true );
@@ -157,7 +157,7 @@ public class ListUtils
    * @param collection
    * @param multiElementTransformer
    */
-  public static <FROM, TO> List<TO> transformListEliminatingNullValues( Collection<FROM> collection,
+  public static <FROM, TO> List<TO> transformListExcludingNullElements( Collection<FROM> collection,
                                                                         MultiElementTransformer<FROM, TO> multiElementTransformer )
   {
     return ListUtils.transform( collection, multiElementTransformer, true );

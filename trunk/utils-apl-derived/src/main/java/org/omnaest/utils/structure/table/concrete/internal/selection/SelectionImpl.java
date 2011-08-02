@@ -15,14 +15,9 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal.selection;
 
-import java.util.List;
-
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.concrete.internal.helper.TableInternalHelper;
-import org.omnaest.utils.structure.table.concrete.internal.selection.data.ColumnOrder;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.SelectionData;
-import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableAndJoin;
 import org.omnaest.utils.structure.table.concrete.internal.selection.join.Join;
 import org.omnaest.utils.structure.table.concrete.internal.selection.join.JoinInner;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
@@ -57,7 +52,7 @@ public class SelectionImpl<E> implements SelectionJoin<E>
     //
     if ( tableInternal != null )
     {
-      this.selectionData.getTableInternalList().add( tableInternal );
+      this.from( tableInternal.getUnderlyingTable() );
     }
   }
   
@@ -69,7 +64,7 @@ public class SelectionImpl<E> implements SelectionJoin<E>
     {
       //
       Join<E> join = new JoinInner<E>();
-      this.selectionData.getTableAndJoinList().add( new TableAndJoin<E>( table, join ) );
+      this.selectionData.getTableToJoinMap().put( table, join );
     }
     
     // 
@@ -117,12 +112,7 @@ public class SelectionImpl<E> implements SelectionJoin<E>
         if ( table != null )
         {
           //
-          TableInternal<E> tableInternal = TableInternalHelper.extractTableInternalFromTable( table );
-          if ( tableInternal != null )
-          {
-            //
-            this.selectionData.getTableInternalList().add( tableInternal );
-          }
+          this.innerJoin( table );
         }
       }
     }
@@ -134,7 +124,10 @@ public class SelectionImpl<E> implements SelectionJoin<E>
   @Override
   public Selection<E> distinct()
   {
-    // TODO Auto-generated method stub
+    //
+    this.selectionData.setDistinct( true );
+    
+    //
     return this;
   }
   
@@ -165,7 +158,7 @@ public class SelectionImpl<E> implements SelectionJoin<E>
     {
       //
       order = order == null ? Order.ASCENDING : order;
-      this.selectionData.getColumnOrderList().add( new ColumnOrder<E>( column, order ) );
+      this.selectionData.getColumnToOrderMap().put( column, order );
     }
     
     // 
@@ -211,70 +204,6 @@ public class SelectionImpl<E> implements SelectionJoin<E>
   public Table<E> asTable()
   {
     return this.selectionExecutor.execute();
-  }
-  
-  /**
-   * @return
-   */
-  protected List<TableInternal<E>> getTableInternalList()
-  {
-    return this.selectionData.getTableInternalList();
-  }
-  
-  /**
-   * @param tableInternalList
-   */
-  protected void setTableInternalList( List<TableInternal<E>> tableInternalList )
-  {
-    this.selectionData.setTableInternalList( tableInternalList );
-  }
-  
-  /**
-   * @return
-   */
-  protected List<Column<E>> getColumnList()
-  {
-    return this.selectionData.getColumnList();
-  }
-  
-  /**
-   * @param columnList
-   */
-  protected void setColumnList( List<Column<E>> columnList )
-  {
-    this.selectionData.setColumnList( columnList );
-  }
-  
-  /**
-   * @return
-   */
-  protected List<PredicateInternal<E>> getWherePredicateList()
-  {
-    return this.selectionData.getPredicateList();
-  }
-  
-  /**
-   * @param wherePredicateList
-   */
-  protected void setWherePredicateList( List<PredicateInternal<E>> wherePredicateList )
-  {
-    this.selectionData.setPredicateList( wherePredicateList );
-  }
-  
-  /**
-   * @return
-   */
-  protected boolean isSelectAllColumns()
-  {
-    return this.selectionData.isSelectAllColumns();
-  }
-  
-  /**
-   * @param selectAllColumns
-   */
-  protected void setSelectAllColumns( boolean selectAllColumns )
-  {
-    this.selectionData.setSelectAllColumns( selectAllColumns );
   }
   
 }

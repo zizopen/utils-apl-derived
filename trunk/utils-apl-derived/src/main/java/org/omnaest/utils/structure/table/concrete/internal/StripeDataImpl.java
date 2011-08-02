@@ -193,4 +193,10 @@ public class StripeDataImpl<E> implements StripeData<E>
     return retset;
   }
   
+  @Override
+  public String toString()
+  {
+    return "StripeData[title=" + this.title + ", cellDataSet=" + this.cellDataSet + ", type=" + this.resolveStripeType() + "]";
+  }
+  
 }

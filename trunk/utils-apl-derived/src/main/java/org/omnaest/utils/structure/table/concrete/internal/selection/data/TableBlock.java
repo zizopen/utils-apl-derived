@@ -16,9 +16,9 @@
 package org.omnaest.utils.structure.table.concrete.internal.selection.data;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Set;
 
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.internal.selection.SelectionExecutor;
@@ -39,9 +39,9 @@ import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predic
 public class TableBlock<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected TableInternal<E>         tableInternal    = null;
-  protected List<Column<E>>          columnList       = new ArrayList<Column<E>>();
-  protected SortedSet<StripeData<E>> rowStripeDataSet = new TreeSet<StripeData<E>>();
+  protected TableInternal<E>   tableInternal    = null;
+  protected List<Column<E>>    columnList       = new ArrayList<Column<E>>();
+  protected Set<StripeData<E>> rowStripeDataSet = new LinkedHashSet<StripeData<E>>();
   
   /* ********************************************** Methods ********************************************** */
   /**
@@ -72,7 +72,7 @@ public class TableBlock<E>
   /**
    * @return the rowStripeDataSet
    */
-  public SortedSet<StripeData<E>> getRowStripeDataSet()
+  public Set<StripeData<E>> getRowStripeDataSet()
   {
     return this.rowStripeDataSet;
   }

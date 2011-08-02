@@ -16,12 +16,16 @@
 package org.omnaest.utils.structure.table.concrete.internal.selection.data;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.internal.selection.SelectionImpl;
+import org.omnaest.utils.structure.table.concrete.internal.selection.join.Join;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
-import org.omnaest.utils.structure.table.internal.TableInternal;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection.Order;
 
 /**
  * @see SelectionImpl
@@ -31,30 +35,14 @@ import org.omnaest.utils.structure.table.internal.TableInternal;
 public class SelectionData<E>
 {
   /* ********************************************** Variables ********************************************** */
-  private List<TableInternal<E>>     tableInternalList = new ArrayList<TableInternal<E>>();
-  private List<Column<E>>            columnList        = new ArrayList<Column<E>>();
-  private List<TableAndJoin<E>>      tableAndJoinList  = new ArrayList<TableAndJoin<E>>();
-  private List<PredicateInternal<E>> predicateList     = new ArrayList<PredicateInternal<E>>();
-  private List<ColumnOrder<E>>       columnOrderList   = new ArrayList<ColumnOrder<E>>();
-  private boolean                    selectAllColumns  = true;
+  private List<Column<E>>            columnList       = new ArrayList<Column<E>>();
+  private Map<Table<E>, Join<E>>     tableToJoinMap   = new LinkedHashMap<Table<E>, Join<E>>();
+  private List<PredicateInternal<E>> predicateList    = new ArrayList<PredicateInternal<E>>();
+  private Map<Column<E>, Order>      columnToOrderMap = new LinkedHashMap<Column<E>, Order>();
+  private boolean                    selectAllColumns = true;
+  private boolean                    distinct         = false;
   
   /* ********************************************** Methods ********************************************** */
-  
-  /**
-   * @return
-   */
-  public List<TableInternal<E>> getTableInternalList()
-  {
-    return this.tableInternalList;
-  }
-  
-  /**
-   * @param tableInternalList
-   */
-  public void setTableInternalList( List<TableInternal<E>> tableInternalList )
-  {
-    this.tableInternalList = tableInternalList;
-  }
   
   /**
    * @return
@@ -65,59 +53,11 @@ public class SelectionData<E>
   }
   
   /**
-   * @param columnList
-   */
-  public void setColumnList( List<Column<E>> columnList )
-  {
-    this.columnList = columnList;
-  }
-  
-  /**
-   * @return
-   */
-  public List<TableAndJoin<E>> getTableAndJoinList()
-  {
-    return this.tableAndJoinList;
-  }
-  
-  /**
-   * @param tableAndJoinList
-   */
-  public void setTableAndJoinList( List<TableAndJoin<E>> tableAndJoinList )
-  {
-    this.tableAndJoinList = tableAndJoinList;
-  }
-  
-  /**
    * @return
    */
   public List<PredicateInternal<E>> getPredicateList()
   {
     return this.predicateList;
-  }
-  
-  /**
-   * @param predicateList
-   */
-  public void setPredicateList( List<PredicateInternal<E>> predicateList )
-  {
-    this.predicateList = predicateList;
-  }
-  
-  /**
-   * @return
-   */
-  public List<ColumnOrder<E>> getColumnOrderList()
-  {
-    return this.columnOrderList;
-  }
-  
-  /**
-   * @param columnOrderList
-   */
-  public void setColumnOrderList( List<ColumnOrder<E>> columnOrderList )
-  {
-    this.columnOrderList = columnOrderList;
   }
   
   /**
@@ -135,4 +75,38 @@ public class SelectionData<E>
   {
     this.selectAllColumns = selectAllColumns;
   }
+  
+  /**
+   * @return the tableToJoinMap
+   */
+  public Map<Table<E>, Join<E>> getTableToJoinMap()
+  {
+    return this.tableToJoinMap;
+  }
+  
+  /**
+   * @return the columnToOrderMap
+   */
+  public Map<Column<E>, Order> getColumnToOrderMap()
+  {
+    return this.columnToOrderMap;
+  }
+  
+  /**
+   * @return the distinct
+   */
+  public boolean isDistinct()
+  {
+    return this.distinct;
+  }
+  
+  /**
+   * @param distinct
+   *          the distinct to set
+   */
+  public void setDistinct( boolean distinct )
+  {
+    this.distinct = distinct;
+  }
+  
 }

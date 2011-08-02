@@ -17,7 +17,7 @@ package org.omnaest.utils.structure.collection;
 
 import java.util.Collection;
 
-import org.omnaest.utils.structure.collection.list.ListUtil;
+import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
 
 public class CollectionUtils
 {
@@ -189,30 +189,33 @@ public class CollectionUtils
   }
   
   /**
-   * Converts a given collection into another collection with other element types.
+   * Converts a given {@link Collection} into another {@link Collection} with other element types using an
+   * {@link ElementTransformer}.
    * 
+   * @see ElementTransformer
    * @param collectionFrom
-   * @param elementConverter
+   * @param elementTransformer
    * @return
    */
-  public static <TO, FROM> Collection<TO> convertCollection( Collection<FROM> collectionFrom,
-                                                             ElementConverter<FROM, TO> elementConverter )
+  public static <TO, FROM> Collection<TO> transformCollection( Collection<FROM> collectionFrom,
+                                                               ElementTransformer<FROM, TO> elementTransformer )
   {
-    return ListUtil.convertList( collectionFrom, elementConverter );
+    return ListUtils.transform( collectionFrom, elementTransformer );
   }
   
   /**
-   * Converts a given collection into another collection with other element types, whereby all elements which convert to null will
-   * not be inserted into the target list.
+   * Converts a given {@link Collection} into another {@link Collection} with other element types, whereby all elements which
+   * convert to null will not be inserted into the target {@link Collection}.
    * 
+   * @see ElementTransformer
    * @param collectionFrom
-   * @param elementConverter
+   * @param elementTransformer
    * @return
    */
-  public static <TO, FROM> Collection<TO> convertCollectionExcludingNullElements( Collection<FROM> collectionFrom,
-                                                                                  ElementConverter<FROM, TO> elementConverter )
+  public static <TO, FROM> Collection<TO> transformCollectionExcludingNullElements( Collection<FROM> collectionFrom,
+                                                                                    ElementTransformer<FROM, TO> elementTransformer )
   {
-    return ListUtil.convertListExcludingNullElements( collectionFrom, elementConverter );
+    return ListUtils.transformListExcludingNullElements( collectionFrom, elementTransformer );
   }
   
 }
