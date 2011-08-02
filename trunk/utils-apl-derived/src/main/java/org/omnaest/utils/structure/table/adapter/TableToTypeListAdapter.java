@@ -26,12 +26,13 @@ import org.omnaest.utils.structure.table.Table.Row;
  * titles of the {@link Table} have to be equal to (all or a subset) of the property names of the given {@link Table}, since the
  * property values of the Java Bean object will be written to the {@link Column} with the respective title.
  * 
+ * @see TableAdapter
  * @see #newInstance(Class, Table)
  * @author Omnaest
  * @param <B>
  *          Java Bean type
  */
-public class TableToTypeListAdapter<B>
+public class TableToTypeListAdapter<B> implements TableAdapter
 {
   /* ********************************************** Variables ********************************************** */
   protected Table<Object> table = null;

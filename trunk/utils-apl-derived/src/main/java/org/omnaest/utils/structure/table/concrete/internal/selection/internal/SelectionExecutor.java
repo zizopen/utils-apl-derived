@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.selection.internal;
+package org.omnaest.utils.structure.table.concrete.internal.selection.internal;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,10 +31,10 @@ import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
+import org.omnaest.utils.structure.table.concrete.internal.selection.SelectionImpl;
+import org.omnaest.utils.structure.table.concrete.internal.selection.internal.data.SelectionData;
+import org.omnaest.utils.structure.table.concrete.internal.selection.internal.data.TableBlock;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
-import org.omnaest.utils.structure.table.concrete.selection.SelectionImpl;
-import org.omnaest.utils.structure.table.concrete.selection.internal.data.SelectionData;
-import org.omnaest.utils.structure.table.concrete.selection.internal.data.TableBlock;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;

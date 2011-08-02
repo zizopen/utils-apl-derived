@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.selection;
+package org.omnaest.utils.structure.table.concrete.internal.selection;
 
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.internal.helper.TableInternalHelper;
+import org.omnaest.utils.structure.table.concrete.internal.selection.internal.SelectionExecutor;
+import org.omnaest.utils.structure.table.concrete.internal.selection.internal.data.ColumnOrder;
+import org.omnaest.utils.structure.table.concrete.internal.selection.internal.data.SelectionData;
+import org.omnaest.utils.structure.table.concrete.internal.selection.internal.data.TableAndJoin;
+import org.omnaest.utils.structure.table.concrete.internal.selection.internal.join.Join;
+import org.omnaest.utils.structure.table.concrete.internal.selection.internal.join.JoinInner;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
-import org.omnaest.utils.structure.table.concrete.selection.internal.SelectionExecutor;
-import org.omnaest.utils.structure.table.concrete.selection.internal.data.ColumnOrder;
-import org.omnaest.utils.structure.table.concrete.selection.internal.data.SelectionData;
-import org.omnaest.utils.structure.table.concrete.selection.internal.data.TableAndJoin;
-import org.omnaest.utils.structure.table.concrete.selection.internal.join.Join;
-import org.omnaest.utils.structure.table.concrete.selection.internal.join.JoinInner;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;

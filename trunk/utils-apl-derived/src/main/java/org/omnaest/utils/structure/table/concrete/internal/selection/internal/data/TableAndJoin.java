@@ -13,51 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.selection.internal.data;
+package org.omnaest.utils.structure.table.concrete.internal.selection.internal.data;
 
-import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
-import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection.Order;
+import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.concrete.internal.selection.internal.join.Join;
 
 /**
- * @see Selection
- * @see Selection#orderBy(Column, Order)
  * @author Omnaest
+ * @param <E>
  */
-public class ColumnOrder<E>
+public class TableAndJoin<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected Column<E> column = null;
-  protected Order     order  = null;
+  protected Table<E> table = null;
+  protected Join<E>  join  = null;
   
   /* ********************************************** Methods ********************************************** */
-  /**
-   * @see Selection#orderBy(ColumnOrder<E>...)
-   * @see ColumnOrder
-   * @param column
-   * @param order
-   */
-  public ColumnOrder( Column<E> column, Order order )
+  public TableAndJoin( Table<E> table, Join<E> join )
   {
     super();
-    this.column = column;
-    this.order = order;
+    this.table = table;
+    this.join = join;
   }
   
   /**
    * @return
    */
-  protected Column<E> getColumn()
+  protected Table<E> getTable()
   {
-    return this.column;
+    return this.table;
   }
   
   /**
    * @return
    */
-  protected Order getOrder()
+  protected Join<E> getJoin()
   {
-    return this.order;
+    return this.join;
   }
   
 }

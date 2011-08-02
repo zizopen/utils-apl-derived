@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.selection.internal.data;
+package org.omnaest.utils.structure.table.concrete.internal.selection.internal.data;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table.Column;
+import org.omnaest.utils.structure.table.concrete.internal.selection.SelectionImpl;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
-import org.omnaest.utils.structure.table.concrete.selection.SelectionImpl;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 
 /**

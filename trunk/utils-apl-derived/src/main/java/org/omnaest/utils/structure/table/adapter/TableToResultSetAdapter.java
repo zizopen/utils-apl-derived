@@ -45,10 +45,11 @@ import org.omnaest.utils.structure.table.Table.Row;
  * Adapter to make a {@link Table} usable as {@link ResultSet}
  * 
  * @see Table
+ * @see TableAdapter
  * @see ResultSet
  * @author Omnaest
  */
-public class TableToResultSetAdapter implements ResultSet
+public class TableToResultSetAdapter implements ResultSet, TableAdapter
 {
   /* ********************************************** Variables ********************************************** */
   protected Table<?>             table            = null;
