@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.internal.selection.internal.join;
+package org.omnaest.utils.structure.table.concrete.internal.selection.join;
 
 /**
+ * @see Join
  * @author Omnaest
  * @param <E>
  */
-public interface Join<E>
+public class JoinInner<E> implements Join<E>
 {
   
 }

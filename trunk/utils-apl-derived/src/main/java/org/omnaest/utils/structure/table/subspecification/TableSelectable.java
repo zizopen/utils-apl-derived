@@ -22,7 +22,7 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
-import org.omnaest.utils.structure.table.concrete.internal.selection.internal.join.Join;
+import org.omnaest.utils.structure.table.concrete.internal.selection.join.Join;
 import org.omnaest.utils.structure.table.view.TableView;
 
 /**

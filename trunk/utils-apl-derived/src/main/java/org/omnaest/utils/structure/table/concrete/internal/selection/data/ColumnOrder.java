@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.internal.selection.internal.data;
+package org.omnaest.utils.structure.table.concrete.internal.selection.data;
 
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
