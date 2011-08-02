@@ -15,33 +15,33 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal.selection;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Stripe;
-import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
+import org.omnaest.utils.structure.table.concrete.internal.helper.TableInternalHelper;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.SelectionData;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableBlock;
+import org.omnaest.utils.structure.table.concrete.internal.selection.join.Join;
+import org.omnaest.utils.structure.table.concrete.internal.selection.join.JoinInner;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal;
-import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
-
-import com.sun.rowset.internal.Row;
 
 /**
  * @see SelectionImpl
@@ -159,14 +159,167 @@ public class SelectionExecutor<E>
     tableInternal = this.createTableWithDeclaredColumns();
     this.mergeTableNames( tableInternal );
     
-    //fill and filter rows
-    this.determineAndMergeRowStripeDataList( tableInternal );
-    this.executeWhereClauses( tableInternal );
+    //
+    Map<Column<E>, TableBlock<E>> columnToTableBlockMap = this.createColumnToTableBlockMap();
+    this.processPredicates( columnToTableBlockMap );
+    TableBlock<E> joinedTableBlock = this.joinTableBlocks( columnToTableBlockMap, tableInternal.getTableContent()
+                                                                                               .getRowStripeDataList() );
+    
+    //
+    SelectionExecutor.<E> mergeJoinedTableBlockIntoTableInternal( tableInternal, joinedTableBlock );
     
     //
     return tableInternal.getUnderlyingTable();
   }
   
+  /**
+   * @param tableInternal
+   * @param tableBlock
+   */
+  private static <E> void mergeJoinedTableBlockIntoTableInternal( TableInternal<E> tableInternal, TableBlock<E> tableBlock )
+  {
+    //
+    if ( tableBlock != null && tableInternal != null )
+    {
+      //
+      Set<StripeData<E>> rowStripeDataSet = tableBlock.getRowStripeDataSet();
+      tableInternal.getTableContent().getRowStripeDataList().addAllStripeData( rowStripeDataSet );
+    }
+  }
+  
+  /**
+   * @param stripeDataList
+   * @param columnToTableBlockMap
+   */
+  private TableBlock<E> joinTableBlocks( Map<Column<E>, TableBlock<E>> columnToTableBlockMap, StripeDataList<E> stripeDataList )
+  {
+    //
+    TableBlock<E> retval = null;
+    
+    //
+    Map<Table<E>, TableBlock<E>> tableToTableBlockMap = SelectionExecutor.<E> determineTableToTableBlockMap( columnToTableBlockMap.values() );
+    Map<Table<E>, Join<E>> tableToJoinMap = this.selectionData.getTableToJoinMap();
+    for ( Table<E> table : tableToJoinMap.keySet() )
+    {
+      //
+      TableBlock<E> tableBlock = tableToTableBlockMap.get( table );
+      Join<E> join = tableToJoinMap.get( table );
+      if ( tableBlock != null && join != null )
+      {
+        //
+        if ( retval == null )
+        {
+          //
+          retval = tableBlock;
+        }
+        else
+        {
+          //
+          TableBlock<E> tableBlockLeft = retval;
+          TableBlock<E> tableBlockRight = tableBlock;
+          TableBlock<E> joinedTableBlock = join.joinTableBlocks( tableBlockLeft, tableBlockRight, stripeDataList );
+          
+          //
+          if ( joinedTableBlock != null )
+          {
+            retval = joinedTableBlock;
+          }
+        }
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * @param tableBlockCollection
+   * @return
+   */
+  private static <E> Map<Table<E>, TableBlock<E>> determineTableToTableBlockMap( Collection<TableBlock<E>> tableBlockCollection )
+  {
+    //
+    Map<Table<E>, TableBlock<E>> retmap = new LinkedHashMap<Table<E>, TableBlock<E>>();
+    
+    //
+    if ( tableBlockCollection != null )
+    {
+      for ( TableBlock<E> tableBlock : tableBlockCollection )
+      {
+        if ( tableBlock != null )
+        {
+          TableInternal<E> tableInternal = tableBlock.getTableInternal();
+          if ( tableInternal != null )
+          {
+            Table<E> table = tableInternal.getUnderlyingTable();
+            if ( table != null )
+            {
+              retmap.put( table, tableBlock );
+            }
+          }
+        }
+      }
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * @return
+   */
+  private Map<Column<E>, TableBlock<E>> createColumnToTableBlockMap()
+  {
+    //   
+    Map<Column<E>, TableBlock<E>> columnToTableBlockMap = new LinkedHashMap<Column<E>, TableBlock<E>>();
+    Map<Table<E>, TableBlock<E>> tableToTableBlockMap = new LinkedHashMap<Table<E>, TableBlock<E>>();
+    
+    //
+    for ( Table<E> table : this.selectionData.getTableToJoinMap().keySet() )
+    {
+      //
+      if ( !tableToTableBlockMap.containsKey( table ) )
+      {
+        //
+        TableInternal<E> tableInternal = TableInternalHelper.extractTableInternalFromTable( table );
+        if ( tableInternal != null )
+        {
+          //
+          TableBlock<E> tableBlock = new TableBlock<E>();
+          tableBlock.setTableInternal( tableInternal );
+          for ( StripeData<E> stripeData : tableInternal.getTableContent().getRowStripeDataList() )
+          {
+            tableBlock.getRowStripeDataSet().add( stripeData );
+          }
+          
+          //
+          tableToTableBlockMap.put( table, tableBlock );
+        }
+        
+        //
+        TableBlock<E> tableBlock = tableToTableBlockMap.get( table );
+        
+        //
+        List<Column<E>> columnList = table.getColumnList();
+        for ( Column<E> column : columnList )
+        {
+          //
+          tableBlock.getColumnList().add( column );
+          columnToTableBlockMap.put( column, tableBlock );
+          
+          //
+          ensureColumnHasCellDataInstancesForAllRows( column );
+        }
+      }
+    }
+    
+    //
+    return columnToTableBlockMap;
+  }
+  
+  /**
+   * 
+   */
   private void normalizeSelectionData()
   {
     //
@@ -174,24 +327,47 @@ public class SelectionExecutor<E>
     {
       this.resolveAllColumnsFromTablesAndAttachThemToTheSelectionColumnList();
     }
+    
+    //
+    Set<Table<E>> tableListReferencedByColumn = this.determineTableSetReferencedByColumn();
+    Map<Table<E>, Join<E>> tableToJoinMap = this.selectionData.getTableToJoinMap();
+    for ( Table<E> joinTable : tableListReferencedByColumn )
+    {
+      if ( !tableToJoinMap.containsKey( joinTable ) )
+      {
+        tableToJoinMap.put( joinTable, new JoinInner<E>() );
+      }
+    }
   }
   
   /**
    * Executes the {@link PredicateInternal}s declared for the
    * {@link Selection#where(org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate...)} clause
    * 
-   * @param tableInternal
+   * @param columnToTableBlockMap
    */
-  private void executeWhereClauses( TableInternal<E> tableInternal )
+  private void processPredicates( Map<Column<E>, TableBlock<E>> columnToTableBlockMap )
   {
-    //FIXME
-    TableBlock<E> tableBlock = new TableBlock<E>();
-    tableBlock.setTableInternal( tableInternal );
-    
     //
     for ( PredicateInternal<E> predicateInternal : this.selectionData.getPredicateList() )
     {
-      predicateInternal.filterStripeDataSet( tableBlock );
+      //
+      Column<E>[] requiredColumns = predicateInternal.getRequiredColumns();
+      
+      //
+      Set<TableBlock<E>> tableBlockSet = new LinkedHashSet<TableBlock<E>>();
+      for ( Column<E> column : requiredColumns )
+      {
+        //
+        TableBlock<E> tableBlock = columnToTableBlockMap.get( column );
+        if ( tableBlock != null )
+        {
+          tableBlockSet.add( tableBlock );
+        }
+      }
+      
+      //
+      predicateInternal.filterStripeDataSet( tableBlockSet );
     }
   }
   
@@ -203,32 +379,30 @@ public class SelectionExecutor<E>
   private void mergeTableNames( TableInternal<E> tableInternal )
   {
     //
-    List<TableInternal<E>> tableInternalReferencedByColumnsList = this.determineTableInternalReferencedByColumnsList();
+    Set<Table<E>> tableReferencedByColumnsList = this.determineTableSetReferencedByColumn();
     
     //
-    if ( tableInternalReferencedByColumnsList.size() == 0 )
+    if ( tableReferencedByColumnsList.size() == 0 )
     {
     }
-    else if ( tableInternalReferencedByColumnsList.size() == 1 )
+    else if ( tableReferencedByColumnsList.size() == 1 )
     {
       //
-      tableInternal.getUnderlyingTable().setTableName( tableInternalReferencedByColumnsList.get( 0 )
-                                                                                           .getUnderlyingTable()
-                                                                                           .getTableName() );
+      tableInternal.getUnderlyingTable().setTableName( tableReferencedByColumnsList.iterator().next().getTableName() );
     }
     else
     {
       //
-      ElementTransformer<TableInternal<E>, Object> elementTransformer = new ElementTransformer<TableInternal<E>, Object>()
+      ElementTransformer<Table<E>, Object> elementTransformer = new ElementTransformer<Table<E>, Object>()
       {
         @Override
-        public Object transformElement( TableInternal<E> tableInternal )
+        public Object transformElement( Table<E> table )
         {
           // 
-          return tableInternal.getUnderlyingTable().getTableName();
+          return table.getTableName();
         }
       };
-      List<Object> tableNameList = ListUtils.transform( tableInternalReferencedByColumnsList, elementTransformer );
+      List<Object> tableNameList = ListUtils.transform( tableReferencedByColumnsList, elementTransformer );
       
       //
       tableInternal.getUnderlyingTable().setTableName( tableNameList );
@@ -236,114 +410,14 @@ public class SelectionExecutor<E>
   }
   
   /**
-   * Merges all the {@link Row}s of the specified {@link Column}s into the given {@link Table} using a Cartesian product
-   */
-  private void determineAndMergeRowStripeDataList( TableInternal<E> tableInternal )
-  {
-    //
-    List<StripeData<E>> stripeDataForCartesianProductList = new ArrayList<StripeData<E>>();
-    
-    //
-    Map<TableInternal<E>, Set<CellData<E>>> tableInternalToColumnCellDataSetMap = this.determineTableInternalToColumnCellDataSetMap();
-    Set<CellData<E>> cellDataSetFromColumns = new HashSet<CellData<E>>();
-    for ( TableInternal<E> tableInternalForColumns : tableInternalToColumnCellDataSetMap.keySet() )
-    {
-      //
-      cellDataSetFromColumns.addAll( tableInternalToColumnCellDataSetMap.get( tableInternalForColumns ) );
-      
-      //      
-      StripeDataList<E> stripeDataList = tableInternal.getTableContent().getStripeDataList( StripeType.ROW );
-      
-      //
-      List<StripeData<E>> stripeDataForCartesianProductListNew = new ArrayList<StripeData<E>>();
-      for ( StripeData<E> stripeDataNew : tableInternalForColumns.getTableContent().getRowStripeDataList() )
-      {
-        //
-        if ( stripeDataForCartesianProductList.isEmpty() )
-        {
-          //
-          @SuppressWarnings("unchecked")
-          StripeData<E> stripeDataMerged = StripeDataHelper.createNewStripeDataFromExisting( stripeDataList,
-                                                                                             cellDataSetFromColumns,
-                                                                                             stripeDataNew );
-          
-          //
-          stripeDataForCartesianProductListNew.add( stripeDataMerged );
-        }
-        else
-        {
-          //
-          for ( StripeData<E> stripeDataExisting : stripeDataForCartesianProductList )
-          {
-            //
-            @SuppressWarnings("unchecked")
-            StripeData<E> stripeDataMerged = StripeDataHelper.createNewStripeDataFromExisting( stripeDataList,
-                                                                                               cellDataSetFromColumns,
-                                                                                               stripeDataExisting, stripeDataNew );
-            
-            //
-            stripeDataForCartesianProductListNew.add( stripeDataMerged );
-          }
-        }
-      }
-      
-      //
-      stripeDataForCartesianProductList = stripeDataForCartesianProductListNew;
-    }
-    
-    //
-    tableInternal.getTableContent().getRowStripeDataList().addAllStripeData( stripeDataForCartesianProductList );
-  }
-  
-  /**
-   * Resolves a {@link Map} of all {@link TableInternal} instances which belongs to the declared {@link Column}s and maps the
-   * {@link Column}s {@link StripeData} to them.
+   * Determines all {@link Table} references used by the declared {@link Column}s
    * 
    * @return
    */
-  private Map<TableInternal<E>, Set<CellData<E>>> determineTableInternalToColumnCellDataSetMap()
+  private Set<Table<E>> determineTableSetReferencedByColumn()
   {
     //    
-    Map<TableInternal<E>, Set<CellData<E>>> retmap = new LinkedHashMap<TableInternal<E>, Set<CellData<E>>>();
-    
-    //
-    for ( Column<E> column : this.selectionData.getColumnList() )
-    {
-      //
-      SelectionExecutor.ensureColumnHasCellDataInstancesForAllRows( column );
-      
-      //
-      StripeInternalData<E> stripeInternalData = SelectionExecutor.<E> determineStripeDataFromStripe( column );
-      if ( stripeInternalData != null && stripeInternalData.isValid() )
-      {
-        //
-        TableInternal<E> tableInternal = stripeInternalData.getTableInternal();
-        
-        //
-        if ( !retmap.containsKey( tableInternal ) )
-        {
-          retmap.put( tableInternal, new HashSet<CellData<E>>() );
-        }
-        
-        //
-        Set<CellData<E>> cellDataSet = retmap.get( tableInternal );
-        cellDataSet.addAll( stripeInternalData.getStripeData().getCellDataSet() );
-      }
-    }
-    
-    //
-    return retmap;
-  }
-  
-  /**
-   * Determines all {@link TableInternal} references used by the declared {@link Column}s
-   * 
-   * @return
-   */
-  private List<TableInternal<E>> determineTableInternalReferencedByColumnsList()
-  {
-    //    
-    List<TableInternal<E>> retlist = new ArrayList<TableInternal<E>>();
+    Set<Table<E>> retset = new LinkedHashSet<Table<E>>();
     
     //
     for ( Column<E> column : this.selectionData.getColumnList() )
@@ -354,29 +428,15 @@ public class SelectionExecutor<E>
       {
         //
         TableInternal<E> tableInternal = stripeInternalData.getTableInternal();
-        
-        //
-        if ( !retlist.contains( tableInternal ) )
+        if ( tableInternal != null && !retset.contains( tableInternal ) )
         {
-          retlist.add( tableInternal );
+          retset.add( tableInternal.getUnderlyingTable() );
         }
       }
     }
     
     //
-    return retlist;
-  }
-  
-  /**
-   * @param column
-   */
-  private static <E> void ensureColumnHasCellDataInstancesForAllRows( Column<E> column )
-  {
-    //
-    for ( @SuppressWarnings("unused")
-    Cell<E> cell : column.cells() )
-    {
-    }
+    return retset;
   }
   
   /**
@@ -384,23 +444,33 @@ public class SelectionExecutor<E>
    */
   private void resolveAllColumnsFromTablesAndAttachThemToTheSelectionColumnList()
   {
-    for ( TableInternal<E> tableInternal : this.selectionData.getTableInternalList() )
+    //
+    Set<Table<E>> tableSet = this.selectionData.getTableToJoinMap().keySet();
+    
+    //
+    ElementTransformer<Table<E>, TableInternal<E>> elementConverter = new ElementTransformer<Table<E>, TableInternal<E>>()
+    {
+      @Override
+      public TableInternal<E> transformElement( Table<E> table )
+      {
+        return TableInternalHelper.extractTableInternalFromTable( table );
+      }
+    };
+    Collection<TableInternal<E>> tableInternalCollection = CollectionUtils.transformCollectionExcludingNullElements( tableSet,
+                                                                                                                     elementConverter );
+    for ( TableInternal<E> tableInternal : tableInternalCollection )
     {
       //
-      if ( tableInternal != null )
+      Table<E> table = tableInternal.getUnderlyingTable();
+      if ( table != null )
       {
         //
-        Table<E> table = tableInternal.getUnderlyingTable();
-        if ( table != null )
+        List<Column<E>> columnList = this.selectionData.getColumnList();
+        for ( Column<E> column : table.getColumnList() )
         {
-          //
-          List<Column<E>> columnList = this.selectionData.getColumnList();
-          for ( Column<E> column : table.getColumnList() )
+          if ( !columnList.contains( column ) )
           {
-            if ( !columnList.contains( column ) )
-            {
-              columnList.add( column );
-            }
+            columnList.add( column );
           }
         }
       }
@@ -452,7 +522,7 @@ public class SelectionExecutor<E>
    * @param stripe
    * @return
    */
-  private static <E> StripeInternalData<E> determineStripeDataFromStripe( Stripe<E> stripe )
+  protected static <E> StripeInternalData<E> determineStripeDataFromStripe( Stripe<E> stripe )
   {
     //
     StripeInternalData<E> retval = null;
@@ -473,6 +543,18 @@ public class SelectionExecutor<E>
     
     //
     return retval;
+  }
+  
+  /**
+   * @param column
+   */
+  private static <E> void ensureColumnHasCellDataInstancesForAllRows( Column<E> column )
+  {
+    //
+    for ( @SuppressWarnings("unused")
+    Cell<E> cell : column.cells() )
+    {
+    }
   }
   
 }

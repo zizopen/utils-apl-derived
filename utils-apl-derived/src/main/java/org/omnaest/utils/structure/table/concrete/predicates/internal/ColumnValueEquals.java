@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.predicates.internal;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,48 +54,55 @@ public class ColumnValueEquals<E> implements PredicateInternal<E>
   }
   
   @Override
-  public void filterStripeDataSet( TableBlock<E> tableBlock )
+  public void filterStripeDataSet( Collection<TableBlock<E>> tableBlockCollection )
   {
     //
-    Set<StripeData<E>> remainingStripeDataSet = new HashSet<StripeData<E>>();
-    
-    //
-    StripeData<E> columnStripeData = StripeDataHelper.extractStripeDataFromStripe( this.column );
-    if ( columnStripeData != null )
+    if ( tableBlockCollection != null && tableBlockCollection.size() == 1 )
     {
       //
-      Set<CellData<E>> cellDataSet = columnStripeData.findCellDataSetHavingCellElement( this.element );
-      if ( cellDataSet != null )
+      TableBlock<E> tableBlock = tableBlockCollection.iterator().next();
+      
+      //
+      Set<StripeData<E>> remainingStripeDataSet = new HashSet<StripeData<E>>();
+      
+      //
+      StripeData<E> columnStripeData = StripeDataHelper.extractStripeDataFromStripe( this.column );
+      if ( columnStripeData != null )
       {
-        for ( CellData<E> cellData : cellDataSet )
+        //
+        Set<CellData<E>> cellDataSet = columnStripeData.findCellDataSetHavingCellElement( this.element );
+        if ( cellDataSet != null )
         {
-          //
-          StripeData<E> stripeData = tableBlock.getTableInternal()
-                                               .getTableContent()
-                                               .getRowStripeDataList()
-                                               .findStripeDataContaining( cellData );
-          
-          //
-          if ( stripeData != null )
+          for ( CellData<E> cellData : cellDataSet )
           {
-            remainingStripeDataSet.add( stripeData );
+            //
+            StripeData<E> stripeData = tableBlock.getTableInternal()
+                                                 .getTableContent()
+                                                 .getRowStripeDataList()
+                                                 .findStripeDataContaining( cellData );
+            
+            //
+            if ( stripeData != null )
+            {
+              remainingStripeDataSet.add( stripeData );
+            }
           }
+          
         }
         
       }
       
+      //
+      tableBlock.getRowStripeDataSet().retainAll( remainingStripeDataSet );
     }
-    
-    //
-    tableBlock.getRowStripeDataSet().retainAll( remainingStripeDataSet );
-    
     //FIXME improve performance here
   }
   
   @SuppressWarnings("unchecked")
   @Override
-  public Column<E>[] requiredColumns()
+  public Column<E>[] getRequiredColumns()
   {
     return new Column[] { this.column };
   }
+  
 }

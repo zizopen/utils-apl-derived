@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
-import org.omnaest.utils.structure.table.concrete.internal.selection.SelectionExecutor;
 import org.omnaest.utils.structure.table.view.TableView;
 
 import com.sun.rowset.internal.Row;
@@ -88,8 +87,8 @@ public class SelectionExecutorTest
     //
     System.out.println( tableResult.toString() );
     assertEquals( Arrays.asList( "0:0", "0:1", "0:0", "0:1" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
-    assertEquals( Arrays.asList( "1:0", "1:1", "0:0", "0:1" ), tableResult.getRow( 1 ).asNewListOfCellElements() );
-    assertEquals( Arrays.asList( "0:0", "0:1", "1:0", "1:1" ), tableResult.getRow( 2 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "0:0", "0:1", "1:0", "1:1" ), tableResult.getRow( 1 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "1:0", "1:1", "0:0", "0:1" ), tableResult.getRow( 2 ).asNewListOfCellElements() );
     assertEquals( Arrays.asList( "1:0", "1:1", "1:0", "1:1" ), tableResult.getRow( 3 ).asNewListOfCellElements() );
   }
   

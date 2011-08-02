@@ -15,11 +15,28 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal.selection.join;
 
+import org.omnaest.utils.structure.table.concrete.internal.selection.SelectionExecutor;
+import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableBlock;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
+
 /**
+ * @see TableBlock
+ * @see SelectionExecutor
+ * @see JoinInner
  * @author Omnaest
  * @param <E>
  */
 public interface Join<E>
 {
-  
+  /**
+   * Joins two {@link TableBlock}s into one using a join dependent merging strategy
+   * 
+   * @param tableBlockLeft
+   * @param tableBlockRight
+   * @param stripeDataList
+   * @return
+   */
+  public TableBlock<E> joinTableBlocks( TableBlock<E> tableBlockLeft,
+                                        TableBlock<E> tableBlockRight,
+                                        StripeDataList<E> stripeDataList );
 }

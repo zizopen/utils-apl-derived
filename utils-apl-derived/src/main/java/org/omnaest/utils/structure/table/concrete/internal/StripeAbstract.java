@@ -48,19 +48,19 @@ public abstract class StripeAbstract<E> implements StripeInternal<E>
     this.tableInternal = tableInternal;
     this.stripeData = stripeData;
   }
-
+  
   @Override
   public int determineColumnIndexPosition()
   {
     return this.determineIndexPosition();
   }
-
+  
   @Override
   public int determineRowIndexPosition()
   {
     return this.determineIndexPosition();
   }
-
+  
   @Override
   public Stripe<E> setCellElements( E... elements )
   {
@@ -70,11 +70,68 @@ public abstract class StripeAbstract<E> implements StripeInternal<E>
     //
     return this;
   }
-
+  
   @Override
   public TableInternal<E> getTableInternal()
   {
     return this.tableInternal;
+  }
+  
+  @Override
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( this.stripeData == null ) ? 0 : this.stripeData.hashCode() );
+    result = prime * result + ( ( this.tableInternal == null ) ? 0 : this.tableInternal.hashCode() );
+    return result;
+  }
+  
+  @Override
+  public boolean equals( Object obj )
+  {
+    if ( this == obj )
+    {
+      return true;
+    }
+    if ( obj == null )
+    {
+      return false;
+    }
+    if ( !( obj instanceof StripeAbstract ) )
+    {
+      return false;
+    }
+    StripeAbstract<?> other = (StripeAbstract<?>) obj;
+    if ( this.stripeData == null )
+    {
+      if ( other.stripeData != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.stripeData.equals( other.stripeData ) )
+    {
+      return false;
+    }
+    if ( this.tableInternal == null )
+    {
+      if ( other.tableInternal != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.tableInternal.equals( other.tableInternal ) )
+    {
+      return false;
+    }
+    return true;
+  }
+  
+  @Override
+  public String toString()
+  {
+    return "Stripe[stripeData=" + this.stripeData + "]";
   }
   
 }

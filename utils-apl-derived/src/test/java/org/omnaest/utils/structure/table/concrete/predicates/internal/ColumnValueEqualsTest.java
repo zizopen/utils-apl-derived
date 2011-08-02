@@ -47,7 +47,7 @@ public class ColumnValueEqualsTest
   @Test
   public void testFilterStripeDataSet()
   {
-    Predicate<String> predicate = new ColumnValueEquals<String>( this.table.getColumn( 0 ), "0:5" );
+    Predicate<String> predicate = new ColumnValueEquals<String>( this.table.getColumn( 0 ), "1:0" );
     Table<String> tableResult = this.table.select().allColumns().where( predicate ).asTable();
     
     System.out.println( tableResult );
