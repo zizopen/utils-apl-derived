@@ -66,6 +66,7 @@ import org.omnaest.utils.structure.table.view.TableView;
  * @see TableDataSource
  * @see TableAdapter
  * @see TableView
+ * @see Selection
  * @see #setTableName(Object)
  * @see #getTableSize()
  * @param <E>
