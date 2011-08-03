@@ -54,4 +54,10 @@ public class CellDataImpl<E> implements CellData<E>
   {
     return this.element == element || ( this.element != null && this.element.equals( element ) );
   }
+  
+  @Override
+  public String toString()
+  {
+    return String.valueOf( this.element );
+  }
 }

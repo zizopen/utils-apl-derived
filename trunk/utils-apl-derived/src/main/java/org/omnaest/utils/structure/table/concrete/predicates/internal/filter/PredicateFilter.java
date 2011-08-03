@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.predicates.internal;
+package org.omnaest.utils.structure.table.concrete.predicates.internal.filter;
 
 import java.util.Collection;
 
@@ -26,7 +26,7 @@ import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predic
 import com.sun.rowset.internal.Row;
 
 /**
- * Every {@link PredicateInternal} should be represented by a static factory method within the {@link PredicateFactory}.
+ * Every {@link PredicateFilter} should be represented by a static factory method within the {@link PredicateFactory}.
  * 
  * @see PredicateFactory
  * @see Predicate
@@ -34,7 +34,7 @@ import com.sun.rowset.internal.Row;
  * @author Omnaest
  * @param <E>
  */
-public interface PredicateInternal<E> extends Predicate<E>
+public interface PredicateFilter<E> extends Predicate<E>
 {
   /**
    * Removes the {@link StripeData} instances of {@link Row}s from a given {@link TableBlock#getRowStripeDataSet()}
@@ -44,7 +44,7 @@ public interface PredicateInternal<E> extends Predicate<E>
   public void filterStripeDataSet( Collection<TableBlock<E>> tableBlockCollection );
   
   /**
-   * Returns the {@link Column}s which are required for this {@link Predicate}
+   * Returns the {@link Column}s which are required for this {@link PredicateFilter}
    * 
    * @return
    */

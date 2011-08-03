@@ -24,6 +24,7 @@ import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableBlock;
+import org.omnaest.utils.structure.table.concrete.predicates.internal.joiner.PredicateJoinerCollector;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
@@ -40,28 +41,61 @@ public class JoinInner<E> implements Join<E>
   @Override
   public TableBlock<E> joinTableBlocks( TableBlock<E> tableBlockLeft,
                                         TableBlock<E> tableBlockRight,
-                                        StripeDataList<E> stripeDataList )
+                                        StripeDataList<E> stripeDataList,
+                                        PredicateJoinerCollector<E> predicateJoinerCollector )
   {
     //    
     TableBlock<E> retval = new TableBlock<E>();
-    Set<StripeData<E>> rowStripeDataSetNew = retval.getRowStripeDataSet();
-    
-    //
-    Set<CellData<E>> columnsCellDataSet = JoinInner.<E> determineColumnsCellDataSet( tableBlockLeft, tableBlockRight );
-    
-    //
-    Set<StripeData<E>> rowStripeDataSetLeft = tableBlockLeft.getRowStripeDataSet();
-    Set<StripeData<E>> rowStripeDataSetRight = tableBlockRight.getRowStripeDataSet();
-    for ( StripeData<E> stripeDataLeft : rowStripeDataSetLeft )
+    if ( tableBlockLeft != null && tableBlockRight != null && stripeDataList != null )
     {
-      for ( StripeData<E> stripeDataRight : rowStripeDataSetRight )
+      //    
+      List<Column<E>> columnList = retval.getColumnList();
       {
-        @SuppressWarnings("unchecked")
-        StripeData<E> stripeDataMerged = StripeDataHelper.createNewStripeDataFromExisting( stripeDataList, columnsCellDataSet,
-                                                                                           stripeDataLeft, stripeDataRight );
+        //
+        List<Column<E>> columnListLeft = tableBlockLeft.getColumnList();
+        List<Column<E>> columnListRight = tableBlockRight.getColumnList();
+        columnList.addAll( columnListLeft );
+        columnList.addAll( columnListRight );
+      }
+      
+      //
+      Set<StripeData<E>> rowStripeDataSetNew = retval.getRowStripeDataSet();
+      
+      //
+      Set<CellData<E>> columnsCellDataSet = JoinInner.<E> determineColumnsCellDataSet( tableBlockLeft, tableBlockRight );
+      
+      //
+      Set<StripeData<E>> rowStripeDataSetLeft = tableBlockLeft.getRowStripeDataSet();
+      Set<StripeData<E>> rowStripeDataSetRight = tableBlockRight.getRowStripeDataSet();
+      for ( StripeData<E> stripeDataLeft : rowStripeDataSetLeft )
+      {
+        //
+        Set<StripeData<E>> joinableStripeDataSet = null;
+        if ( predicateJoinerCollector != null
+             && predicateJoinerCollector.affectsBothTableBlocks( tableBlockLeft, tableBlockRight ) )
+        {
+          //
+          joinableStripeDataSet = predicateJoinerCollector.determineJoinableStripeDataSet( stripeDataLeft, tableBlockLeft,
+                                                                                           tableBlockRight );
+          
+          //
+          joinableStripeDataSet.retainAll( tableBlockRight.getRowStripeDataSet() );
+        }
+        else
+        {
+          joinableStripeDataSet = rowStripeDataSetRight;
+        }
         
         //
-        rowStripeDataSetNew.add( stripeDataMerged );
+        for ( StripeData<E> stripeDataRight : joinableStripeDataSet )
+        {
+          @SuppressWarnings("unchecked")
+          StripeData<E> stripeDataMerged = StripeDataHelper.createNewStripeDataFromExisting( stripeDataList, columnsCellDataSet,
+                                                                                             stripeDataLeft, stripeDataRight );
+          
+          //
+          rowStripeDataSetNew.add( stripeDataMerged );
+        }
       }
     }
     
@@ -69,6 +103,11 @@ public class JoinInner<E> implements Join<E>
     return retval;
   }
   
+  /**
+   * @param tableBlockLeft
+   * @param tableBlockRight
+   * @return
+   */
   private static <E> Set<CellData<E>> determineColumnsCellDataSet( TableBlock<E> tableBlockLeft, TableBlock<E> tableBlockRight )
   {
     //

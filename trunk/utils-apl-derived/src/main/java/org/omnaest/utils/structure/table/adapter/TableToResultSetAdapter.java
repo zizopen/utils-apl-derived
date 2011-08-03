@@ -460,7 +460,7 @@ public class TableToResultSetAdapter implements ResultSet, TableAdapter
       @Override
       public int getColumnCount() throws SQLException
       {
-        return TableToResultSetAdapter.this.table.tableSize().getColumnSize();
+        return TableToResultSetAdapter.this.table.getTableSize().getColumnSize();
       }
       
       @Override

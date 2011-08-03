@@ -62,7 +62,7 @@ public class TableRowListIterator<E> implements ListIterator<Row<E>>
     @Override
     public int size()
     {
-      return this.table.tableSize().getRowSize();
+      return this.table.getTableSize().getRowSize();
     }
     
     @Override

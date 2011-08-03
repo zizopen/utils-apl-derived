@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.predicates.internal;
+package org.omnaest.utils.structure.table.concrete.predicates.internal.filter;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.concrete.predicates.PredicateFactory;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
 
 /**
@@ -47,12 +52,16 @@ public class ColumnValueEqualsTest
   @Test
   public void testFilterStripeDataSet()
   {
-    Predicate<String> predicate = new ColumnValueEquals<String>( this.table.getColumn( 0 ), "1:0" );
+    //
+    Predicate<String> predicate = PredicateFactory.columnValueEquals( this.table.getColumn( 0 ), "5:0" );
     Table<String> tableResult = this.table.select().allColumns().where( predicate ).asTable();
     
-    System.out.println( tableResult );
+    //System.out.println( tableResult );
     
-    //FIXME go on here
+    //
+    assertEquals( 1, tableResult.getTableSize().getRowSize() );
+    assertEquals( Arrays.asList( "5:0", "5:1" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
+    
   }
   
 }

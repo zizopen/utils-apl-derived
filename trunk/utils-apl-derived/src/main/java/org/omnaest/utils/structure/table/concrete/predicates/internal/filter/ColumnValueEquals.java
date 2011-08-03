@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.predicates.internal;
+package org.omnaest.utils.structure.table.concrete.predicates.internal.filter;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.omnaest.utils.structure.table.Table.Column;
@@ -28,10 +29,10 @@ import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predic
 
 /**
  * @see Predicate
- * @see PredicateInternal
+ * @see PredicateFilter
  * @author Omnaest
  */
-public class ColumnValueEquals<E> implements PredicateInternal<E>
+public class ColumnValueEquals<E> implements PredicateFilter<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = -8287655781277028388L;
@@ -76,15 +77,15 @@ public class ColumnValueEquals<E> implements PredicateInternal<E>
           for ( CellData<E> cellData : cellDataSet )
           {
             //
-            StripeData<E> stripeData = tableBlock.getTableInternal()
-                                                 .getTableContent()
-                                                 .getRowStripeDataList()
-                                                 .findStripeDataContaining( cellData );
+            List<StripeData<E>> stripeDataList = tableBlock.getTableInternal()
+                                                           .getTableContent()
+                                                           .getRowStripeDataList()
+                                                           .findStripeDataListContaining( cellData );
             
             //
-            if ( stripeData != null )
+            if ( stripeDataList != null )
             {
-              remainingStripeDataSet.add( stripeData );
+              remainingStripeDataSet.addAll( stripeDataList );
             }
           }
           

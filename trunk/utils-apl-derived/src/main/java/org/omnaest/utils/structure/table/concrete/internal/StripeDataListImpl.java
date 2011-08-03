@@ -143,10 +143,10 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   }
   
   @Override
-  public StripeData<E> findStripeDataContaining( CellData<E> cellData )
+  public List<StripeData<E>> findStripeDataListContaining( CellData<E> cellData )
   {
     //
-    StripeData<E> retval = null;
+    List<StripeData<E>> retlist = new ArrayList<StripeData<E>>();
     
     //
     if ( cellData != null )
@@ -156,14 +156,13 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
         if ( stripe.contains( cellData ) )
         {
           //
-          retval = stripe;
-          break;
+          retlist.add( stripe );
         }
       }
     }
     
     //
-    return retval;
+    return retlist;
   }
   
   @Override

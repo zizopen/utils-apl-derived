@@ -95,8 +95,8 @@ public class TableListToCallableStatementAdapterTest
       {
         //
         ResultSet resultSet1 = this.callableStatement.executeQuery();
-        int rows = this.table1.tableSize().getRowSize();
-        int columns = this.table1.tableSize().getColumnSize();
+        int rows = this.table1.getTableSize().getRowSize();
+        int columns = this.table1.getTableSize().getColumnSize();
         
         this.assertResultSet( resultSet1, rows, columns );
       }
@@ -106,8 +106,8 @@ public class TableListToCallableStatementAdapterTest
         //      
         assertTrue( this.callableStatement.getMoreResults() );
         ResultSet resultSet2 = this.callableStatement.getResultSet();
-        int rows = this.table2.tableSize().getRowSize();
-        int columns = this.table2.tableSize().getColumnSize();
+        int rows = this.table2.getTableSize().getRowSize();
+        int columns = this.table2.getTableSize().getColumnSize();
         
         this.assertResultSet( resultSet2, rows, columns );
       }

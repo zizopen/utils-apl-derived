@@ -67,7 +67,7 @@ import org.omnaest.utils.structure.table.view.TableView;
  * @see TableAdapter
  * @see TableView
  * @see #setTableName(Object)
- * @see #tableSize()
+ * @see #getTableSize()
  * @param <E>
  *          type of the {@link Table} elements
  * @author Omnaest
@@ -205,6 +205,13 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      * @return
      */
     public E getCellElement( Object titleValue );
+    
+    /**
+     * Returns a new {@link List} instance of all {@link Cell#getElement()} in order
+     * 
+     * @return
+     */
+    public List<E> getCellElementList();
     
     /**
      * Returns the {@link Title}.

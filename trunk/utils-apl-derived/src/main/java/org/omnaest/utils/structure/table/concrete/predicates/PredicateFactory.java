@@ -15,8 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.predicates;
 
+import java.util.Arrays;
+
 import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.concrete.predicates.internal.ColumnValueEquals;
+import org.omnaest.utils.structure.table.concrete.predicates.internal.filter.ColumnValueEquals;
+import org.omnaest.utils.structure.table.concrete.predicates.internal.joiner.EqualColumns;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
 
 public class PredicateFactory<E>
@@ -37,6 +40,26 @@ public class PredicateFactory<E>
     if ( column != null )
     {
       retval = new ColumnValueEquals<E>( column, element );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * @see EqualColumns
+   * @param columns
+   * @return
+   */
+  public static <E> Predicate<E> equalColumns( Column<E>... columns )
+  {
+    //    
+    Predicate<E> retval = null;
+    
+    //
+    if ( columns != null )
+    {
+      retval = new EqualColumns<E>( Arrays.asList( columns ) );
     }
     
     //

@@ -20,7 +20,8 @@ import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.SelectionData;
 import org.omnaest.utils.structure.table.concrete.internal.selection.join.Join;
 import org.omnaest.utils.structure.table.concrete.internal.selection.join.JoinInner;
-import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
+import org.omnaest.utils.structure.table.concrete.predicates.internal.filter.PredicateFilter;
+import org.omnaest.utils.structure.table.concrete.predicates.internal.joiner.PredicateJoiner;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
@@ -44,6 +45,7 @@ public class SelectionImpl<E> implements SelectionJoin<E>
    * @see SelectionImpl
    * @param tableInternal
    */
+  @SuppressWarnings("unchecked")
   public SelectionImpl( TableInternal<E> tableInternal )
   {
     //
@@ -139,9 +141,13 @@ public class SelectionImpl<E> implements SelectionJoin<E>
     {
       for ( Predicate<E> predicate : predicates )
       {
-        if ( predicate instanceof PredicateInternal )
+        if ( predicate instanceof PredicateFilter )
         {
-          this.selectionData.getPredicateList().add( (PredicateInternal<E>) predicate );
+          this.selectionData.getPredicateFilterList().add( (PredicateFilter<E>) predicate );
+        }
+        if ( predicate instanceof PredicateJoiner )
+        {
+          this.selectionData.getPredicateJoinerList().add( (PredicateJoiner<E>) predicate );
         }
       }
     }

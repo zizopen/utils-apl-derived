@@ -210,7 +210,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public TableSize tableSize()
+  public TableSize getTableSize()
   {
     return this.tableContent.getTableSize();
   }
@@ -239,7 +239,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addColumnCellElements( List<? extends E> columnCellElementList )
   {
     //
-    int columnIndexPosition = this.tableSize().getColumnSize();
+    int columnIndexPosition = this.getTableSize().getColumnSize();
     this.setColumnCellElements( columnIndexPosition, columnCellElementList );
     
     //
@@ -264,7 +264,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> addRowCellElements( List<? extends E> rowCellElementList )
   {
     //
-    int rowIndexPosition = this.tableSize().getRowSize();
+    int rowIndexPosition = this.getTableSize().getRowSize();
     this.setRowCellElements( rowIndexPosition, rowCellElementList );
     
     //
@@ -387,8 +387,8 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     //
     ArrayTable<E> retval = new ArrayTable<E>();
-    retval.setNumberOfColumns( this.tableSize().getColumnSize() );
-    retval.setNumberOfRows( this.tableSize().getRowSize() );
+    retval.setNumberOfColumns( this.getTableSize().getColumnSize() );
+    retval.setNumberOfRows( this.getTableSize().getRowSize() );
     TableCellVisitor<E> tableCellVisitor = new TableCellVisitor<E>()
     {
       /* ********************************************** Variables ********************************************** */

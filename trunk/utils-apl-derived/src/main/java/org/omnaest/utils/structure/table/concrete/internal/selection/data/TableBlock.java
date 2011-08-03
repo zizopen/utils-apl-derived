@@ -16,8 +16,10 @@
 package org.omnaest.utils.structure.table.concrete.internal.selection.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.omnaest.utils.structure.table.Table.Column;
@@ -39,11 +41,14 @@ import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predic
 public class TableBlock<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected TableInternal<E>   tableInternal    = null;
-  protected List<Column<E>>    columnList       = new ArrayList<Column<E>>();
-  protected Set<StripeData<E>> rowStripeDataSet = new LinkedHashSet<StripeData<E>>();
+  protected TableInternal<E>                   tableInternal              = null;
+  protected List<Column<E>>                    columnList                 = new ArrayList<Column<E>>();
+  protected Set<StripeData<E>>                 rowStripeDataSet           = new LinkedHashSet<StripeData<E>>();
+  
+  protected Map<Column<E>, StripeDataIndex<E>> columnToStripeDataIndexMap = new HashMap<Column<E>, StripeDataIndex<E>>();
   
   /* ********************************************** Methods ********************************************** */
+  
   /**
    * @return the tableInternal
    */
@@ -75,6 +80,14 @@ public class TableBlock<E>
   public Set<StripeData<E>> getRowStripeDataSet()
   {
     return this.rowStripeDataSet;
+  }
+  
+  /**
+   * @return the columnToStripeDataIndexMap
+   */
+  public Map<Column<E>, StripeDataIndex<E>> getColumnToStripeDataIndexMap()
+  {
+    return this.columnToStripeDataIndexMap;
   }
   
 }
