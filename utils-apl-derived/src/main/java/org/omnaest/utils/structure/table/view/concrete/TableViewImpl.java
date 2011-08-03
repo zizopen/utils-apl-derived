@@ -98,9 +98,9 @@ public class TableViewImpl<E> implements TableView<E>
   }
   
   @Override
-  public TableSize tableSize()
+  public TableSize getTableSize()
   {
-    return this.resultTable.tableSize();
+    return this.resultTable.getTableSize();
   }
   
   @Override

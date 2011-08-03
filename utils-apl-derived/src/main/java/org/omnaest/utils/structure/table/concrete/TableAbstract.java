@@ -200,7 +200,7 @@ public abstract class TableAbstract<E> implements Table<E>
       @Override
       public boolean hasNext()
       {
-        return this.cellIndexPosition + 1 < TableAbstract.this.tableSize().getCellSize();
+        return this.cellIndexPosition + 1 < TableAbstract.this.getTableSize().getCellSize();
       }
       
       @Override
@@ -227,9 +227,9 @@ public abstract class TableAbstract<E> implements Table<E>
     //
     if ( tableCellVisitor != null )
     {
-      for ( int rowIndexPosition = 0; rowIndexPosition < this.tableSize().getRowSize(); rowIndexPosition++ )
+      for ( int rowIndexPosition = 0; rowIndexPosition < this.getTableSize().getRowSize(); rowIndexPosition++ )
       {
-        for ( int columnIndexPosition = 0; columnIndexPosition < this.tableSize().getColumnSize(); columnIndexPosition++ )
+        for ( int columnIndexPosition = 0; columnIndexPosition < this.getTableSize().getColumnSize(); columnIndexPosition++ )
         {
           tableCellVisitor.process( rowIndexPosition, columnIndexPosition, this.getCell( rowIndexPosition, columnIndexPosition ) );
         }
@@ -377,7 +377,7 @@ public abstract class TableAbstract<E> implements Table<E>
   {
     //
     final int rowIndexPosition = 0;
-    for ( int columnIndexPosition = 0; columnIndexPosition < this.tableSize().getColumnSize(); columnIndexPosition++ )
+    for ( int columnIndexPosition = 0; columnIndexPosition < this.getTableSize().getColumnSize(); columnIndexPosition++ )
     {
       //
       Object titleValue = this.getCellElement( rowIndexPosition, columnIndexPosition );
@@ -396,7 +396,7 @@ public abstract class TableAbstract<E> implements Table<E>
   {
     //
     final int columnIndexPosition = 0;
-    for ( int rowIndexPosition = 0; rowIndexPosition < this.tableSize().getRowSize(); rowIndexPosition++ )
+    for ( int rowIndexPosition = 0; rowIndexPosition < this.getTableSize().getRowSize(); rowIndexPosition++ )
     {
       //
       Object titleValue = this.getCellElement( rowIndexPosition, columnIndexPosition );
@@ -461,7 +461,7 @@ public abstract class TableAbstract<E> implements Table<E>
       @Override
       public boolean hasNext()
       {
-        return this.columnIndexPosition + 1 < TableAbstract.this.tableSize().getColumnSize();
+        return this.columnIndexPosition + 1 < TableAbstract.this.getTableSize().getColumnSize();
       }
       
       @Override
@@ -507,7 +507,7 @@ public abstract class TableAbstract<E> implements Table<E>
     if ( retval )
     {
       //
-      retval = this.tableSize().equals( table.tableSize() );
+      retval = this.getTableSize().equals( table.getTableSize() );
       
       //
       retval &= this.getTableName() == table.getTableName()
@@ -613,7 +613,7 @@ public abstract class TableAbstract<E> implements Table<E>
   public Table<E> setNumberOfColumns( int numberOfColumns )
   {
     //
-    for ( int columnIndexPosition = this.tableSize().getColumnSize() - 1; columnIndexPosition >= numberOfColumns; columnIndexPosition-- )
+    for ( int columnIndexPosition = this.getTableSize().getColumnSize() - 1; columnIndexPosition >= numberOfColumns; columnIndexPosition-- )
     {
       this.removeColumn( columnIndexPosition );
     }
@@ -629,7 +629,7 @@ public abstract class TableAbstract<E> implements Table<E>
   public Table<E> ensureNumberOfColumns( int numberOfColumns )
   {
     //
-    if ( numberOfColumns > 0 && this.tableSize().getColumnSize() < numberOfColumns )
+    if ( numberOfColumns > 0 && this.getTableSize().getColumnSize() < numberOfColumns )
     {
       //
       int rowIndexPosition = 0;
@@ -646,7 +646,7 @@ public abstract class TableAbstract<E> implements Table<E>
   public Table<E> setNumberOfRows( int numberOfRows )
   {
     //
-    for ( int rowIndexPosition = this.tableSize().getColumnSize() - 1; rowIndexPosition >= numberOfRows; rowIndexPosition-- )
+    for ( int rowIndexPosition = this.getTableSize().getColumnSize() - 1; rowIndexPosition >= numberOfRows; rowIndexPosition-- )
     {
       this.removeRow( rowIndexPosition );
     }
@@ -662,7 +662,7 @@ public abstract class TableAbstract<E> implements Table<E>
   public Table<E> ensureNumberOfRows( int numberOfRows )
   {
     //
-    if ( numberOfRows > 0 && this.tableSize().getRowSize() < numberOfRows )
+    if ( numberOfRows > 0 && this.getTableSize().getRowSize() < numberOfRows )
     {
       //
       int rowIndexPosition = numberOfRows - 1;

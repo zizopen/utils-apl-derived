@@ -86,7 +86,7 @@ public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, Clo
    * 
    * @return
    */
-  public TableSize tableSize();
+  public TableSize getTableSize();
   
   /**
    * Returns the name for the whole table.

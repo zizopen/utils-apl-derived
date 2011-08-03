@@ -528,12 +528,12 @@ public interface TableInternal<E>
     public StripeData<E> getStripeData( int indexPosition );
     
     /**
-     * Returns the {@link Stripe} which contains the given {@link Cell}
+     * Returns the {@link List} of {@link StripeData} which contains the given {@link Cell}
      * 
      * @param cellData
      * @return
      */
-    public StripeData<E> findStripeDataContaining( CellData<E> cellData );
+    public List<StripeData<E>> findStripeDataListContaining( CellData<E> cellData );
     
     /**
      * Returns true if the {@link StripeDataList} does not contain any {@link Stripe} instance.

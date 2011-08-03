@@ -103,8 +103,8 @@ public class TableMarshallerXML<E> implements TableMarshaller<E>
       ArrayList<Object> rowTitleValueList = new ArrayList<Object>( table.getRowTitleValueList() );
       ArrayList<Object> columnTitleValueList = new ArrayList<Object>( table.getColumnTitleValueList() );
       ArrayList<E> cellElementList = new ArrayList<E>( table.getCellElementList() );
-      Integer columnSize = table.tableSize().getColumnSize();
-      Integer rowSize = table.tableSize().getRowSize();
+      Integer columnSize = table.getTableSize().getColumnSize();
+      Integer rowSize = table.getTableSize().getRowSize();
       Object tableName = table.getTableName();
       
       retval = new XMLDataContainer<E>( rowTitleValueList, columnTitleValueList, cellElementList, columnSize, rowSize, tableName );

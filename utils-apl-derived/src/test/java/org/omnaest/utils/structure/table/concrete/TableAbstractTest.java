@@ -56,8 +56,8 @@ public class TableAbstractTest
     this.table.putTable( insertTable, rowIndexPosition, columnIndexPosition );
     
     //
-    assertEquals( rows, this.table.tableSize().getRowSize() );
-    assertEquals( columnsInsert + columnIndexPosition, this.table.tableSize().getColumnSize() );
+    assertEquals( rows, this.table.getTableSize().getRowSize() );
+    assertEquals( columnsInsert + columnIndexPosition, this.table.getTableSize().getColumnSize() );
     
     assertEquals( "0:0", this.table.getCellElement( 0, 0 ) );
     assertEquals( "0:0", this.table.getCellElement( rowIndexPosition, columnIndexPosition ) );

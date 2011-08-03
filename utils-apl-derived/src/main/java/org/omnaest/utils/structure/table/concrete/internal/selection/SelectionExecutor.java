@@ -15,7 +15,9 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal.selection;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,10 +35,13 @@ import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
 import org.omnaest.utils.structure.table.concrete.internal.helper.TableInternalHelper;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.SelectionData;
+import org.omnaest.utils.structure.table.concrete.internal.selection.data.StripeDataIndex;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableBlock;
 import org.omnaest.utils.structure.table.concrete.internal.selection.join.Join;
 import org.omnaest.utils.structure.table.concrete.internal.selection.join.JoinInner;
-import org.omnaest.utils.structure.table.concrete.predicates.internal.PredicateInternal;
+import org.omnaest.utils.structure.table.concrete.predicates.internal.filter.PredicateFilter;
+import org.omnaest.utils.structure.table.concrete.predicates.internal.joiner.PredicateJoiner;
+import org.omnaest.utils.structure.table.concrete.predicates.internal.joiner.PredicateJoinerCollector;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
@@ -161,6 +166,7 @@ public class SelectionExecutor<E>
     
     //
     Map<Column<E>, TableBlock<E>> columnToTableBlockMap = this.createColumnToTableBlockMap();
+    this.createStripeDataIndexes( columnToTableBlockMap.values() );
     this.processPredicates( columnToTableBlockMap );
     TableBlock<E> joinedTableBlock = this.joinTableBlocks( columnToTableBlockMap, tableInternal.getTableContent()
                                                                                                .getRowStripeDataList() );
@@ -170,6 +176,67 @@ public class SelectionExecutor<E>
     
     //
     return tableInternal.getUnderlyingTable();
+  }
+  
+  /**
+   * Creates the {@link TableBlock#getColumnToStripeDataIndexMap()}
+   * 
+   * @param tableBlockCollection
+   */
+  private void createStripeDataIndexes( Collection<TableBlock<E>> tableBlockCollection )
+  {
+    //
+    if ( tableBlockCollection != null )
+    {
+      //
+      Set<Column<E>> columnSetUsedByPredicates = this.determineColumnSetUsedByPredicates();
+      
+      //
+      for ( TableBlock<E> tableBlock : tableBlockCollection )
+      {
+        if ( tableBlock != null )
+        {
+          //
+          Map<Column<E>, StripeDataIndex<E>> columnToStripeDataIndexMap = tableBlock.getColumnToStripeDataIndexMap();
+          TableInternal<E> tableInternal = tableBlock.getTableInternal();
+          for ( Column<E> column : tableBlock.getColumnList() )
+          {
+            //
+            if ( columnSetUsedByPredicates.contains( column ) )
+            {
+              //
+              StripeDataIndex<E> stripeDataIndex = new StripeDataIndex<E>( tableInternal, column );
+              
+              //
+              columnToStripeDataIndexMap.put( column, stripeDataIndex );
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  private Set<Column<E>> determineColumnSetUsedByPredicates()
+  {
+    //
+    Set<Column<E>> retset = new HashSet<Column<E>>();
+    
+    //
+    for ( PredicateFilter<E> predicateFilter : this.selectionData.getPredicateFilterList() )
+    {
+      Column<E>[] requiredColumns = predicateFilter.getRequiredColumns();
+      retset.addAll( Arrays.asList( requiredColumns ) );
+    }
+    
+    //
+    for ( PredicateJoiner<E> predicateJoiner : this.selectionData.getPredicateJoinerList() )
+    {
+      Column<E>[] requiredColumns = predicateJoiner.getRequiredColumns();
+      retset.addAll( Arrays.asList( requiredColumns ) );
+    }
+    
+    //
+    return retset;
   }
   
   /**
@@ -217,7 +284,9 @@ public class SelectionExecutor<E>
           //
           TableBlock<E> tableBlockLeft = retval;
           TableBlock<E> tableBlockRight = tableBlock;
-          TableBlock<E> joinedTableBlock = join.joinTableBlocks( tableBlockLeft, tableBlockRight, stripeDataList );
+          PredicateJoinerCollector<E> predicateJoinerCollector = this.createPredicateJoinerCollector();
+          TableBlock<E> joinedTableBlock = join.joinTableBlocks( tableBlockLeft, tableBlockRight, stripeDataList,
+                                                                 predicateJoinerCollector );
           
           //
           if ( joinedTableBlock != null )
@@ -230,6 +299,18 @@ public class SelectionExecutor<E>
     
     //
     return retval;
+  }
+  
+  /**
+   * @see PredicateJoinerCollector
+   * @return
+   */
+  private PredicateJoinerCollector<E> createPredicateJoinerCollector()
+  {
+    //
+    Set<PredicateJoiner<E>> predicateJoinerSet = new LinkedHashSet<PredicateJoiner<E>>(
+                                                                                        this.selectionData.getPredicateJoinerList() );
+    return new PredicateJoinerCollector<E>( predicateJoinerSet );
   }
   
   /**
@@ -341,7 +422,7 @@ public class SelectionExecutor<E>
   }
   
   /**
-   * Executes the {@link PredicateInternal}s declared for the
+   * Executes the {@link PredicateFilter}s declared for the
    * {@link Selection#where(org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate...)} clause
    * 
    * @param columnToTableBlockMap
@@ -349,7 +430,7 @@ public class SelectionExecutor<E>
   private void processPredicates( Map<Column<E>, TableBlock<E>> columnToTableBlockMap )
   {
     //
-    for ( PredicateInternal<E> predicateInternal : this.selectionData.getPredicateList() )
+    for ( PredicateFilter<E> predicateInternal : this.selectionData.getPredicateFilterList() )
     {
       //
       Column<E>[] requiredColumns = predicateInternal.getRequiredColumns();
@@ -423,7 +504,7 @@ public class SelectionExecutor<E>
     for ( Column<E> column : this.selectionData.getColumnList() )
     {
       //
-      StripeInternalData<E> stripeInternalData = SelectionExecutor.<E> determineStripeDataFromStripe( column );
+      StripeInternalData<E> stripeInternalData = SelectionExecutor.<E> determineStripeDataInternalFromStripe( column );
       if ( stripeInternalData != null && stripeInternalData.isValid() )
       {
         //
@@ -493,7 +574,7 @@ public class SelectionExecutor<E>
     for ( Column<E> column : this.selectionData.getColumnList() )
     {
       //
-      StripeInternalData<E> stripeInternalData = SelectionExecutor.<E> determineStripeDataFromStripe( column );
+      StripeInternalData<E> stripeInternalData = SelectionExecutor.<E> determineStripeDataInternalFromStripe( column );
       if ( stripeInternalData != null )
       {
         //
@@ -522,7 +603,7 @@ public class SelectionExecutor<E>
    * @param stripe
    * @return
    */
-  protected static <E> StripeInternalData<E> determineStripeDataFromStripe( Stripe<E> stripe )
+  protected static <E> StripeInternalData<E> determineStripeDataInternalFromStripe( Stripe<E> stripe )
   {
     //
     StripeInternalData<E> retval = null;

@@ -79,7 +79,7 @@ public class TableToResultSetAdapterTest
   public void testNext() throws SQLException
   {
     //
-    final int rows = this.table.tableSize().getRowSize();
+    final int rows = this.table.getTableSize().getRowSize();
     
     //
     assertTrue( this.resultSet.isBeforeFirst() );
@@ -280,7 +280,7 @@ public class TableToResultSetAdapterTest
   public void testPrevious() throws SQLException
   {
     //
-    final int rows = this.table.tableSize().getRowSize();
+    final int rows = this.table.getTableSize().getRowSize();
     
     //
     while ( this.resultSet.next() )
@@ -340,7 +340,7 @@ public class TableToResultSetAdapterTest
   @Test
   public void testAbsolute() throws SQLException
   {
-    for ( int ii = 0; ii < this.table.tableSize().getRowSize(); ii++ )
+    for ( int ii = 0; ii < this.table.getTableSize().getRowSize(); ii++ )
     {
       //
       this.resultSet.absolute( ii );

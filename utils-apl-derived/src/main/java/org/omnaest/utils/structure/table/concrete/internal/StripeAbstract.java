@@ -15,7 +15,9 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.internal.TableInternal;
@@ -132,6 +134,23 @@ public abstract class StripeAbstract<E> implements StripeInternal<E>
   public String toString()
   {
     return "Stripe[stripeData=" + this.stripeData + "]";
+  }
+  
+  @Override
+  public List<E> getCellElementList()
+  {
+    //
+    List<E> retlist = new ArrayList<E>();
+    
+    //
+    int numberOfCells = this.determineNumberOfCells();
+    for ( int indexPosition = 0; indexPosition < numberOfCells; indexPosition++ )
+    {
+      retlist.add( this.getCellElement( indexPosition ) );
+    }
+    
+    //
+    return retlist;
   }
   
 }
