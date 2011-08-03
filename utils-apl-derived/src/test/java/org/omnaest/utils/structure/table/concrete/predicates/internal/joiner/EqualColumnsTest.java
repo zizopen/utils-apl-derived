@@ -69,7 +69,8 @@ public class EqualColumnsTest
     Predicate<String> predicate = PredicateFactory.equalColumns( this.table1.getColumn( 1 ), this.table2.getColumn( 1 ) );
     Table<String> tableResult = this.table1.select().allColumns().innerJoin( this.table2 ).on( predicate ).asTable();
     
-    System.out.println( tableResult );
+    //
+    //System.out.println( tableResult );
     
     //
     assertEquals( 3, tableResult.getTableSize().getRowSize() );

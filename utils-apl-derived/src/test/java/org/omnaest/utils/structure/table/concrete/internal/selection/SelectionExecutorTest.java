@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
-import org.omnaest.utils.structure.table.view.TableView;
 
 import com.sun.rowset.internal.Row;
 
@@ -38,12 +37,6 @@ public class SelectionExecutorTest
   protected Table<String> table2 = new ArrayTable<String>();
   
   /* ********************************************** Methods ********************************************** */
-  
-  @Test
-  public void testAsView()
-  {
-    TableView<String> result = this.table.select().allColumns().asView();
-  }
   
   @Test
   public void testAsTableSelectAllColumnsFromOneTable()
