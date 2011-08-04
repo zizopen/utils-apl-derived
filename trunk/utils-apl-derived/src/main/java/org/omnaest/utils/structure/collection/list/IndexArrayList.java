@@ -656,7 +656,7 @@ public class IndexArrayList<E extends Comparable<? super E>> implements IndexLis
   /**
    * Returns the indexes of the elements that are equal or between the smallestElement and the largestElement.
    * 
-   * @param element
+   * @param elementFrom
    * @return
    */
   public int[] indexesOfElementsEqualOrBetween( E smallestElement, E largestElement )

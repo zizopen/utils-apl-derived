@@ -34,26 +34,28 @@ import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predic
  * @see PredicateFilter
  * @author Omnaest
  */
-public class ColumnValueEquals<E> implements PredicateFilter<E>
+public class ColumnValueIsBetween<E> implements PredicateFilter<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long       serialVersionUID = -8287655781277028388L;
   
   /* ********************************************** Variables ********************************************** */
   protected Collection<Column<E>> columnCollection = null;
-  protected E                     element          = null;
+  protected E                     elementFrom      = null;
+  protected E                     elementTo        = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
    * @param column
-   * @param element
+   * @param elementFrom
    */
-  public ColumnValueEquals( Collection<Column<E>> columnCollection, E element )
+  public ColumnValueIsBetween( Collection<Column<E>> columnCollection, E elementFrom, E elementTo )
   {
     super();
     this.columnCollection = columnCollection;
-    this.element = element;
+    this.elementFrom = elementFrom;
+    this.elementTo = elementTo;
   }
   
   /**
@@ -61,18 +63,18 @@ public class ColumnValueEquals<E> implements PredicateFilter<E>
    * @param element
    */
   @SuppressWarnings("unchecked")
-  public ColumnValueEquals( Column<E> column, E element )
+  public ColumnValueIsBetween( Column<E> column, E elementFrom, E elementTo )
   {
-    this( Arrays.asList( column ), element );
+    this( Arrays.asList( column ), elementFrom, elementTo );
   }
   
   /**
    * @param column
    * @param element
    */
-  public ColumnValueEquals( E element, Column<E>... columns )
+  public ColumnValueIsBetween( E elementFrom, E elementTo, Column<E>... columns )
   {
-    this( Arrays.asList( columns ), element );
+    this( Arrays.asList( columns ), elementFrom, elementTo );
   }
   
   @Override
@@ -91,13 +93,14 @@ public class ColumnValueEquals<E> implements PredicateFilter<E>
         Map<Column<E>, List<StripeData<E>>> columnToStripeDataListMap = new HashMap<Column<E>, List<StripeData<E>>>();
         for ( Column<E> column : columnCollectionMatching )
         {
-          //
           ScannableStripeDataContainer<E> scannableStripeDataContainer = tableBlock.getColumnToScannableStripeDataContainerMap()
                                                                                    .get( column );
           if ( scannableStripeDataContainer != null )
           {
-            List<StripeData<E>> rowStripeDataSetContainingElement = scannableStripeDataContainer.determineStripeDataListContainingElement( this.element );
-            columnToStripeDataListMap.put( column, rowStripeDataSetContainingElement );
+            //
+            List<StripeData<E>> rowStripeDataListContainingElement = scannableStripeDataContainer.determineStripeDataListForRange( this.elementFrom,
+                                                                                                                                   this.elementTo );
+            columnToStripeDataListMap.put( column, rowStripeDataListContainingElement );
           }
         }
         

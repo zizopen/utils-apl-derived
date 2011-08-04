@@ -85,7 +85,7 @@ public class TableDataSourceResultSet<E> implements TableDataSource<E>
                 return new Iterator<CellImmutable<E>>()
                 {
                   /* ********************************************** Variables ********************************************** */
-                  protected int columnIndexPosition = 0;
+                  protected int columnIndexPosition = 1;
                   
                   /* ********************************************** Methods ********************************************** */
                   
@@ -94,7 +94,7 @@ public class TableDataSourceResultSet<E> implements TableDataSource<E>
                   {
                     try
                     {
-                      return this.columnIndexPosition < resultSet.getMetaData().getColumnCount();
+                      return this.columnIndexPosition <= resultSet.getMetaData().getColumnCount();
                     }
                     catch ( SQLException e )
                     {
@@ -170,7 +170,7 @@ public class TableDataSourceResultSet<E> implements TableDataSource<E>
       ResultSetMetaData metaData = this.resultSet.getMetaData();
       if ( metaData != null )
       {
-        for ( int columnIndexPosition = 0; columnIndexPosition < metaData.getColumnCount(); columnIndexPosition++ )
+        for ( int columnIndexPosition = 1; columnIndexPosition <= metaData.getColumnCount(); columnIndexPosition++ )
         {
           //
           String columnName = metaData.getColumnName( columnIndexPosition );

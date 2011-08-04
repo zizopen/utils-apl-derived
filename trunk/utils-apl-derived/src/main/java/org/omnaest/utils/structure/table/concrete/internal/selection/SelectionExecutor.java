@@ -35,10 +35,12 @@ import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
 import org.omnaest.utils.structure.table.concrete.internal.helper.TableInternalHelper;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.SelectionData;
-import org.omnaest.utils.structure.table.concrete.internal.selection.data.StripeDataIndex;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableBlock;
 import org.omnaest.utils.structure.table.concrete.internal.selection.join.Join;
 import org.omnaest.utils.structure.table.concrete.internal.selection.join.JoinInner;
+import org.omnaest.utils.structure.table.concrete.internal.selection.scannable.ScannableStripeDataContainer;
+import org.omnaest.utils.structure.table.concrete.internal.selection.scannable.ScannableStripeDataContainerFullScan;
+import org.omnaest.utils.structure.table.concrete.internal.selection.scannable.ScannableStripeDataContainerIndex;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.filter.PredicateFilter;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.joiner.PredicateJoiner;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.joiner.PredicateJoinerCollector;
@@ -197,7 +199,7 @@ public class SelectionExecutor<E>
         if ( tableBlock != null )
         {
           //
-          Map<Column<E>, StripeDataIndex<E>> columnToStripeDataIndexMap = tableBlock.getColumnToStripeDataIndexMap();
+          Map<Column<E>, ScannableStripeDataContainer<E>> columnToScannableStripeDataContainerMap = tableBlock.getColumnToScannableStripeDataContainerMap();
           TableInternal<E> tableInternal = tableBlock.getTableInternal();
           for ( Column<E> column : tableBlock.getColumnList() )
           {
@@ -205,10 +207,16 @@ public class SelectionExecutor<E>
             if ( columnSetUsedByPredicates.contains( column ) )
             {
               //
-              StripeDataIndex<E> stripeDataIndex = new StripeDataIndex<E>( tableInternal, column );
+              ScannableStripeDataContainer<E> scannableStripeDataContainer = new ScannableStripeDataContainerIndex<E>(
+                                                                                                                       tableInternal,
+                                                                                                                       column );
+              if ( !scannableStripeDataContainer.isValid() )
+              {
+                scannableStripeDataContainer = new ScannableStripeDataContainerFullScan<E>( tableInternal, column );
+              }
               
               //
-              columnToStripeDataIndexMap.put( column, stripeDataIndex );
+              columnToScannableStripeDataContainerMap.put( column, scannableStripeDataContainer );
             }
           }
         }

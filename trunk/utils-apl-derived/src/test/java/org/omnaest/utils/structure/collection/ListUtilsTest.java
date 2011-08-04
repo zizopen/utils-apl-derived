@@ -81,4 +81,16 @@ public class ListUtilsTest
     assertEquals( null, ListUtils.lastElementOf( null, 0 ) );
   }
   
+  @Test
+  public void testIntersection()
+  {
+    //
+    List<List<String>> testList = new ArrayList<List<String>>();
+    testList.add( Arrays.asList( "a", "b", "c", "d" ) );
+    testList.add( Arrays.asList( "a", "c", "d" ) );
+    testList.add( Arrays.asList( "a", "b", "d" ) );
+    
+    //
+    assertEquals( Arrays.asList( "a", "d" ), ListUtils.intersection( testList ) );
+  }
 }

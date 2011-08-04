@@ -27,8 +27,8 @@ import java.util.Set;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.concrete.internal.selection.data.StripeDataIndex;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableBlock;
+import org.omnaest.utils.structure.table.concrete.internal.selection.scannable.ScannableStripeDataContainer;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.filter.PredicateFilter;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
@@ -114,17 +114,17 @@ public class EqualColumns<E> implements PredicateJoiner<E>, PredicateFilter<E>
         E elementReference = cellElementList.get( 0 );
         
         //
-        Map<Column<E>, StripeDataIndex<E>> columnToStripeDataIndexMap = tableBlockRight.getColumnToStripeDataIndexMap();
+        Map<Column<E>, ScannableStripeDataContainer<E>> columnToStripeDataIndexMap = tableBlockRight.getColumnToScannableStripeDataContainerMap();
         List<Column<E>> columnListAffected = this.tableInternalToColumnListMap.get( tableBlockRight.getTableInternal() );
         if ( columnListAffected != null )
         {
           for ( Column<E> column : columnListAffected )
           {
             //
-            StripeDataIndex<E> stripeDataIndex = columnToStripeDataIndexMap.get( column );
-            if ( stripeDataIndex != null )
+            ScannableStripeDataContainer<E> scannableStripeDataContainer = columnToStripeDataIndexMap.get( column );
+            if ( scannableStripeDataContainer != null )
             {
-              List<StripeData<E>> stripeDataList = stripeDataIndex.get( elementReference );
+              List<StripeData<E>> stripeDataList = scannableStripeDataContainer.determineStripeDataListContainingElement( elementReference );
               if ( stripeDataList != null )
               {
                 retset.addAll( stripeDataList );
