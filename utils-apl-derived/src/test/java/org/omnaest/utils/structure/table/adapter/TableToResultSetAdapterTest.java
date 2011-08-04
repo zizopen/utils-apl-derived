@@ -152,20 +152,20 @@ public class TableToResultSetAdapterTest
     {
       //
       int ii = 0;
-      assertEquals( this.elementValueList.get( ii ), this.resultSet.getByte( ii++ ) );
-      assertEquals( this.elementValueList.get( ii ), this.resultSet.getShort( ii++ ) );
-      assertEquals( this.elementValueList.get( ii ), this.resultSet.getInt( ii++ ) );
+      assertEquals( this.elementValueList.get( ii++ ), this.resultSet.getByte( ii ) );
+      assertEquals( this.elementValueList.get( ii++ ), this.resultSet.getShort( ii ) );
+      assertEquals( this.elementValueList.get( ii++ ), this.resultSet.getInt( ii ) );
       
-      assertEquals( this.elementValueList.get( ii ), this.resultSet.getLong( ii++ ) );
-      assertEquals( this.elementValueList.get( ii ), this.resultSet.getFloat( ii++ ) );
-      assertEquals( this.elementValueList.get( ii ), this.resultSet.getDouble( ii++ ) );
+      assertEquals( this.elementValueList.get( ii++ ), this.resultSet.getLong( ii ) );
+      assertEquals( this.elementValueList.get( ii++ ), this.resultSet.getFloat( ii ) );
+      assertEquals( this.elementValueList.get( ii++ ), this.resultSet.getDouble( ii ) );
       
-      assertEquals( this.elementValueList.get( ii ), this.resultSet.getBigDecimal( ii++ ) );
-      assertEquals( this.elementValueList.get( ii ), this.resultSet.getString( ii++ ) );
-      assertEquals( new Date( (Long) this.elementValueList.get( ii ) ), this.resultSet.getDate( ii++ ) );
-      assertEquals( new Time( (Long) this.elementValueList.get( ii ) ), this.resultSet.getTime( ii++ ) );
+      assertEquals( this.elementValueList.get( ii++ ), this.resultSet.getBigDecimal( ii ) );
+      assertEquals( this.elementValueList.get( ii++ ), this.resultSet.getString( ii ) );
+      assertEquals( new Date( (Long) this.elementValueList.get( ii++ ) ), this.resultSet.getDate( ii ) );
+      assertEquals( new Time( (Long) this.elementValueList.get( ii++ ) ), this.resultSet.getTime( ii ) );
       
-      assertEquals( this.elementValueList.get( 0 ), this.resultSet.getObject( 0 ) );
+      assertEquals( this.elementValueList.get( 0 ), this.resultSet.getObject( 1 ) );
     }
     
     //
@@ -187,11 +187,11 @@ public class TableToResultSetAdapterTest
     }
     
     //
-    for ( int ii = 0; ii < this.elementValueList.size(); ii++ )
+    for ( int ii = 1; ii <= this.elementValueList.size(); ii++ )
     {
       //
-      assertEquals( this.elementValueList.get( ii ), this.resultSet.getObject( ii ) );
-      assertEquals( this.elementValueList.get( ii ), this.resultSet.getObject( "c" + ii ) );
+      assertEquals( this.elementValueList.get( ii - 1 ), this.resultSet.getObject( ii ) );
+      assertEquals( this.elementValueList.get( ii - 1 ), this.resultSet.getObject( "c" + ( ii - 1 ) ) );
     }
   }
   
@@ -205,11 +205,11 @@ public class TableToResultSetAdapterTest
     //
     int columnCount = metaData.getColumnCount();
     assertEquals( this.elementValueList.size(), columnCount );
-    for ( int ii = 0; ii < columnCount; ii++ )
+    for ( int ii = 1; ii <= columnCount; ii++ )
     {
       assertNotNull( metaData.getColumnName( ii ) );
-      assertEquals( "c" + ii, metaData.getColumnName( ii ) );
-      assertEquals( "c" + ii, metaData.getColumnLabel( ii ) );
+      assertEquals( "c" + ( ii - 1 ), metaData.getColumnName( ii ) );
+      assertEquals( "c" + ( ii - 1 ), metaData.getColumnLabel( ii ) );
     }
     
   }
@@ -218,9 +218,9 @@ public class TableToResultSetAdapterTest
   public void testFindColumn() throws SQLException
   {
     //    
-    for ( int ii = 0; ii < this.elementValueList.size(); ii++ )
+    for ( int ii = 1; ii <= this.elementValueList.size(); ii++ )
     {
-      assertEquals( ii, this.resultSet.findColumn( "c" + ii ) );
+      assertEquals( ii, this.resultSet.findColumn( "c" + ( ii - 1 ) ) );
     }
   }
   

@@ -114,7 +114,7 @@ public class TableToResultSetAdapter implements ResultSet, TableAdapter
   @Override
   public String getString( int columnIndex ) throws SQLException
   {
-    return String.valueOf( this.row.getCellElement( columnIndex ) );
+    return String.valueOf( this.row.getCellElement( columnIndex - 1 ) );
   }
   
   @Override
@@ -441,7 +441,7 @@ public class TableToResultSetAdapter implements ResultSet, TableAdapter
       @Override
       public String getColumnName( int column ) throws SQLException
       {
-        Object columnTitleValue = TableToResultSetAdapter.this.table.getColumnTitleValue( column );
+        Object columnTitleValue = TableToResultSetAdapter.this.table.getColumnTitleValue( column - 1 );
         return columnTitleValue != null ? String.valueOf( columnTitleValue ) : null;
       }
       
@@ -480,7 +480,7 @@ public class TableToResultSetAdapter implements ResultSet, TableAdapter
   @Override
   public Object getObject( int columnIndex ) throws SQLException
   {
-    return this.row.getCellElement( columnIndex );
+    return this.row.getCellElement( columnIndex - 1 );
   }
   
   @Override
@@ -492,7 +492,7 @@ public class TableToResultSetAdapter implements ResultSet, TableAdapter
   @Override
   public int findColumn( String columnLabel ) throws SQLException
   {
-    return this.table.getColumnTitleValueList().indexOf( columnLabel );
+    return this.table.getColumnTitleValueList().indexOf( columnLabel ) + 1;
   }
   
   @Override

@@ -313,4 +313,40 @@ public class ListUtils
                                                                                                         - reverseIndexPosition );
   }
   
+  /**
+   * Returns a new {@link List} with only this elements which are in all of the given {@link List}s
+   * 
+   * @param listCollection
+   * @return
+   */
+  public static <E> List<E> intersection( Collection<? extends Collection<E>> listCollection )
+  {
+    //
+    List<E> retlist = new ArrayList<E>();
+    
+    //
+    if ( !listCollection.isEmpty() )
+    {
+      //
+      Iterator<? extends Collection<E>> listCollectionIterator = listCollection.iterator();
+      Collection<E> collection = listCollectionIterator.next();
+      if ( collection != null )
+      {
+        retlist.addAll( collection );
+      }
+      
+      //
+      while ( listCollectionIterator.hasNext() )
+      {
+        Collection<E> collectionOther = listCollectionIterator.next();
+        if ( collectionOther != null )
+        {
+          retlist.retainAll( collectionOther );
+        }
+      }
+    }
+    
+    //
+    return retlist;
+  }
 }

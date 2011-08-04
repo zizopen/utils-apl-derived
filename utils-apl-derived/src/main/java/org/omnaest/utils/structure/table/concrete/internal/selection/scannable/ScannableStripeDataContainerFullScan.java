@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.internal.selection.data;
+package org.omnaest.utils.structure.table.concrete.internal.selection.scannable;
 
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.NavigableMap;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.table.Table.Column;
@@ -29,21 +28,22 @@ import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 
 /**
+ * @see ScannableStripeDataContainer
  * @author Omnaest
  * @param <E>
  */
-public class StripeDataIndex<E>
+public class ScannableStripeDataContainerFullScan<E> implements ScannableStripeDataContainer<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected NavigableMap<E, List<StripeData<E>>> elementToStripeDataListMap = new TreeMap<E, List<StripeData<E>>>();
-  protected boolean                              isValid                    = false;
+  protected Map<E, List<StripeData<E>>> elementToStripeDataListMap = new HashMap<E, List<StripeData<E>>>();
+  protected boolean                     isValid                    = false;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
    * @param elementToStripeDataListMap
    */
-  public StripeDataIndex( TableInternal<E> tableInternal, Column<E> column )
+  public ScannableStripeDataContainerFullScan( TableInternal<E> tableInternal, Column<E> column )
   {
     //
     super();
@@ -104,85 +104,50 @@ public class StripeDataIndex<E>
     return retval;
   }
   
-  /**
-   * Returns a new {@link List} containing all {@link StripeData} instances containing elements which are between the fromKey and
-   * the toKey. The upper and lower bound of {@link StripeData}s will be included in the result.
-   * 
-   * @param fromKey
-   * @param toKey
-   * @return
-   */
-  public List<StripeData<E>> determineStripeDataSetForRange( final E fromKey, final E toKey )
+  @Override
+  public List<StripeData<E>> determineStripeDataListForRange( final E fromKey, final E toKey )
   {
-    //
-    final boolean fromInclusive = true;
-    final boolean toInclusive = true;
-    Collection<List<StripeData<E>>> stripeDataListCollection = this.elementToStripeDataListMap.subMap( fromKey, fromInclusive,
-                                                                                                       toKey, toInclusive )
-                                                                                              .values();
-    return ListUtils.mergeAll( stripeDataListCollection );
+    throw new UnsupportedOperationException();
   }
   
-  /**
-   * @param key
-   * @return
-   * @see java.util.Map#containsKey(java.lang.Object)
-   */
+  @Override
   public boolean containsKey( E key )
   {
     return this.elementToStripeDataListMap.containsKey( key );
   }
   
-  /**
-   * @return
-   * @see java.util.SortedMap#keySet()
-   */
+  @Override
   public Set<E> keySet()
   {
     return this.elementToStripeDataListMap.keySet();
   }
   
-  /**
-   * @see java.util.Map#clear()
-   */
+  @Override
   public void clear()
   {
     this.elementToStripeDataListMap.clear();
   }
   
-  /**
-   * @return
-   * @see java.util.Map#size()
-   */
+  @Override
   public int size()
   {
     return this.elementToStripeDataListMap.size();
   }
   
-  /**
-   * Returns a new {@link List} containg all {@link StripeData} instances within the {@link StripeDataIndex}
-   * 
-   * @return
-   */
+  @Override
   public List<StripeData<E>> values()
   {
     return ListUtils.mergeAll( this.elementToStripeDataListMap.values() );
   }
   
-  /**
-   * @return the isValid
-   */
-  protected boolean isValid()
+  @Override
+  public boolean isValid()
   {
     return this.isValid;
   }
   
-  /**
-   * @param key
-   * @return
-   * @see java.util.Map#get(java.lang.Object)
-   */
-  public List<StripeData<E>> get( E key )
+  @Override
+  public List<StripeData<E>> determineStripeDataListContainingElement( E key )
   {
     return this.elementToStripeDataListMap.get( key );
   }

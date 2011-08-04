@@ -79,4 +79,27 @@ public class EqualColumnsTest
     assertEquals( Arrays.asList( "2:0", "2:1", "2:0", "2:1", "2:2" ), tableResult.getRow( 2 ).asNewListOfCellElements() );
   }
   
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testDetermineJoinableStripeDataSetOneColumn()
+  {
+    //
+    Predicate<String> predicate = PredicateFactory.equalColumns( this.table1.getColumn( 1 ), this.table2.getColumn( 1 ) );
+    Table<String> tableResult = this.table1.select()
+                                           .columns( this.table2.getColumn( 0 ) )
+                                           .innerJoin( this.table2 )
+                                           .on( predicate )
+                                           .asTable();
+    
+    //
+    // System.out.println( tableResult );
+    
+    //
+    assertEquals( 3, tableResult.getTableSize().getRowSize() );
+    assertEquals( this.table2.getTableName(), tableResult.getTableName() );
+    assertEquals( Arrays.asList( "0:0" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "1:0" ), tableResult.getRow( 1 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "2:0" ), tableResult.getRow( 2 ).asNewListOfCellElements() );
+  }
+  
 }

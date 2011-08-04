@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.table.concrete.internal.selection.data;
+package org.omnaest.utils.structure.table.concrete.internal.selection.scannable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -32,15 +32,15 @@ import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 
 /**
- * @see StripeDataIndex
+ * @see ScannableStripeDataContainerIndex
  * @author Omnaest
  */
-public class StripeDataIndexTest
+public class ScannableStripeDataContainerIndexTest
 {
   /* ********************************************** Variables ********************************************** */
-  protected Table<String>           table           = null;
-  protected StripeDataIndex<String> stripeDataIndex = null;
-  protected TableInternal<String>   tableInternal   = null;
+  protected Table<String>                        table                             = null;
+  protected ScannableStripeDataContainer<String> scannableStripeDataContainerIndex = null;
+  protected TableInternal<String>                tableInternal                     = null;
   
   /* ********************************************** Methods ********************************************** */
   @Before
@@ -60,30 +60,33 @@ public class StripeDataIndexTest
   }
   
   @Test
-  public void testDetermineStripeDataSetForRange()
-  {
-    //
-    this.stripeDataIndex = new StripeDataIndex<String>( this.tableInternal, this.table.getColumn( 1 ) );
-    
-    //
-    assertEquals( this.table.getTableSize().getRowSize(), this.stripeDataIndex.size() );
-    assertEquals( this.table.getColumn( 1 ).getCellElementList(), new ArrayList<String>( this.stripeDataIndex.keySet() ) );
-    
-    //
-    List<StripeData<String>> stripeDataList = this.stripeDataIndex.determineStripeDataSetForRange( "1:1", "3:1" );
-    assertEquals( 3, stripeDataList.size() );
-  }
+    public void testDetermineStripeDataListForRange()
+    {
+      //
+      this.scannableStripeDataContainerIndex = new ScannableStripeDataContainerIndex<String>( this.tableInternal,
+                                                                                              this.table.getColumn( 1 ) );
+      
+      //
+      assertEquals( this.table.getTableSize().getRowSize(), this.scannableStripeDataContainerIndex.size() );
+      assertEquals( this.table.getColumn( 1 ).getCellElementList(),
+                    new ArrayList<String>( this.scannableStripeDataContainerIndex.keySet() ) );
+      
+      //
+      List<StripeData<String>> stripeDataList = this.scannableStripeDataContainerIndex.determineStripeDataListForRange( "1:1", "3:1" );
+      assertEquals( 3, stripeDataList.size() );
+    }
   
   @Test
   public void testContainsKey()
   {
     //
-    this.stripeDataIndex = new StripeDataIndex<String>( this.tableInternal, this.table.getColumn( 1 ) );
+    this.scannableStripeDataContainerIndex = new ScannableStripeDataContainerIndex<String>( this.tableInternal,
+                                                                                            this.table.getColumn( 1 ) );
     
     //
-    assertTrue( this.stripeDataIndex.isValid() );
-    assertTrue( this.stripeDataIndex.containsKey( "5:1" ) );
-    assertFalse( this.stripeDataIndex.containsKey( "5:0" ) );
+    assertTrue( this.scannableStripeDataContainerIndex.isValid() );
+    assertTrue( this.scannableStripeDataContainerIndex.containsKey( "5:1" ) );
+    assertFalse( this.scannableStripeDataContainerIndex.containsKey( "5:0" ) );
   }
   
 }

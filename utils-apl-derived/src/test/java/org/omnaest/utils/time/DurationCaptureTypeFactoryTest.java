@@ -50,6 +50,7 @@ public class DurationCaptureTypeFactoryTest
       for ( int ii = 0; ii < 100000; ii++ )
       {
         retlist.add( "value" + ii );
+        retlist.clear();
       }
       this.durationCaptureInternal.stopTimeMeasurement();
       
@@ -96,11 +97,11 @@ public class DurationCaptureTypeFactoryTest
     long durationInMillisecondsWithinMethod = testClass.getDurationCaptureInternal().getDurationInMilliseconds();
     
     //
-    assertTrue( durationInMillisecondsWithinMethod * 3.0 > durationInMillisecondsAroundMethod );
+    //System.out.println( durationCapture.calculateIntervalStatisticLogMessage() );
+    //System.out.println( testClass.getDurationCaptureInternal().calculateIntervalStatisticLogMessage() );
     
     //
-    //    System.out.println( durationCapture.calculateIntervalStatisticLogMessage() );
-    //    System.out.println( testClass.getDurationCaptureInternal().calculateIntervalStatisticLogMessage() );
+    assertTrue( durationInMillisecondsWithinMethod * 3.0 > durationInMillisecondsAroundMethod );
     
   }
 }

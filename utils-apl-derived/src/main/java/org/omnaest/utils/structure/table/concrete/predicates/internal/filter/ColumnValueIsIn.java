@@ -19,8 +19,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.table.Table.Column;
@@ -34,45 +36,64 @@ import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predic
  * @see PredicateFilter
  * @author Omnaest
  */
-public class ColumnValueEquals<E> implements PredicateFilter<E>
+public class ColumnValueIsIn<E> implements PredicateFilter<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long       serialVersionUID = -8287655781277028388L;
+  private static final long       serialVersionUID  = -8287655781277028388L;
   
   /* ********************************************** Variables ********************************************** */
-  protected Collection<Column<E>> columnCollection = null;
-  protected E                     element          = null;
+  protected Collection<Column<E>> columnCollection  = null;
+  protected Collection<E>         elementCollection = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
    * @param column
-   * @param element
+   * @param elementCollection
    */
-  public ColumnValueEquals( Collection<Column<E>> columnCollection, E element )
+  public ColumnValueIsIn( Collection<Column<E>> columnCollection, Collection<E> elementCollection )
   {
     super();
     this.columnCollection = columnCollection;
-    this.element = element;
+    this.elementCollection = elementCollection;
+  }
+  
+  /**
+   * @param columnCollection
+   * @param elements
+   */
+  public ColumnValueIsIn( Collection<Column<E>> columnCollection, E... elements )
+  {
+    this( columnCollection, Arrays.asList( elements ) );
   }
   
   /**
    * @param column
-   * @param element
+   * @param elementCollection
    */
   @SuppressWarnings("unchecked")
-  public ColumnValueEquals( Column<E> column, E element )
+  public ColumnValueIsIn( Column<E> column, Collection<E> elementCollection )
   {
-    this( Arrays.asList( column ), element );
+    this( Arrays.asList( column ), elementCollection );
   }
   
   /**
    * @param column
-   * @param element
+   * @param elements
    */
-  public ColumnValueEquals( E element, Column<E>... columns )
+  @SuppressWarnings("unchecked")
+  public ColumnValueIsIn( Column<E> column, E... elements )
   {
-    this( Arrays.asList( columns ), element );
+    this( Arrays.asList( column ), Arrays.asList( elements ) );
+  }
+  
+  /**
+   * @param elementCollection
+   * @param columns
+   */
+  public ColumnValueIsIn( Collection<E> elementCollection, Column<E>... columns )
+  {
+    this( Arrays.asList( columns ), elementCollection );
   }
   
   @Override
@@ -88,7 +109,7 @@ public class ColumnValueEquals<E> implements PredicateFilter<E>
         columnCollectionMatching.retainAll( tableBlock.getColumnList() );
         
         //
-        Map<Column<E>, List<StripeData<E>>> columnToStripeDataListMap = new HashMap<Column<E>, List<StripeData<E>>>();
+        Map<Column<E>, Set<StripeData<E>>> columnToStripeDataListMap = new HashMap<Column<E>, Set<StripeData<E>>>();
         for ( Column<E> column : columnCollectionMatching )
         {
           //
@@ -96,8 +117,12 @@ public class ColumnValueEquals<E> implements PredicateFilter<E>
                                                                                    .get( column );
           if ( scannableStripeDataContainer != null )
           {
-            List<StripeData<E>> rowStripeDataSetContainingElement = scannableStripeDataContainer.determineStripeDataListContainingElement( this.element );
-            columnToStripeDataListMap.put( column, rowStripeDataSetContainingElement );
+            Set<StripeData<E>> rowStripeDataSetContainingAnyElement = new LinkedHashSet<StripeData<E>>();
+            for ( E element : this.elementCollection )
+            {
+              rowStripeDataSetContainingAnyElement.addAll( scannableStripeDataContainer.determineStripeDataListContainingElement( element ) );
+            }
+            columnToStripeDataListMap.put( column, rowStripeDataSetContainingAnyElement );
           }
         }
         

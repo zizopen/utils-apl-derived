@@ -25,6 +25,7 @@ import java.util.Set;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.internal.selection.SelectionExecutor;
 import org.omnaest.utils.structure.table.concrete.internal.selection.join.Join;
+import org.omnaest.utils.structure.table.concrete.internal.selection.scannable.ScannableStripeDataContainer;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
@@ -41,11 +42,11 @@ import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predic
 public class TableBlock<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected TableInternal<E>                   tableInternal              = null;
-  protected List<Column<E>>                    columnList                 = new ArrayList<Column<E>>();
-  protected Set<StripeData<E>>                 rowStripeDataSet           = new LinkedHashSet<StripeData<E>>();
+  protected TableInternal<E>                                tableInternal                           = null;
+  protected List<Column<E>>                                 columnList                              = new ArrayList<Column<E>>();
+  protected Set<StripeData<E>>                              rowStripeDataSet                        = new LinkedHashSet<StripeData<E>>();
   
-  protected Map<Column<E>, StripeDataIndex<E>> columnToStripeDataIndexMap = new HashMap<Column<E>, StripeDataIndex<E>>();
+  protected Map<Column<E>, ScannableStripeDataContainer<E>> columnToScannableStripeDataContainerMap = new HashMap<Column<E>, ScannableStripeDataContainer<E>>();
   
   /* ********************************************** Methods ********************************************** */
   
@@ -83,11 +84,11 @@ public class TableBlock<E>
   }
   
   /**
-   * @return the columnToStripeDataIndexMap
+   * @return the columnToScannableStripeDataContainerMap
    */
-  public Map<Column<E>, StripeDataIndex<E>> getColumnToStripeDataIndexMap()
+  public Map<Column<E>, ScannableStripeDataContainer<E>> getColumnToScannableStripeDataContainerMap()
   {
-    return this.columnToStripeDataIndexMap;
+    return this.columnToScannableStripeDataContainerMap;
   }
   
 }
