@@ -16,15 +16,18 @@
 package org.omnaest.utils.structure.table.concrete.internal.helper;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.omnaest.utils.structure.table.concrete.internal.StripeDataImpl;
-import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
@@ -72,5 +75,27 @@ public class StripeDataHelperTest
     //
     Set<CellData<Object>> cellDataSetFromNewStripeData = newStripeDataFromExisting.getCellDataSet();
     assertEquals( cellDataSetFilter, cellDataSetFromNewStripeData );
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testAreStripeDataEqualByCellElements()
+  {
+    //
+    StripeData<String> stripeData = Mockito.mock( StripeData.class );
+    StripeData<String> stripeDataEqual = Mockito.mock( StripeData.class );
+    StripeData<String> stripeDataUnEqual1 = Mockito.mock( StripeData.class );
+    StripeData<String> stripeDataUnEqual2 = Mockito.mock( StripeData.class );
+    
+    //
+    when( stripeData.getCellElementList() ).thenReturn( Arrays.asList( "a", "b", "c" ) );
+    when( stripeDataEqual.getCellElementList() ).thenReturn( Arrays.asList( "a", "b", "c" ) );
+    when( stripeDataUnEqual1.getCellElementList() ).thenReturn( Arrays.asList( "a", "b" ) );
+    when( stripeDataUnEqual1.getCellElementList() ).thenReturn( Arrays.asList( "c", "a", "b" ) );
+    
+    //
+    assertTrue( StripeDataHelper.areStripeDataEqualByCellElements( stripeData, stripeDataEqual ) );
+    assertFalse( StripeDataHelper.areStripeDataEqualByCellElements( stripeData, stripeDataUnEqual1 ) );
+    assertFalse( StripeDataHelper.areStripeDataEqualByCellElements( stripeData, stripeDataUnEqual2 ) );
   }
 }

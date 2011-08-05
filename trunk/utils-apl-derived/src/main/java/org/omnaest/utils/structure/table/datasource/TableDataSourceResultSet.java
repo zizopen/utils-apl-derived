@@ -222,7 +222,7 @@ public class TableDataSourceResultSet<E> implements TableDataSource<E>
   public Object getTableName()
   {
     //
-    final int column = 0;
+    final int column = 1;
     try
     {
       return this.resultSet.getMetaData().getTableName( column );

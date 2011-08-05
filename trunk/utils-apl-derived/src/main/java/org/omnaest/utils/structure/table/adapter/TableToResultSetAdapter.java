@@ -441,8 +441,22 @@ public class TableToResultSetAdapter implements ResultSet, TableAdapter
       @Override
       public String getColumnName( int column ) throws SQLException
       {
-        Object columnTitleValue = TableToResultSetAdapter.this.table.getColumnTitleValue( column - 1 );
-        return columnTitleValue != null ? String.valueOf( columnTitleValue ) : null;
+        //
+        String retval = null;
+        
+        //
+        Object columnTitleValue = null;
+        try
+        {
+          columnTitleValue = TableToResultSetAdapter.this.table.getColumnTitleValue( column - 1 );
+          retval = columnTitleValue != null ? String.valueOf( columnTitleValue ) : null;
+        }
+        catch ( Exception e )
+        {
+        }
+        
+        //
+        return retval;
       }
       
       @Override

@@ -136,7 +136,7 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * @param columnCellElementList
    * @return this
    */
-  public Table<E> addColumnCellElements( List<? extends E> columnCellElementList );
+  public Column<E> addColumnCellElements( List<? extends E> columnCellElementList );
   
   /**
    * Puts a new element to the table at the defined index positions.
@@ -176,7 +176,7 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * @param columnCellElementList
    * @return
    */
-  public Table<E> addColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList );
+  public Column<E> addColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList );
   
   /**
    * Adds a new row to the table.<br>
@@ -186,7 +186,7 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * @param rowCellElementList
    * @return this
    */
-  public Table<E> addRowCellElements( List<? extends E> rowCellElementList );
+  public Row<E> addRowCellElements( List<? extends E> rowCellElementList );
   
   /**
    * Adds a new {@link Row} to the {@link Table} at the given index position. If there is already a {@link Row} or following
@@ -197,7 +197,7 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * @param rowCellElementList
    * @return this
    */
-  public Table<E> addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
+  public Row<E> addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
   
   /**
    * Removes a {@link Row} at the given index position from the {@link Table}.
@@ -277,4 +277,28 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * @return this
    */
   public Table<E> copyFrom( TableDataSource<E> tableCellElementSource );
+  
+  /**
+   * Deletes all {@link Row}s including the given {@link Row} index position to the end of the {@link Table}
+   * 
+   * @param rowIndexPosition
+   * @return
+   */
+  public Table<E> truncateRows( int rowIndexPosition );
+  
+  /**
+   * Removes the given {@link Row} from the {@link Table}
+   * 
+   * @param row
+   * @return
+   */
+  public List<E> removeRow( Row<E> row );
+  
+  /**
+   * Removes the given {@link Column} from the {@link Table}
+   * 
+   * @param column
+   * @return
+   */
+  public List<E> removeColumn( Column<E> column );
 }
