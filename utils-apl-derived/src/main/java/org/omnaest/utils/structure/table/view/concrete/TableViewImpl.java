@@ -36,6 +36,8 @@ import org.omnaest.utils.structure.table.view.TableView;
  */
 public class TableViewImpl<E> implements TableView<E>
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long serialVersionUID = 9098713365809240981L;
   /* ********************************************** Variables ********************************************** */
   protected Selection<E> selection   = null;
   protected Table<E>     resultTable = null;
@@ -281,6 +283,46 @@ public class TableViewImpl<E> implements TableView<E>
   public Object getTableName()
   {
     return this.resultTable.getTableName();
+  }
+  
+  /**
+   * @return
+   * @see org.omnaest.utils.structure.table.subspecification.TableCoreImmutable#getLastRow()
+   */
+  @Override
+  public Row<E> getLastRow()
+  {
+    return this.resultTable.getLastRow();
+  }
+  
+  /**
+   * @return
+   * @see org.omnaest.utils.structure.table.subspecification.TableCoreImmutable#getLastColumn()
+   */
+  @Override
+  public Column<E> getLastColumn()
+  {
+    return this.resultTable.getLastColumn();
+  }
+  
+  /**
+   * @return
+   * @see org.omnaest.utils.structure.table.subspecification.TableCoreImmutable#getFirstRow()
+   */
+  @Override
+  public Row<E> getFirstRow()
+  {
+    return this.resultTable.getFirstRow();
+  }
+  
+  /**
+   * @return
+   * @see org.omnaest.utils.structure.table.subspecification.TableCoreImmutable#getFirstColumn()
+   */
+  @Override
+  public Column<E> getFirstColumn()
+  {
+    return this.resultTable.getFirstColumn();
   }
   
 }

@@ -74,8 +74,8 @@ public class ColumnValueIsBetweenTest
     
     //
     assertEquals( 2, tableResult.getTableSize().getRowSize() );
-    assertEquals( Arrays.asList( "2:0", "2:1" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
-    assertEquals( Arrays.asList( "3:0", "3:1" ), tableResult.getRow( 1 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "2:0", "2:1" ), tableResult.getRow( 0 ).getCellElementList() );
+    assertEquals( Arrays.asList( "3:0", "3:1" ), tableResult.getRow( 1 ).getCellElementList() );
     
   }
   
@@ -99,8 +99,8 @@ public class ColumnValueIsBetweenTest
     
     //
     assertEquals( 2, tableResult.getTableSize().getRowSize() );
-    assertEquals( Arrays.asList( "3:0", "3:1", "3:0", "3:1", "3:2" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
-    assertEquals( Arrays.asList( "4:0", "4:1", "4:0", "4:1", "4:2" ), tableResult.getRow( 1 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "3:0", "3:1", "3:0", "3:1", "3:2" ), tableResult.getRow( 0 ).getCellElementList() );
+    assertEquals( Arrays.asList( "4:0", "4:1", "4:0", "4:1", "4:2" ), tableResult.getRow( 1 ).getCellElementList() );
     
   }
   

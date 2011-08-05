@@ -74,9 +74,9 @@ public class EqualColumnsTest
     
     //
     assertEquals( 3, tableResult.getTableSize().getRowSize() );
-    assertEquals( Arrays.asList( "0:0", "0:1", "0:0", "0:1", "0:2" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
-    assertEquals( Arrays.asList( "1:0", "1:1", "1:0", "1:1", "1:2" ), tableResult.getRow( 1 ).asNewListOfCellElements() );
-    assertEquals( Arrays.asList( "2:0", "2:1", "2:0", "2:1", "2:2" ), tableResult.getRow( 2 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "0:0", "0:1", "0:0", "0:1", "0:2" ), tableResult.getRow( 0 ).getCellElementList() );
+    assertEquals( Arrays.asList( "1:0", "1:1", "1:0", "1:1", "1:2" ), tableResult.getRow( 1 ).getCellElementList() );
+    assertEquals( Arrays.asList( "2:0", "2:1", "2:0", "2:1", "2:2" ), tableResult.getRow( 2 ).getCellElementList() );
   }
   
   @SuppressWarnings("unchecked")
@@ -97,9 +97,9 @@ public class EqualColumnsTest
     //
     assertEquals( 3, tableResult.getTableSize().getRowSize() );
     assertEquals( this.table2.getTableName(), tableResult.getTableName() );
-    assertEquals( Arrays.asList( "0:0" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
-    assertEquals( Arrays.asList( "1:0" ), tableResult.getRow( 1 ).asNewListOfCellElements() );
-    assertEquals( Arrays.asList( "2:0" ), tableResult.getRow( 2 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "0:0" ), tableResult.getRow( 0 ).getCellElementList() );
+    assertEquals( Arrays.asList( "1:0" ), tableResult.getRow( 1 ).getCellElementList() );
+    assertEquals( Arrays.asList( "2:0" ), tableResult.getRow( 2 ).getCellElementList() );
   }
   
 }

@@ -26,6 +26,7 @@ import org.omnaest.utils.structure.collection.list.iterator.ListIterable;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
+import org.omnaest.utils.structure.table.concrete.internal.adapterprovider.TableAdapterProviderImpl;
 import org.omnaest.utils.structure.table.concrete.internal.iterator.TableRowListIterator;
 import org.omnaest.utils.structure.table.concrete.internal.serializer.TableSerializerImpl;
 import org.omnaest.utils.structure.table.helper.TableHelper;
@@ -802,6 +803,36 @@ public abstract class TableAbstract<E> implements Table<E>
     
     //
     return retlist;
+  }
+  
+  @Override
+  public Row<E> getLastRow()
+  {
+    return this.getRow( this.getTableSize().getRowSize() - 1 );
+  }
+  
+  @Override
+  public Column<E> getLastColumn()
+  {
+    return this.getColumn( this.getTableSize().getColumnSize() - 1 );
+  }
+  
+  @Override
+  public Row<E> getFirstRow()
+  {
+    return this.getRow( 0 );
+  }
+  
+  @Override
+  public Column<E> getFirstColumn()
+  {
+    return this.getColumn( 0 );
+  }
+  
+  @Override
+  public TableAdapterProvider<E> as()
+  {
+    return new TableAdapterProviderImpl<E>( this );
   }
   
 }

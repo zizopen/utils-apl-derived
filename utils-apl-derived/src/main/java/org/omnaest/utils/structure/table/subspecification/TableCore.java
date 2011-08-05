@@ -273,10 +273,10 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * Clears the {@link Table} and copies the {@link Cell#getElement()} values from a given {@link TableDataSource} Copyies the
    * cell
    * 
-   * @param tableCellElementSource
+   * @param tableDataSource
    * @return this
    */
-  public Table<E> copyFrom( TableDataSource<E> tableCellElementSource );
+  public Table<E> copyFrom( TableDataSource<E> tableDataSource );
   
   /**
    * Deletes all {@link Row}s including the given {@link Row} index position to the end of the {@link Table}
@@ -301,4 +301,5 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * @return
    */
   public List<E> removeColumn( Column<E> column );
+  
 }

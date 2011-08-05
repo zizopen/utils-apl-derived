@@ -34,15 +34,15 @@ import org.omnaest.utils.proxy.StubCreator;
  * @param <T>
  * @param <M>
  */
-public class MapToTypeAdapter<T, M extends Map<String, ?>>
+public class MapToTypeAdapter<T, M extends Map<Object, Object>>
 {
   /* ********************************************** Variables ********************************************** */
-  protected Map<String, Object> map                      = null;
+  protected Map<Object, Object> map                      = null;
   protected T                   classAdapter             = null;
   protected boolean             hasAccessToUnderlyingMap = false;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * This interface makes a derivative type aware of an underlying map implementation. This is normally used in combination with
    * an {@link MapToTypeAdapter}.
@@ -79,7 +79,7 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
       //
       try
       {
-        BeanMethodInformation beanMethodInformation = BeanUtils.determineBeanMethodInformation( method );
+        BeanMethodInformation beanMethodInformation = BeanUtils.beanMethodInformation( method );
         if ( beanMethodInformation != null )
         {
           //
@@ -120,7 +120,7 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
             else if ( isSetter )
             {
               //
-              MapToTypeAdapter.this.map = (Map<String, Object>) args[0];
+              MapToTypeAdapter.this.map = (Map<Object, Object>) args[0];
               
               //
               retval = Void.TYPE;
@@ -138,7 +138,15 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
+  /**
+   * @see MapToTypeAdapter#newInstance(Map, Class)
+   */
+  protected MapToTypeAdapter()
+  {
+    super();
+  }
+  
   /**
    * Factory methods to create a new {@link MapToTypeAdapter} for a given {@link Map} with the given {@link Class} as facade.
    * 
@@ -149,7 +157,8 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
    *          : true > returned stub implements {@link UnderlyingMapAware}
    * @return new
    */
-  public static <T> T newInstance( Map<String, ?> map, Class<? extends T> clazz, boolean underlyingMapAware )
+  @SuppressWarnings("unchecked")
+  public static <T> T newInstance( Map<? super String, Object> map, Class<? extends T> clazz, boolean underlyingMapAware )
   {
     //    
     T retval = null;
@@ -158,8 +167,10 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
     if ( clazz != null && map != null )
     {
       //
-      MapToTypeAdapter<T, Map<String, ?>> mapToInterfaceAdapter = new MapToTypeAdapter<T, Map<String, ?>>( map, clazz,
-                                                                                                           underlyingMapAware );
+      MapToTypeAdapter<T, Map<Object, Object>> mapToInterfaceAdapter = new MapToTypeAdapter<T, Map<Object, Object>>(
+                                                                                                                     (Map<Object, Object>) map,
+                                                                                                                     clazz,
+                                                                                                                     underlyingMapAware );
       
       //
       retval = mapToInterfaceAdapter.classAdapter;
@@ -177,10 +188,11 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
    * @param clazz
    * @return new
    */
-  public static <T> T newInstance( Map<String, ?> map, Class<? extends T> clazz )
+  @SuppressWarnings({ "unchecked", "cast" })
+  public static <T> T newInstance( Map<? super String, Object> map, Class<? extends T> clazz )
   {
     boolean underlyingMapAware = false;
-    return MapToTypeAdapter.newInstance( map, clazz, underlyingMapAware );
+    return MapToTypeAdapter.newInstance( (Map<Object, Object>) map, clazz, underlyingMapAware );
   }
   
   /**
@@ -190,12 +202,11 @@ public class MapToTypeAdapter<T, M extends Map<String, ?>>
    * @param clazz
    * @param underlyingMapAware
    */
-  @SuppressWarnings("unchecked")
   protected MapToTypeAdapter( M map, Class<? extends T> clazz, boolean underlyingMapAware )
   {
     //
     super();
-    this.map = (Map<String, Object>) map;
+    this.map = map;
     
     this.hasAccessToUnderlyingMap = underlyingMapAware;
     

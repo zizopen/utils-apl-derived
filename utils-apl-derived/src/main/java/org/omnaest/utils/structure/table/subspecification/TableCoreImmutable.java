@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.subspecification;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,7 +38,7 @@ import org.omnaest.utils.structure.table.Table.TableSize;
  * @param <E>
  */
 public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, CloneableStructureAndContent<Table<E>>,
-                                       TableDataSource<E>
+                                       TableDataSource<E>, Serializable
 {
   
   /**
@@ -224,6 +225,34 @@ public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, Clo
    * @return
    */
   public Column<E> getColumn( Object columnTitleValue );
+  
+  /**
+   * Returns the last {@link Row} of the {@link Table}
+   * 
+   * @return
+   */
+  public Row<E> getLastRow();
+  
+  /**
+   * Returns the last {@link Column} of the {@link Table}
+   * 
+   * @return
+   */
+  public Column<E> getLastColumn();
+  
+  /**
+   * Returns the first {@link Row} of the {@link Table}
+   * 
+   * @return
+   */
+  public Row<E> getFirstRow();
+  
+  /**
+   * Returns the first {@link Column} of the {@link Table}
+   * 
+   * @return
+   */
+  public Column<E> getFirstColumn();
   
   /**
    * Returns true, if the whole {@link Table} contains the given element.

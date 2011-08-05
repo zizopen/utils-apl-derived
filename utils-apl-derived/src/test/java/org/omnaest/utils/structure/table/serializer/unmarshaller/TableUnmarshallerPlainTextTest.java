@@ -225,9 +225,9 @@ public class TableUnmarshallerPlainTextTest
       
     }
     
-    Assert.assertEquals( Arrays.asList( "0:0", "0:1" ), table.getRow( 0 ).asNewListOfCellElements() );
-    Assert.assertEquals( Arrays.asList( "1:0", "1:1" ), table.getRow( 1 ).asNewListOfCellElements() );
-    Assert.assertEquals( Arrays.asList( "2:0", "2:1" ), table.getRow( 2 ).asNewListOfCellElements() );
+    Assert.assertEquals( Arrays.asList( "0:0", "0:1" ), table.getRow( 0 ).getCellElementList() );
+    Assert.assertEquals( Arrays.asList( "1:0", "1:1" ), table.getRow( 1 ).getCellElementList() );
+    Assert.assertEquals( Arrays.asList( "2:0", "2:1" ), table.getRow( 2 ).getCellElementList() );
   }
   
 }

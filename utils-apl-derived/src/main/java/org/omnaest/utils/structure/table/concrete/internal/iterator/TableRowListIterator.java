@@ -82,7 +82,7 @@ public class TableRowListIterator<E> implements ListIterator<Row<E>>
     {
       if ( row != null )
       {
-        this.table.setRowCellElements( indexPosition, row.asNewListOfCellElements() );
+        this.table.setRowCellElements( indexPosition, row.getCellElementList() );
       }
     }
     
@@ -91,7 +91,7 @@ public class TableRowListIterator<E> implements ListIterator<Row<E>>
     {
       if ( row != null )
       {
-        this.table.addRowCellElements( indexPosition, row.asNewListOfCellElements() );
+        this.table.addRowCellElements( indexPosition, row.getCellElementList() );
       }
     }
     

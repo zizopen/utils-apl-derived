@@ -20,6 +20,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -142,7 +145,7 @@ public class BeanUtilsTest
   public void testDeterminePropertyNames()
   {
     //
-    String[] propertyNames = BeanUtils.determinePropertyNamesForMethodAccess( TestBean.class );
+    String[] propertyNames = BeanUtils.propertyNamesForMethodAccess( TestBean.class );
     
     //
     Assert.assertArrayEquals( new String[] { "fieldString", "fieldDouble" }, propertyNames );
@@ -185,35 +188,35 @@ public class BeanUtilsTest
   }
   
   @Test
-  public void testDetermineBeanMethodInformationSet()
+  public void testBeanMethodInformationSet()
   {
     //
-    assertEquals( 4, BeanUtils.determineBeanMethodInformationSet( TestBean.class ).size() );
+    assertEquals( 4, BeanUtils.beanMethodInformationSet( TestBean.class ).size() );
   }
   
   @Test
-  public void testDeterminePropertyNameToBeanPropertyAccessorMap()
+  public void testPropertyNameToBeanPropertyAccessorMap()
   {
     //
-    assertEquals( 2, BeanUtils.determinePropertyNameToBeanPropertyAccessorMap( TestBean.class ).size() );
-    assertEquals( 2, BeanUtils.determinePropertyNameToBeanPropertyAccessorMap( TestBeanImpl.class ).size() );
+    assertEquals( 2, BeanUtils.propertyNameToBeanPropertyAccessorMap( TestBean.class ).size() );
+    assertEquals( 2, BeanUtils.propertyNameToBeanPropertyAccessorMap( TestBeanImpl.class ).size() );
   }
   
   @Test
-  public void testDetermineBeanPropertyAccessorSet()
+  public void testBeanPropertyAccessorSet()
   {
     //
-    assertEquals( 2, BeanUtils.determineBeanPropertyAccessorSet( TestBean.class ).size() );
-    assertEquals( 2, BeanUtils.determineBeanPropertyAccessorSet( TestBeanImpl.class ).size() );
+    assertEquals( 2, BeanUtils.beanPropertyAccessorSet( TestBean.class ).size() );
+    assertEquals( 2, BeanUtils.beanPropertyAccessorSet( TestBeanImpl.class ).size() );
   }
   
   @Test
-  public void testDetermineBeanPropertyAccessor() throws Throwable
+  public void testBeanPropertyAccessor() throws Throwable
   {
     //
     {
-      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.determineBeanPropertyAccessor( TestBeanImpl.class,
-                                                                                                         TestBeanImpl.class.getDeclaredFields()[0] );
+      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.beanPropertyAccessor( TestBeanImpl.class,
+                                                                                                TestBeanImpl.class.getDeclaredFields()[0] );
       
       assertNotNull( beanPropertyAccessor );
       assertEquals( true, beanPropertyAccessor.hasGetterAndSetter() );
@@ -221,8 +224,8 @@ public class BeanUtilsTest
     
     //
     {
-      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.determineBeanPropertyAccessor( TestBeanImpl.class,
-                                                                                                         TestBeanImpl.class.getDeclaredFields()[0].getName() );
+      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.beanPropertyAccessor( TestBeanImpl.class,
+                                                                                                TestBeanImpl.class.getDeclaredFields()[0].getName() );
       
       assertNotNull( beanPropertyAccessor );
       assertEquals( true, beanPropertyAccessor.hasGetterAndSetter() );
@@ -230,8 +233,8 @@ public class BeanUtilsTest
     
     //
     {
-      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.determineBeanPropertyAccessor( TestBeanImpl.class,
-                                                                                                         TestBeanImpl.class.getDeclaredMethod( "getFieldString" ) );
+      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.beanPropertyAccessor( TestBeanImpl.class,
+                                                                                                TestBeanImpl.class.getDeclaredMethod( "getFieldString" ) );
       
       assertNotNull( beanPropertyAccessor );
       assertEquals( true, beanPropertyAccessor.hasGetterAndSetter() );
@@ -239,8 +242,8 @@ public class BeanUtilsTest
     
     //
     {
-      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.determineBeanPropertyAccessor( TestBeanImpl.class,
-                                                                                                         TestBeanImpl.class.getDeclaredField( "fieldString" ) );
+      BeanPropertyAccessor<TestBeanImpl> beanPropertyAccessor = BeanUtils.beanPropertyAccessor( TestBeanImpl.class,
+                                                                                                TestBeanImpl.class.getDeclaredField( "fieldString" ) );
       
       assertNotNull( beanPropertyAccessor );
       assertEquals( true, beanPropertyAccessor.hasGetterAndSetter() );
@@ -248,16 +251,16 @@ public class BeanUtilsTest
   }
   
   @Test
-  public void testDeterminePropertyNamesForMethodAccess()
+  public void testPropertyNamesForMethodAccess()
   {
-    String[] propertyNamesForMethodAccess = BeanUtils.determinePropertyNamesForMethodAccess( TestBean.class );
+    String[] propertyNamesForMethodAccess = BeanUtils.propertyNamesForMethodAccess( TestBean.class );
     Assert.assertArrayEquals( new String[] { "fieldString", "fieldDouble" }, propertyNamesForMethodAccess );
   }
   
   @Test
-  public void testDetermineNumberOfProperties()
+  public void testNumberOfProperties()
   {
-    Assert.assertEquals( 2, BeanUtils.determinePropertyNamesForMethodAccess( TestBean.class ).length );
+    Assert.assertEquals( 2, BeanUtils.propertyNamesForMethodAccess( TestBean.class ).length );
   }
   
   @Test
@@ -277,17 +280,17 @@ public class BeanUtilsTest
   }
   
   @Test
-  public void testDeterminePropertyTypeToBeanPropertyAccessorSetMap()
+  public void testPropertyTypeToBeanPropertyAccessorSetMap()
   {
     //
-    Map<Class<?>, Set<BeanPropertyAccessor<TestBean>>> propertyTypeToBeanPropertyAccessorSetMap = BeanUtils.determinePropertyTypeToBeanPropertyAccessorSetMap( TestBean.class );
+    Map<Class<?>, Set<BeanPropertyAccessor<TestBean>>> propertyTypeToBeanPropertyAccessorSetMap = BeanUtils.propertyTypeToBeanPropertyAccessorSetMap( TestBean.class );
     assertEquals( 2, propertyTypeToBeanPropertyAccessorSetMap.size() );
     assertEquals( 1, propertyTypeToBeanPropertyAccessorSetMap.get( String.class ).size() );
     assertEquals( 1, propertyTypeToBeanPropertyAccessorSetMap.get( Double.class ).size() );
   }
   
   @Test
-  public void testDeterminePropertyNameToBeanPropertyValueMap()
+  public void testPropertyNameToBeanPropertyValueMap()
   {
     //
     TestBeanImpl beanSource = new TestBeanImpl();
@@ -295,7 +298,7 @@ public class BeanUtilsTest
     beanSource.setFieldDouble( 1.3 );
     
     //
-    Map<String, Object> propertynameToBeanPropertyValueMap = BeanUtils.determinePropertyNameToBeanPropertyValueMap( beanSource );
+    Map<String, Object> propertynameToBeanPropertyValueMap = BeanUtils.propertyNameToBeanPropertyValueMap( beanSource );
     assertNotNull( propertynameToBeanPropertyValueMap );
     assertEquals( 2, propertynameToBeanPropertyValueMap.size() );
     assertEquals( beanSource.getFieldString(), propertynameToBeanPropertyValueMap.get( "fieldString" ) );
@@ -303,7 +306,7 @@ public class BeanUtilsTest
   }
   
   @Test
-  public void testDeterminePropertyNameToBeanPropertyValueMapForPropertyNames()
+  public void testPropertyNameToBeanPropertyValueMapForPropertyNames()
   {
     //
     TestBeanImpl beanSource = new TestBeanImpl();
@@ -311,19 +314,39 @@ public class BeanUtilsTest
     beanSource.setFieldDouble( 1.3 );
     
     //
-    Map<String, Object> propertynameToBeanPropertyValueMap = BeanUtils.determinePropertyNameToBeanPropertyValueMap( beanSource,
-                                                                                                                    "fieldString" );
+    Map<String, Object> propertynameToBeanPropertyValueMap = BeanUtils.propertyNameToBeanPropertyValueMap( beanSource,
+                                                                                                           "fieldString" );
     assertNotNull( propertynameToBeanPropertyValueMap );
     assertEquals( 1, propertynameToBeanPropertyValueMap.size() );
     assertEquals( beanSource.getFieldString(), propertynameToBeanPropertyValueMap.get( "fieldString" ) );
     
   }
   
+  @SuppressWarnings("unchecked")
   @Test
-  public void testDetermineBeanPropertyAccessors()
+  public void testPropertyNameToBeanPropertyValueMapForPropertyNamesOrder()
+  {
+    //
+    TestBeanImpl beanSource = new TestBeanImpl();
+    beanSource.setFieldString( "value1" );
+    beanSource.setFieldDouble( 1.3 );
+    
+    //
+    Map<String, Object> propertynameToBeanPropertyValueMap = BeanUtils.propertyNameToBeanPropertyValueMap( beanSource,
+                                                                                                           "fieldString",
+                                                                                                           "fieldDouble" );
+    assertEquals( Arrays.asList( "fieldString", "fieldDouble" ),
+                  new ArrayList<String>( propertynameToBeanPropertyValueMap.keySet() ) );
+    assertEquals( Arrays.asList( beanSource.getFieldString(), beanSource.getFieldDouble() ),
+                  new ArrayList<Object>( propertynameToBeanPropertyValueMap.values() ) );
+    
+  }
+  
+  @Test
+  public void testBeanPropertyAccessors()
   {
     //      
-    BeanPropertyAccessors<TestBean> beanPropertyAccessors = BeanUtils.determineBeanPropertyAccessors( TestBean.class );
+    BeanPropertyAccessors<TestBean> beanPropertyAccessors = BeanUtils.beanPropertyAccessors( TestBean.class );
     assertEquals( 2, beanPropertyAccessors.size() );
     
     //
@@ -360,6 +383,21 @@ public class BeanUtilsTest
       assertFalse( testBeanSource.getFieldString().equals( testBeanDestination.getFieldString() )
                    && testBeanSource.getFieldDouble().equals( testBeanDestination.getFieldDouble() ) );
     }
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testPropertyValueList()
+  {
+    //
+    TestBeanImpl beanSource = new TestBeanImpl();
+    beanSource.setFieldString( "value1" );
+    beanSource.setFieldDouble( 1.3 );
+    
+    //
+    List<TestBeanImpl> propertyValueList = BeanUtils.propertyValueList( beanSource, "fieldString", "fieldDouble" );
+    
+    assertEquals( Arrays.asList( beanSource.getFieldString(), beanSource.getFieldDouble() ), propertyValueList );
   }
   
 }

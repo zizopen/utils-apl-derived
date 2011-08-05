@@ -23,6 +23,7 @@ import org.omnaest.utils.structure.table.adapter.TableAdapter;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
+import org.omnaest.utils.structure.table.subspecification.TableAdaptable;
 import org.omnaest.utils.structure.table.subspecification.TableCore;
 import org.omnaest.utils.structure.table.subspecification.TableDataSource;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable;
@@ -73,7 +74,7 @@ import org.omnaest.utils.structure.table.view.TableView;
  *          type of the {@link Table} elements
  * @author Omnaest
  */
-public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row<E>>, TableSerializable<E>, Serializable
+public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row<E>>, TableSerializable<E>, TableAdaptable<E>
 
 {
   /* ********************************************** Classes ********************************************** */
@@ -315,13 +316,6 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
     public Iterable<Cell<E>> cells();
     
     /**
-     * Returns a new {@link List} instance with all {@link Cell#getElement()}s
-     * 
-     * @return
-     */
-    public List<E> asNewListOfCellElements();
-    
-    /**
      * Sets all available {@link Cell#setElement(Object)} to null
      * 
      * @return
@@ -353,6 +347,12 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      * @return
      */
     public int determineRowIndexPosition();
+    
+    /**
+     * @see Table#getColumnTitleValueList()
+     * @return
+     */
+    public List<Object> getColumnTitleValueList();
   }
   
   /**

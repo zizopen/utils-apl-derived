@@ -15,9 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe;
@@ -183,7 +181,7 @@ public class StripeImpl<E> extends StripeAbstract<E>
     Cell<E> cell = this.resolvesOrCreateCellWithinNewTableArea( titleValue );
     if ( cell != null )
     {
-      cell.setElement( null );
+      cell.setElement( element );
     }
     
     // 
@@ -269,25 +267,6 @@ public class StripeImpl<E> extends StripeAbstract<E>
     
     //
     return retval;
-  }
-  
-  @Override
-  public List<E> asNewListOfCellElements()
-  {
-    //
-    List<E> retlist = new ArrayList<E>();
-    
-    //
-    for ( Cell<E> cell : this )
-    {
-      if ( cell != null )
-      {
-        retlist.add( cell.getElement() );
-      }
-    }
-    
-    // 
-    return retlist;
   }
   
   @Override

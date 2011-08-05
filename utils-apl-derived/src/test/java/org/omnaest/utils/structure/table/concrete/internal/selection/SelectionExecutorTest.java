@@ -81,10 +81,10 @@ public class SelectionExecutorTest
     
     //
     //System.out.println( tableResult );
-    assertEquals( Arrays.asList( "0:0", "0:1", "0:0", "0:1" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
-    assertEquals( Arrays.asList( "0:0", "0:1", "1:0", "1:1" ), tableResult.getRow( 1 ).asNewListOfCellElements() );
-    assertEquals( Arrays.asList( "1:0", "1:1", "0:0", "0:1" ), tableResult.getRow( 2 ).asNewListOfCellElements() );
-    assertEquals( Arrays.asList( "1:0", "1:1", "1:0", "1:1" ), tableResult.getRow( 3 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "0:0", "0:1", "0:0", "0:1" ), tableResult.getRow( 0 ).getCellElementList() );
+    assertEquals( Arrays.asList( "0:0", "0:1", "1:0", "1:1" ), tableResult.getRow( 1 ).getCellElementList() );
+    assertEquals( Arrays.asList( "1:0", "1:1", "0:0", "0:1" ), tableResult.getRow( 2 ).getCellElementList() );
+    assertEquals( Arrays.asList( "1:0", "1:1", "1:0", "1:1" ), tableResult.getRow( 3 ).getCellElementList() );
   }
   
   /**

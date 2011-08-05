@@ -100,4 +100,20 @@ public class TableAbstractTest
     assertEquals( 10, this.table.getTableSize().getRowSize() );
   }
   
+  @Test
+  public void testGetLastFirstRowAndColumn()
+  {
+    //
+    final int rows = 5;
+    final int columns = 3;
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    assertEquals( Arrays.asList( "0:0", "0:1", "0:2" ), this.table.getFirstRow().getCellElementList() );
+    assertEquals( Arrays.asList( "4:0", "4:1", "4:2" ), this.table.getLastRow().getCellElementList() );
+    
+    assertEquals( Arrays.asList( "0:0", "1:0", "2:0", "3:0", "4:0" ), this.table.getFirstColumn().getCellElementList() );
+    assertEquals( Arrays.asList( "0:2", "1:2", "2:2", "3:2", "4:2" ), this.table.getLastColumn().getCellElementList() );
+  }
+  
 }

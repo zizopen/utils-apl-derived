@@ -22,7 +22,7 @@ import java.util.Set;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
-import org.omnaest.utils.structure.map.AbstractMap;
+import org.omnaest.utils.structure.map.MapAbstract;
 
 /**
  * Adapter to create a {@link Map} view on an underlying Java Bean object. Modifications to the bean or the map will be reflected
@@ -32,7 +32,7 @@ import org.omnaest.utils.structure.map.AbstractMap;
  * @author Omnaest
  * @param <B>
  */
-public class TypeToPropertynameMapAdapter<B> extends AbstractMap<String, Object>
+public class TypeToPropertynameMapAdapter<B> extends MapAbstract<String, Object>
 {
   /* ********************************************** Variables ********************************************** */
   protected B                                    bean                                  = null;
@@ -78,7 +78,7 @@ public class TypeToPropertynameMapAdapter<B> extends AbstractMap<String, Object>
     
     //
     this.bean = bean;
-    this.propertynameToBeanPropertyAccessorMap = BeanUtils.determinePropertyNameToBeanPropertyAccessorMap( beanClass );
+    this.propertynameToBeanPropertyAccessorMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( beanClass );
   }
   
   @Override
