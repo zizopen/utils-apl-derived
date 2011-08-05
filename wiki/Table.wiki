@@ -13,6 +13,7 @@ The Table can be marshalled to and unmarshalled from
  * CSV
  * Plain text
  * XML (JAXB)
+ * XLS (Microsoft Excel)
 
 An example for plain text will look like:
 {{{
@@ -37,17 +38,47 @@ or a joined Table:
 ----------------------------------
 }}}
 
-== Adapter == 
+== TableAdapter and TableDataSource == 
 
 The Table class can be used in combination with adapters. E.g.:
 
  * TableListToCallableStatementAdapter
  * TableToResultSetAdapter
+ 
+ All available adapters should be derivates from the TableAdapter interface.
 
-=== Mocking SQL CallableStatement and ResultSet ===
+=== Mocking SQL CallableStatement and ResultSet for JDBC connection===
 
 With help of the SQL adapters for a 
  * CallableStatement
  * ResultSet
 it is possible to mock JDBC connection calls with the content of the Table. Since the Table has many input sources like XML or CSV even small to middlesized tables can be mocked easily.
+
+=== Protocolling the content of a ResultSet ===
+
+With help of the Table it is possible to read in the content of an SQL ResultSet.
+This can be achieved by using the {{{TableDataSourceResultSet}}} and the {{{Table.copyOf(...}}} method.
+
+== Selection ==
+
+The Table supports select statements in fluent language which are quite similar to the real SQL statements.
+
+E.g:
+
+{{{
+Table<String> tableResult = this.table1.select()
+                                       .allColumns()
+                                       .innerJoin( this.table2 )
+                                       .on( equalColumns( this.table1.getColumn( 0 ), this.table2.getColumn( 0 ) ) )
+                                       .where( columnValueIsIn( Arrays.asList( "2:1", "4:1" ), this.table1.getColumn( 1 ),
+                                                                this.table2.getColumn( 1 ) ) )
+                                       .asTable();
+}}}
+
+For more examples take a look into the JUnit tests for the PredicateFilter derived classes.
+
+E.g.:
+[http://www.google.com/codesearch#agM0M4Gok3c/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/structure/table/concrete/predicates/internal/filer/ColumnValueIsInTest ColumnValueIsInTest]
+
+
 
