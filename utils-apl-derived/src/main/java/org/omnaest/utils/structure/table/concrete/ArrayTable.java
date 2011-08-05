@@ -88,6 +88,12 @@ public class ArrayTable<E> extends TableAbstract<E>
       return ArrayTable.this;
     }
     
+    @Override
+    public StripeFactory<E> getStripeFactory()
+    {
+      return ArrayTable.this.stripeFactory;
+    }
+    
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -236,18 +242,18 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> addColumnCellElements( List<? extends E> columnCellElementList )
+  public Column<E> addColumnCellElements( List<? extends E> columnCellElementList )
   {
     //
     int columnIndexPosition = this.getTableSize().getColumnSize();
     this.setColumnCellElements( columnIndexPosition, columnCellElementList );
     
     //
-    return this;
+    return this.getColumn( columnIndexPosition );
   }
   
   @Override
-  public Table<E> addColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList )
+  public Column<E> addColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList )
   {
     //    
     StripeData<E> newStripe = this.tableContent.getColumnStripeDataList().addNewStripeData( columnIndexPosition );
@@ -257,22 +263,22 @@ public class ArrayTable<E> extends TableAbstract<E>
     }
     
     //
-    return this;
+    return this.getColumn( columnIndexPosition );
   }
   
   @Override
-  public Table<E> addRowCellElements( List<? extends E> rowCellElementList )
+  public Row<E> addRowCellElements( List<? extends E> rowCellElementList )
   {
     //
     int rowIndexPosition = this.getTableSize().getRowSize();
     this.setRowCellElements( rowIndexPosition, rowCellElementList );
     
     //
-    return this;
+    return this.getRow( rowIndexPosition );
   }
   
   @Override
-  public Table<E> addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList )
+  public Row<E> addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList )
   {
     //
     StripeData<E> newStripe = this.tableContent.getRowStripeDataList().addNewStripeData( rowIndexPosition );
@@ -282,7 +288,7 @@ public class ArrayTable<E> extends TableAbstract<E>
     }
     
     // 
-    return this;
+    return this.getRow( rowIndexPosition );
   }
   
   @Override
@@ -348,7 +354,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     //
     StripeData<E> stripeData = this.cellAndStripeResolver.resolveColumnStripeData( columnIndexPosition );
-    return this.stripeFactory.newInstanceOfStripeInternal( stripeData );
+    return stripeData == null ? null : this.stripeFactory.newInstanceOfStripeInternal( stripeData );
   }
   
   @Override

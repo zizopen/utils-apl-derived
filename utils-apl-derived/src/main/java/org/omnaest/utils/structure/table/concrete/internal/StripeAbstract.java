@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
@@ -151,6 +153,63 @@ public abstract class StripeAbstract<E> implements StripeInternal<E>
     
     //
     return retlist;
+  }
+  
+  @Override
+  public E getCellElement( int indexPosition )
+  {
+    //
+    E retval = null;
+    
+    //
+    Cell<E> cell = this.getCell( indexPosition );
+    if ( cell != null )
+    {
+      retval = cell.getElement();
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public E getCellElement( Object titleValue )
+  {
+    //
+    E retval = null;
+    
+    //
+    Cell<E> cell = this.getCell( titleValue );
+    if ( cell != null )
+    {
+      retval = cell.getElement();
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public E getCellElement( Stripe<E> stripeOrthogonal )
+  {
+    //
+    E retval = null;
+    
+    //
+    Cell<E> cell = this.getCell( stripeOrthogonal );
+    if ( cell != null )
+    {
+      retval = cell.getElement();
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public Table<E> getTable()
+  {
+    return this.tableInternal.getUnderlyingTable();
   }
   
 }

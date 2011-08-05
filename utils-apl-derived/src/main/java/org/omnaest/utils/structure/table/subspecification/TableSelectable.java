@@ -148,6 +148,14 @@ public interface TableSelectable<E>
     public Selection<E> distinct();
     
     /**
+     * Selects the given number of {@link Row}s
+     * 
+     * @param numberOfRows
+     * @return this
+     */
+    public Selection<E> top( int numberOfRows );
+    
+    /**
      * Returns the declared {@link Selection} as a new {@link Table} instance. . This should be called after all other
      * configurations have been set.
      * 

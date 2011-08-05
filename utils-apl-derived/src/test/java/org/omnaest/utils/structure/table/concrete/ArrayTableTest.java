@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.table.concrete;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -77,20 +78,20 @@ public class ArrayTableTest
   }
   
   @Test
-      public void testGetTableSize()
-      {
-        //
-        final int rows = 2;
-        final int columns = 5;
-        TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
-        
-        //
-        TableSize tableSize = this.table.getTableSize();
-        assertNotNull( tableSize );
-        assertEquals( rows, tableSize.getRowSize() );
-        assertEquals( columns, tableSize.getColumnSize() );
-        assertEquals( rows * columns, tableSize.getCellSize() );
-      }
+  public void testGetTableSize()
+  {
+    //
+    final int rows = 2;
+    final int columns = 5;
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    TableSize tableSize = this.table.getTableSize();
+    assertNotNull( tableSize );
+    assertEquals( rows, tableSize.getRowSize() );
+    assertEquals( columns, tableSize.getColumnSize() );
+    assertEquals( rows * columns, tableSize.getCellSize() );
+  }
   
   @Test
   public void testGetCellIntInt()
@@ -546,8 +547,13 @@ public class ArrayTableTest
     this.table.setColumnTitleValues( Arrays.asList( "title1", "title2", "title3" ) );
     
     //
-    Column<Object> column = this.table.getColumn( "title2" );
-    assertNotNull( column );
+    assertNotNull( this.table.getColumn( "title2" ) );
+    
+    //
+    assertNull( this.table.getColumn( -1 ) );
+    assertNull( this.table.getColumn( this.table.getTableSize().getColumnSize() ) );
+    assertNotNull( this.table.getColumn( 0 ) );
+    
   }
   
   @Test
@@ -730,5 +736,20 @@ public class ArrayTableTest
     Object element = "other";
     this.table.setCellElement( cellIndexPosition, element );
     assertEquals( this.table, tableClonedStructure );
+  }
+  
+  @Test
+  public void testGetStripeTitleValue()
+  {
+    //
+    final int rows = 5;
+    final int columns = 3;
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    assertNull( this.table.getColumnTitleValue( -1 ) );
+    assertNull( this.table.getColumnTitleValue( 3 ) );
+    assertEquals( "c0", this.table.getColumnTitleValue( 0 ) );
+    assertEquals( "c2", this.table.getColumnTitleValue( 2 ) );
   }
 }

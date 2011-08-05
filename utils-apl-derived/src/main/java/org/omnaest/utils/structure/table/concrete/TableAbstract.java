@@ -156,6 +156,23 @@ public abstract class TableAbstract<E> implements Table<E>
   }
   
   @Override
+  public Table<E> truncateRows( int rowIndexPosition )
+  {
+    //
+    rowIndexPosition = rowIndexPosition >= 0 ? rowIndexPosition : 0;
+    
+    //
+    TableSize tableSize = this.getTableSize();
+    while ( tableSize.getRowSize() > rowIndexPosition )
+    {
+      this.removeRow( rowIndexPosition );
+    }
+    
+    //
+    return this;
+  }
+  
+  @Override
   public Table<E> setRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList )
   {
     //
@@ -325,6 +342,28 @@ public abstract class TableAbstract<E> implements Table<E>
               }
             }
           }
+        }
+      }
+      
+      //
+      {
+        //
+        List<Object> rowTitleValueList = tableDataSource.getRowTitleValueList();
+        int rowIndexPositionCurrent = rowIndexPosition;
+        for ( Object titleValue : rowTitleValueList )
+        {
+          this.setRowTitleValue( titleValue, rowIndexPositionCurrent++ );
+        }
+      }
+      
+      //
+      {
+        //
+        List<Object> columnTitleValueList = tableDataSource.getColumnTitleValueList();
+        int columnIndexPositionCurrent = columnIndexPosition;
+        for ( Object titleValue : columnTitleValueList )
+        {
+          this.setColumnTitleValue( titleValue, columnIndexPositionCurrent++ );
         }
       }
     }
@@ -723,6 +762,46 @@ public abstract class TableAbstract<E> implements Table<E>
     
     //
     return this;
+  }
+  
+  @Override
+  public List<E> removeColumn( Column<E> column )
+  {
+    //
+    List<E> retlist = null;
+    
+    //
+    if ( column != null )
+    {
+      //
+      int columnIndexPosition = column.determineColumnIndexPosition();
+      
+      //
+      retlist = this.removeColumn( columnIndexPosition );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  @Override
+  public List<E> removeRow( Row<E> row )
+  {
+    //
+    List<E> retlist = null;
+    
+    //
+    if ( row != null )
+    {
+      //
+      int rowIndexPosition = row.determineRowIndexPosition();
+      
+      //
+      retlist = this.removeRow( rowIndexPosition );
+    }
+    
+    //
+    return retlist;
   }
   
 }

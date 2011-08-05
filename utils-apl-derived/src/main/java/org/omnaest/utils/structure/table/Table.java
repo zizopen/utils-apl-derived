@@ -192,12 +192,20 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
     public E getCellElement( int indexPosition );
     
     /**
-     * Returns the {@link Cell} for the title value of the orthogonal {@link Stripe}
+     * Returns the {@link Cell} for the title value of the orthogonal {@link Stripe#getTitleValue()}
      * 
      * @param titleValue
      * @return
      */
     public Cell<E> getCell( Object titleValue );
+    
+    /**
+     * Returns the {@link Cell} for the title value of the orthogonal {@link Stripe}
+     * 
+     * @param stripeOrthogonal
+     * @return
+     */
+    public Cell<E> getCell( Stripe<E> stripeOrthogonal );
     
     /**
      * Returns the {@link Cell#getElement()} for the given index position
@@ -206,6 +214,14 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      * @return
      */
     public E getCellElement( Object titleValue );
+    
+    /**
+     * Returns the {@link Cell#getElement()} for the given orthogonal {@link Stripe}
+     * 
+     * @param stripeOrthogonal
+     * @return
+     */
+    public E getCellElement( Stripe<E> stripeOrthogonal );
     
     /**
      * Returns a new {@link List} instance of all {@link Cell#getElement()} in order
@@ -311,6 +327,13 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      * @return
      */
     public Stripe<E> clearCellElements();
+    
+    /**
+     * Returns the underlying {@link Table}
+     * 
+     * @return
+     */
+    public Table<E> getTable();
   }
   
   /**

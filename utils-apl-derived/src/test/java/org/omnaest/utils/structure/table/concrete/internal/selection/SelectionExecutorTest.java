@@ -22,7 +22,9 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
+import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection.Order;
 
 import com.sun.rowset.internal.Row;
 
@@ -50,7 +52,7 @@ public class SelectionExecutorTest
     Table<String> tableResult = this.table.select().allColumns().asTable();
     
     //
-    System.out.println( tableResult.toString() );
+    //System.out.println( tableResult );
     assertEquals( this.table, tableResult );
   }
   
@@ -78,7 +80,7 @@ public class SelectionExecutorTest
     Table<String> tableResult = this.table.select().allColumns().from( this.table2 ).asTable();
     
     //
-    System.out.println( tableResult.toString() );
+    //System.out.println( tableResult );
     assertEquals( Arrays.asList( "0:0", "0:1", "0:0", "0:1" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
     assertEquals( Arrays.asList( "0:0", "0:1", "1:0", "1:1" ), tableResult.getRow( 1 ).asNewListOfCellElements() );
     assertEquals( Arrays.asList( "1:0", "1:1", "0:0", "0:1" ), tableResult.getRow( 2 ).asNewListOfCellElements() );
@@ -127,6 +129,49 @@ public class SelectionExecutorTest
     
     //
     table.setTableName( title );
+  }
+  
+  @Test
+  public void testProcessOrders1()
+  {
+    //
+    int rows = 10;
+    int columns = 3;
+    String tableName = "Table1";
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, tableName, this.table );
+    
+    //
+    Table<String> tableResult = this.table.select().orderBy( this.table.getColumn( 0 ), Order.DESCENDING ).asTable();
+    
+    //
+    //System.out.println( tableResult );
+    
+    //
+    assertEquals( 10, tableResult.getTableSize().getRowSize() );
+    assertEquals( Arrays.asList( "9:0", "9:1", "9:2" ), tableResult.getRow( 0 ).getCellElementList() );
+    assertEquals( Arrays.asList( "8:0", "8:1", "8:2" ), tableResult.getRow( 1 ).getCellElementList() );
+    assertEquals( Arrays.asList( "1:0", "1:1", "1:2" ), tableResult.getRow( 8 ).getCellElementList() );
+    assertEquals( Arrays.asList( "0:0", "0:1", "0:2" ), tableResult.getRow( 9 ).getCellElementList() );
+    
+  }
+  
+  @Test
+  public void testTruncateToTopNumberOfRows()
+  {
+    //
+    int rows = 10;
+    int columns = 3;
+    String tableName = "Table1";
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, tableName, this.table );
+    
+    //
+    Table<String> tableResult = this.table.select().top( 3 ).asTable();
+    
+    //
+    //System.out.println( tableResult );
+    
+    //
+    assertEquals( 3, tableResult.getTableSize().getRowSize() );
   }
   
 }

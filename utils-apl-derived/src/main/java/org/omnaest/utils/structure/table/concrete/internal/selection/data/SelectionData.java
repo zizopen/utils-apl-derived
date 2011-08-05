@@ -43,6 +43,7 @@ public class SelectionData<E>
   private Map<Column<E>, Order>    columnToOrderMap    = new LinkedHashMap<Column<E>, Order>();
   private boolean                  selectAllColumns    = true;
   private boolean                  distinct            = false;
+  private int                      topNumberOfRows     = -1;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -117,6 +118,23 @@ public class SelectionData<E>
   public List<PredicateFilter<E>> getPredicateFilterList()
   {
     return this.predicateFilterList;
+  }
+  
+  /**
+   * @return the topNumberOfRows
+   */
+  public int getTopNumberOfRows()
+  {
+    return this.topNumberOfRows;
+  }
+  
+  /**
+   * @param topNumberOfRows
+   *          the topNumberOfRows to set
+   */
+  public void setTopNumberOfRows( int topNumberOfRows )
+  {
+    this.topNumberOfRows = topNumberOfRows;
   }
   
 }

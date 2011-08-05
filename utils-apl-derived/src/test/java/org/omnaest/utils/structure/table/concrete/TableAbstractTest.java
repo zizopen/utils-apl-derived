@@ -64,6 +64,11 @@ public class TableAbstractTest
     assertEquals( ( rowsInsert - 1 ) + ":" + ( columnsInsert - 1 ),
                   this.table.getCellElement( rowIndexPosition + rowsInsert - 1, columnIndexPosition + columnsInsert - 1 ) );
     
+    assertEquals( "r0", this.table.getRowTitleValue( rowIndexPosition ) );
+    assertEquals( "c" + ( columnsInsert - 1 ), this.table.getColumnTitleValue( columnIndexPosition + columnsInsert - 1 ) );
+    
+    //
+    //System.out.println( this.table );
   }
   
   @Test
@@ -78,6 +83,21 @@ public class TableAbstractTest
   {
     this.table.setColumnTitleValues( "column1", "column2" );
     assertEquals( Arrays.asList( "column1", "column2" ), this.table.getColumnTitleValueList() );
+  }
+  
+  @Test
+  public void testTruncateRows()
+  {
+    //
+    final int rows = 20;
+    final int columns = 3;
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    this.table.truncateRows( 10 );
+    
+    //
+    assertEquals( 10, this.table.getTableSize().getRowSize() );
   }
   
 }

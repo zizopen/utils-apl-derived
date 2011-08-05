@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
+import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.concrete.internal.StripeDataImpl;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
@@ -35,6 +36,27 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
  */
 public class StripeDataHelper
 {
+  /**
+   * Returns true, if two {@link StripeData} instances have the same {@link Cell#getElement()}s in the same order.
+   * 
+   * @param stripeData1
+   * @param stripeData2
+   * @return
+   */
+  public static <E> boolean areStripeDataEqualByCellElements( StripeData<E> stripeData1, StripeData<E> stripeData2 )
+  {
+    // 
+    boolean retval = false;
+    
+    //
+    if ( stripeData1 != null && stripeData2 != null )
+    {
+      retval = stripeData1.getCellElementList().equals( stripeData2.getCellElementList() );
+    }
+    
+    //
+    return retval;
+  }
   
   /**
    * Extracts the underlying {@link StripeData} from a given {@link Stripe}

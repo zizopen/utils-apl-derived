@@ -212,4 +212,14 @@ public class SelectionImpl<E> implements SelectionJoin<E>
     return this.selectionExecutor.execute();
   }
   
+  @Override
+  public Selection<E> top( int numberOfRows )
+  {
+    //
+    this.selectionData.setTopNumberOfRows( numberOfRows );
+    
+    //
+    return this;
+  }
+  
 }

@@ -15,8 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal.selection;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -24,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.ComparatorUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
@@ -32,6 +36,7 @@ import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.concrete.internal.StripeFactory;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeDataHelper;
 import org.omnaest.utils.structure.table.concrete.internal.helper.TableInternalHelper;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.SelectionData;
@@ -41,6 +46,7 @@ import org.omnaest.utils.structure.table.concrete.internal.selection.join.JoinIn
 import org.omnaest.utils.structure.table.concrete.internal.selection.scannable.ScannableStripeDataContainer;
 import org.omnaest.utils.structure.table.concrete.internal.selection.scannable.ScannableStripeDataContainerFullScan;
 import org.omnaest.utils.structure.table.concrete.internal.selection.scannable.ScannableStripeDataContainerIndex;
+import org.omnaest.utils.structure.table.concrete.predicates.internal.filter.ColumnHaveDistinctRows;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.filter.PredicateFilter;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.joiner.PredicateJoiner;
 import org.omnaest.utils.structure.table.concrete.predicates.internal.joiner.PredicateJoinerCollector;
@@ -49,6 +55,7 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
+import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection.Order;
 
 /**
  * @see SelectionImpl
@@ -172,12 +179,109 @@ public class SelectionExecutor<E>
     this.processPredicates( columnToTableBlockMap );
     TableBlock<E> joinedTableBlock = this.joinTableBlocks( columnToTableBlockMap, tableInternal.getTableContent()
                                                                                                .getRowStripeDataList() );
+    this.processDistinctPredicate( joinedTableBlock );
+    this.processOrders( joinedTableBlock );
     
     //
     SelectionExecutor.<E> mergeJoinedTableBlockIntoTableInternal( tableInternal, joinedTableBlock );
+    this.truncateToTopNumberOfRows( tableInternal );
     
     //
     return tableInternal.getUnderlyingTable();
+  }
+  
+  /**
+   * @see Table#truncateRows(int)
+   * @param tableInternal
+   */
+  private void truncateToTopNumberOfRows( TableInternal<E> tableInternal )
+  {
+    //
+    int topNumberOfRows = this.selectionData.getTopNumberOfRows();
+    if ( topNumberOfRows >= 0 )
+    {
+      tableInternal.getUnderlyingTable().truncateRows( topNumberOfRows );
+    }
+  }
+  
+  /**
+   * @param joinedTableBlock
+   */
+  private void processOrders( final TableBlock<E> joinedTableBlock )
+  {
+    //
+    final Map<Column<E>, Order> columnToOrderMap = this.selectionData.getColumnToOrderMap();
+    
+    //
+    if ( !columnToOrderMap.isEmpty() )
+    {
+      
+      //
+      final Set<StripeData<E>> rowStripeDataSet = joinedTableBlock.getRowStripeDataSet();
+      final StripeFactory<E> stripeFactory = joinedTableBlock.getTableInternal().getStripeFactory();
+      
+      //    
+      ElementTransformer<StripeData<E>, StripeInternal<E>> elementTransformer = new ElementTransformer<StripeData<E>, StripeInternal<E>>()
+      {
+        @Override
+        public StripeInternal<E> transformElement( StripeData<E> stripeData )
+        {
+          return stripeFactory.newInstanceOfStripeInternal( stripeData );
+        }
+      };
+      List<StripeInternal<E>> rowStripeInternalListToBeSorted = ListUtils.transform( rowStripeDataSet, elementTransformer );
+      Comparator<StripeInternal<E>> comparator = new Comparator<StripeInternal<E>>()
+      {
+        @SuppressWarnings("unchecked")
+        @Override
+        public int compare( StripeInternal<E> stripeInternal1, StripeInternal<E> stripeInternal2 )
+        {
+          //
+          int retval = 0;
+          for ( Column<E> column : columnToOrderMap.keySet() )
+          {
+            //
+            Order order = columnToOrderMap.get( column );
+            final int orderMultiplicator = Order.DESCENDING.equals( order ) ? -1 : 1;
+            
+            //
+            E cellElement1 = stripeInternal1.getCellElement( column );
+            E cellElement2 = stripeInternal2.getCellElement( column );
+            
+            //
+            if ( cellElement1 != null && cellElement2 != null )
+            {
+              retval = ComparatorUtils.naturalComparator().compare( cellElement1, cellElement2 );
+              retval *= orderMultiplicator;
+            }
+            
+            //
+            if ( retval != 0 )
+            {
+              break;
+            }
+          }
+          
+          // 
+          return retval;
+        }
+      };
+      Collections.sort( rowStripeInternalListToBeSorted, comparator );
+      
+      //
+      List<StripeData<E>> rowStripeDataListSorted = ListUtils.transform( rowStripeInternalListToBeSorted,
+                                                                         new ElementTransformer<StripeInternal<E>, StripeData<E>>()
+                                                                         {
+                                                                           @Override
+                                                                           public StripeData<E> transformElement( StripeInternal<E> stripeInternal )
+                                                                           {
+                                                                             return stripeInternal.getStripeData();
+                                                                           }
+                                                                         } );
+      
+      rowStripeDataSet.clear();
+      rowStripeDataSet.addAll( rowStripeDataListSorted );
+    }
   }
   
   /**
@@ -318,6 +422,8 @@ public class SelectionExecutor<E>
     //
     Set<PredicateJoiner<E>> predicateJoinerSet = new LinkedHashSet<PredicateJoiner<E>>(
                                                                                         this.selectionData.getPredicateJoinerList() );
+    
+    //
     return new PredicateJoinerCollector<E>( predicateJoinerSet );
   }
   
@@ -414,7 +520,7 @@ public class SelectionExecutor<E>
     //
     if ( this.selectionData.isSelectAllColumns() )
     {
-      this.resolveAllColumnsFromTablesAndAttachThemToTheSelectionColumnList();
+      this.determineAllColumnsFromTablesAndAttachThemToTheSelectionColumnList();
     }
     
     //
@@ -438,7 +544,8 @@ public class SelectionExecutor<E>
   private void processPredicates( Map<Column<E>, TableBlock<E>> columnToTableBlockMap )
   {
     //
-    for ( PredicateFilter<E> predicateInternal : this.selectionData.getPredicateFilterList() )
+    List<PredicateFilter<E>> predicateFilterList = this.selectionData.getPredicateFilterList();
+    for ( PredicateFilter<E> predicateInternal : predicateFilterList )
     {
       //
       Column<E>[] requiredColumns = predicateInternal.getRequiredColumns();
@@ -457,6 +564,23 @@ public class SelectionExecutor<E>
       
       //
       predicateInternal.filterStripeDataSet( tableBlockSet );
+    }
+  }
+  
+  /**
+   * Executes the {@link PredicateFilter}s declared for the
+   * {@link Selection#where(org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate...)} clause
+   * 
+   * @param joinedTableBlock
+   */
+  @SuppressWarnings("unchecked")
+  private void processDistinctPredicate( TableBlock<E> joinedTableBlock )
+  {
+    //
+    if ( this.selectionData.isDistinct() )
+    {
+      PredicateFilter<E> columnHaveDistinctRows = new ColumnHaveDistinctRows<E>();
+      columnHaveDistinctRows.filterStripeDataSet( Arrays.asList( joinedTableBlock ) );
     }
   }
   
@@ -531,8 +655,29 @@ public class SelectionExecutor<E>
   /**
    * 
    */
-  private void resolveAllColumnsFromTablesAndAttachThemToTheSelectionColumnList()
+  private void determineAllColumnsFromTablesAndAttachThemToTheSelectionColumnList()
   {
+    //
+    List<Column<E>> columnList = this.selectionData.getColumnList();
+    for ( Column<E> column : this.determineAllColumnsFromTables() )
+    {
+      if ( !columnList.contains( column ) )
+      {
+        columnList.add( column );
+      }
+    }
+  }
+  
+  /**
+   * Determines all {@link Column}s referenced by the {@link SelectionData#getTableToJoinMap()}
+   * 
+   * @return
+   */
+  private List<Column<E>> determineAllColumnsFromTables()
+  {
+    //
+    List<Column<E>> retlist = new ArrayList<Column<E>>();
+    
     //
     Set<Table<E>> tableSet = this.selectionData.getTableToJoinMap().keySet();
     
@@ -554,16 +699,18 @@ public class SelectionExecutor<E>
       if ( table != null )
       {
         //
-        List<Column<E>> columnList = this.selectionData.getColumnList();
         for ( Column<E> column : table.getColumnList() )
         {
-          if ( !columnList.contains( column ) )
+          if ( !retlist.contains( column ) )
           {
-            columnList.add( column );
+            retlist.add( column );
           }
         }
       }
     }
+    
+    //
+    return retlist;
   }
   
   /**

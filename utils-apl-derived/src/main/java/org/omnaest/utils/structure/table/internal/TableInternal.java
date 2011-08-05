@@ -29,6 +29,7 @@ import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.Table.TableComponent;
 import org.omnaest.utils.structure.table.Table.TableSize;
+import org.omnaest.utils.structure.table.concrete.internal.StripeFactory;
 
 /**
  * @see Table
@@ -866,5 +867,12 @@ public interface TableInternal<E>
    * @return
    */
   public Table<E> getUnderlyingTable();
+  
+  /**
+   * Returns the internal {@link StripeFactory}
+   * 
+   * @return
+   */
+  public StripeFactory<E> getStripeFactory();
   
 }

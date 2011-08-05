@@ -145,19 +145,20 @@ public class StripeImpl<E> extends StripeAbstract<E>
   }
   
   @Override
-  public E getCellElement( int indexPosition )
+  public Cell<E> getCell( Stripe<E> stripeOrthogonal )
   {
     //
-    E retval = null;
+    Cell<E> retval = null;
     
     //
-    Cell<E> cell = this.getCell( indexPosition );
-    if ( cell != null )
+    if ( stripeOrthogonal instanceof StripeInternal )
     {
-      retval = cell.getElement();
+      //
+      StripeInternal<E> stripeInternalOrthogonal = (StripeInternal<E>) stripeOrthogonal;
+      retval = this.tableInternal.getCellAndStripeResolver().resolveOrCreateCell( this.stripeData,
+                                                                                  stripeInternalOrthogonal.getStripeData() );
+      
     }
-    
-    // 
     return retval;
   }
   
@@ -187,23 +188,6 @@ public class StripeImpl<E> extends StripeAbstract<E>
     
     // 
     return this;
-  }
-  
-  @Override
-  public E getCellElement( Object titleValue )
-  {
-    //
-    E retval = null;
-    
-    //
-    Cell<E> cell = this.getCell( titleValue );
-    if ( cell != null )
-    {
-      retval = cell.getElement();
-    }
-    
-    // 
-    return retval;
   }
   
   @Override
