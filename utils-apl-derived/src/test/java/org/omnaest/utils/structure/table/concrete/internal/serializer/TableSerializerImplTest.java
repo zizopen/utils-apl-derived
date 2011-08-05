@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
@@ -33,9 +34,11 @@ import org.omnaest.utils.structure.table.serializer.TableMarshaller;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerCSV;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerPlainText;
+import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerXLS;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerXML;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerCSV;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerPlainText;
+import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerXLS;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerXML;
 import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer;
 
@@ -51,9 +54,10 @@ public class TableSerializerImplTest
   {
     //
     List<Object[]> retlist = new ArrayList<Object[]>();
-    retlist.add( new Object[] { new TableMarshallerPlainText<Object>(), new TableUnmarshallerPlainText<Object>() } );
-    retlist.add( new Object[] { new TableMarshallerXML<Object>(), new TableUnmarshallerXML<Object>() } );
-    retlist.add( new Object[] { new TableMarshallerCSV<Object>(), new TableUnmarshallerCSV<Object>() } );
+    retlist.add( new Object[] { new TableMarshallerPlainText<Object>(), new TableUnmarshallerPlainText<Object>(), true, true } );
+    retlist.add( new Object[] { new TableMarshallerXML<Object>(), new TableUnmarshallerXML<Object>(), true, true } );
+    retlist.add( new Object[] { new TableMarshallerCSV<Object>(), new TableUnmarshallerCSV<Object>(), true, true } );
+    retlist.add( new Object[] { new TableMarshallerXLS<Object>(), new TableUnmarshallerXLS<Object>(), true, false } );
     
     //
     return retlist;
@@ -63,11 +67,14 @@ public class TableSerializerImplTest
    * @param tableMarshaller
    * @param tableUnmarshaller
    */
-  public TableSerializerImplTest( TableMarshaller<Object> tableMarshaller, TableUnmarshaller<Object> tableUnmarshaller )
+  public TableSerializerImplTest( TableMarshaller<Object> tableMarshaller, TableUnmarshaller<Object> tableUnmarshaller,
+                                  boolean supportsOutputStream, boolean supportsAppendable )
   {
     super();
     this.tableMarshaller = tableMarshaller;
     this.tableUnmarshaller = tableUnmarshaller;
+    this.supportsAppendable = supportsAppendable;
+    this.supportsOutputStream = supportsOutputStream;
   }
   
   /* ********************************************** Variables ********************************************** */
@@ -79,6 +86,9 @@ public class TableSerializerImplTest
   
   protected TableMarshaller<Object>   tableMarshaller                 = null;
   protected TableUnmarshaller<Object> tableUnmarshaller               = null;
+  
+  protected boolean                   supportsOutputStream            = true;
+  protected boolean                   supportsAppendable              = true;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -92,14 +102,36 @@ public class TableSerializerImplTest
   }
   
   @Test
-  public void testTableSerializerImpl()
+  public void testTableSerializerOutputStream()
   {
     //
-    String tableContent = this.tableSerializerForMarshalling.marshal( this.tableMarshaller ).toString();
-    this.tableSerializerForUnmarshalling.unmarshal( this.tableUnmarshaller ).from( tableContent );
-    
+    if ( this.supportsOutputStream )
+    {
+      //
+      ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+      
+      //
+      this.tableSerializerForMarshalling.marshal( this.tableMarshaller ).writeTo( byteArrayContainer.getOutputStream() );
+      this.tableSerializerForUnmarshalling.unmarshal( this.tableUnmarshaller ).from( byteArrayContainer.getInputStream() );
+      
+      //
+      assertEquals( this.tableBefore, this.tableAfter );
+    }
+  }
+  
+  @Test
+  public void testTableSerializerAppendable()
+  {
     //
-    assertEquals( this.tableBefore, this.tableAfter );
+    if ( this.supportsAppendable )
+    {
+      //
+      String tableContent = this.tableSerializerForMarshalling.marshal( this.tableMarshaller ).toString();
+      this.tableSerializerForUnmarshalling.unmarshal( this.tableUnmarshaller ).from( tableContent );
+      
+      //
+      assertEquals( this.tableBefore, this.tableAfter );
+    }
   }
   
 }
