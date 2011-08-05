@@ -104,7 +104,7 @@ public class ListToTypeAdapter<T, L extends List<?>>
       try
       {
         //
-        BeanMethodInformation beanMethodInformation = BeanUtils.determineBeanMethodInformation( method );
+        BeanMethodInformation beanMethodInformation = BeanUtils.beanMethodInformation( method );
         if ( beanMethodInformation != null )
         {
           //
@@ -357,7 +357,7 @@ public class ListToTypeAdapter<T, L extends List<?>>
       List<String> propertynameResolvedList = new ArrayList<String>();
       {
         //
-        Set<BeanPropertyAccessor<T>> beanPropertyAccessorList = BeanUtils.determineBeanPropertyAccessorSet( clazz );
+        Set<BeanPropertyAccessor<T>> beanPropertyAccessorList = BeanUtils.beanPropertyAccessorSet( clazz );
         ElementTransformer<BeanPropertyAccessor<T>, String> elementTransformer = new ElementTransformer<BeanPropertyAccessor<T>, String>()
         {
           @Override

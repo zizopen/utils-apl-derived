@@ -73,7 +73,7 @@ public class ColumnValueEqualsTest
     
     //
     assertEquals( 1, tableResult.getTableSize().getRowSize() );
-    assertEquals( Arrays.asList( "5:0", "5:1" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "5:0", "5:1" ), tableResult.getRow( 0 ).getCellElementList() );
     
   }
   
@@ -91,7 +91,7 @@ public class ColumnValueEqualsTest
     
     //
     assertEquals( 1, tableResult.getTableSize().getRowSize() );
-    assertEquals( Arrays.asList( "3:0", "3:1", "3:0", "3:1", "3:2" ), tableResult.getRow( 0 ).asNewListOfCellElements() );
+    assertEquals( Arrays.asList( "3:0", "3:1", "3:0", "3:1", "3:2" ), tableResult.getRow( 0 ).getCellElementList() );
     
   }
   

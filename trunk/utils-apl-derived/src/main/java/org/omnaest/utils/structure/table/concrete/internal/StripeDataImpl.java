@@ -180,7 +180,7 @@ public class StripeDataImpl<E> implements StripeData<E>
     //
     Set<CellData<E>> retset = new HashSet<CellData<E>>();
     
-    //FIXME use index here
+    //
     for ( CellData<E> cellData : this.cellDataSet )
     {
       if ( cellData != null && cellData.hasElement( element ) )

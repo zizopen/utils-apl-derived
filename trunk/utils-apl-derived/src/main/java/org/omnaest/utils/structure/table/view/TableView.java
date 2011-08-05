@@ -29,7 +29,10 @@ import org.omnaest.utils.structure.table.subspecification.TableSelectable.Select
  */
 public interface TableView<E> extends TableCoreImmutable<E>
 {
-  
+  /**
+   * @param tableView
+   * @return
+   */
   public boolean equals( TableView<E> tableView );
   
   /**

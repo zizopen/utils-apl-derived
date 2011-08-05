@@ -19,9 +19,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.omnaest.utils.structure.collection.list.ListAbstract;
+
 /**
- * Abstract map reducing the {@link Map} interface to needed operations.
+ * Abstract {@link Map} reducing the {@link Map} interface to the very needed operations.
  * 
+ * @see ListAbstract
  * @author Omnaest
  * @param <K>
  * @param <V>

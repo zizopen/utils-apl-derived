@@ -136,7 +136,7 @@ public class BeanProperty
                 Method method = methodCallCapture.getMethod();
                 
                 //
-                BeanPropertyAccessor<B> beanPropertyAccessor = (BeanPropertyAccessor<B>) BeanUtils.determineBeanPropertyAccessor( beanClass,
+                BeanPropertyAccessor<B> beanPropertyAccessor = (BeanPropertyAccessor<B>) BeanUtils.beanPropertyAccessor( beanClass,
                                                                                                                                   method );
                 
                 //

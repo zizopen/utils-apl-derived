@@ -212,4 +212,10 @@ public abstract class StripeAbstract<E> implements StripeInternal<E>
     return this.tableInternal.getUnderlyingTable();
   }
   
+  @Override
+  public List<Object> getColumnTitleValueList()
+  {
+    return this.getTable().getColumnTitleValueList();
+  }
+  
 }

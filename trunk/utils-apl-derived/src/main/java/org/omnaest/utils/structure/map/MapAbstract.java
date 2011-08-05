@@ -27,7 +27,7 @@ import java.util.Set;
  * @param <K>
  * @param <V>
  */
-public abstract class AbstractMap<K, V> implements Map<K, V>
+public abstract class MapAbstract<K, V> implements Map<K, V>
 {
   
   @Override
@@ -81,13 +81,13 @@ public abstract class AbstractMap<K, V> implements Map<K, V>
         @Override
         public V getValue()
         {
-          return AbstractMap.this.get( key );
+          return MapAbstract.this.get( key );
         }
         
         @Override
         public V setValue( V value )
         {
-          return AbstractMap.this.put( key, value );
+          return MapAbstract.this.put( key, value );
         }
       } );
     }

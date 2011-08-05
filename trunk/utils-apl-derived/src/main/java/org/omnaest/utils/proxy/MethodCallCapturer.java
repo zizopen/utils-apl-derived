@@ -341,7 +341,7 @@ public class MethodCallCapturer
         if ( method != null )
         {
           //        
-          BeanMethodInformation beanMethodInformation = BeanUtils.determineBeanMethodInformation( method );
+          BeanMethodInformation beanMethodInformation = BeanUtils.beanMethodInformation( method );
           if ( beanMethodInformation != null )
           {
             //
