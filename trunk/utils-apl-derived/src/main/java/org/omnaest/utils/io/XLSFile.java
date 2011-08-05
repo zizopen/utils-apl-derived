@@ -33,12 +33,17 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerXLS;
+import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerXLS;
 
 /**
  * Simple representation of an XLS file of Microsoft Excel.
  * 
+ * @deprecated use {@link Table} and {@link TableMarshallerXLS} and {@link TableUnmarshallerXLS} instead
  * @author Omnaest
  */
+@Deprecated
 public class XLSFile
 {
   /* ********************************************** Constants ********************************************** */
@@ -52,7 +57,7 @@ public class XLSFile
   protected File              file              = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * Representation of a row.
    */
@@ -78,7 +83,7 @@ public class XLSFile
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Creates a unlinked instance. The underlying file has to be set before invoking {@link XLSFile#load()} or
    * {@link XLSFile#store()} methods.
