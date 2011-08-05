@@ -14,6 +14,8 @@ The Table can be marshalled to and unmarshalled from
  * Plain text
  * XML (JAXB)
  * XLS (Microsoft Excel)
+ 
+ (See the [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/structure/table/concrete/internal/serializer/TableSerializerImplTest.java Serializer test] for examples)
 
 An example for plain text will look like:
 {{{
