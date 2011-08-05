@@ -78,7 +78,9 @@ Table<String> tableResult = this.table1.select()
 For more examples take a look into the JUnit tests for the PredicateFilter derived classes.
 
 E.g.:
-[http://www.google.com/codesearch#agM0M4Gok3c/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/structure/table/concrete/predicates/internal/filer/ColumnValueIsInTest ColumnValueIsInTest]
+[http://utils-apl-derived.googlecode.com/svn/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/structure/table/concrete/predicates/internal/filter/ColumnValueIsInTest.java ColumnValueIsInTest]
+
+[http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/structure/table/concrete/predicates/internal/filter/ Filter test package]
 
 
 
