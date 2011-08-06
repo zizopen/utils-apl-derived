@@ -31,6 +31,8 @@ import org.apache.commons.collections.ComparatorUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
+import org.omnaest.utils.structure.collection.set.IdentityArrayListBasedSet;
+import org.omnaest.utils.structure.map.IdentityLinkedHashMap;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;
@@ -434,7 +436,7 @@ public class SelectionExecutor<E>
   private static <E> Map<Table<E>, TableBlock<E>> determineTableToTableBlockMap( Collection<TableBlock<E>> tableBlockCollection )
   {
     //
-    Map<Table<E>, TableBlock<E>> retmap = new LinkedHashMap<Table<E>, TableBlock<E>>();
+    Map<Table<E>, TableBlock<E>> retmap = new IdentityLinkedHashMap<Table<E>, TableBlock<E>>();
     
     //
     if ( tableBlockCollection != null )
@@ -467,7 +469,7 @@ public class SelectionExecutor<E>
   {
     //   
     Map<Column<E>, TableBlock<E>> columnToTableBlockMap = new LinkedHashMap<Column<E>, TableBlock<E>>();
-    Map<Table<E>, TableBlock<E>> tableToTableBlockMap = new LinkedHashMap<Table<E>, TableBlock<E>>();
+    Map<Table<E>, TableBlock<E>> tableToTableBlockMap = new IdentityLinkedHashMap<Table<E>, TableBlock<E>>();
     
     //
     for ( Table<E> table : this.selectionData.getTableToJoinMap().keySet() )
@@ -528,7 +530,9 @@ public class SelectionExecutor<E>
     Map<Table<E>, Join<E>> tableToJoinMap = this.selectionData.getTableToJoinMap();
     for ( Table<E> joinTable : tableListReferencedByColumn )
     {
-      if ( !tableToJoinMap.containsKey( joinTable ) )
+      //
+      boolean containsObjectIdentity = CollectionUtils.containsObjectIdentity( tableToJoinMap.keySet(), joinTable );
+      if ( !containsObjectIdentity )
       {
         tableToJoinMap.put( joinTable, new JoinInner<E>() );
       }
@@ -551,7 +555,7 @@ public class SelectionExecutor<E>
       Column<E>[] requiredColumns = predicateInternal.getRequiredColumns();
       
       //
-      Set<TableBlock<E>> tableBlockSet = new LinkedHashSet<TableBlock<E>>();
+      Set<TableBlock<E>> tableBlockSet = new IdentityArrayListBasedSet<TableBlock<E>>();
       for ( Column<E> column : requiredColumns )
       {
         //
@@ -630,7 +634,7 @@ public class SelectionExecutor<E>
   private Set<Table<E>> determineTableSetReferencedByColumn()
   {
     //    
-    Set<Table<E>> retset = new LinkedHashSet<Table<E>>();
+    Set<Table<E>> retset = new IdentityArrayListBasedSet<Table<E>>();
     
     //
     for ( Column<E> column : this.selectionData.getColumnList() )

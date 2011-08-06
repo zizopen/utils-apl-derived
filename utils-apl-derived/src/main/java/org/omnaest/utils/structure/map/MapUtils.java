@@ -18,9 +18,11 @@ package org.omnaest.utils.structure.map;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
 import org.omnaest.utils.structure.collection.CollectionUtils.IdentityElementConverter;
@@ -55,7 +57,7 @@ public class MapUtils
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Merges all given {@link Map} instances into a single {@link LinkedHashMap} using the given {@link MapElementMergeOperation}.
    * 
@@ -236,5 +238,45 @@ public class MapUtils
     
     //
     return retmap;
+  }
+  
+  /**
+   * Returns a {@link String} representation for a {@link Map}
+   * 
+   * @param map
+   * @return
+   */
+  public static <K, V> String toString( Map<K, V> map )
+  {
+    //
+    StringBuilder retval = new StringBuilder();
+    
+    //
+    if ( map != null )
+    {
+      //
+      retval.append( "[\n" );
+      
+      //
+      Iterator<Entry<K, V>> iterator = map.entrySet().iterator();
+      while ( iterator != null && iterator.hasNext() )
+      {
+        try
+        {
+          Entry<K, V> entry = iterator.next();
+          retval.append( "  " + entry.toString() + "\n" );
+        }
+        catch ( Exception e )
+        {
+        }
+        
+      }
+      
+      //
+      retval.append( "]" );
+    }
+    
+    //
+    return retval.toString();
   }
 }

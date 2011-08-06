@@ -89,6 +89,20 @@ public abstract class MapAbstract<K, V> implements Map<K, V>
         {
           return MapAbstract.this.put( key, value );
         }
+        
+        @Override
+        public String toString()
+        {
+          try
+          {
+            return "[" + String.valueOf( this.getKey() ) + ":" + String.valueOf( this.getValue() + "]" );
+          }
+          catch ( Exception e )
+          {
+            return "";
+          }
+        }
+        
       } );
     }
     
@@ -110,6 +124,12 @@ public abstract class MapAbstract<K, V> implements Map<K, V>
     {
       this.remove( key );
     }
+  }
+  
+  @Override
+  public String toString()
+  {
+    return MapUtils.toString( this );
   }
   
 }
