@@ -48,6 +48,7 @@ import org.omnaest.utils.structure.table.view.TableView;
  * <ul>
  * <li>{@link #select()}</li>
  * <li>{@link #serializer()}</li>
+ * <li>{@link #as()}</li>
  * </ul>
  * or simple helper methods like:
  * <ul>

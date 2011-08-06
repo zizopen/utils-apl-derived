@@ -44,7 +44,7 @@ public class TableUnmarshallerExecutorImpl<E> extends TableUnmarshallerExecutorA
   }
   
   @Override
-  public void from( InputStream inputStream )
+  public Table<E> from( InputStream inputStream )
   {
     //
     if ( this.tableUnmarshaller != null && this.table != null && inputStream != null )
@@ -52,10 +52,13 @@ public class TableUnmarshallerExecutorImpl<E> extends TableUnmarshallerExecutorA
       //
       this.tableUnmarshaller.unmarshal( this.table, inputStream );
     }
+    
+    //
+    return this.table;
   }
   
   @Override
-  public void from( CharSequence charSequence )
+  public Table<E> from( CharSequence charSequence )
   {
     //
     if ( this.tableUnmarshaller != null && this.table != null && charSequence != null )
@@ -63,6 +66,9 @@ public class TableUnmarshallerExecutorImpl<E> extends TableUnmarshallerExecutorA
       //
       this.tableUnmarshaller.unmarshal( this.table, charSequence );
     }
+    
+    //
+    return this.table;
   }
   
 }

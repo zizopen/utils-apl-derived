@@ -51,7 +51,7 @@ public abstract class TableUnmarshallerExecutorAbstract<E> implements TableUnmar
   }
   
   @Override
-  public void from( String string )
+  public Table<E> from( String string )
   {
     //
     if ( string != null )
@@ -60,10 +60,13 @@ public abstract class TableUnmarshallerExecutorAbstract<E> implements TableUnmar
       CharSequence charSequence = new StringBuffer( string );
       this.from( charSequence );
     }
+    
+    //
+    return this.table;
   }
   
   @Override
-  public void from( File file )
+  public Table<E> from( File file )
   {
     //
     if ( file != null && file.exists() )
@@ -79,6 +82,9 @@ public abstract class TableUnmarshallerExecutorAbstract<E> implements TableUnmar
       {
       }
     }
+    
+    //
+    return this.table;
   }
   
 }
