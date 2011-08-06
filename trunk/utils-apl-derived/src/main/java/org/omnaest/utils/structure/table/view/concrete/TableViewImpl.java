@@ -26,6 +26,7 @@ import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.TableCellConverter;
 import org.omnaest.utils.structure.table.Table.TableCellVisitor;
 import org.omnaest.utils.structure.table.Table.TableSize;
+import org.omnaest.utils.structure.table.subspecification.TableCoreImmutable;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
 import org.omnaest.utils.structure.table.view.TableView;
 
@@ -39,8 +40,8 @@ public class TableViewImpl<E> implements TableView<E>
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = 9098713365809240981L;
   /* ********************************************** Variables ********************************************** */
-  protected Selection<E> selection   = null;
-  protected Table<E>     resultTable = null;
+  protected Selection<E>    selection        = null;
+  protected Table<E>        table            = null;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -57,7 +58,7 @@ public class TableViewImpl<E> implements TableView<E>
   public TableView<E> refresh()
   {
     //
-    this.resultTable = this.selection.asTable();
+    this.table = this.selection.asTable();
     
     //
     return this;
@@ -66,223 +67,223 @@ public class TableViewImpl<E> implements TableView<E>
   @Override
   public boolean equals( TableView<E> tableView )
   {
-    return this.resultTable.equals( tableView );
+    return this.table.equals( tableView );
   }
   
   @Override
-  public boolean equals( Table<E> table )
+  public boolean equals( TableCoreImmutable<E> table )
   {
-    return this.resultTable.equals( table );
+    return this.table.equals( table );
   }
   
   @Override
   public List<Object> getRowTitleValueList()
   {
-    return this.resultTable.getRowTitleValueList();
+    return this.table.getRowTitleValueList();
   }
   
   @Override
   public Object getRowTitleValue( int rowIndexPosition )
   {
-    return this.resultTable.getRowTitleValue( rowIndexPosition );
+    return this.table.getRowTitleValue( rowIndexPosition );
   }
   
   @Override
   public List<Object> getColumnTitleValueList()
   {
-    return this.resultTable.getColumnTitleValueList();
+    return this.table.getColumnTitleValueList();
   }
   
   @Override
   public Object getColumnTitleValue( int columnIndexPosition )
   {
-    return this.resultTable.getColumnTitleValue( columnIndexPosition );
+    return this.table.getColumnTitleValue( columnIndexPosition );
   }
   
   @Override
   public TableSize getTableSize()
   {
-    return this.resultTable.getTableSize();
+    return this.table.getTableSize();
   }
   
   @Override
   public E getCellElement( int rowIndexPosition, int columnIndexPosition )
   {
-    return this.resultTable.getCellElement( rowIndexPosition, columnIndexPosition );
+    return this.table.getCellElement( rowIndexPosition, columnIndexPosition );
   }
   
   @Override
   public E getCellElement( int cellIndexPosition )
   {
-    return this.resultTable.getCellElement( cellIndexPosition );
+    return this.table.getCellElement( cellIndexPosition );
   }
   
   @Override
   public List<E> getCellElementList()
   {
-    return this.resultTable.getCellElementList();
+    return this.table.getCellElementList();
   }
   
   @Override
   public Cell<E> getCell( int rowIndexPosition, int columnIndexPosition )
   {
-    return this.resultTable.getCell( rowIndexPosition, columnIndexPosition );
+    return this.table.getCell( rowIndexPosition, columnIndexPosition );
   }
   
   @Override
   public Cell<E> getCell( int cellIndexPosition )
   {
-    return this.resultTable.getCell( cellIndexPosition );
+    return this.table.getCell( cellIndexPosition );
   }
   
   @Override
   public Cell<E> getCell( String rowTitleValue, String columnTitleValue )
   {
-    return this.resultTable.getCell( rowTitleValue, columnTitleValue );
+    return this.table.getCell( rowTitleValue, columnTitleValue );
   }
   
   @Override
   public Cell<E> getCell( Object rowTitleValue, int columnIndexPosition )
   {
-    return this.resultTable.getCell( rowTitleValue, columnIndexPosition );
+    return this.table.getCell( rowTitleValue, columnIndexPosition );
   }
   
   @Override
   public Cell<E> getCell( int rowIndexPosition, Object columnTitleValue )
   {
-    return this.resultTable.getCell( rowIndexPosition, columnTitleValue );
+    return this.table.getCell( rowIndexPosition, columnTitleValue );
   }
   
   @Override
   public List<Cell<E>> getCellList()
   {
-    return this.resultTable.getCellList();
+    return this.table.getCellList();
   }
   
   @Override
   public Row<E> getRow( int rowIndexPosition )
   {
-    return this.resultTable.getRow( rowIndexPosition );
+    return this.table.getRow( rowIndexPosition );
   }
   
   @Override
   public List<Row<E>> getRowList()
   {
-    return this.resultTable.getRowList();
+    return this.table.getRowList();
   }
   
   @Override
   public Row<E> getRow( Object rowTitleValue )
   {
-    return this.resultTable.getRow( rowTitleValue );
+    return this.table.getRow( rowTitleValue );
   }
   
   @Override
   public Column<E> getColumn( int columnIndexPosition )
   {
-    return this.resultTable.getColumn( columnIndexPosition );
+    return this.table.getColumn( columnIndexPosition );
   }
   
   @Override
   public List<Column<E>> getColumnList()
   {
-    return this.resultTable.getColumnList();
+    return this.table.getColumnList();
   }
   
   @Override
   public Column<E> getColumn( Object columnTitleValue )
   {
-    return this.resultTable.getColumn( columnTitleValue );
+    return this.table.getColumn( columnTitleValue );
   }
   
   @Override
   public boolean contains( E element )
   {
-    return this.resultTable.contains( element );
+    return this.table.contains( element );
   }
   
   @Override
   public Table<E> cloneStructure()
   {
-    return this.resultTable.cloneStructure();
+    return this.table.cloneStructure();
   }
   
   @Override
   public Table<E> cloneStructureWithContent()
   {
-    return this.resultTable.cloneStructureWithContent();
+    return this.table.cloneStructureWithContent();
   }
   
   @Override
   public Iterator<Cell<E>> iteratorCell()
   {
-    return this.resultTable.iteratorCell();
+    return this.table.iteratorCell();
   }
   
   @Override
   public Iterable<Cell<E>> cells()
   {
-    return this.resultTable.cells();
+    return this.table.cells();
   }
   
   @Override
   public ListIterable<Row<E>> rows()
   {
-    return this.resultTable.rows();
+    return this.table.rows();
   }
   
   @Override
   public Iterable<Column<E>> columns()
   {
-    return this.resultTable.columns();
+    return this.table.columns();
   }
   
   @Override
   public Iterator<Column<E>> iteratorColumn()
   {
-    return this.resultTable.iteratorColumn();
+    return this.table.iteratorColumn();
   }
   
   @Override
   public Iterator<Row<E>> iterator()
   {
-    return this.resultTable.iterator();
+    return this.table.iterator();
   }
   
   @Override
   public <TO> Table<TO> convert( TableCellConverter<E, TO> tableCellConverter )
   {
-    return this.resultTable.convert( tableCellConverter );
+    return this.table.convert( tableCellConverter );
   }
   
   @Override
   public Table<E> processTableCells( TableCellVisitor<E> tableCellVisitor )
   {
-    return this.resultTable.processTableCells( tableCellVisitor );
+    return this.table.processTableCells( tableCellVisitor );
   }
   
   @Override
   public boolean hasColumnTitles()
   {
-    return this.resultTable.hasColumnTitles();
+    return this.table.hasColumnTitles();
   }
   
   @Override
   public boolean hasRowTitles()
   {
-    return this.resultTable.hasRowTitles();
+    return this.table.hasRowTitles();
   }
   
   @Override
   public boolean hasTableName()
   {
-    return this.resultTable.hasTableName();
+    return this.table.hasTableName();
   }
   
   @Override
   public Object getTableName()
   {
-    return this.resultTable.getTableName();
+    return this.table.getTableName();
   }
   
   /**
@@ -292,7 +293,7 @@ public class TableViewImpl<E> implements TableView<E>
   @Override
   public Row<E> getLastRow()
   {
-    return this.resultTable.getLastRow();
+    return this.table.getLastRow();
   }
   
   /**
@@ -302,7 +303,7 @@ public class TableViewImpl<E> implements TableView<E>
   @Override
   public Column<E> getLastColumn()
   {
-    return this.resultTable.getLastColumn();
+    return this.table.getLastColumn();
   }
   
   /**
@@ -312,7 +313,7 @@ public class TableViewImpl<E> implements TableView<E>
   @Override
   public Row<E> getFirstRow()
   {
-    return this.resultTable.getFirstRow();
+    return this.table.getFirstRow();
   }
   
   /**
@@ -322,7 +323,53 @@ public class TableViewImpl<E> implements TableView<E>
   @Override
   public Column<E> getFirstColumn()
   {
-    return this.resultTable.getFirstColumn();
+    return this.table.getFirstColumn();
+  }
+  
+  @Override
+  public String toString()
+  {
+    return this.table == null ? "[table=null]" : this.table.toString();
+  }
+  
+  @Override
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( this.table == null ) ? 0 : this.table.hashCode() );
+    return result;
+  }
+  
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @Override
+  public boolean equals( Object obj )
+  {
+    if ( this == obj )
+    {
+      return true;
+    }
+    if ( obj == null )
+    {
+      return false;
+    }
+    if ( !( obj instanceof TableViewImpl ) )
+    {
+      return false;
+    }
+    TableViewImpl other = (TableViewImpl) obj;
+    if ( this.table == null )
+    {
+      if ( other.table != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.table.equals( other.table ) )
+    {
+      return false;
+    }
+    return true;
   }
   
 }

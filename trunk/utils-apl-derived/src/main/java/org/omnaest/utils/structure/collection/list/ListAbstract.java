@@ -15,13 +15,14 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.collection.list;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
 import org.omnaest.utils.propertyfile.content.MapAbstract;
+import org.omnaest.utils.structure.collection.CollectionAbstract;
 
 /**
  * This abstract list implementation offers the basic methods like addAll, removeAll, retainAll, etc. which rely only on other
@@ -30,23 +31,28 @@ import org.omnaest.utils.propertyfile.content.MapAbstract;
  * 
  * @see List
  * @see MapAbstract
+ * @see CollectionAbstract
  * @author Omnaest
  */
-public abstract class ListAbstract<E> implements List<E>
+public abstract class ListAbstract<E> extends CollectionAbstract<E> implements List<E>, Serializable
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long serialVersionUID = 3410678520148023549L;
+  
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
-   * Sublist implementation for the {@link ListAbstract}
+   * Sublist implementation for the {@link ListAbstract} inlcuding the {@link #fromIndex} and excluding the {@link #toIndex}
    * 
    * @author Omnaest
    */
-  @SuppressWarnings("hiding")
-  private class ListAbstractSublist<E> extends ListAbstract<E>
+  private static class ListAbstractSublist<E> extends ListAbstract<E>
   {
+    /* ********************************************** Constants ********************************************** */
+    private static final long serialVersionUID = 81960052895916590L;
     /* ********************************************** Variables ********************************************** */
-    private int     fromIndex  = -1;
-    private int     toIndex    = -1;
-    private List<E> parentList = null;
+    private int               fromIndex        = -1;
+    private int               toIndex          = -1;
+    private List<E>           parentList       = null;
     
     /* ********************************************** Methods ********************************************** */
     public ListAbstractSublist( List<E> parentList, int fromIndex, int toIndex )
@@ -78,12 +84,6 @@ public abstract class ListAbstract<E> implements List<E>
     }
     
     @Override
-    public void clear()
-    {
-      this.removeAll( new ArrayList<E>( this ) );
-    }
-    
-    @Override
     public E get( int index )
     {
       //
@@ -104,44 +104,43 @@ public abstract class ListAbstract<E> implements List<E>
       return this.fromIndex + index;
     }
     
+    private int determineCurrentListIndexFromParentListIndex( int index )
+    {
+      return index - this.fromIndex;
+    }
+    
     @Override
     public int indexOf( Object o )
     {
       //
-      int index = -1;
+      int retval = -1;
       
       //
-      for ( int ii = 0; ii < this.size() && index < 0; ii++ )
+      int indexOfWithinParent = this.parentList.indexOf( o );
+      if ( indexOfWithinParent >= this.fromIndex && indexOfWithinParent < this.toIndex )
       {
-        E element = this.get( ii );
-        if ( element == o || ( element != null && element.equals( o ) ) )
-        {
-          index = ii;
-        }
+        retval = this.determineCurrentListIndexFromParentListIndex( indexOfWithinParent );
       }
       
       //
-      return index;
+      return retval;
     }
     
     @Override
     public int lastIndexOf( Object o )
     {
       //
-      int lastIndex = -1;
+      int retval = -1;
       
       //
-      for ( int ii = this.size() - 1; ii >= 0 && lastIndex < 0; ii++ )
+      int lastIndexOfWithinParent = this.parentList.lastIndexOf( o );
+      if ( lastIndexOfWithinParent >= this.fromIndex && lastIndexOfWithinParent < this.toIndex )
       {
-        E element = this.get( ii );
-        if ( element == o || ( element != null && element.equals( o ) ) )
-        {
-          lastIndex = ii;
-        }
+        retval = this.determineCurrentListIndexFromParentListIndex( lastIndexOfWithinParent );
       }
       
       //
-      return lastIndex;
+      return retval;
     }
     
     @Override
@@ -193,31 +192,20 @@ public abstract class ListAbstract<E> implements List<E>
   
   /* ********************************************** Methods ********************************************** */
   
-  protected boolean isValidIndex( int index )
+  /**
+   * @param collection
+   */
+  public ListAbstract( Collection<E> collection )
   {
-    return index >= 0 && index < this.size();
+    super( collection );
   }
   
-  @Override
-  public boolean addAll( Collection<? extends E> elementCollection )
+  /**
+   * 
+   */
+  public ListAbstract()
   {
-    //
-    boolean retval = false;
-    
-    //
-    if ( elementCollection != null )
-    {
-      for ( E element : elementCollection )
-      {
-        if ( element != null )
-        {
-          retval |= this.add( element );
-        }
-      }
-    }
-    
-    //
-    return retval;
+    super();
   }
   
   @Override
@@ -243,45 +231,9 @@ public abstract class ListAbstract<E> implements List<E>
     return retval;
   }
   
-  @Override
-  public boolean contains( Object o )
+  protected boolean isValidIndex( int index )
   {
-    return this.indexOf( o ) >= 0;
-  }
-  
-  @Override
-  public boolean containsAll( Collection<?> collection )
-  {
-    //
-    boolean retval = true;
-    
-    //
-    if ( collection != null )
-    {
-      for ( Object object : collection )
-      {
-        retval &= this.contains( object );
-        if ( !retval )
-        {
-          break;
-        }
-      }
-    }
-    
-    //
-    return retval;
-  }
-  
-  @Override
-  public boolean isEmpty()
-  {
-    return this.size() == 0;
-  }
-  
-  @Override
-  public Iterator<E> iterator()
-  {
-    return this.listIterator();
+    return index >= 0 && index < this.size();
   }
   
   @Override
@@ -294,6 +246,18 @@ public abstract class ListAbstract<E> implements List<E>
   public ListIterator<E> listIterator( int index )
   {
     return new ListToListIteratorAdapter<E>( this, index );
+  }
+  
+  @Override
+  public List<E> subList( int fromIndex, int toIndex )
+  {
+    return new ListAbstractSublist<E>( this, fromIndex, toIndex );
+  }
+  
+  @Override
+  public Iterator<E> iterator()
+  {
+    return this.listIterator();
   }
   
   @Override
@@ -318,164 +282,9 @@ public abstract class ListAbstract<E> implements List<E>
   }
   
   @Override
-  public boolean removeAll( Collection<?> c )
+  public boolean contains( Object o )
   {
-    //
-    boolean retval = false;
-    
-    //
-    if ( c != null )
-    {
-      for ( Object o : c )
-      {
-        retval |= this.remove( o );
-      }
-    }
-    
-    //
-    return retval;
-  }
-  
-  @Override
-  public boolean retainAll( Collection<?> c )
-  {
-    //
-    boolean retval = false;
-    
-    //
-    if ( c != null )
-    {
-      //
-      List<E> removeList = new ArrayList<E>();
-      for ( E element : this )
-      {
-        if ( !c.contains( element ) )
-        {
-          removeList.add( element );
-          retval = true;
-        }
-      }
-      
-      //
-      this.removeAll( removeList );
-    }
-    
-    //
-    return retval;
-  }
-  
-  @Override
-  public Object[] toArray()
-  {
-    //
-    int size = this.size();
-    Object[] retval = new Object[size];
-    
-    //
-    for ( int ii = 0; ii < size; ii++ )
-    {
-      retval[ii] = this.get( ii );
-    }
-    
-    //
-    return retval;
-  }
-  
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> T[] toArray( T[] a )
-  {
-    //
-    T[] retval = null;
-    
-    //
-    if ( a != null )
-    {
-      //
-      int size = this.size();
-      
-      //
-      if ( a.length != size )
-      {
-        a = (T[]) java.lang.reflect.Array.newInstance( a.getClass().getComponentType(), size );
-      }
-      
-      //
-      for ( int ii = 0; ii < size; ii++ )
-      {
-        a[ii] = (T) this.get( ii );
-      }
-      
-      //
-      retval = a;
-    }
-    
-    //
-    return retval;
-  }
-  
-  @Override
-  public List<E> subList( int fromIndex, int toIndex )
-  {
-    return new ListAbstractSublist<E>( this, fromIndex, toIndex );
-  }
-  
-  @Override
-  public int hashCode()
-  {
-    final int prime = 31;
-    int result = 1;
-    Iterator<E> iterator = this.iterator();
-    while ( iterator.hasNext() )
-    {
-      E next = iterator.next();
-      result = prime * result + ( next != null ? next.hashCode() : 0 );
-    }
-    return result;
-  }
-  
-  @Override
-  public boolean equals( Object object )
-  {
-    //
-    boolean retval = false;
-    
-    //
-    if ( object != null )
-    {
-      if ( object instanceof Iterable<?> )
-      {
-        //
-        Iterator<?> iteratorOther = ( (Iterable<?>) object ).iterator();
-        Iterator<E> iteratorThis = this.iterator();
-        
-        //
-        retval = true;
-        
-        //
-        while ( iteratorOther.hasNext() && iteratorThis.hasNext() )
-        {
-          //
-          Object elementOther = iteratorOther.next();
-          E elementThis = iteratorThis.next();
-          
-          //
-          retval &= elementThis == elementOther || ( elementThis != null && elementThis.equals( elementOther ) );
-          
-          //
-          if ( !retval )
-          {
-            break;
-          }
-        }
-        
-        //
-        retval &= !iteratorOther.hasNext() && !iteratorThis.hasNext();
-      }
-    }
-    
-    //    
-    return retval;
+    return this.indexOf( o ) >= 0;
   }
   
 }

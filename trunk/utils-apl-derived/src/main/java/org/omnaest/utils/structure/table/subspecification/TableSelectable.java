@@ -47,7 +47,7 @@ public interface TableSelectable<E>
    * @see Selection#from(Table)
    * @see Selection#where(Predicate...)
    * @see Selection#orderBy(Order)
-   * @see Selection#asView()
+   * @see Selection#asTableView()
    * @see Selection#asTable()
    * @see SelectionJoin
    * @see Predicate
@@ -138,7 +138,7 @@ public interface TableSelectable<E>
      * 
      * @return {@link TableView}
      */
-    public TableView<E> asView();
+    public TableView<E> asTableView();
     
     /**
      * Merges {@link Row}s if there {@link Cell} elements are all equal

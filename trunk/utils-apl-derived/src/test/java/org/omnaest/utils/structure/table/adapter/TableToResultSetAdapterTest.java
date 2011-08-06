@@ -26,11 +26,15 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
@@ -39,13 +43,69 @@ import org.omnaest.utils.structure.table.concrete.ArrayTable;
  * @see TableToResultSetAdapter
  * @author Omnaest
  */
+@RunWith(value = Parameterized.class)
 public class TableToResultSetAdapterTest
 {
+  @Parameters
+  public static Collection<Object[]> configurationDataCollection()
+  {
+    //
+    List<Object[]> retlist = new ArrayList<Object[]>();
+    
+    //    
+    retlist.add( new Object[] { new ResultSetAdapterFactory()
+    {
+      @Override
+      public ResultSet newResultSetAdapter( Table<Object> table )
+      {
+        return table.as().adapter( new TableToResultSetAdapter() );
+      }
+    } } );
+    retlist.add( new Object[] { new ResultSetAdapterFactory()
+    {
+      @Override
+      public ResultSet newResultSetAdapter( Table<Object> table )
+      {
+        return new TableToResultSetAdapter( table );
+      }
+    } } );
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * @param resultSet
+   * @param table
+   */
+  public TableToResultSetAdapterTest( ResultSetAdapterFactory resultSetAdapterFactory )
+  {
+    super();
+    
+    //
+    this.resultSet = resultSetAdapterFactory.newResultSetAdapter( this.table );
+    
+  }
+  
   /* ********************************************** Variables ********************************************** */
   protected Table<Object> table            = new ArrayTable<Object>();
-  protected ResultSet     resultSet        = new TableToResultSetAdapter( this.table );
+  protected ResultSet     resultSet        = null;
   
   List<Object>            elementValueList = new ArrayList<Object>();
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * @author Omnaest
+   */
+  protected abstract static class ResultSetAdapterFactory
+  {
+    /**
+     * @param table
+     * @return
+     */
+    public abstract ResultSet newResultSetAdapter( Table<Object> table );
+  }
   
   /* ********************************************** Methods ********************************************** */
   
@@ -53,7 +113,7 @@ public class TableToResultSetAdapterTest
   public void setUp()
   {
     //
-    int rows = 3;
+    int rows = 5;
     int columns = 10;
     String tableName = "Test1";
     TableFiller.fillTableWithMatrixNumbers( rows, columns, tableName, this.table );

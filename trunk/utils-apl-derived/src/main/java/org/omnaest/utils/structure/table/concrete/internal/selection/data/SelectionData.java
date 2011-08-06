@@ -16,10 +16,10 @@
 package org.omnaest.utils.structure.table.concrete.internal.selection.data;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.omnaest.utils.structure.map.IdentityLinkedHashMap;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.concrete.internal.selection.SelectionImpl;
@@ -37,10 +37,10 @@ public class SelectionData<E>
 {
   /* ********************************************** Variables ********************************************** */
   private List<Column<E>>          columnList          = new ArrayList<Column<E>>();
-  private Map<Table<E>, Join<E>>   tableToJoinMap      = new LinkedHashMap<Table<E>, Join<E>>();
+  private Map<Table<E>, Join<E>>   tableToJoinMap      = new IdentityLinkedHashMap<Table<E>, Join<E>>();
   private List<PredicateFilter<E>> predicateFilterList = new ArrayList<PredicateFilter<E>>();
   private List<PredicateJoiner<E>> predicateJoinerList = new ArrayList<PredicateJoiner<E>>();
-  private Map<Column<E>, Order>    columnToOrderMap    = new LinkedHashMap<Column<E>, Order>();
+  private Map<Column<E>, Order>    columnToOrderMap    = new IdentityLinkedHashMap<Column<E>, Order>();
   private boolean                  selectAllColumns    = true;
   private boolean                  distinct            = false;
   private int                      topNumberOfRows     = -1;

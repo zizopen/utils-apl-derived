@@ -165,4 +165,10 @@ public class ListToListIteratorAdapter<E> implements ListIterator<E>, Serializab
     this.list = list;
   }
   
+  @Override
+  public String toString()
+  {
+    return this.list.toString();
+  }
+  
 }

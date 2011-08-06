@@ -30,6 +30,7 @@ import org.omnaest.utils.structure.table.concrete.internal.serializer.TableSeria
 import org.omnaest.utils.structure.table.helper.TableHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 import org.omnaest.utils.structure.table.subspecification.TableAdaptable;
+import org.omnaest.utils.structure.table.subspecification.TableCoreImmutable;
 import org.omnaest.utils.structure.table.subspecification.TableDataSource;
 
 /**
@@ -370,11 +371,11 @@ public abstract class TableBasic<E> extends TableAbstract<E>
   @SuppressWarnings("unchecked")
   public boolean equals( Object object )
   {
-    return object instanceof Table && this.equals( (Table<E>) object );
+    return object instanceof TableCoreImmutable && this.equals( (TableCoreImmutable<E>) object );
   }
   
   @Override
-  public boolean equals( Table<E> table )
+  public boolean equals( TableCoreImmutable<E> table )
   {
     //
     boolean retval = table != null;

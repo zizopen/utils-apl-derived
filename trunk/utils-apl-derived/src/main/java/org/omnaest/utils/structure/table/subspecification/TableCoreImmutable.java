@@ -47,7 +47,7 @@ public interface TableCoreImmutable<E> extends CloneableStructure<Table<E>>, Clo
    * 
    * @return
    */
-  public boolean equals( Table<E> table );
+  public boolean equals( TableCoreImmutable<E> table );
   
   /**
    * Returns a new {@link List} with all the {@link Row#getTitleValue()} for the {@link Table}.

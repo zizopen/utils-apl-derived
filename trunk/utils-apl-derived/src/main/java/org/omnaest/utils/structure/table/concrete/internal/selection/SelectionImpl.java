@@ -193,7 +193,7 @@ public class SelectionImpl<E> implements SelectionJoin<E>
   }
   
   @Override
-  public TableView<E> asView()
+  public TableView<E> asTableView()
   {
     //
     TableView<E> result = null;
