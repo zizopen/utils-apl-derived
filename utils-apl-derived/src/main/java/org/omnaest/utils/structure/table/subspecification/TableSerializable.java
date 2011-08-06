@@ -99,29 +99,33 @@ public interface TableSerializable<E>
        * Reads a {@link CharSequence} and unmarshalls it into the underlying {@link Table}
        * 
        * @param charSequence
+       * @return {@link Table}
        */
-      public void from( CharSequence charSequence );
+      public Table<E> from( CharSequence charSequence );
       
       /**
        * Reads a {@link String} and unmarshalls it into the underlying {@link Table}
        * 
        * @param string
+       * @return {@link Table}
        */
-      public void from( String string );
+      public Table<E> from( String string );
       
       /**
        * Reads a {@link InputStream} and unmarshalls it into the underlying {@link Table}
        * 
        * @param inputStream
+       * @return {@link Table}
        */
-      public void from( InputStream inputStream );
+      public Table<E> from( InputStream inputStream );
       
       /**
        * Reads the given {@link File} and unmarshalls it into the underlying {@link Table}
        * 
        * @param file
+       * @return {@link Table}
        */
-      public void from( File file );
+      public Table<E> from( File file );
       
     }
     
