@@ -84,5 +84,6 @@ E.g.:
 
 [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/structure/table/concrete/predicates/internal/filter/ Filter test package]
 
+= Javadoc =
 
-
+[http://utils-apl-derived.googlecode.com/svn/wiki/apidocs/org/omnaest/utils/structure/table/Table.html Table]
