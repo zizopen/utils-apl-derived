@@ -79,7 +79,7 @@ public class TableMarshallerPlainTextTest
     this.tableMarshallerPlainText.marshal( this.table2, stringBuffer );
     
     //
-    System.out.println( stringBuffer );
+    //System.out.println( stringBuffer );
     
     //
     TableMarshallerPlainTextTest.assertTable2Content( stringBuffer );
