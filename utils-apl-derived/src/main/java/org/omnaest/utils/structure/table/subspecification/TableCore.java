@@ -270,15 +270,6 @@ public interface TableCore<E> extends TableCoreImmutable<E>
   public Table<E> ensureNumberOfRows( int numberOfRows );
   
   /**
-   * Clears the {@link Table} and copies the {@link Cell#getElement()} values from a given {@link TableDataSource} Copyies the
-   * cell
-   * 
-   * @param tableDataSource
-   * @return this
-   */
-  public Table<E> copyFrom( TableDataSource<E> tableDataSource );
-  
-  /**
    * Deletes all {@link Row}s including the given {@link Row} index position to the end of the {@link Table}
    * 
    * @param rowIndexPosition

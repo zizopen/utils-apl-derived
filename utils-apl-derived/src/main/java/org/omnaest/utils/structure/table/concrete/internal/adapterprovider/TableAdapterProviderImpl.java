@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.adapter.TableAdapter;
 import org.omnaest.utils.structure.table.adapter.TableToResultSetAdapter;
 import org.omnaest.utils.structure.table.adapter.TableToTypeListAdapter;
 import org.omnaest.utils.structure.table.subspecification.TableAdaptable.TableAdapterProvider;
@@ -55,6 +56,22 @@ public class TableAdapterProviderImpl<E> implements TableAdapterProvider<E>
   public <T> List<T> listOfType( Class<? extends T> beanClass )
   {
     return TableToTypeListAdapter.<T> newInstance( this.table, beanClass );
+  }
+  
+  @Override
+  public <A> A adapter( TableAdapter<A, E> tableAdapter )
+  {
+    //
+    A retval = null;
+    
+    //
+    if ( tableAdapter != null )
+    {
+      retval = tableAdapter.initializeAdapter( this.table );
+    }
+    
+    //
+    return retval;
   }
   
 }

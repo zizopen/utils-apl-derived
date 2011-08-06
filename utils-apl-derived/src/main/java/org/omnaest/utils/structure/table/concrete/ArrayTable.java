@@ -40,7 +40,7 @@ import com.rits.cloning.Cloner;
  * @see Table
  * @author Omnaest
  */
-public class ArrayTable<E> extends TableAbstract<E>
+public class ArrayTable<E> extends TableBasic<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long          serialVersionUID      = 1763808639838518679L;

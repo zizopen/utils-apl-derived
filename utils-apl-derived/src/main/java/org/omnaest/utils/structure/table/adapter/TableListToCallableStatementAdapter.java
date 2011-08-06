@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.subspecification.TableAdaptable.TableAdapterProvider;
 
 /**
  * Adapter to make a {@link List} of {@link Table} instances available as {@link ResultSet}s returned by a
@@ -52,23 +53,35 @@ import org.omnaest.utils.structure.table.Table;
  * @author Omnaest
  */
 @SuppressWarnings("rawtypes")
-public class TableListToCallableStatementAdapter implements CallableStatement, TableAdapter
+public class TableListToCallableStatementAdapter implements CallableStatement, TableAdapter<CallableStatement, Object>
 {
   /* ********************************************** Variables ********************************************** */
   protected List<? extends Table>     tableList     = null;
-  protected ResultSet                 resultSet     = null;
   protected Iterator<? extends Table> tableIterator = null;
+  protected ResultSet                 resultSet     = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
+   * Creates a new initialized adapter.
+   * 
+   * @see #TableListToCallableStatementAdapter()
    * @param tableList
    */
   public TableListToCallableStatementAdapter( List<? extends Table> tableList )
   {
     super();
-    this.tableList = tableList;
-    this.tableIterator = this.tableList.iterator();
+    this.initializeAdapter( tableList );
+  }
+  
+  /**
+   * Creates a new {@link TableAdapter} for use with {@link TableAdapterProvider#adapter(TableAdapter)}
+   * 
+   * @param tableList
+   */
+  public TableListToCallableStatementAdapter()
+  {
+    super();
   }
   
   /**
@@ -1413,6 +1426,25 @@ public class TableListToCallableStatementAdapter implements CallableStatement, T
   {
     
     return false;
+  }
+  
+  @Override
+  public CallableStatement initializeAdapter( Table table )
+  {
+    //
+    this.initializeAdapter( Arrays.asList( table ) );
+    
+    //
+    return this;
+  }
+  
+  /**
+   * @param tableList
+   */
+  public void initializeAdapter( List<? extends Table> tableList )
+  {
+    this.tableList = tableList;
+    this.tableIterator = this.tableList.listIterator();
   }
   
 }

@@ -24,10 +24,10 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.TableFiller;
 
 /**
- * @see TableAbstract
+ * @see TableBasic
  * @author Omnaest
  */
-public class TableAbstractTest
+public class TableBasicTest
 {
   /* ********************************************** Variables ********************************************** */
   protected Table<Object> table = new ArrayTable<Object>();
