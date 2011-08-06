@@ -16,6 +16,8 @@
 package org.omnaest.utils.structure.table.concrete;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table;
@@ -35,7 +37,8 @@ import org.omnaest.utils.structure.table.internal.TableInternal.TableContentReso
 import com.rits.cloning.Cloner;
 
 /**
- * Implementation of {@link Table} that uses two array lists as row and column data structure.
+ * Implementation of {@link Table} which has a rich underlying structure based on {@link ArrayList}s, {@link HashSet} and
+ * {@link HashMap}.
  * 
  * @see Table
  * @author Omnaest
