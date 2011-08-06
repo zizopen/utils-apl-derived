@@ -26,6 +26,7 @@ import org.omnaest.utils.structure.collection.list.ListAbstract;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.subspecification.TableAdaptable.TableAdapterProvider;
 
 /**
  * <br>
@@ -39,7 +40,7 @@ import org.omnaest.utils.structure.table.Table.Row;
  * @param <B>
  *          Java Bean type
  */
-public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableAdapter
+public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableAdapter<List<B>, Object>
 {
   /* ********************************************** Variables ********************************************** */
   protected Table<Object> table     = null;
@@ -63,6 +64,23 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
   }
   
   /**
+   * Creates a new {@link TableAdapter} for use with {@link TableAdapterProvider#adapter(TableAdapter)} only. For normal usage see
+   * {@link #newInstance(Table, Class)} instead.
+   * 
+   * @see #newInstance(Table, Class)
+   * @see #initializeAdapter(Table)
+   * @param table
+   * @param beanClass
+   * @see #newInstance(Table, Class)
+   */
+  @SuppressWarnings("unchecked")
+  public TableToTypeListAdapter( Class<? extends B> beanClass )
+  {
+    super();
+    this.beanClass = (Class<B>) beanClass;
+  }
+  
+  /**
    * Factory methods which creates a new {@link TableToTypeListAdapter} instance for the given Java Bean {@link Class} and
    * {@link Table} .
    * 
@@ -71,6 +89,7 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
    * @param <B>
    * @return
    */
+  @SuppressWarnings("unchecked")
   public static <B> TableToTypeListAdapter<B> newInstance( Table<?> table, Class<? extends B> beanClass )
   {
     //    
@@ -80,6 +99,7 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
     if ( table != null && beanClass != null )
     {
       retval = new TableToTypeListAdapter<B>( table, beanClass );
+      retval.initializeAdapter( (Table<Object>) table );
     }
     
     //
@@ -259,5 +279,12 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
   public int lastIndexOf( Object o )
   {
     throw new UnsupportedOperationException();
+  }
+  
+  @Override
+  public List<B> initializeAdapter( Table<Object> table )
+  {
+    this.table = table;
+    return this;
   }
 }

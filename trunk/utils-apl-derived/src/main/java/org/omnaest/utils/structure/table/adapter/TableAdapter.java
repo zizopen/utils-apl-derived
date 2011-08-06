@@ -16,13 +16,25 @@
 package org.omnaest.utils.structure.table.adapter;
 
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.subspecification.TableAdaptable.TableAdapterProvider;
 
 /**
  * Marker interface for {@link TableAdapter} which adapts {@link Table}s to other structures
  * 
+ * @see TableAdapterProvider
+ * @param <A>
+ *          type of adapter
+ * @param <E>
+ *          Table element type
  * @author Omnaest
  */
-public interface TableAdapter
+public interface TableAdapter<A, E>
 {
-  
+  /**
+   * Returns an adapter for the given {@link Table}
+   * 
+   * @param table
+   * @return
+   */
+  public A initializeAdapter( Table<E> table );
 }

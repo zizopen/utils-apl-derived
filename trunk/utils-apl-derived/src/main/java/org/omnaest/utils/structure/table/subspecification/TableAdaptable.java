@@ -19,14 +19,18 @@ import java.sql.ResultSet;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.TableComponent;
 import org.omnaest.utils.structure.table.adapter.TableAdapter;
 import org.omnaest.utils.structure.table.adapter.TableToResultSetAdapter;
 import org.omnaest.utils.structure.table.adapter.TableToTypeListAdapter;
 
 /**
- * This {@link Table} subspecification adds an {@link #as()} method to access a {@link TableAdapterProvider}
+ * This {@link Table} subspecification adds an {@link #as()} method to access a {@link TableAdapterProvider} as well as an
+ * {@link #copyFrom(TableDataSource)} method to copy from {@link TableDataSource}s
  * 
+ * @see TableAdapter
+ * @see TableDataSource
  * @author Omnaest
  * @param
  */
@@ -51,12 +55,20 @@ public interface TableAdaptable<E>
     public ResultSet resultSet();
     
     /**
-     * @param beanClass TODO
+     * @param beanClass
      * @see List
      * @see TableToTypeListAdapter
      * @return
      */
-    public <T> List<T> listOfType(Class<? extends T> beanClass);
+    public <T> List<T> listOfType( Class<? extends T> beanClass );
+    
+    /**
+     * Returns a given {@link TableAdapter} instance under its adapter interface and initialized with the calling {@link Table}
+     * 
+     * @param tableAdapter
+     * @return the initialized {@link TableAdapter} as its adapted interface
+     */
+    public <A> A adapter( TableAdapter<A, E> tableAdapter );
   }
   
   /**
@@ -65,4 +77,12 @@ public interface TableAdaptable<E>
    */
   public TableAdapterProvider<E> as();
   
+  /**
+   * Clears the {@link Table} and copies the {@link Cell#getElement()} values from a given {@link TableDataSource} Copyies the
+   * cell
+   * 
+   * @param tableDataSource
+   * @return this
+   */
+  public Table<E> copyFrom( TableDataSource<E> tableDataSource );
 }

@@ -40,6 +40,7 @@ import java.util.Map;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.subspecification.TableAdaptable.TableAdapterProvider;
 
 /**
  * Adapter to make a {@link Table} usable as {@link ResultSet}
@@ -49,7 +50,7 @@ import org.omnaest.utils.structure.table.Table.Row;
  * @see ResultSet
  * @author Omnaest
  */
-public class TableToResultSetAdapter implements ResultSet, TableAdapter
+public class TableToResultSetAdapter implements ResultSet, TableAdapter<ResultSet, Object>
 {
   /* ********************************************** Variables ********************************************** */
   protected Table<?>             table            = null;
@@ -60,15 +61,27 @@ public class TableToResultSetAdapter implements ResultSet, TableAdapter
   /* ********************************************** Methods ********************************************** */
   
   /**
+   * Creates a new initialized adapter. For use with {@link TableAdapterProvider#adapter(TableAdapter)} use
+   * {@link #TableToResultSetAdapter()} instead
+   * 
    * @see TableToResultSetAdapter
-   * @param rowIterator
+   * @param table
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings("rawtypes")
   public TableToResultSetAdapter( Table table )
   {
     super();
-    this.table = table;
-    this.rowIterator = table.rows().iterator();
+    this.initializeAdapter( table );
+  }
+  
+  /**
+   * Creates a new {@link TableAdapter} for use with {@link TableAdapterProvider#adapter(TableAdapter)}
+   * 
+   * @see TableToResultSetAdapter
+   */
+  public TableToResultSetAdapter()
+  {
+    super();
   }
   
   @Override
@@ -1656,6 +1669,15 @@ public class TableToResultSetAdapter implements ResultSet, TableAdapter
   public void updateNClob( String columnLabel, Reader reader ) throws SQLException
   {
     throw new UnsupportedOperationException();
+  }
+  
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @Override
+  public ResultSet initializeAdapter( Table table )
+  {
+    this.table = table;
+    this.rowIterator = table.rows().iterator();
+    return this;
   }
   
 }
