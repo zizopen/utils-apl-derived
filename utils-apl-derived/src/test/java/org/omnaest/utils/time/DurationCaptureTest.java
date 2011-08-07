@@ -60,7 +60,7 @@ public class DurationCaptureTest
     assertTrue( duration > 0 );
     
     //
-    System.out.println( durationCapture.calculateIntervalStatisticLogMessage() );
+    //System.out.println( durationCapture.calculateIntervalStatisticLogMessage() );
   }
   
 }

@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.serializer;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
@@ -38,6 +39,16 @@ public interface TableMarshaller<E> extends Serializable
    * @param outputStream
    */
   public void marshal( Table<E> table, OutputStream outputStream );
+  
+  /**
+   * Marshals the given {@link Table} into an {@link OutputStream} reading the data from the given {@link InputStream} first and
+   * using this for updates.
+   * 
+   * @param table
+   * @param inputStream
+   * @param outputStream
+   */
+  public void marshal( Table<E> table, InputStream inputStream, OutputStream outputStream );
   
   /**
    * Marshals and appends the given {@link Table} to the given {@link Appendable}

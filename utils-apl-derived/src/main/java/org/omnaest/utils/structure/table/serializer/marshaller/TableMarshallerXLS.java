@@ -15,10 +15,13 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.serializer.marshaller;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -39,6 +42,7 @@ public class TableMarshallerXLS<E> implements TableMarshaller<E>
   private static final long serialVersionUID  = 729579410301748875L;
   
   /* ********************************************** Variables ********************************************** */
+  protected String          workSheetName     = TableUnmarshallerXLS.WORKSHEET_NAME_DEFAULT;
   protected boolean         writeTableName    = true;
   protected boolean         writeColumnTitles = true;
   protected boolean         writeRowTitles    = true;
@@ -54,6 +58,15 @@ public class TableMarshallerXLS<E> implements TableMarshaller<E>
   }
   
   /**
+   * @param workSheetName
+   */
+  public TableMarshallerXLS( String workSheetName )
+  {
+    super();
+    this.workSheetName = workSheetName;
+  }
+  
+  /**
    * @param writeTableName
    * @param writeColumnTitles
    * @param writeRowTiles
@@ -66,29 +79,70 @@ public class TableMarshallerXLS<E> implements TableMarshaller<E>
     this.writeRowTitles = writeRowTiles;
   }
   
+  /**
+   * @param workSheetName
+   * @param writeTableName
+   * @param writeColumnTitles
+   * @param writeRowTitles
+   */
+  public TableMarshallerXLS( String workSheetName, boolean writeTableName, boolean writeColumnTitles, boolean writeRowTitles )
+  {
+    super();
+    this.workSheetName = workSheetName;
+    this.writeTableName = writeTableName;
+    this.writeColumnTitles = writeColumnTitles;
+    this.writeRowTitles = writeRowTitles;
+  }
+  
   @Override
-  public void marshal( Table<E> table, OutputStream outputStream )
+  public void marshal( Table<E> table, InputStream inputStream, OutputStream outputStream )
   {
     //
     if ( table != null && outputStream != null )
     {
       //
-      Workbook workbook = new HSSFWorkbook();
+      Workbook workbook = null;
+      if ( inputStream != null )
+      {
+        try
+        {
+          //
+          workbook = new HSSFWorkbook( new POIFSFileSystem( inputStream ) );
+        }
+        catch ( IOException e )
+        {
+          e.printStackTrace();
+        }
+      }
+      if ( workbook == null )
+      {
+        workbook = new HSSFWorkbook();
+      }
       
-      //
-      Sheet sheet = null;
-      if ( this.writeTableName )
-      {
-        Object tableName = table.getTableName();
-        sheet = workbook.createSheet( String.valueOf( tableName ) );
-      }
-      else
-      {
-        sheet = workbook.createSheet();
-      }
+      // 
+      Sheet sheet = workbook.createSheet( this.workSheetName );
       
       //
       int rowIndexPosition = 0;
+      
+      //
+      if ( this.writeTableName )
+      {
+        //
+        try
+        {
+          //
+          Object tableName = table.getTableName();
+          
+          //
+          Row row = sheet.createRow( rowIndexPosition++ );
+          Cell cell = row.createCell( 0 );
+          cell.setCellValue( String.valueOf( tableName ) );
+        }
+        catch ( Exception e )
+        {
+        }
+      }
       
       //
       if ( this.writeColumnTitles )
@@ -110,8 +164,8 @@ public class TableMarshallerXLS<E> implements TableMarshaller<E>
           try
           {
             //
-            Cell cell = row.createCell( columnIndexPosition++, Cell.CELL_TYPE_STRING );
-            cell.setCellValue( String.valueOf( titleValue ) );
+            Cell cell = row.createCell( columnIndexPosition++ );
+            TableMarshallerXLS.setCellValue( cell, titleValue );
           }
           catch ( Exception e )
           {
@@ -133,7 +187,7 @@ public class TableMarshallerXLS<E> implements TableMarshaller<E>
           {
             //
             Object titleValue = tableRow.getTitleValue();
-            Cell cell = row.createCell( columnIndexPosition++, Cell.CELL_TYPE_STRING );
+            Cell cell = row.createCell( columnIndexPosition++ );
             cell.setCellValue( String.valueOf( titleValue ) );
           }
           catch ( Exception e )
@@ -149,7 +203,7 @@ public class TableMarshallerXLS<E> implements TableMarshaller<E>
           
           //
           E element = tableCell.getElement();
-          this.setCellValue( cell, element );
+          TableMarshallerXLS.setCellValue( cell, element );
         }
         
       }
@@ -166,11 +220,18 @@ public class TableMarshallerXLS<E> implements TableMarshaller<E>
     }
   }
   
+  @Override
+  public void marshal( Table<E> table, OutputStream outputStream )
+  {
+    InputStream inputStream = null;
+    this.marshal( table, inputStream, outputStream );
+  }
+  
   /**
    * @param cell
    * @param element
    */
-  private void setCellValue( Cell cell, E element )
+  private static void setCellValue( Cell cell, Object element )
   {
     try
     {

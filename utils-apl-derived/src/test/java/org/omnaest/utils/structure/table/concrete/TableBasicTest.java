@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.table.concrete;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.Arrays;
 
@@ -114,6 +115,40 @@ public class TableBasicTest
     
     assertEquals( Arrays.asList( "0:0", "1:0", "2:0", "3:0", "4:0" ), this.table.getFirstColumn().getCellElementList() );
     assertEquals( Arrays.asList( "0:2", "1:2", "2:2", "3:2", "4:2" ), this.table.getLastColumn().getCellElementList() );
+  }
+  
+  @Test
+  public void testCloneStructureWithContent() throws CloneNotSupportedException
+  {
+    //
+    final int rows = 20;
+    final int columns = 10;
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    Table<Object> tableResult = this.table.clone().structureAndContent();
+    assertEquals( this.table, tableResult );
+    
+    //
+    this.table.setCellElement( 2, "other" );
+    assertFalse( this.table.equals( tableResult ) );
+  }
+  
+  @Test
+  public void testCloneStructureOnly() throws CloneNotSupportedException
+  {
+    //
+    final int rows = 5;
+    final int columns = 3;
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    Table<Object> tableResult = this.table.clone().structureOnly();
+    assertEquals( this.table, tableResult );
+    
+    //
+    this.table.setCellElement( 2, "other" );
+    assertEquals( this.table, tableResult );
   }
   
 }

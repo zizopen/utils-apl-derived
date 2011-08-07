@@ -105,4 +105,75 @@ public class TableMarshallerXLSTest
     
   }
   
+  @Test
+  public void testMarshalUpdate()
+  {
+    //
+    ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+    
+    //
+    Table<Object> table1 = new ArrayTable<Object>();
+    {
+      //    
+      int rows = 10;
+      int columns = 5;
+      String tableName = "Table1";
+      TableFiller.fillTableWithMatrixNumbers( rows, columns, tableName, table1 );
+    }
+    
+    //
+    Table<Object> table2 = new ArrayTable<Object>();
+    {
+      //    
+      int rows = 6;
+      int columns = 4;
+      String tableName = "Table2";
+      TableFiller.fillTableWithMatrixNumbers( rows, columns, tableName, table2 );
+    }
+    
+    //
+    {
+      //
+      String workSheetName = "worksheet1";
+      TableMarshaller<Object> tableMarshaller = new TableMarshallerXLS<Object>( workSheetName );
+      tableMarshaller.marshal( table1, byteArrayContainer.getOutputStream() );
+    }
+    
+    //
+    {
+      //
+      String workSheetName = "worksheet2";
+      TableMarshaller<Object> tableMarshaller = new TableMarshallerXLS<Object>( workSheetName );
+      tableMarshaller.marshal( table2, byteArrayContainer.getInputStream(), byteArrayContainer.getOutputStream() );
+    }
+    
+    //
+    {
+      //
+      String workSheetName = "worksheet1";
+      TableUnmarshaller<Object> tableUnmarshaller = new TableUnmarshallerXLS<Object>( workSheetName );
+      
+      //
+      Table<Object> tableResult = new ArrayTable<Object>();
+      tableUnmarshaller.unmarshal( tableResult, byteArrayContainer.getInputStream() );
+      
+      //
+      assertEquals( table1, tableResult );
+    }
+    
+    //
+    {
+      //
+      String workSheetName = "worksheet2";
+      TableUnmarshaller<Object> tableUnmarshaller = new TableUnmarshallerXLS<Object>( workSheetName );
+      
+      //
+      Table<Object> tableResult = new ArrayTable<Object>();
+      tableUnmarshaller.unmarshal( tableResult, byteArrayContainer.getInputStream() );
+      
+      //
+      assertEquals( table2, tableResult );
+    }
+  }
+  
 }

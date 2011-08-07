@@ -203,18 +203,6 @@ public class TableViewImpl<E> implements TableView<E>
   }
   
   @Override
-  public Table<E> cloneStructure()
-  {
-    return this.table.cloneStructure();
-  }
-  
-  @Override
-  public Table<E> cloneStructureWithContent()
-  {
-    return this.table.cloneStructureWithContent();
-  }
-  
-  @Override
   public Iterator<Cell<E>> iteratorCell()
   {
     return this.table.iteratorCell();
@@ -370,6 +358,12 @@ public class TableViewImpl<E> implements TableView<E>
       return false;
     }
     return true;
+  }
+  
+  @Override
+  public TableCloner<E> clone() throws CloneNotSupportedException
+  {
+    return this.table.clone();
   }
   
 }

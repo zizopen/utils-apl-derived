@@ -49,6 +49,7 @@ import org.omnaest.utils.structure.table.view.TableView;
  * <li>{@link #select()}</li>
  * <li>{@link #serializer()}</li>
  * <li>{@link #as()}</li>
+ * <li>{@link #clone()}</li>
  * </ul>
  * or simple helper methods like:
  * <ul>
@@ -69,6 +70,8 @@ import org.omnaest.utils.structure.table.view.TableView;
  * @see TableAdapter
  * @see TableView
  * @see Selection
+ * @see TableCloner
+ * @see TableSerializer
  * @see #setTableName(Object)
  * @see #getTableSize()
  * @param <E>

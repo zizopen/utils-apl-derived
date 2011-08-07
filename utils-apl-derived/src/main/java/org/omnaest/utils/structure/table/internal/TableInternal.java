@@ -875,4 +875,11 @@ public interface TableInternal<E>
    */
   public StripeFactory<E> getStripeFactory();
   
+  /**
+   * Overwrites the current {@link TableContent}. This should only be used in rare cases, e.g. for cloning.
+   * 
+   * @param tableContent
+   */
+  public void setTableContent( TableContent<E> tableContent );
+  
 }

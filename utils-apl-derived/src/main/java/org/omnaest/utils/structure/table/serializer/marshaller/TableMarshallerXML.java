@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.serializer.marshaller;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
@@ -112,6 +113,12 @@ public class TableMarshallerXML<E> implements TableMarshaller<E>
     
     //
     return retval;
+  }
+  
+  @Override
+  public void marshal( Table<E> table, InputStream inputStream, OutputStream outputStream )
+  {
+    throw new UnsupportedOperationException();
   }
   
 }

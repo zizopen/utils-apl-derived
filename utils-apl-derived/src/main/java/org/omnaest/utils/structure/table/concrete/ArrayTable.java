@@ -34,8 +34,6 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
 import org.omnaest.utils.structure.table.internal.TableInternal.TableContentResolver;
 
-import com.rits.cloning.Cloner;
-
 /**
  * Implementation of {@link Table} which has a rich underlying structure based on {@link ArrayList}s, {@link HashSet} and
  * {@link HashMap}.
@@ -95,6 +93,12 @@ public class ArrayTable<E> extends TableBasic<E>
     public StripeFactory<E> getStripeFactory()
     {
       return ArrayTable.this.stripeFactory;
+    }
+    
+    @Override
+    public void setTableContent(TableContent<E> tableContent)
+    {
+      ArrayTable.this.tableContent = tableContent;
     }
     
   }
@@ -377,59 +381,6 @@ public class ArrayTable<E> extends TableBasic<E>
     
     //
     return this;
-  }
-  
-  @Override
-  public Table<E> cloneStructure()
-  {
-    //
-    ArrayTable<E> retval = new ArrayTable<E>();
-    retval.tableContent = this.tableContent.cloneStructure();
-    retval.tableName = this.tableName;
-    
-    //
-    return retval;
-  }
-  
-  @Override
-  public Table<E> cloneStructureWithContent()
-  {
-    //
-    ArrayTable<E> retval = new ArrayTable<E>();
-    retval.setNumberOfColumns( this.getTableSize().getColumnSize() );
-    retval.setNumberOfRows( this.getTableSize().getRowSize() );
-    TableCellVisitor<E> tableCellVisitor = new TableCellVisitor<E>()
-    {
-      /* ********************************************** Variables ********************************************** */
-      private Cloner cloner = new Cloner();
-      
-      /* ********************************************** Methods ********************************************** */
-      
-      @Override
-      public void process( int rowIndexPosition, int columnIndexPosition, Cell<E> cell )
-      {
-        //
-        E elementClone = null;
-        
-        //
-        E cellElement = ArrayTable.this.getCellElement( rowIndexPosition, columnIndexPosition );
-        if ( cellElement != null )
-        {
-          //
-          elementClone = this.cloner.deepClone( cellElement );
-        }
-        
-        //
-        cell.setElement( elementClone );
-      }
-    };
-    retval.processTableCells( tableCellVisitor );
-    retval.setColumnTitleValues( this.getColumnTitleValueList() );
-    retval.setRowTitleValues( this.getRowTitleValueList() );
-    retval.tableName = this.tableName;
-    
-    //
-    return retval;
   }
   
   @Override
