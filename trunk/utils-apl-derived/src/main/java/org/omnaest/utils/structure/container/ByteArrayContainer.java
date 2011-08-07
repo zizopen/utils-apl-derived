@@ -58,6 +58,7 @@ public class ByteArrayContainer
   
   /* ********************************************** Variables ********************************************** */
   private byte[]              content            = null;
+  private boolean             isContentInvalid   = false;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -226,21 +227,28 @@ public class ByteArrayContainer
   }
   
   /**
-   * Copies the content from an {@link InputStream} into the {@link ByteArrayContainer}
+   * Copies the content from an {@link InputStream} into the {@link ByteArrayContainer} without closing the {@link InputStream} <br>
+   * <br>
+   * If the copy operation fails the content of the {@link ByteArrayContainer} is set to invalid.
    * 
+   * @see #isContentInvalid()
    * @param sourceInputStream
    * @return this
    */
   public ByteArrayContainer copyFrom( InputStream sourceInputStream )
   {
     //
+    this.isContentInvalid = false;
     try
     {
-      StreamConnector.connect( sourceInputStream, this.getOutputStream() );
+      //
+      OutputStream outputStream = this.getOutputStream();
+      StreamConnector.connect( sourceInputStream, outputStream );
+      outputStream.close();
     }
     catch ( IOException e )
     {
-      e.printStackTrace();
+      this.isContentInvalid = true;
     }
     
     //
@@ -248,8 +256,11 @@ public class ByteArrayContainer
   }
   
   /**
-   * Copies the content of a String into the container.
+   * Copies the content of a {@link String} into the {@link ByteArrayContainer}. <br>
+   * <br>
+   * If the copy operation fails the content of the {@link ByteArrayContainer} is set to invalid.
    * 
+   * @see #isContentInvalid()
    * @param string
    * @param encoding
    * @return this
@@ -257,6 +268,7 @@ public class ByteArrayContainer
   public ByteArrayContainer copyFrom( String string, String encoding )
   {
     //
+    this.isContentInvalid = false;
     try
     {
       OutputStreamWriter osw = new OutputStreamWriter( this.getOutputStream(), encoding );
@@ -265,7 +277,7 @@ public class ByteArrayContainer
     }
     catch ( IOException e )
     {
-      e.printStackTrace();
+      this.isContentInvalid = true;
     }
     
     //
@@ -455,10 +467,11 @@ public class ByteArrayContainer
   }
   
   /**
-   * Writes the content of the {@link ByteArrayContainer} to a given {@link OutputStream}
+   * Writes the content of the {@link ByteArrayContainer} to a given {@link OutputStream} without closing the {@link OutputStream}
+   * but flushing the content to it.
    * 
    * @param outputStream
-   * @return true : transfer was succesful
+   * @return true : transfer was successful
    */
   public boolean writeTo( OutputStream outputStream )
   {
@@ -696,6 +709,28 @@ public class ByteArrayContainer
     }
     
     return result;
+  }
+  
+  /**
+   * Returns true if a previous operation on the {@link ByteArrayContainer} has put the content into a malformed state.
+   * 
+   * @see #copyFrom(InputStream)
+   * @see #copyFrom(String)
+   * @return
+   */
+  public boolean isContentInvalid()
+  {
+    return this.isContentInvalid;
+  }
+  
+  /**
+   * Sets the content of the {@link ByteArrayContainer} to be marked as invalid
+   * 
+   * @param isContentInvalid
+   */
+  public void setContentInvalid( boolean isContentInvalid )
+  {
+    this.isContentInvalid = isContentInvalid;
   }
   
 }

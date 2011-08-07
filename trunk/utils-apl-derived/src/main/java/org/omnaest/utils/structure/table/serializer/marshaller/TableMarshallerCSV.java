@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.serializer.marshaller;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.omnaest.utils.structure.container.ByteArrayContainer;
@@ -202,6 +203,12 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
     catch ( Exception e )
     {
     }
+  }
+  
+  @Override
+  public void marshal( Table<E> table, InputStream inputStream, OutputStream outputStream )
+  {
+    throw new UnsupportedOperationException();
   }
   
 }

@@ -701,44 +701,6 @@ public class ArrayTableTest
   }
   
   @Test
-  public void testCloneStructureWithContent()
-  {
-    //
-    final int rows = 5;
-    final int columns = 3;
-    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
-    
-    //
-    Table<Object> tableClonedStructure = this.table.cloneStructureWithContent();
-    assertEquals( this.table, tableClonedStructure );
-    
-    //
-    int cellIndexPosition = 2;
-    Object element = "other";
-    this.table.setCellElement( cellIndexPosition, element );
-    assertFalse( this.table.equals( tableClonedStructure ) );
-  }
-  
-  @Test
-  public void testCloneStructure()
-  {
-    //
-    final int rows = 5;
-    final int columns = 3;
-    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
-    
-    //
-    Table<Object> tableClonedStructure = this.table.cloneStructure();
-    assertEquals( this.table, tableClonedStructure );
-    
-    //
-    int cellIndexPosition = 2;
-    Object element = "other";
-    this.table.setCellElement( cellIndexPosition, element );
-    assertEquals( this.table, tableClonedStructure );
-  }
-  
-  @Test
   public void testGetStripeTitleValue()
   {
     //

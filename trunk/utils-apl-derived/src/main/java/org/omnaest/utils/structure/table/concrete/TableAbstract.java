@@ -398,4 +398,9 @@ public abstract class TableAbstract<E> implements Table<E>
     return this.getColumn( 0 );
   }
   
+  @Override
+  public TableCloner<E> clone() throws CloneNotSupportedException
+  {
+    throw new CloneNotSupportedException();
+  }
 }

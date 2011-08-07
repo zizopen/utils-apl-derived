@@ -25,6 +25,7 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.Table.Stripe.Title;
 import org.omnaest.utils.structure.table.concrete.internal.adapterprovider.TableAdapterProviderImpl;
+import org.omnaest.utils.structure.table.concrete.internal.cloner.TableClonerImpl;
 import org.omnaest.utils.structure.table.concrete.internal.iterator.TableRowListIterator;
 import org.omnaest.utils.structure.table.concrete.internal.serializer.TableSerializerImpl;
 import org.omnaest.utils.structure.table.helper.TableHelper;
@@ -49,6 +50,7 @@ public abstract class TableBasic<E> extends TableAbstract<E>
   /* ********************************************** Variables ********************************************** */
   protected TableSerializer<E>      tableSerializer      = new TableSerializerImpl<E>( this );
   protected TableAdapterProvider<E> tableAdapterProvider = new TableAdapterProviderImpl<E>( this );
+  protected TableCloner<E>          tableCloner          = new TableClonerImpl<E>( this );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -480,6 +482,12 @@ public abstract class TableBasic<E> extends TableAbstract<E>
   public TableAdapterProvider<E> as()
   {
     return this.tableAdapterProvider;
+  }
+  
+  @Override
+  public TableCloner<E> clone() throws CloneNotSupportedException
+  {
+    return this.tableCloner;
   }
   
 }

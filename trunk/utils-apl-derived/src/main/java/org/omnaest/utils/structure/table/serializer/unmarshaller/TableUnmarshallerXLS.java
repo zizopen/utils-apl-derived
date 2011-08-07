@@ -24,6 +24,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerXLS;
@@ -37,13 +38,13 @@ import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerXL
 public class TableUnmarshallerXLS<E> implements TableUnmarshaller<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID = -1183646781295216284L;
-  
+  private static final long  serialVersionUID       = -1183646781295216284L;
+  public static final String WORKSHEET_NAME_DEFAULT = "default";
   /* ********************************************** Variables ********************************************** */
-  
-  protected boolean         hasTableName     = true;
-  protected boolean         hasColumnTitles  = true;
-  protected boolean         hasRowTitles     = true;
+  protected String           workSheetName          = WORKSHEET_NAME_DEFAULT;
+  protected boolean          hasTableName           = true;
+  protected boolean          hasColumnTitles        = true;
+  protected boolean          hasRowTitles           = true;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -53,6 +54,15 @@ public class TableUnmarshallerXLS<E> implements TableUnmarshaller<E>
   public TableUnmarshallerXLS()
   {
     super();
+  }
+  
+  /**
+   * @param workSheetName
+   */
+  public TableUnmarshallerXLS( String workSheetName )
+  {
+    super();
+    this.workSheetName = workSheetName;
   }
   
   /**
@@ -66,6 +76,42 @@ public class TableUnmarshallerXLS<E> implements TableUnmarshaller<E>
     this.hasTableName = hasTableName;
     this.hasColumnTitles = hasColumnTitles;
     this.hasRowTitles = hasRowTitles;
+  }
+  
+  /**
+   * @param workSheetName
+   * @param hasTableName
+   * @param hasColumnTitles
+   * @param hasRowTitles
+   */
+  public TableUnmarshallerXLS( String workSheetName, boolean hasTableName, boolean hasColumnTitles, boolean hasRowTitles )
+  {
+    super();
+    this.hasTableName = hasTableName;
+    this.hasColumnTitles = hasColumnTitles;
+    this.hasRowTitles = hasRowTitles;
+    this.workSheetName = workSheetName;
+  }
+  
+  /**
+   * @param hssfWorkbook
+   * @return
+   */
+  protected Sheet determineWorksheet( Workbook hssfWorkbook )
+  {
+    // 
+    Sheet retval = null;
+    
+    //
+    if ( hssfWorkbook != null )
+    {
+      //
+      retval = hssfWorkbook.getSheet( this.workSheetName );
+      retval = retval == null ? hssfWorkbook.getSheetAt( 0 ) : retval;
+    }
+    
+    //
+    return retval;
   }
   
   @SuppressWarnings("unchecked")
@@ -82,14 +128,8 @@ public class TableUnmarshallerXLS<E> implements TableUnmarshaller<E>
         table.clear();
         
         //
-        HSSFWorkbook wb = new HSSFWorkbook( new POIFSFileSystem( inputStream ) );
-        Sheet sheet = wb.getSheetAt( 0 );
-        
-        //
-        if ( this.hasTableName )
-        {
-          table.setTableName( sheet.getSheetName() );
-        }
+        Workbook workbook = new HSSFWorkbook( new POIFSFileSystem( inputStream ) );
+        Sheet sheet = this.determineWorksheet( workbook );
         
         //
         int rowIndexPosition = 0;
@@ -118,18 +158,28 @@ public class TableUnmarshallerXLS<E> implements TableUnmarshaller<E>
             }
             
             //
-            int rowIndexPositionCorrected = rowIndexPosition + ( this.hasColumnTitles ? -1 : 0 );
+            int rowIndexPositionForTableName = ( this.hasTableName ? 0 : -1 );
+            int rowIndexPositionForColumnTitles = rowIndexPositionForTableName + ( this.hasColumnTitles ? 1 : 0 );
+            
+            //
+            int rowIndexPositionCorrected = rowIndexPosition - ( rowIndexPositionForColumnTitles + 1 );
             int columnIndexPositionCorrected = columnIndexPosition + ( this.hasRowTitles ? -1 : 0 );
             
             //
-            if ( this.hasColumnTitles && rowIndexPosition == 0 )
+            if ( this.hasTableName && rowIndexPosition == rowIndexPositionForTableName && columnIndexPosition == 0 )
+            {
+              table.setTableName( element );
+            }
+            
+            //
+            if ( this.hasColumnTitles && rowIndexPosition == rowIndexPositionForColumnTitles )
             {
               if ( !this.hasRowTitles || columnIndexPosition > 0 )
               {
                 table.setColumnTitleValue( element, columnIndexPositionCorrected );
               }
             }
-            else
+            else if ( rowIndexPosition > rowIndexPositionForColumnTitles )
             {
               //
               if ( this.hasRowTitles && columnIndexPosition == 0 )

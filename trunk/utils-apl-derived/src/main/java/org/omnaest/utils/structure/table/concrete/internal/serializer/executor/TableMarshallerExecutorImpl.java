@@ -15,8 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal.serializer.executor;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.serializer.TableMarshaller;
 import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer.TableMarshallerExecutor;
@@ -62,6 +65,43 @@ public class TableMarshallerExecutorImpl<E> extends TableMarshallerExecutorAbstr
     {
       //
       this.tableMarshaller.marshal( this.table, outputStream );
+    }
+  }
+  
+  @Override
+  public void updateTo( InputStream inputStream, OutputStream outputStream )
+  {
+    //
+    if ( this.tableMarshaller != null && outputStream != null )
+    {
+      //
+      if ( inputStream == null )
+      {
+        //
+        this.writeTo( outputStream );
+      }
+      else
+      {
+        //
+        ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+        byteArrayContainer.copyFrom( inputStream );
+        
+        //
+        try
+        {
+          inputStream.close();
+        }
+        catch ( IOException e )
+        {
+        }
+        
+        //
+        if ( !byteArrayContainer.isContentInvalid() )
+        {
+          //
+          this.tableMarshaller.marshal( this.table, byteArrayContainer.getInputStream(), outputStream );
+        }
+      }
     }
   }
   

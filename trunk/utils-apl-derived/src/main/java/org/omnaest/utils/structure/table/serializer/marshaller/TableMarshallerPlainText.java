@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.serializer.marshaller;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -337,4 +338,9 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
     
   }
   
+  @Override
+  public void marshal( Table<E> table, InputStream inputStream, OutputStream outputStream )
+  {
+    throw new UnsupportedOperationException();
+  }
 }

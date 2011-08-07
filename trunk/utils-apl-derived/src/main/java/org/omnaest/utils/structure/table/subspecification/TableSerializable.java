@@ -85,6 +85,22 @@ public interface TableSerializable<E>
        * @param file
        */
       public void writeTo( File file );
+      
+      /**
+       * Updates the given {@link InputStream} with an existing {@link Table} content and writes it to the given
+       * {@link OutputStream}
+       * 
+       * @param inputStream
+       * @param outputStream
+       */
+      public void updateTo( InputStream inputStream, OutputStream outputStream );
+      
+      /**
+       * Updates the given {@link File} with an existing {@link Table} content and writes it back to the given {@link File}
+       * 
+       * @param file
+       */
+      public void updateTo( File file );
     }
     
     /**
