@@ -7,6 +7,8 @@ The utils-apl-derived project has one highlight which is its Table implementatio
 
 Since Java and other frameworks provides maps and lists but lack of a direct Table, this implementation aims to fill this space of need.
 
+The further purpose is the integration of different sources into one common easy to access structure. It is not an aim to provide high performance with the Table implementations, they should just allow to load things very easy and fast. E.g. configuration files or small sized table contents.
+
 The central [http://www.google.com/codesearch#agM0M4Gok3c/trunk/utils-apl-derived/src/main/java/org/omnaest/utils/structure/table/Table.java&q=Table%20package:http://utils-apl-derived%5C.googlecode%5C.com Table interface] has one major implementation call [http://www.google.com/codesearch#agM0M4Gok3c/trunk/utils-apl-derived/src/main/java/org/omnaest/utils/structure/table/ArrayTable.java ArrayTable]
 
 The Table can be marshalled to and unmarshalled from
@@ -87,3 +89,8 @@ E.g.:
 = Javadoc =
 
 [http://utils-apl-derived.googlecode.com/svn/wiki/apidocs/org/omnaest/utils/structure/table/Table.html Table]
+
+= Performance and resource needs = 
+
+* Writing 5000 lines to an XLS file: 3000ms (~64MB heap space)
+* Simply creating 8000 lines: 3500ms (~64MB heap space)
