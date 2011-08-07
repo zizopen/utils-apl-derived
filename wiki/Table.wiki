@@ -109,5 +109,5 @@ table.serializer().unmarshal( new TableUnmarshallerXLS<Object>() ).from( file );
 
 = Performance and resource needs = 
 
-* Writing 5000 lines to an XLS file: 3000ms (~64MB heap space)
-* Simply creating 8000 lines: 3500ms (~64MB heap space)
+ * Writing 5000 lines to an XLS file: 3000ms (~64MB heap space)
+ * Simply creating 8000 lines: 3500ms (~64MB heap space)
