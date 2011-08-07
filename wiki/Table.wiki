@@ -61,7 +61,7 @@ it is possible to mock JDBC connection calls with the content of the Table. Sinc
 === Protocolling the content of a ResultSet ===
 
 With help of the Table it is possible to read in the content of an SQL ResultSet.
-This can be achieved by using the {{{TableDataSourceResultSet}}} and the {{{Table.copyOf(...}}} method.
+This can be achieved by using the {{{TableDataSourceResultSet}}} and the {{{Table.copyOf(...)}}} method.
 
 == Selection ==
 
