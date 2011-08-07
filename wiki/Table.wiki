@@ -101,6 +101,22 @@ E.g.:
 
 [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/structure/table/concrete/predicates/internal/filter/ Filter test package]
 
+== TableView ==
+
+A Table can return a TableView for a selection.
+
+{{{
+TableView<String> tableView = table.select().asTableView();
+}}}
+
+A TableView acts at the first view like a readonly table. Only the cell values of the TableView can be changed and all changes are populated to the original table as well.
+
+Additionally the TableView allows to reexecute the original selection by calling
+
+{{{
+tableView.refresh();
+}}}
+
 == Serializer ==
 
 A Table can be easily marshalled an unmarshalled by calling the {{{serializer()}}} method.
