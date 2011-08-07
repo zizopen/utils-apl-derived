@@ -96,8 +96,10 @@ E.g.:
 Table<Object> table = new ArrayTable<Object>()
 File file = new File( "test.xls" );
 
+/* Writes the Table content to the file */
 table.serializer().marshal( new TableMarshallerXLS<Object>( "worksheet1" ) ).writeTo( file );
 
+/* Loads the file content into the Table */
 table.serializer().unmarshal( new TableUnmarshallerXLS<Object>() ).from( file );
 }}}
 
