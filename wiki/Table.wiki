@@ -58,10 +58,17 @@ With help of the SQL adapters for a
  * ResultSet
 it is possible to mock JDBC connection calls with the content of the Table. Since the Table has many input sources like XML or CSV even small to middlesized tables can be mocked easily.
 
+Example:
+{{{
+table.as().resultSet()
+}}}
+
 === Protocolling the content of a ResultSet ===
 
 With help of the Table it is possible to read in the content of an SQL ResultSet.
 This can be achieved by using the {{{TableDataSourceResultSet}}} and the {{{Table.copyOf(...)}}} method.
+
+See [http://www.google.com/codesearch#agM0M4Gok3c/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/structure/table/datasource/TableDataSourceResultSetTest.java&q=TableDataSourceResultSetTest%20package:http://utils-apl-derived%5C.googlecode%5C.com&l=32 TableDataSourceResultSetTest] for an example using an H2 in memory database.
 
 == Selection ==
 
@@ -101,6 +108,14 @@ table.serializer().marshal( new TableMarshallerXLS<Object>( "worksheet1" ) ).wri
 
 /* Loads the file content into the Table */
 table.serializer().unmarshal( new TableUnmarshallerXLS<Object>() ).from( file );
+}}}
+
+== Conversion to JavaBeans ==
+
+It is possible to access the Table as a list of JavaBeans:
+
+{{{
+table.as().listOfType( RowBean.class );
 }}}
 
 = Javadoc =
