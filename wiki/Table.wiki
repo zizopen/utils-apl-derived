@@ -86,6 +86,21 @@ E.g.:
 
 [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/structure/table/concrete/predicates/internal/filter/ Filter test package]
 
+== Serializer ==
+
+A Table can be easily marshalled an unmarshalled by calling the {{{serializer()}}} method.
+
+E.g.:
+
+{{{
+Table<Object> table = new ArrayTable<Object>()
+File file = new File( "test.xls" );
+
+table.serializer().marshal( new TableMarshallerXLS<Object>( "worksheet1" ) ).writeTo( file );
+
+table.serializer().unmarshal( new TableUnmarshallerXLS<Object>() ).from( file );
+}}}
+
 = Javadoc =
 
 [http://utils-apl-derived.googlecode.com/svn/wiki/apidocs/org/omnaest/utils/structure/table/Table.html Table]
