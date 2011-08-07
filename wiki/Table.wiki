@@ -58,9 +58,17 @@ With help of the SQL adapters for a
  * ResultSet
 it is possible to mock JDBC connection calls with the content of the Table. Since the Table has many input sources like XML or CSV even small to middlesized tables can be mocked easily.
 
-Example:
+Example for returning a ResultSet:
 {{{
 table.as().resultSet()
+}}}
+
+Example for returning a CallableStatement:
+{{{
+Table<String>     table1            = new ArrayTable<String>();
+Table<String>     table2            = new ArrayTable<String>();
+  
+CallableStatement callableStatement = new TableListToCallableStatementAdapter( table1, table2 );
 }}}
 
 === Protocolling the content of a ResultSet ===
