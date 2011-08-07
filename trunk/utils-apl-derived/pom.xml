@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
@@ -10,7 +9,7 @@
     <groupId>org.omnaest.utils</groupId>
     <artifactId>utils-apl-derived</artifactId>
     <name>utils-apl-derived</name>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.1</version>
     <description>Collection and extension of utils which are based on Apache License 2.0 license.</description>
     <url>http://code.google.com/p/utils-apl-derived/</url>
     <licenses>
@@ -21,9 +20,9 @@
         </license>
     </licenses>
     <scm>
-        <developerConnection>scm:svn:https://utils-apl-derived.googlecode.com/svn/trunk/utils-apl-derived</developerConnection>
-        <url>http://utils-apl-derived.googlecode.com/svn/trunk/</url>
-        <connection>scm:svn:http://utils-apl-derived.googlecode.com/svn/trunk/utils-apl-derived</connection>
+        <developerConnection>scm:svn:https://utils-apl-derived.googlecode.com/svn/tags/0.1.1/utils-apl-derived</developerConnection>
+        <url>http://utils-apl-derived.googlecode.com/svn/tags/0.1.1/utils-apl-derived</url>
+        <connection>scm:svn:http://utils-apl-derived.googlecode.com/svn/tags/0.1.1/utils-apl-derived</connection>
     </scm>
     <issueManagement>
         <url>http://code.google.com/p/utils-apl-derived/issues/list</url>
