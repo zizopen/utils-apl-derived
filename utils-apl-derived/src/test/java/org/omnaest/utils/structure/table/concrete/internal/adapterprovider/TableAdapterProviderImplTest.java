@@ -112,4 +112,24 @@ public class TableAdapterProviderImplTest
     assertNotNull( listOfType.get( 0 ) );
     assertEquals( Arrays.asList( "1:0", "1:1", "1:2" ), BeanUtils.propertyValueList( listOfType.get( 1 ), "c0", "c1", "c2" ) );
   }
+  
+  @Test
+  public void testArrayObject()
+  {
+    //
+    Object[][] array = this.table.as().array();
+    assertEquals( this.table.getTableSize().getRowSize(), array.length );
+    assertEquals( Arrays.asList( "0:0", "0:1", "0:2", "0:3", "0:4" ), Arrays.asList( array[0] ) );
+    assertEquals( Arrays.asList( "9:0", "9:1", "9:2", "9:3", "9:4" ), Arrays.asList( array[9] ) );
+  }
+  
+  @Test
+  public void testArray()
+  {
+    //
+    String[][] array = this.table.as().array( String.class );
+    assertEquals( this.table.getTableSize().getRowSize(), array.length );
+    assertEquals( Arrays.asList( "0:0", "0:1", "0:2", "0:3", "0:4" ), Arrays.asList( array[0] ) );
+    assertEquals( Arrays.asList( "9:0", "9:1", "9:2", "9:3", "9:4" ), Arrays.asList( array[9] ) );
+  }
 }

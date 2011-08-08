@@ -15,10 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.concrete.internal.adapterprovider;
 
+import java.lang.reflect.Array;
 import java.sql.ResultSet;
 import java.util.List;
 
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.Table.TableSize;
 import org.omnaest.utils.structure.table.adapter.TableAdapter;
 import org.omnaest.utils.structure.table.adapter.TableToResultSetAdapter;
 import org.omnaest.utils.structure.table.adapter.TableToTypeListAdapter;
@@ -74,4 +76,76 @@ public class TableAdapterProviderImpl<E> implements TableAdapterProvider<E>
     return retval;
   }
   
+  @Override
+  public Object[][] array()
+  {
+    //
+    Object[][] retvals = null;
+    
+    //
+    if ( this.table != null )
+    {
+      //
+      final TableSize tableSize = this.table.getTableSize();
+      retvals = new Object[tableSize.getRowSize()][tableSize.getColumnSize()];
+      
+      //
+      this.fillArrayFromTableContent( retvals );
+    }
+    
+    // 
+    return retvals;
+  }
+  
+  /**
+   * Fills the given array with the content of the internal {@link Table}
+   * 
+   * @param array
+   */
+  private void fillArrayFromTableContent( Object[][] array )
+  {
+    if ( array != null && this.table != null )
+    {
+      for ( int rowIndexPosition = 0; rowIndexPosition < this.table.getTableSize().getRowSize(); rowIndexPosition++ )
+      {
+        for ( int columnIndexPosition = 0; columnIndexPosition < this.table.getTableSize().getColumnSize(); columnIndexPosition++ )
+        {
+          array[rowIndexPosition][columnIndexPosition] = this.table.getCellElement( rowIndexPosition, columnIndexPosition );
+        }
+      }
+    }
+  }
+  
+  @Override
+  @SuppressWarnings("unchecked")
+  public E[][] array( Class<? extends E> clazz )
+  {
+    //    
+    E[][] retvals = null;
+    
+    //
+    if ( this.table != null )
+    {
+      //
+      try
+      {
+        //
+        final TableSize tableSize = this.table.getTableSize();
+        
+        //
+        Object newInstance = Array.newInstance( clazz, tableSize.getRowSize(), tableSize.getColumnSize() );
+        retvals = (E[][]) newInstance;
+        
+        //
+        this.fillArrayFromTableContent( retvals );
+      }
+      catch ( Exception e )
+      {
+        e.printStackTrace();
+      }
+    }
+    
+    // 
+    return retvals;
+  }
 }
