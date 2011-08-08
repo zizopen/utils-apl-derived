@@ -69,6 +69,20 @@ public interface TableAdaptable<E>
      * @return the initialized {@link TableAdapter} as its adapted interface
      */
     public <A> A adapter( TableAdapter<A, E> tableAdapter );
+    
+    /**
+     * Returns the content of the {@link Table} as a two dimensional {@link Object} array.
+     * 
+     * @return
+     */
+    public Object[][] array();
+    
+    /**
+     * Returns the content of the {@link Table} as a two dimensional array for the given {@link Class} type.
+     * 
+     * @return
+     */
+    public E[][] array( Class<? extends E> clazz );
   }
   
   /**
