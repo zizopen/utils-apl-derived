@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
+import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.structure.map.MapUtils.MapElementMergeOperation;
 import org.omnaest.utils.tuple.TupleDuad;
@@ -884,4 +885,39 @@ public class BeanUtils
     return retvals;
   }
   
+  /**
+   * Clones the given JavaBean by using the standard contructor to create a new instance and then to populate all properties using
+   * {@link #copyPropertyValues(Object, Object)} to the new created instance.
+   * 
+   * @param bean
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <B> B cloneBean( B bean )
+  {
+    //    
+    B retval = null;
+    
+    //
+    if ( bean != null )
+    {
+      try
+      {
+        //
+        retval = ReflectionUtils.<B> createInstanceOf( (Class<B>) bean.getClass() );
+        
+        //
+        if ( retval != null )
+        {
+          BeanUtils.copyPropertyValues( bean, retval );
+        }
+      }
+      catch ( Exception e )
+      {
+      }
+    }
+    
+    //
+    return retval;
+  }
 }

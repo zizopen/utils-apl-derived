@@ -82,6 +82,21 @@ public class ListUtils
     }
   }
   
+  /**
+   * This is an {@link ElementTransformer} implementation which returns the {@link Class} instances of a given {@link Object} by
+   * calling {@link Object#getClass()}
+   * 
+   * @author Omnaest
+   */
+  public static class ElementTransformerObjectClass implements ElementTransformer<Object, Class<? extends Object>>
+  {
+    @Override
+    public Class<? extends Object> transformElement( Object element )
+    {
+      return element == null ? null : element.getClass();
+    }
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**

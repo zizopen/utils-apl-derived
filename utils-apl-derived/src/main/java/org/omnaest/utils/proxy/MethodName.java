@@ -20,6 +20,7 @@ import java.util.List;
 
 /**
  * @see MethodCallCapturer
+ * @see BeanProperty
  */
 public class MethodName
 {
@@ -96,7 +97,7 @@ public class MethodName
     
     //
     int methodCallsLength = methodCalls.length;
-    if ( methodCalls != null && methodCalls.length > 0 )
+    if ( methodCalls.length > 0 )
     {
       //
       List<String> canonicalMethodNameList = this.methodCallCapturer.getCapturedCanonicalMethodNameListWithMergedHierarchyCalls();

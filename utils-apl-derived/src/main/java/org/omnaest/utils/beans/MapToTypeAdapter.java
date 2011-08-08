@@ -34,12 +34,12 @@ import org.omnaest.utils.proxy.StubCreator;
  * @param <T>
  * @param <M>
  */
-public class MapToTypeAdapter<T, M extends Map<Object, Object>>
+public class MapToTypeAdapter<T, M extends Map<? super String, Object>>
 {
   /* ********************************************** Variables ********************************************** */
-  protected Map<Object, Object> map                      = null;
-  protected T                   classAdapter             = null;
-  protected boolean             hasAccessToUnderlyingMap = false;
+  protected Map<? super String, Object> map                      = null;
+  protected T                           classAdapter             = null;
+  protected boolean                     hasAccessToUnderlyingMap = false;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
