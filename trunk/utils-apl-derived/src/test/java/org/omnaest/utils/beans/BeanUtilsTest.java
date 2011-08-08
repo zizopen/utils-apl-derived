@@ -400,4 +400,17 @@ public class BeanUtilsTest
     assertEquals( Arrays.asList( beanSource.getFieldString(), beanSource.getFieldDouble() ), propertyValueList );
   }
   
+  @Test
+  public void testCloneBean()
+  {
+    //
+    TestBean testBean = new TestBeanImpl();
+    testBean.setFieldString( "value1" );
+    testBean.setFieldDouble( 1.234 );
+    
+    //
+    TestBean clonedBean = BeanUtils.cloneBean( testBean );
+    assertEquals( testBean, clonedBean );
+  }
+  
 }

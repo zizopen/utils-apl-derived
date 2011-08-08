@@ -35,6 +35,8 @@ import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
 /**
  * A {@link MethodCallCapturer} allows to create stubs for given java types which capture the calls of methods of this stub.
  * 
+ * @see MethodName
+ * @see BeanProperty
  * @see #methodName
  * @see #beanProperty
  * @see #newInstanceOfCapturedType(Class)

@@ -129,11 +129,21 @@ public class BeanPropertyAccessor<B>
     {
       try
       {
-        retval = this.methodGetter.invoke( bean, new Object[] {} );
+        //
+        boolean accessible = this.methodGetter.isAccessible();
+        this.methodGetter.setAccessible( true );
+        try
+        {
+          //
+          retval = this.methodGetter.invoke( bean, new Object[] {} );
+        }
+        finally
+        {
+          this.methodGetter.setAccessible( accessible );
+        }
       }
       catch ( Exception e )
       {
-        e.printStackTrace();
       }
     }
     
@@ -159,14 +169,23 @@ public class BeanPropertyAccessor<B>
       try
       {
         //
-        this.methodSetter.invoke( bean, value );
+        boolean accessible = this.methodSetter.isAccessible();
+        this.methodSetter.setAccessible( true );
+        try
+        {
+          //
+          this.methodSetter.invoke( bean, value );
+        }
+        finally
+        {
+          this.methodSetter.setAccessible( accessible );
+        }
         
         //
         retval = true;
       }
       catch ( Exception e )
       {
-        e.printStackTrace();
       }
     }
     

@@ -15,10 +15,13 @@
  ******************************************************************************/
 package org.omnaest.utils.reflection;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.omnaest.utils.structure.collection.ListUtils;
 
 /**
  * Helper for Java Reflection.
@@ -34,7 +37,7 @@ public class ReflectionUtils
    * @param method
    * @return
    */
-  public static int determineDeclaredMethodIndexPosition( Class<?> clazz, Method method )
+  public static int declaredMethodIndexPosition( Class<?> clazz, Method method )
   {
     //
     int retval = -1;
@@ -61,7 +64,7 @@ public class ReflectionUtils
    * @param field
    * @return
    */
-  public static int determineDeclaredFieldIndexPosition( Class<?> clazz, Field field )
+  public static int declaredFieldIndexPosition( Class<?> clazz, Field field )
   {
     //
     int retval = -1;
@@ -88,7 +91,7 @@ public class ReflectionUtils
    * @param field
    * @return -1 if the {@link Field} could not be determined at all.
    */
-  public static int determineDeclaredFieldIndexPosition( Class<?> clazz, String fieldname )
+  public static int declaredFieldIndexPosition( Class<?> clazz, String fieldname )
   {
     //
     int retval = -1;
@@ -128,7 +131,7 @@ public class ReflectionUtils
    * @param clazz
    * @return number of declared {@link Field}s or 0 if clazz == null
    */
-  public static int determineNumberOfDeclaredFields( Class<?> clazz )
+  public static int numberOfDeclaredFields( Class<?> clazz )
   {
     return clazz != null ? clazz.getDeclaredFields().length : 0;
   }
@@ -139,8 +142,59 @@ public class ReflectionUtils
    * @param clazz
    * @return number of declared {@link Method}s or 0 if clazz == null
    */
-  public static int determineNumberOfDeclaredMethods( Class<?> clazz )
+  public static int numberOfDeclaredMethods( Class<?> clazz )
   {
     return clazz != null ? clazz.getDeclaredMethods().length : 0;
+  }
+  
+  /**
+   * Creates a new instance of a given {@link Class} using a contructor which has the same parameter signature as the provided
+   * arguments.
+   * 
+   * @param clazz
+   * @param args
+   */
+  public static <B> B createInstanceOf( Class<? extends B> clazz, Object... args )
+  {
+    //
+    B retval = null;
+    
+    //
+    if ( clazz != null )
+    {
+      //
+      Class<?>[] parameterTypes = ListUtils.transform( Arrays.asList( args ), new ListUtils.ElementTransformerObjectClass() )
+                                           .toArray( new Class<?>[args.length] );
+      
+      //
+      try
+      {
+        //
+        Constructor<? extends B> constructor = clazz.getDeclaredConstructor( parameterTypes );
+        
+        //
+        boolean accessible = constructor.isAccessible();
+        
+        //
+        try
+        {
+          constructor.setAccessible( true );
+          retval = constructor.newInstance( args );
+        }
+        catch ( Exception e )
+        {
+        }
+        
+        //
+        constructor.setAccessible( accessible );
+      }
+      catch ( Exception e )
+      {
+      }
+      
+    }
+    
+    //
+    return retval;
   }
 }
