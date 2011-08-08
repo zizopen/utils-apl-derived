@@ -48,22 +48,28 @@ public class BeanToNestedMapConverter<B>
     /**
      * Returns true, if a given JavaBean should be converted to a {@link Map}
      * 
+     * @param declaringType
+     *          : type which is declared by the referencing property (this can be for example an interface or any supertype of the
+     *          actual incoming bean object)
      * @param bean
+     *          : the actual bean to be converted
      * @return
      */
-    public boolean hasBeanToBeConverted( Object bean );
+    public boolean hasBeanToBeConverted( Class<?> declaringType, Object bean );
     
   }
   
   /**
+   * Excludes all object instances which are primitives, wrappers for primitives or {@link String}
+   * 
    * @see BeanConversionFilter
    * @author Omnaest
    * @param <B>
    */
-  public static class BeanConversionFilterPrimitiveAndString implements BeanConversionFilter
+  public static class BeanConversionFilterExcludingPrimitiveAndString implements BeanConversionFilter
   {
     @Override
-    public boolean hasBeanToBeConverted( Object bean )
+    public boolean hasBeanToBeConverted( Class<?> declaringType, Object bean )
     {
       //
       return !( bean instanceof Byte || bean instanceof Short || bean instanceof Integer || bean instanceof Long
@@ -73,14 +79,33 @@ public class BeanToNestedMapConverter<B>
   }
   
   /**
+   * Excludes all object instances which are assigned to a declared class which is an type from the "java.*" package space
+   * 
    * @see BeanConversionFilter
    * @author Omnaest
    * @param <B>
    */
-  public static class BeanConversionFilterJavaBaseClass implements BeanConversionFilter
+  public static class BeanConversionFilterExcludingDeclaringJavaBaseClass implements BeanConversionFilter
   {
     @Override
-    public boolean hasBeanToBeConverted( Object bean )
+    public boolean hasBeanToBeConverted( Class<?> declaringType, Object bean )
+    {
+      return bean != null && !bean.getClass().getCanonicalName().startsWith( "java" );
+    }
+    
+  }
+  
+  /**
+   * Excludes all object instances which are an instance from the "java.*" package space
+   * 
+   * @see BeanConversionFilter
+   * @author Omnaest
+   * @param <B>
+   */
+  public static class BeanConversionFilterExcludingJavaBaseClass implements BeanConversionFilter
+  {
+    @Override
+    public boolean hasBeanToBeConverted( Class<?> declaringType, Object bean )
     {
       return bean != null && !bean.getClass().getCanonicalName().startsWith( "java" );
     }
@@ -96,7 +121,7 @@ public class BeanToNestedMapConverter<B>
   {
     super();
     this.beanClass = beanClass;
-    this.beanConversionFilter = new BeanConversionFilterJavaBaseClass();
+    this.beanConversionFilter = new BeanConversionFilterExcludingJavaBaseClass();
     this.beanToNestedMapMarshaller = new BeanToNestedMapMarshaller( this.beanConversionFilter );
     this.beanToNestedMapUnMarshaller = new BeanToNestedMapUnMarshaller<B>( this.beanClass );
   }

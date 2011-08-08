@@ -84,7 +84,7 @@ public class BeanToNestedMapUnMarshaller<B>
           else
           {
             //
-            Class<?> propertyType = beanPropertyAccessor.determinePropertyType();
+            Class<?> propertyType = beanPropertyAccessor.determineDeclaringPropertyType();
             if ( value instanceof Map && propertyType != null && !Map.class.isAssignableFrom( propertyType ) )
             {
               //

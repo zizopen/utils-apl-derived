@@ -22,8 +22,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import org.junit.Test;
+import org.omnaest.utils.structure.element.FutureSimple;
 
 /**
  * @see BeanToNestedMapConverter
@@ -50,6 +52,8 @@ public class BeanToNestedMapConverterTest
     private TestClass           testClass         = null;
     private TestClass           testClassCopy     = null;
     private Map<String, Double> stringToDoubleMap = new HashMap<String, Double>();
+    private Future<String>      future            = new FutureSimple<String>();
+    private String              privateField      = "privateValue";
     
     /* ********************************************** Methods ********************************************** */
     
@@ -198,6 +202,16 @@ public class BeanToNestedMapConverterTest
     {
       this.stringToDoubleMap = stringToDoubleMap;
     }
+    
+    public Future<String> getFuture()
+    {
+      return this.future;
+    }
+    
+    public void setFuture( Future<String> future )
+    {
+      this.future = future;
+    }
   }
   
   @Test
@@ -206,7 +220,7 @@ public class BeanToNestedMapConverterTest
     // 
     Map<String, Object> map = this.beanToNestedMapConverter.marshal( this.testClass );
     assertNotNull( map );
-    assertEquals( 5, map.size() );
+    assertEquals( 6, map.size() );
     assertEquals( this.testClass.getValueString(), map.get( "valueString" ) );
     assertEquals( this.testClass.getValueDouble(), map.get( "valueDouble" ) );
     assertEquals( this.testClass.getStringToDoubleMap(), map.get( "stringToDoubleMap" ) );
@@ -217,7 +231,7 @@ public class BeanToNestedMapConverterTest
     //
     @SuppressWarnings("unchecked")
     Map<String, Object> subMap = (Map<String, Object>) map.get( "testClass" );
-    assertEquals( 5, subMap.size() );
+    assertEquals( 6, subMap.size() );
     assertEquals( this.testClass.getTestClass().getValueString(), subMap.get( "valueString" ) );
     assertEquals( this.testClass.getTestClass().getValueDouble(), subMap.get( "valueDouble" ) );
     assertEquals( this.testClass.getTestClass().getStringToDoubleMap(), subMap.get( "stringToDoubleMap" ) );

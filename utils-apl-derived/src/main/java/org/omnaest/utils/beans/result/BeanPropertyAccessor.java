@@ -86,11 +86,12 @@ public class BeanPropertyAccessor<B>
   }
   
   /**
-   * Determines the {@link Class} type for the property.
+   * Determines the {@link Class} type for the property. This is also known as the declaring return or field type not the type of
+   * any actual object instance.
    * 
    * @return
    */
-  public Class<?> determinePropertyType()
+  public Class<?> determineDeclaringPropertyType()
   {
     //
     Class<?> retval = null;
