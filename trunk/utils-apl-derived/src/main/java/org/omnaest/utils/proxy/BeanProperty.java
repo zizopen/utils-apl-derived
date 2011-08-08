@@ -106,7 +106,7 @@ public class BeanProperty
       
       //
       int methodCallsLength = methodCalls.length;
-      if ( methodCalls != null && methodCalls.length > 0 )
+      if ( methodCalls.length > 0 )
       {
         //
         List<MethodCallCaptureContext> methodCallCaptureContextWithMergedHierarchyList = BeanProperty.this.methodCallCapturer.getMethodCallCaptureContextWithMergedHierarchyList();
@@ -137,7 +137,7 @@ public class BeanProperty
                 
                 //
                 BeanPropertyAccessor<B> beanPropertyAccessor = (BeanPropertyAccessor<B>) BeanUtils.beanPropertyAccessor( beanClass,
-                                                                                                                                  method );
+                                                                                                                         method );
                 
                 //
                 retlist.add( beanPropertyAccessor );
@@ -216,7 +216,7 @@ public class BeanProperty
       
       //
       int methodCallsLength = methodCalls.length;
-      if ( methodCalls != null && methodCalls.length > 0 )
+      if ( methodCalls.length > 0 )
       {
         //
         List<String> canonicalPropertyNameList = BeanProperty.this.methodCallCapturer.getCapturedCanonicalPropertyNameListWithMergedHierarchyCalls();
@@ -235,7 +235,7 @@ public class BeanProperty
   }
   
   /* ********************************************** Variables ********************************************** */
-
+  
   /**
    * @see BeanProperty
    * @param methodCallCapturer

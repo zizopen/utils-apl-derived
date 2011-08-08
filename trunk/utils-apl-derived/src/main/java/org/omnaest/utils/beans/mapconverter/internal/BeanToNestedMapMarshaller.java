@@ -19,9 +19,10 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-import org.omnaest.utils.beans.TypeToPropertynameMapAdapter;
+import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter;
 import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter.BeanConversionFilter;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 
 /**
  * @see BeanToNestedMapConverter
@@ -45,9 +46,14 @@ public class BeanToNestedMapMarshaller
     this.beanConversionFilter = beanConversionFilter;
   }
   
-  private boolean hasToConvertBean( Object bean )
+  /**
+   * @param declaringType
+   * @param bean
+   * @return
+   */
+  private boolean hasToConvertBean( Class<?> declaringType, Object bean )
   {
-    return this.beanConversionFilter != null && this.beanConversionFilter.hasBeanToBeConverted( bean );
+    return this.beanConversionFilter != null && this.beanConversionFilter.hasBeanToBeConverted( declaringType, bean );
   }
   
   /**
@@ -70,25 +76,34 @@ public class BeanToNestedMapMarshaller
       else
       {
         //
-        Map<String, Object> mapProxied = TypeToPropertynameMapAdapter.newInstance( bean );
-        
-        //
-        for ( String key : mapProxied.keySet() )
+        @SuppressWarnings("unchecked")
+        Map<String, BeanPropertyAccessor<Object>> propertyNameToBeanPropertyAccessorMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( (Class<Object>) bean.getClass() );
+        for ( String propertyName : propertyNameToBeanPropertyAccessorMap.keySet() )
         {
           //
-          Object object = mapProxied.get( key );
-          
-          //
-          boolean hasToConvertBean = this.hasToConvertBean( object );
-          if ( hasToConvertBean )
+          BeanPropertyAccessor<Object> beanPropertyAccessor = propertyNameToBeanPropertyAccessorMap.get( propertyName );
+          if ( beanPropertyAccessor.hasGetterAndSetter() )
           {
-            Map<String, Object> map = this.marshal( object );
-            this.objectToMapMap.put( object, map );
-            object = map;
+            //
+            Object object = beanPropertyAccessor.getPropertyValue( bean );
+            Class<?> declaringPropertyType = beanPropertyAccessor.determineDeclaringPropertyType();
+            
+            //
+            boolean hasToConvertBean = this.hasToConvertBean( declaringPropertyType, object );
+            if ( hasToConvertBean )
+            {
+              Map<String, Object> map = this.marshal( object );
+              this.objectToMapMap.put( object, map );
+              object = map;
+            }
+            else
+            {
+              object = declaringPropertyType.cast( object );
+            }
+            
+            //
+            retmap.put( propertyName, object );
           }
-          
-          //
-          retmap.put( key, object );
         }
       }
     }
