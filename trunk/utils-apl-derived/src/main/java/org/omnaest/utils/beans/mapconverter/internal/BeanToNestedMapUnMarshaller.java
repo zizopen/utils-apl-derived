@@ -21,6 +21,7 @@ import java.util.Map;
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
 import org.omnaest.utils.reflection.ReflectionUtils;
 
 /**
@@ -47,13 +48,20 @@ public class BeanToNestedMapUnMarshaller<B>
   
   /**
    * @param map
+   * @param propertyAccessType
    * @return
    */
   @SuppressWarnings("unchecked")
-  public B unmarshal( Map<String, Object> map )
+  public B unmarshal( Map<String, Object> map, PropertyAccessType propertyAccessType )
   {
     //
     B retval = null;
+    
+    //
+    if ( propertyAccessType == null )
+    {
+      propertyAccessType = PropertyAccessType.PROPERTY;
+    }
     
     //
     if ( map != null )
@@ -74,28 +82,31 @@ public class BeanToNestedMapUnMarshaller<B>
         {
           //
           BeanPropertyAccessor<B> beanPropertyAccessor = propertyNameToBeanPropertyAccessorMap.get( propertyName );
-          
-          //
-          Object value = map.get( propertyName );
-          if ( value == null )
-          {
-            beanPropertyAccessor.setPropertyValue( beanNew, value );
-          }
-          else
+          beanPropertyAccessor.setPropertyAccessType( propertyAccessType );
+          if ( beanPropertyAccessor.isWritable() )
           {
             //
-            Class<?> propertyType = beanPropertyAccessor.determineDeclaringPropertyType();
-            if ( value instanceof Map && propertyType != null && !Map.class.isAssignableFrom( propertyType ) )
+            Object value = map.get( propertyName );
+            if ( value == null )
             {
-              //
-              Map<String, Object> subMap = (Map<String, Object>) value;
-              B valueUnmarshalled = this.unmarshal( subMap );
-              this.mapToObjectMap.put( subMap, valueUnmarshalled );
-              beanPropertyAccessor.setPropertyValue( beanNew, valueUnmarshalled );
+              beanPropertyAccessor.setPropertyValue( beanNew, value );
             }
             else
             {
-              beanPropertyAccessor.setPropertyValue( beanNew, value );
+              //
+              Class<?> propertyType = beanPropertyAccessor.getDeclaringPropertyType();
+              if ( value instanceof Map && propertyType != null && !Map.class.isAssignableFrom( propertyType ) )
+              {
+                //
+                Map<String, Object> subMap = (Map<String, Object>) value;
+                B valueUnmarshalled = this.unmarshal( subMap, null );
+                this.mapToObjectMap.put( subMap, valueUnmarshalled );
+                beanPropertyAccessor.setPropertyValue( beanNew, valueUnmarshalled );
+              }
+              else
+              {
+                beanPropertyAccessor.setPropertyValue( beanNew, value );
+              }
             }
           }
         }

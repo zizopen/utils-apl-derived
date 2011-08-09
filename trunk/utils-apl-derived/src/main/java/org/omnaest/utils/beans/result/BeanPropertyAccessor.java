@@ -15,14 +15,19 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.result;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.beans.BeanUtils;
+import org.omnaest.utils.proxy.BeanProperty;
 
 /**
- * Java Bean property access object for {@link Method}s and {@link Field} of a special Java Bean type.
+ * JavaBean property access object for {@link Method}s and {@link Field} of a special Java Bean type.
  * 
+ * @see BeanUtils
+ * @see BeanProperty
  * @author Omnaest
  * @param <B>
  *          Java Bean type
@@ -30,11 +35,24 @@ import org.apache.commons.lang3.StringUtils;
 public class BeanPropertyAccessor<B>
 {
   /* ********************************************** Variables ********************************************** */
-  protected String   propertyName = null;
-  protected Field    field        = null;
-  protected Method   methodGetter = null;
-  protected Method   methodSetter = null;
-  protected Class<B> beanClass    = null;
+  protected String             propertyName       = null;
+  protected Field              field              = null;
+  protected Method             methodGetter       = null;
+  protected Method             methodSetter       = null;
+  protected Class<B>           beanClass          = null;
+  protected PropertyAccessType propertyAccessType = PropertyAccessType.PROPERTY;
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * @see BeanPropertyAccessor
+   * @author Omnaest
+   */
+  public static enum PropertyAccessType
+  {
+    FIELD,
+    PROPERTY
+  }
   
   /* ********************************************** Methods ********************************************** */
   
@@ -91,23 +109,29 @@ public class BeanPropertyAccessor<B>
    * 
    * @return
    */
-  public Class<?> determineDeclaringPropertyType()
+  public Class<?> getDeclaringPropertyType()
   {
     //
     Class<?> retval = null;
     
     //
-    if ( this.field != null )
+    if ( PropertyAccessType.FIELD.equals( this.propertyAccessType ) )
     {
-      retval = this.field.getType();
+      if ( this.field != null )
+      {
+        retval = this.field.getType();
+      }
     }
-    else if ( this.methodGetter != null )
+    else if ( PropertyAccessType.PROPERTY.equals( this.propertyAccessType ) )
     {
-      retval = this.methodGetter.getReturnType();
-    }
-    else if ( this.methodSetter != null )
-    {
-      retval = this.methodSetter.getParameterTypes()[0];
+      if ( this.methodGetter != null )
+      {
+        retval = this.methodGetter.getReturnType();
+      }
+      else if ( this.methodSetter != null )
+      {
+        retval = this.methodSetter.getParameterTypes()[0];
+      }
     }
     
     //
@@ -117,30 +141,50 @@ public class BeanPropertyAccessor<B>
   /**
    * Returns the property value for the underlying Java Bean property from the given Java Bean object.
    * 
+   * @see PropertyAccessType
    * @param bean
+   * @param propertyAccessType
    * @return value or null if no value could be resolved
    */
-  public Object getPropertyValue( B bean )
+  public Object getPropertyValue( B bean, PropertyAccessType propertyAccessType )
   {
     //
     Object retval = null;
     
     //
-    if ( this.hasGetter() )
+    if ( this.isReadable() )
     {
       try
       {
         //
-        boolean accessible = this.methodGetter.isAccessible();
-        this.methodGetter.setAccessible( true );
+        AccessibleObject accessibleObject = null;
+        if ( PropertyAccessType.FIELD.equals( propertyAccessType ) )
+        {
+          accessibleObject = this.field;
+        }
+        else if ( PropertyAccessType.PROPERTY.equals( propertyAccessType ) )
+        {
+          accessibleObject = this.methodGetter;
+        }
+        
+        //
+        boolean accessible = accessibleObject.isAccessible();
+        accessibleObject.setAccessible( true );
         try
         {
           //
-          retval = this.methodGetter.invoke( bean, new Object[] {} );
+          if ( PropertyAccessType.FIELD.equals( propertyAccessType ) )
+          {
+            retval = this.field.get( bean );
+          }
+          else if ( PropertyAccessType.PROPERTY.equals( propertyAccessType ) )
+          {
+            retval = this.methodGetter.invoke( bean, new Object[] {} );
+          }
         }
         finally
         {
-          this.methodGetter.setAccessible( accessible );
+          accessibleObject.setAccessible( accessible );
         }
       }
       catch ( Exception e )
@@ -153,6 +197,18 @@ public class BeanPropertyAccessor<B>
   }
   
   /**
+   * Returns the property value for the underlying Java Bean property from the given Java Bean object.
+   * 
+   * @see #setPropertyAccessType(PropertyAccessType)
+   * @param bean
+   * @return value or null if no value could be resolved
+   */
+  public Object getPropertyValue( B bean )
+  {
+    return this.getPropertyValue( bean, this.propertyAccessType );
+  }
+  
+  /**
    * Sets the property value for the underlying Java Bean property for the given Java Bean object.
    * 
    * @param bean
@@ -161,25 +217,58 @@ public class BeanPropertyAccessor<B>
    */
   public boolean setPropertyValue( B bean, Object value )
   {
+    return this.setPropertyValue( bean, value, this.propertyAccessType );
+  }
+  
+  /**
+   * Sets the property value for the underlying Java Bean property for the given Java Bean object using the given
+   * {@link PropertyAccessType}.
+   * 
+   * @param bean
+   * @param value
+   * @param propertyAccessType
+   * @return true if no error occurs
+   */
+  public boolean setPropertyValue( B bean, Object value, PropertyAccessType propertyAccessType )
+  {
     //
     boolean retval = false;
     
     //
-    if ( this.hasSetter() && bean != null )
+    if ( this.isWritable() && bean != null )
     {
       try
       {
         //
-        boolean accessible = this.methodSetter.isAccessible();
-        this.methodSetter.setAccessible( true );
+        AccessibleObject accessibleObject = null;
+        if ( PropertyAccessType.FIELD.equals( propertyAccessType ) )
+        {
+          accessibleObject = this.field;
+        }
+        else if ( PropertyAccessType.PROPERTY.equals( propertyAccessType ) )
+        {
+          accessibleObject = this.methodSetter;
+        }
+        
+        //
+        boolean accessible = accessibleObject.isAccessible();
+        accessibleObject.setAccessible( true );
         try
         {
-          //
-          this.methodSetter.invoke( bean, value );
+          if ( PropertyAccessType.FIELD.equals( propertyAccessType ) )
+          {
+            //
+            this.field.set( bean, value );
+          }
+          else if ( PropertyAccessType.PROPERTY.equals( propertyAccessType ) )
+          {
+            //
+            this.methodSetter.invoke( bean, value );
+          }
         }
         finally
         {
-          this.methodSetter.setAccessible( accessible );
+          accessibleObject.setAccessible( accessible );
         }
         
         //
@@ -212,6 +301,68 @@ public class BeanPropertyAccessor<B>
   public boolean hasGetterAndSetter()
   {
     return this.hasGetter() && this.hasSetter();
+  }
+  
+  /**
+   * Returns true if the {@link PropertyAccessType} is field and the class definition has a field or if {@link PropertyAccessType}
+   * is property and the class declares a getter and a setter.
+   * 
+   * @return
+   */
+  public boolean isReadAndWritable()
+  {
+    return ( this.isPropertyAccessingByGetterAndSetter() && this.hasGetterAndSetter() )
+           || ( this.isPropertyAccessingByField() && this.hasField() );
+  }
+  
+  /**
+   * Returns true if the {@link PropertyAccessType} is field and the class definition has a field or if {@link PropertyAccessType}
+   * is property and the class declares a getter.
+   * 
+   * @return
+   */
+  public boolean isReadable()
+  {
+    return ( this.isPropertyAccessingByGetterAndSetter() && this.hasGetter() )
+           || ( this.isPropertyAccessingByField() && this.hasField() );
+  }
+  
+  /**
+   * Returns true if the {@link PropertyAccessType} is field and the class definition has a field or if {@link PropertyAccessType}
+   * is property and the class declares a setter.
+   * 
+   * @return
+   */
+  public boolean isWritable()
+  {
+    return ( this.isPropertyAccessingByGetterAndSetter() && this.hasSetter() )
+           || ( this.isPropertyAccessingByField() && this.hasField() );
+  }
+  
+  /**
+   * @return
+   */
+  private boolean isPropertyAccessingByField()
+  {
+    return PropertyAccessType.FIELD.equals( this.propertyAccessType );
+  }
+  
+  /**
+   * @return
+   */
+  private boolean isPropertyAccessingByGetterAndSetter()
+  {
+    return PropertyAccessType.PROPERTY.equals( this.propertyAccessType );
+  }
+  
+  /**
+   * Returns true if an underlying field is available
+   * 
+   * @return
+   */
+  public boolean hasField()
+  {
+    return this.field != null;
   }
   
   /**
@@ -275,17 +426,19 @@ public class BeanPropertyAccessor<B>
     return retval;
   }
   
-  protected Method getMethod()
-  {
-    return this.methodGetter;
-  }
-  
+  /**
+   * Returns the class object of accepted bean type
+   * 
+   * @return
+   */
   public Class<?> getBeanClass()
   {
     return this.beanClass;
   }
   
   /**
+   * Returns the name of the property
+   * 
    * @return
    */
   public String getPropertyName()
@@ -293,16 +446,31 @@ public class BeanPropertyAccessor<B>
     return this.propertyName;
   }
   
+  /**
+   * Returns the underlying {@link Field}
+   * 
+   * @return
+   */
   public Field getField()
   {
     return this.field;
   }
   
+  /**
+   * Returns the getter {@link Method}
+   * 
+   * @return
+   */
   public Method getMethodGetter()
   {
     return this.methodGetter;
   }
   
+  /**
+   * Returns the setter {@link Method}
+   * 
+   * @return
+   */
   public Method getMethodSetter()
   {
     return this.methodSetter;
@@ -312,6 +480,19 @@ public class BeanPropertyAccessor<B>
   public String toString()
   {
     return "BeanPropertyAccessor [propertyname=" + this.propertyName + ", beanClass=" + this.beanClass + "]";
+  }
+  
+  /**
+   * Sets the {@link PropertyAccessType}
+   * 
+   * @param propertyAccessType
+   */
+  public void setPropertyAccessType( PropertyAccessType propertyAccessType )
+  {
+    if ( propertyAccessType != null )
+    {
+      this.propertyAccessType = propertyAccessType;
+    }
   }
   
 }

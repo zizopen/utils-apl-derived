@@ -20,19 +20,49 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
 import org.omnaest.utils.structure.element.FutureSimple;
 
 /**
  * @see BeanToNestedMapConverter
  * @author Omnaest
  */
+@RunWith(value = Parameterized.class)
 public class BeanToNestedMapConverterTest
 {
+  
+  @Parameters
+  public static Collection<Object[]> configurationDataCollection()
+  {
+    //
+    List<Object[]> retlist = new ArrayList<Object[]>();
+    retlist.add( new Object[] { PropertyAccessType.FIELD } );
+    retlist.add( new Object[] { PropertyAccessType.PROPERTY } );
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * @param propertyAccessType
+   */
+  public BeanToNestedMapConverterTest( PropertyAccessType propertyAccessType )
+  {
+    super();
+    this.beanToNestedMapConverter.setPropertyAccessType( propertyAccessType );
+  }
+  
   /* ********************************************** Variables ********************************************** */
   private BeanToNestedMapConverter<TestClass> beanToNestedMapConverter = new BeanToNestedMapConverter<TestClass>( TestClass.class );
   private TestClass                           testClass                = new TestClass( "value1", 1.234,
@@ -220,7 +250,7 @@ public class BeanToNestedMapConverterTest
     // 
     Map<String, Object> map = this.beanToNestedMapConverter.marshal( this.testClass );
     assertNotNull( map );
-    assertEquals( 6, map.size() );
+    assertTrue( map.size() >= 6 );
     assertEquals( this.testClass.getValueString(), map.get( "valueString" ) );
     assertEquals( this.testClass.getValueDouble(), map.get( "valueDouble" ) );
     assertEquals( this.testClass.getStringToDoubleMap(), map.get( "stringToDoubleMap" ) );
@@ -231,7 +261,7 @@ public class BeanToNestedMapConverterTest
     //
     @SuppressWarnings("unchecked")
     Map<String, Object> subMap = (Map<String, Object>) map.get( "testClass" );
-    assertEquals( 6, subMap.size() );
+    assertTrue( subMap.size() >= 6 );
     assertEquals( this.testClass.getTestClass().getValueString(), subMap.get( "valueString" ) );
     assertEquals( this.testClass.getTestClass().getValueDouble(), subMap.get( "valueDouble" ) );
     assertEquals( this.testClass.getTestClass().getStringToDoubleMap(), subMap.get( "stringToDoubleMap" ) );

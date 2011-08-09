@@ -19,10 +19,16 @@ import java.util.Map;
 
 import org.omnaest.utils.beans.mapconverter.internal.BeanToNestedMapMarshaller;
 import org.omnaest.utils.beans.mapconverter.internal.BeanToNestedMapUnMarshaller;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
 
 /**
  * A {@link BeanToNestedMapConverter} marshalls a given JavaBean into a {@link Map} or unmarshalls a given {@link Map} into a
- * JavaBean. This process is transitiv which allows to translate arbitrary object graphs into nested {@link Map}s.
+ * JavaBean. This process is transitive and allows to translate arbitrary object graphs into nested {@link Map}s. <br>
+ * <br>
+ * With {@link #setPropertyAccessType(PropertyAccessType)} it can be declared in which way the {@link BeanToNestedMapConverter}
+ * should access given JavaBeans. With the default value of {@link PropertyAccessType#PROPERTY} the
+ * {@link BeanToNestedMapConverter} will only use getters and setters whereby with {@link PropertyAccessType#FIELD} the fields of
+ * the JavaBeans are accessed directly ignoring any getters or setters.
  * 
  * @author Omnaest
  */
@@ -33,6 +39,7 @@ public class BeanToNestedMapConverter<B>
   private BeanToNestedMapUnMarshaller<B> beanToNestedMapUnMarshaller = null;
   private BeanConversionFilter           beanConversionFilter        = null;
   private Class<? extends B>             beanClass                   = null;
+  private PropertyAccessType             propertyAccessType          = PropertyAccessType.PROPERTY;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -134,7 +141,7 @@ public class BeanToNestedMapConverter<B>
    */
   public Map<String, Object> marshal( B bean )
   {
-    return this.beanToNestedMapMarshaller.marshal( bean );
+    return this.beanToNestedMapMarshaller.marshal( bean, this.propertyAccessType );
   }
   
   /**
@@ -145,7 +152,7 @@ public class BeanToNestedMapConverter<B>
    */
   public B unmarshal( Map<String, Object> map )
   {
-    return this.beanToNestedMapUnMarshaller.unmarshal( map );
+    return this.beanToNestedMapUnMarshaller.unmarshal( map, this.propertyAccessType );
   }
   
   /**
@@ -154,6 +161,11 @@ public class BeanToNestedMapConverter<B>
   public void setBeanConversionFilter( BeanConversionFilter beanConversionFilter )
   {
     this.beanConversionFilter = beanConversionFilter;
+  }
+  
+  public void setPropertyAccessType( PropertyAccessType propertyAccessType )
+  {
+    this.propertyAccessType = propertyAccessType;
   }
   
 }

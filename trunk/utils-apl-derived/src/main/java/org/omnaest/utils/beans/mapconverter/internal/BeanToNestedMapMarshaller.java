@@ -23,6 +23,7 @@ import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter;
 import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter.BeanConversionFilter;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
 
 /**
  * @see BeanToNestedMapConverter
@@ -58,12 +59,19 @@ public class BeanToNestedMapMarshaller
   
   /**
    * @param bean
+   * @param propertyAccessType
    * @return
    */
-  public Map<String, Object> marshal( Object bean )
+  public Map<String, Object> marshal( Object bean, PropertyAccessType propertyAccessType )
   {
     //
     Map<String, Object> retmap = new HashMap<String, Object>();
+    
+    //
+    if ( propertyAccessType == null )
+    {
+      propertyAccessType = PropertyAccessType.PROPERTY;
+    }
     
     //
     if ( bean != null )
@@ -82,23 +90,20 @@ public class BeanToNestedMapMarshaller
         {
           //
           BeanPropertyAccessor<Object> beanPropertyAccessor = propertyNameToBeanPropertyAccessorMap.get( propertyName );
-          if ( beanPropertyAccessor.hasGetterAndSetter() )
+          beanPropertyAccessor.setPropertyAccessType( propertyAccessType );
+          if ( beanPropertyAccessor.isReadable() )
           {
             //
             Object object = beanPropertyAccessor.getPropertyValue( bean );
-            Class<?> declaringPropertyType = beanPropertyAccessor.determineDeclaringPropertyType();
+            Class<?> declaringPropertyType = beanPropertyAccessor.getDeclaringPropertyType();
             
             //
             boolean hasToConvertBean = this.hasToConvertBean( declaringPropertyType, object );
             if ( hasToConvertBean )
             {
-              Map<String, Object> map = this.marshal( object );
+              Map<String, Object> map = this.marshal( object, propertyAccessType );
               this.objectToMapMap.put( object, map );
               object = map;
-            }
-            else
-            {
-              object = declaringPropertyType.cast( object );
             }
             
             //

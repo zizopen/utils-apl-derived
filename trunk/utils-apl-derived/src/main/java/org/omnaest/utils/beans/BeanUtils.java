@@ -373,7 +373,7 @@ public class BeanUtils
         {
           if ( beanPropertyAccessor != null )
           {
-            Class<?> propertyType = beanPropertyAccessor.determineDeclaringPropertyType();
+            Class<?> propertyType = beanPropertyAccessor.getDeclaringPropertyType();
             if ( propertyType != null )
             {
               //
