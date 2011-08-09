@@ -61,12 +61,22 @@ public class BeanToNestedMapConverterTest
   {
     super();
     this.beanToNestedMapConverter.setPropertyAccessType( propertyAccessType );
+    
   }
   
   /* ********************************************** Variables ********************************************** */
   private BeanToNestedMapConverter<TestClass> beanToNestedMapConverter = new BeanToNestedMapConverter<TestClass>( TestClass.class );
-  private TestClass                           testClass                = new TestClass( "value1", 1.234,
-                                                                                        new TestClass( "subvalue", 5.678, null ) );
+  private TestClass                           testClass                = new TestClass(
+                                                                                        "value1",
+                                                                                        1.234,
+                                                                                        new TestClass(
+                                                                                                       "subvalue",
+                                                                                                       5.678,
+                                                                                                       null,
+                                                                                                       BeanToNestedMapConverterTest.createStringToDoubleMap(),
+                                                                                                       new FutureSimple<String>() ),
+                                                                                        BeanToNestedMapConverterTest.createStringToDoubleMap(),
+                                                                                        new FutureSimple<String>() );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -81,9 +91,9 @@ public class BeanToNestedMapConverterTest
     private Double              valueDouble       = null;
     private TestClass           testClass         = null;
     private TestClass           testClassCopy     = null;
-    private Map<String, Double> stringToDoubleMap = new HashMap<String, Double>();
-    private Future<String>      future            = new FutureSimple<String>();
-    private String              privateField      = "privateValue";
+    private Map<String, Double> stringToDoubleMap = null;
+    private Future<String>      future            = null;
+    private String              privateField      = "privateValue" + Math.random();
     
     /* ********************************************** Methods ********************************************** */
     
@@ -92,7 +102,8 @@ public class BeanToNestedMapConverterTest
       super();
     }
     
-    public TestClass( String valueString, Double valueDouble, TestClass testClass )
+    public TestClass( String valueString, Double valueDouble, TestClass testClass, Map<String, Double> stringToDoubleMap,
+                      Future<String> future )
     {
       //
       super();
@@ -102,10 +113,8 @@ public class BeanToNestedMapConverterTest
       this.valueDouble = valueDouble;
       this.testClass = testClass;
       this.testClassCopy = testClass;
-      
-      //
-      this.stringToDoubleMap.put( "key1", 1.234 );
-      this.stringToDoubleMap.put( "key2", 2.234 );
+      this.stringToDoubleMap = stringToDoubleMap;
+      this.future = future;
     }
     
     public String getValueString()
@@ -277,7 +286,21 @@ public class BeanToNestedMapConverterTest
     TestClass testClassResult = this.beanToNestedMapConverter.unmarshal( map );
     
     //
+    //MapUtils.printMapHierarchical( System.out, map );
+    
+    //
     assertEquals( this.testClass, testClassResult );
+  }
+  
+  /**
+   * @return
+   */
+  private static Map<String, Double> createStringToDoubleMap()
+  {
+    Map<String, Double> retval = new HashMap<String, Double>();
+    retval.put( "key1", 1.234 );
+    retval.put( "key2", 2.234 );
+    return retval;
   }
   
 }
