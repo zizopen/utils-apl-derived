@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.map;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
 import org.omnaest.utils.structure.collection.CollectionUtils.IdentityElementConverter;
 import org.omnaest.utils.tuple.TupleDuad;
@@ -269,7 +271,6 @@ public class MapUtils
         catch ( Exception e )
         {
         }
-        
       }
       
       //
@@ -278,5 +279,68 @@ public class MapUtils
     
     //
     return retval.toString();
+  }
+  
+  /**
+   * Prints out a given {@link Map} using {@link String#valueOf(Object)} and all submaps indented to a new column.<br>
+   * <br>
+   * Example:<br>
+   * 
+   * <pre>
+   * -+
+   *  |-- valueDouble=1.234
+   *  |-+ testClassCopy
+   *  | |-- valueDouble=5.678
+   *  | |-- testClassCopy=null
+   *  | |-- privateField=privateValue0.16433438667207334
+   *  | |-+ future
+   *  | | |-- countDownLatch=java.util.concurrent.CountDownLatch@1f4384c2[Count = 1]
+   *  | | |-- shouldCancel=false
+   *  | | |-- isCancelled=false
+   *  | | |-- value=null
+   *  | | |-- clazz=org.omnaest.utils.structure.element.FutureSimple
+   * </pre>
+   * 
+   * @param printStream
+   * @param map
+   */
+  public static void printMapHierarchical( final PrintStream printStream, @SuppressWarnings("rawtypes") Map map )
+  {
+    //
+    class MapPrinter
+    {
+      @SuppressWarnings("rawtypes")
+      public void printMap( Map map, int indentation )
+      {
+        if ( map != null )
+        {
+          String indentationString = StringUtils.repeat( " |", indentation / 2 );
+          printStream.append( indentation == 0 ? indentationString + "-+\n" : "" );
+          for ( Object key : map.keySet() )
+          {
+            //
+            Object value = map.get( key );
+            
+            //
+            if ( value instanceof Map )
+            {
+              //
+              printStream.append( indentationString + " |-+ " + String.valueOf( key ) + "\n" );
+              this.printMap( (Map) value, indentation + 2 );
+            }
+            else
+            {
+              //
+              printStream.append( indentationString + " |-- " + String.valueOf( key ) + "=" + String.valueOf( map.get( key ) )
+                                  + "\n" );
+            }
+          }
+          printStream.append( indentationString + "\n" );
+        }
+      }
+    }
+    
+    //
+    new MapPrinter().printMap( map, 0 );
   }
 }

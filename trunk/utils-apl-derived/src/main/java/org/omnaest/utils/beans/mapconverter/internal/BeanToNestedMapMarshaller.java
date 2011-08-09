@@ -32,6 +32,9 @@ import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
  */
 public class BeanToNestedMapMarshaller
 {
+  /* ********************************************** Constants ********************************************** */
+  public final static String               CLASS_IDENTIFIER     = "clazz";
+  
   /* ********************************************** Variables ********************************************** */
   private BeanConversionFilter             beanConversionFilter = null;
   private Map<Object, Map<String, Object>> objectToMapMap       = new IdentityHashMap<Object, Map<String, Object>>();
@@ -101,20 +104,27 @@ public class BeanToNestedMapMarshaller
             boolean hasToConvertBean = this.hasToConvertBean( declaringPropertyType, object );
             if ( hasToConvertBean )
             {
+              //
               Map<String, Object> map = this.marshal( object, propertyAccessType );
               this.objectToMapMap.put( object, map );
-              object = map;
+              
+              //
+              retmap.put( propertyName, map );
             }
-            
-            //
-            retmap.put( propertyName, object );
+            else
+            {
+              //
+              retmap.put( propertyName, object );
+            }
           }
         }
+        
+        //
+        retmap.put( CLASS_IDENTIFIER, bean.getClass().getName() );
       }
     }
     
     //
     return retmap;
   }
-  
 }

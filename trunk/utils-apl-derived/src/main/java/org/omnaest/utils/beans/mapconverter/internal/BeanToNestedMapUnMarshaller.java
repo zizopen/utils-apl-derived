@@ -54,8 +54,19 @@ public class BeanToNestedMapUnMarshaller<B>
   @SuppressWarnings("unchecked")
   public B unmarshal( Map<String, Object> map, PropertyAccessType propertyAccessType )
   {
+    return (B) this.unmarshalToObject( map, propertyAccessType );
+  }
+  
+  /**
+   * @param map
+   * @param propertyAccessType
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  private Object unmarshalToObject( Map<String, Object> map, PropertyAccessType propertyAccessType )
+  {
     //
-    B retval = null;
+    Object retval = null;
     
     //
     if ( propertyAccessType == null )
@@ -69,50 +80,91 @@ public class BeanToNestedMapUnMarshaller<B>
       //
       if ( this.mapToObjectMap.containsKey( map ) )
       {
-        retval = (B) this.mapToObjectMap.get( map );
+        retval = this.mapToObjectMap.get( map );
       }
       else
       {
-        //
-        B beanNew = ReflectionUtils.createInstanceOf( this.beanClass );
+        //        
+        Class<Object> objectClass = (Class<Object>) this.beanClass;
         
         //
-        Map<String, BeanPropertyAccessor<B>> propertyNameToBeanPropertyAccessorMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( (Class<B>) this.beanClass );
-        for ( String propertyName : propertyNameToBeanPropertyAccessorMap.keySet() )
+        String canonicalClassName = (String) map.get( BeanToNestedMapMarshaller.CLASS_IDENTIFIER );
+        if ( canonicalClassName != null )
         {
-          //
-          BeanPropertyAccessor<B> beanPropertyAccessor = propertyNameToBeanPropertyAccessorMap.get( propertyName );
-          beanPropertyAccessor.setPropertyAccessType( propertyAccessType );
-          if ( beanPropertyAccessor.isWritable() )
-          {
-            //
-            Object value = map.get( propertyName );
-            if ( value == null )
-            {
-              beanPropertyAccessor.setPropertyValue( beanNew, value );
-            }
-            else
-            {
-              //
-              Class<?> propertyType = beanPropertyAccessor.getDeclaringPropertyType();
-              if ( value instanceof Map && propertyType != null && !Map.class.isAssignableFrom( propertyType ) )
-              {
-                //
-                Map<String, Object> subMap = (Map<String, Object>) value;
-                B valueUnmarshalled = this.unmarshal( subMap, null );
-                this.mapToObjectMap.put( subMap, valueUnmarshalled );
-                beanPropertyAccessor.setPropertyValue( beanNew, valueUnmarshalled );
-              }
-              else
-              {
-                beanPropertyAccessor.setPropertyValue( beanNew, value );
-              }
-            }
-          }
+          objectClass = BeanToNestedMapUnMarshaller.determineObjectClass( canonicalClassName );
         }
         
         //
-        retval = beanNew;
+        Object beanNew = ReflectionUtils.createInstanceOf( objectClass );
+        
+        //
+        if ( beanNew != null )
+        {
+          Map<String, BeanPropertyAccessor<Object>> propertyNameToBeanPropertyAccessorMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( objectClass );
+          for ( String propertyName : propertyNameToBeanPropertyAccessorMap.keySet() )
+          {
+            //
+            BeanPropertyAccessor<Object> beanPropertyAccessor = propertyNameToBeanPropertyAccessorMap.get( propertyName );
+            beanPropertyAccessor.setPropertyAccessType( propertyAccessType );
+            if ( beanPropertyAccessor.isWritable() )
+            {
+              //
+              Object value = map.get( propertyName );
+              if ( value == null )
+              {
+                beanPropertyAccessor.setPropertyValue( beanNew, value );
+              }
+              else
+              {
+                //
+                Class<?> propertyType = beanPropertyAccessor.getDeclaringPropertyType();
+                if ( value instanceof Map && propertyType != null && !Map.class.isAssignableFrom( propertyType ) )
+                {
+                  //
+                  Map<String, Object> subMap = (Map<String, Object>) value;
+                  Object valueUnmarshalled = this.unmarshalToObject( subMap, propertyAccessType );
+                  this.mapToObjectMap.put( subMap, valueUnmarshalled );
+                  beanPropertyAccessor.setPropertyValue( beanNew, valueUnmarshalled );
+                }
+                else
+                {
+                  beanPropertyAccessor.setPropertyValue( beanNew, value );
+                }
+              }
+            }
+          }
+          
+          //
+          retval = beanNew;
+        }
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * @param className
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  private static Class<Object> determineObjectClass( String className )
+  {
+    //
+    Class<Object> retval = null;
+    
+    //
+    if ( className != null )
+    {
+      // 
+      try
+      {
+        //
+        retval = (Class<Object>) Class.forName( className );
+      }
+      catch ( Exception e )
+      {
       }
     }
     
