@@ -42,9 +42,11 @@ import org.omnaest.utils.structure.table.subspecification.TableAdaptable.TableAd
  */
 public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableAdapter<List<B>, Object>
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long serialVersionUID = -5895678029582731115L;
   /* ********************************************** Variables ********************************************** */
-  protected Table<Object> table     = null;
-  protected Class<B>      beanClass = null;
+  protected Table<Object>   table            = null;
+  protected Class<B>        beanClass        = null;
   
   /* ********************************************** Methods ********************************************** */
   
