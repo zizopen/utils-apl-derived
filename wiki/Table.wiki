@@ -150,3 +150,5 @@ table.as().listOfType( RowBean.class );
 
  * Writing 5000 lines to an XLS file: 3000ms (~64MB heap space)
  * Simply creating 8000 lines: 3500ms (~64MB heap space)
+
+To mention here, the high memory usage is strongly related to the fact, that the test were made with about 20 with different text values filled columns. In fact the same table with always the same string value scales up to about 200000 rows and is much faster. But this would not represent real inhomogen data.
