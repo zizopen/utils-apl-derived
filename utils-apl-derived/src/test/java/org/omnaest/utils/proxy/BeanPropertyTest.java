@@ -18,6 +18,7 @@ package org.omnaest.utils.proxy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.omnaest.utils.proxy.BeanProperty.beanProperty;
 
 import java.util.Iterator;
 
@@ -37,7 +38,7 @@ public class BeanPropertyTest
   protected TestClass    testClass    = this.beanProperty.newInstanceOfTransitivlyCapturedType( TestClass.class );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * @see BeanPropertyTest
    */
@@ -81,7 +82,7 @@ public class BeanPropertyTest
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   @Test
   public void testNewInstanceOfCapturedType()
   {
@@ -143,6 +144,13 @@ public class BeanPropertyTest
       assertEquals( "fieldDouble", iterator.next().getPropertyName() );
     }
     
+  }
+  
+  @Test
+  public void testBeanProperty()
+  {
+    String name = beanProperty().name.of( beanProperty().newInstanceOfCapturedType( TestClass.class ).getFieldDouble() );
+    assertEquals( "fieldDouble", name );
   }
   
 }

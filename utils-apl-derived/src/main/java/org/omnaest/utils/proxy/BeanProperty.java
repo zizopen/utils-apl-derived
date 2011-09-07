@@ -23,6 +23,8 @@ import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.proxy.MethodCallCapturer.MethodCallCaptureContext;
+import org.omnaest.utils.structure.element.CachedElement.ValueResolver;
+import org.omnaest.utils.structure.element.ThreadLocalCachedElement;
 
 /**
  * A {@link BeanProperty} allows to capture method calls for getter and setter methods on a Java Bean. The captured method calls
@@ -38,11 +40,22 @@ import org.omnaest.utils.proxy.MethodCallCapturer.MethodCallCaptureContext;
 public class BeanProperty
 {
   /* ********************************************** Constants ********************************************** */
-  public final Accessor        accessor           = new Accessor();
-  public final Name            name               = new Name();
+  public final Accessor                                         accessor                               = new Accessor();
+  public final Name                                             name                                   = new Name();
+  
+  protected final static ThreadLocalCachedElement<BeanProperty> threadLocalCachedElementOfBeanProperty = new ThreadLocalCachedElement<BeanProperty>(
+                                                                                                                                                     new ValueResolver<BeanProperty>()
+                                                                                                                                                     {
+                                                                                                                                                       
+                                                                                                                                                       @Override
+                                                                                                                                                       public BeanProperty resolveValue()
+                                                                                                                                                       {
+                                                                                                                                                         return new BeanProperty();
+                                                                                                                                                       }
+                                                                                                                                                     } );
   
   /* ********************************************** Variables ********************************************** */
-  protected MethodCallCapturer methodCallCapturer = null;
+  protected MethodCallCapturer                                  methodCallCapturer                     = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
@@ -284,4 +297,13 @@ public class BeanProperty
     return this.methodCallCapturer.newInstanceOfTransitivlyCapturedType( clazz );
   }
   
+  /**
+   * Returns a {@link ThreadLocal} specific instance which will be created at the first time of use with a given {@link Thread}.
+   * 
+   * @return {@link BeanProperty}
+   */
+  public static BeanProperty beanProperty()
+  {
+    return BeanProperty.threadLocalCachedElementOfBeanProperty.getValue();
+  }
 }
