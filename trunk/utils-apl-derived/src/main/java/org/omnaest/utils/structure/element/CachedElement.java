@@ -116,7 +116,7 @@ public class CachedElement<T>
     }
     
     //
-    return this.getCachedValue();
+    return this.cachedValue.getValue();
   }
   
   /**
