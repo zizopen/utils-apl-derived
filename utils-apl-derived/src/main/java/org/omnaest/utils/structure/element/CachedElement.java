@@ -25,11 +25,11 @@ package org.omnaest.utils.structure.element;
 public class CachedElement<T>
 {
   /* ********************************************** Variables ********************************************** */
-  protected T                cachedValue   = null;
+  protected CachedValue<T>   cachedValue   = this.newCachedValue();
   protected ValueResolver<T> valueResolver = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-
+  
   /**
    * @see #resolveValue()
    * @see CachedElement
@@ -68,16 +68,29 @@ public class CachedElement<T>
     }
   }
   
+  /**
+   * Used to store and retrieve the {@link CachedValue}
+   * 
+   * @author Omnaest
+   * @param <T>
+   */
+  protected static interface CachedValue<T>
+  {
+    public T getValue();
+    
+    public void setValue( T value );
+  }
+  
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * @see CachedElement
    * @see ValueResolver
    * @param valueResolver
    */
-  public CachedElement( ValueResolver<T> valueFactory )
+  public CachedElement( ValueResolver<T> valueResolver )
   {
-    this.valueResolver = valueFactory;
+    this.valueResolver = valueResolver;
   }
   
   /**
@@ -97,13 +110,13 @@ public class CachedElement<T>
   public T getValue()
   {
     //
-    if ( this.cachedValue == null && this.valueResolver != null )
+    if ( this.cachedValue.getValue() == null && this.valueResolver != null )
     {
-      this.cachedValue = this.valueResolver.resolveValue();
+      this.cachedValue.setValue( this.valueResolver.resolveValue() );
     }
     
     //
-    return this.cachedValue;
+    return this.getCachedValue();
   }
   
   /**
@@ -113,7 +126,7 @@ public class CachedElement<T>
    */
   public T getCachedValue()
   {
-    return this.cachedValue;
+    return this.cachedValue.getValue();
   }
   
   /**
@@ -123,7 +136,7 @@ public class CachedElement<T>
    */
   public boolean hasValueResolved()
   {
-    return this.cachedValue != null;
+    return this.getCachedValue() != null;
   }
   
   public void setValueResolver( ValueResolver<T> valueResolver )
@@ -144,7 +157,32 @@ public class CachedElement<T>
    */
   public CachedElement<T> clearCache()
   {
-    this.cachedValue = null;
+    this.cachedValue.setValue( null );
     return this;
+  }
+  
+  /**
+   * Creates a new {@link CachedValue} instance. Override this to alternate the behavior of the {@link CachedElement}
+   * 
+   * @return
+   */
+  protected CachedValue<T> newCachedValue()
+  {
+    return new CachedValue<T>()
+    {
+      private T value = null;
+      
+      @Override
+      public void setValue( T value )
+      {
+        this.value = value;
+      }
+      
+      @Override
+      public T getValue()
+      {
+        return this.value;
+      }
+    };
   }
 }
