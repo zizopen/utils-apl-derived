@@ -148,7 +148,7 @@ public class ReflectionUtils
   }
   
   /**
-   * Creates a new instance of a given {@link Class} using a contructor which has the same parameter signature as the provided
+   * Creates a new instance of a given {@link Class} using a constructor which has the same parameter signature as the provided
    * arguments.
    * 
    * @param clazz

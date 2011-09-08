@@ -920,4 +920,57 @@ public class BeanUtils
     //
     return retval;
   }
+  
+  /**
+   * Clones the given Java bean using a {@link Map} to store all properties and providing a proxy which accesses this underlying
+   * {@link Map}.
+   * 
+   * @param bean
+   * @return
+   */
+  public static <B> B cloneBeanUsingInstanceOfMap( B bean )
+  {
+    boolean underlyingMapAware = false;
+    return BeanUtils.cloneBeanUsingInstanceOfMap( bean, underlyingMapAware );
+  }
+  
+  /**
+   * Clones the given Java bean using a {@link Map} to store all properties and providing a proxy which accesses this underlying
+   * {@link Map}.
+   * 
+   * @param bean
+   * @param underlyingMapAware
+   * @return
+   */
+  public static <B> B cloneBeanUsingInstanceOfMap( B bean, boolean underlyingMapAware )
+  {
+    //    
+    B retval = null;
+    
+    //
+    if ( bean != null )
+    {
+      //
+      try
+      {
+        //
+        Map<String, Object> propertyNameToBeanPropertyValueMap = BeanUtils.propertyNameToBeanPropertyValueMap( bean );
+        
+        //
+        if ( propertyNameToBeanPropertyValueMap != null )
+        {
+          @SuppressWarnings("unchecked")
+          Class<? extends B> clazz = (Class<B>) bean.getClass();
+          retval = MapToTypeAdapter.newInstance( propertyNameToBeanPropertyValueMap, clazz, underlyingMapAware );
+        }
+        
+      }
+      catch ( Exception e )
+      {
+      }
+    }
+    
+    //
+    return retval;
+  }
 }

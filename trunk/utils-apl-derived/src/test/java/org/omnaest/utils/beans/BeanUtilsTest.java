@@ -29,6 +29,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.omnaest.utils.beans.MapToTypeAdapter.UnderlyingMapAware;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 
@@ -411,6 +412,25 @@ public class BeanUtilsTest
     //
     TestBean clonedBean = BeanUtils.cloneBean( testBean );
     assertEquals( testBean, clonedBean );
+  }
+  
+  @Test
+  public void testCloneBeanUsingInstanceOfMap()
+  {
+    //
+    TestBean testBean = new TestBeanImpl();
+    testBean.setFieldString( "value1" );
+    testBean.setFieldDouble( 1.234 );
+    
+    //
+    boolean underlyingMapAware = true;
+    TestBean clonedBean = BeanUtils.cloneBeanUsingInstanceOfMap( testBean, underlyingMapAware );
+    
+    assertEquals( testBean.getFieldDouble(), clonedBean.getFieldDouble() );
+    assertEquals( testBean.getFieldString(), clonedBean.getFieldString() );
+    
+    //
+    assertTrue( clonedBean instanceof UnderlyingMapAware );
   }
   
 }
