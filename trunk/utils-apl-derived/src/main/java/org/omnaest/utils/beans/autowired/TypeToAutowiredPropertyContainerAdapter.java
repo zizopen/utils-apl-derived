@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.beans;
+package org.omnaest.utils.beans.autowired;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.omnaest.utils.beans.BeanUtils;
+import org.omnaest.utils.beans.MapToTypeAdapter;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 
 /**
@@ -33,6 +35,8 @@ import org.omnaest.utils.beans.result.BeanPropertyAccessor;
  */
 public class TypeToAutowiredPropertyContainerAdapter<B> implements AutowiredPropertyContainer
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long                             serialVersionUID                         = -4028601259144341930L;
   /* ********************************************** Variables ********************************************** */
   protected B                                           bean                                     = null;
   protected Map<String, BeanPropertyAccessor<B>>        propertynameToBeanPropertyAccessorMap    = null;
