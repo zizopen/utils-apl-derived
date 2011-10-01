@@ -17,7 +17,9 @@ package org.omnaest.utils.structure.table.concrete.internal.serializer.executor;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
@@ -84,6 +86,27 @@ public abstract class TableUnmarshallerExecutorAbstract<E> implements TableUnmar
     }
     
     //
+    return this.table;
+  }
+  
+  @Override
+  public Table<E> from( URL url )
+  {
+    //
+    if ( url != null )
+    {
+      try
+      {
+        //
+        InputStream inputStream = url.openStream();
+        this.from( inputStream );
+      }
+      catch ( IOException e )
+      {
+      }
+    }
+    
+    // 
     return this.table;
   }
   

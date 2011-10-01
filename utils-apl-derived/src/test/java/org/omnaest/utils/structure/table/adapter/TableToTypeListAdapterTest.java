@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.TableFiller;
+import org.omnaest.utils.structure.table.adapter.TableToTypeListAdapter.Column;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 
 /**
@@ -45,9 +46,11 @@ public class TableToTypeListAdapterTest
   protected static class BeanType
   {
     /* ********************************************** Variables ********************************************** */
-    protected String c0 = null;
-    protected String c1 = null;
-    protected String c2 = null;
+    protected String c0      = null;
+    protected String c1      = null;
+    
+    @Column(title = "c2")
+    protected String column2 = null;
     
     /* ********************************************** Methods ********************************************** */
     /**
@@ -85,20 +88,19 @@ public class TableToTypeListAdapterTest
     }
     
     /**
-     * @return the c2
+     * @return
      */
-    public String getC2()
+    public String getColumn2()
     {
-      return this.c2;
+      return this.column2;
     }
     
     /**
-     * @param c2
-     *          the c2 to set
+     * @param column2
      */
-    public void setC2( String c2 )
+    public void setColumn2( String column2 )
     {
-      this.c2 = c2;
+      this.column2 = column2;
     }
     
   }
@@ -133,11 +135,11 @@ public class TableToTypeListAdapterTest
     BeanType bean = new BeanType();
     bean.setC0( "value0" );
     bean.setC1( "value1" );
-    bean.setC2( "value2 " );
+    bean.setColumn2( "value2 " );
     this.tableToTypeListAdapter.add( bean );
     
     //
-    assertEquals( Arrays.asList( bean.getC0(), bean.getC1(), bean.getC2() ), this.table.getLastRow().getCellElementList() );
+    assertEquals( Arrays.asList( bean.getC0(), bean.getC1(), bean.getColumn2() ), this.table.getLastRow().getCellElementList() );
   }
   
   @Test
@@ -147,18 +149,18 @@ public class TableToTypeListAdapterTest
     BeanType beanType = new BeanType();
     beanType.setC0( "value0" );
     beanType.setC1( "value1" );
-    beanType.setC2( "value2 " );
+    beanType.setColumn2( "value2 " );
     BeanType beanTypeManaged = this.tableToTypeListAdapter.addRow( 1, beanType );
     
     //
-    assertEquals( Arrays.asList( beanType.getC0(), beanType.getC1(), beanType.getC2() ), this.table.getRow( 1 )
-                                                                                                   .getCellElementList() );
+    assertEquals( Arrays.asList( beanType.getC0(), beanType.getC1(), beanType.getColumn2() ), this.table.getRow( 1 )
+                                                                                                        .getCellElementList() );
     
     //
     beanTypeManaged.setC1( "other value" );
     
     //
-    assertEquals( Arrays.asList( beanTypeManaged.getC0(), beanTypeManaged.getC1(), beanTypeManaged.getC2() ),
+    assertEquals( Arrays.asList( beanTypeManaged.getC0(), beanTypeManaged.getC1(), beanTypeManaged.getColumn2() ),
                   this.table.getRow( 1 ).getCellElementList() );
   }
   
@@ -173,8 +175,8 @@ public class TableToTypeListAdapterTest
   public void testGet()
   {
     BeanType beanType = this.tableToTypeListAdapter.get( 1 );
-    assertEquals( Arrays.asList( beanType.getC0(), beanType.getC1(), beanType.getC2() ), this.table.getRow( 1 )
-                                                                                                   .getCellElementList() );
+    assertEquals( Arrays.asList( beanType.getC0(), beanType.getC1(), beanType.getColumn2() ), this.table.getRow( 1 )
+                                                                                                        .getCellElementList() );
   }
   
   @Test
@@ -184,15 +186,15 @@ public class TableToTypeListAdapterTest
     BeanType beanType = new BeanType();
     beanType.setC0( "value0" );
     beanType.setC1( "value1" );
-    beanType.setC2( "value2 " );
+    beanType.setColumn2( "value2 " );
     BeanType beanTypeManaged = this.tableToTypeListAdapter.set( 1, beanType );
     
     //
-    assertEquals( Arrays.asList( beanType.getC0(), beanType.getC1(), beanType.getC2() ), this.table.getRow( 1 )
-                                                                                                   .getCellElementList() );
+    assertEquals( Arrays.asList( beanType.getC0(), beanType.getC1(), beanType.getColumn2() ), this.table.getRow( 1 )
+                                                                                                        .getCellElementList() );
     
     //
-    assertEquals( Arrays.asList( beanTypeManaged.getC0(), beanTypeManaged.getC1(), beanTypeManaged.getC2() ),
+    assertEquals( Arrays.asList( beanTypeManaged.getC0(), beanTypeManaged.getC1(), beanTypeManaged.getColumn2() ),
                   this.table.getRow( 1 ).getCellElementList() );
     
   }
@@ -204,11 +206,11 @@ public class TableToTypeListAdapterTest
     BeanType bean = new BeanType();
     bean.setC0( "value0" );
     bean.setC1( "value1" );
-    bean.setC2( "value2 " );
+    bean.setColumn2( "value2 " );
     this.tableToTypeListAdapter.add( 2, bean );
     
     //
-    assertEquals( Arrays.asList( bean.getC0(), bean.getC1(), bean.getC2() ), this.table.getRow( 2 ).getCellElementList() );
+    assertEquals( Arrays.asList( bean.getC0(), bean.getC1(), bean.getColumn2() ), this.table.getRow( 2 ).getCellElementList() );
   }
   
   @Test
@@ -220,7 +222,7 @@ public class TableToTypeListAdapterTest
     //
     assertEquals( "1:0", beanType.getC0() );
     assertEquals( "1:1", beanType.getC1() );
-    assertEquals( "1:2", beanType.getC2() );
+    assertEquals( "1:2", beanType.getColumn2() );
     
     //
     assertEquals( 4, this.table.getTableSize().getRowSize() );

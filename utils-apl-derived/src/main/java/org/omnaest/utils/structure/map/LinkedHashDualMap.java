@@ -191,4 +191,18 @@ public class LinkedHashDualMap<FIRSTELEMENT, SECONDELEMENT> implements DualMap<F
     return this.firstElementToSecondElementMap.get( firstElement );
   }
   
+  @Override
+  public DualMap<SECONDELEMENT, FIRSTELEMENT> invert()
+  {
+    //
+    DualMap<SECONDELEMENT, FIRSTELEMENT> retval = new LinkedHashDualMap<SECONDELEMENT, FIRSTELEMENT>();
+    
+    //
+    retval.putAllFirstElementToSecondElement( this.getSecondElementToFirstElementMap() );
+    retval.putAllSecondElementToFirstElement( this.getFirstElementToSecondElementMap() );
+    
+    // 
+    return retval;
+  }
+  
 }

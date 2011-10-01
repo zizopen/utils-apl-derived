@@ -30,10 +30,10 @@ import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 
 /**
- * @see RowToMapAdapter
+ * @see StripeToMapAdapter
  * @author Omnaest
  */
-public class RowToMapAdapterTest
+public class StripeToMapAdapterTest
 {
   /* ********************************************** Variables ********************************************** */
   protected Table<String>       table  = new ArrayTable<String>();
@@ -52,7 +52,7 @@ public class RowToMapAdapterTest
     
     //
     Row<String> row = this.table.getRow( 0 );
-    this.rowMap = new RowToMapAdapter<String>( row );
+    this.rowMap = new StripeToMapAdapter<String>( row );
   }
   
   @Test

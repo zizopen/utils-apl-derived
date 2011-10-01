@@ -21,34 +21,36 @@ import java.util.Map;
 import java.util.Set;
 
 import org.omnaest.utils.structure.map.MapAbstract;
+import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
+import org.omnaest.utils.structure.table.Table.Stripe;
 
 /**
- * Adapter to use a given {@link Row}s as {@link Map}
+ * Adapter to access a given {@link Row} or {@link Column} as {@link Map}
  * 
  * @author Omnaest
  * @param <E>
  */
-public class RowToMapAdapter<E> extends MapAbstract<Object, E>
+public class StripeToMapAdapter<E> extends MapAbstract<Object, E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected Row<E> row = null;
+  protected Stripe<E> stripe = null;
   
   /* ********************************************** Methods ********************************************** */
   /**
-   * @param row
+   * @param stripe
    */
-  public RowToMapAdapter( Row<E> row )
+  public StripeToMapAdapter( Stripe<E> stripe )
   {
     super();
-    this.row = row;
+    this.stripe = stripe;
   }
   
   @Override
   public E get( Object key )
   {
     // 
-    return this.row.getCellElement( key );
+    return this.stripe.getCellElement( key );
   }
   
   @Override
@@ -58,7 +60,7 @@ public class RowToMapAdapter<E> extends MapAbstract<Object, E>
     E retval = this.get( key );
     
     //
-    this.row.setCellElement( key, value );
+    this.stripe.setCellElement( key, value );
     
     return retval;
   }
@@ -72,13 +74,14 @@ public class RowToMapAdapter<E> extends MapAbstract<Object, E>
   @Override
   public Set<Object> keySet()
   {
-    return new LinkedHashSet<Object>( this.row.getColumnTitleValueList() );
+    return new LinkedHashSet<Object>( this.stripe instanceof Row ? ( (Row<E>) this.stripe ).getColumnTitleValueList()
+                                                                : ( (Column<E>) this.stripe ).getRowTitleValueList() );
   }
   
   @Override
   public Collection<E> values()
   {
-    return this.row.getCellElementList();
+    return this.stripe.getCellElementList();
   }
   
 }

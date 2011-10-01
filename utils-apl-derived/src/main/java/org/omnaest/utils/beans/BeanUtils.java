@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.beans;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.reflection.ReflectionUtils;
+import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
+import org.omnaest.utils.structure.collection.CollectionUtils.IdentityElementConverter;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.structure.map.MapUtils.MapElementMergeOperation;
 import org.omnaest.utils.tuple.TupleDuad;
@@ -148,6 +151,128 @@ public class BeanUtils
   {
     return new ArrayList<B>(
                              (Collection<? extends B>) propertyNameToBeanPropertyValueMap( bean, propertyNameCollection ).values() );
+  }
+  
+  /**
+   * Returns a {@link Map} with all properties of a given Java Bean class and an instance of the given {@link Annotation} type if
+   * the respective property does have one. Otherwise the map contains a key with a null value.
+   * 
+   * @see #propertyNameToBeanPropertyAnnotationSetMap(Class)
+   * @param beanClass
+   * @param annotationType
+   * @return
+   */
+  public static <B, A extends Annotation> Map<String, A> propertyNameToBeanPropertyAnnotationMap( final Class<B> beanClass,
+                                                                                                  final Class<A> annotationType )
+  {
+    //
+    Map<String, A> retmap = null;
+    
+    //
+    if ( beanClass != null && annotationType != null )
+    {
+      //
+      Map<String, Set<Annotation>> propertyNameToBeanPropertyAnnotationSetMap = BeanUtils.propertyNameToBeanPropertyAnnotationSetMap( beanClass );
+      ElementConverter<String, String> keyElementConverter = new IdentityElementConverter<String>();
+      ElementConverter<Set<Annotation>, A> valueElementConverter = new ElementConverter<Set<Annotation>, A>()
+      {
+        @SuppressWarnings("unchecked")
+        @Override
+        public A convert( Set<Annotation> annotationSet )
+        {
+          //
+          A retval = null;
+          
+          //
+          if ( annotationSet != null )
+          {
+            for ( Annotation annotation : annotationSet )
+            {
+              Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
+              if ( annotationType.isAssignableFrom( currentAnnotationType ) )
+              {
+                retval = (A) annotation;
+                break;
+              }
+            }
+          }
+          
+          //
+          return retval;
+        }
+      };
+      retmap = MapUtils.convertMap( propertyNameToBeanPropertyAnnotationSetMap, keyElementConverter, valueElementConverter );
+      
+    }
+    
+    return retmap;
+  }
+  
+  /**
+   * Returns a {@link Map} with all property names of the given Java Bean and a {@link Set} of all available annotations for the
+   * properties, including the field, getter and setter methods.
+   * 
+   * @param beanClass
+   * @return
+   */
+  public static <B> Map<String, Set<Annotation>> propertyNameToBeanPropertyAnnotationSetMap( Class<B> beanClass )
+  {
+    //
+    Map<String, Set<Annotation>> retmap = new HashMap<String, Set<Annotation>>();
+    
+    //
+    Map<String, BeanPropertyAccessor<B>> propertyNameToBeanPropertyAccessorMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( beanClass );
+    for ( String propertyName : propertyNameToBeanPropertyAccessorMap.keySet() )
+    {
+      //
+      BeanPropertyAccessor<B> beanPropertyAccessor = propertyNameToBeanPropertyAccessorMap.get( propertyName );
+      
+      //
+      Set<Annotation> annotationSet = new HashSet<Annotation>();
+      {
+        //
+        Field field = beanPropertyAccessor.getField();
+        if ( field != null )
+        {
+          Annotation[] annotations = field.getDeclaredAnnotations();
+          if ( annotations != null )
+          {
+            annotationSet.addAll( Arrays.asList( annotations ) );
+          }
+        }
+      }
+      {
+        //
+        Method methodGetter = beanPropertyAccessor.getMethodGetter();
+        if ( methodGetter != null )
+        {
+          Annotation[] annotations = methodGetter.getDeclaredAnnotations();
+          if ( annotations != null )
+          {
+            annotationSet.addAll( Arrays.asList( annotations ) );
+          }
+        }
+      }
+      {
+        //
+        Method methodSetter = beanPropertyAccessor.getMethodSetter();
+        if ( methodSetter != null )
+        {
+          Annotation[] annotations = methodSetter.getDeclaredAnnotations();
+          if ( annotations != null )
+          {
+            annotationSet.addAll( Arrays.asList( annotations ) );
+          }
+        }
+      }
+      
+      //
+      retmap.put( propertyName, annotationSet );
+      
+    }
+    
+    //
+    return retmap;
   }
   
   /**
@@ -773,6 +898,54 @@ public class BeanUtils
         //
         retval = new BeanMethodInformation( isGetter, isSetter, referencedFieldName, method );
         
+      }
+      catch ( Exception e )
+      {
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Converter interface which offers a {@link #convert(Object)} method which has to convert one bean type to another.
+   * 
+   * @author Omnaest
+   * @param <FROM>
+   * @param <TO>
+   */
+  public static interface BeanConverter<FROM, TO>
+  {
+    /**
+     * Converts a given Java bean to another
+     * 
+     * @param from
+     * @return converted java bean instance
+     */
+    public TO convert( FROM from );
+    
+  }
+  
+  /**
+   * Converts a given bean into another using a {@link BeanConverter}. <br>
+   * {@link Exception}s are catched and ignored by this method.
+   * 
+   * @param sourceBean
+   * @param beanConverter
+   * @return a converted Java bean instance
+   */
+  public static <FROM, TO> TO convert( FROM sourceBean, BeanConverter<FROM, TO> beanConverter )
+  {
+    //
+    TO retval = null;
+    
+    //
+    if ( sourceBean != null && beanConverter != null )
+    {
+      try
+      {
+        retval = beanConverter.convert( sourceBean );
       }
       catch ( Exception e )
       {

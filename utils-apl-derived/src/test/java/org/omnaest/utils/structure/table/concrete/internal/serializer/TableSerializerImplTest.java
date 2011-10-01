@@ -17,6 +17,8 @@ package org.omnaest.utils.structure.table.concrete.internal.serializer;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -134,4 +136,20 @@ public class TableSerializerImplTest
     }
   }
   
+  @Test
+  public void testTableSerializerUrl() throws MalformedURLException
+  {
+    //
+    if ( this.supportsAppendable )
+    {
+      //
+      Table<Object> table = this.tableSerializerForUnmarshalling.unmarshal( new TableUnmarshallerCSV<Object>( "utf-8", ",",
+                                                                                                              false, false, false ) )
+                                                                .from( new URL(
+                                                                                "http://download.finance.yahoo.com/d/quotes.csv?s=%5EGDAXI&f=sl1d1t1c1ohgv&e=.csv" ) );
+      
+      //
+      System.out.println( table );
+    }
+  }
 }
