@@ -15,6 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.table.adapter;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,8 +28,10 @@ import java.util.Map;
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.MapToTypeAdapter;
 import org.omnaest.utils.structure.collection.list.ListAbstract;
+import org.omnaest.utils.structure.map.DualMap;
+import org.omnaest.utils.structure.map.LinkedHashDualMap;
+import org.omnaest.utils.structure.map.MapWithKeyMappingAdapter;
 import org.omnaest.utils.structure.table.Table;
-import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.subspecification.TableAdaptable.TableAdapterProvider;
 
@@ -43,10 +50,21 @@ import org.omnaest.utils.structure.table.subspecification.TableAdaptable.TableAd
 public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableAdapter<List<B>, Object>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID = -5895678029582731115L;
+  private static final long         serialVersionUID             = -5895678029582731115L;
   /* ********************************************** Variables ********************************************** */
-  protected Table<Object>   table            = null;
-  protected Class<B>        beanClass        = null;
+  protected Table<Object>           table                        = null;
+  protected Class<B>                beanClass                    = null;
+  protected DualMap<String, Object> propertyNameToColumnTitleMap = new LinkedHashDualMap<String, Object>();
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  @Documented
+  @Retention(value = RetentionPolicy.RUNTIME)
+  @Target({ ElementType.FIELD, ElementType.METHOD })
+  public static @interface Column
+  {
+    public String title();
+  }
   
   /* ********************************************** Methods ********************************************** */
   
@@ -80,6 +98,45 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
   {
     super();
     this.beanClass = (Class<B>) beanClass;
+    this.createPropertyNamesToTableTitleMapping();
+  }
+  
+  /**
+   * The {@link #beanClass} has to be set before this operation
+   */
+  private void createPropertyNamesToTableTitleMapping()
+  {
+    if ( this.beanClass != null )
+    {
+      //
+      this.propertyNameToColumnTitleMap.clear();
+      
+      //
+      Map<String, Column> propertyNameToBeanPropertyAnnotationMap = BeanUtils.propertyNameToBeanPropertyAnnotationMap( this.beanClass,
+                                                                                                                       Column.class );
+      if ( propertyNameToBeanPropertyAnnotationMap != null )
+      {
+        for ( String propertyName : propertyNameToBeanPropertyAnnotationMap.keySet() )
+        {
+          //
+          String columnTitle = propertyName;
+          
+          //
+          Column columnAnnotation = propertyNameToBeanPropertyAnnotationMap.get( propertyName );
+          if ( columnAnnotation != null )
+          {
+            String title = columnAnnotation.title();
+            if ( title != null )
+            {
+              columnTitle = title;
+            }
+          }
+          
+          //
+          this.propertyNameToColumnTitleMap.put( propertyName, columnTitle );
+        }
+      }
+    }
   }
   
   /**
@@ -154,12 +211,24 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
         List<Object> columnTitleValueList = this.table.getColumnTitleValueList();
         
         //
-        Map<String, Object> propertyNameToBeanPropertyValueMap = BeanUtils.propertyNameToBeanPropertyValueMap( bean );
+        List<String> propertyNameMappedByColumnTitleList = new ArrayList<String>();
         for ( Object columnTitleValue : columnTitleValueList )
         {
-          if ( propertyNameToBeanPropertyValueMap.containsKey( columnTitleValue ) )
+          String propertyName = this.propertyNameToColumnTitleMap.getFirstElementBy( columnTitleValue );
+          if ( propertyName != null )
           {
-            Object value = propertyNameToBeanPropertyValueMap.get( columnTitleValue );
+            propertyNameMappedByColumnTitleList.add( propertyName );
+          }
+        }
+        
+        //
+        Map<String, Object> propertyNameToBeanPropertyValueMap = BeanUtils.propertyNameToBeanPropertyValueMap( bean );
+        for ( String propertyName : propertyNameMappedByColumnTitleList )
+        {
+          //
+          if ( propertyNameToBeanPropertyValueMap.containsKey( propertyName ) )
+          {
+            Object value = propertyNameToBeanPropertyValueMap.get( propertyName );
             rowCellElementList.add( value );
           }
           else
@@ -170,7 +239,7 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
         
         //
         Collection<String> remainingPropertyNameList = propertyNameToBeanPropertyValueMap.keySet();
-        remainingPropertyNameList.removeAll( columnTitleValueList );
+        remainingPropertyNameList.removeAll( propertyNameMappedByColumnTitleList );
         for ( String propertyName : remainingPropertyNameList )
         {
           Object value = propertyNameToBeanPropertyValueMap.get( propertyName );
@@ -212,8 +281,16 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
     Row<Object> row = this.table.getRow( rowIndexPosition );
     if ( row != null )
     {
-      Map<Object, Object> map = new RowToMapAdapter<Object>( row );
-      retval = MapToTypeAdapter.newInstance( map, this.beanClass );
+      //
+      Map<Object, Object> stripeAsMap = new StripeToMapAdapter<Object>( row );
+      
+      //
+      Map<String, Object> stripeWithMappedColumnTitleToValueMap = new MapWithKeyMappingAdapter<String, Object, Object>(
+                                                                                                                        stripeAsMap,
+                                                                                                                        this.propertyNameToColumnTitleMap.invert() );
+      
+      //
+      retval = MapToTypeAdapter.newInstance( stripeWithMappedColumnTitleToValueMap, this.beanClass );
     }
     
     return retval;
@@ -287,6 +364,7 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
   public List<B> initializeAdapter( Table<Object> table )
   {
     this.table = table;
+    this.createPropertyNamesToTableTitleMapping();
     return this;
   }
 }

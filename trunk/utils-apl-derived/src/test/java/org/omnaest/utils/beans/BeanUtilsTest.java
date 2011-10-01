@@ -20,6 +20,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -134,11 +137,18 @@ public class BeanUtilsTest
   {
     public void setFieldDouble( Double fieldDouble );
     
+    @TestAnnotation(value = "value")
     public Double getFieldDouble();
     
     public void setFieldString( String fieldString );
     
     public String getFieldString();
+  }
+  
+  @Retention(RetentionPolicy.RUNTIME)
+  protected static @interface TestAnnotation
+  {
+    public String value();
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -433,4 +443,31 @@ public class BeanUtilsTest
     assertTrue( clonedBean instanceof UnderlyingMapAware );
   }
   
+  @Test
+  public void testPropertyNameToBeanPropertyAnnotationSetMap()
+  {
+    //
+    Map<String, Set<Annotation>> propertyNameToBeanPropertyAnnotationSetMap = BeanUtils.propertyNameToBeanPropertyAnnotationSetMap( TestBean.class );
+    
+    //
+    assertNotNull( propertyNameToBeanPropertyAnnotationSetMap );
+    assertEquals( 2, propertyNameToBeanPropertyAnnotationSetMap.size() );
+    assertEquals( 1, propertyNameToBeanPropertyAnnotationSetMap.get( "fieldDouble" ).size() );
+    assertEquals( "value",
+                  ( (TestAnnotation) propertyNameToBeanPropertyAnnotationSetMap.get( "fieldDouble" ).iterator().next() ).value() );
+  }
+  
+  @Test
+  public void testPropertyNameToBeanPropertyAnnotationMap()
+  {
+    //
+    Map<String, TestAnnotation> propertyNameToBeanPropertyAnnotationMap = BeanUtils.propertyNameToBeanPropertyAnnotationMap( TestBean.class,
+                                                                                                                             TestAnnotation.class );
+    
+    //
+    assertNotNull( propertyNameToBeanPropertyAnnotationMap );
+    assertEquals( 2, propertyNameToBeanPropertyAnnotationMap.size() );
+    assertEquals( null, propertyNameToBeanPropertyAnnotationMap.get( "fieldString" ) );
+    assertEquals( "value", propertyNameToBeanPropertyAnnotationMap.get( "fieldDouble" ).value() );
+  }
 }

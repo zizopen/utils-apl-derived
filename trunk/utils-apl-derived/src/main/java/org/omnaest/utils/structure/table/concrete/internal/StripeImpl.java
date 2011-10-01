@@ -16,9 +16,11 @@
 package org.omnaest.utils.structure.table.concrete.internal;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe;
+import org.omnaest.utils.structure.table.adapter.StripeToMapAdapter;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
 import org.omnaest.utils.structure.table.internal.TableInternal;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellInternal;
@@ -314,6 +316,12 @@ public class StripeImpl<E> extends StripeAbstract<E>
   public Object getTitleValue()
   {
     return this.title() != null ? this.title().getValue() : null;
+  }
+  
+  @Override
+  public Map<Object, E> asMap()
+  {
+    return new StripeToMapAdapter<E>( this );
   }
   
 }

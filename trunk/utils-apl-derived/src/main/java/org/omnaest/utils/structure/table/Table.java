@@ -17,6 +17,7 @@ package org.omnaest.utils.structure.table;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.adapter.TableAdapter;
@@ -320,6 +321,13 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
     public Iterable<Cell<E>> cells();
     
     /**
+     * Returns a {@link Map} with the {@link Title} of each {@link Stripe} as key and the {@link Cell#getElement()} as value
+     * 
+     * @return
+     */
+    public Map<Object, E> asMap();
+    
+    /**
      * Sets all available {@link Cell#setElement(Object)} to null
      * 
      * @return
@@ -375,6 +383,13 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
      * @return
      */
     public int determineColumnIndexPosition();
+    
+    /**
+     * Returns the {@link Row} {@link Title} values orthogonal to the current {@link Column}
+     * 
+     * @return
+     */
+    public List<Object> getRowTitleValueList();
     
   }
   

@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.URL;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.TableComponent;
@@ -142,6 +143,14 @@ public interface TableSerializable<E>
        * @return {@link Table}
        */
       public Table<E> from( File file );
+      
+      /**
+       * Reads from the given {@link URL} and unmarshalls the content coming in.
+       * 
+       * @param url
+       * @return {@link Table}
+       */
+      public Table<E> from( URL url );
       
     }
     

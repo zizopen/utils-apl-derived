@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -122,5 +123,23 @@ public class LinkedHashDualMapTest
       assertTrue( dualMap.isEmpty() );
     }
     
+  }
+  
+  @Test
+  public void testInvert()
+  {
+    //
+    DualMap<String, Integer> dualMap = new LinkedHashDualMap<String, Integer>();
+    dualMap.put( "1", 1 );
+    dualMap.put( "2", 2 );
+    dualMap.put( "3", 3 );
+    
+    //
+    DualMap<Integer, String> invertedDualMap = dualMap.invert();
+    
+    //
+    assertNotNull( invertedDualMap );
+    assertEquals( dualMap.size(), invertedDualMap.size() );
+    assertEquals( dualMap.getFirstElementBy( 1 ), invertedDualMap.getSecondElementBy( 1 ) );
   }
 }

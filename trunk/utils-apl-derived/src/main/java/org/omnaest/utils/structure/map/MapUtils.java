@@ -58,6 +58,26 @@ public class MapUtils
     public void merge( K key, V value, Map<K, V> mergedMap );
   }
   
+  /**
+   * Converted to transform a given {@link Entry} of a {@link Map} to a single {@link List} element
+   * 
+   * @see #transform(Entry)
+   * @author Omnaest
+   * @param <TO>
+   * @param <K>
+   * @param <V>
+   */
+  public static interface MapEntryToElementTransformer<TO, K, V>
+  {
+    /**
+     * Converts a {@link Entry} of a {@link Map} to a single element for a {@link List}
+     * 
+     * @param entry
+     * @return
+     */
+    public TO transform( Entry<K, V> entry );
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**
@@ -279,6 +299,32 @@ public class MapUtils
     
     //
     return retval.toString();
+  }
+  
+  /**
+   * Transforms a given {@link Map} to a {@link List} using the given {@link MapEntryToElementTransformer} to create single
+   * elements for the {@link List} based on the {@link Entry}s of the given {@link Map}
+   * 
+   * @param map
+   * @param mapEntryToElementTransformer
+   * @return {@link List}
+   */
+  public static <TO, K, V> List<TO> asList( Map<K, V> map, MapEntryToElementTransformer<TO, K, V> mapEntryToElementTransformer )
+  {
+    //
+    List<TO> retlist = new ArrayList<TO>();
+    
+    //
+    if ( map != null && mapEntryToElementTransformer != null )
+    {
+      for ( Entry<K, V> entry : map.entrySet() )
+      {
+        retlist.add( mapEntryToElementTransformer.transform( entry ) );
+      }
+    }
+    
+    //
+    return retlist;
   }
   
   /**

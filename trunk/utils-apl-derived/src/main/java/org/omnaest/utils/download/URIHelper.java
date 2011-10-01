@@ -20,6 +20,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class URIHelper
 {
   /**
@@ -27,21 +29,32 @@ public class URIHelper
    * 
    * @see URI#URI(String, String, String, String, String))
    * @param scheme
+   *          : e.g. "http"
    * @param host
+   *          : e.g. "www.google.de"
    * @param path
-   * @param query
-   * @return
+   *          : e.g. "search/subsearch"
+   * @param queryParameters
+   *          : e.g. "key1=value1", "key2=value2"
+   * @return {@link URI}
    */
-  public static URI createURI( String scheme, String host, String path, String query )
+  public static URI createURI( String scheme, String host, String path, String... queryParameters )
   {
+    //
     URI uri = null;
+    
+    //
     try
     {
-      uri = new URI( scheme, host, path, query, null );
+      //
+      uri = new URI( scheme, host, path.startsWith( "/" ) ? path : "/" + path, StringUtils.join( queryParameters, "&" ), null );
     }
     catch ( URISyntaxException e )
     {
+      e.printStackTrace();
     }
+    
+    //
     return uri;
   }
   

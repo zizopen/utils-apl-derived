@@ -137,6 +137,13 @@ public interface DualMap<FIRSTELEMENT, SECONDELEMENT>
   public DualMap<FIRSTELEMENT, SECONDELEMENT> putAllSecondElementToFirstElement( Map<? extends SECONDELEMENT, ? extends FIRSTELEMENT> secondElementToFirstElementMap );
   
   /**
+   * Returns a new {@link DualMap} instance with inverted first and second key.
+   * 
+   * @return {@link DualMap}
+   */
+  public DualMap<SECONDELEMENT, FIRSTELEMENT> invert();
+  
+  /**
    * Removes the given first element from the first index and the resolved second element from the second index.
    * 
    * @param firstElement
