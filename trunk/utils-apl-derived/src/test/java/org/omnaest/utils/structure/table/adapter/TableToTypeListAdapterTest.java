@@ -49,7 +49,7 @@ public class TableToTypeListAdapterTest
     protected String c0      = null;
     protected String c1      = null;
     
-    @Column(title = "c2")
+    @Column(name = "c2")
     protected String column2 = null;
     
     /* ********************************************** Methods ********************************************** */

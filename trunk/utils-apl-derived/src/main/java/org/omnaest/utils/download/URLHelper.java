@@ -16,8 +16,20 @@
 package org.omnaest.utils.download;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.omnaest.utils.structure.map.MapUtils;
+import org.omnaest.utils.structure.map.MapUtils.MapEntryToElementTransformer;
+
+/**
+ * Helper for {@link URL} related actions
+ * 
+ * @author Omnaest
+ */
 public class URLHelper
 {
   /**
@@ -38,5 +50,44 @@ public class URLHelper
     }
     
     return url;
+  }
+  
+  /**
+   * @param scheme
+   * @param host
+   * @param path
+   * @param queryMap
+   * @return
+   */
+  public static URL createUrl( String scheme, String host, String path, Map<String, String> queryMap )
+  {
+    //
+    URL retval = null;
+    
+    //
+    try
+    {
+      //    
+      List<String> queryList = MapUtils.asList( queryMap, new MapEntryToElementTransformer<String, String, String>()
+      {
+        @Override
+        public String transform( Entry<String, String> entry )
+        {
+          return entry.getKey() + "=" + entry.getValue();
+        }
+      } );
+      
+      //
+      URI uri = URIHelper.createURI( scheme, host, path, queryList.toArray( new String[0] ) );
+      
+      //
+      retval = uri.toURL();
+    }
+    catch ( Exception e )
+    {
+    }
+    
+    //
+    return retval;
   }
 }

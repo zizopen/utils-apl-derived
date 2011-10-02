@@ -206,6 +206,7 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
         if ( titleValue.equals( value ) )
         {
           retval = stripe;
+          break;
         }
       }
     }

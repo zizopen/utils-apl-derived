@@ -128,7 +128,10 @@ public class MapWithKeyMappingAdapter<KEY_TO, KEY_FROM, V> implements Map<KEY_TO
   @Override
   public V get( Object key )
   {
-    return this.map.get( this.translateToUnderlyingMapKey( key ) );
+    V retval = null;
+    Object translatedKey = this.translateToUnderlyingMapKey( key );
+    retval = this.map.get( translatedKey );
+    return retval;
   }
   
   @Override

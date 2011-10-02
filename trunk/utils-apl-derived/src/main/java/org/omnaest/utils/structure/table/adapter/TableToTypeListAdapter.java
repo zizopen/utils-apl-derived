@@ -63,7 +63,7 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
   @Target({ ElementType.FIELD, ElementType.METHOD })
   public static @interface Column
   {
-    public String title();
+    public String name();
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -125,7 +125,7 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
           Column columnAnnotation = propertyNameToBeanPropertyAnnotationMap.get( propertyName );
           if ( columnAnnotation != null )
           {
-            String title = columnAnnotation.title();
+            String title = columnAnnotation.name();
             if ( title != null )
             {
               columnTitle = title;

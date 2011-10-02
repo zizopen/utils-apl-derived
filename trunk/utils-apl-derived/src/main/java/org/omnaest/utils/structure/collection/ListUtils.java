@@ -19,7 +19,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Helper class for modifying {@link List} instances.
@@ -45,6 +48,27 @@ public class ListUtils
      * @return converted element
      */
     public TO transformElement( FROM element );
+  }
+  
+  /**
+   * A transformer from a {@link List} element type to a {@link Entry} type
+   * 
+   * @see ListUtils#asMap(Collection)
+   * @author Omnaest
+   * @param <K>
+   * @param <V>
+   * @param <E>
+   */
+  public static interface ElementToMapEntryTransformer<K, V, E>
+  {
+    
+    /**
+     * Transforms a given {@link List} element instance into an {@link Entry}. Null values must be handled by this method, too.
+     * 
+     * @param element
+     * @return {@link Entry}
+     */
+    public Entry<K, V> transformElement( E element );
   }
   
   /**
@@ -363,5 +387,39 @@ public class ListUtils
     
     //
     return retlist;
+  }
+  
+  /**
+   * Transforms a given {@link Collection} into a {@link Map} using a {@link LinkedHashMap} which keeps the order of the
+   * {@link List}. Returns an empty {@link Map} for a null value as collection. Null values within the {@link List} will be
+   * excluded from the map, if the respective {@link ElementToMapEntryTransformer#transformElement(Object)} returns null.
+   * 
+   * @see ElementToMapEntryTransformer
+   * @param collection
+   * @param elementToMapEntryTransformer
+   * @return
+   */
+  public static <K, V, E> Map<K, V> asMap( Collection<E> collection,
+                                           ElementToMapEntryTransformer<K, V, E> elementToMapEntryTransformer )
+  {
+    //
+    Map<K, V> retmap = new LinkedHashMap<K, V>();
+    
+    //
+    if ( collection != null && elementToMapEntryTransformer != null )
+    {
+      for ( E element : collection )
+      {
+        //
+        Entry<K, V> entry = elementToMapEntryTransformer.transformElement( element );
+        if ( entry != null )
+        {
+          retmap.put( entry.getKey(), entry.getValue() );
+        }
+      }
+    }
+    
+    //
+    return retmap;
   }
 }
