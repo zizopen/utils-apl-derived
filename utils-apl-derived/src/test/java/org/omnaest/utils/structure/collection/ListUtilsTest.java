@@ -16,13 +16,18 @@
 package org.omnaest.utils.structure.collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.Test;
+import org.omnaest.utils.structure.collection.ListUtils.ElementToMapEntryTransformer;
 
 public class ListUtilsTest
 {
@@ -92,5 +97,37 @@ public class ListUtilsTest
     
     //
     assertEquals( Arrays.asList( "a", "d" ), ListUtils.intersection( testList ) );
+  }
+  
+  @Test
+  public void testAsMap()
+  {
+    //
+    List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
+    
+    //
+    ElementToMapEntryTransformer<String, String, String> elementToMapEntryTransformer = new ElementToMapEntryTransformer<String, String, String>()
+    {
+      
+      @Override
+      public Entry<String, String> transformElement( String element )
+      {
+        //
+        String key = "key" + element;
+        String value = "value" + element;
+        
+        //
+        return new AbstractMap.SimpleEntry<String, String>( key, value );
+      }
+    };
+    
+    //
+    Map<String, String> map = ListUtils.asMap( testList, elementToMapEntryTransformer );
+    
+    //
+    assertNotNull( map );
+    assertEquals( testList.size(), map.size() );
+    assertEquals( "key" + testList.get( 0 ), map.keySet().iterator().next() );
+    assertEquals( "value" + testList.get( 0 ), map.values().iterator().next() );
   }
 }
