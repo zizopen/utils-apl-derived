@@ -44,7 +44,7 @@ public class TableUnmarshallerHTMLTest
     this.tableUnmarshaller.unmarshal( this.table, charSequence );
     
     //
-    System.out.println( this.table );
+    //System.out.println( this.table );
     assertEquals( Arrays.asList( "Berlin", "Hamburg", "München" ), this.table.getColumnTitleValueList() );
     assertEquals( Arrays.asList( "Miloh", "Kiez", "Bierdampf" ), this.table.getRow( 0 ).getCellElementList() );
     assertEquals( Arrays.asList( "Buletten", "Frikadellen", "Fleischpflanzerl" ), this.table.getRow( 1 ).getCellElementList() );

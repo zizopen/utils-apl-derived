@@ -155,12 +155,6 @@
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
-            <artifactId>guava-collections</artifactId>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <type>jar</type>
             <scope>compile</scope>
@@ -245,15 +239,8 @@
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
-                <artifactId>guava-collections</artifactId>
-                <version>r03</version>
-                <type>jar</type>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>r09</version>
+                <version>10.0</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
