@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.omnaest.utils.beans.BeanUtils;
-import org.omnaest.utils.beans.MapToTypeAdapter;
+import org.omnaest.utils.beans.PropertynameMapToTypeAdapter;
 import org.omnaest.utils.structure.collection.list.ListAbstract;
 import org.omnaest.utils.structure.map.DualMap;
 import org.omnaest.utils.structure.map.LinkedHashDualMap;
@@ -290,7 +290,7 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
                                                                                                                         this.propertyNameToColumnTitleMap.invert() );
       
       //
-      retval = MapToTypeAdapter.newInstance( stripeWithMappedColumnTitleToValueMap, this.beanClass );
+      retval = PropertynameMapToTypeAdapter.newInstance( stripeWithMappedColumnTitleToValueMap, this.beanClass );
     }
     
     return retval;
@@ -338,7 +338,7 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
     {
       //
       Map<String, Object> propertyNameToBeanPropertyValueMap = BeanUtils.propertyNameToBeanPropertyValueMap( element );
-      retval = MapToTypeAdapter.newInstance( propertyNameToBeanPropertyValueMap, this.beanClass );
+      retval = PropertynameMapToTypeAdapter.newInstance( propertyNameToBeanPropertyValueMap, this.beanClass );
       
       //
       this.table.removeRow( index );

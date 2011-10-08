@@ -51,7 +51,7 @@ public class BeanUtils
    * Returns a new {@link Map} instance which contains the property names as keys and the values of the properties as map values.
    * Modifications to the returned map will have no impact on the original Java Bean object.
    * 
-   * @see MapToTypeAdapter
+   * @see PropertynameMapToTypeAdapter
    * @param <B>
    * @param bean
    * @return
@@ -66,7 +66,7 @@ public class BeanUtils
     {
       @SuppressWarnings("unchecked")
       Class<? extends B> clazz = (Class<? extends B>) bean.getClass();
-      B beanAdapter = MapToTypeAdapter.<B> newInstance( retmap, clazz );
+      B beanAdapter = PropertynameMapToTypeAdapter.<B> newInstance( retmap, clazz );
       
       //
       BeanUtils.copyPropertyValues( bean, beanAdapter );
@@ -1134,7 +1134,7 @@ public class BeanUtils
         {
           @SuppressWarnings("unchecked")
           Class<? extends B> clazz = (Class<B>) bean.getClass();
-          retval = MapToTypeAdapter.newInstance( propertyNameToBeanPropertyValueMap, clazz, underlyingMapAware );
+          retval = PropertynameMapToTypeAdapter.newInstance( propertyNameToBeanPropertyValueMap, clazz, underlyingMapAware );
         }
         
       }

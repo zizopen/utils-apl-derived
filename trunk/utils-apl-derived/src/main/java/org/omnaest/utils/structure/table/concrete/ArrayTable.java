@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
@@ -96,7 +97,7 @@ public class ArrayTable<E> extends TableBasic<E>
     }
     
     @Override
-    public void setTableContent(TableContent<E> tableContent)
+    public void setTableContent( TableContent<E> tableContent )
     {
       ArrayTable.this.tableContent = tableContent;
     }
@@ -299,6 +300,31 @@ public class ArrayTable<E> extends TableBasic<E>
   }
   
   @Override
+  public Row<E> addRowCellElements( Map<Object, ? extends E> columnTitleToRowCellElementMap )
+  {
+    //
+    int rowIndexPosition = this.getTableSize().getRowSize();
+    this.setRowCellElements( rowIndexPosition, columnTitleToRowCellElementMap );
+    
+    //
+    return this.getRow( rowIndexPosition );
+  }
+  
+  @Override
+  public Row<E> addRowCellElements( int rowIndexPosition, Map<Object, ? extends E> columnTitleValueToRowCellElementMap )
+  {
+    //
+    StripeData<E> newStripe = this.tableContent.getRowStripeDataList().addNewStripeData( rowIndexPosition );
+    if ( newStripe != null )
+    {
+      this.setRowCellElements( rowIndexPosition, columnTitleValueToRowCellElementMap );
+    }
+    
+    // 
+    return this.getRow( rowIndexPosition );
+  }
+  
+  @Override
   public List<E> removeRow( int rowIndexPosition )
   {
     //
@@ -369,7 +395,14 @@ public class ArrayTable<E> extends TableBasic<E>
   {
     //
     StripeData<E> stripeData = this.cellAndStripeResolver.resolveColumnStripeData( columnTitleValue );
-    return this.stripeFactory.newInstanceOfStripeInternal( stripeData );
+    return stripeData == null ? null : this.stripeFactory.newInstanceOfStripeInternal( stripeData );
+  }
+  
+  public Column<E> addColumn( Object columnTitleValue )
+  {
+    //
+    StripeData<E> stripeData = this.cellAndStripeResolver.resolveOrCreateColumnStripeData( columnTitleValue );
+    return stripeData == null ? null : this.stripeFactory.newInstanceOfStripeInternal( stripeData );
   }
   
   @Override

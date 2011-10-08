@@ -26,7 +26,7 @@ import java.util.Set;
  * @see AutowiredContainer
  * @author Omnaest
  */
-public class MapToAutowiredContainerAdapter<E> extends AutowiredContainerAbstract<E>
+public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long          serialVersionUID = -6432970316176438546L;
@@ -50,7 +50,7 @@ public class MapToAutowiredContainerAdapter<E> extends AutowiredContainerAbstrac
     //
     if ( classToObjectMap != null )
     {
-      retval = new MapToAutowiredContainerAdapter<E>( classToObjectMap );
+      retval = new ClassMapToAutowiredContainerAdapter<E>( classToObjectMap );
     }
     
     //
@@ -60,7 +60,7 @@ public class MapToAutowiredContainerAdapter<E> extends AutowiredContainerAbstrac
   /**
    * @param classToObjectMap
    */
-  protected MapToAutowiredContainerAdapter( Map<Class<? extends E>, E> classToObjectMap )
+  protected ClassMapToAutowiredContainerAdapter( Map<Class<? extends E>, E> classToObjectMap )
   {
     super();
     this.classToObjectMap = classToObjectMap;

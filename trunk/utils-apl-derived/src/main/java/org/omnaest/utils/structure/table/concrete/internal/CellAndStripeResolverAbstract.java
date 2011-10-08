@@ -250,6 +250,12 @@ public abstract class CellAndStripeResolverAbstract<E> implements CellAndStripeR
   }
   
   @Override
+  public StripeData<E> resolveOrCreateColumnStripeData( Object columnTitleValue )
+  {
+    return this.resolveOrCreateStripeData( StripeType.COLUMN, columnTitleValue );
+  }
+  
+  @Override
   public StripeData<E> resolveOrCreateRowStripeData( int rowIndexPosition )
   {
     return this.resolveOrCreateStripeData( StripeType.ROW, rowIndexPosition );

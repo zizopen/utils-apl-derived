@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.table.subspecification;
 
 import java.util.List;
+import java.util.Map;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
@@ -149,13 +150,28 @@ public interface TableCore<E> extends TableCoreImmutable<E>
   public Table<E> setCellElement( int cellIndexPosition, E element );
   
   /**
-   * Puts a row at the given row index position
+   * Puts a new element to the table at the defined {@link Row} index position and the given {@link Column#getTitleValue()}
+   */
+  public Table<E> setCellElement( int rowIndexPosition, Object columnTitleValue, E element );
+  
+  /**
+   * Puts a {@link Row} at the given row index position with the given {@link List} of {@link Cell#getElement()} instances
    * 
    * @param rowIndexPosition
    * @param rowCellElementList
    * @return this
    */
   public Table<E> setRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
+  
+  /**
+   * Puts a {@link Row} at the given row index position with the given {@link Map} of {@link Column#getTitleValue()} as keys and
+   * {@link Cell#getElement()} instances as values
+   * 
+   * @param rowIndexPosition
+   * @param columnTitleValueToRowCellElementMap
+   * @return this
+   */
+  public Table<E> setRowCellElements( int rowIndexPosition, Map<Object, ? extends E> columnTitleValueToRowCellElementMap );
   
   /**
    * Puts a column at the given column index position.
@@ -179,6 +195,16 @@ public interface TableCore<E> extends TableCoreImmutable<E>
   public Column<E> addColumnCellElements( int columnIndexPosition, List<? extends E> columnCellElementList );
   
   /**
+   * Returns a newly added {@link Column} for the given {@link Column} title value. If the {@link Column#getTitleValue()} already
+   * exists, the existing one is resolved.
+   * 
+   * @see #getColumn(int)
+   * @param columnTitleValue
+   * @return
+   */
+  public Column<E> addColumn( Object columnTitleValue );
+  
+  /**
    * Adds a new row to the table.<br>
    * If the row has more elements, than the table has columns, the table will be expanded with new empty columns to match the row
    * element number.
@@ -198,6 +224,30 @@ public interface TableCore<E> extends TableCoreImmutable<E>
    * @return this
    */
   public Row<E> addRowCellElements( int rowIndexPosition, List<? extends E> rowCellElementList );
+  
+  /**
+   * Adds a new {@link Row} to the {@link Table} after the last available index position. If there is already a {@link Row} or
+   * following {@link Row}s for the given index position, they are moved one index position forward. If the index position is out
+   * of bounds as many {@link Row}s are created to make it possible to access the {@link Row} at the given index position. The
+   * given {@link Map} has to consist of {@link Column#getTitleValue()} as keys and the respective {@link Cell#getElement()}
+   * instances.
+   * 
+   * @param columnTitleToRowCellElementMap
+   * @return this
+   */
+  public Row<E> addRowCellElements( Map<Object, ? extends E> columnTitleToRowCellElementMap );
+  
+  /**
+   * Adds a new {@link Row} to the {@link Table} at the given index position. If there is already a {@link Row} or following
+   * {@link Row}s for the given index position, they are moved one index position forward. If the index position is out of bounds
+   * as many {@link Row}s are created to make it possible to access the {@link Row} at the given index position. The given
+   * {@link Map} has to consist of {@link Column#getTitleValue()} as keys and the respective {@link Cell#getElement()} instances.
+   * 
+   * @param rowIndexPosition
+   * @param columnTitleValueToRowCellElementMap
+   * @return this
+   */
+  public Row<E> addRowCellElements( int rowIndexPosition, Map<Object, ? extends E> columnTitleValueToRowCellElementMap );
   
   /**
    * Removes a {@link Row} at the given index position from the {@link Table}.

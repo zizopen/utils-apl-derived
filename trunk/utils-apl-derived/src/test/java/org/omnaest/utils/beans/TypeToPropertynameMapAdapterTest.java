@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
+import org.omnaest.utils.beans.TypeToPropertynameMapAdapter.PropertyAccessOption;
 
 /**
  * @see TypeToPropertynameMapAdapter
@@ -33,8 +34,8 @@ import org.junit.Test;
 public class TypeToPropertynameMapAdapterTest
 {
   /**
-   * MockClass
-   * TypeToPropertynameMapAdapterTestpAdapterTest
+   * MockClass TypeToPropertynameMapAdapterTestpAdapterTest
+   * 
    * @author Omnaest
    */
   public static class MockBean
@@ -80,6 +81,30 @@ public class TypeToPropertynameMapAdapterTest
     assertEquals( 2, mapAdapter.size() );
     assertEquals( "new value", mapAdapter.get( "fieldString" ) );
     assertEquals( 1.35, mapAdapter.get( "fieldDouble" ) );
+  }
+  
+  @Test
+  public void testNewInstanceLowerAndUppercase()
+  {
+    //
+    MockBean mockBean = new MockBean();
+    mockBean.setFieldString( "new value" );
+    mockBean.setFieldDouble( 1.35 );
+    
+    //
+    Map<String, Object> mapAdapterLowercase = TypeToPropertynameMapAdapter.newInstance( mockBean, PropertyAccessOption.PROPERTY_LOWERCASE );
+    Map<String, Object> mapAdapterUppercase = TypeToPropertynameMapAdapter.newInstance( mockBean, PropertyAccessOption.PROPERTY_UPPERCASE );
+    
+    //
+    assertNotNull( mapAdapterLowercase );
+    assertEquals( 2, mapAdapterLowercase.size() );
+    assertEquals( "new value", mapAdapterLowercase.get( "fieldstring" ) );
+    assertEquals( 1.35, mapAdapterLowercase.get( "fielddouble" ) );
+    
+    assertNotNull( mapAdapterUppercase );
+    assertEquals( 2, mapAdapterUppercase.size() );
+    assertEquals( "new value", mapAdapterUppercase.get( "FIELDSTRING" ) );
+    assertEquals( 1.35, mapAdapterUppercase.get( "FIELDDOUBLE" ) );
   }
   
   @Test

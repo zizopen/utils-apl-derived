@@ -22,14 +22,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.omnaest.utils.beans.BeanUtils;
-import org.omnaest.utils.beans.MapToTypeAdapter;
+import org.omnaest.utils.beans.PropertynameMapToTypeAdapter;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 
 /**
  * Adapter to create a {@link Map} view on an underlying Java Bean object. Modifications to the bean or the map will be reflected
  * to each other.
  * 
- * @see MapToTypeAdapter
+ * @see PropertynameMapToTypeAdapter
  * @author Omnaest
  * @param <B>
  */
