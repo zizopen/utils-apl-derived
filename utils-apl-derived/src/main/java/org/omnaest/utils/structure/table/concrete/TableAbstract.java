@@ -17,6 +17,7 @@ package org.omnaest.utils.structure.table.concrete;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.table.Table;
@@ -108,6 +109,38 @@ public abstract class TableAbstract<E> implements Table<E>
       {
         this.setCellElement( rowIndexPosition, columnIndexPosition, rowCellElementList.get( columnIndexPosition ) );
       }
+    }
+    
+    //
+    return this;
+  }
+  
+  @Override
+  public Table<E> setRowCellElements( int rowIndexPosition, Map<Object, ? extends E> columnTitleValueToRowCellElementMap )
+  {
+    //
+    if ( columnTitleValueToRowCellElementMap != null )
+    {
+      for ( Object columnTitleValue : columnTitleValueToRowCellElementMap.keySet() )
+      {
+        this.setCellElement( rowIndexPosition, columnTitleValue, columnTitleValueToRowCellElementMap.get( columnTitleValue ) );
+      }
+    }
+    
+    //
+    return this;
+  }
+  
+  @Override
+  public Table<E> setCellElement( int rowIndexPosition, Object columnTitleValue, E element )
+  {
+    //
+    Column<E> column = this.getColumn( columnTitleValue );
+    
+    //
+    if ( column != null )
+    {
+      column.setCellElement( rowIndexPosition, element );
     }
     
     //

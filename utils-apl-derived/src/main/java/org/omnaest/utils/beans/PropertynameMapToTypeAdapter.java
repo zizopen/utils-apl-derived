@@ -34,18 +34,32 @@ import org.omnaest.utils.proxy.StubCreator;
  * @param <T>
  * @param <M>
  */
-public class MapToTypeAdapter<T, M extends Map<? super String, Object>>
+public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Object>>
 {
   /* ********************************************** Variables ********************************************** */
   protected Map<? super String, Object> map                      = null;
   protected T                           classAdapter             = null;
   protected boolean                     hasAccessToUnderlyingMap = false;
+  protected PropertyAccessOption        propertyAccessOption     = PropertyAccessOption.PROPERTY;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
+   * Options to modify the property access behavior regarding the property keys of the {@link Map}
+   * 
+   * @see PropertynameMapToTypeAdapter
+   * @author Omnaest
+   */
+  public static enum PropertyAccessOption
+  {
+    PROPERTY,
+    PROPERTY_LOWERCASE,
+    PROPERTY_UPPERCASE
+  }
+  
+  /**
    * This interface makes a derivative type aware of an underlying map implementation. This is normally used in combination with
-   * an {@link MapToTypeAdapter}.
+   * an {@link PropertynameMapToTypeAdapter}.
    */
   public static interface UnderlyingMapAware<M extends Map<String, Object>>
   {
@@ -65,7 +79,7 @@ public class MapToTypeAdapter<T, M extends Map<? super String, Object>>
   }
   
   /**
-   * A {@link MethodInterceptor} implementation special for this {@link MapToTypeAdapter}
+   * A {@link MethodInterceptor} implementation special for this {@link PropertynameMapToTypeAdapter}
    */
   protected class ClassAdapterMethodInterceptor implements MethodInterceptor
   {
@@ -83,27 +97,41 @@ public class MapToTypeAdapter<T, M extends Map<? super String, Object>>
         if ( beanMethodInformation != null )
         {
           //
-          boolean accessToUnderlyingMap = MapToTypeAdapter.this.hasAccessToUnderlyingMap
+          boolean accessToUnderlyingMap = PropertynameMapToTypeAdapter.this.hasAccessToUnderlyingMap
                                           && "underlyingMap".equals( beanMethodInformation.getReferencedFieldName() );
           boolean isGetter = beanMethodInformation.isGetter() && args.length == 0;
           boolean isSetter = beanMethodInformation.isSetter() && args.length == 1;
           
-          boolean isMapNotNull = MapToTypeAdapter.this.map != null;
+          boolean isMapNotNull = PropertynameMapToTypeAdapter.this.map != null;
           
           //
           if ( !accessToUnderlyingMap )
           {
             if ( isMapNotNull )
             {
+              //
+              String referencedFieldName = beanMethodInformation.getReferencedFieldName();
+              
+              //
+              if ( PropertyAccessOption.PROPERTY_LOWERCASE.equals( PropertynameMapToTypeAdapter.this.propertyAccessOption ) )
+              {
+                referencedFieldName = referencedFieldName.toLowerCase();
+              }
+              else if ( PropertyAccessOption.PROPERTY_UPPERCASE.equals( PropertynameMapToTypeAdapter.this.propertyAccessOption ) )
+              {
+                referencedFieldName = referencedFieldName.toUpperCase();
+              }
+              
+              //
               if ( isGetter )
               {
                 //
-                retval = MapToTypeAdapter.this.map.get( beanMethodInformation.getReferencedFieldName() );
+                retval = PropertynameMapToTypeAdapter.this.map.get( referencedFieldName );
               }
               else if ( isSetter )
               {
                 //
-                MapToTypeAdapter.this.map.put( beanMethodInformation.getReferencedFieldName(), args[0] );
+                PropertynameMapToTypeAdapter.this.map.put( referencedFieldName, args[0] );
                 
                 //
                 retval = Void.TYPE;
@@ -115,12 +143,12 @@ public class MapToTypeAdapter<T, M extends Map<? super String, Object>>
             if ( isGetter )
             {
               //
-              retval = MapToTypeAdapter.this.map;
+              retval = PropertynameMapToTypeAdapter.this.map;
             }
             else if ( isSetter )
             {
               //
-              MapToTypeAdapter.this.map = (Map<Object, Object>) args[0];
+              PropertynameMapToTypeAdapter.this.map = (Map<Object, Object>) args[0];
               
               //
               retval = Void.TYPE;
@@ -140,15 +168,16 @@ public class MapToTypeAdapter<T, M extends Map<? super String, Object>>
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @see MapToTypeAdapter#newInstance(Map, Class)
+   * @see PropertynameMapToTypeAdapter#newInstance(Map, Class)
    */
-  protected MapToTypeAdapter()
+  protected PropertynameMapToTypeAdapter()
   {
     super();
   }
   
   /**
-   * Factory methods to create a new {@link MapToTypeAdapter} for a given {@link Map} with the given {@link Class} as facade.
+   * Factory methods to create a new {@link PropertynameMapToTypeAdapter} for a given {@link Map} with the given {@link Class} as
+   * facade.
    * 
    * @see #newInstance(Map, Class)
    * @param map
@@ -157,8 +186,29 @@ public class MapToTypeAdapter<T, M extends Map<? super String, Object>>
    *          : true > returned stub implements {@link UnderlyingMapAware}
    * @return new
    */
-  @SuppressWarnings("unchecked")
   public static <T> T newInstance( Map<? super String, Object> map, Class<? extends T> clazz, boolean underlyingMapAware )
+  {
+    PropertyAccessOption propertyAccessOption = null;
+    return newInstance( map, clazz, underlyingMapAware, propertyAccessOption );
+  }
+  
+  /**
+   * Factory methods to create a new {@link PropertynameMapToTypeAdapter} for a given {@link Map} with the given {@link Class} as
+   * facade.
+   * 
+   * @see #newInstance(Map, Class)
+   * @param map
+   * @param clazz
+   * @param underlyingMapAware
+   *          : true > returned stub implements {@link UnderlyingMapAware}
+   * @param propertyAccessOption
+   * @return new
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T newInstance( Map<? super String, Object> map,
+                                   Class<? extends T> clazz,
+                                   boolean underlyingMapAware,
+                                   PropertyAccessOption propertyAccessOption )
   {
     //    
     T retval = null;
@@ -167,10 +217,11 @@ public class MapToTypeAdapter<T, M extends Map<? super String, Object>>
     if ( clazz != null && map != null )
     {
       //
-      MapToTypeAdapter<T, Map<Object, Object>> mapToInterfaceAdapter = new MapToTypeAdapter<T, Map<Object, Object>>(
-                                                                                                                     (Map<Object, Object>) map,
-                                                                                                                     clazz,
-                                                                                                                     underlyingMapAware );
+      PropertynameMapToTypeAdapter<T, Map<Object, Object>> mapToInterfaceAdapter = new PropertynameMapToTypeAdapter<T, Map<Object, Object>>(
+                                                                                                                                             (Map<Object, Object>) map,
+                                                                                                                                             clazz,
+                                                                                                                                             underlyingMapAware,
+                                                                                                                                             propertyAccessOption );
       
       //
       retval = mapToInterfaceAdapter.classAdapter;
@@ -181,7 +232,8 @@ public class MapToTypeAdapter<T, M extends Map<? super String, Object>>
   }
   
   /**
-   * Factory methods to create a new {@link MapToTypeAdapter} for a given {@link Map} with the given {@link Class} as facade.
+   * Factory methods to create a new {@link PropertynameMapToTypeAdapter} for a given {@link Map} with the given {@link Class} as
+   * facade.
    * 
    * @see #newInstance(Map, Class, boolean)
    * @param map
@@ -192,7 +244,26 @@ public class MapToTypeAdapter<T, M extends Map<? super String, Object>>
   public static <T> T newInstance( Map<? super String, Object> map, Class<? extends T> clazz )
   {
     boolean underlyingMapAware = false;
-    return MapToTypeAdapter.newInstance( (Map<Object, Object>) map, clazz, underlyingMapAware );
+    return PropertynameMapToTypeAdapter.newInstance( (Map<Object, Object>) map, clazz, underlyingMapAware );
+  }
+  
+  /**
+   * Factory methods to create a new {@link PropertynameMapToTypeAdapter} for a given {@link Map} with the given {@link Class} as
+   * facade.
+   * 
+   * @see #newInstance(Map, Class, boolean)
+   * @param map
+   * @param clazz
+   * @param propertyAccessOption
+   * @return new
+   */
+  @SuppressWarnings({ "unchecked", "cast" })
+  public static <T> T newInstance( Map<? super String, Object> map,
+                                   Class<? extends T> clazz,
+                                   PropertyAccessOption propertyAccessOption )
+  {
+    boolean underlyingMapAware = false;
+    return PropertynameMapToTypeAdapter.newInstance( (Map<Object, Object>) map, clazz, underlyingMapAware, propertyAccessOption );
   }
   
   /**
@@ -202,13 +273,18 @@ public class MapToTypeAdapter<T, M extends Map<? super String, Object>>
    * @param clazz
    * @param underlyingMapAware
    */
-  protected MapToTypeAdapter( M map, Class<? extends T> clazz, boolean underlyingMapAware )
+  protected PropertynameMapToTypeAdapter( M map, Class<? extends T> clazz, boolean underlyingMapAware,
+                                          PropertyAccessOption propertyAccessOption )
   {
     //
     super();
     this.map = map;
     
     this.hasAccessToUnderlyingMap = underlyingMapAware;
+    if ( propertyAccessOption != null )
+    {
+      this.propertyAccessOption = propertyAccessOption;
+    }
     
     //
     this.initializeClassAdapter( clazz, underlyingMapAware );

@@ -24,14 +24,14 @@ import java.util.Map;
 import org.junit.Test;
 
 /**
- * @see MapToAutowiredContainerAdapter
+ * @see ClassMapToAutowiredContainerAdapter
  * @author Omnaest
  */
-public class MapToAutowiredContainerAdapterTest
+public class ClassMapToAutowiredContainerAdapterTest
 {
   /* ********************************************** Variables ********************************************** */
   private Map<Class<? extends TestClass>, TestClass> map                = new HashMap<Class<? extends TestClass>, TestClass>();
-  private AutowiredContainer<TestClass>              autowiredContainer = MapToAutowiredContainerAdapter.newInstance( this.map );
+  private AutowiredContainer<TestClass>              autowiredContainer = ClassMapToAutowiredContainerAdapter.newInstance( this.map );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   public static class TestClass

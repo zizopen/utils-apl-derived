@@ -145,6 +145,15 @@ public interface TableInternal<E>
     public StripeData<E> resolveOrCreateColumnStripeData( int columnIndexPosition );
     
     /**
+     * Tries to resolve the {@link Column} for the given {@link Column#getTitleValue()}. If the {@link Column} does not exists it
+     * will be created.
+     * 
+     * @param columnTitleValue
+     * @return
+     */
+    public StripeData<E> resolveOrCreateColumnStripeData( Object columnTitleValue );
+    
+    /**
      * Resolves a {@link RowInternal} for the given {@link Row} index position.
      * 
      * @param rowIndexPosition

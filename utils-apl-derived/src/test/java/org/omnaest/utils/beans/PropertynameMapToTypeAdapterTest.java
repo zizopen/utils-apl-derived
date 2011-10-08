@@ -23,9 +23,10 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.omnaest.utils.beans.MapToTypeAdapter.UnderlyingMapAware;
+import org.omnaest.utils.beans.PropertynameMapToTypeAdapter.PropertyAccessOption;
+import org.omnaest.utils.beans.PropertynameMapToTypeAdapter.UnderlyingMapAware;
 
-public class MapToTypeAdapterTest
+public class PropertynameMapToTypeAdapterTest
 {
   
   @Before
@@ -52,7 +53,7 @@ public class MapToTypeAdapterTest
     Map<String, Object> map = new HashMap<String, Object>();
     
     //reading from facade
-    TestType testType = MapToTypeAdapter.newInstance( map, TestType.class, false );
+    TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, false );
     
     //
     map.put( "fieldString", "String value" );
@@ -75,6 +76,66 @@ public class MapToTypeAdapterTest
   }
   
   @Test
+  public void testNewInstanceUpperAndLowercasePropertyAccess()
+  {
+    //
+    {
+      //
+      Map<String, Object> map = new HashMap<String, Object>();
+      
+      //reading from facade
+      TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, false,
+                                                                    PropertyAccessOption.PROPERTY_LOWERCASE );
+      
+      //
+      map.put( "fieldstring", "String value" );
+      map.put( "fielddouble", 10.0 );
+      
+      assertEquals( "String value", testType.getFieldString() );
+      assertEquals( 10.0, testType.getFieldDouble(), 0.01 );
+      
+      //writing to facade
+      testType.setFieldString( "New String value" );
+      testType.setFieldDouble( 11.0 );
+      
+      assertEquals( "New String value", testType.getFieldString() );
+      assertEquals( 11.0, testType.getFieldDouble(), 0.01 );
+      
+      assertEquals( "New String value", map.get( "fieldstring" ) );
+      assertEquals( 11.0, (Double) map.get( "fielddouble" ), 0.01 );
+      assertEquals( 2, map.size() );
+    }
+    
+    //
+    {
+      //
+      Map<String, Object> map = new HashMap<String, Object>();
+      
+      //reading from facade
+      TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, false,
+                                                                    PropertyAccessOption.PROPERTY_UPPERCASE );
+      
+      //
+      map.put( "FIELDSTRING", "String value" );
+      map.put( "FIELDDOUBLE", 10.0 );
+      
+      assertEquals( "String value", testType.getFieldString() );
+      assertEquals( 10.0, testType.getFieldDouble(), 0.01 );
+      
+      //writing to facade
+      testType.setFieldString( "New String value" );
+      testType.setFieldDouble( 11.0 );
+      
+      assertEquals( "New String value", testType.getFieldString() );
+      assertEquals( 11.0, testType.getFieldDouble(), 0.01 );
+      
+      assertEquals( "New String value", map.get( "FIELDSTRING" ) );
+      assertEquals( 11.0, (Double) map.get( "FIELDDOUBLE" ), 0.01 );
+      assertEquals( 2, map.size() );
+    }
+  }
+  
+  @Test
   public void testNewInstanceUnderlyingMapAware()
   {
     //
@@ -84,7 +145,7 @@ public class MapToTypeAdapterTest
     map.put( "fieldDouble", 10.0 );
     
     //reading from facade
-    TestType testType = MapToTypeAdapter.newInstance( map, TestType.class, true );
+    TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, true );
     
     assertEquals( "String value", testType.getFieldString() );
     assertEquals( 10.0, testType.getFieldDouble(), 0.01 );

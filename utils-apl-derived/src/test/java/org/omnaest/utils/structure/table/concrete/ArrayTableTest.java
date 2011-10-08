@@ -22,8 +22,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -181,6 +183,45 @@ public class ArrayTableTest
   }
   
   @Test
+  public void testAddColumn()
+  {
+    //
+    final int rows = 2;
+    final int columns = 3;
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    {
+      //
+      Column<Object> column = this.table.addColumn( "c4" );
+      assertNotNull( column );
+      
+      //
+      {
+        //
+        Cell<Object> cell = column.getCell( 0 );
+        assertNotNull( cell );
+        
+        //
+        cell.setElement( "0:3" );
+        Object element = cell.getElement();
+        assertNotNull( element );
+        assertEquals( "0:3", element );
+      }
+    }
+    
+    //
+    assertEquals( "0:0", this.table.getColumn( 0 ).getCellElement( 0 ) );
+    assertEquals( "1:0", this.table.getColumn( 0 ).getCellElement( 1 ) );
+    assertEquals( "0:1", this.table.getColumn( 1 ).getCellElement( 0 ) );
+    assertEquals( "1:1", this.table.getColumn( 1 ).getCellElement( 1 ) );
+    assertEquals( "0:2", this.table.getColumn( 2 ).getCellElement( 0 ) );
+    assertEquals( "1:2", this.table.getColumn( 2 ).getCellElement( 1 ) );
+    assertEquals( "0:3", this.table.getColumn( 3 ).getCellElement( 0 ) );
+    assertEquals( null, this.table.getColumn( 3 ).getCellElement( 1 ) );
+  }
+  
+  @Test
   public void testGetCellInt()
   {
     //
@@ -335,6 +376,38 @@ public class ArrayTableTest
     assertEquals( "c", this.table.getCellElement( 2 ) );
     assertEquals( "d", this.table.getCellElement( 3 ) );
     assertEquals( null, this.table.getCellElement( 1, 3 ) );
+  }
+  
+  @Test
+  public void testAddRowCellElementsUsingAMap()
+  {
+    //
+    final int rows = 2;
+    final int columns = 3;
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    Map<Object, Object> map = new HashMap<Object, Object>();
+    map.put( "c0", "a" );
+    map.put( "c1", "b" );
+    map.put( "c2", "c" );
+    map.put( "c3", "c" );
+    this.table.addRowCellElements( map );
+    
+    //
+    //System.out.println( this.table );
+    
+    //
+    assertEquals( 3, this.table.getTableSize().getColumnSize() );
+    assertEquals( "0:0", this.table.getCellElement( 0 ) );
+    assertEquals( "0:1", this.table.getCellElement( 1 ) );
+    assertEquals( "0:2", this.table.getCellElement( 2 ) );
+    assertEquals( "1:0", this.table.getCellElement( 3 ) );
+    assertEquals( "1:1", this.table.getCellElement( 4 ) );
+    assertEquals( "1:2", this.table.getCellElement( 5 ) );
+    assertEquals( "a", this.table.getCellElement( 6 ) );
+    assertEquals( "b", this.table.getCellElement( 7 ) );
+    assertEquals( "c", this.table.getCellElement( 8 ) );
   }
   
   @Test
