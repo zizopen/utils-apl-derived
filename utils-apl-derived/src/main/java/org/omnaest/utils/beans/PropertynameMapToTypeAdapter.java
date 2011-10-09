@@ -233,7 +233,8 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
   
   /**
    * Factory methods to create a new {@link PropertynameMapToTypeAdapter} for a given {@link Map} with the given {@link Class} as
-   * facade.
+   * facade. If the given {@link Class} implements the {@link UnderlyingMapAware} interface, the
+   * {@link UnderlyingMapAware#getUnderlyingMap()} will return the given {@link Map}.
    * 
    * @see #newInstance(Map, Class, boolean)
    * @param map
@@ -243,7 +244,7 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
   @SuppressWarnings({ "unchecked", "cast" })
   public static <T> T newInstance( Map<? super String, Object> map, Class<? extends T> clazz )
   {
-    boolean underlyingMapAware = false;
+    boolean underlyingMapAware = UnderlyingMapAware.class.isAssignableFrom( clazz );
     return PropertynameMapToTypeAdapter.newInstance( (Map<Object, Object>) map, clazz, underlyingMapAware );
   }
   
