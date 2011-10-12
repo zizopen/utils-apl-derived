@@ -8,7 +8,7 @@ The `PropertynameMapToTypeAdapter<T, M extends Map<String, ?>>` class allows to 
 This is done by following code:
 {{{
 Map<String, Object> map = new HashMap<String, Object>();
-TestType testType = MapToTypeAdapter.newInstance( map, TestType.class );
+TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class );
 }}}
 
 every call to the `TestType` methods like
