@@ -15,19 +15,23 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.mock;
 
+import java.util.Locale;
+
 import org.omnaest.utils.spring.LocaleBeanScope;
+import org.omnaest.utils.spring.LocaleBeanScope.LocaleAware;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 @Service("localeScopedBean")
-@Scope(value = LocaleBeanScope.SCOPE_LOCALE, proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class LocaleScopedBean implements BeanNameAware
+@Scope(value = LocaleBeanScope.LOCALE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class LocaleScopedBean implements BeanNameAware, LocaleAware
 {
   /* ********************************************** Variables ********************************************** */
   private String value    = null;
   private String beanName = null;
+  private Locale locale   = null;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -50,5 +54,16 @@ public class LocaleScopedBean implements BeanNameAware
   public String getBeanName()
   {
     return this.beanName;
+  }
+  
+  @Override
+  public void setLocale( Locale locale )
+  {
+    this.locale = locale;
+  }
+  
+  public Locale getLocale()
+  {
+    return this.locale;
   }
 }
