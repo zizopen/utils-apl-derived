@@ -17,6 +17,7 @@ package org.omnaest.utils.spring;
 
 import java.util.Locale;
 
+import org.omnaest.utils.spring.TrailingBeanIdentifierPatternBeanScope.ScopedBeanCreationPostProcessor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.Scope;
@@ -40,21 +41,36 @@ import org.springframework.util.Assert;
  * 
  * </pre>
  * 
+ * An example for an annotated bean looks like:
+ * 
+ * <pre>
+ * &#064;Service("localeScopedBean")
+ * &#064;Scope(value = LocaleBeanScope.LOCALE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+ * public class LocaleScopedBean implements LocaleAware
+ * {
+ * ...
+ * }
+ * </pre>
+ * 
+ * Whereby the {@link LocaleAware} interface is optional. If it is present the {@link Locale} will be injected into the created
+ * bean instance the first time it is used.
+ * 
  * @see BeanScopeThreadContextManager
  * @see BeanScopeAwareRunnableDecorator
  * @see BeanScopeAwareCallableDecorator
- * @see #SCOPE_LOCALE
+ * @see #LOCALE
  * @author Omnaest
  */
 public class LocaleBeanScope implements Scope, ApplicationContextAware
 {
   /* ********************************************** Constants ********************************************** */
   /** A predefined {@link Scope} type called: "locale" */
-  public final static String                     SCOPE_LOCALE                           = "locale";
+  public final static String                     LOCALE                                 = "locale";
   
   /* ********************************************** Variables ********************************************** */
   private TrailingBeanIdentifierPatternBeanScope trailingBeanIdentifierPatternBeanScope = null;
   private LocaleResolver                         localeResolver                         = null;
+  private ThreadLocal<Locale>                    threadLocalLocale                      = new ThreadLocal<Locale>();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -74,6 +90,20 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
      * @return
      */
     public Locale resolveLocale();
+  }
+  
+  /**
+   * If a spring bean is declared under the {@link LocaleBeanScope} it can implements this interface to get the {@link Locale}
+   * injected after creating the bean instance.
+   * 
+   * @author Omnaest
+   */
+  public static interface LocaleAware
+  {
+    /**
+     * Sets the {@link Locale}
+     */
+    public void setLocale( Locale locale );
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -103,6 +133,18 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
     
     //
     this.trailingBeanIdentifierPatternBeanScope = new TrailingBeanIdentifierPatternBeanScope();
+    this.trailingBeanIdentifierPatternBeanScope.setScopedBeanCreationPostProcessor( new ScopedBeanCreationPostProcessor()
+    {
+      @Override
+      public void processBean( Object bean )
+      {
+        if ( bean instanceof LocaleAware )
+        {
+          LocaleAware localeAware = (LocaleAware) bean;
+          localeAware.setLocale( LocaleBeanScope.this.threadLocalLocale.get() );
+        }
+      }
+    } );
   }
   
   /**
@@ -160,7 +202,7 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
    *          {@link Locale}
    * @return
    */
-  public BeanScopeThreadContextManager newLocalAwareBeanScopeThreadContextManager( Locale locale )
+  public BeanScopeThreadContextManager newLocalAwareBeanScopeThreadContextManager( final Locale locale )
   {
     //    
     Assert.notNull( locale,
@@ -168,7 +210,34 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
     
     //
     final String trailingPattern = locale.toString();
-    return this.trailingBeanIdentifierPatternBeanScope.newTrailingBeanIdentifierPatternBeanScopeThreadContextManager( trailingPattern );
+    return new BeanScopeThreadContextManager()
+    {
+      /* ********************************************** Variables ********************************************** */
+      private BeanScopeThreadContextManager beanScopeThreadContextManager = LocaleBeanScope.this.trailingBeanIdentifierPatternBeanScope.newTrailingBeanIdentifierPatternBeanScopeThreadContextManager( trailingPattern );
+      
+      /* ********************************************** Methods ********************************************** */
+      
+      @Override
+      public void removeCurrentThreadFromBeanScope()
+      {
+        //
+        LocaleBeanScope.this.threadLocalLocale.remove();
+        
+        //
+        this.beanScopeThreadContextManager.removeCurrentThreadFromBeanScope();
+      }
+      
+      @Override
+      public void addCurrentThreadToBeanScope()
+      {
+        //
+        LocaleBeanScope.this.threadLocalLocale.set( locale );
+        
+        //
+        this.beanScopeThreadContextManager.addCurrentThreadToBeanScope();
+      }
+    };
+    
   }
   
   @Override

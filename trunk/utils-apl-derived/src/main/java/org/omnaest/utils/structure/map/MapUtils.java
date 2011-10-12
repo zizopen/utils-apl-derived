@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
@@ -325,6 +326,36 @@ public class MapUtils
     
     //
     return retlist;
+  }
+  
+  /**
+   * Filters a given {@link Map} by its keys. Only keys which are contained within the given key {@link Set} will be returned.
+   * 
+   * @param map
+   * @param filterKeySet
+   * @return new {@link LinkedHashMap} instance
+   */
+  public static <K, V> Map<K, V> filteredMap( Map<K, V> map, Set<K> filterKeySet )
+  {
+    //
+    Map<K, V> retmap = new LinkedHashMap<K, V>();
+    
+    //
+    if ( map != null && filterKeySet != null )
+    {
+      //
+      for ( K key : filterKeySet )
+      {
+        //
+        if ( map.containsKey( key ) )
+        {
+          retmap.put( key, map.get( key ) );
+        }
+      }
+    }
+    
+    //
+    return retmap;
   }
   
   /**

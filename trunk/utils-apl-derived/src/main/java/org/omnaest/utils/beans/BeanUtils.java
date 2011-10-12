@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1032,6 +1033,19 @@ public class BeanUtils
   /**
    * Determines the property names of a given bean class which are addressed by getter or setter.
    * 
+   * @see #propertyNamesForMethodAccess(Class)
+   * @param clazz
+   * @return {@link Set}
+   */
+  public static Set<String> propertyNameSetForMethodAccess( Class<?> clazz )
+  {
+    return new LinkedHashSet<String>( Arrays.asList( propertyNamesForMethodAccess( clazz ) ) );
+  }
+  
+  /**
+   * Determines the property names of a given bean class which are addressed by getter or setter.
+   * 
+   * @see #propertyNameSetForMethodAccess(Class)
    * @param clazz
    * @return
    */

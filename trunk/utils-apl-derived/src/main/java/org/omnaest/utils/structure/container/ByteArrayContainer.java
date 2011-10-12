@@ -113,6 +113,17 @@ public class ByteArrayContainer
   }
   
   /**
+   * @param sourceInputStream
+   * @see #copyFrom(InputStream)
+   * @param charsequence
+   */
+  public ByteArrayContainer( InputStream sourceInputStream )
+  {
+    super();
+    this.copyFrom( sourceInputStream );
+  }
+  
+  /**
    * @see #copyFrom(CharSequence)
    * @param charsequence
    */

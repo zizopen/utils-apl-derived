@@ -156,4 +156,22 @@ public class PropertynameMapToTypeAdapterTest
     Map<String, Object> underlyingMap = underlyingMapAware.getUnderlyingMap();
     assertEquals( map, underlyingMap );
   }
+  
+  @Test
+  public void testSimulatingToString()
+  {
+    //
+    Map<String, Object> map = new HashMap<String, Object>();
+    
+    map.put( "fieldString", "String value" );
+    map.put( "fieldDouble", 10.0 );
+    map.put( "otherfieldDouble", 10.0 );
+    
+    //reading from facade
+    TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, true, true );
+    
+    //
+    assertEquals( "[\n  fieldString=String value\n  fieldDouble=10.0\n]", testType.toString() );
+    
+  }
 }

@@ -59,6 +59,21 @@ public class CollectionUtils
     }
   }
   
+  /**
+   * Does not change the type of the element and the value of the element being converted.
+   * 
+   * @author Omnaest
+   */
+  public static class IdentityCastElementConverter<FROM, TO> implements ElementConverter<FROM, TO>
+  {
+    @SuppressWarnings("unchecked")
+    @Override
+    public TO convert( FROM from )
+    {
+      return (TO) from;
+    }
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**

@@ -39,12 +39,13 @@ import org.springframework.util.Assert;
 public class TrailingBeanIdentifierPatternBeanScope implements Scope, ApplicationContextAware
 {
   /* ********************************************** Variables ********************************************** */
-  private ThreadLocal<String> threadLocalTrailingPattern          = new ThreadLocal<String>();
-  private Map<String, Object> beanIdentifierToBeanMap             = new ConcurrentHashMap<String, Object>();
-  private String              beanNameAndTrailingPatternSeparator = "_";
+  private ThreadLocal<String>             threadLocalTrailingPattern          = new ThreadLocal<String>();
+  private Map<String, Object>             beanIdentifierToBeanMap             = new ConcurrentHashMap<String, Object>();
+  private String                          beanNameAndTrailingPatternSeparator = "_";
+  private ScopedBeanCreationPostProcessor scopedBeanCreationPostProcessor     = null;
   
   /* ********************************************** Beans / Services / References ********************************************** */
-  private ApplicationContext  applicationContext                  = null;
+  private ApplicationContext              applicationContext                  = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -155,6 +156,22 @@ public class TrailingBeanIdentifierPatternBeanScope implements Scope, Applicatio
     
   }
   
+  /**
+   * Allows to post process newly created or from {@link ApplicationContext} resolved beans. This will not affect beans which are
+   * already managed.
+   * 
+   * @author Omnaest
+   */
+  public static interface ScopedBeanCreationPostProcessor
+  {
+    /**
+     * Process the given spring bean. This is only called when the bean is created or resolved from the {@link ApplicationContext}
+     * 
+     * @param bean
+     */
+    public void processBean( Object bean );
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**
@@ -238,6 +255,12 @@ public class TrailingBeanIdentifierPatternBeanScope implements Scope, Applicatio
         retval = objectFactory.getObject();
         this.beanIdentifierToBeanMap.put( beanIdentifier, retval );
       }
+      
+      //
+      if ( this.scopedBeanCreationPostProcessor != null )
+      {
+        this.scopedBeanCreationPostProcessor.processBean( retval );
+      }
     }
     
     // 
@@ -300,6 +323,17 @@ public class TrailingBeanIdentifierPatternBeanScope implements Scope, Applicatio
   public void setBeanNameAndTrailingPatternSeparator( String beanNameAndTrailingPatternSeparator )
   {
     this.beanNameAndTrailingPatternSeparator = beanNameAndTrailingPatternSeparator;
+  }
+  
+  /**
+   * @see ScopedBeanCreationPostProcessor
+   * @param scopedBeanCreationPostProcessor
+   * @return this
+   */
+  public TrailingBeanIdentifierPatternBeanScope setScopedBeanCreationPostProcessor( ScopedBeanCreationPostProcessor scopedBeanCreationPostProcessor )
+  {
+    this.scopedBeanCreationPostProcessor = scopedBeanCreationPostProcessor;
+    return this;
   }
   
 }

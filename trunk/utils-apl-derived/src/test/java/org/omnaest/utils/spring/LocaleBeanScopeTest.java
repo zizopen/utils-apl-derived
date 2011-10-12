@@ -83,6 +83,7 @@ public class LocaleBeanScopeTest
     //
     final Multimap<String, String> localeToObjectMultimap = LinkedListMultimap.create();
     final AtomicInteger customBeanValueFoundCounter = new AtomicInteger();
+    final AtomicInteger customBeanLocaleInjectedCounter = new AtomicInteger();
     
     //    
     final AtomicInteger counter = new AtomicInteger();
@@ -146,6 +147,12 @@ public class LocaleBeanScopeTest
                 {
                   customBeanValueFoundCounter.incrementAndGet();
                 }
+                
+                //
+                if ( localeScopedBean.getLocale() != null && localeScopedBean.getLocale().equals( locale ) )
+                {
+                  customBeanLocaleInjectedCounter.incrementAndGet();
+                }
               }
             }
           }, beanScopeThreadContextManager ) ).get();
@@ -193,6 +200,7 @@ public class LocaleBeanScopeTest
     
     //
     assertEquals( submitCount / 2, customBeanValueFoundCounter.get() );
+    assertEquals( submitCount, customBeanLocaleInjectedCounter.get() );
     
   }
   
