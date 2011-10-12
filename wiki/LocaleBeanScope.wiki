@@ -1,0 +1,11 @@
+#summary A Spring bean scope for locales
+#labels spring,custom,scope,locale
+
+= LocaleBeanScope=
+
+The LocaleBeanScope is a Spring custom bean scope which can be configured by the CustomScopeConfigurer.
+
+It will resolve a Locale using a LocaleResolver for every thread and will create a new single instance related to this Locale. Threads with the same locale will use the same Spring bean which is declared as locale scoped.
+
+An example of the behavior can be found within  [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/spring/LocaleBeanScopeTest.java LocaleBeanScopeTest]
+ and the related application context at [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/resources/org/omnaest/utils/spring/LocaleBeanScopeTestAC.xml LocaleBeanScopeTestAC]
