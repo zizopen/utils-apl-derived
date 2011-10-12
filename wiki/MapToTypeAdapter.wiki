@@ -1,9 +1,9 @@
 #summary Adapter to map arbitrary Java Bean interfaces or classes to maps
-#labels Maptotypeadapter,reflection
+#labels Maptotypeadapter,reflection,map,type,proxy
 
 = Mapping of Java Bean interfaces or classes to Map instances =
 
-The `MapToTypeAdapter<T, M extends Map<String, ?>>` class allows to map arbitrary types to an underlying `Map<String,?>` instance.
+The `PropertynameMapToTypeAdapter<T, M extends Map<String, ?>>` class allows to map arbitrary types to an underlying `Map<String,?>` instance.
 
 This is done by following code:
 {{{
@@ -22,4 +22,4 @@ assertEquals( "New String value", map.get( "fieldString" ) );
 assertEquals( 11.0, (Double) map.get( "fieldDouble" ), 0.01 );
 }}}
 
-For more see [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/beans/MapToTypeAdapterTest.java MapToTypeAdapterTest]
+For more see [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/beans/PropertynameMapToTypeAdapterTest.java PropertynameMapToTypeAdapterTest]
