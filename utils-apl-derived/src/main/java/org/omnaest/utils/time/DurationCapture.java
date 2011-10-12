@@ -34,7 +34,7 @@ public class DurationCapture
 {
   
   /* ********************************************** Variables ********************************************** */
-
+  
   protected Map<Object, Interval> intervalKeyToIntervalMap = new ConcurrentHashMap<Object, DurationCapture.Interval>();
   protected Object                intervalDefaultKey       = "DEFAULT";
   
@@ -54,7 +54,7 @@ public class DurationCapture
     protected long   stopTime  = 0;
     
     /* ********************************************** Methods ********************************************** */
-
+    
     /**
      * Returns the duration in milliseconds which has passed since the start of the time measurement and now.
      */
@@ -176,7 +176,7 @@ public class DurationCapture
   }
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Use {@link DurationCapture#newInstance()} for creating an instance of this class.
    */
@@ -490,8 +490,29 @@ public class DurationCapture
     return new ArrayList<Object>( this.intervalKeyToIntervalMap.keySet() );
   }
   
+  /**
+   * Returns a new {@link Map} instance with all {@link Interval} keys and the related {@link #getDurationInMilliseconds(Object)}
+   * as value
+   * 
+   * @return
+   */
+  public Map<Object, Long> getIntervalKeyToDurationInMillisecondsMap()
+  {
+    //    
+    Map<Object, Long> retmap = new LinkedHashMap<Object, Long>();
+    
+    //
+    for ( Object intervalKey : this.getIntervalKeyList() )
+    {
+      retmap.put( intervalKey, this.getDurationInMilliseconds( intervalKey ) );
+    }
+    
+    //
+    return retmap;
+  }
+  
   /* ********************************************** STATIC FACTORY METHOD PART ********************************************** */
-
+  
   /**
    * Used by the factory method.
    * 
