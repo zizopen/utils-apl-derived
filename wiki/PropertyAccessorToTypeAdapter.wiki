@@ -27,7 +27,7 @@ PropertyAccessor:
      * @param propertyName
      * @param value
      */
-    public void setValue( Object propertyName, Object value );
+    public void setValue( String propertyName, Object value );
     
     /**
      * Returns the value related to the given property name.
@@ -35,6 +35,6 @@ PropertyAccessor:
      * @param propertyName
      * @return
      */
-    public Object getValue( Object propertyName );
+    public Object getValue( String propertyName );
   }
 }}}
