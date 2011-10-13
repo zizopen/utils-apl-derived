@@ -1,0 +1,6 @@
+#summary Creates proxy facades for a HttpSession
+#labels session,facade,factory
+
+= HttpSessionFacadeFactory =
+
+Allows to create proxies (cglib) for the HttpSession based on arbitrary types. This allows to create an interface which specifies whats stored within the HttpSession and use it to access the HttpSession.
