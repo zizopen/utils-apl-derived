@@ -1,0 +1,6 @@
+#summary Gives a preview what is currently within the snapshot version and will come within the next release
+#labels property,type,adapter,proxy
+
+= Release preview =
+
+ * PropertyAccessorToTypeAdapter
