@@ -38,7 +38,7 @@ public class PropertyAccessorToTypeAdapter<T>
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * Simple {@link PropertyAccessor} interface which reduces to a {@link #setValue(Object, Object)} and {@link #getValue(Object)}
+   * Simple {@link PropertyAccessor} interface which reduces to a {@link #setValue(String, Object)} and {@link #getValue(String)}
    * method signature.
    * 
    * @author Omnaest
@@ -51,7 +51,7 @@ public class PropertyAccessorToTypeAdapter<T>
      * @param propertyName
      * @param value
      */
-    public void setValue( Object propertyName, Object value );
+    public void setValue( String propertyName, Object value );
     
     /**
      * Returns the value related to the given property name.
@@ -59,7 +59,7 @@ public class PropertyAccessorToTypeAdapter<T>
      * @param propertyName
      * @return
      */
-    public Object getValue( Object propertyName );
+    public Object getValue( String propertyName );
   }
   
   /**
@@ -99,7 +99,7 @@ public class PropertyAccessorToTypeAdapter<T>
             else if ( isSetter )
             {
               //
-              Object propertyName = referencedFieldName;
+              String propertyName = referencedFieldName;
               Object value = args[0];
               
               PropertyAccessorToTypeAdapter.this.propertyAccessor.setValue( propertyName, value );
