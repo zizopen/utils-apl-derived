@@ -19,9 +19,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.collections.EnumerationUtils;
 import org.junit.Test;
+import org.omnaest.utils.web.HttpSessionFacadeFactory.AttributeName;
 import org.springframework.mock.web.MockHttpSession;
 
 /**
@@ -54,9 +59,15 @@ public class HttpSessionFacadeFactoryTest
     public void setFieldDouble( Double fieldDouble );
     
     public Double getFieldDouble();
+    
+    @AttributeName("OTHERFIELD")
+    public String getOtherField();
+    
+    public void setOtherField( String value );
   }
   
   /* ********************************************** Methods ********************************************** */
+  @SuppressWarnings("unchecked")
   @Test
   public void testNewSessionFacade()
   {
@@ -68,11 +79,18 @@ public class HttpSessionFacadeFactoryTest
     //
     this.testHttpSessionFacade.setFieldDouble( 1.345d );
     this.testHttpSessionFacade.setFieldString( "testValue" );
+    this.testHttpSessionFacade.setOtherField( "a value" );
     
     //    
     assertNotNull( this.testHttpSessionFacade.getFieldDouble() );
     assertNotNull( this.testHttpSessionFacade.getFieldString() );
+    assertNotNull( this.testHttpSessionFacade.getOtherField() );
     assertEquals( 1.345d, this.testHttpSessionFacade.getFieldDouble(), 0.01 );
     assertEquals( "testValue", this.testHttpSessionFacade.getFieldString() );
+    assertEquals( "a value", this.testHttpSessionFacade.getOtherField() );
+    
+    //
+    assertEquals( new ArrayList<String>( Arrays.asList( "fieldDouble", "fieldString", "OTHERFIELD" ) ),
+                  new ArrayList<String>( EnumerationUtils.toList( this.httpSession.getAttributeNames() ) ) );
   }
 }

@@ -205,4 +205,10 @@ public class LinkedHashDualMap<FIRSTELEMENT, SECONDELEMENT> implements DualMap<F
     return retval;
   }
   
+  @Override
+  public String toString()
+  {
+    return String.format( "LinkedHashDualMap [firstElementToSecondElementMap=%s]", this.firstElementToSecondElementMap );
+  }
+  
 }

@@ -30,22 +30,22 @@ import java.util.Set;
 public class MapWithKeyMappingAdapter<KEY_TO, KEY_FROM, V> implements Map<KEY_TO, V>
 {
   /* ********************************************** Variables ********************************************** */
-  private Map<KEY_FROM, V>          map         = null;
-  private DualMap<KEY_FROM, KEY_TO> keyToKeyMap = null;
+  private Map<KEY_FROM, V>          map                                = null;
+  private DualMap<KEY_FROM, KEY_TO> underlyingMapKeyToAdapterMapKeyMap = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
    * @param map
-   * @param keyToKeyMap
+   * @param underlyingMapKeyToAdapterMapKeyMap
    *          : {@link DualMap} with a mapping from the keys of the given source map to the keys of the new created
    *          {@link MapWithKeyMappingAdapter}
    */
-  public MapWithKeyMappingAdapter( Map<KEY_FROM, V> map, DualMap<KEY_FROM, KEY_TO> keyToKeyMap )
+  public MapWithKeyMappingAdapter( Map<KEY_FROM, V> map, DualMap<KEY_FROM, KEY_TO> underlyingMapKeyToAdapterMapKeyMap )
   {
     super();
     this.map = map;
-    this.keyToKeyMap = keyToKeyMap;
+    this.underlyingMapKeyToAdapterMapKeyMap = underlyingMapKeyToAdapterMapKeyMap;
   }
   
   /**
@@ -64,7 +64,7 @@ public class MapWithKeyMappingAdapter<KEY_TO, KEY_FROM, V> implements Map<KEY_TO
     try
     {
       //
-      retval = this.keyToKeyMap.getFirstElementBy( (KEY_TO) key );
+      retval = this.underlyingMapKeyToAdapterMapKeyMap.getFirstElementBy( (KEY_TO) key );
       
       //
       if ( retval == null )
@@ -90,7 +90,7 @@ public class MapWithKeyMappingAdapter<KEY_TO, KEY_FROM, V> implements Map<KEY_TO
   private KEY_TO translateToNewKey( KEY_FROM key )
   {
     //
-    KEY_TO retval = this.keyToKeyMap.getSecondElementBy( key );
+    KEY_TO retval = this.underlyingMapKeyToAdapterMapKeyMap.getSecondElementBy( key );
     
     if ( retval == null )
     {
@@ -228,6 +228,12 @@ public class MapWithKeyMappingAdapter<KEY_TO, KEY_FROM, V> implements Map<KEY_TO
   public int hashCode()
   {
     return this.map.hashCode();
+  }
+  
+  @Override
+  public String toString()
+  {
+    return String.format( "MapWithKeyMappingAdapter [map=%s, keyToKeyMap=%s]", this.map, this.underlyingMapKeyToAdapterMapKeyMap );
   }
   
 }

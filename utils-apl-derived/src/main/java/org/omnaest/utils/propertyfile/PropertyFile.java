@@ -61,6 +61,25 @@ public class PropertyFile
   }
   
   /**
+   * Loads the {@link PropertyFile} from the given {@link String}
+   * 
+   * @param fileContent
+   */
+  public void load( String fileContent )
+  {
+    this.propertyFileContent = PropertyFileContentParser.parsePropertyFileContent( fileContent );
+  }
+  
+  /**
+   * Returns a {@link String} version of the current {@link PropertyFileContent}
+   */
+  @Override
+  public String toString()
+  {
+    return PropertyFileContentWriter.writePropertyFileContentToString( this.propertyFileContent );
+  }
+  
+  /**
    * Stores the {@link PropertyFile} to disc.
    */
   public void store()
