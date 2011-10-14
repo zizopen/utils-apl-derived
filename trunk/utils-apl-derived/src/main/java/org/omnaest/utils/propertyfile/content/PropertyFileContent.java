@@ -37,11 +37,12 @@ import org.omnaest.utils.propertyfile.content.index.IndexManager;
 public class PropertyFileContent
 {
   /* ********************************************** Variables ********************************************** */
-  protected List<Element> elementList  = new ArrayList<Element>();
-  protected IndexManager  indexManager = new IndexManager();
+  protected List<Element> elementList   = new ArrayList<Element>();
+  protected IndexManager  indexManager  = new IndexManager();
+  protected String        lineSeparator = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * Gets a new list instance of all {@link Element}s managed by this {@link PropertyFileContent} instance.
    */
@@ -327,7 +328,18 @@ public class PropertyFileContent
       //
       retval = property.equalsInKeyAndValue( propertyFound );
     }
+    
     //
     return retval;
+  }
+  
+  public String getLineSeparator()
+  {
+    return this.lineSeparator;
+  }
+  
+  public void setLineSeparator( String lineSeparator )
+  {
+    this.lineSeparator = lineSeparator;
   }
 }
