@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.propertyfile.content.parser;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -51,7 +52,7 @@ public class PropertyFileContentWriterTest
   }
   
   @Test
-  public void testWritePropertyFileContentToFile()
+  public void testWritePropertyFileContentToOutputStreamWriter()
   {
     //
     final String fileEncoding = "UTF-8";
@@ -82,4 +83,47 @@ public class PropertyFileContentWriterTest
     assertTrue( hasPropertyKey );
   }
   
+  /**
+   * Fix for http://code.google.com/p/i18n-binder/issues/detail?id=1#c1()
+   */
+  @Test
+  public void testFixForIssue1()
+  {
+    //
+    {
+      //
+      String fileContent = "# This is a comment\n! And this is a comment, too\nsimpleKey Text";
+      PropertyFile propertyFile = new PropertyFile( (File) null );
+      propertyFile.load( fileContent );
+      
+      //
+      String fileContentRewritten = propertyFile.toString();
+      assertEquals( fileContent, fileContentRewritten );
+    }
+    
+    //
+    {
+      //
+      String fileContent = "# This is a comment\r\n! And this is a comment, too\r\nsimpleKey Text";
+      PropertyFile propertyFile = new PropertyFile( (File) null );
+      propertyFile.load( fileContent );
+      
+      //
+      String fileContentRewritten = propertyFile.toString();
+      assertEquals( fileContent, fileContentRewritten );
+    }
+    
+    //
+    {
+      //
+      String fileContent = "# This is a comment\r! And this is a comment, too\rsimpleKey Text";
+      PropertyFile propertyFile = new PropertyFile( (File) null );
+      propertyFile.load( fileContent );
+      
+      //
+      String fileContentRewritten = propertyFile.toString();
+      assertEquals( fileContent, fileContentRewritten );
+    }
+    
+  }
 }

@@ -53,6 +53,7 @@ public class ByteArrayContainer
   /* ********************************************** Constants ********************************************** */
   public final static String  ENCODING_UTF8      = "utf-8";
   
+  /** UTF-8 */
   private final static String DEFAULTENCODING    = ENCODING_UTF8;
   private final static String DEFAULTZIPFILENAME = "data.dat";
   
@@ -548,6 +549,42 @@ public class ByteArrayContainer
         ByteArrayContainer.this.content = this.toByteArray();
       }
     };
+  }
+  
+  /**
+   * Returns an {@link OutputStreamWriter} using the given encoding
+   * 
+   * @param encoding
+   * @return
+   */
+  public OutputStreamWriter getOutputStreamWriter( String encoding )
+  {
+    //
+    OutputStreamWriter retval = null;
+    
+    //
+    try
+    {
+      retval = new OutputStreamWriter( this.getOutputStream(), encoding );
+    }
+    catch ( Exception e )
+    {
+      e.printStackTrace();
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Like {@link #getOutputStreamWriter(String)} using the {@link #DEFAULTENCODING}
+   * 
+   * @see #getOutputStreamWriter(String)
+   * @return
+   */
+  public OutputStreamWriter getOutputStreamWriter()
+  {
+    return this.getOutputStreamWriter( DEFAULTENCODING );
   }
   
   /**

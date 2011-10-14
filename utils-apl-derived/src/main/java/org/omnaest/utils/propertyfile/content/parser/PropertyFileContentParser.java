@@ -38,10 +38,17 @@ import org.omnaest.utils.propertyfile.content.element.Property;
  */
 public class PropertyFileContentParser
 {
+  
+  /**
+   * @see #parsePropertyFileContent(String)
+   * @param file
+   * @param fileEncoding
+   * @return
+   */
   public static PropertyFileContent parsePropertyFileContent( File file, String fileEncoding )
   {
     //
-    PropertyFileContent propertyFileContent = new PropertyFileContent();
+    PropertyFileContent propertyFileContent = null;
     
     //
     if ( file != null && file.exists() )
@@ -49,12 +56,39 @@ public class PropertyFileContentParser
       //
       try
       {
+        //
+        String fileContent = FileUtils.readFileToString( file, fileEncoding );
+        propertyFileContent = parsePropertyFileContent( fileContent );
+      }
+      catch ( Exception e )
+      {
+        e.printStackTrace();
+      }
+    }
+    
+    //
+    return propertyFileContent;
+  }
+  
+  /**
+   * @see #parsePropertyFileContent(File, String)
+   * @param fileContent
+   * @return
+   */
+  public static PropertyFileContent parsePropertyFileContent( final String fileContent )
+  {
+    //
+    PropertyFileContent propertyFileContent = new PropertyFileContent();
+    
+    //
+    if ( fileContent != null )
+    {
+      //
+      try
+      {
         //      
         List<String> lineContentList = new ArrayList<String>();
         {
-          //
-          String fileContent = FileUtils.readFileToString( file, fileEncoding );
-          
           //
           Scanner scanner = new Scanner( fileContent );
           while ( scanner.hasNextLine() )
@@ -65,6 +99,26 @@ public class PropertyFileContentParser
           {
             lineContentList.add( "" );
           }
+          
+          //See http://code.google.com/p/i18n-binder/issues/detail?id=1#c1
+          String lineSeparator = System.getProperty( "line.separator" );
+          {
+            //
+            if ( fileContent.contains( "\r\n" ) )
+            {
+              lineSeparator = "\r\n";
+            }
+            else if ( fileContent.contains( "\n" ) )
+            {
+              lineSeparator = "\n";
+            }
+            else if ( fileContent.contains( "\r" ) )
+            {
+              lineSeparator = "\r";
+            }
+          }
+          propertyFileContent.setLineSeparator( lineSeparator );
+          
         }
         
         //

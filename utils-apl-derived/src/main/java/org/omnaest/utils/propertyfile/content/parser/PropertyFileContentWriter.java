@@ -23,11 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.propertyfile.content.Element;
 import org.omnaest.utils.propertyfile.content.PropertyFileContent;
 import org.omnaest.utils.propertyfile.content.element.BlankLineElement;
 import org.omnaest.utils.propertyfile.content.element.Comment;
 import org.omnaest.utils.propertyfile.content.element.Property;
+import org.omnaest.utils.structure.container.ByteArrayContainer;
 
 /**
  * Offers functionality to write a given {@link PropertyFileContent} to disc.
@@ -38,10 +40,10 @@ import org.omnaest.utils.propertyfile.content.element.Property;
 public class PropertyFileContentWriter
 {
   /* ********************************************** Constants ********************************************** */
-  protected static final String LINE_SEPARATOR = System.getProperty( "line.separator" );
+  protected static final String LINE_SEPARATOR_OS_DEFAULT = System.getProperty( "line.separator" );
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * @see PropertyFileContentParser
    * @param propertyFileContent
@@ -51,6 +53,66 @@ public class PropertyFileContentWriter
   {
     //
     if ( propertyFileContent != null && file != null && fileEncoding != null )
+    {
+      //
+      try
+      {
+        //ensure the file is created
+        FileUtils.writeStringToFile( file, "", fileEncoding );
+        
+        //
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter( new FileOutputStream( file ), fileEncoding );
+        
+        //
+        writePropertyFileContentToOutputStreamWriter( propertyFileContent, outputStreamWriter );
+      }
+      catch ( Exception e )
+      {
+        e.printStackTrace();
+      }
+    }
+  }
+  
+  /**
+   * Returns the {@link PropertyFileContent} as {@link String}
+   * 
+   * @see PropertyFileContentParser
+   * @param propertyFileContent
+   * @return
+   */
+  public static String writePropertyFileContentToString( PropertyFileContent propertyFileContent )
+  {
+    //
+    String retval = null;
+    
+    //
+    if ( propertyFileContent != null )
+    {
+      //
+      ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+      OutputStreamWriter outputStreamWriter = byteArrayContainer.getOutputStreamWriter();
+      
+      //
+      writePropertyFileContentToOutputStreamWriter( propertyFileContent, outputStreamWriter );
+      
+      //
+      retval = byteArrayContainer.toString();
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * @see PropertyFileContentParser
+   * @param propertyFileContent
+   * @param outputStreamWriter
+   */
+  public static void writePropertyFileContentToOutputStreamWriter( PropertyFileContent propertyFileContent,
+                                                                   OutputStreamWriter outputStreamWriter )
+  {
+    //
+    if ( propertyFileContent != null && outputStreamWriter != null )
     {
       //
       try
@@ -125,13 +187,12 @@ public class PropertyFileContentWriter
         
         //
         {
-          //ensure the file is created
-          FileUtils.writeStringToFile( file, "", fileEncoding );
-          
           //
-          BufferedWriter bufferedWriter = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( file ), fileEncoding ) );
+          BufferedWriter bufferedWriter = new BufferedWriter( outputStreamWriter );
           
-          //
+          //http://code.google.com/p/i18n-binder/issues/detail?id=1#c1
+          final String lineSeparator = StringUtils.defaultString( propertyFileContent.getLineSeparator(),
+                                                                  LINE_SEPARATOR_OS_DEFAULT );
           boolean firstLine = true;
           for ( String content : contentList )
           {
@@ -142,7 +203,7 @@ public class PropertyFileContentWriter
             }
             else
             {
-              bufferedWriter.write( LINE_SEPARATOR );
+              bufferedWriter.write( lineSeparator );
             }
             
             //
