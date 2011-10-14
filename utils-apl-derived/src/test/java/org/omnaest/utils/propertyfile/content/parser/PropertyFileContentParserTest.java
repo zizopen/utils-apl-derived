@@ -132,7 +132,7 @@ public class PropertyFileContentParserTest
       assertEquals( "multilineKey", property.getKey() );
       assertEquals( " ", property.getDelimiter() );
       assertEquals( "This paragraph ", property.getValueList().get( 0 ) );
-      assertEquals( "is appended by this text", property.getValueList().get( 1 ) );
+      assertEquals( "is appended by this text having an exclamation mark ! within it", property.getValueList().get( 1 ) );
     }
     {
       //
