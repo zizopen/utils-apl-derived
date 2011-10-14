@@ -65,6 +65,10 @@ public class PropertyFileContentParser
         e.printStackTrace();
       }
     }
+    else
+    {
+      propertyFileContent = new PropertyFileContent();
+    }
     
     //
     return propertyFileContent;

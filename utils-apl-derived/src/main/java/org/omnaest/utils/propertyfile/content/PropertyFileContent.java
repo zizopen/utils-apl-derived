@@ -20,11 +20,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.omnaest.utils.propertyfile.PropertyFile;
-import org.omnaest.utils.propertyfile.content.element.Comment;
 import org.omnaest.utils.propertyfile.content.element.Property;
 import org.omnaest.utils.propertyfile.content.index.Index;
 import org.omnaest.utils.propertyfile.content.index.IndexManager;
+import org.omnaest.utils.propertyfile.content.parser.PropertyFileContentWriter;
 
 /**
  * Container for the content of a {@link PropertyFile}.
@@ -32,6 +31,9 @@ import org.omnaest.utils.propertyfile.content.index.IndexManager;
  * @see Element
  * @see Property
  * @see Comment
+ * @author Omnaest
+ */
+/**
  * @author Omnaest
  */
 public class PropertyFileContent
@@ -341,5 +343,11 @@ public class PropertyFileContent
   public void setLineSeparator( String lineSeparator )
   {
     this.lineSeparator = lineSeparator;
+  }
+  
+  @Override
+  public String toString()
+  {
+    return PropertyFileContentWriter.writePropertyFileContentToString( this );
   }
 }
