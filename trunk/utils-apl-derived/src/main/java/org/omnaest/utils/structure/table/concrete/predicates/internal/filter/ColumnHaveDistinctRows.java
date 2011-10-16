@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
-import org.omnaest.utils.structure.element.ElementWrapper;
+import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableBlock;
@@ -48,13 +48,13 @@ public class ColumnHaveDistinctRows<E> implements PredicateFilter<E>
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * {@link ElementWrapper} for a {@link StripeData} instance which redeclares equals and hashcode to use the
+   * {@link ElementHolder} for a {@link StripeData} instance which redeclares equals and hashcode to use the
    * {@link StripeData#getCellElementList()}.
    * 
    * @author Omnaest
    * @param <E>
    */
-  protected static class StripeWrapperWithEqualsAndHashCode<E> extends ElementWrapper<Stripe<E>>
+  protected static class StripeWrapperWithEqualsAndHashCode<E> extends ElementHolder<Stripe<E>>
   {
     
     /**

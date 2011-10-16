@@ -33,7 +33,7 @@ public class MatchResultGroupReplacer
   protected MatchResult matchResult = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   public MatchResultGroupReplacer( MatchResult matchResult )
   {
     super();
@@ -48,7 +48,7 @@ public class MatchResultGroupReplacer
   public String replaceGroups( Map<Integer, String> groupIndexToNewValueMap )
   {
     //
-    String retval = matchResult.group();
+    String retval = this.matchResult.group();
     
     //
     final MatchResult matchResult = this.matchResult;
