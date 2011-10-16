@@ -3,4 +3,4 @@
 
 = Release preview =
 
- * PropertyAccessorToTypeAdapter
+ * PatternUtils
