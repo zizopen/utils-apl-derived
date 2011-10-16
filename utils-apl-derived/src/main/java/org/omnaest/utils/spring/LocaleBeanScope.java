@@ -16,6 +16,7 @@
 package org.omnaest.utils.spring;
 
 import java.util.Locale;
+import java.util.concurrent.Callable;
 
 import org.omnaest.utils.spring.TrailingBeanIdentifierPatternBeanScope.ScopedBeanCreationPostProcessor;
 import org.springframework.beans.BeansException;
@@ -238,6 +239,79 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
       }
     };
     
+  }
+  
+  /**
+   * Returns a new instance of a {@link Runnable} which manages the {@link Locale} awareness of the running {@link Thread}. To
+   * resolve the {@link Locale} the {@link LocaleResolver} is used.
+   * 
+   * @param runnable
+   * @param localeResolver
+   * @return
+   */
+  public Runnable newLocaleAwareRunnableDecorator( Runnable runnable, LocaleResolver localeResolver )
+  {
+    return new BeanScopeAwareRunnableDecorator( runnable, this.newLocalAwareBeanScopeThreadContextManager( localeResolver ) );
+  }
+  
+  /**
+   * Returns a new instance of a {@link Callable} which manages the {@link Locale} awareness of the running {@link Thread}. To
+   * resolve the {@link Locale} the {@link LocaleResolver} is used.
+   * 
+   * @param callable
+   * @param localeResolver
+   * @return
+   */
+  public <V> Callable<V> newLocaleAwareCallableDecorator( Callable<V> callable, LocaleResolver localeResolver )
+  {
+    return new BeanScopeAwareCallableDecorator<V>( callable, this.newLocalAwareBeanScopeThreadContextManager( localeResolver ) );
+  }
+  
+  /**
+   * Returns a new instance of a {@link Runnable} which manages the {@link Locale} awareness of the running {@link Thread}.
+   * 
+   * @param runnable
+   * @return
+   */
+  public Runnable newLocaleAwareRunnableDecorator( Runnable runnable )
+  {
+    return new BeanScopeAwareRunnableDecorator( runnable, this.newLocalAwareBeanScopeThreadContextManager() );
+  }
+  
+  /**
+   * Returns a new instance of a {@link Callable} which manages the {@link Locale} awareness of the running {@link Thread}. To
+   * resolve the {@link Locale} the internal {@link LocaleResolver} is used.
+   * 
+   * @param callable
+   * @return
+   */
+  public <V> Callable<V> newLocaleAwareCallableDecorator( Callable<V> callable )
+  {
+    return new BeanScopeAwareCallableDecorator<V>( callable, this.newLocalAwareBeanScopeThreadContextManager() );
+  }
+  
+  /**
+   * Returns a new instance of a {@link Runnable} which manages the {@link Locale} awareness of the running {@link Thread}.
+   * 
+   * @param runnable
+   * @param locale
+   * @return
+   */
+  public Runnable newLocaleAwareRunnableDecorator( Runnable runnable, Locale locale )
+  {
+    return new BeanScopeAwareRunnableDecorator( runnable, this.newLocalAwareBeanScopeThreadContextManager( locale ) );
+  }
+  
+  /**
+   * Returns a new instance of a {@link Callable} which manages the {@link Locale} awareness of the running {@link Thread}.
+   * 
+   * @param callable
+   * @param locale
+   * @return
+   */
+  public <V> Callable<V> newLocaleAwareCallableDecorator( Callable<V> callable, Locale locale )
+  {
+    return new BeanScopeAwareCallableDecorator<V>( callable, this.newLocalAwareBeanScopeThreadContextManager( locale ) );
   }
   
   @Override

@@ -128,10 +128,9 @@ public class LocaleBeanScopeTest
         final Locale locale = new Locale( language, country );
         
         //
-        BeanScopeThreadContextManager beanScopeThreadContextManager = localeBeanScope.newLocalAwareBeanScopeThreadContextManager( locale );
         try
         {
-          threadPoolTaskExecutor.submit( new BeanScopeAwareRunnableDecorator( new Runnable()
+          threadPoolTaskExecutor.submit( localeBeanScope.newLocaleAwareRunnableDecorator( new Runnable()
           {
             @Override
             public void run()
@@ -155,7 +154,7 @@ public class LocaleBeanScopeTest
                 }
               }
             }
-          }, beanScopeThreadContextManager ) ).get();
+          }, locale ) ).get();
         }
         catch ( Exception e )
         {
