@@ -1,0 +1,8 @@
+#summary Helper for the regular expression Pattern class
+#labels Pattern,regularexpression,regex
+
+= PatternUtils =
+
+The PatternUtils class offers static helper methods related to the Pattern class of Java.
+
+This includes a negation method for strings and a list of strings, too.
