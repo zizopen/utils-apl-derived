@@ -53,18 +53,18 @@ public class ListUtilsTest
   }
   
   @Test
-  public void testIteratorAsList()
-  {
-    //
-    List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
-    
-    //
-    List<String> listFromIterator = ListUtils.iteratorAsList( testList.iterator() );
-    
-    //
-    assertEquals( testList, listFromIterator );
-    
-  }
+    public void testIterableAsList()
+    {
+      //
+      List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
+      
+      //
+      List<String> listFromIterator = ListUtils.iteratorAsList( testList.iterator() );
+      
+      //
+      assertEquals( testList, listFromIterator );
+      
+    }
   
   @Test
   public void testLastElementOf()
@@ -129,5 +129,30 @@ public class ListUtilsTest
     assertEquals( testList.size(), map.size() );
     assertEquals( "key" + testList.get( 0 ), map.keySet().iterator().next() );
     assertEquals( "value" + testList.get( 0 ), map.values().iterator().next() );
+  }
+  
+  @Test
+  public void testIndexListOf()
+  {
+    //
+    List<String> list = Arrays.asList( "a", "b", "a", "c" );
+    
+    //
+    assertEquals( Arrays.asList( 0, 2 ), ListUtils.indexListOf( list, "a" ) );
+    assertEquals( Arrays.asList( 1 ), ListUtils.indexListOf( list, "b" ) );
+    assertEquals( Arrays.asList( 3 ), ListUtils.indexListOf( list, "c" ) );
+    assertEquals( Arrays.asList(), ListUtils.indexListOf( list, "f" ) );
+  }
+  
+  @Test
+  public void testFilterExcludingElement()
+  {
+    //
+    List<String> list = Arrays.asList( "abc", "def", "ghi" );
+    assertEquals( Arrays.asList( "abc", "ghi" ), ListUtils.filterExcludingElement( list, "def" ) );
+    
+    //
+    assertEquals( Arrays.asList( "abc", "ghi" ), ListUtils.filterExcludingIndexPositions( list, 1 ) );
+    assertEquals( Arrays.asList( "def", "ghi" ), ListUtils.filterIncludingIndexPositions( list, Arrays.asList( 1, 2 ) ) );
   }
 }

@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.omnaest.utils.structure.collection.ListUtils.ElementFilterIndexPositionBasedForGivenIndexes.Mode;
+
 /**
  * Helper class for modifying {@link List} instances.
  * 
@@ -32,6 +34,67 @@ import java.util.Map.Entry;
 public class ListUtils
 {
   /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * Transformer interface for transforming whole {@link Collection}s into a single object
+   * 
+   * @author Omnaest
+   * @param <FROM>
+   * @param <TO>
+   */
+  public static interface CollectionTransformer<FROM, TO>
+  {
+    /**
+     * Processes the given {@link Collection} element. This method will be called for each element of the original
+     * {@link Collection}
+     * 
+     * @param collection
+     */
+    public void process( FROM element );
+    
+    /**
+     * Returns the result of the transformation process
+     * 
+     * @return
+     */
+    public TO result();
+  }
+  
+  /**
+   * {@link CollectionTransformer} which produces a {@link String} from a {@link Collection}
+   * 
+   * @author Omnaest
+   * @param <FROM>
+   */
+  public static abstract class CollectionTransformerToString<FROM> implements CollectionTransformer<FROM, String>
+  {
+    /* ********************************************** Variables ********************************************** */
+    private StringBuilder resultStringBuilder = new StringBuilder();
+    
+    /* ********************************************** Methods ********************************************** */
+    /**
+     * The {@link #process(Object, StringBuilder)} method will be invoked for every element of the processed {@link Collection}.
+     * The given {@link StringBuilder} instance will build the resulting {@link String} and should be used to store the iteration
+     * result.
+     * 
+     * @param element
+     * @param resultStringBuilder
+     */
+    public abstract void process( FROM element, StringBuilder resultStringBuilder );
+    
+    @Override
+    public void process( FROM element )
+    {
+      this.process( element, this.resultStringBuilder );
+    }
+    
+    @Override
+    public String result()
+    {
+      return this.resultStringBuilder.toString();
+    }
+    
+  }
   
   /**
    * The provides the transformation method to transform one generic element instance into another.
@@ -121,10 +184,138 @@ public class ListUtils
     }
   }
   
+  /**
+   * An {@link ElementFilter} is used to filter elements.
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface ElementFilter<E>
+  {
+    /**
+     * The filter method should return true if the given element should be filtered out / removed.
+     * 
+     * @param element
+     * @return
+     */
+    public boolean filter( E element );
+  }
+  
+  /**
+   * {@link ElementFilter} which filters / removes all null elements
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  public static class ElementFilterNotNull<E> implements ElementFilter<E>
+  {
+    @Override
+    public boolean filter( E element )
+    {
+      return element == null;
+    }
+  }
+  
+  /**
+   * {@link ElementFilter} which removes all given elements where the constructor element equals to.
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  public static class ElementFilterConstant<E> implements ElementFilter<E>
+  {
+    /* ********************************************** Variables ********************************************** */
+    private E element = null;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @param element
+     *          != null
+     */
+    public ElementFilterConstant( E element )
+    {
+      super();
+      this.element = element;
+    }
+    
+    @Override
+    public boolean filter( E element )
+    {
+      return this.element != null && this.element.equals( element );
+    }
+    
+  }
+  
+  /**
+   * Filter which is based on the index position of an element within the related structure
+   * 
+   * @author Omnaest
+   */
+  public static interface ElementFilterIndexPositionBased
+  {
+    /**
+     * Returns true for all elements with the given index position to be filtered out / removed
+     * 
+     * @param indexPosition
+     * @return
+     */
+    public boolean filter( int indexPosition );
+  }
+  
+  /**
+   * {@link ElementFilterIndexPositionBased} which filters all elements which do not have any of the given index numbers
+   * 
+   * @see Mode
+   * @author Omnaest
+   * @param <E>
+   */
+  public static class ElementFilterIndexPositionBasedForGivenIndexes implements ElementFilterIndexPositionBased
+  {
+    /* ********************************************** Variables ********************************************** */
+    private Collection<Integer> indexCollection = null;
+    private Mode                mode            = null;
+    
+    /* ********************************************** Classes/Interfaces ********************************************** */
+    
+    /**
+     * Declares the behavior mode which can be {@link #EXCLUDING} or {@link #INCLUDING}
+     * 
+     * @author Omnaest
+     */
+    public static enum Mode
+    {
+      EXCLUDING,
+      INCLUDING
+    }
+    
+    /* ********************************************** Methods ********************************************** */
+    @Override
+    public boolean filter( int indexPosition )
+    {
+      boolean contained = this.indexCollection.contains( indexPosition );
+      return this.indexCollection != null
+             && ( ( Mode.INCLUDING.equals( this.mode ) && !contained ) | ( ( Mode.EXCLUDING.equals( this.mode ) && contained ) ) );
+    }
+    
+    /**
+     * @see Mode
+     * @param indexCollection
+     * @param mode
+     */
+    public ElementFilterIndexPositionBasedForGivenIndexes( Collection<Integer> indexCollection, Mode mode )
+    {
+      super();
+      this.indexCollection = indexCollection;
+      this.mode = mode;
+    }
+    
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * Creates a {@link List} from a given {@link Iterator}
+   * Creates a new {@link List} from a given {@link Iterator}
    * 
    * @param iterator
    * @return
@@ -145,6 +336,46 @@ public class ListUtils
     
     //
     return retlist;
+  }
+  
+  /**
+   * Creates a new {@link List} from a given {@link Iterable}
+   * 
+   * @param iterable
+   * @return
+   */
+  public static <E> List<E> iterableAsList( Iterable<E> iterable )
+  {
+    return iterable == null ? new ArrayList<E>() : iteratorAsList( iterable.iterator() );
+  }
+  
+  /**
+   * Transforms a given {@link Collection} instance from one generic type into a single value using a
+   * {@link CollectionTransformer}
+   * 
+   * @param collection
+   * @param collectionTransformer
+   */
+  public static <FROM, TO> TO transform( Collection<FROM> collection, CollectionTransformer<FROM, TO> collectionTransformer )
+  {
+    //
+    TO retval = null;
+    
+    //
+    if ( collection != null && collectionTransformer != null )
+    {
+      //
+      for ( FROM element : collection )
+      {
+        collectionTransformer.process( element );
+      }
+      
+      //
+      retval = collectionTransformer.result();
+    }
+    
+    //
+    return retval;
   }
   
   /**
@@ -421,5 +652,166 @@ public class ListUtils
     
     //
     return retmap;
+  }
+  
+  /**
+   * Returns a {@link List} of all index positions for the given element. If no element can be found at all an empty {@link List}
+   * is returned.
+   * 
+   * @param list
+   * @param element
+   * @return
+   */
+  public static <E> List<Integer> indexListOf( List<E> list, E element )
+  {
+    //    
+    List<Integer> retlist = new ArrayList<Integer>();
+    
+    //
+    if ( element != null && list != null )
+    {
+      for ( int ii = 0; ii < list.size(); ii++ )
+      {
+        //
+        E iElement = list.get( ii );
+        
+        //
+        if ( element.equals( iElement ) )
+        {
+          retlist.add( ii );
+        }
+      }
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Returns a filtered {@link List} which does not contain the given element
+   * 
+   * @see #filter(List, ElementFilter)
+   * @param collection
+   * @param element
+   * @return a new {@link List} instance containing only the not filtered elements of the given {@link List}
+   */
+  public static <E> List<E> filterExcludingElement( Collection<E> collection, E element )
+  {
+    return filter( collection, new ElementFilterConstant<E>( element ) );
+  }
+  
+  /**
+   * Returns a filtered {@link List} using a {@link ElementFilter}
+   * 
+   * @param collection
+   * @param elementFilter
+   * @return a new {@link List} instance containing only the not filtered elements of the given {@link List}
+   */
+  public static <E> List<E> filter( Collection<E> collection, ElementFilter<E> elementFilter )
+  {
+    //
+    List<E> retlist = new ArrayList<E>();
+    
+    //
+    if ( collection != null && elementFilter != null )
+    {
+      for ( E element : collection )
+      {
+        if ( !elementFilter.filter( element ) )
+        {
+          retlist.add( element );
+        }
+      }
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Filters all null elements from the given {@link Collection} and returns a new {@link List} instance.
+   * 
+   * @param collection
+   * @return
+   */
+  public static <E> List<E> filterExcludingNullElements( Collection<E> collection )
+  {
+    return filter( collection, new ElementFilterNotNull<E>() );
+  }
+  
+  /**
+   * Returns a filtered {@link List} using a {@link ElementFilterIndexPositionBased}
+   * 
+   * @param list
+   * @param elementFilterIndexBased
+   * @return a new {@link List} instance containing only the not filtered elements of the given {@link List}
+   */
+  public static <E> List<E> filter( List<E> list, ElementFilterIndexPositionBased elementFilterIndexBased )
+  {
+    //
+    List<E> retlist = new ArrayList<E>();
+    
+    //
+    if ( list != null && elementFilterIndexBased != null )
+    {
+      for ( int index = 0; index < list.size(); index++ )
+      {
+        //
+        E element = list.get( index );
+        
+        //
+        if ( !elementFilterIndexBased.filter( index ) )
+        {
+          retlist.add( element );
+        }
+      }
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * @see #filter(List, ElementFilterIndexPositionBased)
+   * @param list
+   * @param indexPositionCollection
+   * @return
+   */
+  public static <E> List<E> filterIncludingIndexPositions( List<E> list, Collection<Integer> indexPositionCollection )
+  {
+    return filter( list, new ElementFilterIndexPositionBasedForGivenIndexes( indexPositionCollection, Mode.INCLUDING ) );
+  }
+  
+  /**
+   * @see #filter(List, ElementFilterIndexPositionBased)
+   * @param list
+   * @param indexPositionCollection
+   * @return
+   */
+  public static <E> List<E> filterExcludingIndexPositions( List<E> list, Collection<Integer> indexPositionCollection )
+  {
+    return filter( list, new ElementFilterIndexPositionBasedForGivenIndexes( indexPositionCollection, Mode.EXCLUDING ) );
+  }
+  
+  /**
+   * @see #filter(List, ElementFilterIndexPositionBased)
+   * @param list
+   * @param indexPositions
+   * @return
+   */
+  public static <E> List<E> filterIncludingIndexPositions( List<E> list, Integer... indexPositions )
+  {
+    return filterIncludingIndexPositions( list, Arrays.asList( indexPositions ) );
+  }
+  
+  /**
+   * @see #filter(List, ElementFilterIndexPositionBased)
+   * @param list
+   * @param indexPositions
+   * @return
+   */
+  public static <E> List<E> filterExcludingIndexPositions( List<E> list, Integer... indexPositions )
+  {
+    return filterExcludingIndexPositions( list, Arrays.asList( indexPositions ) );
   }
 }

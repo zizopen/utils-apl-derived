@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -137,6 +138,7 @@ public class TableSerializerImplTest
   }
   
   @Test
+  @Ignore("Need internet connection")
   public void testTableSerializerUrl() throws MalformedURLException
   {
     //

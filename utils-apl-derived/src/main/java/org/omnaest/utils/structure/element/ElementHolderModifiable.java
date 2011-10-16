@@ -16,33 +16,34 @@
 package org.omnaest.utils.structure.element;
 
 /**
- * Simple predefined {@link ElementWrapper} around an arbitrary element
+ * Modifiable version of an {@link ElementHolder} allows to {@link #setElement(Object)}
  * 
+ * @see ElementHolder
  * @author Omnaest
  * @param <E>
  */
-public abstract class ElementWrapper<E>
+public class ElementHolderModifiable<E> extends ElementHolder<E>
 {
-  /* ********************************************** Variables ********************************************** */
-  protected E element = null;
-  
-  /* ********************************************** Methods ********************************************** */
   
   /**
    * @param element
    */
-  public ElementWrapper( E element )
+  public ElementHolderModifiable( E element )
   {
-    super();
-    this.element = element;
+    super( element );
   }
   
   /**
-   * @return the element
+   * 
    */
-  public E getElement()
+  public ElementHolderModifiable()
   {
-    return this.element;
+    super( null );
   }
   
+  @Override
+  public void setElement( E element )
+  {
+    this.element = element;
+  }
 }
