@@ -17,7 +17,7 @@ package org.omnaest.utils.structure.element;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ElementHolder<E>
 {
   /* ********************************************** Variables ********************************************** */
-  @XmlAnyElement
+  @XmlElement
   protected E element = null;
   
   /* ********************************************** Methods ********************************************** */
@@ -44,6 +44,11 @@ public class ElementHolder<E>
   {
     super();
     this.element = element;
+  }
+  
+  protected ElementHolder()
+  {
+    super();
   }
   
   /**
