@@ -83,8 +83,8 @@ public class PatternUtils
       }
       
       //
-      final String firstCharactersOfRoot = characterPathRoot.isRoot() ? characterPathRoot.determineFirstCharactersOfChildrenAsString()
-                                                                     : String.valueOf( characterPathRoot.getCharacter() );
+      //      final String firstCharactersOfRoot = characterPathRoot.isRoot() ? characterPathRoot.determineFirstCharactersOfChildrenAsString()
+      //                                                                     : String.valueOf( characterPathRoot.getCharacter() );
       
       //
       class Parameter
@@ -135,29 +135,29 @@ public class PatternUtils
                                                                 
                                                               } );
           
-          //
-          String firstCharactersOfChildrenAsString = "";
-          for ( int beginIndex = 1; beginIndex < previousStringNew.length(); beginIndex++ )
-          {
-            //
-            String previousStringNewSubString = previousStringNew.substring( beginIndex );
-            
-            //
-            CharacterPath matchingCharacterPath = characterPathRoot.matchingPath( previousStringNewSubString );
-            if ( matchingCharacterPath != null )
-            {
-              firstCharactersOfChildrenAsString += matchingCharacterPath.determineFirstCharactersOfChildrenAsString();
-            }
-          }
-          
-          //
-          for ( char iCharacter : ( firstCharactersOfChildrenAsString + firstCharactersOfRoot ).toCharArray() )
-          {
-            if ( !mergedFirstCharacters.contains( String.valueOf( iCharacter ) ) )
-            {
-              mergedFirstCharacters += iCharacter;
-            }
-          }
+          //          //
+          //          String firstCharactersOfChildrenAsString = "";
+          //          for ( int beginIndex = 1; beginIndex < previousStringNew.length(); beginIndex++ )
+          //          {
+          //            //
+          //            String previousStringNewSubString = previousStringNew.substring( beginIndex );
+          //            
+          //            //
+          //            CharacterPath matchingCharacterPath = characterPathRoot.matchingPath( previousStringNewSubString );
+          //            if ( matchingCharacterPath != null )
+          //            {
+          //              firstCharactersOfChildrenAsString += matchingCharacterPath.determineFirstCharactersOfChildrenAsString();
+          //            }
+          //          }
+          //          
+          //          //
+          //          for ( char iCharacter : ( firstCharactersOfChildrenAsString + firstCharactersOfRoot ).toCharArray() )
+          //          {
+          //            if ( !mergedFirstCharacters.contains( String.valueOf( iCharacter ) ) )
+          //            {
+          //              mergedFirstCharacters += iCharacter;
+          //            }
+          //          }
           
           //
           stringBuilder.append( !first ? "|" : "" );
@@ -247,7 +247,12 @@ public class PatternUtils
         stringBuilder.append( !first ? "|" : "" );
         stringBuilder.append( previousStringBuilder );
         stringBuilder.append( "[^" + iChar + "]" );
-        stringBuilder.append( "|(?:" + previousStringBuilder + ")$" );
+        
+        //
+        if ( !first )
+        {
+          stringBuilder.append( "|(?:" + previousStringBuilder + ")$" );
+        }
         
         //
         previousStringBuilder.append( iChar );

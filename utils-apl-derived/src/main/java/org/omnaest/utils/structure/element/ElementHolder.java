@@ -15,6 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Simple predefined {@link ElementHolder} around an arbitrary element
  * 
@@ -22,9 +27,12 @@ package org.omnaest.utils.structure.element;
  * @author Omnaest
  * @param <E>
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ElementHolder<E>
 {
   /* ********************************************** Variables ********************************************** */
+  @XmlAnyElement
   protected E element = null;
   
   /* ********************************************** Methods ********************************************** */
