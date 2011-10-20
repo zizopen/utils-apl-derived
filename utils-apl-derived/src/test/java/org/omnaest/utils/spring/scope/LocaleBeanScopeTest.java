@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.spring;
+package org.omnaest.utils.spring.scope;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.omnaest.utils.spring.mock.LocaleScopedBean;
+import org.omnaest.utils.spring.scope.LocaleBeanScope;
 import org.omnaest.utils.threads.FutureTaskManager;
 import org.omnaest.utils.threads.FutureTaskManager.RunnableTaskSubmitter;
 import org.springframework.beans.factory.annotation.Autowired;

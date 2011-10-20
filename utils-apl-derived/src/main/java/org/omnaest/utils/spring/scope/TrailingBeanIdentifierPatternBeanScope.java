@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.spring;
+package org.omnaest.utils.spring.scope;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpSession;
 
+import org.omnaest.utils.spring.HttpSessionResolverService;
 import org.omnaest.utils.web.HttpSessionResolver;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectFactory;

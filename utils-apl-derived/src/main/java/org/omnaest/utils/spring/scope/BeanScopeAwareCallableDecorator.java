@@ -13,40 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.spring;
+package org.omnaest.utils.spring.scope;
+
+import java.util.concurrent.Callable;
 
 /**
  * The {@link BeanScopeAwareCallableDecorator} does call the {@link BeanScopeThreadContextManager#addCurrentThreadToBeanScope()}
  * and {@link BeanScopeThreadContextManager#removeCurrentThreadFromBeanScope()} at the appropriate times
  * 
- * @see Runnable
+ * @see Callable
  * @author Omnaest
  * @param <V>
  */
-public class BeanScopeAwareRunnableDecorator implements Runnable
+public class BeanScopeAwareCallableDecorator<V> implements Callable<V>
 {
   /* ********************************************** Variables ********************************************** */
-  private Runnable                      runnable                      = null;
+  private Callable<V>                   callable                      = null;
   private BeanScopeThreadContextManager beanScopeThreadContextManager = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @param runnable
-   *          {@link Runnable} : must not be null
+   * @param callable
+   *          {@link Callable} : must not be null
    * @param beanScopeThreadContextManager
    *          {@link BeanScopeThreadContextManager}: must not be null
    */
-  public BeanScopeAwareRunnableDecorator( Runnable runnable, BeanScopeThreadContextManager beanScopeThreadContextManager )
+  public BeanScopeAwareCallableDecorator( Callable<V> callable, BeanScopeThreadContextManager beanScopeThreadContextManager )
   {
     super();
-    this.runnable = runnable;
+    this.callable = callable;
     this.beanScopeThreadContextManager = beanScopeThreadContextManager;
   }
   
   @Override
-  public void run()
+  public V call() throws Exception
   {
+    //    
+    V retval = null;
+    
     //
     try
     {
@@ -57,9 +62,9 @@ public class BeanScopeAwareRunnableDecorator implements Runnable
       }
       
       //
-      if ( this.runnable != null )
+      if ( this.callable != null )
       {
-        this.runnable.run();
+        retval = this.callable.call();
       }
     }
     finally
@@ -70,6 +75,9 @@ public class BeanScopeAwareRunnableDecorator implements Runnable
         this.beanScopeThreadContextManager.removeCurrentThreadFromBeanScope();
       }
     }
+    
+    //
+    return retval;
   }
   
 }
