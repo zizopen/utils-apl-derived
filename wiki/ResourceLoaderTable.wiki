@@ -1,0 +1,6 @@
+#summary Deocrator for the Spring ResourceLoader
+#labels table,csv,resource,loading
+
+= ResourceLoaderTable=
+
+The ResourceLoaderTable decorates the ResourceLoader of Spring to allow to directly load Table instances from e.g. csv files.
