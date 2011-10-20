@@ -50,8 +50,8 @@ public class PropertyAccessorToTypeAdapterTest
   @Before
   public void setUp()
   {
-    Mockito.when( this.propertyAccessor.getValue( "fieldString" ) ).thenReturn( "return string" );
-    Mockito.when( this.propertyAccessor.getValue( "fieldPrimitiveDouble" ) ).thenReturn( 1234.2234 );
+    Mockito.when( this.propertyAccessor.getValue( "fieldString", String.class ) ).thenReturn( "return string" );
+    Mockito.when( this.propertyAccessor.getValue( "fieldPrimitiveDouble", double.class ) ).thenReturn( 1234.2234 );
   }
   
   @Test
@@ -66,9 +66,9 @@ public class PropertyAccessorToTypeAdapterTest
     this.testType.setFieldPrimitiveDouble( 1234.223 );
     
     //
-    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).getValue( "fieldString" );
+    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).getValue( "fieldString", String.class );
     Mockito.verify( this.propertyAccessor, new Times( 1 ) ).setValue( "fieldString", "new string value" );
-    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).getValue( "fieldPrimitiveDouble" );
+    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).getValue( "fieldPrimitiveDouble", double.class );
     Mockito.verify( this.propertyAccessor, new Times( 1 ) ).setValue( "fieldPrimitiveDouble", 1234.223 );
   }
 }

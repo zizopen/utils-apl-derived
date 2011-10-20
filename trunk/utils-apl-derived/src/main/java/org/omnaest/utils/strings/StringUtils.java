@@ -15,10 +15,29 @@
  ******************************************************************************/
 package org.omnaest.utils.strings;
 
-import org.apache.commons.lang3.StringUtils;
-
-public class StringUtil
+/**
+ * Utility class for supporting the work with {@link String}s
+ * 
+ * @author Omnaest
+ */
+public class StringUtils
 {
+  /**
+   * Returns true if the given text ends with the start of the other given text. E.g. "bcd" will start with the and of "abc"
+   * 
+   * @param text
+   * @param textOther
+   * @return
+   */
+  public static boolean endsWithStartOfOther( String text, String textOther )
+  {
+    //
+    boolean retval = false;
+    
+    //
+    return retval;
+  }
+  
   public static String stringJoin( String[] strings, String delimiter )
   {
     String retval = null;
@@ -76,30 +95,18 @@ public class StringUtil
     return retval;
   }
   
-  /**
-   * Repeats the given string count times.
-   * 
-   * @param count
-   * @param repeatString
-   * @return
-   */
-  public static String repeatString( int count, String repeatString )
-  {
-    return StringUtils.repeat( repeatString, count );
-  }
-  
   public static String setFixedWitdth( String value, int width )
   {
     if ( width > 0 )
     {
-      if ( StringUtils.isNotBlank( value ) )
+      if ( org.apache.commons.lang3.StringUtils.isNotBlank( value ) )
       {
         //
         return String.format( "%" + width + "s", value );
       }
       
       //
-      return StringUtils.repeat( " ", width );
+      return org.apache.commons.lang3.StringUtils.repeat( " ", width );
     }
     
     //

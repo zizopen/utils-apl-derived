@@ -90,7 +90,7 @@ public class PatternUtilsTest
     final String patternString1 = "ABCD";
     final String patternString2 = "BCD";
     final String patternString3 = "BCF";
-    final String patternString4 = "EFG";
+    final String patternString4 = "CFG";
     
     //
     String negatedPatternString = PatternUtils.not( patternString1, patternString2, patternString3, patternString4 );
@@ -107,24 +107,26 @@ public class PatternUtilsTest
     assertFalse( Pattern.matches( negatedPatternString + "+", patternString3 ) );
     assertFalse( Pattern.matches( negatedPatternString + "+", patternString4 ) );
     
-    assertTrue( Pattern.matches( negatedPatternString + "+", "xxnv,mnvmxvnv,mnxcmvn,vmcxn" ) );
-    assertTrue( Pattern.matches( negatedPatternString + "+", "xxnv,mnvAmxvnv,mnxcmvn,vmcxn" ) );
-    assertTrue( Pattern.matches( negatedPatternString + "+", "Axxnv,mnvAmxvnv,mnxcmvn,vmcxn" ) );
-    assertTrue( Pattern.matches( negatedPatternString + "+", "BCxnv,mnvAmxvnv,mnxcmvn,vmcxn" ) );
-    assertTrue( Pattern.matches( negatedPatternString + "+", "ABCxnv,mnvAmxvnv,mnxcmvn,vmcxn" ) );
-    assertTrue( Pattern.matches( negatedPatternString + "+", "BCxnv,mnvmxvnv,mnxcmvn,vmcxnA" ) );
-    assertTrue( Pattern.matches( negatedPatternString + "+", "Bxnv,mnvmxvnv,mnxcmvn,vmcxnAB" ) );
-    assertTrue( Pattern.matches( negatedPatternString + "+", "xxnv,mnvmxvnv,mnxcmvn,vmcxnABC" ) );
-    assertTrue( Pattern.matches( negatedPatternString + "+", "Cxxnv,mnvmCDxvnv,mnxcmvn,vmcxnA" ) );
-    assertTrue( Pattern.matches( negatedPatternString + "+", "CDxxnv,mnvCmxvnv,mnxcmvn,vmcxnAB" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "xxnv,mnv/&($%§mxvnv,mnxcmvn,vmcxn" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "xxAx" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "Axx" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "BCB" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "BCA" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "BCxx" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "ABCxx" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "BCxxxA" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "BxxxAB" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "xxABC" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "CxxxA" ) );
+    assertTrue( Pattern.matches( negatedPatternString + "+", "CDxxxAB" ) );
     
-    assertFalse( Pattern.matches( negatedPatternString + "+", "xxnv,mnvmxBCDv,mnxcmvn,vmcxn" ) );
-    assertFalse( Pattern.matches( negatedPatternString + "+", "xxnv,mnvmxv,mnxcmvn,vmEFG" ) );
-    assertFalse( Pattern.matches( negatedPatternString + "+", "ABCDxxnv,mnvmxv,mnxcmvn,vm" ) );
-    assertFalse( Pattern.matches( negatedPatternString + "+", "xxnv,mnvmxABCFv,mnxcmvn,vmcxn" ) );
-    assertFalse( Pattern.matches( negatedPatternString + "+", "xxnv,mnvmxBCBCFv,mnxcmvn,vmcxn" ) );
-    assertFalse( Pattern.matches( negatedPatternString + "+", "xxnv,mnvmxBCABCBCFv,mnxcmvn,vmcxn" ) );
-    assertFalse( Pattern.matches( negatedPatternString + "+", "xxnv,mnvmxBCABCBCF" ) );
+    assertFalse( Pattern.matches( negatedPatternString + "+", "xxBCDxx" ) );
+    assertFalse( Pattern.matches( negatedPatternString + "+", "xxCFGxx" ) );
+    assertFalse( Pattern.matches( negatedPatternString + "+", "ABCDxx" ) );
+    assertFalse( Pattern.matches( negatedPatternString + "+", "xxABCFxx" ) );
+    assertFalse( Pattern.matches( negatedPatternString + "+", "xxBCABCBCFxx" ) );
+    assertFalse( Pattern.matches( negatedPatternString + "+", "xxBCBCFxx" ) );    
+    assertFalse( Pattern.matches( negatedPatternString + "+", "xxBCABCBCF" ) );
   }
   
 }

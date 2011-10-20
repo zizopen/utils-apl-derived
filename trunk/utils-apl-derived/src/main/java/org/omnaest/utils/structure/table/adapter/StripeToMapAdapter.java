@@ -17,6 +17,7 @@ package org.omnaest.utils.structure.table.adapter;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,6 +25,8 @@ import org.omnaest.utils.structure.map.MapAbstract;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.Stripe;
+import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
+import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 
 /**
  * Adapter to access a given {@link Row} or {@link Column} as {@link Map}
@@ -74,8 +77,22 @@ public class StripeToMapAdapter<E> extends MapAbstract<Object, E>
   @Override
   public Set<Object> keySet()
   {
-    return new LinkedHashSet<Object>( this.stripe instanceof Row ? ( (Row<E>) this.stripe ).getColumnTitleValueList()
-                                                                : ( (Column<E>) this.stripe ).getRowTitleValueList() );
+    //
+    StripeInternal<E> stripeInternal = (StripeInternal<E>) this.stripe;
+    StripeType stripeType = stripeInternal.getStripeData().resolveStripeType();
+    
+    //
+    List<Object> valueList = null;
+    if ( StripeType.COLUMN.equals( stripeType ) )
+    {
+      valueList = ( (Column<E>) this.stripe ).getRowTitleValueList();
+    }
+    else if ( StripeType.ROW.equals( stripeType ) )
+    {
+      valueList = ( (Row<E>) this.stripe ).getColumnTitleValueList();
+    }
+    
+    return new LinkedHashSet<Object>( valueList );
   }
   
   @Override

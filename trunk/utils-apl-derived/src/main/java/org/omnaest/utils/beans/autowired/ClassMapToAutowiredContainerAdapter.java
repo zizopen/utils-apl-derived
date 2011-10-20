@@ -15,7 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.autowired;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -71,7 +71,7 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
   public <O extends E> Set<O> getValueSet( Class<O> clazz )
   {
     //    
-    Set<O> retset = new HashSet<O>();
+    Set<O> retset = new LinkedHashSet<O>();
     
     //
     if ( clazz != null )
