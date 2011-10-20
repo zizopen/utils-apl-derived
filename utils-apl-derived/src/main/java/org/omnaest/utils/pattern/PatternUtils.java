@@ -66,10 +66,30 @@ public class PatternUtils
     if ( patternStringCollection != null && !patternStringCollection.isEmpty() )
     {
       //
+      List<String> patternStringListWithClearedContainingOtherOnes = new ArrayList<String>( patternStringCollection );
+      {
+        //
+        List<String> containingOtherPatternPatternStringList = new ArrayList<String>();
+        for ( String patternString : patternStringCollection )
+        {
+          for ( String patternStringOther : patternStringCollection )
+          {
+            if ( patternString != patternStringOther && patternString.contains( patternStringOther ) )
+            {
+              containingOtherPatternPatternStringList.add( patternString );
+            }
+          }
+        }
+        
+        //
+        patternStringListWithClearedContainingOtherOnes.removeAll( containingOtherPatternPatternStringList );
+      }
+      
+      //
       retval.append( "(?:" );
       
       //
-      final CharacterPath characterPathRoot = CharacterPathBuilder.buildPath( new ArrayList<String>( patternStringCollection ) );
+      final CharacterPath characterPathRoot = CharacterPathBuilder.buildPath( patternStringListWithClearedContainingOtherOnes );
       
       //
       List<CharacterPath> characterPathList = new ArrayList<CharacterPath>();

@@ -25,6 +25,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
@@ -36,8 +37,9 @@ import org.omnaest.utils.structure.table.concrete.ArrayTable;
 public class StripeToMapAdapterTest
 {
   /* ********************************************** Variables ********************************************** */
-  protected Table<String>       table  = new ArrayTable<String>();
-  protected Map<Object, String> rowMap = null;
+  protected Table<String>       table     = new ArrayTable<String>();
+  protected Map<Object, String> rowMap    = null;
+  protected Map<Object, String> columnMap = null;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -45,7 +47,7 @@ public class StripeToMapAdapterTest
   public void setUp()
   {
     //
-    int rows = 1;
+    int rows = 2;
     int columns = 4;
     String tableName = "Table1";
     TableFiller.fillTableWithMatrixNumbers( rows, columns, tableName, this.table );
@@ -53,6 +55,10 @@ public class StripeToMapAdapterTest
     //
     Row<String> row = this.table.getRow( 0 );
     this.rowMap = new StripeToMapAdapter<String>( row );
+    
+    //
+    Column<String> column = this.table.getColumn( 0 );
+    this.columnMap = new StripeToMapAdapter<String>( column );
   }
   
   @Test
@@ -91,15 +97,27 @@ public class StripeToMapAdapterTest
   }
   
   @Test
-  public void testKeySet()
+  public void testKeySetRow()
   {
     assertEquals( Arrays.asList( "c0", "c1", "c2", "c3" ), new ArrayList<Object>( this.rowMap.keySet() ) );
   }
   
   @Test
-  public void testValues()
+  public void testKeySetColumn()
+  {
+    assertEquals( Arrays.asList( "r0", "r1" ), new ArrayList<Object>( this.columnMap.keySet() ) );
+  }
+  
+  @Test
+  public void testValuesRow()
   {
     assertEquals( Arrays.asList( "0:0", "0:1", "0:2", "0:3" ), new ArrayList<Object>( this.rowMap.values() ) );
+  }
+  
+  @Test
+  public void testValuesColumn()
+  {
+    assertEquals( Arrays.asList( "0:0", "1:0" ), new ArrayList<Object>( this.columnMap.values() ) );
   }
   
 }

@@ -21,6 +21,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.omnaest.utils.beans.result.BeanMethodInformation;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.proxy.StubCreator;
 
 /**
@@ -59,7 +60,7 @@ public class PropertyAccessorToTypeAdapter<T>
      * @param propertyName
      * @return
      */
-    public Object getValue( String propertyName );
+    public Object getValue( String propertyName, Class<?> type );
   }
   
   /**
@@ -76,10 +77,16 @@ public class PropertyAccessorToTypeAdapter<T>
       //
       try
       {
+        //        
         BeanMethodInformation beanMethodInformation = BeanUtils.beanMethodInformation( method );
         if ( beanMethodInformation != null )
         {
           //
+          BeanPropertyAccessor<T> beanPropertyAccessor = BeanUtils.beanPropertyAccessor( PropertyAccessorToTypeAdapter.this.clazz,
+                                                                                         method );
+          Class<?> declaringPropertyType = beanPropertyAccessor.getDeclaringPropertyType();
+          
+          //          
           final String referencedFieldName = beanMethodInformation.getReferencedFieldName();
           
           //          
@@ -94,7 +101,7 @@ public class PropertyAccessorToTypeAdapter<T>
             if ( isGetter )
             {
               //              
-              retval = PropertyAccessorToTypeAdapter.this.propertyAccessor.getValue( referencedFieldName );
+              retval = PropertyAccessorToTypeAdapter.this.propertyAccessor.getValue( referencedFieldName, declaringPropertyType );
             }
             else if ( isSetter )
             {
