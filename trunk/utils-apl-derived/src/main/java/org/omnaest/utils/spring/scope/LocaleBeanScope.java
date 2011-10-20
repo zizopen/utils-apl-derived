@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.spring;
+package org.omnaest.utils.spring.scope;
 
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
-import org.omnaest.utils.spring.TrailingBeanIdentifierPatternBeanScope.ScopedBeanCreationPostProcessor;
+import org.omnaest.utils.spring.scope.TrailingBeanIdentifierPatternBeanScope.ScopedBeanCreationPostProcessor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.Scope;

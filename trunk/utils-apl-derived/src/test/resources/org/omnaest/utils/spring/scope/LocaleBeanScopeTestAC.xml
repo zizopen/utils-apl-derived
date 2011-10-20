@@ -11,42 +11,28 @@
 
     <context:component-scan base-package="org.omnaest.utils.spring.mock"></context:component-scan>
 
-    <bean class="org.omnaest.utils.spring.mock.MockHttpSessionResolverFactory" />
-
     <!-- The component scan will create a locale scoped bean which will resolve the following two beans if the locale attribute 
         within the session is the same as the trailing sequence -->
     <bean id="localeScopedBean_en_US" class="org.omnaest.utils.spring.mock.LocaleScopedBean" scope="singleton">
         <property name="value" value="en_US" />
     </bean>
+
     <bean id="localeScopedBean_de_DE" class="org.omnaest.utils.spring.mock.LocaleScopedBean" scope="singleton">
         <property name="value" value="de_DE" />
     </bean>
 
-    <bean id="trailingBeanIdentifierPatternScope" class="org.omnaest.utils.spring.TrailingBeanIdentifierPatternBeanScope" />
-
-    <bean id="trailingPatternBySessionAttributeResolver"
-        class="org.omnaest.utils.spring.TrailingBeanIdentifierPatternBeanScope.TrailingPatternBySessionAttributeResolver">
-        <constructor-arg value="locale"></constructor-arg>
-        <property name="httpSessionResolver" ref="newHttpSessionResolver"></property>
-    </bean>
-
-    <bean id="trailingBeanIdentifierPatternBeanScopeThreadContextManagerForLocalePattern"
-        class="org.omnaest.utils.spring.TrailingBeanIdentifierPatternBeanScope.TrailingBeanIdentifierPatternBeanScopeThreadContextManager"
-        factory-bean="trailingBeanIdentifierPatternScope" factory-method="newTrailingBeanIdentifierPatternBeanScopeThreadContextManager">
-        <constructor-arg ref="trailingPatternBySessionAttributeResolver"></constructor-arg>
-    </bean>
-
+    <bean id="localeBeanScope" class="org.omnaest.utils.spring.scope.LocaleBeanScope" />
 
     <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
         <property name="scopes">
             <map>
                 <entry key="locale">
-                    <ref bean="trailingBeanIdentifierPatternScope" />
+                    <ref bean="localeBeanScope" />
                 </entry>
             </map>
         </property>
     </bean>
 
-    <task:executor id="threadPool" pool-size="20" />
+    <task:executor id="threadPool" pool-size="200" queue-capacity="200" />
 
 </beans>

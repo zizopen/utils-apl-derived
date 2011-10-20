@@ -17,8 +17,8 @@ package org.omnaest.utils.spring.mock;
 
 import java.util.Locale;
 
-import org.omnaest.utils.spring.LocaleBeanScope;
-import org.omnaest.utils.spring.LocaleBeanScope.LocaleAware;
+import org.omnaest.utils.spring.scope.LocaleBeanScope;
+import org.omnaest.utils.spring.scope.LocaleBeanScope.LocaleAware;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
