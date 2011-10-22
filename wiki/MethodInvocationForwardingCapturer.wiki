@@ -1,0 +1,20 @@
+#summary Factory for interceptor proxies which are able to capture, store and replay method invocations
+#labels interceptor,capturer,xml,proxy
+
+= MethodInvocationForwardingCapturer =
+
+The [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/main/java/org/omnaest/utils/proxy/MethodInvocationForwardingCapturer.java?spec=svn230&r=230 MethodInvocationForwardingCapturer] can create cglib proxies which intercept all method calls, forward them to the original underlying object and capture the invocation (method, arguments) as well as the result. All informations of such an invocation will be serialized to XML format using the XStream library.
+
+Since the XStream library is licensed under BSD license you have to include the Maven dependency explictly. The dependeny for Version 1.4.1 looks like:
+
+{{{
+<dependency>
+  <groupId>com.thoughtworks.xstream</groupId>
+  <artifactId>xstream</artifactId>
+  <version>1.4.1</version>
+  <type>jar</type>
+  <scope>compile</scope>
+</dependency>
+}}}
+
+For examples how to use see the [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodInvocationForwardingCapturerTest.java?spec=svn230&r=230 MethodInvocationForwardingCapturerTest]
