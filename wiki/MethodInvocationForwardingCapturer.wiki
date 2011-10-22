@@ -17,7 +17,7 @@ Since the XStream library is licensed under BSD license you have to include the 
 </dependency>
 }}}
 
-Examples of use:
+Examples of usage:
 
 {{{
 TestClass object = new TestClass();
