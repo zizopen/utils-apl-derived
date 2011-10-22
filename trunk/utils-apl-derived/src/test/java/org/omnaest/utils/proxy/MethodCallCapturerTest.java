@@ -168,8 +168,8 @@ public class MethodCallCapturerTest
     List<MethodCallCaptureContext> methodCallCaptureContextList = methodCallCapturer.getMethodCallCaptureContextList();
     
     assertEquals( 2, methodCallCaptureContextList.size() );
-    assertEquals( "text value", methodCallCaptureContextList.get( 0 ).getMethodCallCapture().getArgs()[0] );
-    assertEquals( "more text", methodCallCaptureContextList.get( 1 ).getMethodCallCapture().getArgs()[0] );
+    assertEquals( "text value", methodCallCaptureContextList.get( 0 ).getMethodCallCapture().getArguments()[0] );
+    assertEquals( "more text", methodCallCaptureContextList.get( 1 ).getMethodCallCapture().getArguments()[0] );
     
     assertEquals( methodCallCaptureContextList.get( 1 ), methodCallCapturer.getLastMethodCallContext() );
   }

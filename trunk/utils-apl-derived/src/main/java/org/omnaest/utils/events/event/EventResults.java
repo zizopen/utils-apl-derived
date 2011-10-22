@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.omnaest.utils.structure.collection.list.iterator.ListIterable;
+import org.omnaest.utils.structure.iterator.ListIterable;
 
 /**
  * Container for event results offering several methods to get meta information about the results.

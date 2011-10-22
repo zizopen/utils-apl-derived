@@ -139,7 +139,7 @@ public class BeanProperty
             if ( methodCallCapture != null )
             {
               //
-              Object object = methodCallCapture.getObj();
+              Object object = methodCallCapture.getObject();
               if ( object != null )
               {
                 //

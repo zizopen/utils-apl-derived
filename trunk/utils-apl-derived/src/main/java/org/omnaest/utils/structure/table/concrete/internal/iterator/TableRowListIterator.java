@@ -17,8 +17,8 @@ package org.omnaest.utils.structure.table.concrete.internal.iterator;
 
 import java.util.ListIterator;
 
-import org.omnaest.utils.structure.collection.list.iterator.ListIteratorIndexBased;
-import org.omnaest.utils.structure.collection.list.iterator.ListIteratorIndexBased.ListIteratorIndexBasedSource;
+import org.omnaest.utils.structure.iterator.ListIteratorIndexBased;
+import org.omnaest.utils.structure.iterator.ListIteratorIndexBased.ListIteratorIndexBasedSource;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Row;
 

@@ -25,28 +25,28 @@ import net.sf.cglib.proxy.MethodProxy;
 public class MethodCallCapture
 {
   /* ********************************************** Variables ********************************************** */
-  protected Object      obj    = null;
-  protected Method      method = null;
-  protected Object[]    args   = null;
-  protected MethodProxy proxy  = null;
+  private Object      object    = null;
+  private Method      method    = null;
+  private Object[]    arguments = null;
+  private MethodProxy proxy     = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   MethodCallCapture( Object obj, Method method, Object[] args, MethodProxy proxy )
   {
     super();
-    this.obj = obj;
+    this.object = obj;
     this.method = method;
-    this.args = args;
+    this.arguments = args;
     this.proxy = proxy;
   }
   
   /**
    * @return the enhanced object / stub / proxy
    */
-  public Object getObj()
+  public Object getObject()
   {
-    return this.obj;
+    return this.object;
   }
   
   /**
@@ -64,9 +64,9 @@ public class MethodCallCapture
    * 
    * @return
    */
-  public Object[] getArgs()
+  public Object[] getArguments()
   {
-    return this.args;
+    return this.arguments;
   }
   
   /**
