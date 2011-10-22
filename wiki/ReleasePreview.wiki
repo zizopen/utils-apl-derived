@@ -4,3 +4,4 @@
 = Release preview =
 
  * PatternUtils
+ * MethodInvocationForwardingCapturer
