@@ -17,4 +17,21 @@ Since the XStream library is licensed under BSD license you have to include the 
 </dependency>
 }}}
 
-For examples how to use see the [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodInvocationForwardingCapturerTest.java?spec=svn230&r=230 MethodInvocationForwardingCapturerTest]
+Examples of use:
+
+{{{
+TestClass object = new TestClass();
+OutputStream outputStream = [...]
+
+TestClass proxyInstance = MethodInvocationForwardingCapturer.newProxyInstanceCapturing( object, outputStream );
+}}}
+
+{{{
+MethodInvocationForwardingCapturer.replayOn( preparedCapturingMethodInvocationInputStream, testClass );
+}}}
+
+{{{
+TestClass proxyInstance = MethodInvocationForwardingCapturer.newProxyInstanceCapturing( object, outputStream );
+}}}
+
+For further examples how to use see the [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodInvocationForwardingCapturerTest.java?spec=svn230&r=230 MethodInvocationForwardingCapturerTest]
