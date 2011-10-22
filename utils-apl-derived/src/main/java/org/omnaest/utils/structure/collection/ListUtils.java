@@ -122,7 +122,7 @@ public class ListUtils
    * @param <V>
    * @param <E>
    */
-  public static interface ElementToMapEntryTransformer<K, V, E>
+  public static interface ElementToMapEntryTransformer<E, K, V>
   {
     
     /**
@@ -621,25 +621,25 @@ public class ListUtils
   }
   
   /**
-   * Transforms a given {@link Collection} into a {@link Map} using a {@link LinkedHashMap} which keeps the order of the
-   * {@link List}. Returns an empty {@link Map} for a null value as collection. Null values within the {@link List} will be
-   * excluded from the map, if the respective {@link ElementToMapEntryTransformer#transformElement(Object)} returns null.
+   * Transforms a given {@link Iterable} into a {@link Map} using a {@link LinkedHashMap} which keeps the order of the
+   * {@link List}. Returns an empty {@link Map} for a null value as {@link Iterable}. Null values within the {@link Iterable} will
+   * be excluded from the map, if the respective {@link ElementToMapEntryTransformer#transformElement(Object)} returns null.
    * 
    * @see ElementToMapEntryTransformer
-   * @param collection
+   * @param iterable
    * @param elementToMapEntryTransformer
    * @return
    */
-  public static <K, V, E> Map<K, V> asMap( Collection<E> collection,
-                                           ElementToMapEntryTransformer<K, V, E> elementToMapEntryTransformer )
+  public static <K, V, E> Map<K, V> asMap( Iterable<E> iterable,
+                                           ElementToMapEntryTransformer<E, K, V> elementToMapEntryTransformer )
   {
     //
     Map<K, V> retmap = new LinkedHashMap<K, V>();
     
     //
-    if ( collection != null && elementToMapEntryTransformer != null )
+    if ( iterable != null && elementToMapEntryTransformer != null )
     {
-      for ( E element : collection )
+      for ( E element : iterable )
       {
         //
         Entry<K, V> entry = elementToMapEntryTransformer.transformElement( element );

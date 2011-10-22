@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
-import org.omnaest.utils.structure.collection.list.iterator.ListIterable;
+import org.omnaest.utils.structure.iterator.ListIterable;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Column;

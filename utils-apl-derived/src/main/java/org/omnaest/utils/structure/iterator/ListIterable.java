@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.collection.list.iterator;
+package org.omnaest.utils.structure.iterator;
 
 import java.util.ListIterator;
 

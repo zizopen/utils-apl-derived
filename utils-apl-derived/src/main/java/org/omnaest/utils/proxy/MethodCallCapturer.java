@@ -366,7 +366,7 @@ public class MethodCallCapturer
      */
     public Object getStub()
     {
-      return this.methodCallCapture != null ? this.methodCallCapture.getObj() : null;
+      return this.methodCallCapture != null ? this.methodCallCapture.getObject() : null;
     }
     
     /**
@@ -989,14 +989,14 @@ public class MethodCallCapturer
             if ( methodCallCapture != null )
             {
               //
-              Object invocationStub = methodCallCapture.getObj();
+              Object invocationStub = methodCallCapture.getObject();
               Object invocationObject = stubToObjectMap.get( invocationStub );
               
               //
               if ( invocationObject != null )
               {
                 Method method = methodCallCapture.getMethod();
-                Object[] args = methodCallCapture.getArgs();
+                Object[] args = methodCallCapture.getArguments();
                 if ( method != null )
                 {
                   //
