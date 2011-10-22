@@ -32,8 +32,7 @@ MethodInvocationForwardingCapturer.replayOn( preparedCapturingMethodInvocationIn
 
 {{{
 boolean ignoreArgumentValues = false;
-TestClass proxyInstanceReplaying = MethodInvocationForwardingCapturer.newProxyInstanceReplaying( TestClass.class,preparedCapturingMethodInvocationInputStream,
-ignoreArgumentValues );
+TestClass proxyInstanceReplaying = MethodInvocationForwardingCapturer.newProxyInstanceReplaying( TestClass.class,preparedCapturingMethodInvocationInputStream,ignoreArgumentValues );
 }}}
 
 For further examples how to use see the [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/proxy/MethodInvocationForwardingCapturerTest.java?spec=svn230&r=230 MethodInvocationForwardingCapturerTest]
