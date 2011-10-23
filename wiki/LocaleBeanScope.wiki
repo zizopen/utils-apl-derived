@@ -19,6 +19,8 @@ This behvior allows several things:
 
 Threads with the same locale will use the same Spring bean if it is declared as locale scoped.
 
+If the Runnable or Callable decorators from the LocaleBeanScope are used, the locale is cleared for the thread after the execution ends. This allows to use ThreadPools without conflicts.
+
 
 An example of the behavior can be found within  [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/java/org/omnaest/utils/spring/scope/LocaleBeanScopeTest.java LocaleBeanScopeTest] and the related application context at [http://code.google.com/p/utils-apl-derived/source/browse/trunk/utils-apl-derived/src/test/resources/org/omnaest/utils/spring/scope/LocaleBeanScopeTestAC.xml LocaleBeanScopeTestAC]
 
