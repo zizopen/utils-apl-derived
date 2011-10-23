@@ -615,7 +615,6 @@ public class MethodInvocationForwardingCapturer
           }
           catch ( Exception e )
           {
-            e.printStackTrace();
           }
           
           //
