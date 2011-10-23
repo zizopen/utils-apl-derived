@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.junit.Test;
-import org.omnaest.utils.structure.collection.ListUtils.ElementToMapEntryTransformer;
+import org.omnaest.utils.structure.element.converter.ElementToMapEntryConverter;
 
 public class ListUtilsTest
 {
@@ -53,18 +53,18 @@ public class ListUtilsTest
   }
   
   @Test
-    public void testIterableAsList()
-    {
-      //
-      List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
-      
-      //
-      List<String> listFromIterator = ListUtils.iteratorAsList( testList.iterator() );
-      
-      //
-      assertEquals( testList, listFromIterator );
-      
-    }
+  public void testIterableAsList()
+  {
+    //
+    List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
+    
+    //
+    List<String> listFromIterator = ListUtils.iteratorAsList( testList.iterator() );
+    
+    //
+    assertEquals( testList, listFromIterator );
+    
+  }
   
   @Test
   public void testLastElementOf()
@@ -106,11 +106,11 @@ public class ListUtilsTest
     List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
     
     //
-    ElementToMapEntryTransformer<String, String, String> elementToMapEntryTransformer = new ElementToMapEntryTransformer<String, String, String>()
+    ElementToMapEntryConverter<String, String, String> elementToMapEntryTransformer = new ElementToMapEntryConverter<String, String, String>()
     {
       
       @Override
-      public Entry<String, String> transformElement( String element )
+      public Entry<String, String> convert( String element )
       {
         //
         String key = "key" + element;

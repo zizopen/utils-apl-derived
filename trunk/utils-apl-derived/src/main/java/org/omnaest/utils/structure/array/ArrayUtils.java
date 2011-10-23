@@ -19,8 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.omnaest.utils.structure.collection.CollectionUtils;
-import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
 import org.omnaest.utils.structure.collection.list.ListUtil;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 /**
  * Helper methods for arrays.

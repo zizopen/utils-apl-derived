@@ -29,9 +29,9 @@ import java.util.Map.Entry;
 
 import org.omnaest.utils.proxy.StubCreator.MethodInvocationHandler;
 import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.ListUtils.ElementToMapEntryTransformer;
 import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.Range;
+import org.omnaest.utils.structure.element.converter.ElementToMapEntryConverter;
 import org.omnaest.utils.structure.iterator.ElementStreamToIteratorAdapter;
 import org.omnaest.utils.structure.iterator.RangedIterable;
 import org.omnaest.utils.structure.map.SimpleEntry;
@@ -457,11 +457,11 @@ public class MethodInvocationForwardingCapturer
     //
     if ( type != null )
     {
-      ElementToMapEntryTransformer<MethodInvocationAndResult, MethodInvocationComparison, Object> elementToMapEntryTransformer = new ElementToMapEntryTransformer<MethodInvocationForwardingCapturer.MethodInvocationAndResult, MethodInvocationForwardingCapturer.MethodInvocationComparison, Object>()
+      ElementToMapEntryConverter<MethodInvocationAndResult, MethodInvocationComparison, Object> elementToMapEntryTransformer = new ElementToMapEntryConverter<MethodInvocationForwardingCapturer.MethodInvocationAndResult, MethodInvocationForwardingCapturer.MethodInvocationComparison, Object>()
       {
         
         @Override
-        public Entry<MethodInvocationComparison, Object> transformElement( MethodInvocationAndResult methodInvocationAndResult )
+        public Entry<MethodInvocationComparison, Object> convert( MethodInvocationAndResult methodInvocationAndResult )
         {
           //
           Entry<MethodInvocationComparison, Object> entry = null;

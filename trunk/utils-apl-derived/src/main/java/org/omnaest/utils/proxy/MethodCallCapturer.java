@@ -30,7 +30,7 @@ import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.proxy.StubCreator.MethodInvocationHandler;
 import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 /**
  * A {@link MethodCallCapturer} allows to create stubs for given java types which capture the calls of methods of this stub.
@@ -707,10 +707,10 @@ public class MethodCallCapturer
     List<String> canonicalPropertyNameList = null;
     
     //    
-    ElementTransformer<MethodCallCaptureContext, String> elementTransformer = new ElementTransformer<MethodCallCapturer.MethodCallCaptureContext, String>()
+    ElementConverter<MethodCallCaptureContext, String> elementTransformer = new ElementConverter<MethodCallCapturer.MethodCallCaptureContext, String>()
     {
       @Override
-      public String transformElement( MethodCallCaptureContext methodCallCaptureContext )
+      public String convert( MethodCallCaptureContext methodCallCaptureContext )
       {
         return methodCallCaptureContext.determineCanonicalPropertyName( stub );
       }
@@ -736,10 +736,10 @@ public class MethodCallCapturer
     List<String> canonicalMethodNameList = null;
     
     //    
-    ElementTransformer<MethodCallCaptureContext, String> elementTransformer = new ElementTransformer<MethodCallCapturer.MethodCallCaptureContext, String>()
+    ElementConverter<MethodCallCaptureContext, String> elementTransformer = new ElementConverter<MethodCallCapturer.MethodCallCaptureContext, String>()
     {
       @Override
-      public String transformElement( MethodCallCaptureContext methodCallCaptureContext )
+      public String convert( MethodCallCaptureContext methodCallCaptureContext )
       {
         return methodCallCaptureContext.determineCanonicalMethodName( stub );
       }

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
 import org.omnaest.utils.structure.table.serializer.common.XHTMLDataContainer;
@@ -37,7 +38,7 @@ import org.omnaest.utils.xml.XMLHelper;
  * @author Omnaest
  * @param <E>
  */
-public class TableUnmarshallerHTML<E extends String> implements TableUnmarshaller<E>
+public class TableUnmarshallerHTML implements TableUnmarshaller<String>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = -1183646781295216284L;
@@ -65,7 +66,7 @@ public class TableUnmarshallerHTML<E extends String> implements TableUnmarshalle
   }
   
   @Override
-  public void unmarshal( Table<E> table, InputStream inputStream )
+  public void unmarshal( Table<String> table, InputStream inputStream )
   {
     //
     if ( table != null && inputStream != null )
@@ -75,7 +76,7 @@ public class TableUnmarshallerHTML<E extends String> implements TableUnmarshalle
       {
         //
         @SuppressWarnings("unchecked")
-        XHTMLDataContainer<E> xhtmlDataContainer = XMLHelper.loadObjectFromXML( inputStream, XHTMLDataContainer.class );
+        XHTMLDataContainer<String> xhtmlDataContainer = XMLHelper.loadObjectFromXML( inputStream, XHTMLDataContainer.class );
         
         //
         this.writeXMLDataContainerToTableContent( table, xhtmlDataContainer );
@@ -88,7 +89,7 @@ public class TableUnmarshallerHTML<E extends String> implements TableUnmarshalle
   }
   
   @Override
-  public void unmarshal( Table<E> table, CharSequence charSequence )
+  public void unmarshal( Table<String> table, CharSequence charSequence )
   {
     //
     if ( charSequence != null && table != null )
@@ -108,7 +109,7 @@ public class TableUnmarshallerHTML<E extends String> implements TableUnmarshalle
    * 
    * @param xmlDataContainer
    */
-  protected void writeXMLDataContainerToTableContent( Table<E> table, XHTMLDataContainer<E> xhtmlDataContainer )
+  protected void writeXMLDataContainerToTableContent( Table<String> table, XHTMLDataContainer<String> xhtmlDataContainer )
   {
     //
     if ( table != null && xhtmlDataContainer != null )
@@ -138,17 +139,15 @@ public class TableUnmarshallerHTML<E extends String> implements TableUnmarshalle
             
             //              
             List<Cell> cellList = row.getCellList();
-            List<List<String>> collectionOfValueList = ListUtils.transform( cellList,
-                                                                            new ListUtils.ElementTransformer<Cell, List<String>>()
-                                                                            {
-                                                                              @Override
-                                                                              public List<String> transformElement( Cell cell )
-                                                                              {
-                                                                                return cell.getValueList();
-                                                                              }
-                                                                            } );
-            @SuppressWarnings("unchecked")
-            List<? extends E> mergedValueList = (List<? extends E>) ListUtils.mergeAll( collectionOfValueList );
+            List<List<String>> collectionOfValueList = ListUtils.transform( cellList, new ElementConverter<Cell, List<String>>()
+            {
+              @Override
+              public List<String> convert( Cell cell )
+              {
+                return cell.getValueList();
+              }
+            } );
+            List<String> mergedValueList = ListUtils.mergeAll( collectionOfValueList );
             if ( mergedValueList != null && !mergedValueList.isEmpty() )
             {
               table.addRowCellElements( mergedValueList );

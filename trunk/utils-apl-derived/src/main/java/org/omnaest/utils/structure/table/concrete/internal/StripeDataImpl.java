@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.internal.TableInternal.CellData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
@@ -136,10 +136,10 @@ public class StripeDataImpl<E> implements StripeData<E>
   {
     //
     Collection<CellData<E>> collection = this.cellDataSet;
-    ElementTransformer<CellData<E>, E> elementTransformer = new ElementTransformer<CellData<E>, E>()
+    ElementConverter<CellData<E>, E> elementTransformer = new ElementConverter<CellData<E>, E>()
     {
       @Override
-      public E transformElement( CellData<E> cell )
+      public E convert( CellData<E> cell )
       {
         // 
         return cell == null ? null : cell.getElement();

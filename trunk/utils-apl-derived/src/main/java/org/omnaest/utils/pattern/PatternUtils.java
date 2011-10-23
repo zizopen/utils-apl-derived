@@ -23,8 +23,8 @@ import java.util.List;
 import org.omnaest.utils.operation.Operation;
 import org.omnaest.utils.strings.CharacterPathBuilder;
 import org.omnaest.utils.strings.CharacterPathBuilder.CharacterPath;
+import org.omnaest.utils.structure.collection.CollectionUtils.CollectionTransformer;
 import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.ListUtils.CollectionTransformer;
 
 import com.sun.org.apache.xalan.internal.xsltc.compiler.Pattern;
 

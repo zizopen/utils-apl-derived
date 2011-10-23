@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverterObjectClass;
 
 /**
  * Helper for Java Reflection.
@@ -163,7 +164,7 @@ public class ReflectionUtils
     if ( clazz != null )
     {
       //
-      Class<?>[] parameterTypes = ListUtils.transform( Arrays.asList( args ), new ListUtils.ElementTransformerObjectClass() )
+      Class<?>[] parameterTypes = ListUtils.transform( Arrays.asList( args ), new ElementConverterObjectClass() )
                                            .toArray( new Class<?>[args.length] );
       
       //

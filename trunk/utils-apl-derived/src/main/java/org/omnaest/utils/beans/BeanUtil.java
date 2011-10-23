@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.array.ArrayUtils;
-import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 /**
  * Simple utility class, which extends the Apache Common BeanUtils class.

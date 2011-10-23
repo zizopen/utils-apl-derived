@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.omnaest.utils.structure.collection.CollectionUtils;
-import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 /**
  * Helper class for List.

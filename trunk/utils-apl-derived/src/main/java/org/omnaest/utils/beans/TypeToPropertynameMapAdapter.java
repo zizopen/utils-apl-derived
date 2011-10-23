@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.map.MapAbstract;
 
 /**
@@ -217,10 +217,10 @@ public class TypeToPropertynameMapAdapter<B> extends MapAbstract<String, Object>
   @Override
   public Collection<Object> values()
   {
-    ElementTransformer<BeanPropertyAccessor<B>, Object> elementTransformer = new ElementTransformer<BeanPropertyAccessor<B>, Object>()
+    ElementConverter<BeanPropertyAccessor<B>, Object> elementTransformer = new ElementConverter<BeanPropertyAccessor<B>, Object>()
     {
       @Override
-      public Object transformElement( BeanPropertyAccessor<B> beanPropertyAccessor )
+      public Object convert( BeanPropertyAccessor<B> beanPropertyAccessor )
       {
         return beanPropertyAccessor.hasGetter() ? beanPropertyAccessor.getPropertyValue( TypeToPropertynameMapAdapter.this.bean )
                                                : null;

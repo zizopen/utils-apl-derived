@@ -24,7 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.omnaest.utils.structure.collection.CollectionUtils.CollectionTransformer;
 import org.omnaest.utils.structure.collection.ListUtils.ElementFilterIndexPositionBasedForGivenIndexes.Mode;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementToMapEntryConverter;
+import org.omnaest.utils.structure.element.converter.MultiElementConverter;
 
 /**
  * Helper class for modifying {@link List} instances.
@@ -34,155 +38,6 @@ import org.omnaest.utils.structure.collection.ListUtils.ElementFilterIndexPositi
 public class ListUtils
 {
   /* ********************************************** Classes/Interfaces ********************************************** */
-  
-  /**
-   * Transformer interface for transforming whole {@link Collection}s into a single object
-   * 
-   * @author Omnaest
-   * @param <FROM>
-   * @param <TO>
-   */
-  public static interface CollectionTransformer<FROM, TO>
-  {
-    /**
-     * Processes the given {@link Collection} element. This method will be called for each element of the original
-     * {@link Collection}
-     * 
-     * @param collection
-     */
-    public void process( FROM element );
-    
-    /**
-     * Returns the result of the transformation process
-     * 
-     * @return
-     */
-    public TO result();
-  }
-  
-  /**
-   * {@link CollectionTransformer} which produces a {@link String} from a {@link Collection}
-   * 
-   * @author Omnaest
-   * @param <FROM>
-   */
-  public static abstract class CollectionTransformerToString<FROM> implements CollectionTransformer<FROM, String>
-  {
-    /* ********************************************** Variables ********************************************** */
-    private StringBuilder resultStringBuilder = new StringBuilder();
-    
-    /* ********************************************** Methods ********************************************** */
-    /**
-     * The {@link #process(Object, StringBuilder)} method will be invoked for every element of the processed {@link Collection}.
-     * The given {@link StringBuilder} instance will build the resulting {@link String} and should be used to store the iteration
-     * result.
-     * 
-     * @param element
-     * @param resultStringBuilder
-     */
-    public abstract void process( FROM element, StringBuilder resultStringBuilder );
-    
-    @Override
-    public void process( FROM element )
-    {
-      this.process( element, this.resultStringBuilder );
-    }
-    
-    @Override
-    public String result()
-    {
-      return this.resultStringBuilder.toString();
-    }
-    
-  }
-  
-  /**
-   * The provides the transformation method to transform one generic element instance into another.
-   * 
-   * @see MultiElementTransformer
-   * @see ListUtils#transform(Collection, ElementTransformer)
-   */
-  public static interface ElementTransformer<FROM, TO>
-  {
-    /**
-     * Transforms a single element from one type into another.
-     * 
-     * @param element
-     * @return converted element
-     */
-    public TO transformElement( FROM element );
-  }
-  
-  /**
-   * A transformer from a {@link List} element type to a {@link Entry} type
-   * 
-   * @see ListUtils#asMap(Collection)
-   * @author Omnaest
-   * @param <K>
-   * @param <V>
-   * @param <E>
-   */
-  public static interface ElementToMapEntryTransformer<E, K, V>
-  {
-    
-    /**
-     * Transforms a given {@link List} element instance into an {@link Entry}. Null values must be handled by this method, too.
-     * 
-     * @param element
-     * @return {@link Entry}
-     */
-    public Entry<K, V> transformElement( E element );
-  }
-  
-  /**
-   * The provides the transformation method to transform one generic {@link Collection} instance into one or multiple elements of
-   * other type. The resulting list will be merged to a ordered list by a transformation process, so the order will be kept.
-   * 
-   * @see ElementTransformer
-   * @see ListUtils#transform(Collection, MultiElementTransformer, boolean)
-   */
-  public static interface MultiElementTransformer<FROM, TO>
-  {
-    /**
-     * Transforms a single element from one type into an (ordered) list of the other types.
-     * 
-     * @param element
-     * @return converted element
-     */
-    public Collection<TO> transformElement( FROM element );
-  }
-  
-  /**
-   * Simple {@link ElementTransformer} implementation which casts the given object and returns it.
-   * 
-   * @author Omnaest
-   * @param <FROM>
-   * @param <TO>
-   */
-  public static class ElementTransformerIdentitiyCast<FROM, TO> implements ElementTransformer<FROM, TO>
-  {
-    @SuppressWarnings("unchecked")
-    @Override
-    public TO transformElement( FROM element )
-    {
-      return (TO) element;
-    }
-  }
-  
-  /**
-   * This is an {@link ElementTransformer} implementation which returns the {@link Class} instances of a given {@link Object} by
-   * calling {@link Object#getClass()}
-   * 
-   * @author Omnaest
-   */
-  public static class ElementTransformerObjectClass implements ElementTransformer<Object, Class<? extends Object>>
-  {
-    @Override
-    public Class<? extends Object> transformElement( Object element )
-    {
-      return element == null ? null : element.getClass();
-    }
-  }
   
   /**
    * An {@link ElementFilter} is used to filter elements.
@@ -379,84 +234,84 @@ public class ListUtils
   }
   
   /**
-   * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementTransformer}.
+   * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementConverter}.
    * 
-   * @see #transform(Collection, ElementTransformer, boolean)
+   * @see #transform(Collection, ElementConverter, boolean)
    * @param collection
    * @param elementTransformer
    */
-  public static <FROM, TO> List<TO> transform( Collection<FROM> collection, ElementTransformer<FROM, TO> elementTransformer )
+  public static <FROM, TO> List<TO> transform( Collection<FROM> collection, ElementConverter<FROM, TO> elementTransformer )
   {
     return ListUtils.transform( collection, elementTransformer, false );
   }
   
   /**
    * Transforms a given {@link Collection} instance from one generic type into the other using a given
-   * {@link MultiElementTransformer}.
+   * {@link MultiElementConverter}.
    * 
-   * @see #transform(Collection, ElementTransformer, boolean)
+   * @see #transform(Collection, ElementConverter, boolean)
    * @param collection
    * @param multiElementTransformer
    */
   public static <FROM, TO> List<TO> transform( Collection<FROM> collection,
-                                               MultiElementTransformer<FROM, TO> multiElementTransformer )
+                                               MultiElementConverter<FROM, TO> multiElementTransformer )
   {
     return ListUtils.transform( collection, multiElementTransformer, false );
   }
   
   /**
-   * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementTransformer}.
-   * Every null value returned by the {@link ElementTransformer} will be discarded and not put into the result list.
+   * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementConverter}.
+   * Every null value returned by the {@link ElementConverter} will be discarded and not put into the result list.
    * 
-   * @see #transform(Collection, ElementTransformer, boolean)
+   * @see #transform(Collection, ElementConverter, boolean)
    * @param collection
    * @param elementTransformer
    */
   public static <FROM, TO> List<TO> transformListExcludingNullElements( Collection<FROM> collection,
-                                                                        ElementTransformer<FROM, TO> elementTransformer )
+                                                                        ElementConverter<FROM, TO> elementTransformer )
   {
     return ListUtils.transform( collection, elementTransformer, true );
   }
   
   /**
    * Transforms a given {@link Collection} instance from one generic type into the other using a given
-   * {@link MultiElementTransformer}. Every null value returned by the {@link ElementTransformer} will be discarded and not put
-   * into the result list.
+   * {@link MultiElementConverter}. Every null value returned by the {@link ElementConverter} will be discarded and not put into
+   * the result list.
    * 
-   * @see #transform(Collection, ElementTransformer, boolean)
+   * @see #transform(Collection, ElementConverter, boolean)
    * @param collection
    * @param multiElementTransformer
    */
   public static <FROM, TO> List<TO> transformListExcludingNullElements( Collection<FROM> collection,
-                                                                        MultiElementTransformer<FROM, TO> multiElementTransformer )
+                                                                        MultiElementConverter<FROM, TO> multiElementTransformer )
   {
     return ListUtils.transform( collection, multiElementTransformer, true );
   }
   
   /**
-   * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementTransformer}.
+   * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementConverter}.
    * 
-   * @see #transform(Collection, ElementTransformer)
+   * @see #transform(Collection, ElementConverter)
    * @param collection
    * @param elementTransformer
    * @param eliminateNullValues
    *          : true->all null results from the element transformer will be discarded and not inserted into the result list.
    */
   public static <FROM, TO> List<TO> transform( Collection<FROM> collection,
-                                               final ElementTransformer<FROM, TO> elementTransformer,
+                                               final ElementConverter<FROM, TO> elementTransformer,
                                                boolean eliminateNullValues )
   {
     //
     List<TO> retlist = new ArrayList<TO>();
     if ( elementTransformer != null )
     {
-      MultiElementTransformer<FROM, TO> multiElementTransformer = new MultiElementTransformer<FROM, TO>()
+      MultiElementConverter<FROM, TO> multiElementTransformer = new MultiElementConverter<FROM, TO>()
       {
         @SuppressWarnings("unchecked")
         @Override
-        public Collection<TO> transformElement( FROM element )
+        public Collection<TO> convert( FROM element )
         {
-          return Arrays.asList( elementTransformer.transformElement( element ) );
+          return Arrays.asList( elementTransformer.convert( element ) );
         }
       };
       retlist = ListUtils.transform( collection, multiElementTransformer, eliminateNullValues );
@@ -467,9 +322,9 @@ public class ListUtils
   }
   
   /**
-   * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementTransformer}.
+   * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementConverter}.
    * 
-   * @see #transform(Collection, ElementTransformer)
+   * @see #transform(Collection, ElementConverter)
    * @param collection
    * @param multiElementTransformer
    * @param eliminateNullValues
@@ -477,7 +332,7 @@ public class ListUtils
    * @return always new (ordered) list instance containing transformed elements
    */
   public static <FROM, TO> List<TO> transform( Collection<FROM> collection,
-                                               MultiElementTransformer<FROM, TO> multiElementTransformer,
+                                               MultiElementConverter<FROM, TO> multiElementTransformer,
                                                boolean eliminateNullValues )
   {
     //
@@ -492,7 +347,7 @@ public class ListUtils
         try
         {
           //
-          Collection<TO> transformedElementCollection = multiElementTransformer.transformElement( element );
+          Collection<TO> transformedElementCollection = multiElementTransformer.convert( element );
           
           //
           if ( transformedElementCollection != null )
@@ -623,15 +478,14 @@ public class ListUtils
   /**
    * Transforms a given {@link Iterable} into a {@link Map} using a {@link LinkedHashMap} which keeps the order of the
    * {@link List}. Returns an empty {@link Map} for a null value as {@link Iterable}. Null values within the {@link Iterable} will
-   * be excluded from the map, if the respective {@link ElementToMapEntryTransformer#transformElement(Object)} returns null.
+   * be excluded from the map, if the respective {@link ElementToMapEntryConverter#convert(Object)} returns null.
    * 
-   * @see ElementToMapEntryTransformer
+   * @see ElementToMapEntryConverter
    * @param iterable
    * @param elementToMapEntryTransformer
    * @return
    */
-  public static <K, V, E> Map<K, V> asMap( Iterable<E> iterable,
-                                           ElementToMapEntryTransformer<E, K, V> elementToMapEntryTransformer )
+  public static <K, V, E> Map<K, V> asMap( Iterable<E> iterable, ElementToMapEntryConverter<E, K, V> elementToMapEntryTransformer )
   {
     //
     Map<K, V> retmap = new LinkedHashMap<K, V>();
@@ -642,7 +496,7 @@ public class ListUtils
       for ( E element : iterable )
       {
         //
-        Entry<K, V> entry = elementToMapEntryTransformer.transformElement( element );
+        Entry<K, V> entry = elementToMapEntryTransformer.convert( element );
         if ( entry != null )
         {
           retmap.put( entry.getKey(), entry.getValue() );

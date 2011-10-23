@@ -20,59 +20,77 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 public class CollectionUtils
 {
   
-  /* ********************************************** Classes/Interfaces ********************************************** */
-  
   /**
-   * Used to convert a collection element.
+   * Transformer interface for transforming whole {@link Collection}s into a single object
    * 
    * @author Omnaest
    * @param <FROM>
    * @param <TO>
    */
-  public static interface ElementConverter<FROM, TO>
+  public static interface CollectionTransformer<FROM, TO>
   {
     /**
-     * Converts a given element into another element with the given return type.
+     * Processes the given {@link Collection} element. This method will be called for each element of the original
+     * {@link Collection}
      * 
-     * @param from
+     * @param collection
+     */
+    public void process( FROM element );
+    
+    /**
+     * Returns the result of the transformation process
+     * 
      * @return
      */
-    public TO convert( FROM from );
+    public TO result();
   }
   
   /**
-   * Does not change the type of the element and the value of the element being converted.
+   * {@link CollectionTransformer} which produces a {@link String} from a {@link Collection}
    * 
    * @author Omnaest
+   * @param <FROM>
    */
-  public static class IdentityElementConverter<T> implements ElementConverter<T, T>
+  public static abstract class CollectionTransformerToString<FROM> implements CollectionTransformer<FROM, String>
   {
+    /* ********************************************** Variables ********************************************** */
+    private StringBuilder resultStringBuilder = new StringBuilder();
+    
+    /* ********************************************** Methods ********************************************** */
+    /**
+     * The {@link #process(Object, StringBuilder)} method will be invoked for every element of the processed {@link Collection}.
+     * The given {@link StringBuilder} instance will build the resulting {@link String} and should be used to store the iteration
+     * result.
+     * 
+     * @param element
+     * @param resultStringBuilder
+     */
+    public abstract void process( FROM element, StringBuilder resultStringBuilder );
+    
     @Override
-    public T convert( T from )
+    public void process( FROM element )
     {
-      return from;
+      this.process( element, this.resultStringBuilder );
     }
+    
+    @Override
+    public String result()
+    {
+      return this.resultStringBuilder.toString();
+    }
+    
   }
   
-  /**
-   * Does not change the type of the element and the value of the element being converted.
-   * 
-   * @author Omnaest
-   */
-  public static class IdentityCastElementConverter<FROM, TO> implements ElementConverter<FROM, TO>
-  {
-    @SuppressWarnings("unchecked")
-    @Override
-    public TO convert( FROM from )
-    {
-      return (TO) from;
-    }
-  }
+  
+  
+  
+  
+  
   
   /* ********************************************** Methods ********************************************** */
   
@@ -297,15 +315,15 @@ public class CollectionUtils
   
   /**
    * Converts a given {@link Collection} into another {@link Collection} with other element types using an
-   * {@link ElementTransformer}.
+   * {@link ElementConverter}.
    * 
-   * @see ElementTransformer
+   * @see ElementConverter
    * @param collectionFrom
    * @param elementTransformer
    * @return
    */
   public static <TO, FROM> Collection<TO> transformCollection( Collection<FROM> collectionFrom,
-                                                               ElementTransformer<FROM, TO> elementTransformer )
+                                                               ElementConverter<FROM, TO> elementTransformer )
   {
     return ListUtils.transform( collectionFrom, elementTransformer );
   }
@@ -314,13 +332,13 @@ public class CollectionUtils
    * Converts a given {@link Collection} into another {@link Collection} with other element types, whereby all elements which
    * convert to null will not be inserted into the target {@link Collection}.
    * 
-   * @see ElementTransformer
+   * @see ElementConverter
    * @param collectionFrom
    * @param elementTransformer
    * @return
    */
   public static <TO, FROM> Collection<TO> transformCollectionExcludingNullElements( Collection<FROM> collectionFrom,
-                                                                                    ElementTransformer<FROM, TO> elementTransformer )
+                                                                                    ElementConverter<FROM, TO> elementTransformer )
   {
     return ListUtils.transformListExcludingNullElements( collectionFrom, elementTransformer );
   }

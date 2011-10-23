@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
 import org.omnaest.utils.structure.element.ElementHolder;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableBlock;
@@ -138,10 +138,10 @@ public class ColumnHaveDistinctRows<E> implements PredicateFilter<E>
       }
       
       //
-      ElementTransformer<StripeWrapperWithEqualsAndHashCode<E>, StripeData<E>> elementTransformer = new ElementTransformer<StripeWrapperWithEqualsAndHashCode<E>, StripeData<E>>()
+      ElementConverter<StripeWrapperWithEqualsAndHashCode<E>, StripeData<E>> elementTransformer = new ElementConverter<StripeWrapperWithEqualsAndHashCode<E>, StripeData<E>>()
       {
         @Override
-        public StripeData<E> transformElement( StripeWrapperWithEqualsAndHashCode<E> stripeDataWrapper )
+        public StripeData<E> convert( StripeWrapperWithEqualsAndHashCode<E> stripeDataWrapper )
         {
           Stripe<E> stripe = stripeDataWrapper.getElement();
           return ( (StripeInternal<E>) stripe ).getStripeData();
