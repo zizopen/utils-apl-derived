@@ -1,0 +1,6 @@
+#summary Decorator for given map instances which translates key and/or values
+#labels map,decorator,adapter,converter
+
+= MapToMapAdapter =
+
+The MapToMapAdapter is a decorator of an already existing map instance. It uses ElementConverter instances to convert keys and values in both directions.
