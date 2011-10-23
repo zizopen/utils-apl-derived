@@ -1,0 +1,6 @@
+#summary Proxy factory for JSR-311 rest types
+#labels jsr-311,rest,proxy,factory
+
+= RestClientFactory =
+
+The RestClientFactory allows to create cglib proxy instances for given JSR-311 (REST) annotated types.
