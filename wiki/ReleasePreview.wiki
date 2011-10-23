@@ -5,3 +5,6 @@
 
  * PatternUtils
  * MethodInvocationForwardingCapturer
+ * MapToMapAdapter
+ * RestClientFactory
+ * RestClientFactoryJersey
