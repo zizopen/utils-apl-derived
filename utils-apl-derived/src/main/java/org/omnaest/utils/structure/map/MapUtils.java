@@ -27,8 +27,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.omnaest.utils.structure.collection.CollectionUtils.ElementConverter;
-import org.omnaest.utils.structure.collection.CollectionUtils.IdentityElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.IdentityElementConverter;
 import org.omnaest.utils.tuple.TupleDuad;
 
 /**

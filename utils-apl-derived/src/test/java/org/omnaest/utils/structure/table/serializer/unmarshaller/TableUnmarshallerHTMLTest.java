@@ -32,7 +32,7 @@ public class TableUnmarshallerHTMLTest
 {
   /* ********************************************** Variables ********************************************** */
   private Table<String>             table             = new ArrayTable<String>();
-  private TableUnmarshaller<String> tableUnmarshaller = new TableUnmarshallerHTML<String>();
+  private TableUnmarshaller<String> tableUnmarshaller = new TableUnmarshallerHTML();
   
   /* ********************************************** Methods ********************************************** */
   @Test

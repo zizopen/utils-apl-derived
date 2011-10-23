@@ -30,7 +30,7 @@ import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.proxy.StubCreator;
 import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 /**
  * This class creates a proxy implementation for a given Java Bean type which is used as a facade to an underlying List&lt;?&gt;.
@@ -358,10 +358,10 @@ public class ListToTypeAdapter<T, L extends List<?>>
       {
         //
         Set<BeanPropertyAccessor<T>> beanPropertyAccessorList = BeanUtils.beanPropertyAccessorSet( clazz );
-        ElementTransformer<BeanPropertyAccessor<T>, String> elementTransformer = new ElementTransformer<BeanPropertyAccessor<T>, String>()
+        ElementConverter<BeanPropertyAccessor<T>, String> elementTransformer = new ElementConverter<BeanPropertyAccessor<T>, String>()
         {
           @Override
-          public String transformElement( BeanPropertyAccessor<T> beanPropertyAccessor )
+          public String convert( BeanPropertyAccessor<T> beanPropertyAccessor )
           {
             return beanPropertyAccessor.getPropertyName();
           }

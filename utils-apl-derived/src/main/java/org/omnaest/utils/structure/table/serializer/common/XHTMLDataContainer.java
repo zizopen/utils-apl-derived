@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.xml.XMLHelper;
 
 /**
@@ -114,10 +114,10 @@ public class XHTMLDataContainer<E>
       
       //
       retlist.addAll( this.getTextList() );
-      ElementTransformer<Anker, List<String>> elementTransformer = new ElementTransformer<Anker, List<String>>()
+      ElementConverter<Anker, List<String>> elementTransformer = new ElementConverter<Anker, List<String>>()
       {
         @Override
-        public List<String> transformElement( Anker anker )
+        public List<String> convert( Anker anker )
         {
           return anker.getTextList();
         }

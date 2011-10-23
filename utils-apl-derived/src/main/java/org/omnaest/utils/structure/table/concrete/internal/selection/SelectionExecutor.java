@@ -30,8 +30,8 @@ import java.util.Set;
 import org.apache.commons.collections.ComparatorUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
 import org.omnaest.utils.structure.collection.set.IdentityArrayListBasedSet;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.map.IdentityLinkedHashMap;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
@@ -223,10 +223,10 @@ public class SelectionExecutor<E>
       final StripeFactory<E> stripeFactory = joinedTableBlock.getTableInternal().getStripeFactory();
       
       //    
-      ElementTransformer<StripeData<E>, StripeInternal<E>> elementTransformer = new ElementTransformer<StripeData<E>, StripeInternal<E>>()
+      ElementConverter<StripeData<E>, StripeInternal<E>> elementTransformer = new ElementConverter<StripeData<E>, StripeInternal<E>>()
       {
         @Override
-        public StripeInternal<E> transformElement( StripeData<E> stripeData )
+        public StripeInternal<E> convert( StripeData<E> stripeData )
         {
           return stripeFactory.newInstanceOfStripeInternal( stripeData );
         }
@@ -272,10 +272,10 @@ public class SelectionExecutor<E>
       
       //
       List<StripeData<E>> rowStripeDataListSorted = ListUtils.transform( rowStripeInternalListToBeSorted,
-                                                                         new ElementTransformer<StripeInternal<E>, StripeData<E>>()
+                                                                         new ElementConverter<StripeInternal<E>, StripeData<E>>()
                                                                          {
                                                                            @Override
-                                                                           public StripeData<E> transformElement( StripeInternal<E> stripeInternal )
+                                                                           public StripeData<E> convert( StripeInternal<E> stripeInternal )
                                                                            {
                                                                              return stripeInternal.getStripeData();
                                                                            }
@@ -610,10 +610,10 @@ public class SelectionExecutor<E>
     else
     {
       //
-      ElementTransformer<Table<E>, Object> elementTransformer = new ElementTransformer<Table<E>, Object>()
+      ElementConverter<Table<E>, Object> elementTransformer = new ElementConverter<Table<E>, Object>()
       {
         @Override
-        public Object transformElement( Table<E> table )
+        public Object convert( Table<E> table )
         {
           // 
           return table.getTableName();
@@ -686,10 +686,10 @@ public class SelectionExecutor<E>
     Set<Table<E>> tableSet = this.selectionData.getTableToJoinMap().keySet();
     
     //
-    ElementTransformer<Table<E>, TableInternal<E>> elementConverter = new ElementTransformer<Table<E>, TableInternal<E>>()
+    ElementConverter<Table<E>, TableInternal<E>> elementConverter = new ElementConverter<Table<E>, TableInternal<E>>()
     {
       @Override
-      public TableInternal<E> transformElement( Table<E> table )
+      public TableInternal<E> convert( Table<E> table )
       {
         return TableInternalHelper.extractTableInternalFromTable( table );
       }

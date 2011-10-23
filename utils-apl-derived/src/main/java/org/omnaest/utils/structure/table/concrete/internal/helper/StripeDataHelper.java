@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.ListUtils.ElementTransformer;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.concrete.internal.StripeDataImpl;
@@ -150,10 +150,10 @@ public class StripeDataHelper
         else
         {
           //
-          ElementTransformer<StripeData<E>, Object> elementTransformer = new ElementTransformer<StripeData<E>, Object>()
+          ElementConverter<StripeData<E>, Object> elementTransformer = new ElementConverter<StripeData<E>, Object>()
           {
             @Override
-            public Object transformElement( StripeData<E> stripeData )
+            public Object convert( StripeData<E> stripeData )
             {
               // 
               return stripeData.getTitleInternal().getValue();
