@@ -15,10 +15,17 @@
  ******************************************************************************/
 package org.omnaest.utils.reflection;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.omnaest.utils.structure.collection.ListUtils;
@@ -31,6 +38,42 @@ import org.omnaest.utils.structure.element.converter.ElementConverterObjectClass
  */
 public class ReflectionUtils
 {
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * Represents the meta information about a single {@link Method} parameter
+   * 
+   * @author Omnaest
+   */
+  public static class MethodParameterMetaInformation
+  {
+    /* ********************************************** Variables ********************************************** */
+    private Class<?>         type                   = null;
+    private List<Annotation> declaredAnnotationList = null;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    public MethodParameterMetaInformation( Class<?> type, List<Annotation> declaredAnnotationList )
+    {
+      super();
+      this.type = type;
+      this.declaredAnnotationList = declaredAnnotationList;
+    }
+    
+    public Class<?> getType()
+    {
+      return this.type;
+    }
+    
+    public List<Annotation> getDeclaredAnnotationList()
+    {
+      return this.declaredAnnotationList;
+    }
+    
+  }
+  
+  /* ********************************************** Methods ********************************************** */
+  
   /**
    * Determines the index position of a declared {@link Method} within a given {@link Class}.
    * 
@@ -198,4 +241,165 @@ public class ReflectionUtils
     //
     return retval;
   }
+  
+  /**
+   * Returns a {@link Map} with {@link Method}s of the given Java Bean and a {@link Set} of all available {@link Annotation}s for
+   * the {@link Method}
+   * 
+   * @param beanClass
+   * @return
+   */
+  public static Map<Method, Set<Annotation>> methodToAnnotationSetMap( Class<?> type )
+  {
+    //
+    Map<Method, Set<Annotation>> retmap = new LinkedHashMap<Method, Set<Annotation>>();
+    
+    //
+    if ( type != null )
+    {
+      //
+      Method[] declaredMethods = type.getDeclaredMethods();
+      for ( Method method : declaredMethods )
+      {
+        Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
+        retmap.put( method, new LinkedHashSet<Annotation>( Arrays.asList( declaredAnnotations ) ) );
+      }
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Returns all {@link Class#getDeclaredAnnotations()} as {@link List}
+   * 
+   * @param type
+   * @return
+   */
+  public static List<Annotation> declaredAnnotationList( Class<?> type )
+  {
+    //    
+    List<Annotation> retlist = new ArrayList<Annotation>();
+    
+    //
+    if ( type != null )
+    {
+      //
+      retlist.addAll( Arrays.asList( type.getDeclaredAnnotations() ) );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Returns true if the given {@link Class} type declares the given {@link Annotation} class
+   * 
+   * @param type
+   * @param annotationType
+   * @return
+   */
+  public static boolean declaresAnnotation( Class<?> type, Class<? extends Annotation> annotationType )
+  {
+    //
+    boolean retval = false;
+    
+    //
+    List<Annotation> declaredAnnotationList = declaredAnnotationList( type );
+    for ( Annotation declaredAnnotation : declaredAnnotationList )
+    {
+      if ( declaredAnnotation.annotationType().equals( annotationType ) )
+      {
+        retval = true;
+        break;
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns all {@link Method#getDeclaredAnnotations()} as {@link List}
+   * 
+   * @param method
+   * @return
+   */
+  public static List<Annotation> declaredAnnotationList( Method method )
+  {
+    //    
+    List<Annotation> retlist = new ArrayList<Annotation>();
+    
+    //
+    if ( method != null )
+    {
+      //
+      retlist.addAll( Arrays.asList( method.getDeclaredAnnotations() ) );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Returns an ordered {@link List} of {@link MethodParameterMetaInformation} instances for each parameter the given
+   * {@link Method} has.
+   * 
+   * @param method
+   * @return
+   */
+  public static List<MethodParameterMetaInformation> declaredMethodParameterMetaInformationList( Method method )
+  {
+    //    
+    List<MethodParameterMetaInformation> retlist = new ArrayList<MethodParameterMetaInformation>();
+    
+    //
+    if ( method != null )
+    {
+      //
+      Class<?>[] parameterTypes = method.getParameterTypes();
+      Annotation[][] parametersAnnotations = method.getParameterAnnotations();
+      
+      //
+      for ( int ii = 0; ii < Math.max( parameterTypes.length, parametersAnnotations.length ); ii++ )
+      {
+        //
+        Class<?> parameterType = parameterTypes[ii];
+        Annotation[] parameterAnnotations = parametersAnnotations[ii];
+        
+        //
+        MethodParameterMetaInformation methodParameterMetaInformation = new MethodParameterMetaInformation(
+                                                                                                            parameterType,
+                                                                                                            Arrays.asList( parameterAnnotations ) );
+        retlist.add( methodParameterMetaInformation );
+      }
+      
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Returns the {@link Class#getDeclaredMethods()} for a given {@link Class}. Returns always a {@link List} instance.
+   * 
+   * @param type
+   * @return
+   */
+  public static List<Method> declaredMethodList( Class<?> type )
+  {
+    //    
+    List<Method> retlist = new ArrayList<Method>();
+    
+    //
+    if ( type != null )
+    {
+      //
+      retlist.addAll( Arrays.asList( type.getDeclaredMethods() ) );
+    }
+    
+    //
+    return retlist;
+  }
+  
 }
