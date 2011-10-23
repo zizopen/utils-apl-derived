@@ -14,7 +14,7 @@ The resolving process will look within the following places and in the following
  * Otherwise create a new single instance related to this Locale via the BeanFactory of the application context
 
 This behvior allows several things:
- * Dynamically extend the set of bean instances simply by creating threads with new locales
+ * Dynamically extend the set of bean instances during runtime simply by creating threads with new locales
  * Manually declare beans which are used for special locales
 
 Threads with the same locale will use the same Spring bean if it is declared as locale scoped.
