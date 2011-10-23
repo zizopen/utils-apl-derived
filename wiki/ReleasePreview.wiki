@@ -6,5 +6,4 @@
  * PatternUtils
  * MethodInvocationForwardingCapturer
  * MapToMapAdapter
- * RestClientFactory
- * RestClientFactoryJersey
+ * RestClientFactory (including a Jersey based example implementation)
