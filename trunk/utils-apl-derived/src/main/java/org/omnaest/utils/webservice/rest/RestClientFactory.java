@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -78,13 +79,19 @@ public abstract class RestClientFactory
      * @param parameterList
      * @param returnType
      *          TODO
+     * @param consumesMediaTypes
+     *          TODO
+     * @param producesMediaTypes
+     *          TODO
      * @return
      */
     public <T> T handleMethodInvocation( URI baseAddress,
                                          String pathRelative,
                                          HttpMethod httpMethod,
                                          List<Parameter> parameterList,
-                                         Class<T> returnType );
+                                         Class<T> returnType,
+                                         String[] consumesMediaTypes,
+                                         String[] producesMediaTypes );
   }
   
   /**
@@ -334,7 +341,7 @@ public abstract class RestClientFactory
       
       //
       Class<?> returnType = methodCallCapture.getMethod().getReturnType();
-      boolean declaresPathAnnotation = ReflectionUtils.declaresAnnotation( returnType, Path.class );
+      boolean declaresPathAnnotation = ReflectionUtils.hasDeclaredAnnotation( returnType, Path.class );
       
       //
       if ( declaresPathAnnotation )
@@ -363,17 +370,45 @@ public abstract class RestClientFactory
           List<Parameter> parameterList = this.buildParamterList( restInterfaceMetaInformationForClass,
                                                                   restInterfaceMetaInformationForMethod, arguments );
           HttpMethod httpMethod = restInterfaceMetaInformationForMethod.getHttpMethod();
-          
+          String[] consumesMediaTypes = this.determineConsumesMediaTypes( restInterfaceMetaInformationForClass,
+                                                                          restInterfaceMetaInformationForMethod );
+          String[] producesMediaTypes = this.determineProducesMediaTypes( restInterfaceMetaInformationForClass,
+                                                                          restInterfaceMetaInformationForMethod );
           if ( pathRelative != null && httpMethod != null && parameterList != null )
           {
-            restInterfaceMethodInvocationHandler.handleMethodInvocation( baseAddress, pathRelative, httpMethod, parameterList,
-                                                                         returnType );
+            retval = restInterfaceMethodInvocationHandler.handleMethodInvocation( baseAddress, pathRelative, httpMethod,
+                                                                                  parameterList, returnType, consumesMediaTypes,
+                                                                                  producesMediaTypes );
           }
         }
       }
       
       //
       return retval;
+    }
+    
+    protected String[] determineConsumesMediaTypes( RestInterfaceMetaInformationForClass restInterfaceMetaInformationForClass,
+                                                    RestInterfaceMetaInformationForMethod restInterfaceMetaInformationForMethod )
+    {
+      //
+      List<String> mediaTypeConsumesList = new ArrayList<String>();
+      mediaTypeConsumesList.addAll( restInterfaceMetaInformationForClass.getMediaTypeConsumesList() );
+      mediaTypeConsumesList.addAll( restInterfaceMetaInformationForMethod.getMediaTypeConsumesList() );
+      
+      //
+      return new LinkedHashSet<String>( mediaTypeConsumesList ).toArray( new String[0] );
+    }
+    
+    protected String[] determineProducesMediaTypes( RestInterfaceMetaInformationForClass restInterfaceMetaInformationForClass,
+                                                    RestInterfaceMetaInformationForMethod restInterfaceMetaInformationForMethod )
+    {
+      //
+      List<String> mediaTypeProducesList = new ArrayList<String>();
+      mediaTypeProducesList.addAll( restInterfaceMetaInformationForClass.getMediaTypeProducesList() );
+      mediaTypeProducesList.addAll( restInterfaceMetaInformationForMethod.getMediaTypeProducesList() );
+      
+      //
+      return new LinkedHashSet<String>( mediaTypeProducesList ).toArray( new String[0] );
     }
     
     protected List<Parameter> buildParamterList( RestInterfaceMetaInformationForClass restInterfaceMetaInformationForClass,
@@ -467,7 +502,14 @@ public abstract class RestClientFactory
       
       //
       UriBuilder uriBuilder = UriBuilder.fromResource( restInterfaceMetaInformationForClass.getType() );
-      uriBuilder.path( restInterfaceMetaInformationForMethod.getMethod() );
+      
+      //
+      Method method = restInterfaceMetaInformationForMethod.getMethod();
+      boolean hasDeclaredPathAnnotation = ReflectionUtils.hasDeclaredAnnotation( method, Path.class );
+      if ( hasDeclaredPathAnnotation )
+      {
+        uriBuilder.path( restInterfaceMetaInformationForMethod.getMethod() );
+      }
       
       //
       Map<String, Object> pathKeyToValueMap = new LinkedHashMap<String, Object>();
@@ -500,10 +542,19 @@ public abstract class RestClientFactory
   /* ********************************************** Methods ********************************************** */
   
   public RestClientFactory( String baseAddress, RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
-                                                                                                                           throws URISyntaxException
+  
   {
     super();
-    this.baseAddress = new URI( baseAddress );
+    
+    //
+    try
+    {
+      this.baseAddress = new URI( baseAddress );
+    }
+    catch ( URISyntaxException e )
+    {
+      e.printStackTrace();
+    }
     this.restInterfaceMethodInvocationHandler = restInterfaceMethodInvocationHandler;
   }
   
@@ -571,7 +622,7 @@ public abstract class RestClientFactory
             //
             Consumes consumes = (Consumes) annotation;
             String[] values = consumes.value();
-            restInterfaceMetaInformationForClass.getMediaTypeProducesList().addAll( Arrays.asList( values ) );
+            restInterfaceMetaInformationForClass.getMediaTypeConsumesList().addAll( Arrays.asList( values ) );
           }
         }
       }
@@ -632,7 +683,7 @@ public abstract class RestClientFactory
                 //
                 Consumes consumes = (Consumes) annotation;
                 String[] values = consumes.value();
-                restInterfaceMetaInformationForMethod.getMediaTypeProducesList().addAll( Arrays.asList( values ) );
+                restInterfaceMetaInformationForMethod.getMediaTypeConsumesList().addAll( Arrays.asList( values ) );
               }
             }
           }

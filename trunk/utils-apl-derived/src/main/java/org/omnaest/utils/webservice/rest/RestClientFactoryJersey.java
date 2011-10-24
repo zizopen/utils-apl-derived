@@ -16,7 +16,6 @@
 package org.omnaest.utils.webservice.rest;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
 
@@ -34,8 +33,6 @@ public class RestClientFactoryJersey extends RestClientFactory
 {
   
   public RestClientFactoryJersey( String baseAddress )
-                                                      throws URISyntaxException
-  
   {
     super( baseAddress, new RestInterfaceMethodInvocationHandler()
     {
@@ -46,7 +43,9 @@ public class RestClientFactoryJersey extends RestClientFactory
                                            String pathRelative,
                                            HttpMethod httpMethod,
                                            List<Parameter> parameterList,
-                                           Class<T> returnType )
+                                           Class<T> returnType,
+                                           String[] consumesMediaTypes,
+                                           String[] producesMediaTypes )
       {
         //
         T retval = null;
@@ -63,9 +62,17 @@ public class RestClientFactoryJersey extends RestClientFactory
           
           //
           webResource = client.resource( baseAddress );
-          webResource.path( pathRelative );
+          webResource = webResource.path( pathRelative );
           
           //
+          webResource.accept( producesMediaTypes );
+          if ( consumesMediaTypes.length > 0 )
+          {
+            webResource.type( consumesMediaTypes[0] );
+          }
+          
+          //
+          Object entity = null;
           if ( parameterList != null )
           {
             for ( Parameter parameter : parameterList )
@@ -80,7 +87,7 @@ public class RestClientFactoryJersey extends RestClientFactory
                 String value = queryParameter.getValue();
                 
                 //
-                webResource.queryParam( key, value );
+                webResource = webResource.queryParam( key, value );
               }
               else if ( parameter instanceof MatrixParameter )
               {
@@ -97,7 +104,7 @@ public class RestClientFactoryJersey extends RestClientFactory
               {
                 //
                 BodyParameter bodyParameter = (BodyParameter) parameter;
-                webResource.entity( bodyParameter.getValue() );
+                entity = bodyParameter.getValue();
               }
             }
           }
@@ -109,11 +116,25 @@ public class RestClientFactoryJersey extends RestClientFactory
           }
           else if ( HttpMethod.PUT.equals( httpMethod ) )
           {
-            retval = (T) webResource.put( returnType );
+            if ( entity == null )
+            {
+              retval = (T) webResource.put( returnType );
+            }
+            else
+            {
+              retval = (T) webResource.put( returnType, entity );
+            }
           }
           else if ( HttpMethod.POST.equals( httpMethod ) )
           {
-            retval = (T) webResource.post( returnType );
+            if ( entity == null )
+            {
+              retval = (T) webResource.post( returnType );
+            }
+            else
+            {
+              retval = (T) webResource.post( returnType, entity );
+            }
           }
           else if ( HttpMethod.DELETE.equals( httpMethod ) )
           {
