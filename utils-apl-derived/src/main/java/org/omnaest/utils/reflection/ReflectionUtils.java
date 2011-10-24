@@ -299,13 +299,40 @@ public class ReflectionUtils
    * @param annotationType
    * @return
    */
-  public static boolean declaresAnnotation( Class<?> type, Class<? extends Annotation> annotationType )
+  public static boolean hasDeclaredAnnotation( Class<?> type, Class<? extends Annotation> annotationType )
   {
     //
     boolean retval = false;
     
     //
     List<Annotation> declaredAnnotationList = declaredAnnotationList( type );
+    for ( Annotation declaredAnnotation : declaredAnnotationList )
+    {
+      if ( declaredAnnotation.annotationType().equals( annotationType ) )
+      {
+        retval = true;
+        break;
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns true if the given {@link Method} declares the given {@link Annotation} class
+   * 
+   * @param method
+   * @param annotationType
+   * @return
+   */
+  public static boolean hasDeclaredAnnotation( Method method, Class<? extends Annotation> annotationType )
+  {
+    //
+    boolean retval = false;
+    
+    //
+    List<Annotation> declaredAnnotationList = declaredAnnotationList( method );
     for ( Annotation declaredAnnotation : declaredAnnotationList )
     {
       if ( declaredAnnotation.annotationType().equals( annotationType ) )
