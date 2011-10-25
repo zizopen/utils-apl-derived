@@ -19,7 +19,9 @@ import java.io.InputStream;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerCSV;
+import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerXLS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -38,7 +40,62 @@ public class ResourceLoaderTable
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * Returns a new {@link Table} instance for the location
+   * Returns a {@link Table} for the given resource location which is parsed using the given {@link TableUnmarshaller}
+   * 
+   * @see TableUnmarshaller
+   * @param location
+   * @param tableUnmarshaller
+   * @return
+   */
+  public <E> Table<E> getTableFrom( String location, TableUnmarshaller<E> tableUnmarshaller )
+  {
+    //
+    Table<E> table = null;
+    
+    //
+    try
+    {
+      if ( location != null )
+      {
+        //
+        Resource resource = this.resourceLoader.getResource( location );
+        InputStream inputStream = resource.getInputStream();
+        
+        //
+        table = new ArrayTable<E>().serializer().unmarshal( tableUnmarshaller ).from( inputStream );
+      }
+    }
+    catch ( Exception e )
+    {
+    }
+    
+    //
+    return table;
+  }
+  
+  /**
+   * Returns a new {@link Table} instance for the location of an Excel xls file
+   * 
+   * @param location
+   * @param workSheetName
+   * @param hasTableName
+   * @param hasColumnTitles
+   * @param hasRowTitles
+   * @return
+   */
+  public <E> Table<E> getTableFromXLS( String location,
+                                       String workSheetName,
+                                       boolean hasTableName,
+                                       boolean hasColumnTitles,
+                                       boolean hasRowTitles )
+  {
+    TableUnmarshaller<E> tableUnmarshaller = new TableUnmarshallerXLS<E>( workSheetName, hasTableName, hasColumnTitles,
+                                                                          hasRowTitles );
+    return this.getTableFrom( location, tableUnmarshaller );
+  }
+  
+  /**
+   * Returns a new {@link Table} instance for the location of a csv file
    * 
    * @param location
    * @param encoding
@@ -56,30 +113,8 @@ public class ResourceLoaderTable
                                        boolean hasRowTitles )
   {
     //
-    Table<E> table = null;
-    
-    //
-    try
-    {
-      if ( location != null )
-      {
-        //
-        Resource resource = this.resourceLoader.getResource( location );
-        InputStream inputStream = resource.getInputStream();
-        
-        //
-        table = new ArrayTable<E>().serializer()
-                                   .unmarshal( new TableUnmarshallerCSV<E>( encoding, delimiter, hasTableName, hasColumnTitles,
-                                                                            hasRowTitles ) )
-                                   .from( inputStream );
-      }
-    }
-    catch ( Exception e )
-    {
-    }
-    
-    //
-    return table;
+    return this.getTableFrom( location, new TableUnmarshallerCSV<E>( encoding, delimiter, hasTableName, hasColumnTitles,
+                                                                     hasRowTitles ) );
   }
   
   public void setResourceLoader( ResourceLoader resourceLoader )
