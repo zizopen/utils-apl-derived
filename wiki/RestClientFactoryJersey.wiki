@@ -42,3 +42,7 @@ Currently the client only supports
 == Monitor example for XML ==
 
 http://utils-apl-derived.googlecode.com/svn-history/r257/wiki/images/RESTCommunicationMonitored.jpg
+
+== Links ==
+
+See the sister project [http://code.google.com/a/eclipselabs.org/p/restful-webservice-demo-project/ restful-webservice-demo-project]
