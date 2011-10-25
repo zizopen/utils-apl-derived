@@ -7,3 +7,4 @@
  * MethodInvocationForwardingCapturer
  * MapToMapAdapter
  * RestClientFactory (including a Jersey based example implementation)
+ * CachedElementTimed
