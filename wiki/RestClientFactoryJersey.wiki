@@ -38,3 +38,7 @@ Currently the client only supports
  * POST
  * PUT
  * DELETE
+
+== Monitor example for XML ==
+
+http://utils-apl-derived.googlecode.com/svn-history/r257/wiki/images/RESTCommunicationMonitored.jpg
