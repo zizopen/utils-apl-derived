@@ -110,13 +110,14 @@ public class CachedElement<T>
   public T getValue()
   {
     //
-    if ( this.cachedValue.getValue() == null && this.valueResolver != null )
+    T value = this.cachedValue.getValue();
+    if ( value == null && this.valueResolver != null )
     {
-      this.cachedValue.setValue( this.valueResolver.resolveValue() );
+      this.cachedValue.setValue( value = this.valueResolver.resolveValue() );
     }
     
     //
-    return this.cachedValue.getValue();
+    return value;
   }
   
   /**

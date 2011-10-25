@@ -17,6 +17,7 @@ package org.omnaest.utils.webservice.rest;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
@@ -122,6 +123,9 @@ public class RestClientFactoryTest
     
     @PUT
     public void newInstance();
+    
+    @Path("subresource")
+    public MockJSR311Interface getSubResource();
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -187,6 +191,18 @@ public class RestClientFactoryTest
       assertEquals( this.baseAddress, this.dataRecord.baseAddress.toString() );
       assertEquals( "mockJSR311Interface", this.dataRecord.pathRelative );
     }
-    
+    {
+      //
+      MockJSR311Interface subResource = mockJSR311Interface.getSubResource();
+      assertNotNull( subResource );
+      
+      //
+      subResource.newInstance();
+      
+      //      
+      assertEquals( HttpMethod.PUT, this.dataRecord.httpMethod );
+      assertEquals( this.baseAddress + "/mockJSR311Interface/subresource", this.dataRecord.baseAddress.toString() );
+      assertEquals( "mockJSR311Interface", this.dataRecord.pathRelative );
+    }
   }
 }

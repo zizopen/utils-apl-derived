@@ -42,6 +42,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.UriBuilder;
 
+import org.omnaest.utils.download.URIHelper;
 import org.omnaest.utils.proxy.MethodCallCapture;
 import org.omnaest.utils.proxy.StubCreator;
 import org.omnaest.utils.proxy.StubCreator.MethodInvocationHandler;
@@ -325,12 +326,16 @@ public abstract class RestClientFactory
   {
     /* ********************************************** Variables ********************************************** */
     protected RestInterfaceMetaInformation restInterfaceMetaInformation = null;
+    @SuppressWarnings("hiding")
+    protected URI                          baseAddress                  = null;
     
     /* ********************************************** Methods ********************************************** */
-    public RestClientMethodInvocationHandler( RestInterfaceMetaInformation restInterfaceMetaInformation )
+    
+    public RestClientMethodInvocationHandler( RestInterfaceMetaInformation restInterfaceMetaInformation, URI baseAddress )
     {
       super();
       this.restInterfaceMetaInformation = restInterfaceMetaInformation;
+      this.baseAddress = baseAddress;
     }
     
     @Override
@@ -344,10 +349,21 @@ public abstract class RestClientFactory
       boolean declaresPathAnnotation = ReflectionUtils.hasDeclaredAnnotation( returnType, Path.class );
       
       //
+      final URI baseAddress = this.baseAddress;
+      final Method method = methodCallCapture.getMethod();
+      final RestInterfaceMetaInformationForClass restInterfaceMetaInformationForClass = this.restInterfaceMetaInformation.getRestInterfaceMetaInformationForClass();
+      final RestInterfaceMetaInformationForMethod restInterfaceMetaInformationForMethod = this.restInterfaceMetaInformation.getMethodToRestInterfaceMetaInformationForMethodMap()
+                                                                                                                           .get( method );
+      final Object[] arguments = methodCallCapture.getArguments();
+      final String relativePath = this.buildRelativePath( restInterfaceMetaInformationForClass,
+                                                          restInterfaceMetaInformationForMethod, arguments );
+      
+      //
       if ( declaresPathAnnotation )
       {
         //
-        retval = newRestClient( returnType );
+        URI newBaseAddress = URIHelper.createUri( baseAddress, relativePath );
+        retval = newRestClient( returnType, newBaseAddress );
       }
       else
       {
@@ -355,28 +371,18 @@ public abstract class RestClientFactory
         final RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler = RestClientFactory.this.restInterfaceMethodInvocationHandler;
         if ( restInterfaceMethodInvocationHandler != null )
         {
-          //
-          URI baseAddress = RestClientFactory.this.baseAddress;
           
-          Method method = methodCallCapture.getMethod();
-          RestInterfaceMetaInformationForClass restInterfaceMetaInformationForClass = this.restInterfaceMetaInformation.getRestInterfaceMetaInformationForClass();
-          RestInterfaceMetaInformationForMethod restInterfaceMetaInformationForMethod = this.restInterfaceMetaInformation.getMethodToRestInterfaceMetaInformationForMethodMap()
-                                                                                                                         .get( method );
-          
-          //
-          Object[] arguments = methodCallCapture.getArguments();
-          String pathRelative = this.buildRelativePath( restInterfaceMetaInformationForClass,
-                                                        restInterfaceMetaInformationForMethod, arguments );
-          List<Parameter> parameterList = this.buildParamterList( restInterfaceMetaInformationForClass,
-                                                                  restInterfaceMetaInformationForMethod, arguments );
-          HttpMethod httpMethod = restInterfaceMetaInformationForMethod.getHttpMethod();
-          String[] consumesMediaTypes = this.determineConsumesMediaTypes( restInterfaceMetaInformationForClass,
-                                                                          restInterfaceMetaInformationForMethod );
-          String[] producesMediaTypes = this.determineProducesMediaTypes( restInterfaceMetaInformationForClass,
-                                                                          restInterfaceMetaInformationForMethod );
-          if ( pathRelative != null && httpMethod != null && parameterList != null )
+          //          
+          final List<Parameter> parameterList = this.buildParamterList( restInterfaceMetaInformationForClass,
+                                                                        restInterfaceMetaInformationForMethod, arguments );
+          final HttpMethod httpMethod = restInterfaceMetaInformationForMethod.getHttpMethod();
+          final String[] consumesMediaTypes = this.determineConsumesMediaTypes( restInterfaceMetaInformationForClass,
+                                                                                restInterfaceMetaInformationForMethod );
+          final String[] producesMediaTypes = this.determineProducesMediaTypes( restInterfaceMetaInformationForClass,
+                                                                                restInterfaceMetaInformationForMethod );
+          if ( relativePath != null && httpMethod != null && parameterList != null )
           {
-            retval = restInterfaceMethodInvocationHandler.handleMethodInvocation( baseAddress, pathRelative, httpMethod,
+            retval = restInterfaceMethodInvocationHandler.handleMethodInvocation( baseAddress, relativePath, httpMethod,
                                                                                   parameterList, returnType, consumesMediaTypes,
                                                                                   producesMediaTypes );
           }
@@ -404,8 +410,8 @@ public abstract class RestClientFactory
     {
       //
       List<String> mediaTypeProducesList = new ArrayList<String>();
-      mediaTypeProducesList.addAll( restInterfaceMetaInformationForClass.getMediaTypeProducesList() );
       mediaTypeProducesList.addAll( restInterfaceMetaInformationForMethod.getMediaTypeProducesList() );
+      mediaTypeProducesList.addAll( restInterfaceMetaInformationForClass.getMediaTypeProducesList() );
       
       //
       return new LinkedHashSet<String>( mediaTypeProducesList ).toArray( new String[0] );
@@ -549,7 +555,7 @@ public abstract class RestClientFactory
     //
     try
     {
-      this.baseAddress = new URI( baseAddress );
+      this.baseAddress = baseAddress == null ? null : new URI( baseAddress );
     }
     catch ( URISyntaxException e )
     {
@@ -564,8 +570,20 @@ public abstract class RestClientFactory
    * @param type
    * @return
    */
-  @SuppressWarnings("cast")
   public <T> T newRestClient( Class<T> type )
+  {
+    return newRestClient( type, this.baseAddress );
+  }
+  
+  /**
+   * Factory method for new REST client proxy instances.
+   * 
+   * @param type
+   * @param baseAddress
+   * @return
+   */
+  @SuppressWarnings("cast")
+  public <T> T newRestClient( Class<T> type, URI baseAddress )
   {
     //
     T retval = null;
@@ -575,7 +593,8 @@ public abstract class RestClientFactory
     {
       //
       RestInterfaceMetaInformation restInterfaceMetaInformation = analyzeTheRestInterfaceMetaInformation( type );
-      MethodInvocationHandler methodInvocationHandler = new RestClientMethodInvocationHandler( restInterfaceMetaInformation );
+      MethodInvocationHandler methodInvocationHandler = new RestClientMethodInvocationHandler( restInterfaceMetaInformation,
+                                                                                               baseAddress );
       
       //
       Class<?>[] interfaces = type.getInterfaces();
