@@ -540,4 +540,10 @@ public class DurationCapture
     return result;
   }
   
+  @Override
+  public String toString()
+  {
+    return this.calculateIntervalStatisticLogMessage();
+  }
+  
 }
