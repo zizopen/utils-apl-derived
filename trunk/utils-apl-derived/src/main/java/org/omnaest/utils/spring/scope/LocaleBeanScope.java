@@ -54,7 +54,10 @@ import org.springframework.util.Assert;
  * </pre>
  * 
  * Whereby the {@link LocaleAware} interface is optional. If it is present the {@link Locale} will be injected into the created
- * bean instance the first time it is used.
+ * bean instance the first time it is used. <br>
+ * <br>
+ * Note: The {@link LocaleBeanScope} allows to use a {@link InheritableThreadLocal} instance and therefore {@link Thread} to
+ * {@link Thread} inheritance.
  * 
  * @see BeanScopeThreadContextManager
  * @see BeanScopeAwareRunnableDecorator
@@ -71,7 +74,7 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
   /* ********************************************** Variables ********************************************** */
   private TrailingBeanIdentifierPatternBeanScope trailingBeanIdentifierPatternBeanScope = null;
   private LocaleResolver                         localeResolver                         = null;
-  private ThreadLocal<Locale>                    threadLocalLocale                      = new ThreadLocal<Locale>();
+  private ThreadLocal<Locale>                    threadLocalLocale                      = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -118,10 +121,24 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
   public LocaleBeanScope( int initialCapacity, LocaleResolver localeResolver )
   {
     //
-    this( initialCapacity );
+    this( initialCapacity, localeResolver, false );
+  }
+  
+/**
+   * @param initialCapacity
+   *          : number of estimated spring beans the {@link Scope} should handle
+   * @param localeResolver
+   *          {@link LocaleResolver
+   *          @param threadLocalInheritance
+   */
+  public LocaleBeanScope( int initialCapacity, LocaleResolver localeResolver, boolean threadLocalInheritance )
+  {
+    //
+    this( initialCapacity, threadLocalInheritance );
     
     //
     this.localeResolver = localeResolver;
+    
   }
   
   /**
@@ -129,11 +146,38 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
    */
   public LocaleBeanScope()
   {
+    this( false );
+  }
+  
+  /**
+   * @param threadLocalInheritance
+   */
+  public LocaleBeanScope( boolean threadLocalInheritance )
+  {
+    this( 32, threadLocalInheritance );
+  }
+  
+  /**
+   * @param initialCapacity
+   * @param threadLocalInheritance
+   */
+  public LocaleBeanScope( int initialCapacity, boolean threadLocalInheritance )
+  {
     //
     super();
     
     //
-    this.trailingBeanIdentifierPatternBeanScope = new TrailingBeanIdentifierPatternBeanScope();
+    if ( threadLocalInheritance )
+    {
+      this.threadLocalLocale = new InheritableThreadLocal<Locale>();
+    }
+    else
+    {
+      this.threadLocalLocale = new ThreadLocal<Locale>();
+    }
+    
+    //
+    this.trailingBeanIdentifierPatternBeanScope = new TrailingBeanIdentifierPatternBeanScope( initialCapacity );
     this.trailingBeanIdentifierPatternBeanScope.setScopedBeanCreationPostProcessor( new ScopedBeanCreationPostProcessor()
     {
       @Override
@@ -146,18 +190,6 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
         }
       }
     } );
-  }
-  
-  /**
-   * @param initialCapacity
-   */
-  public LocaleBeanScope( int initialCapacity )
-  {
-    //
-    super();
-    
-    //
-    this.trailingBeanIdentifierPatternBeanScope = new TrailingBeanIdentifierPatternBeanScope( initialCapacity );
   }
   
   /**

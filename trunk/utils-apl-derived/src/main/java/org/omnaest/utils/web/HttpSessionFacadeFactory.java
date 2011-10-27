@@ -54,7 +54,7 @@ public class HttpSessionFacadeFactory
    */
   @Documented
   @Retention(value = RetentionPolicy.RUNTIME)
-  @Target({ ElementType.FIELD, ElementType.METHOD })
+  @Target({ ElementType.METHOD })
   public @interface AttributeName
   {
     public String value();

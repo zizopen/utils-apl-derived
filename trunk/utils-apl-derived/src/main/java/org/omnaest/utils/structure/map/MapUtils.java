@@ -227,6 +227,22 @@ public class MapUtils
   }
   
   /**
+   * Converts the value of a map into another key.
+   * 
+   * @param <Key>
+   * @param <ValueFrom>
+   * @param <ValueTo>
+   * @param map
+   * @param valueElementConverter
+   * @return
+   */
+  public static <Key, ValueFrom, ValueTo> Map<Key, ValueTo> convertMapValue( Map<Key, ValueFrom> map,
+                                                                             ElementConverter<ValueFrom, ValueTo> valueElementConverter )
+  {
+    return MapUtils.convertMap( map, new IdentityElementConverter<Key>(), valueElementConverter );
+  }
+  
+  /**
    * Converts a given map into a new map with new types. Makes use of element converters.
    * 
    * @see ElementConverter
@@ -350,6 +366,34 @@ public class MapUtils
         if ( map.containsKey( key ) )
         {
           retmap.put( key, map.get( key ) );
+        }
+      }
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Filters a given {@link Map} by values which are null. Only keys which have a value not null will be retained.
+   * 
+   * @param map
+   * @return new {@link LinkedHashMap} instance
+   */
+  public static <K, V> Map<K, V> filteredMapExcludingNullValues( Map<K, V> map )
+  {
+    //
+    Map<K, V> retmap = new LinkedHashMap<K, V>();
+    
+    //
+    if ( map != null )
+    {
+      //
+      for ( Entry<K, V> entry : map.entrySet() )
+      {
+        if ( entry.getValue() != null )
+        {
+          retmap.put( entry.getKey(), entry.getValue() );
         }
       }
     }

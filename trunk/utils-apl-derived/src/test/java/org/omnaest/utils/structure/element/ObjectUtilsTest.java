@@ -27,6 +27,45 @@ import org.junit.Test;
 public class ObjectUtilsTest
 {
   
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  protected static class TestValueOf
+  {
+    /* ********************************************** Variables ********************************************** */
+    protected Integer value  = null;
+    protected String  string = null;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    protected TestValueOf( String string )
+    {
+      super();
+      this.string = string;
+    }
+    
+    protected TestValueOf( int value )
+    {
+      super();
+      this.value = value;
+    }
+    
+    public static TestValueOf valueOf( Integer value )
+    {
+      return new TestValueOf( value );
+    }
+    
+    public Integer getValue()
+    {
+      return this.value;
+    }
+    
+    public String getString()
+    {
+      return this.string;
+    }
+  }
+  
+  /* ********************************************** Methods ********************************************** */
+  
   @Test
   public void testCastTo()
   {
@@ -78,6 +117,30 @@ public class ObjectUtilsTest
       //
       assertTrue( objectCasted instanceof Boolean );
       assertEquals( Boolean.valueOf( (String) object ), objectCasted );
+    }
+    {
+      //
+      Object object = Integer.valueOf( 10 );
+      Class<?> type = TestValueOf.class;
+      
+      //
+      Object objectCasted = ObjectUtils.castTo( type, object );
+      
+      //
+      assertTrue( objectCasted instanceof TestValueOf );
+      assertEquals( object, ( (TestValueOf) objectCasted ).getValue() );
+    }
+    {
+      //
+      Object object = "10";
+      Class<?> type = TestValueOf.class;
+      
+      //
+      Object objectCasted = ObjectUtils.castTo( type, object );
+      
+      //
+      assertTrue( objectCasted instanceof TestValueOf );
+      assertEquals( object, ( (TestValueOf) objectCasted ).getString() );
     }
   }
 }

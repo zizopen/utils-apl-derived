@@ -16,13 +16,23 @@
 package org.omnaest.utils.structure.element;
 
 /**
- * {@link ThreadLocal} variant of a {@link CachedElement} which caches resolved element values for each thread independently.
+ * {@link ThreadLocal} variant of a {@link CachedElement} which caches resolved element values for each thread independently.<br>
+ * <br>
+ * If instantiated with active inheritance an {@link InheritableThreadLocal} is used, which allows to inherit values to child
+ * threads. By default inheritance is not used.
  * 
+ * @see Thread
+ * @see ThreadLocal
+ * @see InheritableThreadLocal
  * @author Omnaest
  * @param <T>
  */
 public class ThreadLocalCachedElement<T> extends CachedElement<T>
 {
+  /* ********************************************** Variables ********************************************** */
+  protected boolean inherited = false;
+  
+  /* ********************************************** Methods ********************************************** */
   
   /**
    * @param valueResolver
@@ -32,13 +42,25 @@ public class ThreadLocalCachedElement<T> extends CachedElement<T>
     super( valueResolver );
   }
   
+  /**
+   * @param valueResolver
+   * @param inherited
+   */
+  public ThreadLocalCachedElement( org.omnaest.utils.structure.element.CachedElement.ValueResolver<T> valueResolver,
+                                   boolean inherited )
+  {
+    super( valueResolver );
+    this.inherited = inherited;
+  }
+  
   @Override
-  protected org.omnaest.utils.structure.element.CachedElement.CachedValue<T> newCachedValue()
+  protected CachedElement.CachedValue<T> newCachedValue()
   {
     return new CachedValue<T>()
     {
       /* ********************************************** Variables ********************************************** */
-      private ThreadLocal<T> threadLocalValue = new ThreadLocal<T>();
+      private ThreadLocal<T> threadLocalValue = ThreadLocalCachedElement.this.inherited ? new InheritableThreadLocal<T>()
+                                                                                       : new ThreadLocal<T>();
       
       /* ********************************************** Methods ********************************************** */
       @Override
@@ -54,5 +76,4 @@ public class ThreadLocalCachedElement<T> extends CachedElement<T>
       }
     };
   }
-  
 }
