@@ -55,4 +55,10 @@ public class ReflectionUtilsTest
     assertEquals( "test", ReflectionUtils.createInstanceOf( TestClass.class, "test" ).getValue() );
   }
   
+  @Test
+  public void testCreateInstanceUsingValueOfMethod()
+  {
+    assertEquals( Integer.valueOf( 1 ), ReflectionUtils.createInstanceUsingValueOfMethod( Integer.class, "1" ) );
+  }
+  
 }

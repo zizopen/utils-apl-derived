@@ -23,8 +23,10 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.omnaest.utils.beans.PropertynameMapToTypeAdapter.Adapter;
 import org.omnaest.utils.beans.PropertynameMapToTypeAdapter.PropertyAccessOption;
 import org.omnaest.utils.beans.PropertynameMapToTypeAdapter.UnderlyingMapAware;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 public class PropertynameMapToTypeAdapterTest
 {
@@ -44,6 +46,35 @@ public class PropertynameMapToTypeAdapterTest
     
     public void setFieldString( String fieldString );
     
+  }
+  
+  protected static class StringToIntegerElementConverter implements ElementConverter<String, Integer>
+  {
+    
+    @Override
+    public Integer convert( String element )
+    {
+      return Integer.valueOf( element );
+    }
+    
+  }
+  
+  protected static class IntegerToStringElementConverter implements ElementConverter<Integer, String>
+  {
+    @Override
+    public String convert( Integer element )
+    {
+      return String.valueOf( element.intValue() );
+    }
+  }
+  
+  protected static interface TestTypeWithAdapter
+  {
+    @Adapter(type = IntegerToStringElementConverter.class)
+    public String getFieldString();
+    
+    @Adapter(type = StringToIntegerElementConverter.class)
+    public void setFieldString( String fieldString );
   }
   
   @Test
@@ -174,4 +205,25 @@ public class PropertynameMapToTypeAdapterTest
     assertEquals( "[\n  fieldString=String value\n  fieldDouble=10.0\n]", testType.toString() );
     
   }
+  
+  @Test
+  public void testAdapter()
+  {
+    //
+    Map<String, Object> map = new HashMap<String, Object>();
+    
+    //reading from facade
+    TestTypeWithAdapter testTypeWithAdapter = PropertynameMapToTypeAdapter.newInstance( map, TestTypeWithAdapter.class, true,
+                                                                                        true );
+    
+    //
+    testTypeWithAdapter.setFieldString( "123" );
+    String fieldString = testTypeWithAdapter.getFieldString();
+    
+    //
+    assertEquals( "123", fieldString );
+    assertTrue( map.values().iterator().next() instanceof Integer );
+    
+  }
+  
 }

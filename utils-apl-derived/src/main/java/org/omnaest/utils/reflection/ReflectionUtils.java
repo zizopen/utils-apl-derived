@@ -29,7 +29,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterObjectClass;
+import org.omnaest.utils.structure.map.MapUtils;
 
 /**
  * Helper for Java Reflection.
@@ -195,16 +197,16 @@ public class ReflectionUtils
    * Creates a new instance of a given {@link Class} using a constructor which has the same parameter signature as the provided
    * arguments.
    * 
-   * @param clazz
+   * @param type
    * @param args
    */
-  public static <B> B createInstanceOf( Class<? extends B> clazz, Object... args )
+  public static <B> B createInstanceOf( Class<? extends B> type, Object... args )
   {
     //
     B retval = null;
     
     //
-    if ( clazz != null )
+    if ( type != null )
     {
       //
       Class<?>[] parameterTypes = ListUtils.transform( Arrays.asList( args ), new ElementConverterObjectClass() )
@@ -214,7 +216,7 @@ public class ReflectionUtils
       try
       {
         //
-        Constructor<? extends B> constructor = clazz.getDeclaredConstructor( parameterTypes );
+        Constructor<? extends B> constructor = type.getDeclaredConstructor( parameterTypes );
         
         //
         boolean accessible = constructor.isAccessible();
@@ -231,6 +233,59 @@ public class ReflectionUtils
         
         //
         constructor.setAccessible( accessible );
+      }
+      catch ( Exception e )
+      {
+      }
+      
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Creates a new instance of a given {@link Class} using a possibly present valueOf method which has the same parameter
+   * signature as the provided arguments.
+   * 
+   * @param type
+   * @param args
+   */
+  @SuppressWarnings("unchecked")
+  public static <B> B createInstanceUsingValueOfMethod( Class<? extends B> type, Object... args )
+  {
+    //
+    B retval = null;
+    
+    //
+    if ( type != null )
+    {
+      //
+      Class<?>[] parameterTypes = ListUtils.transform( Arrays.asList( args ), new ElementConverterObjectClass() )
+                                           .toArray( new Class<?>[args.length] );
+      
+      //
+      try
+      {
+        //
+        String name = "valueOf";
+        Method valueOfMethod = type.getDeclaredMethod( name, parameterTypes );
+        
+        //
+        boolean accessible = valueOfMethod.isAccessible();
+        
+        //
+        try
+        {
+          valueOfMethod.setAccessible( true );
+          retval = (B) valueOfMethod.invoke( null, args );
+        }
+        catch ( Exception e )
+        {
+        }
+        
+        //
+        valueOfMethod.setAccessible( accessible );
       }
       catch ( Exception e )
       {
@@ -265,6 +320,54 @@ public class ReflectionUtils
         retmap.put( method, new LinkedHashSet<Annotation>( Arrays.asList( declaredAnnotations ) ) );
       }
     }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Returns a {@link Map} with all {@link Method}s of a given {@link Class} and the annotation instance for the given method.
+   * Methods which will have no matching {@link Annotation}s will be excluded and will not show as keys.
+   * 
+   * @param type
+   * @param annotation
+   * @return
+   */
+  public static <A extends Annotation> Map<Method, A> methodToAnnotationMap( final Class<?> type, final Class<A> annotationType )
+  {
+    //
+    Map<Method, A> retmap = null;
+    
+    Map<Method, Set<Annotation>> methodToAnnotationSetMap = methodToAnnotationSetMap( type );
+    ElementConverter<Set<Annotation>, A> valueElementConverter = new ElementConverter<Set<Annotation>, A>()
+    {
+      
+      @SuppressWarnings("unchecked")
+      @Override
+      public A convert( Set<Annotation> annotationSet )
+      {
+        // 
+        A retval = null;
+        
+        //
+        if ( annotationSet != null )
+        {
+          for ( Annotation annotation : annotationSet )
+          {
+            if ( annotation != null && annotationType.isAssignableFrom( annotation.getClass() ) )
+            {
+              retval = (A) annotation;
+              break;
+            }
+          }
+        }
+        
+        //
+        return retval;
+      }
+    };
+    retmap = MapUtils.convertMapValue( methodToAnnotationSetMap, valueElementConverter );
+    retmap = MapUtils.filteredMapExcludingNullValues( retmap );
     
     //
     return retmap;

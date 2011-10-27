@@ -15,6 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.beans;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +29,8 @@ import net.sf.cglib.proxy.MethodProxy;
 
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.proxy.StubCreator;
+import org.omnaest.utils.reflection.ReflectionUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.map.MapUtils;
 
 /**
@@ -33,6 +40,8 @@ import org.omnaest.utils.structure.map.MapUtils;
  * @author Omnaest
  * @see #newInstance(Map, Class)
  * @see TypeToPropertynameMapAdapter
+ * @see Adapter
+ * @see PropertyAccessOption
  * @param <T>
  * @param <M>
  */
@@ -45,8 +54,26 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
   protected boolean                     hasAccessToUnderlyingMap = false;
   protected boolean                     simulatesToString        = false;
   protected PropertyAccessOption        propertyAccessOption     = PropertyAccessOption.PROPERTY;
+  protected Map<Method, Adapter>        methodToAnnotationMap    = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * An {@link Adapter} allows to declare a {@link Class} of an {@link ElementConverter} which should be used to translate a
+   * return value or a single given parameter before storing it in the underlying structure.<br>
+   * <br>
+   * The instance of the {@link ElementConverter} must have a default constructor.
+   * 
+   * @author Omnaest
+   */
+  @Documented
+  @Retention(value = RetentionPolicy.RUNTIME)
+  @Target({ ElementType.METHOD })
+  public static @interface Adapter
+  {
+    @SuppressWarnings("rawtypes")
+    public Class<? extends ElementConverter> type();
+  }
   
   /**
    * Options to modify the property access behavior regarding the property keys of the {@link Map}
@@ -102,6 +129,7 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
         {
           //
           final String referencedFieldName = beanMethodInformation.getReferencedFieldName();
+          final Adapter adapter = PropertynameMapToTypeAdapter.this.methodToAnnotationMap.get( method );
           
           //
           boolean accessToUnderlyingMap = PropertynameMapToTypeAdapter.this.hasAccessToUnderlyingMap
@@ -112,6 +140,7 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
           boolean isSetter = beanMethodInformation.isSetter() && args.length == 1;
           
           boolean isMapNotNull = PropertynameMapToTypeAdapter.this.map != null;
+          boolean hasAdapter = adapter != null;
           
           //
           if ( !accessToUnderlyingMap && !simulatingToString )
@@ -138,11 +167,26 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
               {
                 //
                 retval = PropertynameMapToTypeAdapter.this.map.get( referenceFieldNameAsMapKey );
+                
+                //
+                if ( hasAdapter )
+                {
+                  retval = this.convertByAdapter( retval, adapter );
+                }
               }
               else if ( isSetter )
               {
                 //
-                PropertynameMapToTypeAdapter.this.map.put( referenceFieldNameAsMapKey, args[0] );
+                Object value = args[0];
+                
+                //
+                if ( hasAdapter )
+                {
+                  value = this.convertByAdapter( value, adapter );
+                }
+                
+                //
+                PropertynameMapToTypeAdapter.this.map.put( referenceFieldNameAsMapKey, value );
                 
                 //
                 retval = Void.TYPE;
@@ -183,6 +227,34 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
       }
       
       // 
+      return retval;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private Object convertByAdapter( Object value, Adapter adapter )
+    {
+      //
+      Object retval = value;
+      
+      //
+      if ( adapter != null )
+      {
+        //   
+        try
+        {
+          Class<? extends ElementConverter> type = adapter.type();
+          ElementConverter elementConverter = ReflectionUtils.createInstanceOf( type );
+          if ( elementConverter != null )
+          {
+            retval = elementConverter.convert( value );
+          }
+        }
+        catch ( Exception e )
+        {
+        }
+      }
+      
+      //
       return retval;
     }
   }
@@ -340,19 +412,19 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
    * Internal constructor. See {@link #newInstance(Map, Class)} instead.
    * 
    * @param map
-   * @param clazz
+   * @param type
    * @param underlyingMapAware
    * @param simulatesToString
    * @param propertyAccessOption
    */
   @SuppressWarnings("unchecked")
-  protected PropertynameMapToTypeAdapter( M map, Class<? extends T> clazz, boolean underlyingMapAware, boolean simulatesToString,
+  protected PropertynameMapToTypeAdapter( M map, Class<? extends T> type, boolean underlyingMapAware, boolean simulatesToString,
                                           PropertyAccessOption propertyAccessOption )
   {
     //
     super();
     this.map = map;
-    this.clazz = (Class<T>) clazz;
+    this.clazz = (Class<T>) type;
     
     this.hasAccessToUnderlyingMap = underlyingMapAware;
     this.simulatesToString = simulatesToString;
@@ -360,9 +432,10 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
     {
       this.propertyAccessOption = propertyAccessOption;
     }
+    this.methodToAnnotationMap = ReflectionUtils.methodToAnnotationMap( type, Adapter.class );
     
     //
-    this.initializeClassAdapter( clazz, underlyingMapAware );
+    this.initializeClassAdapter( type, underlyingMapAware );
   }
   
   /**

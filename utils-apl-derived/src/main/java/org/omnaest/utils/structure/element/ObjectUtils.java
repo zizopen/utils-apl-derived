@@ -18,6 +18,8 @@ package org.omnaest.utils.structure.element;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.omnaest.utils.reflection.ReflectionUtils;
+
 /**
  * Offers methods for arbitrary {@link Object}s
  * 
@@ -120,7 +122,25 @@ public class ObjectUtils
       }
       else
       {
-        retval = (C) object;
+        //
+        C createdInstance = ReflectionUtils.createInstanceOf( type, object );
+        if ( createdInstance != null )
+        {
+          retval = createdInstance;
+        }
+        else
+        {
+          //
+          createdInstance = ReflectionUtils.createInstanceUsingValueOfMethod( type, object );
+          if ( createdInstance != null )
+          {
+            retval = createdInstance;
+          }
+          else
+          {
+            retval = (C) object;
+          }
+        }
       }
     }
     
