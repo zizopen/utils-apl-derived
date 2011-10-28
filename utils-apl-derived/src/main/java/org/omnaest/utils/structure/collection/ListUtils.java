@@ -668,4 +668,28 @@ public class ListUtils
   {
     return filterExcludingIndexPositions( list, Arrays.asList( indexPositions ) );
   }
+  
+  /**
+   * Returns a new {@link List} for a given {@link Iterable}
+   * 
+   * @param iterable
+   * @return
+   */
+  public static <E> List<E> from( Iterable<E> iterable )
+  {
+    //
+    List<E> retlist = new ArrayList<E>();
+    
+    //
+    if ( iterable != null )
+    {
+      for ( E element : iterable )
+      {
+        retlist.add( element );
+      }
+    }
+    
+    //
+    return retlist;
+  }
 }

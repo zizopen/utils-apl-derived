@@ -19,8 +19,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.collections.ListUtils;
+
 /**
- * An {@link ExceptionHandledResult} is the result of an operation which catches {@link Exception}s and do not throw them
+ * An {@link ExceptionHandledResult} is the result of an operation which catches {@link Exception}s and does not throw them.<br>
+ * The {@link #getResult()} will return potential value.
  * 
  * @author Omnaest
  * @param <E>
@@ -28,19 +31,19 @@ import java.util.List;
 public class ExceptionHandledResult<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected E               element       = null;
+  protected E               result        = null;
   protected List<Exception> exceptionList = new ArrayList<Exception>();
   
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @param element
+   * @param result
    * @param exceptionCollection
    */
-  public ExceptionHandledResult( E element, Collection<Exception> exceptionCollection )
+  public ExceptionHandledResult( E result, Collection<Exception> exceptionCollection )
   {
     super();
-    this.element = element;
+    this.result = result;
     this.exceptionList.addAll( exceptionCollection );
   }
   
@@ -49,9 +52,9 @@ public class ExceptionHandledResult<E>
    * 
    * @return
    */
-  public E getElement()
+  public E getResult()
   {
-    return this.element;
+    return this.result;
   }
   
   /**
@@ -59,9 +62,10 @@ public class ExceptionHandledResult<E>
    * 
    * @return
    */
+  @SuppressWarnings("unchecked")
   public List<Exception> getExceptionList()
   {
-    return this.exceptionList;
+    return ListUtils.unmodifiableList( this.exceptionList );
   }
   
   /**
@@ -71,6 +75,135 @@ public class ExceptionHandledResult<E>
    */
   public boolean hasNoExceptions()
   {
-    return this.exceptionList.isEmpty();
+    return this.exceptionList == null || this.exceptionList.isEmpty();
+  }
+  
+  /**
+   * Returns true if any {@link Exception}s have been catched
+   * 
+   * @return
+   */
+  public boolean hasExceptions()
+  {
+    return !this.hasNoExceptions();
+  }
+  
+  /**
+   * Returns true if the {@link ExceptionHandledResult} contains any exception which could be assigned to the given {@link Class}
+   * of {@link Exception}
+   * 
+   * @param exceptionType
+   * @return
+   */
+  public boolean containsAssignableException( Class<? extends Exception> exceptionType )
+  {
+    return this.resolveAssignableException( exceptionType ) != null;
+  }
+  
+  /**
+   * Resolves the first occurring stored {@link Exception} which can be assigned to the given {@link Class} type. This includes
+   * the causes of stored {@link Exception}s.
+   * 
+   * @see #containsAssignableException(Class)
+   * @param exceptionType
+   * @return
+   */
+  public Exception resolveAssignableException( Class<? extends Exception> exceptionType )
+  {
+    //    
+    Exception retval = null;
+    
+    //
+    if ( exceptionType != null && this.hasExceptions() )
+    {
+      exceptionListLoop: for ( Exception exception : this.exceptionList )
+      {
+        Throwable cause = exception;
+        while ( cause != null )
+        {
+          //
+          if ( exceptionType.isAssignableFrom( cause.getClass() ) )
+          {
+            if ( cause instanceof Exception )
+            {
+              retval = (Exception) cause;
+              break exceptionListLoop;
+            }
+          }
+          
+          //
+          cause = cause.getCause();
+        }
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Throws the first {@link Exception} again if {@link #hasExceptions()} is true which shows that at least one {@link Exception}
+   * has occurred.
+   * 
+   * @throws Exception
+   */
+  public void rethrowFirstExceptionIfAnyExceptionHasOccurred() throws Exception
+  {
+    if ( this.hasExceptions() )
+    {
+      throw this.exceptionList.get( 0 );
+    }
+  }
+  
+  /**
+   * Throws the first occurring {@link Exception} which is assignable to the given {@link Class} again. If no {@link Exception}
+   * are present or match nothing will happen.
+   * 
+   * @see #resolveAssignableException(Class)
+   * @throws Exception
+   */
+  public void rethrowFirstExceptionAssignableToTypeIfAnyExceptionHasOccurred( Class<? extends Exception> exceptionType ) throws Exception
+  {
+    if ( this.hasExceptions() )
+    {
+      //
+      Exception exception = this.resolveAssignableException( exceptionType );
+      if ( exception != null )
+      {
+        throw exception;
+      }
+    }
+  }
+  
+  /**
+   * Returns the first {@link Exception} if any {@link Exception} is present
+   * 
+   * @return
+   */
+  public Exception getFirstException()
+  {
+    //    
+    Exception retval = null;
+    
+    //
+    if ( this.hasExceptions() )
+    {
+      retval = this.exceptionList.get( 0 );
+    }
+    
+    //
+    return retval;
+  }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "ExceptionHandledResult [result=" );
+    builder.append( this.result );
+    builder.append( ", exceptionList=" );
+    builder.append( this.exceptionList );
+    builder.append( "]" );
+    return builder.toString();
   }
 }

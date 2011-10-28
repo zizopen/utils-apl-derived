@@ -23,6 +23,7 @@ import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.proxy.MethodCallCapturer.MethodCallCaptureContext;
+import org.omnaest.utils.proxy.handler.MethodCallCapture;
 import org.omnaest.utils.structure.element.CachedElement.ValueResolver;
 import org.omnaest.utils.structure.element.ThreadLocalCachedElement;
 

@@ -43,9 +43,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.UriBuilder;
 
 import org.omnaest.utils.download.URIHelper;
-import org.omnaest.utils.proxy.MethodCallCapture;
 import org.omnaest.utils.proxy.StubCreator;
-import org.omnaest.utils.proxy.StubCreator.MethodInvocationHandler;
+import org.omnaest.utils.proxy.handler.MethodCallCapture;
+import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.reflection.ReflectionUtils.MethodParameterMetaInformation;
 

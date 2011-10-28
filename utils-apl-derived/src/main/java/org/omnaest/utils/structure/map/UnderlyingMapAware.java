@@ -13,19 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.tuple;
+package org.omnaest.utils.structure.map;
+
+import java.util.Map;
 
 /**
- * A {@link Tuple} is the marker interface for generic wrapper classes holding arbitrary elements of different numbers.<br>
- * <br>
- * A {@link Tuple} derived type should support {@link #hashCode()} and {@link #equals(Object)} as well as {@link #toString()}. Two
- * {@link Tuple} are taken as equal, if their elements are equal and in the same number and order.
+ * This interface makes a derivative type aware of an underlying {@link Map} implementation.
  * 
- * @see TupleTwo
- * @see TupleThree
- * @author Omnaest
+ * @see #getUnderlyingMap()
+ * @see #setUnderlyingMap(Map)
+ * @see UnderlyingPropertyMapAware
  */
-public interface Tuple
+public interface UnderlyingMapAware<K, V>
 {
+  /**
+   * Returns the {@link Map} which underlies this class type facade.
+   * 
+   * @return
+   */
+  public Map<K, V> getUnderlyingMap();
   
+  /**
+   * Sets the {@link Map} which should underly this class type facade.
+   * 
+   * @param underlyingMap
+   */
+  public <M extends Map<K, V>> void setUnderlyingMap( M underlyingMap );
 }

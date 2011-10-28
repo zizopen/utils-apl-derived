@@ -20,6 +20,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.omnaest.utils.proxy.handler.MethodCallCapture;
+import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
+
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -32,28 +35,6 @@ import net.sf.cglib.proxy.MethodProxy;
 public class StubCreator
 {
   
-  /* ********************************************** Classes/Interfaces ********************************************** */
-
-  /**
-   * Handles a method invocation.
-   * 
-   * @see #handle(MethodCallCapture)
-   * @author Omnaest
-   */
-  public static interface MethodInvocationHandler
-  {
-    /**
-     * Handles a method invocation.
-     * 
-     * @see MethodCallCapture
-     * @param methodCallCapture
-     * @return
-     */
-    public Object handle( MethodCallCapture methodCallCapture ) throws Throwable;
-  }
-  
-  /* ********************************************** Methods ********************************************** */
-
   /**
    * Returns a new proxy stub for the given class or interface.
    * 

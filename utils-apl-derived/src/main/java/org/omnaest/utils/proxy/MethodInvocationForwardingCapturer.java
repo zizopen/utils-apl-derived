@@ -27,7 +27,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.omnaest.utils.proxy.StubCreator.MethodInvocationHandler;
+import org.omnaest.utils.proxy.handler.MethodCallCapture;
+import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.Range;

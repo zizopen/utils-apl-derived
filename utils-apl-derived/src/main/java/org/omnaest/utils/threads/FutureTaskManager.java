@@ -23,6 +23,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import org.omnaest.utils.structure.element.ExceptionHandledResult;
+
 /**
  * A {@link FutureTaskManager} will manage the {@link Future}s created e.g. by a
  * {@link ExecutorService#submit(java.util.concurrent.Callable)} call and allows to wait on all {@link Future}s.
@@ -173,30 +175,71 @@ public class FutureTaskManager
    * 
    * @return true, if no exception has occurred
    */
-  public boolean waitForAllTasksToFinish()
+  public ExceptionHandledResult<List<Object>> waitForAllTasksToFinish()
   {
     //
-    boolean retval = true;
+    Collection<Exception> exceptionCollection = new ArrayList<Exception>();
+    List<Object> result = new ArrayList<Object>();
     
     //
     for ( Future<?> future : this.futureList )
     {
-      if ( future != null )
+      //
+      ExceptionHandledResult<?> exceptionHandledResult = waitForTaskToFinish( future );
+      
+      //
+      result.add( exceptionHandledResult.getResult() );
+      exceptionCollection.addAll( exceptionHandledResult.getExceptionList() );
+    }
+    
+    //
+    return new ExceptionHandledResult<List<Object>>( result, exceptionCollection );
+  }
+  
+  /**
+   * Waits for a given {@link Future} to finish. Returns an {@link ExceptionHandledResult} which does exclude any
+   * {@link InterruptedException}
+   * 
+   * @param future
+   * @return {@link ExceptionHandledResult}
+   */
+  public static <V> ExceptionHandledResult<V> waitForTaskToFinish( Future<V> future )
+  {
+    //
+    Collection<Exception> exceptionCollection = new ArrayList<Exception>();
+    V result = null;
+    
+    //
+    if ( future != null )
+    {
+      try
       {
-        try
+        //
+        boolean waitForTask = true;
+        while ( waitForTask )
         {
           //
-          future.get();
+          waitForTask = false;
+          
+          //
+          try
+          {
+            result = future.get();
+          }
+          catch ( InterruptedException e )
+          {
+            waitForTask = true;
+          }
         }
-        catch ( Exception e )
-        {
-          retval = false;
-        }
+      }
+      catch ( Exception e )
+      {
+        exceptionCollection.add( e );
       }
     }
     
     //
-    return retval;
+    return new ExceptionHandledResult<V>( result, exceptionCollection );
   }
   
   public List<Future<?>> getFutureList()

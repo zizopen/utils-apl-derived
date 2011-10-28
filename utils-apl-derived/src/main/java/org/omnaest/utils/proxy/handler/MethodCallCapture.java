@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.proxy;
+package org.omnaest.utils.proxy.handler;
 
 import java.lang.reflect.Method;
 
@@ -32,7 +32,7 @@ public class MethodCallCapture
   
   /* ********************************************** Methods ********************************************** */
   
-  MethodCallCapture( Object obj, Method method, Object[] args, MethodProxy proxy )
+  public MethodCallCapture( Object obj, Method method, Object[] args, MethodProxy proxy )
   {
     super();
     this.object = obj;
@@ -67,6 +67,55 @@ public class MethodCallCapture
   public Object[] getArguments()
   {
     return this.arguments;
+  }
+  
+  /**
+   * Returns the argument with the given index position. Catches {@link ClassCastException} and return null if cast is
+   * unsuccessful.
+   * 
+   * @param indexPosition
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public <E> E getArgumentCasted( int indexPosition )
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( indexPosition >= 0 && indexPosition < this.arguments.length )
+    {
+      try
+      {
+        retval = (E) this.arguments[indexPosition];
+      }
+      catch ( ClassCastException e )
+      {
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns true if the invocation has arguments
+   * 
+   * @return
+   */
+  public boolean hasArguments()
+  {
+    return this.arguments != null && this.arguments.length > 0;
+  }
+  
+  /**
+   * Returns true if the invocation has the given count of arguments
+   * 
+   * @return
+   */
+  public boolean hasArguments( int count )
+  {
+    return this.arguments != null && this.arguments.length == count;
   }
   
   /**

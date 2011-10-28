@@ -29,7 +29,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.IdentityElementConverter;
-import org.omnaest.utils.tuple.TupleDuad;
+import org.omnaest.utils.tuple.TupleTwo;
 
 /**
  * Helper class for {@link Map} operations.
@@ -176,7 +176,7 @@ public class MapUtils
   }
   
   /**
-   * Returns a list of {@link TupleDuad} instances which have always the value of the first map and the value of the second map
+   * Returns a list of {@link TupleTwo} instances which have always the value of the first map and the value of the second map
    * which share the same key over both maps.
    * 
    * @param <K>
@@ -186,10 +186,10 @@ public class MapUtils
    * @param mapB
    * @return
    */
-  public static <K, VA, VB> List<TupleDuad<VA, VB>> innerJoinMapByKey( Map<K, VA> mapA, Map<K, VB> mapB )
+  public static <K, VA, VB> List<TupleTwo<VA, VB>> innerJoinMapByKey( Map<K, VA> mapA, Map<K, VB> mapB )
   {
     //
-    List<TupleDuad<VA, VB>> retlist = new ArrayList<TupleDuad<VA, VB>>();
+    List<TupleTwo<VA, VB>> retlist = new ArrayList<TupleTwo<VA, VB>>();
     
     //
     if ( mapA != null && mapB != null )
@@ -202,7 +202,7 @@ public class MapUtils
         VB valueB = mapB.get( key );
         
         //
-        retlist.add( new TupleDuad<VA, VB>( valueA, valueB ) );
+        retlist.add( new TupleTwo<VA, VB>( valueA, valueB ) );
       }
     }
     

@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.tuple;
+package org.omnaest.utils.proxy.handler;
 
 /**
- * A {@link Tuple} is the marker interface for generic wrapper classes holding arbitrary elements of different numbers.<br>
- * <br>
- * A {@link Tuple} derived type should support {@link #hashCode()} and {@link #equals(Object)} as well as {@link #toString()}. Two
- * {@link Tuple} are taken as equal, if their elements are equal and in the same number and order.
+ * Handles a method invocation.
  * 
- * @see TupleTwo
- * @see TupleThree
+ * @see #handle(MethodCallCapture)
  * @author Omnaest
  */
-public interface Tuple
+public interface MethodInvocationHandler
 {
-  
+  /**
+   * Handles a method invocation.
+   * 
+   * @see MethodCallCapture
+   * @param methodCallCapture
+   * @return
+   */
+  public Object handle( MethodCallCapture methodCallCapture ) throws Throwable;
 }

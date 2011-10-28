@@ -28,7 +28,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
-import org.omnaest.utils.proxy.StubCreator.MethodInvocationHandler;
+import org.omnaest.utils.proxy.handler.MethodCallCapture;
+import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 
