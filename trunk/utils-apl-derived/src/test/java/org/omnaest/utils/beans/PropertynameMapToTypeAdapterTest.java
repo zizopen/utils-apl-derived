@@ -19,14 +19,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.omnaest.utils.beans.PropertynameMapToTypeAdapter.Adapter;
 import org.omnaest.utils.beans.PropertynameMapToTypeAdapter.PropertyAccessOption;
-import org.omnaest.utils.beans.PropertynameMapToTypeAdapter.UnderlyingMapAware;
+import org.omnaest.utils.structure.element.converter.Adapter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.map.UnderlyingMapAware;
 
 public class PropertynameMapToTypeAdapterTest
 {
@@ -183,7 +184,8 @@ public class PropertynameMapToTypeAdapterTest
     
     //
     assertTrue( testType instanceof UnderlyingMapAware );
-    UnderlyingMapAware<?> underlyingMapAware = (UnderlyingMapAware<?>) testType;
+    @SuppressWarnings("unchecked")
+    UnderlyingMapAware<String, Object> underlyingMapAware = (UnderlyingMapAware<String, Object>) testType;
     Map<String, Object> underlyingMap = underlyingMapAware.getUnderlyingMap();
     assertEquals( map, underlyingMap );
   }
@@ -192,7 +194,7 @@ public class PropertynameMapToTypeAdapterTest
   public void testSimulatingToString()
   {
     //
-    Map<String, Object> map = new HashMap<String, Object>();
+    Map<String, Object> map = new LinkedHashMap<String, Object>();
     
     map.put( "fieldString", "String value" );
     map.put( "fieldDouble", 10.0 );
@@ -202,7 +204,8 @@ public class PropertynameMapToTypeAdapterTest
     TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, true, true );
     
     //
-    assertEquals( "[\n  fieldString=String value\n  fieldDouble=10.0\n]", testType.toString() );
+    //System.out.println( testType );
+    assertEquals( "[\n  fieldString=String value\n  fieldDouble=10.0\n  otherfieldDouble=10.0\n]", testType.toString() );
     
   }
   

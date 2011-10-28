@@ -32,9 +32,9 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.omnaest.utils.beans.PropertynameMapToTypeAdapter.UnderlyingMapAware;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
+import org.omnaest.utils.structure.map.UnderlyingMapAware;
 
 /**
  * @see BeanUtils

@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.tuple;
+package org.omnaest.utils.structure.element.converter;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 
 /**
- * A {@link Tuple} is the marker interface for generic wrapper classes holding arbitrary elements of different numbers.<br>
+ * An {@link Adapter} allows to declare a {@link Class} of an {@link ElementConverter} which should be used to translate a
+ * return value or a single given parameter before storing it in the underlying structure.<br>
  * <br>
- * A {@link Tuple} derived type should support {@link #hashCode()} and {@link #equals(Object)} as well as {@link #toString()}. Two
- * {@link Tuple} are taken as equal, if their elements are equal and in the same number and order.
+ * The instance of the {@link ElementConverter} must have a default constructor.
  * 
- * @see TupleTwo
- * @see TupleThree
  * @author Omnaest
  */
-public interface Tuple
+@Documented
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD })
+public @interface Adapter
 {
-  
+  @SuppressWarnings("rawtypes")
+  public Class<? extends ElementConverter> type();
 }

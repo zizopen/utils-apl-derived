@@ -23,8 +23,8 @@ import org.omnaest.utils.events.EventListenerRegistration;
 import org.omnaest.utils.events.EventManager;
 import org.omnaest.utils.events.concrete.EventManagerImpl;
 import org.omnaest.utils.tuple.Tuple;
-import org.omnaest.utils.tuple.TupleDuad;
-import org.omnaest.utils.tuple.TupleTriple;
+import org.omnaest.utils.tuple.TupleTwo;
+import org.omnaest.utils.tuple.TupleThree;
 
 /**
  * Adapter interface used to connect two {@link EventManager} instances with
@@ -58,7 +58,7 @@ public interface EventListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
   public static class SourceEventDataContainer<SOURCE, EVENT, DATA>
   {
     /* ********************************************** Variables ********************************************** */
-    protected List<TupleTriple<SOURCE, EVENT, DATA>> sourceEventDataList = new ArrayList<TupleTriple<SOURCE, EVENT, DATA>>();
+    protected List<TupleThree<SOURCE, EVENT, DATA>> sourceEventDataList = new ArrayList<TupleThree<SOURCE, EVENT, DATA>>();
     
     /* ********************************************** Methods ********************************************** */
     
@@ -71,10 +71,10 @@ public interface EventListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
      */
     public void addSourceEventData( SOURCE source, EVENT event, DATA data )
     {
-      this.sourceEventDataList.add( new TupleTriple<SOURCE, EVENT, DATA>( source, event, data ) );
+      this.sourceEventDataList.add( new TupleThree<SOURCE, EVENT, DATA>( source, event, data ) );
     }
     
-    public List<TupleTriple<SOURCE, EVENT, DATA>> getSourceEventDataList()
+    public List<TupleThree<SOURCE, EVENT, DATA>> getSourceEventDataList()
     {
       return this.sourceEventDataList;
     }
@@ -90,7 +90,7 @@ public interface EventListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
   public static class ClientResultContainer<CLIENT, RESULT>
   {
     /* ********************************************** Variables ********************************************** */
-    protected List<TupleDuad<CLIENT, RESULT>> clientResultList = new ArrayList<TupleDuad<CLIENT, RESULT>>();
+    protected List<TupleTwo<CLIENT, RESULT>> clientResultList = new ArrayList<TupleTwo<CLIENT, RESULT>>();
     
     /* ********************************************** Methods ********************************************** */
     
@@ -102,10 +102,10 @@ public interface EventListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
      */
     public void addClientResult( CLIENT client, RESULT result )
     {
-      this.clientResultList.add( new TupleDuad<CLIENT, RESULT>( client, result ) );
+      this.clientResultList.add( new TupleTwo<CLIENT, RESULT>( client, result ) );
     }
     
-    public List<TupleDuad<CLIENT, RESULT>> getClientResultList()
+    public List<TupleTwo<CLIENT, RESULT>> getClientResultList()
     {
       return this.clientResultList;
     }

@@ -15,27 +15,31 @@
  ******************************************************************************/
 package org.omnaest.utils.beans;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Set;
 
-import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.proxy.StubCreator;
+import org.omnaest.utils.proxy.handler.MethodCallCapture;
+import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
+import org.omnaest.utils.proxy.handler.MethodInvocationHandlerDecoratorToString;
+import org.omnaest.utils.proxy.handler.MethodInvocationHandlerDecoratorUnderlyingMapAware;
 import org.omnaest.utils.reflection.ReflectionUtils;
+import org.omnaest.utils.structure.element.converter.Adapter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.map.MapUtils;
+import org.omnaest.utils.structure.map.UnderlyingMapAware;
 
 /**
  * This class creates a proxy implementation for a given class or interface type which is used as a facade to an underlying
- * Map&lt;String,?&gt;.
+ * Map&lt;String,?&gt;. <br>
+ * <br>
+ * It supports the {@link Adapter} annotation which allows to annotate getter and setter methods with {@link ElementConverter}
+ * classes which are used to convert return values or the first available parameter if present. Be aware that if there are getter
+ * and setter methods for the same property normally two different {@link Adapter} annotations have to be set two support
+ * conversion in two directions.
  * 
  * @author Omnaest
  * @see #newInstance(Map, Class)
@@ -45,35 +49,16 @@ import org.omnaest.utils.structure.map.MapUtils;
  * @param <T>
  * @param <M>
  */
-public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Object>>
+public class PropertynameMapToTypeAdapter<T>
 {
   /* ********************************************** Variables ********************************************** */
-  protected Map<? super String, Object> map                      = null;
-  protected T                           classAdapter             = null;
-  protected Class<T>                    clazz                    = null;
-  protected boolean                     hasAccessToUnderlyingMap = false;
-  protected boolean                     simulatesToString        = false;
-  protected PropertyAccessOption        propertyAccessOption     = PropertyAccessOption.PROPERTY;
-  protected Map<Method, Adapter>        methodToAnnotationMap    = null;
+  protected Map<String, Object>  map                   = null;
+  protected T                    classAdapter          = null;
+  protected Class<T>             clazz                 = null;
+  protected PropertyAccessOption propertyAccessOption  = PropertyAccessOption.PROPERTY;
+  protected Map<Method, Adapter> methodToAnnotationMap = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-  
-  /**
-   * An {@link Adapter} allows to declare a {@link Class} of an {@link ElementConverter} which should be used to translate a
-   * return value or a single given parameter before storing it in the underlying structure.<br>
-   * <br>
-   * The instance of the {@link ElementConverter} must have a default constructor.
-   * 
-   * @author Omnaest
-   */
-  @Documented
-  @Retention(value = RetentionPolicy.RUNTIME)
-  @Target({ ElementType.METHOD })
-  public static @interface Adapter
-  {
-    @SuppressWarnings("rawtypes")
-    public Class<? extends ElementConverter> type();
-  }
   
   /**
    * Options to modify the property access behavior regarding the property keys of the {@link Map}
@@ -89,34 +74,22 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
   }
   
   /**
-   * This interface makes a derivative type aware of an underlying map implementation. This is normally used in combination with
-   * an {@link PropertynameMapToTypeAdapter}.
+   * A {@link MethodInvocationHandler} implementation special for this {@link PropertynameMapToTypeAdapter}
    */
-  public static interface UnderlyingMapAware<M extends Map<String, Object>>
+  protected class ClassAdapterMethodInvocationHandler implements MethodInvocationHandler
   {
-    /**
-     * Returns the {@link Map} which underlies this class type facade.
-     * 
-     * @return
-     */
-    public M getUnderlyingMap();
-    
-    /**
-     * Sets the {@link Map} which should underly this class type facade.
-     * 
-     * @param underlyingMap
-     */
-    public void setUnderlyingMap( M underlyingMap );
-  }
-  
-  /**
-   * A {@link MethodInterceptor} implementation special for this {@link PropertynameMapToTypeAdapter}
-   */
-  protected class ClassAdapterMethodInterceptor implements MethodInterceptor
-  {
-    @SuppressWarnings("unchecked")
     @Override
-    public Object intercept( Object obj, Method method, Object[] args, MethodProxy proxy ) throws Throwable
+    public Object handle( MethodCallCapture methodCallCapture ) throws Throwable
+    {
+      //
+      Object obj = methodCallCapture.getObject();
+      Method method = methodCallCapture.getMethod();
+      Object[] args = methodCallCapture.getArguments();
+      MethodProxy proxy = methodCallCapture.getProxy();
+      return this.intercept( obj, method, args, proxy );
+    }
+    
+    private Object intercept( Object obj, Method method, Object[] args, MethodProxy proxy ) throws Throwable
     {
       //
       Object retval = null;
@@ -131,11 +104,6 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
           final String referencedFieldName = beanMethodInformation.getReferencedFieldName();
           final Adapter adapter = PropertynameMapToTypeAdapter.this.methodToAnnotationMap.get( method );
           
-          //
-          boolean accessToUnderlyingMap = PropertynameMapToTypeAdapter.this.hasAccessToUnderlyingMap
-                                          && "underlyingMap".equals( referencedFieldName );
-          boolean simulatingToString = PropertynameMapToTypeAdapter.this.simulatesToString
-                                       && "toString".equals( method.getName() );
           boolean isGetter = beanMethodInformation.isGetter() && args.length == 0;
           boolean isSetter = beanMethodInformation.isSetter() && args.length == 1;
           
@@ -143,81 +111,52 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
           boolean hasAdapter = adapter != null;
           
           //
-          if ( !accessToUnderlyingMap && !simulatingToString )
+          
+          if ( isMapNotNull )
           {
-            if ( isMapNotNull )
+            //
+            String referenceFieldNameAsMapKey;
+            if ( PropertyAccessOption.PROPERTY_LOWERCASE.equals( PropertynameMapToTypeAdapter.this.propertyAccessOption ) )
+            {
+              referenceFieldNameAsMapKey = referencedFieldName.toLowerCase();
+            }
+            else if ( PropertyAccessOption.PROPERTY_UPPERCASE.equals( PropertynameMapToTypeAdapter.this.propertyAccessOption ) )
+            {
+              referenceFieldNameAsMapKey = referencedFieldName.toUpperCase();
+            }
+            else
+            {
+              referenceFieldNameAsMapKey = referencedFieldName;
+            }
+            
+            //
+            if ( isGetter )
             {
               //
-              String referenceFieldNameAsMapKey;
-              if ( PropertyAccessOption.PROPERTY_LOWERCASE.equals( PropertynameMapToTypeAdapter.this.propertyAccessOption ) )
+              retval = PropertynameMapToTypeAdapter.this.map.get( referenceFieldNameAsMapKey );
+              
+              //
+              if ( hasAdapter )
               {
-                referenceFieldNameAsMapKey = referencedFieldName.toLowerCase();
+                retval = this.convertByAdapter( retval, adapter );
               }
-              else if ( PropertyAccessOption.PROPERTY_UPPERCASE.equals( PropertynameMapToTypeAdapter.this.propertyAccessOption ) )
+            }
+            else if ( isSetter )
+            {
+              //
+              Object value = args[0];
+              
+              //
+              if ( hasAdapter )
               {
-                referenceFieldNameAsMapKey = referencedFieldName.toUpperCase();
-              }
-              else
-              {
-                referenceFieldNameAsMapKey = referencedFieldName;
+                value = this.convertByAdapter( value, adapter );
               }
               
               //
-              if ( isGetter )
-              {
-                //
-                retval = PropertynameMapToTypeAdapter.this.map.get( referenceFieldNameAsMapKey );
-                
-                //
-                if ( hasAdapter )
-                {
-                  retval = this.convertByAdapter( retval, adapter );
-                }
-              }
-              else if ( isSetter )
-              {
-                //
-                Object value = args[0];
-                
-                //
-                if ( hasAdapter )
-                {
-                  value = this.convertByAdapter( value, adapter );
-                }
-                
-                //
-                PropertynameMapToTypeAdapter.this.map.put( referenceFieldNameAsMapKey, value );
-                
-                //
-                retval = Void.TYPE;
-              }
-            }
-          }
-          else
-          {
-            //
-            if ( accessToUnderlyingMap )
-            {
-              if ( isGetter )
-              {
-                //
-                retval = PropertynameMapToTypeAdapter.this.map;
-              }
-              else if ( isSetter )
-              {
-                //
-                PropertynameMapToTypeAdapter.this.map = (Map<Object, Object>) args[0];
-                
-                //
-                retval = Void.TYPE;
-              }
-            }
-            else if ( simulatingToString )
-            {
+              PropertynameMapToTypeAdapter.this.map.put( referenceFieldNameAsMapKey, value );
+              
               //
-              Set<String> filterKeySet = BeanUtils.propertyNameSetForMethodAccess( PropertynameMapToTypeAdapter.this.clazz );
-              retval = MapUtils.toString( MapUtils.filteredMap( (Map<String, Object>) PropertynameMapToTypeAdapter.this.map,
-                                                                filterKeySet ) );
+              retval = Void.TYPE;
             }
           }
         }
@@ -257,6 +196,7 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
       //
       return retval;
     }
+    
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -280,7 +220,7 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
    *          : true > returned stub implements {@link UnderlyingMapAware}
    * @return new
    */
-  public static <T> T newInstance( Map<? super String, Object> map, Class<? extends T> clazz, boolean underlyingMapAware )
+  public static <T> T newInstance( Map<String, Object> map, Class<? extends T> clazz, boolean underlyingMapAware )
   {
     PropertyAccessOption propertyAccessOption = null;
     return newInstance( map, clazz, underlyingMapAware, propertyAccessOption );
@@ -299,7 +239,7 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
    *          : simulates the {@link #toString()} method
    * @return new
    */
-  public static <T> T newInstance( Map<? super String, Object> map,
+  public static <T> T newInstance( Map<String, Object> map,
                                    Class<? extends T> clazz,
                                    boolean underlyingMapAware,
                                    boolean simulatingToString )
@@ -320,7 +260,7 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
    * @param propertyAccessOption
    * @return new
    */
-  public static <T> T newInstance( Map<? super String, Object> map,
+  public static <T> T newInstance( Map<String, Object> map,
                                    Class<? extends T> clazz,
                                    boolean underlyingMapAware,
                                    PropertyAccessOption propertyAccessOption )
@@ -343,8 +283,7 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
    * @param propertyAccessOption
    * @return new
    */
-  @SuppressWarnings("unchecked")
-  public static <T> T newInstance( Map<? super String, Object> map,
+  public static <T> T newInstance( Map<String, Object> map,
                                    Class<? extends T> clazz,
                                    boolean underlyingMapAware,
                                    boolean simulatesToString,
@@ -357,12 +296,10 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
     if ( clazz != null && map != null )
     {
       //
-      PropertynameMapToTypeAdapter<T, Map<Object, Object>> mapToInterfaceAdapter = new PropertynameMapToTypeAdapter<T, Map<Object, Object>>(
-                                                                                                                                             (Map<Object, Object>) map,
-                                                                                                                                             clazz,
-                                                                                                                                             underlyingMapAware,
-                                                                                                                                             simulatesToString,
-                                                                                                                                             propertyAccessOption );
+      PropertynameMapToTypeAdapter<T> mapToInterfaceAdapter = new PropertynameMapToTypeAdapter<T>( map, clazz,
+                                                                                                   underlyingMapAware,
+                                                                                                   simulatesToString,
+                                                                                                   propertyAccessOption );
       
       //
       retval = mapToInterfaceAdapter.classAdapter;
@@ -382,11 +319,10 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
    * @param clazz
    * @return new
    */
-  @SuppressWarnings({ "unchecked", "cast" })
-  public static <T> T newInstance( Map<? super String, Object> map, Class<? extends T> clazz )
+  public static <T> T newInstance( Map<String, Object> map, Class<? extends T> clazz )
   {
     boolean underlyingMapAware = UnderlyingMapAware.class.isAssignableFrom( clazz );
-    return PropertynameMapToTypeAdapter.newInstance( (Map<Object, Object>) map, clazz, underlyingMapAware );
+    return PropertynameMapToTypeAdapter.newInstance( map, clazz, underlyingMapAware );
   }
   
   /**
@@ -399,13 +335,13 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
    * @param propertyAccessOption
    * @return new
    */
-  @SuppressWarnings({ "unchecked", "cast" })
+  @SuppressWarnings({ "unchecked" })
   public static <T> T newInstance( Map<? super String, Object> map,
                                    Class<? extends T> clazz,
                                    PropertyAccessOption propertyAccessOption )
   {
     boolean underlyingMapAware = false;
-    return PropertynameMapToTypeAdapter.newInstance( (Map<Object, Object>) map, clazz, underlyingMapAware, propertyAccessOption );
+    return PropertynameMapToTypeAdapter.newInstance( (Map<String, Object>) map, clazz, underlyingMapAware, propertyAccessOption );
   }
   
   /**
@@ -418,16 +354,15 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
    * @param propertyAccessOption
    */
   @SuppressWarnings("unchecked")
-  protected PropertynameMapToTypeAdapter( M map, Class<? extends T> type, boolean underlyingMapAware, boolean simulatesToString,
-                                          PropertyAccessOption propertyAccessOption )
+  protected <M extends Map<String, Object>> PropertynameMapToTypeAdapter( M map, Class<? extends T> type,
+                                                                          boolean underlyingMapAware, boolean simulatesToString,
+                                                                          PropertyAccessOption propertyAccessOption )
   {
     //
     super();
     this.map = map;
     this.clazz = (Class<T>) type;
     
-    this.hasAccessToUnderlyingMap = underlyingMapAware;
-    this.simulatesToString = simulatesToString;
     if ( propertyAccessOption != null )
     {
       this.propertyAccessOption = propertyAccessOption;
@@ -435,7 +370,7 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
     this.methodToAnnotationMap = ReflectionUtils.methodToAnnotationMap( type, Adapter.class );
     
     //
-    this.initializeClassAdapter( type, underlyingMapAware );
+    this.initializeClassAdapter( type, underlyingMapAware, simulatesToString );
   }
   
   /**
@@ -444,15 +379,47 @@ public class PropertynameMapToTypeAdapter<T, M extends Map<? super String, Objec
    * @param clazz
    * @param underlyingMapAware
    */
-  protected void initializeClassAdapter( Class<? extends T> clazz, boolean underlyingMapAware )
+  protected void initializeClassAdapter( Class<? extends T> clazz, boolean underlyingMapAware, boolean simulatesToString )
   {
     //
     try
     {
+      //
+      MethodInvocationHandler methodInvocationHandler = new ClassAdapterMethodInvocationHandler();
+      if ( underlyingMapAware )
+      {
+        methodInvocationHandler = new MethodInvocationHandlerDecoratorUnderlyingMapAware( methodInvocationHandler )
+        {
+          @SuppressWarnings("unchecked")
+          @Override
+          public void setUnderlyingMap( Map<?, ?> underlyingMap )
+          {
+            PropertynameMapToTypeAdapter.this.map = (Map<String, Object>) underlyingMap;
+          }
+          
+          @Override
+          public Map<?, ?> getUnderlyingMap()
+          {
+            return PropertynameMapToTypeAdapter.this.map;
+          }
+        };
+      }
+      if ( simulatesToString )
+      {
+        methodInvocationHandler = new MethodInvocationHandlerDecoratorToString( methodInvocationHandler )
+        {
+          
+          @Override
+          public String handleToString()
+          {
+            return MapUtils.toString( PropertynameMapToTypeAdapter.this.map );
+          }
+        };
+      }
+      
       //       
       Class<?>[] interfaces = underlyingMapAware ? new Class[] { UnderlyingMapAware.class } : null;
-      MethodInterceptor methodInterceptor = new ClassAdapterMethodInterceptor();
-      this.classAdapter = StubCreator.newStubInstance( clazz, interfaces, methodInterceptor );
+      this.classAdapter = StubCreator.newStubInstance( clazz, interfaces, methodInvocationHandler );
     }
     catch ( Exception e )
     {

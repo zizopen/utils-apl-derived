@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.omnaest.utils.proxy.MethodCallCapturerTest.TestInterface;
 
 /**
  * @see MethodName
@@ -34,8 +33,25 @@ public class MethodNameTest
   /* ********************************************** Variables ********************************************** */
   private MethodName methodName = new MethodName();
   
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  protected static interface TestInterface
+  {
+    public String doSomething( String text );
+    
+    public boolean doSomethingPrimitive( String text );
+    
+    public TestSubInterface doTestSubInterface();
+  }
+  
+  protected static interface TestSubInterface
+  {
+    public Double doCalculateSomething();
+    
+    public TestSubInterface doTestSubInterface();
+  }
+  
   /* ********************************************** Methods ********************************************** */
-
   @Before
   public void createMethodName() throws Exception
   {
