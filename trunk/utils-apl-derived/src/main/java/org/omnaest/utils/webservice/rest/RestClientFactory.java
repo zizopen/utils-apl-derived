@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -61,8 +63,83 @@ public abstract class RestClientFactory
   /* ********************************************** Variables ********************************************** */
   protected URI                                  baseAddress                          = null;
   protected RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler = null;
+  protected Authentification                     authentification                     = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * @see BasicAuthentification
+   * @see RestClientFactory
+   * @author Omnaest
+   */
+  public static interface Authentification
+  {
+    
+  }
+  
+  /**
+   * @see Authentification
+   * @author Omnaest
+   */
+  public static class BasicAuthentification implements Authentification
+  {
+    /* ********************************************** Variables ********************************************** */
+    protected String username = null;
+    protected String password = null;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @param username
+     * @param password
+     */
+    public BasicAuthentification( String username, String password )
+    {
+      super();
+      this.username = username;
+      this.password = password;
+    }
+    
+    public String getUsername()
+    {
+      return this.username;
+    }
+    
+    public String getPassword()
+    {
+      return this.password;
+    }
+  }
+  
+  /**
+   * @see Authentification
+   * @author Omnaest
+   */
+  public static class HTTPSAuthentification extends BasicAuthentification
+  {
+    /* ********************************************** Variables ********************************************** */
+    protected SSLContext       sslContext       = null;
+    protected HostnameVerifier hostnameVerifier = null;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    public HTTPSAuthentification( String username, String password, SSLContext sslContext, HostnameVerifier hostnameVerifier )
+    {
+      super( username, password );
+      this.sslContext = sslContext;
+      this.hostnameVerifier = hostnameVerifier;
+    }
+    
+    public HostnameVerifier getHostnameVerifier()
+    {
+      return this.hostnameVerifier;
+    }
+    
+    public SSLContext getSslContext()
+    {
+      return this.sslContext;
+    }
+  }
   
   /**
    * Handler for {@link Method} invocations on the generated proxy for a JSR-311 type
@@ -547,7 +624,23 @@ public abstract class RestClientFactory
   
   /* ********************************************** Methods ********************************************** */
   
+  /**
+   * @param baseAddress
+   * @param restInterfaceMethodInvocationHandler
+   */
   public RestClientFactory( String baseAddress, RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
+  
+  {
+    this( baseAddress, null, restInterfaceMethodInvocationHandler );
+  }
+  
+  /**
+   * @param baseAddress
+   * @param authentification
+   * @param restInterfaceMethodInvocationHandler
+   */
+  public RestClientFactory( String baseAddress, Authentification authentification,
+                            RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
   
   {
     super();
@@ -562,6 +655,7 @@ public abstract class RestClientFactory
       e.printStackTrace();
     }
     this.restInterfaceMethodInvocationHandler = restInterfaceMethodInvocationHandler;
+    this.authentification = authentification;
   }
   
   /**

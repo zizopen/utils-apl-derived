@@ -19,10 +19,15 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import com.sun.jersey.client.urlconnection.HTTPSProperties;
 
 /**
  * Implementation for a {@link RestClientFactory} for Jersey
@@ -32,7 +37,20 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 public class RestClientFactoryJersey extends RestClientFactory
 {
   
+  /**
+   * @param baseAddress
+   */
   public RestClientFactoryJersey( String baseAddress )
+  {
+    this( baseAddress, null );
+  }
+  
+  /**
+   * @see Authentification
+   * @param baseAddress
+   * @param authentification
+   */
+  public RestClientFactoryJersey( String baseAddress, final Authentification authentification )
   {
     super( baseAddress, new RestInterfaceMethodInvocationHandler()
     {
@@ -56,9 +74,37 @@ public class RestClientFactoryJersey extends RestClientFactory
           //
           WebResource webResource = null;
           
-          //
+          //see http://java.net/projects/jersey/sources/svn/content/trunk/jersey/samples/https-clientserver-grizzly/src/test/java/com/sun/jersey/samples/https_grizzly/MainTest.java?rev=5453
           ClientConfig clientConfig = new DefaultClientConfig();
+          
+          //
+          if ( authentification instanceof HTTPSAuthentification )
+          {
+            //
+            HTTPSAuthentification httpsAuthentification = (HTTPSAuthentification) authentification;
+            HostnameVerifier hostnameVerifier = httpsAuthentification.getHostnameVerifier();
+            SSLContext sslContext = httpsAuthentification.getSslContext();
+            
+            //
+            clientConfig.getProperties().put( HTTPSProperties.PROPERTY_HTTPS_PROPERTIES,
+                                              new HTTPSProperties( hostnameVerifier, sslContext ) );
+            
+          }
+          
+          //
           Client client = Client.create( clientConfig );
+          
+          //
+          if ( authentification instanceof BasicAuthentification )
+          {
+            //
+            BasicAuthentification basicAuthentification = (BasicAuthentification) authentification;
+            String username = basicAuthentification.getUsername();
+            String password = basicAuthentification.getPassword();
+            
+            //
+            client.addFilter( new HTTPBasicAuthFilter( username, password ) );
+          }
           
           //
           webResource = client.resource( baseAddress );
