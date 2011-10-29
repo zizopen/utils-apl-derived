@@ -21,8 +21,10 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * Size limited {@link Queue}
+ * Size limited {@link Queue} which can be configured to ignore further adding of elements if the size limit is reached, or to
+ * dump the oldest entry.
  * 
+ * @see #setRemoveFirstElementByExceedingSize(boolean)
  * @author Omnaest
  * @param <E>
  */

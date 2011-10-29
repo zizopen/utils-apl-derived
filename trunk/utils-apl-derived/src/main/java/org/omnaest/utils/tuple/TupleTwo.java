@@ -18,6 +18,11 @@ package org.omnaest.utils.tuple;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * Two arguments {@link Tuple} supporting {@link #hashCode()}, {@link #equals(Object)} and {@link #toString()} using the values of
  * the given elements.
@@ -26,11 +31,15 @@ import java.util.Map;
  * @see TupleThree
  * @author Omnaest
  */
+@XmlType
+@XmlAccessorType(XmlAccessType.FIELD)
 public class TupleTwo<T1, T2> implements Tuple
 {
   /* ********************************************** Variables ********************************************** */
-  
+  @XmlElement
   protected T1 valueFirst  = null;
+  
+  @XmlElement
   protected T2 valueSecond = null;
   
   /* ********************************************** Methods ********************************************** */

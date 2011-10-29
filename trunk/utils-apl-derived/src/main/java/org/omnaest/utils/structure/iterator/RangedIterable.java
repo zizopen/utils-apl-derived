@@ -17,7 +17,7 @@ package org.omnaest.utils.structure.iterator;
 
 import java.util.Iterator;
 
-import org.omnaest.utils.structure.element.ElementHolder;
+import org.omnaest.utils.structure.element.ElementHolderUnmodifiable;
 import org.omnaest.utils.structure.element.Range;
 
 /**
@@ -63,7 +63,7 @@ public class RangedIterable<T> implements Iterable<T>
     }
     
     //
-    final ElementHolder<Long> elementHolderIndexPosition = new ElementHolder<Long>( nextIndexPosition );
+    final ElementHolderUnmodifiable<Long> elementHolderIndexPosition = new ElementHolderUnmodifiable<Long>( nextIndexPosition );
     return new Iterator<T>()
     {
       /* ********************************************** Variables ********************************************** */

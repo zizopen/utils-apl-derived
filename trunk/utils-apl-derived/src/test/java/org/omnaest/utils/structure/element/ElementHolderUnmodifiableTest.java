@@ -22,10 +22,10 @@ import org.junit.Test;
 import org.omnaest.utils.xml.XMLHelper;
 
 /**
- * @see ElementHolder
+ * @see ElementHolderUnmodifiable
  * @author Omnaest
  */
-public class ElementHolderTest
+public class ElementHolderUnmodifiableTest
 {
   
   @Test
@@ -35,7 +35,7 @@ public class ElementHolderTest
     {
       //
       String value = "value";
-      ElementHolder<String> elementHolder = new ElementHolder<String>( value );
+      ElementHolderUnmodifiable<String> elementHolder = new ElementHolderUnmodifiable<String>( value );
       
       //
       String objectAsXML = XMLHelper.storeObjectAsXML( elementHolder );

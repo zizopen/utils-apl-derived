@@ -15,6 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.tuple;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * Container {@link Tuple} holding three data instances.
  * 
@@ -25,11 +30,16 @@ package org.omnaest.utils.tuple;
  * @param <T2>
  * @param <T3>
  */
+@XmlType
+@XmlAccessorType(XmlAccessType.FIELD)
 public class TupleThree<T1, T2, T3> implements Tuple
 {
   /* ********************************************** Variables ********************************************** */
+  @XmlElement
   protected T1 valueFirst  = null;
+  @XmlElement
   protected T2 valueSecond = null;
+  @XmlElement
   protected T3 valueThird  = null;
   
   /* ********************************************** Methods ********************************************** */
@@ -116,6 +126,7 @@ public class TupleThree<T1, T2, T3> implements Tuple
     {
       return false;
     }
+    @SuppressWarnings("rawtypes")
     TupleThree other = (TupleThree) obj;
     if ( this.valueFirst == null )
     {

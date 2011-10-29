@@ -15,58 +15,35 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
- * Simple predefined {@link ElementHolder} around an arbitrary element
+ * Modifiable version of an {@link ElementHolderUnmodifiable} allows to {@link #setElement(Object)}
  * 
- * @see ElementHolderModifiable
+ * @see ElementHolderUnmodifiable
  * @author Omnaest
  * @param <E>
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
-public class ElementHolder<E>
+public class ElementHolder<E> extends ElementHolderUnmodifiable<E>
 {
-  /* ********************************************** Variables ********************************************** */
-  @XmlElement
-  protected E element = null;
-  
-  /* ********************************************** Methods ********************************************** */
   
   /**
    * @param element
    */
   public ElementHolder( E element )
   {
-    super();
-    this.element = element;
-  }
-  
-  protected ElementHolder()
-  {
-    super();
+    super( element );
   }
   
   /**
-   * @return the element
-   */
-  public E getElement()
-  {
-    return this.element;
-  }
-  
-  /**
-   * Sets the given element to the {@link ElementHolder}
    * 
-   * @param element
    */
-  protected void setElement( E element )
+  public ElementHolder()
+  {
+    super( null );
+  }
+  
+  @Override
+  public void setElement( E element )
   {
     this.element = element;
   }
-  
 }
