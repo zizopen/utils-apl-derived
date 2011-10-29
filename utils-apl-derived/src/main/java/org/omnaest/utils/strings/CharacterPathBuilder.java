@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionTransformer;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionTransformerToString;
 import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.element.ElementHolderModifiable;
+import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 /**
@@ -295,7 +295,7 @@ public class CharacterPathBuilder
       for ( Character firstCharacter : firstCharacterSet )
       {
         //
-        final ElementHolderModifiable<Boolean> hasEmptyElementHolder = new ElementHolderModifiable<Boolean>( false );
+        final ElementHolder<Boolean> hasEmptyElementHolder = new ElementHolder<Boolean>( false );
         
         //          
         List<String> stringListForCurrentCharacterWithRemovedFirstCharacter = ListUtils.filterExcludingNullElements( ListUtils.transform( ListUtils.filterIncludingIndexPositions( stringList,

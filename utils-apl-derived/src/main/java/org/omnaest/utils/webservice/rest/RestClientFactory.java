@@ -115,7 +115,7 @@ public abstract class RestClientFactory
    * @see Authentification
    * @author Omnaest
    */
-  public static class HTTPSAuthentification extends BasicAuthentification
+  public static class HTTPSAuthentification implements Authentification
   {
     /* ********************************************** Variables ********************************************** */
     protected SSLContext       sslContext       = null;
@@ -123,9 +123,9 @@ public abstract class RestClientFactory
     
     /* ********************************************** Methods ********************************************** */
     
-    public HTTPSAuthentification( String username, String password, SSLContext sslContext, HostnameVerifier hostnameVerifier )
+    public HTTPSAuthentification( SSLContext sslContext, HostnameVerifier hostnameVerifier )
     {
-      super( username, password );
+      super();
       this.sslContext = sslContext;
       this.hostnameVerifier = hostnameVerifier;
     }
