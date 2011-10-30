@@ -2,16 +2,16 @@
 
 = SourcePropertyAccessorToTypeAdapter =
 
-The SourcePropertyAccessorToTypeAdapter allows to create arbitrary proxies (cglib) which dispatches access calls to the properties of the given type to a simple PropertyAccessor interface instance. Such an instance has a getValue(propertyName) and setValue(propertyName,value) method which is quite similar to an Map<String,Object> access.
+The SourcePropertyAccessorToTypeAdapter allows to create arbitrary proxies (cglib) which dispatches access calls to the properties of the given type to a simple SourcePropertyAccessor interface instance. Such an instance has a getValue(propertyName) and setValue(propertyName,value) method which is quite similar to an Map<String,Object> access.
 
 Example:
 
 {{{
-TestType         testType         = PropertyAccessorToTypeAdapter.newInstance( TestType.class, this.propertyAccessor );
+TestType         testType         = SourcePropertyAccessorToTypeAdapter.newInstance( TestType.class, this.propertyAccessor );
 }}}
 
 
-PropertyAccessor:
+SourcePropertyAccessor:
 {{{
 /**
    * Simple {@link SourcePropertyAccessor} interface which reduces to a {@link #setValue(Object, Object)} and {@link #getValue(Object)}
