@@ -18,7 +18,7 @@ package org.omnaest.utils.structure.map;
 import java.util.Map;
 
 import org.omnaest.utils.structure.element.converter.ElementConverter;
-import org.omnaest.utils.structure.element.converter.IdentityElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 
 /**
  * Special implementation of a {@link MapToMapAdapter} which only converts the keys of a {@link Map}
@@ -33,7 +33,7 @@ public class MapToMapAdapterForKey<KEY_FROM, KEY_TO, VALUE> extends MapToMapAdap
                                 ElementConverter<KEY_TO, KEY_FROM> elementConverterKeyAdapterToSource )
   {
     super( sourceMap, elementConverterKeySourceToAdapter, elementConverterKeyAdapterToSource,
-           new IdentityElementConverter<VALUE>(), new IdentityElementConverter<VALUE>() );
+           new ElementConverterIdentity<VALUE>(), new ElementConverterIdentity<VALUE>() );
   }
   
 }

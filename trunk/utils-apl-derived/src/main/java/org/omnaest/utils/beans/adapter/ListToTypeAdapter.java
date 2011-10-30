@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.beans;
+package org.omnaest.utils.beans.adapter;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -26,6 +26,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.proxy.StubCreator;

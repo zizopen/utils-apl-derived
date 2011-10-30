@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.autowired;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -105,6 +106,12 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
     
     // 
     return retval;
+  }
+  
+  @Override
+  public Iterator<E> iterator()
+  {
+    return this.classToObjectMap.values().iterator();
   }
   
 }

@@ -35,7 +35,7 @@ public class ElementHolderUnmodifiableTest
     {
       //
       String value = "value";
-      ElementHolderUnmodifiable<String> elementHolder = new ElementHolderUnmodifiable<String>( value );
+      ElementHolderUnmodifiable<String> elementHolder = new ElementHolder<String>( value );
       
       //
       String objectAsXML = XMLHelper.storeObjectAsXML( elementHolder );

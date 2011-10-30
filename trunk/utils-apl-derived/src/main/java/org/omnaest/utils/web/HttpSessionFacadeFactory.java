@@ -15,50 +15,60 @@
  ******************************************************************************/
 package org.omnaest.utils.web;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.Annotation;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import org.omnaest.utils.beans.BeanUtils;
-import org.omnaest.utils.beans.PropertynameMapToTypeAdapter;
-import org.omnaest.utils.structure.map.DualMap;
-import org.omnaest.utils.structure.map.LinkedHashDualMap;
-import org.omnaest.utils.structure.map.MapWithKeyMappingAdapter;
+import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter;
+import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.PropertyAccessOption;
+import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
+import org.omnaest.utils.structure.element.converter.Adapter;
 
 /**
  * A {@link HttpSessionFacadeFactory} creates proxy instances for given types which allows to access the {@link HttpSession}. To
  * operate the {@link HttpSessionFacadeFactory} needs an {@link HttpSessionResolver}. The {@link HttpSession} will be resolved for
- * each {@link #newSessionFacade(Class)} method call.
+ * each {@link #newSessionFacade(Class)} method call. <br>
+ * <br>
+ * <br>
+ * The {@link HttpSessionFacadeFactory} supports following {@link Annotation}s:<br>
+ * <ul>
+ * <li>{@link Adapter}</li>
+ * <li>{@link PropertyNameTemplate}</li>
+ * </ul>
+ * <br>
+ * <br>
+ * An example of an interface put on top of a {@link HttpSession} can look like:
+ * 
+ * <pre>
+ * public static interface HttpSessionFacadeExample
+ * {
+ *   public void setFieldString( String field );
+ *   
+ *   public String getFieldString();
+ *   
+ *   public void setFieldDouble( Double fieldDouble );
+ *   
+ *   public Double getFieldDouble();
+ *   
+ *   &#064;PropertyNameTemplate(&quot;OTHERFIELD&quot;)
+ *   public String getOtherField();
+ *   
+ *   &#064;Adapter(type = ElementConverterIdentity.class)
+ *   public void setOtherField( String value );
+ * }
+ * </pre>
  * 
  * @see HttpSession
  * @see HttpSessionResolver
+ * @see Adapter
+ * @see PropertyNameTemplate
  * @author Omnaest
  */
 public class HttpSessionFacadeFactory
 {
   /* ********************************************** Variables ********************************************** */
-  private HttpSessionResolver httpSessionResolver = null;
-  
-  /* ********************************************** Classes/Interfaces ********************************************** */
-  
-  /**
-   * Allows to declare the name of the accessed attribute of the {@link HttpSession}. It is only necessary to annotate at least
-   * one setter or getter of the same property, but it is not necessary to annotate both of them.
-   * 
-   * @author Omnaest
-   */
-  @Documented
-  @Retention(value = RetentionPolicy.RUNTIME)
-  @Target({ ElementType.METHOD })
-  public @interface AttributeName
-  {
-    public String value();
-  }
+  protected HttpSessionResolver httpSessionResolver = null;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -70,37 +80,6 @@ public class HttpSessionFacadeFactory
   {
     super();
     this.httpSessionResolver = httpSessionResolver;
-  }
-  
-  protected <T> DualMap<String, String> determinePropertyNameToSessionAttributeNameMap( Class<T> type )
-  {
-    //
-    DualMap<String, String> propertyNameToSessionAttributeNameMap = new LinkedHashDualMap<String, String>();
-    
-    //
-    Map<String, AttributeName> propertyNameToBeanPropertyAnnotationMap = BeanUtils.propertyNameToBeanPropertyAnnotationMap( type,
-                                                                                                                            AttributeName.class );
-    for ( String propertyName : propertyNameToBeanPropertyAnnotationMap.keySet() )
-    {
-      //
-      AttributeName attributeName = propertyNameToBeanPropertyAnnotationMap.get( propertyName );
-      
-      //
-      String sessionAttributeName = propertyName;
-      
-      //
-      String value = null;
-      if ( attributeName != null && ( value = attributeName.value() ) != null )
-      {
-        sessionAttributeName = value;
-      }
-      
-      //
-      propertyNameToSessionAttributeNameMap.put( propertyName, sessionAttributeName );
-    }
-    
-    //
-    return propertyNameToSessionAttributeNameMap;
   }
   
   /**
@@ -125,14 +104,19 @@ public class HttpSessionFacadeFactory
         Map<String, Object> httpSessionMap = HttpSessionToMapAdapter.newInstance( httpSession );
         
         //
-        DualMap<String, String> propertyNameToSessionAttributeNameMap = this.determinePropertyNameToSessionAttributeNameMap( type );
-        
-        MapWithKeyMappingAdapter<String, String, Object> httpSessionMapWithKeyMapping = new MapWithKeyMappingAdapter<String, String, Object>(
-                                                                                                                                              httpSessionMap,
-                                                                                                                                              propertyNameToSessionAttributeNameMap.invert() );
-        
-        //
-        retval = PropertynameMapToTypeAdapter.newInstance( httpSessionMapWithKeyMapping, type, true, true );
+        PropertyAccessOption propertyAccessOption = null;
+        boolean isRegardingAdapterAnnotation = true;
+        boolean underlyingMapAware = true;
+        boolean isRegardingPropertyNameTemplate = true;
+        boolean simulatingToString = true;
+        retval = PropertynameMapToTypeAdapter.newInstance( httpSessionMap,
+                                                           type,
+                                                           new PropertynameMapToTypeAdapter.Configuration(
+                                                                                                           propertyAccessOption,
+                                                                                                           isRegardingAdapterAnnotation,
+                                                                                                           isRegardingPropertyNameTemplate,
+                                                                                                           underlyingMapAware,
+                                                                                                           simulatingToString ) );
       }
     }
     

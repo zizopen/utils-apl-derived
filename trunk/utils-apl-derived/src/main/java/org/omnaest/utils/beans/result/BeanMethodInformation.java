@@ -25,21 +25,31 @@ import java.lang.reflect.Method;
 public class BeanMethodInformation
 {
   /* ********************************************** Variables ********************************************** */
-  protected boolean isGetter            = false;
-  protected boolean isSetter            = false;
-  protected String  referencedFieldName = null;
-  protected Method  method              = null;
+  protected boolean isGetter                        = false;
+  protected boolean isSetter                        = false;
+  protected boolean isGetterWithAdditionalArguments = false;
+  protected boolean isSetterWithAdditionalArguments = false;
+  protected String  referencedFieldName             = null;
+  protected Method  method                          = null;
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
-   * 
+   * @param isGetter
+   * @param isSetter
+   * @param isGetterWithAdditionalArguments
+   * @param isSetterWithAdditionalArguments
+   * @param referencedFieldName
+   * @param method
    */
-  public BeanMethodInformation( boolean isGetter, boolean isSetter, String referencedFieldName, Method method )
+  public BeanMethodInformation( boolean isGetter, boolean isSetter, boolean isGetterWithAdditionalArguments,
+                                boolean isSetterWithAdditionalArguments, String referencedFieldName, Method method )
   {
     super();
     this.isGetter = isGetter;
     this.isSetter = isSetter;
+    this.isGetterWithAdditionalArguments = isGetterWithAdditionalArguments;
+    this.isSetterWithAdditionalArguments = isSetterWithAdditionalArguments;
     this.referencedFieldName = referencedFieldName;
     this.method = method;
   }
@@ -92,6 +102,46 @@ public class BeanMethodInformation
   public Method getMethod()
   {
     return this.method;
+  }
+  
+  /**
+   * Returns true, if a method begins with "get" or "is" and has more than one parameter and at least two and has a return type.
+   * 
+   * @return
+   */
+  public boolean isGetterWithAdditionalArguments()
+  {
+    return this.isGetterWithAdditionalArguments;
+  }
+  
+  /**
+   * Returns true, if a method begins with "set" and has at least two parameter or more.
+   * 
+   * @return
+   */
+  public boolean isSetterWithAdditionalArguments()
+  {
+    return this.isSetterWithAdditionalArguments;
+  }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "BeanMethodInformation [isGetter=" );
+    builder.append( this.isGetter );
+    builder.append( ", isSetter=" );
+    builder.append( this.isSetter );
+    builder.append( ", isGetterWithAdditionalArguments=" );
+    builder.append( this.isGetterWithAdditionalArguments );
+    builder.append( ", isSetterWithAdditionalArguments=" );
+    builder.append( this.isSetterWithAdditionalArguments );
+    builder.append( ", referencedFieldName=" );
+    builder.append( this.referencedFieldName );
+    builder.append( ", method=" );
+    builder.append( this.method );
+    builder.append( "]" );
+    return builder.toString();
   }
   
 }

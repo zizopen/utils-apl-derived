@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.omnaest.utils.beans.BeanUtils;
-import org.omnaest.utils.beans.PropertynameMapToTypeAdapter;
+import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter;
 import org.omnaest.utils.structure.collection.list.ListAbstract;
 import org.omnaest.utils.structure.map.DualMap;
 import org.omnaest.utils.structure.map.LinkedHashDualMap;

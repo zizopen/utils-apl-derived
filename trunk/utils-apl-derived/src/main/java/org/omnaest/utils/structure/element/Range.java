@@ -17,7 +17,9 @@ package org.omnaest.utils.structure.element;
 
 import java.util.Iterator;
 
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.iterator.ElementStreamToIteratorAdapter;
+import org.springframework.util.Assert;
 
 /**
  * Represents a {@link Range} for {@link Long} values which can be used as {@link Iterable}. The number limits are always
@@ -82,6 +84,32 @@ public class Range implements Iterable<Long>
     super();
     this.numberFrom = (long) numberFrom;
     this.numberTo = (long) numberTo;
+  }
+  
+  /**
+   * Allows to specify a {@link Range} with a given {@link String} expression.<br>
+   * <br>
+   * The expression format is:<br>
+   * 
+   * <pre>
+   * new Range( &quot;1-5&quot; );
+   * </pre>
+   * 
+   * @see Range
+   * @param rangeExpression
+   */
+  public Range( String rangeExpression )
+  {
+    super();
+    
+    Assert.notNull( rangeExpression );
+    String[] tokens = rangeExpression.split( "-" );
+    Assert.isTrue( tokens.length == 2 );
+    StringUtils.isNumeric( tokens[0] );
+    StringUtils.isNumeric( tokens[1] );
+    
+    this.numberFrom = Long.valueOf( tokens[0] );
+    this.numberTo = Long.valueOf( tokens[1] );
   }
   
   /**

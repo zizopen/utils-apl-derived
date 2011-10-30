@@ -15,29 +15,34 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.converter;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map.Entry;
-
-import org.omnaest.utils.structure.collection.ListUtils;
-
 /**
- * A transformer from a {@link List} element type to a {@link Entry} type
+ * {@link ElementConverter}
  * 
- * @see ListUtils#asMap(Collection)
  * @author Omnaest
- * @param <K>
- * @param <V>
- * @param <E>
  */
-public interface ElementToMapEntryConverter<E, K, V>
+public class ElementConverterStringToInteger implements ElementConverter<String, Integer>
 {
   
-  /**
-   * Transforms a given {@link List} element instance into an {@link Entry}. Null values must be handled by this method, too.
-   * 
-   * @param element
-   * @return {@link Entry}
-   */
-  public Entry<K, V> convert( E element );
+  @Override
+  public Integer convert( String element )
+  {
+    //    
+    Integer retval = null;
+    
+    //
+    if ( element != null )
+    {
+      try
+      {
+        retval = Integer.valueOf( element );
+      }
+      catch ( Exception e )
+      {
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
 }

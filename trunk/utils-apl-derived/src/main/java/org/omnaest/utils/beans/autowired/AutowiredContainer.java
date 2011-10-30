@@ -32,25 +32,50 @@ public interface AutowiredContainer<E> extends Iterable<E>, Serializable
    * fitting types null is returned.
    * 
    * @param <O>
-   * @param clazz
+   * @param type
    * @return
    */
-  public <O extends E> O getValue( Class<O> clazz );
+  public <O extends E> O getValue( Class<O> type );
   
   /**
    * Returns a {@link Set} for all values which can be assigned to the given {@link Class}.
    * 
    * @param <O>
-   * @param clazz
+   * @param type
    */
-  public <O extends E> Set<O> getValueSet( Class<O> clazz );
+  public <O extends E> Set<O> getValueSet( Class<O> type );
+  
+  /**
+   * Returns true if the current container contains any type which can be assigned to the given one.
+   * 
+   * @param type
+   * @return
+   */
+  public <O extends E> boolean containsAssignable( Class<O> type );
   
   /**
    * Adds an {@link Object} to the {@link AutowiredContainer}.
    * 
+   * @see #putAll(Iterable)
    * @param object
    * @return the number of assigned values within the underlying structure
    */
   public int put( E object );
+  
+  /**
+   * Adds multiple {@link Object}s to the {@link AutowiredContainer}.
+   * 
+   * @see #put(Object)
+   * @param iterable
+   * @return
+   */
+  public int putAll( Iterable<E> iterable );
+  
+  /**
+   * Returns true if there are no elements within this container.
+   * 
+   * @return
+   */
+  public boolean isEmpty();
   
 }

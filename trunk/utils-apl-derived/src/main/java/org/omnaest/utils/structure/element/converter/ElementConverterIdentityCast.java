@@ -20,7 +20,7 @@ package org.omnaest.utils.structure.element.converter;
  * 
  * @author Omnaest
  */
-public class IdentityCastElementConverter<FROM, TO> implements ElementConverter<FROM, TO>
+public class ElementConverterIdentityCast<FROM, TO> implements ElementConverter<FROM, TO>
 {
   @SuppressWarnings("unchecked")
   @Override

@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.beans;
+package org.omnaest.utils.beans.adapter;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;

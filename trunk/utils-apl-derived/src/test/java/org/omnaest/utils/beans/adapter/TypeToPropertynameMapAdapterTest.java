@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.beans;
+package org.omnaest.utils.beans.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,7 +25,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
-import org.omnaest.utils.beans.TypeToPropertynameMapAdapter.PropertyAccessOption;
+import org.omnaest.utils.beans.adapter.TypeToPropertynameMapAdapter;
+import org.omnaest.utils.beans.adapter.TypeToPropertynameMapAdapter.PropertyAccessOption;
 
 /**
  * @see TypeToPropertynameMapAdapter

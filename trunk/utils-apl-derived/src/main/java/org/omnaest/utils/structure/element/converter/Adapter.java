@@ -21,13 +21,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 /**
- * An {@link Adapter} allows to declare a {@link Class} of an {@link ElementConverter} which should be used to translate a
- * return value or a single given parameter before storing it in the underlying structure.<br>
+ * An {@link Adapter} allows to declare a {@link Class} of an {@link ElementConverter} which should be used to translate a return
+ * value or a single given parameter before storing it in the underlying structure.<br>
  * <br>
  * The instance of the {@link ElementConverter} must have a default constructor.
  * 
+ * @see ElementConverter
  * @author Omnaest
  */
 @Documented

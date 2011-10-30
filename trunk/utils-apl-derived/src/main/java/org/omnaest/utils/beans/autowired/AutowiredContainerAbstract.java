@@ -18,6 +18,8 @@ package org.omnaest.utils.beans.autowired;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.omnaest.utils.structure.collection.ListUtils;
+
 /**
  * Abstract implementation for {@link AutowiredContainer} which reduces the number of methods to be implemented.
  * 
@@ -27,18 +29,9 @@ import java.util.Set;
 public abstract class AutowiredContainerAbstract<E> implements AutowiredContainer<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long    serialVersionUID = -7792783078590040662L;
-  /* ********************************************** Variables ********************************************** */
-  protected Class<? extends E> clazz            = null;
+  private static final long serialVersionUID = -7792783078590040662L;
   
   /* ********************************************** Methods ********************************************** */
-  
-  @SuppressWarnings("unchecked")
-  @Override
-  public Iterator<E> iterator()
-  {
-    return this.getValueSet( (Class<E>) this.clazz ).iterator();
-  }
   
   @Override
   public <O extends E> O getValue( Class<O> clazz )
@@ -55,6 +48,50 @@ public abstract class AutowiredContainerAbstract<E> implements AutowiredContaine
     
     //
     return retval;
+  }
+  
+  @Override
+  public int putAll( Iterable<E> iterable )
+  {
+    //
+    int retval = 0;
+    
+    //
+    if ( iterable != null )
+    {
+      for ( E element : iterable )
+      {
+        this.put( element );
+      }
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "AutowiredContainerAbstract [content=" );
+    builder.append( ListUtils.from( this ) );
+    builder.append( "]" );
+    return builder.toString();
+  }
+  
+  @Override
+  public <O extends E> boolean containsAssignable( Class<O> type )
+  {
+    Set<O> valueSet = this.getValueSet( type );
+    return valueSet != null && !valueSet.isEmpty();
+  }
+  
+  @Override
+  public boolean isEmpty()
+  {
+    // 
+    Iterator<E> iterator = this.iterator();
+    return iterator == null || !iterator.hasNext();
   }
   
 }

@@ -29,9 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.structure.map.UnderlyingMapAware;
@@ -202,7 +204,27 @@ public class BeanUtilsTest
   public void testBeanMethodInformationSet()
   {
     //
-    assertEquals( 4, BeanUtils.beanMethodInformationSet( TestBean.class ).size() );
+    Set<BeanMethodInformation> beanMethodInformationSet = BeanUtils.beanMethodInformationSet( TestBean.class );
+    assertNotNull( beanMethodInformationSet );
+    assertEquals( 4, beanMethodInformationSet.size() );
+    
+    //
+    for ( BeanMethodInformation beanMethodInformation : beanMethodInformationSet )
+    {
+      //
+      if ( StringUtils.equals( "fieldString", beanMethodInformation.getReferencedFieldName() ) )
+      {
+        if ( beanMethodInformation.isSetter() )
+        {
+          //
+          assertFalse( beanMethodInformation.isGetter() );
+          assertFalse( beanMethodInformation.isGetterWithAdditionalArguments() );
+          assertFalse( beanMethodInformation.isSetterWithAdditionalArguments() );
+          assertEquals( "public abstract void org.omnaest.utils.beans.BeanUtilsTest$TestBean.setFieldString(java.lang.String)",
+                        beanMethodInformation.getMethod().toGenericString() );
+        }
+      }
+    }
   }
   
   @Test
