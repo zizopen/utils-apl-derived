@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -754,8 +755,8 @@ public abstract class RestClientFactory
           //
           {
             //
-            List<Annotation> declaredAnnotationList = ReflectionUtils.declaredAnnotationList( method );
-            for ( Annotation annotation : declaredAnnotationList )
+            Set<Annotation> declaredAnnotationSet = ReflectionUtils.declaredAnnotationSet( method );
+            for ( Annotation annotation : declaredAnnotationSet )
             {
               if ( annotation instanceof Path )
               {

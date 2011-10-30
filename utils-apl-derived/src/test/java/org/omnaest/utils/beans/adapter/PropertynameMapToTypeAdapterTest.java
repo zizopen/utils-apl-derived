@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.beans;
+package org.omnaest.utils.beans.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -22,20 +22,31 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.databene.contiperf.PerfTest;
+import org.databene.contiperf.Required;
+import org.databene.contiperf.junit.ContiPerfRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.omnaest.utils.beans.PropertynameMapToTypeAdapter.PropertyAccessOption;
+import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration;
+import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.PropertyAccessOption;
+import org.omnaest.utils.structure.element.Range;
 import org.omnaest.utils.structure.element.converter.Adapter;
-import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterIntegerToString;
+import org.omnaest.utils.structure.element.converter.ElementConverterStringToInteger;
 import org.omnaest.utils.structure.map.UnderlyingMapAware;
 
+/**
+ * @see PropertynameMapToTypeAdapter
+ * @author Omnaest
+ */
 public class PropertynameMapToTypeAdapterTest
 {
   
-  @Before
-  public void setUp() throws Exception
-  {
-  }
+  @Rule
+  public ContiPerfRule contiPerfRule = new ContiPerfRule();
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
   
   protected static interface TestType
   {
@@ -49,33 +60,20 @@ public class PropertynameMapToTypeAdapterTest
     
   }
   
-  protected static class StringToIntegerElementConverter implements ElementConverter<String, Integer>
-  {
-    
-    @Override
-    public Integer convert( String element )
-    {
-      return Integer.valueOf( element );
-    }
-    
-  }
-  
-  protected static class IntegerToStringElementConverter implements ElementConverter<Integer, String>
-  {
-    @Override
-    public String convert( Integer element )
-    {
-      return String.valueOf( element.intValue() );
-    }
-  }
-  
   protected static interface TestTypeWithAdapter
   {
-    @Adapter(type = IntegerToStringElementConverter.class)
+    @Adapter(type = ElementConverterIntegerToString.class)
     public String getFieldString();
     
-    @Adapter(type = StringToIntegerElementConverter.class)
+    @Adapter(type = ElementConverterStringToInteger.class)
     public void setFieldString( String fieldString );
+  }
+  
+  /* ********************************************** Methods ********************************************** */
+  
+  @Before
+  public void setUp() throws Exception
+  {
   }
   
   @Test
@@ -85,7 +83,7 @@ public class PropertynameMapToTypeAdapterTest
     Map<String, Object> map = new HashMap<String, Object>();
     
     //reading from facade
-    TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, false );
+    TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class );
     
     //
     map.put( "fieldString", "String value" );
@@ -116,8 +114,8 @@ public class PropertynameMapToTypeAdapterTest
       Map<String, Object> map = new HashMap<String, Object>();
       
       //reading from facade
-      TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, false,
-                                                                    PropertyAccessOption.PROPERTY_LOWERCASE );
+      TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class,
+                                                                    new Configuration( PropertyAccessOption.PROPERTY_LOWERCASE ) );
       
       //
       map.put( "fieldstring", "String value" );
@@ -144,8 +142,8 @@ public class PropertynameMapToTypeAdapterTest
       Map<String, Object> map = new HashMap<String, Object>();
       
       //reading from facade
-      TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, false,
-                                                                    PropertyAccessOption.PROPERTY_UPPERCASE );
+      TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class,
+                                                                    new Configuration( PropertyAccessOption.PROPERTY_UPPERCASE ) );
       
       //
       map.put( "FIELDSTRING", "String value" );
@@ -177,7 +175,8 @@ public class PropertynameMapToTypeAdapterTest
     map.put( "fieldDouble", 10.0 );
     
     //reading from facade
-    TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, true );
+    boolean isUnderlyingMapAware = true;
+    TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, new Configuration( isUnderlyingMapAware ) );
     
     assertEquals( "String value", testType.getFieldString() );
     assertEquals( 10.0, testType.getFieldDouble(), 0.01 );
@@ -200,8 +199,11 @@ public class PropertynameMapToTypeAdapterTest
     map.put( "fieldDouble", 10.0 );
     map.put( "otherfieldDouble", 10.0 );
     
-    //reading from facade
-    TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, true, true );
+    //reading from facade    
+    boolean underlyingMapAware = true;
+    boolean simulatingToString = true;
+    TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, new Configuration( underlyingMapAware,
+                                                                                                          simulatingToString ) );
     
     //
     //System.out.println( testType );
@@ -210,14 +212,26 @@ public class PropertynameMapToTypeAdapterTest
   }
   
   @Test
-  public void testAdapter()
+  public void testAdapterAnnotation()
   {
     //
     Map<String, Object> map = new HashMap<String, Object>();
     
     //reading from facade
-    TestTypeWithAdapter testTypeWithAdapter = PropertynameMapToTypeAdapter.newInstance( map, TestTypeWithAdapter.class, true,
-                                                                                        true );
+    boolean underlyingMapAware = true;
+    boolean simulatingToString = true;
+    boolean isRegardingPropertyNameTemplate = true;
+    boolean isRegardingAdapterAnnotation = true;
+    PropertyAccessOption propertyAccessOption = null;
+    
+    TestTypeWithAdapter testTypeWithAdapter = PropertynameMapToTypeAdapter.newInstance( map,
+                                                                                        TestTypeWithAdapter.class,
+                                                                                        new Configuration(
+                                                                                                           propertyAccessOption,
+                                                                                                           isRegardingAdapterAnnotation,
+                                                                                                           isRegardingPropertyNameTemplate,
+                                                                                                           underlyingMapAware,
+                                                                                                           simulatingToString ) );
     
     //
     testTypeWithAdapter.setFieldString( "123" );
@@ -226,6 +240,32 @@ public class PropertynameMapToTypeAdapterTest
     //
     assertEquals( "123", fieldString );
     assertTrue( map.values().iterator().next() instanceof Integer );
+    
+  }
+  
+  @Test
+  @PerfTest(invocations = 100)
+  @Required(average = 100)
+  public void testPerformance()
+  {
+    //    
+    Map<String, Object> map = new HashMap<String, Object>();
+    boolean underlyingMapAware = true;
+    boolean simulatingToString = true;
+    TestTypeWithAdapter testTypeWithAdapter = PropertynameMapToTypeAdapter.newInstance( map, TestTypeWithAdapter.class,
+                                                                                        new Configuration( underlyingMapAware,
+                                                                                                           simulatingToString ) );
+    
+    for ( @SuppressWarnings("unused")
+    long ii : new Range( 1, 100 ) )
+    {
+      //
+      testTypeWithAdapter.setFieldString( "123" );
+      String fieldString = testTypeWithAdapter.getFieldString();
+      
+      //
+      assertEquals( "123", fieldString );
+    }
     
   }
   

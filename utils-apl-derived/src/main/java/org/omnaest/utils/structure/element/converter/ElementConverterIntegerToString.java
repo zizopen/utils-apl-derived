@@ -13,43 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.element;
-
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+package org.omnaest.utils.structure.element.converter;
 
 /**
- * @see Range
+ * @see ElementConverter
  * @author Omnaest
  */
-public class RangeTest
+public class ElementConverterIntegerToString implements ElementConverter<Integer, String>
 {
-  
-  @Test
-  public void testRange()
+  @Override
+  public String convert( Integer element )
   {
-    int counter = 0;
-    for ( @SuppressWarnings("unused")
-    Long ii : new Range( 5l, 10l ) )
-    {
-      counter++;
-    }
-    assertEquals( 6, counter );
-    
+    return element != null ? String.valueOf( element ) : null;
   }
-  
-  @Test
-  public void testRangeWithString()
-  {
-    int counter = 0;
-    for ( @SuppressWarnings("unused")
-    Long ii : new Range( "1-5" ) )
-    {
-      counter++;
-    }
-    assertEquals( 5, counter );
-    
-  }
-  
 }

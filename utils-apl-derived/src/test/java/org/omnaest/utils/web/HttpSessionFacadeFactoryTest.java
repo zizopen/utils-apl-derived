@@ -26,7 +26,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.EnumerationUtils;
 import org.junit.Test;
-import org.omnaest.utils.web.HttpSessionFacadeFactory.AttributeName;
+import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
+import org.omnaest.utils.structure.element.converter.Adapter;
+import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.springframework.mock.web.MockHttpSession;
 
 /**
@@ -35,22 +37,22 @@ import org.springframework.mock.web.MockHttpSession;
 public class HttpSessionFacadeFactoryTest
 {
   /* ********************************************** Variables ********************************************** */
-  private HttpSession           httpSession           = new MockHttpSession();
-  private HttpSessionResolver   httpSessionResolver   = new HttpSessionResolver()
-                                                      {
-                                                        
-                                                        @Override
-                                                        public HttpSession resolveHttpSession()
-                                                        {
-                                                          //
-                                                          return HttpSessionFacadeFactoryTest.this.httpSession;
-                                                        }
-                                                      };
-  private TestHttpSessionFacade testHttpSessionFacade = new HttpSessionFacadeFactory( this.httpSessionResolver ).newSessionFacade( TestHttpSessionFacade.class );
+  private HttpSession              httpSession              = new MockHttpSession();
+  private HttpSessionResolver      httpSessionResolver      = new HttpSessionResolver()
+                                                            {
+                                                              
+                                                              @Override
+                                                              public HttpSession resolveHttpSession()
+                                                              {
+                                                                //
+                                                                return HttpSessionFacadeFactoryTest.this.httpSession;
+                                                              }
+                                                            };
+  private HttpSessionFacadeExample httpSessionFacadeExample = new HttpSessionFacadeFactory( this.httpSessionResolver ).newSessionFacade( HttpSessionFacadeExample.class );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
-  public static interface TestHttpSessionFacade
+  public static interface HttpSessionFacadeExample
   {
     public void setFieldString( String field );
     
@@ -60,9 +62,10 @@ public class HttpSessionFacadeFactoryTest
     
     public Double getFieldDouble();
     
-    @AttributeName("OTHERFIELD")
+    @PropertyNameTemplate("OTHERFIELD")
     public String getOtherField();
     
+    @Adapter(type = ElementConverterIdentity.class)
     public void setOtherField( String value );
   }
   
@@ -72,22 +75,22 @@ public class HttpSessionFacadeFactoryTest
   public void testNewSessionFacade()
   {
     //    
-    assertNotNull( this.testHttpSessionFacade );
-    assertNull( this.testHttpSessionFacade.getFieldDouble() );
-    assertNull( this.testHttpSessionFacade.getFieldString() );
+    assertNotNull( this.httpSessionFacadeExample );
+    assertNull( this.httpSessionFacadeExample.getFieldDouble() );
+    assertNull( this.httpSessionFacadeExample.getFieldString() );
     
     //
-    this.testHttpSessionFacade.setFieldDouble( 1.345d );
-    this.testHttpSessionFacade.setFieldString( "testValue" );
-    this.testHttpSessionFacade.setOtherField( "a value" );
+    this.httpSessionFacadeExample.setFieldDouble( 1.345d );
+    this.httpSessionFacadeExample.setFieldString( "testValue" );
+    this.httpSessionFacadeExample.setOtherField( "a value" );
     
     //    
-    assertNotNull( this.testHttpSessionFacade.getFieldDouble() );
-    assertNotNull( this.testHttpSessionFacade.getFieldString() );
-    assertNotNull( this.testHttpSessionFacade.getOtherField() );
-    assertEquals( 1.345d, this.testHttpSessionFacade.getFieldDouble(), 0.01 );
-    assertEquals( "testValue", this.testHttpSessionFacade.getFieldString() );
-    assertEquals( "a value", this.testHttpSessionFacade.getOtherField() );
+    assertNotNull( this.httpSessionFacadeExample.getFieldDouble() );
+    assertNotNull( this.httpSessionFacadeExample.getFieldString() );
+    assertNotNull( this.httpSessionFacadeExample.getOtherField() );
+    assertEquals( 1.345d, this.httpSessionFacadeExample.getFieldDouble(), 0.01 );
+    assertEquals( "testValue", this.httpSessionFacadeExample.getFieldString() );
+    assertEquals( "a value", this.httpSessionFacadeExample.getOtherField() );
     
     //
     assertEquals( new ArrayList<String>( Arrays.asList( "fieldDouble", "fieldString", "OTHERFIELD" ) ),

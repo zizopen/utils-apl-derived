@@ -24,16 +24,20 @@ import org.omnaest.utils.structure.map.UnderlyingMapAware;
  * 
  * @author Omnaest
  */
-public abstract class MethodInvocationHandlerDecoratorUnderlyingMapAware implements MethodInvocationHandler
+public abstract class MethodInvocationHandlerDecoratorUnderlyingMapAware extends MethodInvocationHandlerDecorator
 {
-  /* ********************************************** Variables ********************************************** */
-  protected MethodInvocationHandler methodInvocationHandler = null;
   
-  /* ********************************************** Methods ********************************************** */
+  /**
+   * @param methodInvocationHandler
+   */
   public MethodInvocationHandlerDecoratorUnderlyingMapAware( MethodInvocationHandler methodInvocationHandler )
   {
+    super( methodInvocationHandler );
+  }
+  
+  public MethodInvocationHandlerDecoratorUnderlyingMapAware()
+  {
     super();
-    this.methodInvocationHandler = methodInvocationHandler;
   }
   
   @Override

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.beans;
+package org.omnaest.utils.beans.adapter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,7 +29,9 @@ import junit.framework.Assert;
 import org.apache.commons.collections.ComparatorUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.omnaest.utils.beans.ListToTypeAdapter.UnderlyingListAware;
+import org.omnaest.utils.beans.BeanUtils;
+import org.omnaest.utils.beans.adapter.ListToTypeAdapter;
+import org.omnaest.utils.beans.adapter.ListToTypeAdapter.UnderlyingListAware;
 
 public class ListToTypeAdapterTest
 {

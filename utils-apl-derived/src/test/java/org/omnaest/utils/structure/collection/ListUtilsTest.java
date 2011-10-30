@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.junit.Test;
-import org.omnaest.utils.structure.element.converter.ElementToMapEntryConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 
 public class ListUtilsTest
 {
@@ -106,7 +106,7 @@ public class ListUtilsTest
     List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
     
     //
-    ElementToMapEntryConverter<String, String, String> elementToMapEntryTransformer = new ElementToMapEntryConverter<String, String, String>()
+    ElementConverterElementToMapEntry<String, String, String> elementToMapEntryTransformer = new ElementConverterElementToMapEntry<String, String, String>()
     {
       
       @Override

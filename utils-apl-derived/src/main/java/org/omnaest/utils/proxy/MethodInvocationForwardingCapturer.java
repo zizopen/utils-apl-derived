@@ -32,7 +32,7 @@ import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.Range;
-import org.omnaest.utils.structure.element.converter.ElementToMapEntryConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.iterator.ElementStreamToIteratorAdapter;
 import org.omnaest.utils.structure.iterator.RangedIterable;
 import org.omnaest.utils.structure.map.SimpleEntry;
@@ -458,7 +458,7 @@ public class MethodInvocationForwardingCapturer
     //
     if ( type != null )
     {
-      ElementToMapEntryConverter<MethodInvocationAndResult, MethodInvocationComparison, Object> elementToMapEntryTransformer = new ElementToMapEntryConverter<MethodInvocationForwardingCapturer.MethodInvocationAndResult, MethodInvocationForwardingCapturer.MethodInvocationComparison, Object>()
+      ElementConverterElementToMapEntry<MethodInvocationAndResult, MethodInvocationComparison, Object> elementToMapEntryTransformer = new ElementConverterElementToMapEntry<MethodInvocationForwardingCapturer.MethodInvocationAndResult, MethodInvocationForwardingCapturer.MethodInvocationComparison, Object>()
       {
         
         @Override

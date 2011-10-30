@@ -20,7 +20,7 @@ package org.omnaest.utils.structure.element.converter;
  * 
  * @author Omnaest
  */
-public class IdentityElementConverter<T> implements ElementConverter<T, T>
+public class ElementConverterIdentity<T> implements ElementConverter<T, T>
 {
   @Override
   public T convert( T from )

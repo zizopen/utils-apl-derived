@@ -28,7 +28,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
-import org.omnaest.utils.structure.element.converter.IdentityElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.tuple.TupleTwo;
 
 /**
@@ -223,7 +223,7 @@ public class MapUtils
   public static <KeyFrom, KeyTo, Value> Map<KeyTo, Value> convertMapKey( Map<KeyFrom, Value> map,
                                                                          ElementConverter<KeyFrom, KeyTo> keyElementConverter )
   {
-    return MapUtils.convertMap( map, keyElementConverter, new IdentityElementConverter<Value>() );
+    return MapUtils.convertMap( map, keyElementConverter, new ElementConverterIdentity<Value>() );
   }
   
   /**
@@ -239,7 +239,7 @@ public class MapUtils
   public static <Key, ValueFrom, ValueTo> Map<Key, ValueTo> convertMapValue( Map<Key, ValueFrom> map,
                                                                              ElementConverter<ValueFrom, ValueTo> valueElementConverter )
   {
-    return MapUtils.convertMap( map, new IdentityElementConverter<Key>(), valueElementConverter );
+    return MapUtils.convertMap( map, new ElementConverterIdentity<Key>(), valueElementConverter );
   }
   
   /**

@@ -435,8 +435,8 @@ public class ReflectionUtils
     boolean retval = false;
     
     //
-    List<Annotation> declaredAnnotationList = declaredAnnotationList( method );
-    for ( Annotation declaredAnnotation : declaredAnnotationList )
+    Set<Annotation> declaredAnnotationSet = declaredAnnotationSet( method );
+    for ( Annotation declaredAnnotation : declaredAnnotationSet )
     {
       if ( declaredAnnotation.annotationType().equals( annotationType ) )
       {
@@ -455,10 +455,10 @@ public class ReflectionUtils
    * @param method
    * @return
    */
-  public static List<Annotation> declaredAnnotationList( Method method )
+  public static Set<Annotation> declaredAnnotationSet( Method method )
   {
     //    
-    List<Annotation> retlist = new ArrayList<Annotation>();
+    Set<Annotation> retlist = new LinkedHashSet<Annotation>();
     
     //
     if ( method != null )
@@ -469,6 +469,44 @@ public class ReflectionUtils
     
     //
     return retlist;
+  }
+  
+  /**
+   * Returns a {@link Map} of all declared {@link Method}s of the given {@link Class} type and a {@link List} of declared
+   * {@link Annotation}s related to the {@link Method}s
+   * 
+   * @see #declaredMethodList(Class)
+   * @see #declaredAnnotationSet(Method)
+   * @param type
+   * @return
+   */
+  public static Map<Method, Set<Annotation>> declaredMethodToAnnotationSetMap( Class<?> type )
+  {
+    //
+    Map<Method, Set<Annotation>> retmap = new LinkedHashMap<Method, Set<Annotation>>();
+    
+    //
+    if ( type != null )
+    {
+      //
+      List<Method> declaredMethodList = declaredMethodList( type );
+      if ( declaredMethodList != null )
+      {
+        for ( Method declaredMethod : declaredMethodList )
+        {
+          //
+          Set<Annotation> declaredAnnotationSet = declaredAnnotationSet( declaredMethod );
+          if ( declaredAnnotationSet != null )
+          {
+            //
+            retmap.put( declaredMethod, declaredAnnotationSet );
+          }
+        }
+      }
+    }
+    
+    //
+    return retmap;
   }
   
   /**

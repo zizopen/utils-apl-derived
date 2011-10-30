@@ -15,14 +15,14 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.autowired;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.omnaest.utils.beans.BeanUtils;
-import org.omnaest.utils.beans.PropertynameMapToTypeAdapter;
+import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 
 /**
@@ -33,7 +33,8 @@ import org.omnaest.utils.beans.result.BeanPropertyAccessor;
  * @author Omnaest
  * @param <B>
  */
-public class TypeToAutowiredPropertyContainerAdapter<B> implements AutowiredPropertyContainer
+public class TypeToAutowiredPropertyContainerAdapter<B> extends AutowiredContainerAbstract<Object> implements
+                                                                                                  AutowiredPropertyContainer
 {
   /* ********************************************** Constants ********************************************** */
   private static final long                             serialVersionUID                         = -4028601259144341930L;
@@ -144,20 +145,25 @@ public class TypeToAutowiredPropertyContainerAdapter<B> implements AutowiredProp
     return retval;
   }
   
-  @SuppressWarnings("unchecked")
   @Override
-  public <O> Map<String, O> getPropertynameToValueMap( Class<O> clazz )
+  public <O> Map<String, O> getPropertynameToValueMap( Class<O> type )
+  {
+    return this.getPropertynameToValueMapForArbitraryType( type );
+  }
+  
+  @SuppressWarnings("unchecked")
+  protected <O> Map<String, O> getPropertynameToValueMapForArbitraryType( Class<?> type )
   {
     //
-    Map<String, O> retmap = new HashMap<String, O>();
+    Map<String, O> retmap = new LinkedHashMap<String, O>();
     
     //
-    if ( clazz != null )
+    if ( type != null )
     {
       //
       for ( Class<?> propertyType : this.propertyTypeToBeanPropertyAccessorSetMap.keySet() )
       {
-        if ( clazz.isAssignableFrom( propertyType ) )
+        if ( type.isAssignableFrom( propertyType ) )
         {
           //
           Set<BeanPropertyAccessor<B>> beanPropertyAccessorSet = this.propertyTypeToBeanPropertyAccessorSetMap.get( propertyType );
@@ -181,34 +187,13 @@ public class TypeToAutowiredPropertyContainerAdapter<B> implements AutowiredProp
   @Override
   public <O> Set<O> getValueSet( Class<O> clazz )
   {
-    return new HashSet<O>( this.<O> getPropertynameToValueMap( clazz ).values() );
-  }
-  
-  @Override
-  public <O> O getValue( Class<O> clazz )
-  {
-    //
-    O retval = null;
-    
-    //
-    if ( clazz != null )
-    {
-      //
-      Set<O> valueSet = this.getValueSet( clazz );
-      if ( valueSet != null && valueSet.size() == 1 )
-      {
-        retval = valueSet.iterator().next();
-      }
-    }
-    
-    //
-    return retval;
+    return new LinkedHashSet<O>( this.<O> getPropertynameToValueMap( clazz ).values() );
   }
   
   @Override
   public Iterator<Object> iterator()
   {
-    return this.getValueSet( Object.class ).iterator();
+    return this.getPropertynameToValueMapForArbitraryType( Object.class ).values().iterator();
   }
   
 }

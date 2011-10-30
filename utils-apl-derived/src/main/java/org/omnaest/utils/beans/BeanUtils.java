@@ -30,12 +30,14 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter;
+import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
-import org.omnaest.utils.structure.element.converter.IdentityElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.structure.map.MapUtils.MapElementMergeOperation;
 import org.omnaest.utils.tuple.TupleTwo;
@@ -174,7 +176,7 @@ public class BeanUtils
     {
       //
       Map<String, Set<Annotation>> propertyNameToBeanPropertyAnnotationSetMap = BeanUtils.propertyNameToBeanPropertyAnnotationSetMap( beanClass );
-      ElementConverter<String, String> keyElementConverter = new IdentityElementConverter<String>();
+      ElementConverter<String, String> keyElementConverter = new ElementConverterIdentity<String>();
       ElementConverter<Set<Annotation>, A> valueElementConverter = new ElementConverter<Set<Annotation>, A>()
       {
         @SuppressWarnings("unchecked")
@@ -448,11 +450,11 @@ public class BeanUtils
           for ( BeanMethodInformation beanMethodInformation : fieldnameToBeanMethodInformationMap.get( fieldname ) )
           {
             //
-            if ( beanMethodInformation.isGetter() )
+            if ( beanMethodInformation.isGetter() || beanMethodInformation.isGetterWithAdditionalArguments() )
             {
               methodGetter = beanMethodInformation.getMethod();
             }
-            else if ( beanMethodInformation.isSetter() )
+            else if ( beanMethodInformation.isSetter() || beanMethodInformation.isSetterWithAdditionalArguments() )
             {
               methodSetter = beanMethodInformation.getMethod();
             }
@@ -884,9 +886,15 @@ public class BeanUtils
         boolean isSetter = parameterTypes != null && parameterTypes.length == 1 && methodName != null
                            && ( methodName.startsWith( "set" ) );
         
+        boolean isGetterWithAdditionalArguments = parameterTypes != null && parameterTypes.length >= 1 && returnType != null
+                                                  && methodName != null
+                                                  && ( methodName.startsWith( "is" ) || methodName.startsWith( "get" ) );
+        boolean isSetterWithAdditionalArguments = parameterTypes != null && parameterTypes.length >= 2 && methodName != null
+                                                  && ( methodName.startsWith( "set" ) );
+        
         //
         String referencedFieldName = null;
-        if ( isGetter || isSetter )
+        if ( isGetter || isSetter || isGetterWithAdditionalArguments || isSetterWithAdditionalArguments )
         {
           //
           referencedFieldName = methodName.replaceFirst( "^(is|get|set)", "" );
@@ -897,7 +905,8 @@ public class BeanUtils
         }
         
         //
-        retval = new BeanMethodInformation( isGetter, isSetter, referencedFieldName, method );
+        retval = new BeanMethodInformation( isGetter, isSetter, isGetterWithAdditionalArguments, isSetterWithAdditionalArguments,
+                                            referencedFieldName, method );
         
       }
       catch ( Exception e )
@@ -1007,7 +1016,7 @@ public class BeanUtils
       
       //
       List<TupleTwo<BeanPropertyAccessor<S>, BeanPropertyAccessor<D>>> joinTupleList = MapUtils.innerJoinMapByKey( fieldnameToBeanPropertyAccessorSourceMap,
-                                                                                                                    fieldnameToBeanPropertyAccessorDestinationMap );
+                                                                                                                   fieldnameToBeanPropertyAccessorDestinationMap );
       
       //
       for ( TupleTwo<BeanPropertyAccessor<S>, BeanPropertyAccessor<D>> tupleDuad : joinTupleList )
@@ -1148,7 +1157,11 @@ public class BeanUtils
         {
           @SuppressWarnings("unchecked")
           Class<? extends B> clazz = (Class<B>) bean.getClass();
-          retval = PropertynameMapToTypeAdapter.newInstance( propertyNameToBeanPropertyValueMap, clazz, underlyingMapAware );
+          
+          Configuration configuration = new Configuration();
+          configuration.setUnderlyingMapAware( underlyingMapAware );
+          
+          retval = PropertynameMapToTypeAdapter.newInstance( propertyNameToBeanPropertyValueMap, clazz, configuration );
         }
         
       }

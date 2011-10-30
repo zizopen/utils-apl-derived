@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionTransformer;
 import org.omnaest.utils.structure.collection.ListUtils.ElementFilterIndexPositionBasedForGivenIndexes.Mode;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
-import org.omnaest.utils.structure.element.converter.ElementToMapEntryConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.element.converter.MultiElementConverter;
 
 /**
@@ -478,14 +478,14 @@ public class ListUtils
   /**
    * Transforms a given {@link Iterable} into a {@link Map} using a {@link LinkedHashMap} which keeps the order of the
    * {@link List}. Returns an empty {@link Map} for a null value as {@link Iterable}. Null values within the {@link Iterable} will
-   * be excluded from the map, if the respective {@link ElementToMapEntryConverter#convert(Object)} returns null.
+   * be excluded from the map, if the respective {@link ElementConverterElementToMapEntry#convert(Object)} returns null.
    * 
-   * @see ElementToMapEntryConverter
+   * @see ElementConverterElementToMapEntry
    * @param iterable
    * @param elementToMapEntryTransformer
    * @return
    */
-  public static <K, V, E> Map<K, V> asMap( Iterable<E> iterable, ElementToMapEntryConverter<E, K, V> elementToMapEntryTransformer )
+  public static <K, V, E> Map<K, V> asMap( Iterable<E> iterable, ElementConverterElementToMapEntry<E, K, V> elementToMapEntryTransformer )
   {
     //
     Map<K, V> retmap = new LinkedHashMap<K, V>();

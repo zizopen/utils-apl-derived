@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Modifiable version of an {@link ElementHolderUnmodifiable} allows to {@link #setElement(Object)}
  * 
@@ -22,6 +26,8 @@ package org.omnaest.utils.structure.element;
  * @author Omnaest
  * @param <E>
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ElementHolder<E> extends ElementHolderUnmodifiable<E>
 {
   

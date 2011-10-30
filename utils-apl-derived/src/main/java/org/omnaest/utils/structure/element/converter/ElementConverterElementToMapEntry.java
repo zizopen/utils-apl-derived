@@ -13,43 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.element;
+package org.omnaest.utils.structure.element.converter;
 
-import static org.junit.Assert.assertEquals;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map.Entry;
 
-import org.junit.Test;
+import org.omnaest.utils.structure.collection.ListUtils;
 
 /**
- * @see Range
+ * A transformer from a {@link List} element type to a {@link Entry} type
+ * 
+ * @see ListUtils#asMap(Collection)
  * @author Omnaest
+ * @param <K>
+ * @param <V>
+ * @param <E>
  */
-public class RangeTest
+public interface ElementConverterElementToMapEntry<E, K, V>
 {
   
-  @Test
-  public void testRange()
-  {
-    int counter = 0;
-    for ( @SuppressWarnings("unused")
-    Long ii : new Range( 5l, 10l ) )
-    {
-      counter++;
-    }
-    assertEquals( 6, counter );
-    
-  }
-  
-  @Test
-  public void testRangeWithString()
-  {
-    int counter = 0;
-    for ( @SuppressWarnings("unused")
-    Long ii : new Range( "1-5" ) )
-    {
-      counter++;
-    }
-    assertEquals( 5, counter );
-    
-  }
-  
+  /**
+   * Transforms a given {@link List} element instance into an {@link Entry}. Null values must be handled by this method, too.
+   * 
+   * @param element
+   * @return {@link Entry}
+   */
+  public Entry<K, V> convert( E element );
 }

@@ -21,16 +21,21 @@ package org.omnaest.utils.proxy.handler;
  * 
  * @author Omnaest
  */
-public abstract class MethodInvocationHandlerDecoratorToString implements MethodInvocationHandler
+public abstract class MethodInvocationHandlerDecoratorToString extends MethodInvocationHandlerDecorator
 {
-  /* ********************************************** Variables ********************************************** */
-  protected MethodInvocationHandler methodInvocationHandler = null;
   
-  /* ********************************************** Methods ********************************************** */
+  /**
+   * @param methodInvocationHandler
+   */
   public MethodInvocationHandlerDecoratorToString( MethodInvocationHandler methodInvocationHandler )
   {
     super();
     this.methodInvocationHandler = methodInvocationHandler;
+  }
+  
+  public MethodInvocationHandlerDecoratorToString()
+  {
+    super();
   }
   
   @Override
