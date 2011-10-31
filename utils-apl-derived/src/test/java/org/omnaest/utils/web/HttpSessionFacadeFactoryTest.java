@@ -25,6 +25,10 @@ import java.util.Arrays;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.EnumerationUtils;
+import org.databene.contiperf.PerfTest;
+import org.databene.contiperf.Required;
+import org.databene.contiperf.junit.ContiPerfRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
 import org.omnaest.utils.structure.element.converter.Adapter;
@@ -36,11 +40,13 @@ import org.springframework.mock.web.MockHttpSession;
  */
 public class HttpSessionFacadeFactoryTest
 {
+  @Rule
+  public ContiPerfRule             contiPerfRule            = new ContiPerfRule();
+  
   /* ********************************************** Variables ********************************************** */
   private HttpSession              httpSession              = new MockHttpSession();
   private HttpSessionResolver      httpSessionResolver      = new HttpSessionResolver()
                                                             {
-                                                              
                                                               @Override
                                                               public HttpSession resolveHttpSession()
                                                               {
@@ -96,4 +102,37 @@ public class HttpSessionFacadeFactoryTest
     assertEquals( new ArrayList<String>( Arrays.asList( "fieldDouble", "fieldString", "OTHERFIELD" ) ),
                   new ArrayList<String>( EnumerationUtils.toList( this.httpSession.getAttributeNames() ) ) );
   }
+  
+  @Test
+  @PerfTest(invocations = 100)
+  @Required(average = 100)
+  public void testNewSessionFacadePerformancePerHundredInstantiations()
+  {
+    //
+    for ( int ii = 0; ii < 100; ii++ )
+    {
+      new HttpSessionFacadeFactory( this.httpSessionResolver ).newSessionFacade( HttpSessionFacadeExample.class );
+    }
+  }
+  
+  @Test
+  @PerfTest(invocations = 100)
+  @Required(average = 100)
+  public void testSessionFacadeReadAndWritePerformancePerHundredInvocations()
+  {
+    //    
+    for ( int ii = 0; ii < 100; ii++ )
+    {
+      //
+      this.httpSessionFacadeExample.setFieldDouble( 1.345d );
+      this.httpSessionFacadeExample.setFieldString( "testValue" );
+      this.httpSessionFacadeExample.setOtherField( "a value" );
+      
+      //
+      this.httpSessionFacadeExample.getFieldDouble();
+      this.httpSessionFacadeExample.getFieldString();
+      this.httpSessionFacadeExample.getOtherField();
+    }
+  }
+  
 }
