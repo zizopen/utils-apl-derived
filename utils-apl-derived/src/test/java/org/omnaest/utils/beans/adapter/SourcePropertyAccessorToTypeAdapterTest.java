@@ -28,6 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.Times;
+import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor.PropertyMetaInformation;
 import org.omnaest.utils.structure.element.converter.Adapter;
@@ -40,10 +41,18 @@ import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCa
 public class SourcePropertyAccessorToTypeAdapterTest
 {
   /* ********************************************** Variables ********************************************** */
-  private SourcePropertyAccessor                  propertyAccessor = Mockito.mock( SourcePropertyAccessor.class );
-  private TestType                                testType         = SourcePropertyAccessorToTypeAdapter.newInstance( TestType.class,
-                                                                                                                      this.propertyAccessor );
-  private ArgumentCaptor<PropertyMetaInformation> argumentCaptureForPropertyMetaInformation;
+  private SourcePropertyAccessor propertyAccessor                = Mockito.mock( SourcePropertyAccessor.class );
+  private TestType               testType                        = SourcePropertyAccessorToTypeAdapter.newInstance( TestType.class,
+                                                                                                                    this.propertyAccessor );
+  private PropertyAccessOption   propertyAccessOption            = PropertyAccessOption.PROPERTY_LOWERCASE;
+  private boolean                isRegardingAdapterAnnotation    = false;
+  private boolean                isRegardingPropertyNameTemplate = true;
+  private TestType2              testType2                       = SourcePropertyAccessorToTypeAdapter.newInstance( TestType2.class,
+                                                                                                                    this.propertyAccessor,
+                                                                                                                    new SourcePropertyAccessorToTypeAdapter.Configuration(
+                                                                                                                                                                           this.propertyAccessOption,
+                                                                                                                                                                           this.isRegardingAdapterAnnotation,
+                                                                                                                                                                           this.isRegardingPropertyNameTemplate ) );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   @XmlType
@@ -59,24 +68,53 @@ public class SourcePropertyAccessorToTypeAdapterTest
     public void setFieldPrimitiveDouble( double value, String additionalArgument );
   }
   
+  public static interface TestType2
+  {
+    @PropertyNameTemplate("field({0})")
+    public String getFieldString( String tag );
+    
+    public void setFieldString( String value, String tag );
+    
+    public double getFieldPrimitiveDouble();
+    
+    public void setFieldPrimitiveDouble( double value );
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   @Before
   public void setUp()
   {
-    Mockito.when( this.propertyAccessor.getValue( Matchers.eq( "fieldString" ), Matchers.eq( String.class ),
-                                                  (PropertyMetaInformation) Matchers.anyObject() ) ).thenReturn( "return string" );
-    
-    this.argumentCaptureForPropertyMetaInformation = ArgumentCaptor.forClass( PropertyMetaInformation.class );
-    Mockito.when( this.propertyAccessor.getValue( Matchers.eq( "fieldPrimitiveDouble" ), Matchers.eq( double.class ),
-                                                  this.argumentCaptureForPropertyMetaInformation.capture() ) )
-           .thenReturn( 1234.2234 );
-    
-    Mockito.doNothing()
-           .when( this.propertyAccessor )
-           .setValue( Matchers.eq( "fieldPrimitiveDouble" ), Matchers.eq( 1234.223 ),
-                      this.argumentCaptureForPropertyMetaInformation.capture() );
-    
+    //
+    {
+      //
+      Mockito.when( this.propertyAccessor.getValue( Matchers.eq( "fieldString" ), Matchers.eq( String.class ),
+                                                    (PropertyMetaInformation) Matchers.anyObject() ) )
+             .thenReturn( "return string" );
+      
+      Mockito.when( this.propertyAccessor.getValue( Matchers.eq( "fieldPrimitiveDouble" ), Matchers.eq( double.class ),
+                                                    (PropertyMetaInformation) Matchers.anyObject() ) ).thenReturn( 1234.2234 );
+      
+      Mockito.doNothing()
+             .when( this.propertyAccessor )
+             .setValue( Matchers.eq( "fieldPrimitiveDouble" ), Matchers.eq( 1234.223 ),
+                        (PropertyMetaInformation) Matchers.anyObject() );
+    }
+    //
+    {
+      //    
+      Mockito.when( this.propertyAccessor.getValue( Matchers.eq( "field(LaLa)" ), Matchers.eq( String.class ),
+                                                    (PropertyMetaInformation) Matchers.anyObject() ) )
+             .thenReturn( "return string2" );
+      
+      Mockito.when( this.propertyAccessor.getValue( Matchers.eq( "fieldprimitivedouble" ), Matchers.eq( double.class ),
+                                                    (PropertyMetaInformation) Matchers.anyObject() ) ).thenReturn( 1234.2232 );
+      
+      Mockito.doNothing()
+             .when( this.propertyAccessor )
+             .setValue( Matchers.eq( "fieldprimitivedouble" ), Matchers.eq( 1234.223 ),
+                        (PropertyMetaInformation) Matchers.anyObject() );
+    }
   }
   
   @Test
@@ -91,16 +129,7 @@ public class SourcePropertyAccessorToTypeAdapterTest
     this.testType.setFieldPrimitiveDouble( 1234.223, "more" );
     
     //
-    PropertyMetaInformation propertyMetaInformation = this.argumentCaptureForPropertyMetaInformation.getValue();
-    assertArrayEquals( new String[] { "more" }, propertyMetaInformation.getAdditionalArguments() );
-    
-    assertFalse( propertyMetaInformation.getPropertyAnnotationAutowiredContainer().isEmpty() );
-    assertFalse( propertyMetaInformation.getClassAnnotationAutowiredContainer().isEmpty() );
-    
-    assertTrue( propertyMetaInformation.getPropertyAnnotationAutowiredContainer().containsAssignable( Adapter.class ) );
-    assertTrue( propertyMetaInformation.getClassAnnotationAutowiredContainer().containsAssignable( XmlType.class ) );
-    
-    //
+    ArgumentCaptor<PropertyMetaInformation> argumentCaptureForPropertyMetaInformation = ArgumentCaptor.forClass( PropertyMetaInformation.class );
     Mockito.verify( this.propertyAccessor, new Times( 1 ) ).getValue( Matchers.eq( "fieldString" ), Matchers.eq( String.class ),
                                                                       (PropertyMetaInformation) Matchers.anyObject() );
     Mockito.verify( this.propertyAccessor, new Times( 1 ) ).setValue( Matchers.eq( "fieldString" ),
@@ -108,9 +137,55 @@ public class SourcePropertyAccessorToTypeAdapterTest
                                                                       (PropertyMetaInformation) Matchers.anyObject() );
     Mockito.verify( this.propertyAccessor, new Times( 1 ) ).getValue( Matchers.eq( "fieldPrimitiveDouble" ),
                                                                       Matchers.eq( double.class ),
-                                                                      (PropertyMetaInformation) Matchers.anyObject() );
+                                                                      argumentCaptureForPropertyMetaInformation.capture() );
     Mockito.verify( this.propertyAccessor, new Times( 1 ) ).setValue( Matchers.eq( "fieldPrimitiveDouble" ),
                                                                       Matchers.eq( 1234.223 ),
+                                                                      argumentCaptureForPropertyMetaInformation.capture() );
+    
+    //
+    PropertyMetaInformation propertyMetaInformation = argumentCaptureForPropertyMetaInformation.getValue();
+    assertArrayEquals( new String[] { "more" }, propertyMetaInformation.getAdditionalArguments() );
+    
+    assertFalse( propertyMetaInformation.getPropertyAnnotationAutowiredContainer().isEmpty() );
+    assertFalse( propertyMetaInformation.getClassAnnotationAutowiredContainer().isEmpty() );
+    
+    assertTrue( propertyMetaInformation.getPropertyAnnotationAutowiredContainer().containsAssignable( Adapter.class ) );
+    assertTrue( propertyMetaInformation.getClassAnnotationAutowiredContainer().containsAssignable( XmlType.class ) );
+  }
+  
+  @Test
+  public void testNewInstanceLowercaseAndPropertyNameTemplate()
+  {
+    //
+    assertEquals( "return string2", this.testType2.getFieldString( "LaLa" ) );
+    assertEquals( 1234.2232, this.testType2.getFieldPrimitiveDouble(), 0.0001 );
+    
+    //
+    this.testType2.setFieldString( "new string value", "LuLu" );
+    this.testType2.setFieldPrimitiveDouble( 1234.223 );
+    
+    //
+    ArgumentCaptor<PropertyMetaInformation> argumentCaptureForPropertyMetaInformation = ArgumentCaptor.forClass( PropertyMetaInformation.class );
+    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).getValue( Matchers.eq( "field(LaLa)" ), Matchers.eq( String.class ),
+                                                                      argumentCaptureForPropertyMetaInformation.capture() );
+    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).setValue( Matchers.eq( "field(LuLu)" ),
+                                                                      Matchers.eq( "new string value" ),
+                                                                      argumentCaptureForPropertyMetaInformation.capture() );
+    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).getValue( Matchers.eq( "fieldprimitivedouble" ),
+                                                                      Matchers.eq( double.class ),
                                                                       (PropertyMetaInformation) Matchers.anyObject() );
+    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).setValue( Matchers.eq( "fieldprimitivedouble" ),
+                                                                      Matchers.eq( 1234.223 ),
+                                                                      (PropertyMetaInformation) Matchers.anyObject() );
+    
+    //
+    PropertyMetaInformation propertyMetaInformation = argumentCaptureForPropertyMetaInformation.getValue();
+    assertArrayEquals( new String[] { "LuLu" }, propertyMetaInformation.getAdditionalArguments() );
+    
+    assertFalse( propertyMetaInformation.getPropertyAnnotationAutowiredContainer().isEmpty() );
+    assertTrue( propertyMetaInformation.getClassAnnotationAutowiredContainer().isEmpty() );
+    
+    assertTrue( propertyMetaInformation.getPropertyAnnotationAutowiredContainer().containsAssignable( PropertyNameTemplate.class ) );
+    
   }
 }

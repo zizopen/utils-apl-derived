@@ -119,44 +119,13 @@ public class PropertynameMapToTypeAdapter<T>
     }
     
     /**
-     * @param interfaces
      * @param methodInvocationHandlerDecorators
      * @param sourcePropertyAccessorDecorators
-     * @param propertyAccessOption
-     * @param underlyingMapAware
-     * @param simulatingToString
      */
-    public Configuration( Class<?>[] interfaces, MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators,
-                          SourcePropertyAccessorDecorator[] sourcePropertyAccessorDecorators,
-                          PropertyAccessOption propertyAccessOption, boolean underlyingMapAware, boolean simulatingToString )
+    public Configuration( MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators,
+                          SourcePropertyAccessorDecorator[] sourcePropertyAccessorDecorators )
     {
-      super( interfaces, methodInvocationHandlerDecorators, sourcePropertyAccessorDecorators, propertyAccessOption );
-      this.underlyingMapAware = underlyingMapAware;
-      this.simulatingToString = simulatingToString;
-    }
-    
-    /**
-     * @param interfaces
-     * @param methodInvocationHandlerDecorators
-     * @param propertyAccessOption
-     */
-    public Configuration( Class<?>[] interfaces, MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators,
-                          PropertyAccessOption propertyAccessOption )
-    {
-      super( interfaces, methodInvocationHandlerDecorators, propertyAccessOption );
-    }
-    
-    /**
-     * @param interfaces
-     * @param methodInvocationHandlerDecorators
-     * @param sourcePropertyAccessorDecorators
-     * @param propertyAccessOption
-     */
-    public Configuration( Class<?>[] interfaces, MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators,
-                          SourcePropertyAccessorDecorator[] sourcePropertyAccessorDecorators,
-                          PropertyAccessOption propertyAccessOption )
-    {
-      super( interfaces, methodInvocationHandlerDecorators, sourcePropertyAccessorDecorators, propertyAccessOption );
+      super( methodInvocationHandlerDecorators, sourcePropertyAccessorDecorators );
     }
     
     /**
@@ -165,31 +134,6 @@ public class PropertynameMapToTypeAdapter<T>
     public Configuration( Class<?>[] interfaces )
     {
       super( interfaces );
-    }
-    
-    /**
-     * @param methodInvocationHandlerDecorators
-     */
-    public Configuration( MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators )
-    {
-      super( methodInvocationHandlerDecorators );
-    }
-    
-    /**
-     * @param propertyAccessOption
-     */
-    public Configuration( PropertyAccessOption propertyAccessOption )
-    {
-      super( propertyAccessOption );
-    }
-    
-    /**
-     * @param underlyingMapAware
-     */
-    public Configuration( boolean underlyingMapAware )
-    {
-      super();
-      this.underlyingMapAware = underlyingMapAware;
     }
     
     /**
@@ -226,19 +170,6 @@ public class PropertynameMapToTypeAdapter<T>
       this.simulatingToString = simulatingToString;
     }
     
-  }
-  
-  /**
-   * Options to modify the property access behavior regarding the property keys of the {@link Map}
-   * 
-   * @see PropertynameMapToTypeAdapter
-   * @author Omnaest
-   */
-  public static enum PropertyAccessOption
-  {
-    PROPERTY,
-    PROPERTY_LOWERCASE,
-    PROPERTY_UPPERCASE
   }
   
   /**

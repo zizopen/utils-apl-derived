@@ -117,7 +117,7 @@ public class HttpSessionFacadeFactoryTest
   
   @Test
   @PerfTest(invocations = 100)
-  @Required(average = 100)
+  @Required(average = 30)
   public void testSessionFacadeReadAndWritePerformancePerHundredInvocations()
   {
     //    

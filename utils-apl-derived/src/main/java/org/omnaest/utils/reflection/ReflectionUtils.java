@@ -298,10 +298,10 @@ public class ReflectionUtils
   }
   
   /**
-   * Returns a {@link Map} with {@link Method}s of the given Java Bean and a {@link Set} of all available {@link Annotation}s for
-   * the {@link Method}
+   * Returns a {@link Map} with {@link Method}s of the given type and a {@link Set} of all available {@link Annotation}s for the
+   * {@link Method}
    * 
-   * @param beanClass
+   * @param type
    * @return
    */
   public static Map<Method, Set<Annotation>> methodToAnnotationSetMap( Class<?> type )
@@ -318,6 +318,33 @@ public class ReflectionUtils
       {
         Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
         retmap.put( method, new LinkedHashSet<Annotation>( Arrays.asList( declaredAnnotations ) ) );
+      }
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Returns a {@link Map} with {@link Method}s of the given type and the return type of the {@link Method}
+   * 
+   * @param type
+   * @return
+   */
+  public static Map<Method, Class<?>> methodToReturnTypeMap( Class<?> type )
+  {
+    //
+    Map<Method, Class<?>> retmap = new LinkedHashMap<Method, Class<?>>();
+    
+    //
+    if ( type != null )
+    {
+      //
+      Method[] declaredMethods = type.getDeclaredMethods();
+      for ( Method method : declaredMethods )
+      {
+        Class<?> returnType = method.getReturnType();
+        retmap.put( method, returnType );
       }
     }
     

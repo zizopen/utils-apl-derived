@@ -20,8 +20,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.omnaest.utils.beans.adapter.PropertyAccessOption;
 import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter;
-import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.PropertyAccessOption;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
 import org.omnaest.utils.structure.element.converter.Adapter;
 
