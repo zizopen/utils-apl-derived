@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.omnaest.utils.beans.BeanUtils;
-import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.PropertyAccessOption;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor.PropertyMetaInformation;
@@ -36,7 +35,6 @@ import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessorDecoratorPro
 import org.omnaest.utils.beans.autowired.AutowiredContainer;
 import org.omnaest.utils.beans.autowired.ClassMapToAutowiredContainerAdapter;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
-import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.proxy.StubCreator;
 import org.omnaest.utils.proxy.handler.MethodCallCapture;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
@@ -56,12 +54,14 @@ import org.springframework.util.Assert;
 public class SourcePropertyAccessorToTypeAdapter<T>
 {
   /* ********************************************** Variables ********************************************** */
-  protected T                            classAdapter                               = null;
-  protected Class<T>                     type                                       = null;
-  protected SourcePropertyAccessor       sourcePropertyAccessor                     = null;
-  protected List<Annotation>             declaredAnnotationListOfType               = null;
-  protected Map<Method, Set<Annotation>> declaredMethodToAnnotationSetMap           = null;
-  protected Map<String, Set<Annotation>> propertyNameToBeanPropertyAnnotationSetMap = null;
+  protected T                                  classAdapter                               = null;
+  protected Class<T>                           type                                       = null;
+  protected SourcePropertyAccessor             sourcePropertyAccessor                     = null;
+  protected List<Annotation>                   declaredAnnotationListOfType               = null;
+  protected Map<Method, Set<Annotation>>       declaredMethodToAnnotationSetMap           = null;
+  protected Map<String, Set<Annotation>>       propertyNameToBeanPropertyAnnotationSetMap = null;
+  protected Map<Method, Class<?>>              methodToReturnTypeMap                      = null;
+  protected Map<String, BeanMethodInformation> methodNameToBeanMethodInformationMap       = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -75,6 +75,7 @@ public class SourcePropertyAccessorToTypeAdapter<T>
     {
       //
       final Method method = methodCallCapture.getMethod();
+      final String methodName = methodCallCapture.getMethodName();
       final Object[] args = methodCallCapture.getArguments();
       
       //
@@ -84,15 +85,11 @@ public class SourcePropertyAccessorToTypeAdapter<T>
       try
       {
         //        
-        BeanMethodInformation beanMethodInformation = BeanUtils.beanMethodInformation( method );
+        BeanMethodInformation beanMethodInformation = SourcePropertyAccessorToTypeAdapter.this.methodNameToBeanMethodInformationMap.get( methodName );
         if ( beanMethodInformation != null )
         {
           //
-          BeanPropertyAccessor<T> beanPropertyAccessor = BeanUtils.beanPropertyAccessor( SourcePropertyAccessorToTypeAdapter.this.type,
-                                                                                         method );
-          Class<?> declaringPropertyType = beanPropertyAccessor.getDeclaringPropertyType();
-          
-          //          
+          final Class<?> returnType = SourcePropertyAccessorToTypeAdapter.this.methodToReturnTypeMap.get( method );
           final String referencedFieldName = beanMethodInformation.getReferencedFieldName();
           
           //          
@@ -125,8 +122,7 @@ public class SourcePropertyAccessorToTypeAdapter<T>
                                                                                              classAnnotationAutowiredContainer );
               
               //              
-              retval = SourcePropertyAccessorToTypeAdapter.this.sourcePropertyAccessor.getValue( referencedFieldName,
-                                                                                                 declaringPropertyType,
+              retval = SourcePropertyAccessorToTypeAdapter.this.sourcePropertyAccessor.getValue( referencedFieldName, returnType,
                                                                                                  propertyMetaInformation );
             }
             else if ( isSetter || isSetterWithAdditionalArguments )
@@ -198,6 +194,49 @@ public class SourcePropertyAccessorToTypeAdapter<T>
     /* ********************************************** Methods ********************************************** */
     
     /**
+     * @param propertyAccessOption
+     * @param isRegardingAdapterAnnotation
+     * @param isRegardingPropertyNameTemplate
+     */
+    public Configuration( PropertyAccessOption propertyAccessOption, boolean isRegardingAdapterAnnotation,
+                          boolean isRegardingPropertyNameTemplate )
+    {
+      super();
+      this.propertyAccessOption = propertyAccessOption;
+      this.isRegardingAdapterAnnotation = isRegardingAdapterAnnotation;
+      this.isRegardingPropertyNameTemplate = isRegardingPropertyNameTemplate;
+    }
+    
+    /**
+     * @param methodInvocationHandlerDecorators
+     * @param sourcePropertyAccessorDecorators
+     */
+    public Configuration( MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators,
+                          SourcePropertyAccessorDecorator[] sourcePropertyAccessorDecorators )
+    {
+      super();
+      this.methodInvocationHandlerDecorators = methodInvocationHandlerDecorators;
+      this.sourcePropertyAccessorDecorators = sourcePropertyAccessorDecorators;
+    }
+    
+    /**
+     * 
+     */
+    public Configuration()
+    {
+      super();
+    }
+    
+    /**
+     * @param interfaces
+     */
+    public Configuration( Class<?>[] interfaces )
+    {
+      super();
+      this.interfaces = interfaces;
+    }
+    
+    /**
      * @param interfaceType
      */
     public void addInterface( Class<?> interfaceType )
@@ -231,74 +270,6 @@ public class SourcePropertyAccessorToTypeAdapter<T>
                                                                                              : this.methodInvocationHandlerDecorators;
       this.methodInvocationHandlerDecorators = ArrayUtils.add( this.methodInvocationHandlerDecorators,
                                                                methodInvocationHandlerDecorator );
-    }
-    
-    /**
-     * @param propertyAccessOption
-     * @param isRegardingAdapterAnnotation
-     * @param isRegardingPropertyNameTemplate
-     */
-    public Configuration( PropertyAccessOption propertyAccessOption, boolean isRegardingAdapterAnnotation,
-                          boolean isRegardingPropertyNameTemplate )
-    {
-      super();
-      this.propertyAccessOption = propertyAccessOption;
-      this.isRegardingAdapterAnnotation = isRegardingAdapterAnnotation;
-      this.isRegardingPropertyNameTemplate = isRegardingPropertyNameTemplate;
-    }
-    
-    /**
-     * @param interfaces
-     * @param methodInvocationHandlerDecorators
-     * @param sourcePropertyAccessorDecorators
-     * @param propertyAccessOption
-     */
-    public Configuration( Class<?>[] interfaces, MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators,
-                          SourcePropertyAccessorDecorator[] sourcePropertyAccessorDecorators,
-                          PropertyAccessOption propertyAccessOption )
-    {
-      super();
-      this.interfaces = interfaces;
-      this.methodInvocationHandlerDecorators = methodInvocationHandlerDecorators;
-      this.sourcePropertyAccessorDecorators = sourcePropertyAccessorDecorators;
-      this.propertyAccessOption = propertyAccessOption;
-    }
-    
-    public Configuration( PropertyAccessOption propertyAccessOption )
-    {
-      super();
-      this.propertyAccessOption = propertyAccessOption;
-    }
-    
-    public Configuration( MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators )
-    {
-      super();
-      this.methodInvocationHandlerDecorators = methodInvocationHandlerDecorators;
-    }
-    
-    public Configuration( Class<?>[] interfaces )
-    {
-      super();
-      this.interfaces = interfaces;
-    }
-    
-    /**
-     * @param interfaces
-     * @param methodInvocationHandlerDecorators
-     * @param propertyAccessOption
-     */
-    public Configuration( Class<?>[] interfaces, MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators,
-                          PropertyAccessOption propertyAccessOption )
-    {
-      super();
-      this.interfaces = interfaces;
-      this.methodInvocationHandlerDecorators = methodInvocationHandlerDecorators;
-      this.propertyAccessOption = propertyAccessOption;
-    }
-    
-    public Configuration()
-    {
-      super();
     }
     
     public Class<?>[] getInterfaces()
@@ -428,27 +399,22 @@ public class SourcePropertyAccessorToTypeAdapter<T>
     Assert.notNull( sourcePropertyAccessor );
     
     //
-    this.type = type;
-    this.sourcePropertyAccessor = sourcePropertyAccessor;
-    
-    //
     configuration = configuration != null ? configuration : new Configuration();
     
     //
     if ( configuration.isRegardingAdapterAnnotation() )
     {
-      this.sourcePropertyAccessor = new SourcePropertyAccessorDecoratorAdapter( this.sourcePropertyAccessor );
+      sourcePropertyAccessor = new SourcePropertyAccessorDecoratorAdapter( sourcePropertyAccessor );
     }
     if ( configuration.isRegardingPropertyNameTemplate() )
     {
-      this.sourcePropertyAccessor = new SourcePropertyAccessorDecoratorPropertyNameTemplate( this.sourcePropertyAccessor );
+      sourcePropertyAccessor = new SourcePropertyAccessorDecoratorPropertyNameTemplate( sourcePropertyAccessor );
     }
     if ( configuration.getPropertyAccessOption() != null
          && !PropertyAccessOption.PROPERTY.equals( configuration.getPropertyAccessOption() ) )
     {
-      this.sourcePropertyAccessor = new SourcePropertyAccessorDecoratorPropertyAccessOption(
-                                                                                             sourcePropertyAccessor,
-                                                                                             configuration.getPropertyAccessOption() );
+      sourcePropertyAccessor = new SourcePropertyAccessorDecoratorPropertyAccessOption( sourcePropertyAccessor,
+                                                                                        configuration.getPropertyAccessOption() );
     }
     
     //
@@ -460,15 +426,21 @@ public class SourcePropertyAccessorToTypeAdapter<T>
       {
         if ( sourcePropertyAccessorDecorator != null )
         {
-          this.sourcePropertyAccessor = sourcePropertyAccessorDecorator.setPropertyAccessorDecorator( this.sourcePropertyAccessor );
+          sourcePropertyAccessor = sourcePropertyAccessorDecorator.setPropertyAccessorDecorator( sourcePropertyAccessor );
         }
       }
     }
     
     //
+    this.sourcePropertyAccessor = sourcePropertyAccessor;
+    this.type = type;
+    
+    //
     this.declaredAnnotationListOfType = ReflectionUtils.declaredAnnotationList( SourcePropertyAccessorToTypeAdapter.this.type );
     this.declaredMethodToAnnotationSetMap = ReflectionUtils.declaredMethodToAnnotationSetMap( SourcePropertyAccessorToTypeAdapter.this.type );
     this.propertyNameToBeanPropertyAnnotationSetMap = BeanUtils.propertyNameToBeanPropertyAnnotationSetMap( type );
+    this.methodToReturnTypeMap = ReflectionUtils.methodToReturnTypeMap( type );
+    this.methodNameToBeanMethodInformationMap = BeanUtils.methodNameToBeanMethodInformationMap( type );
     
     //
     this.initializeClassAdapter( type, configuration );

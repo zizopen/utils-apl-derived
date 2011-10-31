@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
-import org.omnaest.utils.beans.adapter.TypeToPropertynameMapAdapter;
-import org.omnaest.utils.beans.adapter.TypeToPropertynameMapAdapter.PropertyAccessOption;
 
 /**
  * @see TypeToPropertynameMapAdapter
@@ -93,8 +91,10 @@ public class TypeToPropertynameMapAdapterTest
     mockBean.setFieldDouble( 1.35 );
     
     //
-    Map<String, Object> mapAdapterLowercase = TypeToPropertynameMapAdapter.newInstance( mockBean, PropertyAccessOption.PROPERTY_LOWERCASE );
-    Map<String, Object> mapAdapterUppercase = TypeToPropertynameMapAdapter.newInstance( mockBean, PropertyAccessOption.PROPERTY_UPPERCASE );
+    Map<String, Object> mapAdapterLowercase = TypeToPropertynameMapAdapter.newInstance( mockBean,
+                                                                                        PropertyAccessOption.PROPERTY_LOWERCASE );
+    Map<String, Object> mapAdapterUppercase = TypeToPropertynameMapAdapter.newInstance( mockBean,
+                                                                                        PropertyAccessOption.PROPERTY_UPPERCASE );
     
     //
     assertNotNull( mapAdapterLowercase );

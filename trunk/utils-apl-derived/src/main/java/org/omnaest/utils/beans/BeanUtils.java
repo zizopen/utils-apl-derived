@@ -766,18 +766,18 @@ public class BeanUtils
    * Determines a {@link Map} with the referenced {@link Method#getName()}s as keys and the respective
    * {@link BeanMethodInformation} name.
    * 
-   * @param clazz
+   * @param type
    * @return
    */
-  public static Map<String, BeanMethodInformation> methodNameToBeanMethodInformationMap( Class<?> clazz )
+  public static Map<String, BeanMethodInformation> methodNameToBeanMethodInformationMap( Class<?> type )
   {
     //
     Map<String, BeanMethodInformation> retmap = null;
     
     //
-    if ( clazz != null )
+    if ( type != null )
     {
-      retmap = BeanUtils.methodNameToBeanMethodInformationMap( clazz.getMethods() );
+      retmap = BeanUtils.methodNameToBeanMethodInformationMap( type.getMethods() );
     }
     else
     {

@@ -29,7 +29,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration;
-import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.PropertyAccessOption;
 import org.omnaest.utils.structure.element.Range;
 import org.omnaest.utils.structure.element.converter.Adapter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIntegerToString;
@@ -114,8 +113,17 @@ public class PropertynameMapToTypeAdapterTest
       Map<String, Object> map = new HashMap<String, Object>();
       
       //reading from facade
+      
+      PropertyAccessOption propertyAccessOption = PropertyAccessOption.PROPERTY_LOWERCASE;
+      boolean isRegardingAdapterAnnotation = false;
+      boolean isRegardingPropertyNameTemplate = false;
+      boolean underlyingMapAware = false;
+      boolean simulatingToString = false;
       TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class,
-                                                                    new Configuration( PropertyAccessOption.PROPERTY_LOWERCASE ) );
+                                                                    new Configuration( propertyAccessOption,
+                                                                                       isRegardingAdapterAnnotation,
+                                                                                       isRegardingPropertyNameTemplate,
+                                                                                       underlyingMapAware, simulatingToString ) );
       
       //
       map.put( "fieldstring", "String value" );
@@ -142,8 +150,16 @@ public class PropertynameMapToTypeAdapterTest
       Map<String, Object> map = new HashMap<String, Object>();
       
       //reading from facade
+      PropertyAccessOption propertyAccessOption = PropertyAccessOption.PROPERTY_UPPERCASE;
+      boolean isRegardingAdapterAnnotation = false;
+      boolean isRegardingPropertyNameTemplate = false;
+      boolean underlyingMapAware = false;
+      boolean simulatingToString = false;
       TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class,
-                                                                    new Configuration( PropertyAccessOption.PROPERTY_UPPERCASE ) );
+                                                                    new Configuration( propertyAccessOption,
+                                                                                       isRegardingAdapterAnnotation,
+                                                                                       isRegardingPropertyNameTemplate,
+                                                                                       underlyingMapAware, simulatingToString ) );
       
       //
       map.put( "FIELDSTRING", "String value" );
@@ -175,8 +191,10 @@ public class PropertynameMapToTypeAdapterTest
     map.put( "fieldDouble", 10.0 );
     
     //reading from facade
+    boolean simulatingToString = false;
     boolean isUnderlyingMapAware = true;
-    TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, new Configuration( isUnderlyingMapAware ) );
+    TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class, new Configuration( isUnderlyingMapAware,
+                                                                                                          simulatingToString ) );
     
     assertEquals( "String value", testType.getFieldString() );
     assertEquals( 10.0, testType.getFieldDouble(), 0.01 );

@@ -40,21 +40,6 @@ public class TypeToPropertynameMapAdapter<B> extends MapAbstract<String, Object>
   protected B                                    bean                                  = null;
   protected Map<String, BeanPropertyAccessor<B>> propertynameToBeanPropertyAccessorMap = null;
   
-  /* ********************************************** Classes/Interfaces ********************************************** */
-  
-  /**
-   * Options to modify the access behavior regarding the property keys of the {@link Map}
-   * 
-   * @see TypeToPropertynameMapAdapter
-   * @author Omnaest
-   */
-  public static enum PropertyAccessOption
-  {
-    PROPERTY,
-    PROPERTY_LOWERCASE,
-    PROPERTY_UPPERCASE
-  }
-  
   /* ********************************************** Methods ********************************************** */
   
   /**

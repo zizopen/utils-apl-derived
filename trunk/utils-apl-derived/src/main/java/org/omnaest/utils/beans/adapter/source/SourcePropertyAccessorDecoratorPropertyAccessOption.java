@@ -15,7 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.adapter.source;
 
-import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.PropertyAccessOption;
+import org.omnaest.utils.beans.adapter.PropertyAccessOption;
 import org.springframework.util.Assert;
 
 /**
