@@ -68,7 +68,7 @@ public class OperationBatteryRoundRobinTest
   
   @Test
   @PerfTest(invocations = 100, threads = 64)
-  @Required(average = 400)
+  @Required(average = 800)
   public void testExecute()
   {
     for ( int ii = 0; ii < 10; ii++ )

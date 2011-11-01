@@ -40,7 +40,7 @@ import org.omnaest.utils.proxy.handler.MethodCallCapture;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandlerDecorator;
 import org.omnaest.utils.reflection.ReflectionUtils;
-import org.omnaest.utils.structure.element.converter.Adapter;
+import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.springframework.util.Assert;
 
@@ -170,13 +170,13 @@ public class SourcePropertyAccessorToTypeAdapter<T>
    * If {@link #setPropertyAccessOption(PropertyAccessOption)} is set to another {@link PropertyAccessOption} it is possible to
    * access the underlying {@link Map} keys e.g. with lowercased keys instead of the case sensitive property names. <br>
    * <br>
-   * If {@link #setRegardingAdapterAnnotation(boolean)} is set to true, the {@link Adapter} are evaluated and the respective
+   * If {@link #setRegardingAdapterAnnotation(boolean)} is set to true, the {@link Converter} are evaluated and the respective
    * {@link ElementConverter} be called to translate the setter parameter or the getter return value. <br>
    * <br>
    * If {@link #setRegardingPropertyNameTemplate(boolean)} is set to true, all {@link PropertyNameTemplate} {@link Annotation}s
    * are considered.<br>
    * 
-   * @see Adapter
+   * @see Converter
    * @see PropertyNameTemplate
    * @see SourcePropertyAccessorToTypeAdapter
    * @author Omnaest

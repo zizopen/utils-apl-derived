@@ -31,7 +31,7 @@ import org.mockito.internal.verification.Times;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor.PropertyMetaInformation;
-import org.omnaest.utils.structure.element.converter.Adapter;
+import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCast;
 
 /**
@@ -64,7 +64,7 @@ public class SourcePropertyAccessorToTypeAdapterTest
     
     public double getFieldPrimitiveDouble();
     
-    @Adapter(type = ElementConverterIdentitiyCast.class)
+    @Converter(type = ElementConverterIdentitiyCast.class)
     public void setFieldPrimitiveDouble( double value, String additionalArgument );
   }
   
@@ -149,7 +149,7 @@ public class SourcePropertyAccessorToTypeAdapterTest
     assertFalse( propertyMetaInformation.getPropertyAnnotationAutowiredContainer().isEmpty() );
     assertFalse( propertyMetaInformation.getClassAnnotationAutowiredContainer().isEmpty() );
     
-    assertTrue( propertyMetaInformation.getPropertyAnnotationAutowiredContainer().containsAssignable( Adapter.class ) );
+    assertTrue( propertyMetaInformation.getPropertyAnnotationAutowiredContainer().containsAssignable( Converter.class ) );
     assertTrue( propertyMetaInformation.getClassAnnotationAutowiredContainer().containsAssignable( XmlType.class ) );
   }
   

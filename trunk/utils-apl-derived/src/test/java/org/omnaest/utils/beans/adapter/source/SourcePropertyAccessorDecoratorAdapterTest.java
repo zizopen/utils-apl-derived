@@ -24,7 +24,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.omnaest.utils.beans.adapter.SourcePropertyAccessorToTypeAdapter;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor.PropertyMetaInformation;
-import org.omnaest.utils.structure.element.converter.Adapter;
+import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIntegerToString;
 import org.omnaest.utils.structure.element.converter.ElementConverterStringToInteger;
 
@@ -51,10 +51,10 @@ public class SourcePropertyAccessorDecoratorAdapterTest
   /* ********************************************** Classes/Interfaces ********************************************** */
   protected static interface TestTypeWithAdapter
   {
-    @Adapter(type = ElementConverterIntegerToString.class)
+    @Converter(type = ElementConverterIntegerToString.class)
     public String getFieldString();
     
-    @Adapter(type = ElementConverterStringToInteger.class)
+    @Converter(type = ElementConverterStringToInteger.class)
     public void setFieldString( String fieldString );
   }
   

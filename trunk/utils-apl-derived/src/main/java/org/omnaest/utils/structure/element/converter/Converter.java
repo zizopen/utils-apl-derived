@@ -22,8 +22,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An {@link Adapter} allows to declare a {@link Class} of an {@link ElementConverter} which should be used to translate a return
- * value or a single given parameter before storing it in the underlying structure.<br>
+ * An {@link Converter} allows to declare a {@link Class} of an {@link ElementConverter} which should be used to translate a
+ * return value or a single given parameter before storing it in the underlying structure.<br>
  * <br>
  * The instance of the {@link ElementConverter} must have a default constructor.
  * 
@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })
-public @interface Adapter
+public @interface Converter
 {
   @SuppressWarnings("rawtypes")
   public Class<? extends ElementConverter> type();

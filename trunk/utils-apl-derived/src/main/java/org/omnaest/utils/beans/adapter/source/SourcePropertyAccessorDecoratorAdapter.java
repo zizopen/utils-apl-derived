@@ -18,12 +18,12 @@ package org.omnaest.utils.beans.adapter.source;
 import java.lang.reflect.Method;
 
 import org.omnaest.utils.reflection.ReflectionUtils;
-import org.omnaest.utils.structure.element.converter.Adapter;
+import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.springframework.util.Assert;
 
 /**
- * {@link SourcePropertyAccessorDecorator} which will listen to {@link Adapter} annotated {@link Method}s.
+ * {@link SourcePropertyAccessorDecorator} which will listen to {@link Converter} annotated {@link Method}s.
  * 
  * @see SourcePropertyAccessor
  * @author Omnaest
@@ -52,10 +52,10 @@ public class SourcePropertyAccessorDecoratorAdapter extends SourcePropertyAccess
   public void setValue( String propertyName, Object value, PropertyMetaInformation propertyMetaInformation )
   {
     //
-    Adapter adapter = propertyMetaInformation.getPropertyAnnotationAutowiredContainer().getValue( Adapter.class );
-    if ( adapter != null )
+    Converter converter = propertyMetaInformation.getPropertyAnnotationAutowiredContainer().getValue( Converter.class );
+    if ( converter != null )
     {
-      value = SourcePropertyAccessorDecoratorAdapter.convertByAdapter( value, adapter );
+      value = SourcePropertyAccessorDecoratorAdapter.convertByAdapter( value, converter );
     }
     
     //
@@ -74,10 +74,10 @@ public class SourcePropertyAccessorDecoratorAdapter extends SourcePropertyAccess
     retval = this.sourcePropertyAccessor.getValue( propertyName, returnType, propertyMetaInformation );
     
     //
-    Adapter adapter = propertyMetaInformation.getPropertyAnnotationAutowiredContainer().getValue( Adapter.class );
-    if ( adapter != null )
+    Converter converter = propertyMetaInformation.getPropertyAnnotationAutowiredContainer().getValue( Converter.class );
+    if ( converter != null )
     {
-      retval = SourcePropertyAccessorDecoratorAdapter.convertByAdapter( retval, adapter );
+      retval = SourcePropertyAccessorDecoratorAdapter.convertByAdapter( retval, converter );
     }
     
     //
@@ -85,18 +85,18 @@ public class SourcePropertyAccessorDecoratorAdapter extends SourcePropertyAccess
   }
   
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private static Object convertByAdapter( Object value, Adapter adapter )
+  private static Object convertByAdapter( Object value, Converter converter )
   {
     //
     Object retval = value;
     
     //
-    if ( adapter != null )
+    if ( converter != null )
     {
       //   
       try
       {
-        Class<? extends ElementConverter> type = adapter.type();
+        Class<? extends ElementConverter> type = converter.type();
         ElementConverter elementConverter = ReflectionUtils.createInstanceOf( type );
         if ( elementConverter != null )
         {

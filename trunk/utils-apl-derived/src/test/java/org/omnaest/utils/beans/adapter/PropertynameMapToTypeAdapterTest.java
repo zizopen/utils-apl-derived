@@ -30,7 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration;
 import org.omnaest.utils.structure.element.Range;
-import org.omnaest.utils.structure.element.converter.Adapter;
+import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIntegerToString;
 import org.omnaest.utils.structure.element.converter.ElementConverterStringToInteger;
 import org.omnaest.utils.structure.map.UnderlyingMapAware;
@@ -61,10 +61,10 @@ public class PropertynameMapToTypeAdapterTest
   
   protected static interface TestTypeWithAdapter
   {
-    @Adapter(type = ElementConverterIntegerToString.class)
+    @Converter(type = ElementConverterIntegerToString.class)
     public String getFieldString();
     
-    @Adapter(type = ElementConverterStringToInteger.class)
+    @Converter(type = ElementConverterStringToInteger.class)
     public void setFieldString( String fieldString );
   }
   
