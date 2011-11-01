@@ -8,3 +8,5 @@
  * MapToMapAdapter
  * RestClientFactory (including a Jersey based example implementation)
  * CachedElementTimed
+ * OperationBattery
+ * PropertynameMapToTypeAdapter now supports Converter and PropertyNameTemplate Annotations
