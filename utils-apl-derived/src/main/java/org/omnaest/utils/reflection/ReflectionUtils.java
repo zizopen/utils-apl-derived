@@ -298,50 +298,45 @@ public class ReflectionUtils
   }
   
   /**
-   * Returns a {@link Map} with {@link Method}s of the given type and a {@link Set} of all available {@link Annotation}s for the
-   * {@link Method}
+   * Returns a {@link Map} with the declared {@link Method}s of the given type and the return type of the {@link Method}s
    * 
    * @param type
    * @return
    */
-  public static Map<Method, Set<Annotation>> methodToAnnotationSetMap( Class<?> type )
+  public static Map<Method, Class<?>> declaredMethodToReturnTypeMap( Class<?> type )
   {
-    //
-    Map<Method, Set<Annotation>> retmap = new LinkedHashMap<Method, Set<Annotation>>();
-    
-    //
-    if ( type != null )
-    {
-      //
-      Method[] declaredMethods = type.getDeclaredMethods();
-      for ( Method method : declaredMethods )
-      {
-        Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
-        retmap.put( method, new LinkedHashSet<Annotation>( Arrays.asList( declaredAnnotations ) ) );
-      }
-    }
-    
-    //
-    return retmap;
+    List<Method> methodList = declaredMethodList( type );
+    return methodToReturnTypeMap( methodList );
   }
   
   /**
-   * Returns a {@link Map} with {@link Method}s of the given type and the return type of the {@link Method}
+   * Returns a {@link Map} with {@link Method}s of the given type and the return type of the {@link Method}s
    * 
    * @param type
    * @return
    */
   public static Map<Method, Class<?>> methodToReturnTypeMap( Class<?> type )
   {
+    List<Method> methodList = methodList( type );
+    return methodToReturnTypeMap( methodList );
+  }
+  
+  /**
+   * Returns a {@link Map} with all the given {@link Method}s and their return type
+   * 
+   * @param methodList
+   * @return
+   */
+  protected static Map<Method, Class<?>> methodToReturnTypeMap( List<Method> methodList )
+  {
     //
     Map<Method, Class<?>> retmap = new LinkedHashMap<Method, Class<?>>();
     
     //
-    if ( type != null )
+    if ( methodList != null )
     {
       //
-      Method[] declaredMethods = type.getDeclaredMethods();
-      for ( Method method : declaredMethods )
+      for ( Method method : methodList )
       {
         Class<?> returnType = method.getReturnType();
         retmap.put( method, returnType );
@@ -416,6 +411,28 @@ public class ReflectionUtils
     {
       //
       retlist.addAll( Arrays.asList( type.getDeclaredAnnotations() ) );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Returns all {@link Class#getAnnotations()} as {@link List}
+   * 
+   * @param type
+   * @return
+   */
+  public static List<Annotation> annotationList( Class<?> type )
+  {
+    //    
+    List<Annotation> retlist = new ArrayList<Annotation>();
+    
+    //
+    if ( type != null )
+    {
+      //
+      retlist.addAll( Arrays.asList( type.getAnnotations() ) );
     }
     
     //
@@ -499,6 +516,21 @@ public class ReflectionUtils
   }
   
   /**
+   * Returns a {@link Map} of all {@link Method}s of the given {@link Class} type and a {@link List} of declared
+   * {@link Annotation}s related to the {@link Method}s
+   * 
+   * @see #declaredMethodList(Class)
+   * @see #declaredAnnotationSet(Method)
+   * @param type
+   * @return
+   */
+  public static Map<Method, Set<Annotation>> methodToAnnotationSetMap( Class<?> type )
+  {
+    List<Method> methodList = methodList( type );
+    return methodToAnnotationSetMap( methodList );
+  }
+  
+  /**
    * Returns a {@link Map} of all declared {@link Method}s of the given {@link Class} type and a {@link List} of declared
    * {@link Annotation}s related to the {@link Method}s
    * 
@@ -509,25 +541,35 @@ public class ReflectionUtils
    */
   public static Map<Method, Set<Annotation>> declaredMethodToAnnotationSetMap( Class<?> type )
   {
+    List<Method> methodList = declaredMethodList( type );
+    return methodToAnnotationSetMap( methodList );
+  }
+  
+  /**
+   * Returns a {@link Map} of all the given {@link Method}s and a {@link List} of declared {@link Annotation}s related to the
+   * {@link Method}s
+   * 
+   * @see #declaredMethodList(Class)
+   * @see #declaredAnnotationSet(Method)
+   * @param methodList
+   * @return
+   */
+  protected static Map<Method, Set<Annotation>> methodToAnnotationSetMap( List<Method> methodList )
+  {
     //
     Map<Method, Set<Annotation>> retmap = new LinkedHashMap<Method, Set<Annotation>>();
     
     //
-    if ( type != null )
+    if ( methodList != null )
     {
-      //
-      List<Method> declaredMethodList = declaredMethodList( type );
-      if ( declaredMethodList != null )
+      for ( Method declaredMethod : methodList )
       {
-        for ( Method declaredMethod : declaredMethodList )
+        //
+        Set<Annotation> declaredAnnotationSet = declaredAnnotationSet( declaredMethod );
+        if ( declaredAnnotationSet != null )
         {
           //
-          Set<Annotation> declaredAnnotationSet = declaredAnnotationSet( declaredMethod );
-          if ( declaredAnnotationSet != null )
-          {
-            //
-            retmap.put( declaredMethod, declaredAnnotationSet );
-          }
+          retmap.put( declaredMethod, declaredAnnotationSet );
         }
       }
     }
@@ -591,6 +633,28 @@ public class ReflectionUtils
     {
       //
       retlist.addAll( Arrays.asList( type.getDeclaredMethods() ) );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Returns the {@link Class#getMethods()} for a given {@link Class}. Returns always a {@link List} instance.
+   * 
+   * @param type
+   * @return
+   */
+  public static List<Method> methodList( Class<?> type )
+  {
+    //    
+    List<Method> retlist = new ArrayList<Method>();
+    
+    //
+    if ( type != null )
+    {
+      //
+      retlist.addAll( Arrays.asList( type.getMethods() ) );
     }
     
     //

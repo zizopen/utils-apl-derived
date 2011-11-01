@@ -41,18 +41,25 @@ import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCa
 public class SourcePropertyAccessorToTypeAdapterTest
 {
   /* ********************************************** Variables ********************************************** */
-  private SourcePropertyAccessor propertyAccessor                = Mockito.mock( SourcePropertyAccessor.class );
-  private TestType               testType                        = SourcePropertyAccessorToTypeAdapter.newInstance( TestType.class,
-                                                                                                                    this.propertyAccessor );
-  private PropertyAccessOption   propertyAccessOption            = PropertyAccessOption.PROPERTY_LOWERCASE;
-  private boolean                isRegardingAdapterAnnotation    = false;
-  private boolean                isRegardingPropertyNameTemplate = true;
-  private TestType2              testType2                       = SourcePropertyAccessorToTypeAdapter.newInstance( TestType2.class,
-                                                                                                                    this.propertyAccessor,
-                                                                                                                    new SourcePropertyAccessorToTypeAdapter.Configuration(
-                                                                                                                                                                           this.propertyAccessOption,
-                                                                                                                                                                           this.isRegardingAdapterAnnotation,
-                                                                                                                                                                           this.isRegardingPropertyNameTemplate ) );
+  private SourcePropertyAccessor    propertyAccessor                = Mockito.mock( SourcePropertyAccessor.class );
+  private TestType                  testType                        = SourcePropertyAccessorToTypeAdapter.newInstance( TestType.class,
+                                                                                                                       this.propertyAccessor );
+  private PropertyAccessOption      propertyAccessOption            = PropertyAccessOption.PROPERTY_LOWERCASE;
+  private boolean                   isRegardingAdapterAnnotation    = false;
+  private boolean                   isRegardingPropertyNameTemplate = true;
+  private TestType2                 testType2                       = SourcePropertyAccessorToTypeAdapter.newInstance( TestType2.class,
+                                                                                                                       this.propertyAccessor,
+                                                                                                                       new SourcePropertyAccessorToTypeAdapter.Configuration(
+                                                                                                                                                                              this.propertyAccessOption,
+                                                                                                                                                                              this.isRegardingAdapterAnnotation,
+                                                                                                                                                                              this.isRegardingPropertyNameTemplate ) );
+  
+  private TestType2SplittedInternal testType2SplittedInternal       = SourcePropertyAccessorToTypeAdapter.newInstance( TestType2SplittedInternal.class,
+                                                                                                                       this.propertyAccessor,
+                                                                                                                       new SourcePropertyAccessorToTypeAdapter.Configuration(
+                                                                                                                                                                              this.propertyAccessOption,
+                                                                                                                                                                              this.isRegardingAdapterAnnotation,
+                                                                                                                                                                              this.isRegardingPropertyNameTemplate ) );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   @XmlType
@@ -76,6 +83,23 @@ public class SourcePropertyAccessorToTypeAdapterTest
     public void setFieldString( String value, String tag );
     
     public double getFieldPrimitiveDouble();
+    
+    public void setFieldPrimitiveDouble( double value );
+  }
+  
+  public static interface TestType2Splitted
+  {
+    @PropertyNameTemplate("field({0})")
+    public String getFieldString( String tag );
+    
+    public double getFieldPrimitiveDouble();
+    
+  }
+  
+  public static interface TestType2SplittedInternal extends TestType2Splitted
+  {
+    
+    public void setFieldString( String value, String tag );
     
     public void setFieldPrimitiveDouble( double value );
   }
@@ -163,6 +187,42 @@ public class SourcePropertyAccessorToTypeAdapterTest
     //
     this.testType2.setFieldString( "new string value", "LuLu" );
     this.testType2.setFieldPrimitiveDouble( 1234.223 );
+    
+    //
+    ArgumentCaptor<PropertyMetaInformation> argumentCaptureForPropertyMetaInformation = ArgumentCaptor.forClass( PropertyMetaInformation.class );
+    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).getValue( Matchers.eq( "field(LaLa)" ), Matchers.eq( String.class ),
+                                                                      argumentCaptureForPropertyMetaInformation.capture() );
+    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).setValue( Matchers.eq( "field(LuLu)" ),
+                                                                      Matchers.eq( "new string value" ),
+                                                                      argumentCaptureForPropertyMetaInformation.capture() );
+    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).getValue( Matchers.eq( "fieldprimitivedouble" ),
+                                                                      Matchers.eq( double.class ),
+                                                                      (PropertyMetaInformation) Matchers.anyObject() );
+    Mockito.verify( this.propertyAccessor, new Times( 1 ) ).setValue( Matchers.eq( "fieldprimitivedouble" ),
+                                                                      Matchers.eq( 1234.223 ),
+                                                                      (PropertyMetaInformation) Matchers.anyObject() );
+    
+    //
+    PropertyMetaInformation propertyMetaInformation = argumentCaptureForPropertyMetaInformation.getValue();
+    assertArrayEquals( new String[] { "LuLu" }, propertyMetaInformation.getAdditionalArguments() );
+    
+    assertFalse( propertyMetaInformation.getPropertyAnnotationAutowiredContainer().isEmpty() );
+    assertTrue( propertyMetaInformation.getClassAnnotationAutowiredContainer().isEmpty() );
+    
+    assertTrue( propertyMetaInformation.getPropertyAnnotationAutowiredContainer().containsAssignable( PropertyNameTemplate.class ) );
+    
+  }
+  
+  @Test
+  public void testNewInstanceSupertype()
+  {
+    //
+    assertEquals( "return string2", this.testType2SplittedInternal.getFieldString( "LaLa" ) );
+    assertEquals( 1234.2232, this.testType2SplittedInternal.getFieldPrimitiveDouble(), 0.0001 );
+    
+    //
+    this.testType2SplittedInternal.setFieldString( "new string value", "LuLu" );
+    this.testType2SplittedInternal.setFieldPrimitiveDouble( 1234.223 );
     
     //
     ArgumentCaptor<PropertyMetaInformation> argumentCaptureForPropertyMetaInformation = ArgumentCaptor.forClass( PropertyMetaInformation.class );

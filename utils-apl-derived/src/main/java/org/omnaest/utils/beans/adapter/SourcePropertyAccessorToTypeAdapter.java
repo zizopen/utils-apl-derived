@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.omnaest.utils.beans.BeanUtils;
+import org.omnaest.utils.beans.adapter.SourcePropertyAccessorToTypeAdapter.Configuration.RegardedAnnotationScope;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor.PropertyMetaInformation;
@@ -190,6 +191,24 @@ public class SourcePropertyAccessorToTypeAdapter<T>
     private PropertyAccessOption               propertyAccessOption              = PropertyAccessOption.PROPERTY;
     private boolean                            isRegardingAdapterAnnotation      = false;
     private boolean                            isRegardingPropertyNameTemplate   = false;
+    private RegardedAnnotationScope            regardedAnnotationScope           = RegardedAnnotationScope.INHERITED;
+    
+    /* ********************************************** Classes/Interfaces ********************************************** */
+    /**
+     * Scope {@link Annotation}s are scanned
+     * 
+     * @see Configuration
+     * @author Omnaest
+     */
+    public static enum RegardedAnnotationScope
+    {
+      /** No {@link Annotation}s are scanned */
+      NONE,
+      /** Only local {@link Annotation} declarations of the given type are scanned */
+      DECLARED,
+      /** Local declared and inherited {@link Annotation}s are scanned */
+      INHERITED
+    }
     
     /* ********************************************** Methods ********************************************** */
     
@@ -332,6 +351,16 @@ public class SourcePropertyAccessorToTypeAdapter<T>
       this.isRegardingPropertyNameTemplate = isRegardingPropertyNameTemplate;
     }
     
+    public RegardedAnnotationScope getRegardedAnnotationScope()
+    {
+      return this.regardedAnnotationScope;
+    }
+    
+    public void setRegardedAnnotationScope( RegardedAnnotationScope regardedAnnotationScope )
+    {
+      this.regardedAnnotationScope = regardedAnnotationScope;
+    }
+    
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -436,11 +465,21 @@ public class SourcePropertyAccessorToTypeAdapter<T>
     this.type = type;
     
     //
-    this.declaredAnnotationListOfType = ReflectionUtils.declaredAnnotationList( SourcePropertyAccessorToTypeAdapter.this.type );
-    this.declaredMethodToAnnotationSetMap = ReflectionUtils.declaredMethodToAnnotationSetMap( SourcePropertyAccessorToTypeAdapter.this.type );
-    this.propertyNameToBeanPropertyAnnotationSetMap = BeanUtils.propertyNameToBeanPropertyAnnotationSetMap( type );
-    this.methodToReturnTypeMap = ReflectionUtils.methodToReturnTypeMap( type );
-    this.methodNameToBeanMethodInformationMap = BeanUtils.methodNameToBeanMethodInformationMap( type );
+    boolean isRegardingAnnotations = RegardedAnnotationScope.DECLARED.equals( configuration.getRegardedAnnotationScope() )
+                                     || RegardedAnnotationScope.INHERITED.equals( configuration.getRegardedAnnotationScope() );
+    boolean isRegardingInheritedAnnotations = RegardedAnnotationScope.INHERITED.equals( configuration.getRegardedAnnotationScope() );
+    if ( isRegardingAnnotations )
+    {
+      //
+      this.declaredAnnotationListOfType = isRegardingInheritedAnnotations ? ReflectionUtils.annotationList( type )
+                                                                         : ReflectionUtils.declaredAnnotationList( type );
+      this.declaredMethodToAnnotationSetMap = isRegardingInheritedAnnotations ? ReflectionUtils.methodToAnnotationSetMap( type )
+                                                                             : ReflectionUtils.declaredMethodToAnnotationSetMap( type );
+      this.propertyNameToBeanPropertyAnnotationSetMap = BeanUtils.propertyNameToBeanPropertyAnnotationSetMap( type );
+      this.methodToReturnTypeMap = isRegardingInheritedAnnotations ? ReflectionUtils.methodToReturnTypeMap( type )
+                                                                  : ReflectionUtils.declaredMethodToReturnTypeMap( type );
+      this.methodNameToBeanMethodInformationMap = BeanUtils.methodNameToBeanMethodInformationMap( type );
+    }
     
     //
     this.initializeClassAdapter( type, configuration );
