@@ -26,7 +26,7 @@ ExampleType exampleType = PropertynameMapToTypeAdapter.newInstance( map, Example
    @Converter(type = ElementConverterIntegerToString.class)
    public String getFieldString();
    
-   public void setFieldString( String fieldString );
-   
+   @Converter(type = ElementConverterStringToInteger.class)
+   public void setFieldString( String fieldString );   
  }
 }}}
