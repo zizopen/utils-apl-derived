@@ -26,11 +26,20 @@ import org.springframework.util.Assert;
  * An {@link OperationBattery} allows to use a single operation facade to access a pool of object instances which offers one and
  * the same method in a multithreaded environment.<br>
  * <br>
- * The underlying operation instances will be resolved by a single {@link OperationFactory} instance.<br>
+ * The underlying operation instances will be resolved by a single {@link OperationFactory} initially.<br>
  * These instances do not have to be thread safe, if {@link #setUsingReentrantLock(boolean)} is set to true. In that case the
  * {@link OperationBattery} will decorate calls to the instances with a {@link ReentrantLock}, so that in the case there are more
  * invocations than unused instances available, that the incoming invocations will be blocked until an instance of an underlying
- * {@link Operation} gets unlocked. This ensures the thread safetyness of the {@link OperationBattery}.
+ * {@link Operation} gets unlocked. This ensures the thread safetyness of the {@link OperationBattery}.<br>
+ * <br>
+ * An {@link OperationBattery} should be given an initial capacity of instances in that way, that the required throughput can be
+ * achieved by the throughput of a single {@link Operation} instance multiplied with the capacity number. E.g. if a single
+ * {@link Operation} can handle 100 requests per second and 1000 requests per seconds is the requirement, an
+ * {@link OperationBattery} with a capacity of 10 instances should narrow down the required throughput very well.<br>
+ * <br>
+ * But be aware that the scaling behavior is drained rapidly, if a single {@link Operation#execute(Object)} invocation is much
+ * faster, than the internal distribution algorithm. So the scaling will be much better for {@link Operation}s with an invocation
+ * duration of at least 1 millisecond or more.
  * 
  * @see #DEFAULT_INITIAL_BATTERY_CAPACITY
  * @author Omnaest
