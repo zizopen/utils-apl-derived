@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSession;
 import org.omnaest.utils.beans.adapter.PropertyAccessOption;
 import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
-import org.omnaest.utils.structure.element.converter.Adapter;
+import org.omnaest.utils.structure.element.converter.Converter;
 
 /**
  * A {@link HttpSessionFacadeFactory} creates proxy instances for given types which allows to access the {@link HttpSession}. To
@@ -33,7 +33,7 @@ import org.omnaest.utils.structure.element.converter.Adapter;
  * <br>
  * The {@link HttpSessionFacadeFactory} supports following {@link Annotation}s:<br>
  * <ul>
- * <li>{@link Adapter}</li>
+ * <li>{@link Converter}</li>
  * <li>{@link PropertyNameTemplate}</li>
  * </ul>
  * <br>
@@ -61,7 +61,7 @@ import org.omnaest.utils.structure.element.converter.Adapter;
  * 
  * @see HttpSession
  * @see HttpSessionResolver
- * @see Adapter
+ * @see Converter
  * @see PropertyNameTemplate
  * @author Omnaest
  */

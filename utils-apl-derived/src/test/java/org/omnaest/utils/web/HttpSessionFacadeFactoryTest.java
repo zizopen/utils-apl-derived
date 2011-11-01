@@ -31,7 +31,7 @@ import org.databene.contiperf.junit.ContiPerfRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
-import org.omnaest.utils.structure.element.converter.Adapter;
+import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.springframework.mock.web.MockHttpSession;
 
@@ -71,7 +71,7 @@ public class HttpSessionFacadeFactoryTest
     @PropertyNameTemplate("OTHERFIELD")
     public String getOtherField();
     
-    @Adapter(type = ElementConverterIdentity.class)
+    @Converter(type = ElementConverterIdentity.class)
     public void setOtherField( String value );
   }
   

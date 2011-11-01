@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.adapter;
 
+import java.lang.annotation.Annotation;
 import java.util.Map;
 
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
@@ -23,7 +24,7 @@ import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessorDecorator;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandlerDecorator;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandlerDecoratorToString;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandlerDecoratorUnderlyingMapAware;
-import org.omnaest.utils.structure.element.converter.Adapter;
+import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.structure.map.UnderlyingMapAware;
@@ -32,16 +33,45 @@ import org.omnaest.utils.structure.map.UnderlyingMapAware;
  * This class creates a proxy implementation for a given {@link Class} or interface type which is used as a facade to an
  * underlying Map&lt;String,?&gt;. <br>
  * <br>
- * It supports the {@link Adapter} annotation which allows to annotate getter and setter methods with {@link ElementConverter}
+ * It supports the {@link Converter} annotation which allows to annotate getter and setter methods with {@link ElementConverter}
  * classes which are used to convert return values or the first available parameter if present. Be aware that if there are getter
- * and setter methods for the same property normally two different {@link Adapter} annotations have to be set two support
- * conversion in two directions.
+ * and setter methods for the same property normally two different {@link Converter} annotations have to be set two support
+ * conversion in two directions. <br>
+ * <br>
+ * Also the {@link PropertyNameTemplate} {@link Annotation} is supported. This allows to specify alternative property names,
+ * including dynamic names which are based on additional parameters of the method itself. <br>
+ * <br>
+ * Example:<br>
+ * 
+ * <pre>
+ * {
+ *   Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();
+ *   ExampleType exampleType = PropertynameMapToTypeAdapter.newInstance( map, ExampleType.class );
+ * }
+ * </pre>
+ * 
+ * <pre>
+ * protected static interface ExampleType
+ * {
+ *   &#064;PropertyNameTemplate(&quot;fieldDoubleRenamed&quot;)
+ *   public Double getFieldDouble();
+ *   
+ *   public void setFieldDouble( Double fieldDouble );
+ *   
+ *   &#064;Converter(type = ElementConverterIntegerToString.class)
+ *   public String getFieldString();
+ *   
+ *   &#064;Converter(type = ElementConverterStringToInteger.class)
+ *   public void setFieldString( String fieldString );
+ *   
+ * }
+ * </pre>
  * 
  * @see Configuration
  * @see #newInstance(Map, Class)
  * @see TypeToPropertynameMapAdapter
  * @see SourcePropertyAccessorToTypeAdapter
- * @see Adapter
+ * @see Converter
  * @see PropertyNameTemplate
  * @see PropertyAccessOption
  * @param <T>
