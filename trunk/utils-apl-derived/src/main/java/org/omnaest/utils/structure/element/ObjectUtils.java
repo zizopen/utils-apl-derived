@@ -46,101 +46,109 @@ public class ObjectUtils
     if ( object != null )
     {
       //
-      Class<?> objectType = object.getClass();
-      
-      //
-      boolean isObjectTypeString = String.class.isAssignableFrom( objectType );
-      
-      //
-      if ( String.class.equals( type ) )
-      {
-        retval = (C) String.valueOf( object );
-      }
-      else if ( Integer.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Integer.valueOf( (String) object );
-      }
-      else if ( int.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Integer.valueOf( (String) object );
-      }
-      else if ( Long.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Long.valueOf( (String) object );
-      }
-      else if ( long.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Long.valueOf( (String) object );
-      }
-      else if ( Byte.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Byte.valueOf( (String) object );
-      }
-      else if ( byte.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Byte.valueOf( (String) object );
-      }
-      else if ( Short.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Short.valueOf( (String) object );
-      }
-      else if ( short.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Short.valueOf( (String) object );
-      }
-      else if ( Float.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Float.valueOf( (String) object );
-      }
-      else if ( float.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Float.valueOf( (String) object );
-      }
-      else if ( Double.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Double.valueOf( (String) object );
-      }
-      else if ( double.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Double.valueOf( (String) object );
-      }
-      else if ( BigDecimal.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) new BigDecimal( (String) object );
-      }
-      else if ( BigInteger.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) new BigInteger( (String) object );
-      }
-      else if ( Boolean.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Boolean.valueOf( (String) object );
-      }
-      else if ( boolean.class.equals( type ) && isObjectTypeString )
-      {
-        retval = (C) Boolean.valueOf( (String) object );
-      }
-      else
+      try
       {
         //
-        C createdInstance = ReflectionUtils.createInstanceOf( type, object );
-        if ( createdInstance != null )
+        Class<?> objectType = object.getClass();
+        
+        //
+        boolean isObjectTypeString = String.class.isAssignableFrom( objectType );
+        
+        //
+        if ( String.class.equals( type ) )
         {
-          retval = createdInstance;
+          retval = (C) String.valueOf( object );
+        }
+        else if ( Integer.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Integer.valueOf( (String) object );
+        }
+        else if ( int.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Integer.valueOf( (String) object );
+        }
+        else if ( Long.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Long.valueOf( (String) object );
+        }
+        else if ( long.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Long.valueOf( (String) object );
+        }
+        else if ( Byte.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Byte.valueOf( (String) object );
+        }
+        else if ( byte.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Byte.valueOf( (String) object );
+        }
+        else if ( Short.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Short.valueOf( (String) object );
+        }
+        else if ( short.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Short.valueOf( (String) object );
+        }
+        else if ( Float.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Float.valueOf( (String) object );
+        }
+        else if ( float.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Float.valueOf( (String) object );
+        }
+        else if ( Double.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Double.valueOf( (String) object );
+        }
+        else if ( double.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Double.valueOf( (String) object );
+        }
+        else if ( BigDecimal.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) new BigDecimal( (String) object );
+        }
+        else if ( BigInteger.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) new BigInteger( (String) object );
+        }
+        else if ( Boolean.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Boolean.valueOf( (String) object );
+        }
+        else if ( boolean.class.equals( type ) && isObjectTypeString )
+        {
+          retval = (C) Boolean.valueOf( (String) object );
         }
         else
         {
           //
-          createdInstance = ReflectionUtils.createInstanceUsingValueOfMethod( type, object );
+          C createdInstance = ReflectionUtils.createInstanceOf( type, object );
           if ( createdInstance != null )
           {
             retval = createdInstance;
           }
           else
           {
-            retval = (C) object;
+            //
+            createdInstance = ReflectionUtils.createInstanceUsingValueOfMethod( type, object );
+            if ( createdInstance != null )
+            {
+              retval = createdInstance;
+            }
+            else
+            {
+              retval = (C) object;
+            }
           }
         }
+        
+      }
+      catch ( Exception e )
+      {
       }
     }
     
