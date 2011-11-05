@@ -19,8 +19,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.databene.contiperf.PerfTest;
+import org.databene.contiperf.Required;
+import org.databene.contiperf.junit.ContiPerfRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
@@ -29,6 +34,10 @@ import org.junit.Test;
  */
 public class ClassMapToAutowiredContainerAdapterTest
 {
+  
+  @Rule
+  public ContiPerfRule                               contiPerfRule      = new ContiPerfRule();
+  
   /* ********************************************** Variables ********************************************** */
   private Map<Class<? extends TestClass>, TestClass> map                = new HashMap<Class<? extends TestClass>, TestClass>();
   private AutowiredContainer<TestClass>              autowiredContainer = ClassMapToAutowiredContainerAdapter.newInstance( this.map );
@@ -71,6 +80,25 @@ public class ClassMapToAutowiredContainerAdapterTest
       //
       this.autowiredContainer.put( new TestClass2() );
       assertEquals( 2, this.autowiredContainer.getValueSet( TestClass.class ).size() );
+    }
+  }
+  
+  @Test
+  @PerfTest(invocations = 200)
+  @Required(average = 10)
+  public void testPerformancePerThousandGetValueInvocations()
+  {
+    //    
+    Map<Class<? extends TestClass>, TestClass> classToObjectMap = new LinkedHashMap<Class<? extends TestClass>, TestClass>();
+    AutowiredContainer<TestClass> autowiredContainer = new ClassMapToAutowiredContainerAdapter<TestClass>( classToObjectMap );
+    
+    //
+    for ( int ii = 0; ii < 1000; ii++ )
+    {
+      //
+      TestClass2 testClass2 = new TestClass2();
+      autowiredContainer.put( testClass2 );
+      assertEquals( testClass2, autowiredContainer.getValue( TestClass.class ) );
     }
   }
   
