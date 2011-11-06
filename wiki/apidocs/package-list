@@ -1,4 +1,6 @@
 org.omnaest.utils.beans
+org.omnaest.utils.beans.adapter
+org.omnaest.utils.beans.adapter.source
 org.omnaest.utils.beans.autowired
 org.omnaest.utils.beans.mapconverter
 org.omnaest.utils.beans.mapconverter.internal
@@ -10,6 +12,8 @@ org.omnaest.utils.events.concrete
 org.omnaest.utils.events.event
 org.omnaest.utils.math
 org.omnaest.utils.operation
+org.omnaest.utils.operation.battery
+org.omnaest.utils.operation.decorator
 org.omnaest.utils.pattern
 org.omnaest.utils.propertyfile
 org.omnaest.utils.propertyfile.content
@@ -17,6 +21,7 @@ org.omnaest.utils.propertyfile.content.element
 org.omnaest.utils.propertyfile.content.index
 org.omnaest.utils.propertyfile.content.parser
 org.omnaest.utils.proxy
+org.omnaest.utils.proxy.handler
 org.omnaest.utils.reflection
 org.omnaest.utils.sorting
 org.omnaest.utils.spring
@@ -30,6 +35,7 @@ org.omnaest.utils.structure.collection.list
 org.omnaest.utils.structure.collection.set
 org.omnaest.utils.structure.container
 org.omnaest.utils.structure.element
+org.omnaest.utils.structure.element.converter
 org.omnaest.utils.structure.iterator
 org.omnaest.utils.structure.map
 org.omnaest.utils.structure.table
@@ -63,4 +69,5 @@ org.omnaest.utils.threads
 org.omnaest.utils.time
 org.omnaest.utils.tuple
 org.omnaest.utils.web
+org.omnaest.utils.webservice.rest
 org.omnaest.utils.xml
