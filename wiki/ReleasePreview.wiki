@@ -1,7 +1,4 @@
 #summary Gives a preview what is currently within the snapshot version and will come within the next release
-#labels property,type,adapter,proxy
+#labels preview
 
 = Release preview =
-
- * MonoHierarchy
- * updated to Apache commons-io version 2.1
