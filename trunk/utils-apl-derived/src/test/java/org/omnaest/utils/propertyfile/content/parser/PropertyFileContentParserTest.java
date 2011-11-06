@@ -69,16 +69,16 @@ public class PropertyFileContentParserTest
     {
       //
       element = propertyFileContent.getElementByIndexPosition( index++ );
-      assertTrue( element instanceof BlankLineElement );
-    }
-    {
-      //
-      element = propertyFileContent.getElementByIndexPosition( index++ );
       assertTrue( element instanceof Comment );
       
       //
       Comment comment = (Comment) element;
       assertEquals( "#", comment.getCommentIndicator() );
+    }
+    {
+      //
+      element = propertyFileContent.getElementByIndexPosition( index++ );
+      assertTrue( element instanceof BlankLineElement );
     }
     {
       //
