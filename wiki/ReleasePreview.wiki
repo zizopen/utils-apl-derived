@@ -2,3 +2,6 @@
 #labels property,type,adapter,proxy
 
 = Release preview =
+
+ * MonoHierarchy
+ * updated to Apache commons-io version 2.1
