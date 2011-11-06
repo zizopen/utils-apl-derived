@@ -16,13 +16,14 @@
 package org.omnaest.utils.propertyfile.content.parser;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.propertyfile.PropertyFile;
 import org.omnaest.utils.propertyfile.content.PropertyFileContent;
@@ -57,7 +58,7 @@ public class PropertyFileContentParser
       try
       {
         //
-        String fileContent = FileUtils.readFileToString( file, fileEncoding );
+        String fileContent = IOUtils.toString( new FileInputStream( file ), fileEncoding );
         propertyFileContent = parsePropertyFileContent( fileContent );
       }
       catch ( Exception e )
@@ -126,7 +127,7 @@ public class PropertyFileContentParser
         }
         
         //
-        Pattern patternComment = Pattern.compile( "([\\s]*)(\\!|\\#)(.*)" );
+        Pattern patternComment = Pattern.compile( "([^\\:\\=]{0,4}[\\s]*)(\\!|\\#)(.*)" );
         Pattern patternProperty = Pattern.compile( "([^\\w]*)([^\\s\\:\\=]+)(\\s*=\\s*|\\s*\\:\\s*|\\s+)(.*[^\\\\]|[^\\\\]?)(\\\\?)" );
         Pattern patternBlankLine = Pattern.compile( "([^\\w]*)" );
         Pattern patternPropertyOngoingLine = Pattern.compile( "(.*[^\\\\]|[^\\\\]?)(\\\\?)" );

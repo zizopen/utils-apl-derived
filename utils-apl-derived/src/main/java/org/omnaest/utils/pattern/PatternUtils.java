@@ -19,14 +19,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.omnaest.utils.operation.Operation;
 import org.omnaest.utils.strings.CharacterPathBuilder;
 import org.omnaest.utils.strings.CharacterPathBuilder.CharacterPath;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionTransformer;
 import org.omnaest.utils.structure.collection.ListUtils;
-
-import com.sun.org.apache.xalan.internal.xsltc.compiler.Pattern;
 
 /**
  * Static helper class related to {@link Pattern} concerns
