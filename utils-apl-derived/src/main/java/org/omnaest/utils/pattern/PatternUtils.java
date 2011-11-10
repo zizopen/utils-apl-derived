@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 import org.omnaest.utils.operation.Operation;
 import org.omnaest.utils.strings.CharacterPathBuilder;
 import org.omnaest.utils.strings.CharacterPathBuilder.CharacterPath;
-import org.omnaest.utils.structure.collection.CollectionUtils.CollectionTransformer;
+import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
 import org.omnaest.utils.structure.collection.ListUtils;
 
 /**
@@ -134,8 +134,8 @@ public class PatternUtils
           String previousStringNew = previousString + ( characterPrevious != null ? characterPrevious : "" );
           
           //          
-          String mergedFirstCharacters = ListUtils.transform( characterPathList,
-                                                              new CollectionTransformer<CharacterPath, String>()
+          String mergedFirstCharacters = ListUtils.convert( characterPathList,
+                                                              new CollectionConverter<CharacterPath, String>()
                                                               {
                                                                 @SuppressWarnings("hiding")
                                                                 private StringBuilder stringBuilder = new StringBuilder();

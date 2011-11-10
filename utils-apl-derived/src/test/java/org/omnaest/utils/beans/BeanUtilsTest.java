@@ -18,6 +18,7 @@ package org.omnaest.utils.beans;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.annotation.Annotation;
@@ -151,6 +152,115 @@ public class BeanUtilsTest
   protected static @interface TestAnnotation
   {
     public String value();
+  }
+  
+  protected static class TestSuperClass
+  {
+    private String          fieldString   = null;
+    private List<TestValue> listTestValue = null;
+    
+    public String getFieldString()
+    {
+      return this.fieldString;
+    }
+    
+    public void setFieldString( String fieldString )
+    {
+      this.fieldString = fieldString;
+    }
+    
+    public List<TestValue> getListTestValue()
+    {
+      return this.listTestValue;
+    }
+    
+    public void setListTestValue( List<TestValue> listTestValue )
+    {
+      this.listTestValue = listTestValue;
+    }
+    
+  }
+  
+  protected static class TestSubClass extends TestSuperClass
+  {
+    private Double fieldDouble = null;
+    
+    public Double getFieldDouble()
+    {
+      return this.fieldDouble;
+    }
+    
+    public void setFieldDouble( Double fieldDouble )
+    {
+      this.fieldDouble = fieldDouble;
+    }
+    
+  }
+  
+  protected static class TestValue
+  {
+    private String more = null;
+    
+    public TestValue()
+    {
+      super();
+    }
+    
+    public TestValue( String more )
+    {
+      super();
+      this.more = more;
+    }
+    
+    public String getMore()
+    {
+      return this.more;
+    }
+    
+    public void setMore( String more )
+    {
+      this.more = more;
+    }
+    
+    @Override
+    public int hashCode()
+    {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ( ( this.more == null ) ? 0 : this.more.hashCode() );
+      return result;
+    }
+    
+    @Override
+    public boolean equals( Object obj )
+    {
+      if ( this == obj )
+      {
+        return true;
+      }
+      if ( obj == null )
+      {
+        return false;
+      }
+      if ( !( obj instanceof TestValue ) )
+      {
+        return false;
+      }
+      TestValue other = (TestValue) obj;
+      if ( this.more == null )
+      {
+        if ( other.more != null )
+        {
+          return false;
+        }
+      }
+      else if ( !this.more.equals( other.more ) )
+      {
+        return false;
+      }
+      return true;
+    }
+    
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -491,5 +601,26 @@ public class BeanUtilsTest
     assertEquals( 2, propertyNameToBeanPropertyAnnotationMap.size() );
     assertEquals( null, propertyNameToBeanPropertyAnnotationMap.get( "fieldString" ) );
     assertEquals( "value", propertyNameToBeanPropertyAnnotationMap.get( "fieldDouble" ).value() );
+  }
+  
+  @Test
+  public void testCloneBeanUsingNestedfMap()
+  {
+    //
+    TestSubClass testBean = new TestSubClass();
+    testBean.setFieldString( "value1" );
+    testBean.setFieldDouble( 1.234 );
+    List<TestValue> listTestValue = new ArrayList<TestValue>( Arrays.asList( new TestValue( "a" ), new TestValue( "b" ) ) );
+    testBean.setListTestValue( listTestValue );
+    
+    //
+    TestSubClass clonedBean = BeanUtils.cloneBeanUsingNestedfMap( testBean );
+    
+    //
+    assertEquals( testBean.getFieldDouble(), clonedBean.getFieldDouble() );
+    assertEquals( testBean.getFieldString(), clonedBean.getFieldString() );
+    assertEquals( testBean.getListTestValue(), clonedBean.getListTestValue() );
+    assertNotSame( testBean.getListTestValue(), clonedBean.getListTestValue() );
+    assertNotSame( testBean.getListTestValue().get( 0 ), clonedBean.getListTestValue().get( 0 ) );
   }
 }

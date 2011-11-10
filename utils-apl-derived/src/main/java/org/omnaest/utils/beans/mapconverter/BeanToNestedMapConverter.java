@@ -34,12 +34,16 @@ import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
  */
 public class BeanToNestedMapConverter<B>
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final PropertyAccessType                         DEFAULT_PROPERTYACCESSTYPE     = PropertyAccessType.PROPERTY;
+  private static final BeanConversionFilterExcludingJavaBaseClass DEFAULT_BEAN_CONVERSION_FILTER = new BeanConversionFilterExcludingJavaBaseClass();
+  
   /* ********************************************** Variables ********************************************** */
-  private BeanToNestedMapMarshaller      beanToNestedMapMarshaller   = null;
-  private BeanToNestedMapUnMarshaller<B> beanToNestedMapUnMarshaller = null;
-  private BeanConversionFilter           beanConversionFilter        = null;
-  private Class<? extends B>             beanClass                   = null;
-  private PropertyAccessType             propertyAccessType          = PropertyAccessType.PROPERTY;
+  private final BeanToNestedMapMarshaller                         beanToNestedMapMarshaller;
+  private final BeanToNestedMapUnMarshaller<B>                    beanToNestedMapUnMarshaller;
+  private final BeanConversionFilter                              beanConversionFilter;
+  private final Class<? extends B>                                beanClass;
+  private final PropertyAccessType                                propertyAccessType;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -126,9 +130,22 @@ public class BeanToNestedMapConverter<B>
    */
   public BeanToNestedMapConverter( Class<? extends B> beanClass )
   {
+    this( BeanToNestedMapConverter.DEFAULT_BEAN_CONVERSION_FILTER, beanClass, BeanToNestedMapConverter.DEFAULT_PROPERTYACCESSTYPE );
+  }
+  
+  /**
+   * @see BeanToNestedMapConverter
+   * @param beanConversionFilter
+   * @param beanClass
+   * @param propertyAccessType
+   */
+  public BeanToNestedMapConverter( BeanConversionFilter beanConversionFilter, Class<? extends B> beanClass,
+                                   PropertyAccessType propertyAccessType )
+  {
     super();
+    this.beanConversionFilter = beanConversionFilter != null ? beanConversionFilter : DEFAULT_BEAN_CONVERSION_FILTER;
     this.beanClass = beanClass;
-    this.beanConversionFilter = new BeanConversionFilterExcludingJavaBaseClass();
+    this.propertyAccessType = propertyAccessType != null ? propertyAccessType : DEFAULT_PROPERTYACCESSTYPE;
     this.beanToNestedMapMarshaller = new BeanToNestedMapMarshaller( this.beanConversionFilter );
     this.beanToNestedMapUnMarshaller = new BeanToNestedMapUnMarshaller<B>( this.beanClass );
   }
@@ -153,19 +170,6 @@ public class BeanToNestedMapConverter<B>
   public B unmarshal( Map<String, Object> map )
   {
     return this.beanToNestedMapUnMarshaller.unmarshal( map, this.propertyAccessType );
-  }
-  
-  /**
-   * @param beanConversionFilter
-   */
-  public void setBeanConversionFilter( BeanConversionFilter beanConversionFilter )
-  {
-    this.beanConversionFilter = beanConversionFilter;
-  }
-  
-  public void setPropertyAccessType( PropertyAccessType propertyAccessType )
-  {
-    this.propertyAccessType = propertyAccessType;
   }
   
 }

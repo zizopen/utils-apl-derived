@@ -17,7 +17,7 @@ package org.omnaest.utils.structure.collection;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class SetUtils
@@ -40,11 +40,22 @@ public class SetUtils
    * 
    * @see #mergeAll(Collection...)
    * @param <E>
-   * @param collections
+   * @param collectionOfCollections
    * @return
    */
-  public static <E> Set<E> mergeAll( Collection<? extends Collection<E>> collections )
+  public static <E> Set<E> mergeAll( Collection<? extends Collection<E>> collectionOfCollections )
   {
-    return new HashSet<E>( ListUtils.mergeAll( collections ) );
+    return new LinkedHashSet<E>( ListUtils.mergeAll( collectionOfCollections ) );
+  }
+  
+  /**
+   * Returns the intersection of the {@link Collection}s of the given container {@link Collection}
+   * 
+   * @param collectionOfCollections
+   * @return
+   */
+  public static <E> Set<E> intersection( Collection<? extends Collection<E>> collectionOfCollections )
+  {
+    return new LinkedHashSet<E>( ListUtils.intersection( collectionOfCollections ) );
   }
 }

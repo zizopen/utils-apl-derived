@@ -32,7 +32,7 @@ public class CollectionUtils
    * @param <FROM>
    * @param <TO>
    */
-  public static interface CollectionTransformer<FROM, TO>
+  public static interface CollectionConverter<FROM, TO>
   {
     /**
      * Processes the given {@link Collection} element. This method will be called for each element of the original
@@ -51,12 +51,12 @@ public class CollectionUtils
   }
   
   /**
-   * {@link CollectionTransformer} which produces a {@link String} from a {@link Collection}
+   * {@link CollectionConverter} which produces a {@link String} from a {@link Collection}
    * 
    * @author Omnaest
    * @param <FROM>
    */
-  public static abstract class CollectionTransformerToString<FROM> implements CollectionTransformer<FROM, String>
+  public static abstract class CollectionTransformerToString<FROM> implements CollectionConverter<FROM, String>
   {
     /* ********************************************** Variables ********************************************** */
     private StringBuilder resultStringBuilder = new StringBuilder();
@@ -85,12 +85,6 @@ public class CollectionUtils
     }
     
   }
-  
-  
-  
-  
-  
-  
   
   /* ********************************************** Methods ********************************************** */
   
@@ -319,13 +313,13 @@ public class CollectionUtils
    * 
    * @see ElementConverter
    * @param collectionFrom
-   * @param elementTransformer
+   * @param elementConverter
    * @return
    */
-  public static <TO, FROM> Collection<TO> transformCollection( Collection<FROM> collectionFrom,
-                                                               ElementConverter<FROM, TO> elementTransformer )
+  public static <TO, FROM> Collection<TO> convertCollection( Collection<FROM> collectionFrom,
+                                                             ElementConverter<FROM, TO> elementConverter )
   {
-    return ListUtils.transform( collectionFrom, elementTransformer );
+    return ListUtils.convert( collectionFrom, elementConverter );
   }
   
   /**
@@ -334,13 +328,13 @@ public class CollectionUtils
    * 
    * @see ElementConverter
    * @param collectionFrom
-   * @param elementTransformer
+   * @param elementConverter
    * @return
    */
-  public static <TO, FROM> Collection<TO> transformCollectionExcludingNullElements( Collection<FROM> collectionFrom,
-                                                                                    ElementConverter<FROM, TO> elementTransformer )
+  public static <TO, FROM> Collection<TO> convertCollectionExcludingNullElements( Collection<FROM> collectionFrom,
+                                                                                  ElementConverter<FROM, TO> elementConverter )
   {
-    return ListUtils.transformListExcludingNullElements( collectionFrom, elementTransformer );
+    return ListUtils.convertListExcludingNullElements( collectionFrom, elementConverter );
   }
   
   /**

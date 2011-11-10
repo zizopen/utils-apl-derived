@@ -17,6 +17,10 @@ package org.omnaest.utils.reflection;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.junit.Test;
 
 /**
@@ -47,6 +51,26 @@ public class ReflectionUtilsTest
     
   }
   
+  private static interface TestSuperInterface
+  {
+  }
+  
+  private static interface TestSubSuperInterface extends TestSuperInterface
+  {
+  }
+  
+  private static class TestSupertype implements TestSubSuperInterface
+  {
+  }
+  
+  private static class TestSubType extends TestSupertype
+  {
+  }
+  
+  private static class TestSubSubType extends TestSubType
+  {
+  }
+  
   /* ********************************************** Methods ********************************************** */
   @Test
   public void testCreateInstanceOf()
@@ -61,4 +85,109 @@ public class ReflectionUtilsTest
     assertEquals( Integer.valueOf( 1 ), ReflectionUtils.createInstanceUsingValueOfMethod( Integer.class, "1" ) );
   }
   
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testSupertypeSet()
+  {
+    Set<Class<?>> supertypeSet = ReflectionUtils.supertypeSet( TestSubSubType.class );
+    assertEquals( 3, supertypeSet.size() );
+    assertEquals( new LinkedHashSet<Class<?>>( Arrays.asList( TestSubType.class, TestSupertype.class, Object.class ) ),
+                  supertypeSet );
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testInterfaceSet()
+  {
+    //
+    {
+      //
+      boolean inherited = true;
+      Class<?> type = TestSubSubType.class;
+      Set<Class<?>> interfaceSet = ReflectionUtils.interfaceSet( type, inherited );
+      assertEquals( 2, interfaceSet.size() );
+      assertEquals( new LinkedHashSet<Class<?>>( Arrays.asList( TestSuperInterface.class, TestSubSuperInterface.class ) ),
+                    interfaceSet );
+    }
+    
+    //
+    {
+      //
+      boolean inherited = false;
+      Class<?> type = TestSupertype.class;
+      Set<Class<?>> interfaceSet = ReflectionUtils.interfaceSet( type, inherited );
+      assertEquals( 1, interfaceSet.size() );
+      assertEquals( new LinkedHashSet<Class<?>>( Arrays.asList( TestSubSuperInterface.class ) ), interfaceSet );
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testAssignableTypeSet()
+  {
+    //
+    {
+      //
+      boolean inherited = true;
+      Class<?> type = TestSubSubType.class;
+      Set<Class<?>> interfaceSet = ReflectionUtils.assignableTypeSet( type, inherited );
+      assertEquals( 6, interfaceSet.size() );
+      assertEquals( new LinkedHashSet<Class<?>>( Arrays.asList( TestSuperInterface.class, TestSubSuperInterface.class,
+                                                                TestSubSubType.class, TestSubType.class, TestSupertype.class,
+                                                                Object.class ) ), interfaceSet );
+    }
+    
+    //
+    {
+      //
+      boolean inherited = false;
+      Class<?> type = TestSupertype.class;
+      Set<Class<?>> interfaceSet = ReflectionUtils.assignableTypeSet( type, inherited );
+      assertEquals( 2, interfaceSet.size() );
+      assertEquals( new LinkedHashSet<Class<?>>( Arrays.asList( TestSupertype.class, TestSubSuperInterface.class ) ),
+                    interfaceSet );
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testAssignableTypeSetForTypes()
+  {
+    //
+    {
+      //
+      boolean inherited = true;
+      Class<?>[] types = new Class<?>[] { TestSubSubType.class, TestSuperInterface.class };
+      boolean onlyReturnInterfaces = false;
+      boolean intersection = true;
+      Set<Class<?>> interfaceSet = ReflectionUtils.assignableTypeSet( inherited, onlyReturnInterfaces, intersection, types );
+      assertEquals( 1, interfaceSet.size() );
+      assertEquals( new LinkedHashSet<Class<?>>( Arrays.asList( TestSuperInterface.class ) ), interfaceSet );
+    }
+    {
+      //
+      boolean inherited = true;
+      Class<?>[] types = new Class<?>[] { TestSubSubType.class, TestSubSuperInterface.class };
+      boolean onlyReturnInterfaces = false;
+      boolean intersection = true;
+      Set<Class<?>> interfaceSet = ReflectionUtils.assignableTypeSet( inherited, onlyReturnInterfaces, intersection, types );
+      assertEquals( 2, interfaceSet.size() );
+      assertEquals( new LinkedHashSet<Class<?>>( Arrays.asList( TestSuperInterface.class, TestSubSuperInterface.class ) ),
+                    interfaceSet );
+    }
+    
+    //
+    {
+      //
+      boolean inherited = true;
+      Class<?>[] types = new Class<?>[] { TestSubSubType.class, TestSuperInterface.class };
+      boolean onlyReturnInterfaces = false;
+      boolean intersection = false;
+      Set<Class<?>> interfaceSet = ReflectionUtils.assignableTypeSet( inherited, onlyReturnInterfaces, intersection, types );
+      assertEquals( 6, interfaceSet.size() );
+      assertEquals( new LinkedHashSet<Class<?>>( Arrays.asList( TestSuperInterface.class, TestSubSuperInterface.class,
+                                                                TestSubSubType.class, TestSubType.class, TestSupertype.class,
+                                                                Object.class ) ), interfaceSet );
+    }
+  }
 }

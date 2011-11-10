@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter.BeanConversionFilter;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
 import org.omnaest.utils.structure.element.FutureSimple;
 
@@ -60,23 +62,32 @@ public class BeanToNestedMapConverterTest
   public BeanToNestedMapConverterTest( PropertyAccessType propertyAccessType )
   {
     super();
-    this.beanToNestedMapConverter.setPropertyAccessType( propertyAccessType );
+    BeanConversionFilter beanConversionFilter = null;
+    this.beanToNestedMapConverter = new BeanToNestedMapConverter<BeanToNestedMapConverterTest.TestClass>( beanConversionFilter,
+                                                                                                          TestClass.class,
+                                                                                                          propertyAccessType );
     
   }
   
   /* ********************************************** Variables ********************************************** */
-  private BeanToNestedMapConverter<TestClass> beanToNestedMapConverter = new BeanToNestedMapConverter<TestClass>( TestClass.class );
-  private TestClass                           testClass                = new TestClass(
-                                                                                        "value1",
-                                                                                        1.234,
-                                                                                        new TestClass(
-                                                                                                       "subvalue",
-                                                                                                       5.678,
-                                                                                                       null,
-                                                                                                       BeanToNestedMapConverterTest.createStringToDoubleMap(),
-                                                                                                       new FutureSimple<String>() ),
-                                                                                        BeanToNestedMapConverterTest.createStringToDoubleMap(),
-                                                                                        new FutureSimple<String>() );
+  private final BeanToNestedMapConverter<TestClass> beanToNestedMapConverter;
+  private TestClass                                 testClass = new TestClass(
+                                                                               "value1",
+                                                                               1.234,
+                                                                               new TestClass(
+                                                                                              "subvalue",
+                                                                                              5.678,
+                                                                                              null,
+                                                                                              BeanToNestedMapConverterTest.createStringToDoubleMap(),
+                                                                                              new FutureSimple<String>(),
+                                                                                              new ArrayList<String>(
+                                                                                                                     Arrays.asList( "d",
+                                                                                                                                    "e",
+                                                                                                                                    "f" ) ) ),
+                                                                               BeanToNestedMapConverterTest.createStringToDoubleMap(),
+                                                                               new FutureSimple<String>(),
+                                                                               new ArrayList<String>( Arrays.asList( "a", "b",
+                                                                                                                     "c" ) ) );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -94,6 +105,7 @@ public class BeanToNestedMapConverterTest
     private Map<String, Double> stringToDoubleMap = null;
     private Future<String>      future            = null;
     private String              privateField      = "privateValue" + Math.random();
+    private List<String>        listString        = null;
     
     /* ********************************************** Methods ********************************************** */
     
@@ -103,7 +115,7 @@ public class BeanToNestedMapConverterTest
     }
     
     public TestClass( String valueString, Double valueDouble, TestClass testClass, Map<String, Double> stringToDoubleMap,
-                      Future<String> future )
+                      Future<String> future, List<String> listString )
     {
       //
       super();
@@ -115,6 +127,7 @@ public class BeanToNestedMapConverterTest
       this.testClassCopy = testClass;
       this.stringToDoubleMap = stringToDoubleMap;
       this.future = future;
+      this.listString = listString;
     }
     
     public String getValueString()
@@ -251,6 +264,11 @@ public class BeanToNestedMapConverterTest
     {
       this.future = future;
     }
+    
+    public List<String> getListString()
+    {
+      return this.listString;
+    }
   }
   
   @Test
@@ -266,6 +284,7 @@ public class BeanToNestedMapConverterTest
     assertTrue( map.get( "testClass" ) instanceof Map );
     assertTrue( map.get( "testClassCopy" ) instanceof Map );
     assertTrue( map.get( "testClass" ) == map.get( "testClassCopy" ) );
+    assertEquals( this.testClass.getListString(), map.get( "listString" ) );
     
     //
     @SuppressWarnings("unchecked")

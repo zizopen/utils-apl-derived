@@ -19,10 +19,10 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverter
  * @author Omnaest
  */
-public class ElementConverterIntegerToString implements ElementConverter<Integer, String>
+public class ElementConverterBooleanToString implements ElementConverter<Boolean, String>
 {
   @Override
-  public String convert( Integer element )
+  public String convert( Boolean element )
   {
     return element != null ? String.valueOf( element ) : null;
   }

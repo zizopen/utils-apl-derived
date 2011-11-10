@@ -21,6 +21,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,6 +31,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.collection.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterObjectClass;
 import org.omnaest.utils.structure.map.MapUtils;
@@ -209,7 +212,7 @@ public class ReflectionUtils
     if ( type != null )
     {
       //
-      Class<?>[] parameterTypes = ListUtils.transform( Arrays.asList( args ), new ElementConverterObjectClass() )
+      Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( args ), new ElementConverterObjectClass() )
                                            .toArray( new Class<?>[args.length] );
       
       //
@@ -261,7 +264,7 @@ public class ReflectionUtils
     if ( type != null )
     {
       //
-      Class<?>[] parameterTypes = ListUtils.transform( Arrays.asList( args ), new ElementConverterObjectClass() )
+      Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( args ), new ElementConverterObjectClass() )
                                            .toArray( new Class<?>[args.length] );
       
       //
@@ -659,6 +662,188 @@ public class ReflectionUtils
     
     //
     return retlist;
+  }
+  
+  /**
+   * Returns as {@link Set} of interfaces which are implemented by the given type. This includes inherited interfaces if the
+   * respective parameter is set to true. If the given type is an interface it is included in the result.
+   * 
+   * @param type
+   * @return
+   */
+  public static Set<Class<?>> interfaceSet( Class<?> type, boolean inherited )
+  {
+    boolean interfaceOnly = true;
+    return assignableTypeSet( type, inherited, interfaceOnly );
+  }
+  
+  /**
+   * Returns as {@link Set} of assignable types which are implemented by the given type. This includes inherited types if the
+   * respective parameter is set to true. The given type itself is included in the returned {@link Set}.
+   * 
+   * @param type
+   * @param inherited
+   * @return
+   */
+  public static Set<Class<?>> assignableTypeSet( Class<?> type, boolean inherited )
+  {
+    boolean interfaceOnly = false;
+    return assignableTypeSet( type, inherited, interfaceOnly );
+  }
+  
+  /**
+   * Returns as {@link Set} of assignable types which are implemented by the given type. This includes inherited types if the
+   * respective parameter is set to true. The given type is returned within the result {@link Set} if it is compliant to the
+   * onlyReturnInterfaces flag.
+   * 
+   * @param type
+   * @param inherited
+   * @param onlyReturnInterfaces
+   * @return
+   */
+  public static Set<Class<?>> assignableTypeSet( Class<?> type, boolean inherited, boolean onlyReturnInterfaces )
+  {
+    //    
+    final Set<Class<?>> retset = new LinkedHashSet<Class<?>>();
+    
+    //
+    if ( type != null )
+    {
+      //
+      final Set<Class<?>> remainingTypeSet = new LinkedHashSet<Class<?>>();
+      
+      //
+      class Helper
+      {
+        public void addNewInterfaceTypes( Class<?> type )
+        {
+          Class<?>[] interfaces = type.getInterfaces();
+          if ( interfaces != null )
+          {
+            for ( Class<?> interfaceType : interfaces )
+            {
+              if ( !retset.contains( interfaceType ) )
+              {
+                remainingTypeSet.add( interfaceType );
+              }
+            }
+          }
+        }
+      }
+      
+      Helper helper = new Helper();
+      helper.addNewInterfaceTypes( type );
+      
+      //
+      if ( !onlyReturnInterfaces || type.isInterface() )
+      {
+        retset.add( type );
+      }
+      
+      //
+      if ( inherited )
+      {
+        remainingTypeSet.addAll( supertypeSet( type ) );
+      }
+      
+      //
+      while ( !remainingTypeSet.isEmpty() )
+      {
+        //
+        Iterator<Class<?>> iterator = remainingTypeSet.iterator();
+        Class<?> remainingType = iterator.next();
+        iterator.remove();
+        
+        //
+        if ( !onlyReturnInterfaces || remainingType.isInterface() )
+        {
+          retset.add( remainingType );
+        }
+        
+        //
+        if ( inherited )
+        {
+          //
+          helper.addNewInterfaceTypes( remainingType );
+        }
+        
+      }
+    }
+    
+    //
+    return retset;
+  }
+  
+  /**
+   * Returns a {@link Set} of all supertypes the given type extends. The given type is not within the result {@link Set}.
+   * 
+   * @param type
+   * @return
+   */
+  public static Set<Class<?>> supertypeSet( Class<?> type )
+  {
+    //    
+    Set<Class<?>> retset = new LinkedHashSet<Class<?>>();
+    
+    //
+    if ( type != null )
+    {
+      Class<?> supertype = type.getSuperclass();
+      while ( supertype != null )
+      {
+        retset.add( supertype );
+        supertype = supertype.getSuperclass();
+      }
+    }
+    
+    //
+    return retset;
+  }
+  
+  /**
+   * Returns as {@link Set} of assignable types which are implemented by the given type. This includes inherited types if the
+   * respective parameter is set to true. The given types are included within the result {@link Set} if they are compliant to the
+   * onlyReturnInterfaces flag.
+   * 
+   * @param inherited
+   * @param intersection
+   *          : false -> types are merged, true -> intersection of type sets for each type
+   * @param onlyReturnInterfaces
+   * @param types
+   * @return
+   */
+  public static Set<Class<?>> assignableTypeSet( boolean inherited,
+                                                 boolean onlyReturnInterfaces,
+                                                 boolean intersection,
+                                                 Class<?>... types )
+  {
+    //    
+    Set<Class<?>> retset = new HashSet<Class<?>>();
+    
+    //
+    if ( types.length > 0 )
+    {
+      //
+      Set<Set<Class<?>>> assignableTypeSetSet = new LinkedHashSet<Set<Class<?>>>();
+      for ( Class<?> type : types )
+      {
+        Set<Class<?>> assignableTypeSet = assignableTypeSet( type, inherited, onlyReturnInterfaces );
+        assignableTypeSetSet.add( assignableTypeSet );
+      }
+      
+      //
+      if ( !intersection )
+      {
+        retset = SetUtils.mergeAll( assignableTypeSetSet );
+      }
+      else
+      {
+        retset = SetUtils.intersection( assignableTypeSetSet );
+      }
+    }
+    
+    //
+    return retset;
   }
   
 }

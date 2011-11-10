@@ -147,7 +147,7 @@ public class ColumnHaveDistinctRows<E> implements PredicateFilter<E>
           return ( (StripeInternal<E>) stripe ).getStripeData();
         }
       };
-      List<StripeData<E>> distinctStripeDataList = ListUtils.transform( distinctStripeDataWrapperSet, elementTransformer );
+      List<StripeData<E>> distinctStripeDataList = ListUtils.convert( distinctStripeDataWrapperSet, elementTransformer );
       
       //
       tableBlock.getRowStripeDataSet().retainAll( distinctStripeDataList );

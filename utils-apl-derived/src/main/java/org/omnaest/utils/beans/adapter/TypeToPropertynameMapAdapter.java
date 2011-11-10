@@ -212,6 +212,6 @@ public class TypeToPropertynameMapAdapter<B> extends MapAbstract<String, Object>
                                                : null;
       }
     };
-    return ListUtils.transform( this.propertynameToBeanPropertyAccessorMap.values(), elementTransformer );
+    return ListUtils.convert( this.propertynameToBeanPropertyAccessorMap.values(), elementTransformer );
   }
 }
