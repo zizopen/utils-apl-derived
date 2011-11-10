@@ -20,21 +20,21 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToInteger implements ElementConverter<String, Integer>
+public class ElementConverterStringToDouble implements ElementConverter<String, Double>
 {
   
   @Override
-  public Integer convert( String element )
+  public Double convert( String element )
   {
     //    
-    Integer retval = null;
+    Double retval = null;
     
     //
     if ( element != null )
     {
       try
       {
-        retval = Integer.valueOf( element );
+        retval = Double.valueOf( element );
       }
       catch ( Exception e )
       {

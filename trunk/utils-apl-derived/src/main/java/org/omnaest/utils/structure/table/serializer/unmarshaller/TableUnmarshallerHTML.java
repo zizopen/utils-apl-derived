@@ -139,7 +139,7 @@ public class TableUnmarshallerHTML implements TableUnmarshaller<String>
             
             //              
             List<Cell> cellList = row.getCellList();
-            List<List<String>> collectionOfValueList = ListUtils.transform( cellList, new ElementConverter<Cell, List<String>>()
+            List<List<String>> collectionOfValueList = ListUtils.convert( cellList, new ElementConverter<Cell, List<String>>()
             {
               @Override
               public List<String> convert( Cell cell )

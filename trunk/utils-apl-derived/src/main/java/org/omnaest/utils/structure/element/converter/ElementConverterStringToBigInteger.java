@@ -15,26 +15,28 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.converter;
 
+import java.math.BigInteger;
+
 /**
  * @see ElementConverter
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToInteger implements ElementConverter<String, Integer>
+public class ElementConverterStringToBigInteger implements ElementConverter<String, BigInteger>
 {
   
   @Override
-  public Integer convert( String element )
+  public BigInteger convert( String element )
   {
     //    
-    Integer retval = null;
+    BigInteger retval = null;
     
     //
     if ( element != null )
     {
       try
       {
-        retval = Integer.valueOf( element );
+        retval = new BigInteger( element );
       }
       catch ( Exception e )
       {

@@ -231,7 +231,7 @@ public class SelectionExecutor<E>
           return stripeFactory.newInstanceOfStripeInternal( stripeData );
         }
       };
-      List<StripeInternal<E>> rowStripeInternalListToBeSorted = ListUtils.transform( rowStripeDataSet, elementTransformer );
+      List<StripeInternal<E>> rowStripeInternalListToBeSorted = ListUtils.convert( rowStripeDataSet, elementTransformer );
       Comparator<StripeInternal<E>> comparator = new Comparator<StripeInternal<E>>()
       {
         @SuppressWarnings("unchecked")
@@ -271,7 +271,7 @@ public class SelectionExecutor<E>
       Collections.sort( rowStripeInternalListToBeSorted, comparator );
       
       //
-      List<StripeData<E>> rowStripeDataListSorted = ListUtils.transform( rowStripeInternalListToBeSorted,
+      List<StripeData<E>> rowStripeDataListSorted = ListUtils.convert( rowStripeInternalListToBeSorted,
                                                                          new ElementConverter<StripeInternal<E>, StripeData<E>>()
                                                                          {
                                                                            @Override
@@ -619,7 +619,7 @@ public class SelectionExecutor<E>
           return table.getTableName();
         }
       };
-      List<Object> tableNameList = ListUtils.transform( tableReferencedByColumnsList, elementTransformer );
+      List<Object> tableNameList = ListUtils.convert( tableReferencedByColumnsList, elementTransformer );
       
       //
       tableInternal.getUnderlyingTable().setTableName( tableNameList );
@@ -694,7 +694,7 @@ public class SelectionExecutor<E>
         return TableInternalHelper.extractTableInternalFromTable( table );
       }
     };
-    Collection<TableInternal<E>> tableInternalCollection = CollectionUtils.transformCollectionExcludingNullElements( tableSet,
+    Collection<TableInternal<E>> tableInternalCollection = CollectionUtils.convertCollectionExcludingNullElements( tableSet,
                                                                                                                      elementConverter );
     for ( TableInternal<E> tableInternal : tableInternalCollection )
     {

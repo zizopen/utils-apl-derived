@@ -216,13 +216,13 @@ public class MapToMapAdapter<KEY_FROM, VALUE_FROM, KEY_TO, VALUE_TO> extends Map
   @Override
   public Set<KEY_TO> keySet()
   {
-    return new LinkedHashSet<KEY_TO>( ListUtils.transform( this.sourceMap.keySet(), this.elementConverterKeySourceToAdapter ) );
+    return new LinkedHashSet<KEY_TO>( ListUtils.convert( this.sourceMap.keySet(), this.elementConverterKeySourceToAdapter ) );
   }
   
   @Override
   public Collection<VALUE_TO> values()
   {
-    return ListUtils.transform( this.sourceMap.values(), this.elementConverterValueSourceToAdapter );
+    return ListUtils.convert( this.sourceMap.values(), this.elementConverterValueSourceToAdapter );
   }
   
 }

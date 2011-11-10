@@ -15,26 +15,28 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.converter;
 
+import java.math.BigDecimal;
+
 /**
  * @see ElementConverter
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToInteger implements ElementConverter<String, Integer>
+public class ElementConverterStringToBigDecimal implements ElementConverter<String, BigDecimal>
 {
   
   @Override
-  public Integer convert( String element )
+  public BigDecimal convert( String element )
   {
     //    
-    Integer retval = null;
+    BigDecimal retval = null;
     
     //
     if ( element != null )
     {
       try
       {
-        retval = Integer.valueOf( element );
+        retval = new BigDecimal( element );
       }
       catch ( Exception e )
       {

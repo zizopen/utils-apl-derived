@@ -15,8 +15,10 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.mapconverter.internal;
 
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter;
@@ -69,10 +71,31 @@ public class BeanToNestedMapUnMarshaller<B>
     Object retval = null;
     
     //
-    if ( propertyAccessType == null )
+    final PropertyAccessType propertyAccessTypeFinal = propertyAccessType != null ? propertyAccessType
+                                                                                 : PropertyAccessType.PROPERTY;
+    
+    //
+    final class Helper
     {
-      propertyAccessType = PropertyAccessType.PROPERTY;
+      public Object convertValueIfNecessary( Object value, Class<?> propertyType )
+      {
+        //
+        Object retval = value;
+        
+        //
+        if ( value instanceof Map && propertyType != null && !Map.class.isAssignableFrom( propertyType ) )
+        {
+          //
+          Map<String, Object> subMap = (Map<String, Object>) value;
+          retval = unmarshalToObject( subMap, propertyAccessTypeFinal );
+          BeanToNestedMapUnMarshaller.this.mapToObjectMap.put( subMap, retval );
+        }
+        
+        //
+        return retval;
+      }
     }
+    Helper helper = new Helper();
     
     //
     if ( map != null )
@@ -100,34 +123,47 @@ public class BeanToNestedMapUnMarshaller<B>
         //
         if ( beanNew != null )
         {
-          Map<String, BeanPropertyAccessor<Object>> propertyNameToBeanPropertyAccessorMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( objectClass );
-          for ( String propertyName : propertyNameToBeanPropertyAccessorMap.keySet() )
+          if ( beanNew instanceof Collection )
           {
             //
-            BeanPropertyAccessor<Object> beanPropertyAccessor = propertyNameToBeanPropertyAccessorMap.get( propertyName );
-            beanPropertyAccessor.setPropertyAccessType( propertyAccessType );
-            if ( beanPropertyAccessor.isWritable() )
+            Collection<Object> collection = (Collection<Object>) beanNew;
+            
+            //
+            for ( String counterString : new TreeSet<String>( map.keySet() ) )
             {
               //
-              Object value = map.get( propertyName );
-              if ( value == null )
-              {
-                beanPropertyAccessor.setPropertyValue( beanNew, value );
-              }
-              else
+              if ( !BeanToNestedMapMarshaller.CLASS_IDENTIFIER.equals( counterString ) )
               {
                 //
-                Class<?> propertyType = beanPropertyAccessor.getDeclaringPropertyType();
-                if ( value instanceof Map && propertyType != null && !Map.class.isAssignableFrom( propertyType ) )
+                Object object = map.get( counterString );
+                Class<?> propertyType = Collection.class;
+                object = helper.convertValueIfNecessary( object, propertyType );
+                collection.add( object );
+              }
+            }
+          }
+          else
+          {
+            //
+            Map<String, BeanPropertyAccessor<Object>> propertyNameToBeanPropertyAccessorMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( objectClass );
+            for ( String propertyName : propertyNameToBeanPropertyAccessorMap.keySet() )
+            {
+              //
+              BeanPropertyAccessor<Object> beanPropertyAccessor = propertyNameToBeanPropertyAccessorMap.get( propertyName );
+              beanPropertyAccessor.setPropertyAccessType( propertyAccessType );
+              if ( beanPropertyAccessor.isWritable() )
+              {
+                //
+                Object value = map.get( propertyName );
+                if ( value == null )
                 {
-                  //
-                  Map<String, Object> subMap = (Map<String, Object>) value;
-                  Object valueUnmarshalled = this.unmarshalToObject( subMap, propertyAccessType );
-                  this.mapToObjectMap.put( subMap, valueUnmarshalled );
-                  beanPropertyAccessor.setPropertyValue( beanNew, valueUnmarshalled );
+                  beanPropertyAccessor.setPropertyValue( beanNew, value );
                 }
                 else
                 {
+                  //
+                  Class<?> propertyType = beanPropertyAccessor.getDeclaringPropertyType();
+                  value = helper.convertValueIfNecessary( value, propertyType );
                   beanPropertyAccessor.setPropertyValue( beanNew, value );
                 }
               }

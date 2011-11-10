@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.mapconverter.internal;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -68,13 +69,35 @@ public class BeanToNestedMapMarshaller
   public Map<String, Object> marshal( Object bean, PropertyAccessType propertyAccessType )
   {
     //
-    Map<String, Object> retmap = new HashMap<String, Object>();
+    final Map<String, Object> retmap = new HashMap<String, Object>();
     
     //
-    if ( propertyAccessType == null )
+    final PropertyAccessType propertyAccessTypeFinal = propertyAccessType != null ? propertyAccessType
+                                                                                 : PropertyAccessType.PROPERTY;
+    
+    //
+    final class Helper
     {
-      propertyAccessType = PropertyAccessType.PROPERTY;
+      public void convertIfNecessary( Class<?> declaringPropertyType, Object object, String propertyName )
+      {
+        boolean hasToConvertBean = hasToConvertBean( declaringPropertyType, object );
+        if ( hasToConvertBean )
+        {
+          //
+          Map<String, Object> map = marshal( object, propertyAccessTypeFinal );
+          BeanToNestedMapMarshaller.this.objectToMapMap.put( object, map );
+          
+          //
+          retmap.put( propertyName, map );
+        }
+        else
+        {
+          //
+          retmap.put( propertyName, object );
+        }
+      }
     }
+    Helper helper = new Helper();
     
     //
     if ( bean != null )
@@ -82,7 +105,23 @@ public class BeanToNestedMapMarshaller
       //
       if ( this.objectToMapMap.containsKey( bean ) )
       {
-        retmap = this.objectToMapMap.get( bean );
+        return this.objectToMapMap.get( bean );
+      }
+      else if ( bean instanceof Collection )
+      {
+        int counter = 0;
+        for ( Object object : (Collection<?>) bean )
+        {
+          //
+          Class<?> declaringPropertyType = object != null ? object.getClass() : null;
+          String propertyName = "" + counter++;
+          
+          //
+          helper.convertIfNecessary( declaringPropertyType, object, propertyName );
+        }
+        
+        //
+        retmap.put( CLASS_IDENTIFIER, bean.getClass().getName() );
       }
       else
       {
@@ -101,21 +140,7 @@ public class BeanToNestedMapMarshaller
             Class<?> declaringPropertyType = beanPropertyAccessor.getDeclaringPropertyType();
             
             //
-            boolean hasToConvertBean = this.hasToConvertBean( declaringPropertyType, object );
-            if ( hasToConvertBean )
-            {
-              //
-              Map<String, Object> map = this.marshal( object, propertyAccessType );
-              this.objectToMapMap.put( object, map );
-              
-              //
-              retmap.put( propertyName, map );
-            }
-            else
-            {
-              //
-              retmap.put( propertyName, object );
-            }
+            helper.convertIfNecessary( declaringPropertyType, object, propertyName );
           }
         }
         

@@ -17,32 +17,13 @@ package org.omnaest.utils.structure.element.converter;
 
 /**
  * @see ElementConverter
- * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToInteger implements ElementConverter<String, Integer>
+public class ElementConverterObjectToString implements ElementConverter<Object, String>
 {
-  
   @Override
-  public Integer convert( String element )
+  public String convert( Object element )
   {
-    //    
-    Integer retval = null;
-    
-    //
-    if ( element != null )
-    {
-      try
-      {
-        retval = Integer.valueOf( element );
-      }
-      catch ( Exception e )
-      {
-      }
-    }
-    
-    //
-    return retval;
+    return element != null ? String.valueOf( element ) : null;
   }
-  
 }

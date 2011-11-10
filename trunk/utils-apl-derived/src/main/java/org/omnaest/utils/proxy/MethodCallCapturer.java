@@ -716,7 +716,7 @@ public class MethodCallCapturer
         return methodCallCaptureContext.determineCanonicalPropertyName( stub );
       }
     };
-    canonicalPropertyNameList = ListUtils.transform( this.getOrCreateMethodCallCaptureContextListForStub( stub ),
+    canonicalPropertyNameList = ListUtils.convert( this.getOrCreateMethodCallCaptureContextListForStub( stub ),
                                                      elementTransformer );
     
     //
@@ -745,7 +745,7 @@ public class MethodCallCapturer
         return methodCallCaptureContext.determineCanonicalMethodName( stub );
       }
     };
-    canonicalMethodNameList = ListUtils.transform( this.getOrCreateMethodCallCaptureContextListForStub( stub ),
+    canonicalMethodNameList = ListUtils.convert( this.getOrCreateMethodCallCaptureContextListForStub( stub ),
                                                    elementTransformer );
     
     //

@@ -24,7 +24,7 @@ import org.omnaest.utils.structure.collection.ListUtils;
  * other type. The resulting list will be merged to a ordered list by a transformation process, so the order will be kept.
  * 
  * @see ElementConverter
- * @see ListUtils#transform(Collection, MultiElementConverter, boolean)
+ * @see ListUtils#convert(Collection, MultiElementConverter, boolean)
  */
 public interface MultiElementConverter<FROM, TO>
 {

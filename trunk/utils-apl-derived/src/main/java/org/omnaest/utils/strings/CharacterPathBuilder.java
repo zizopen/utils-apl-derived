@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.omnaest.utils.structure.collection.CollectionUtils.CollectionTransformer;
+import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionTransformerToString;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.element.ElementHolder;
@@ -66,7 +66,7 @@ public class CharacterPathBuilder
     public String determineFirstCharactersOfChildrenAsString()
     {
       //
-      CollectionTransformer<Character, String> collectionTransformer = new CollectionTransformerToString<Character>()
+      CollectionConverter<Character, String> collectionTransformer = new CollectionTransformerToString<Character>()
       {
         @Override
         public void process( Character character, StringBuilder resultStringBuilder )
@@ -74,7 +74,7 @@ public class CharacterPathBuilder
           resultStringBuilder.append( character != null ? character : "" );
         }
       };
-      return ListUtils.transform( ListUtils.filterExcludingNullElements( ListUtils.transform( this.characterPathChildrenList,
+      return ListUtils.convert( ListUtils.filterExcludingNullElements( ListUtils.convert( this.characterPathChildrenList,
                                                                                               new ElementConverter<CharacterPath, Character>()
                                                                                               {
                                                                                                 @Override
@@ -194,7 +194,7 @@ public class CharacterPathBuilder
               }
             };
             
-            List<String> transformedChildStringList = ListUtils.transform( childStringList, elementTransformer );
+            List<String> transformedChildStringList = ListUtils.convert( childStringList, elementTransformer );
             
             //
             retlist.addAll( transformedChildStringList );
@@ -277,7 +277,7 @@ public class CharacterPathBuilder
     if ( stringList != null )
     {
       //
-      List<Character> firstCharacterList = ListUtils.filterExcludingNullElements( ListUtils.transform( stringList,
+      List<Character> firstCharacterList = ListUtils.filterExcludingNullElements( ListUtils.convert( stringList,
                                                                                                        new ElementConverter<String, Character>()
                                                                                                        {
                                                                                                          @Override
@@ -298,7 +298,7 @@ public class CharacterPathBuilder
         final ElementHolder<Boolean> hasEmptyElementHolder = new ElementHolder<Boolean>( false );
         
         //          
-        List<String> stringListForCurrentCharacterWithRemovedFirstCharacter = ListUtils.filterExcludingNullElements( ListUtils.transform( ListUtils.filterIncludingIndexPositions( stringList,
+        List<String> stringListForCurrentCharacterWithRemovedFirstCharacter = ListUtils.filterExcludingNullElements( ListUtils.convert( ListUtils.filterIncludingIndexPositions( stringList,
                                                                                                                                                                                    ListUtils.indexListOf( firstCharacterList,
                                                                                                                                                                                                           firstCharacter ) ),
                                                                                                                                           new ElementConverter<String, String>()

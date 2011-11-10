@@ -122,7 +122,7 @@ public class XHTMLDataContainer<E>
           return anker.getTextList();
         }
       };
-      List<List<String>> collectionOfTextList = ListUtils.transform( this.getAnkerList(), elementTransformer );
+      List<List<String>> collectionOfTextList = ListUtils.convert( this.getAnkerList(), elementTransformer );
       retlist.addAll( ListUtils.mergeAll( collectionOfTextList ) );
       
       //

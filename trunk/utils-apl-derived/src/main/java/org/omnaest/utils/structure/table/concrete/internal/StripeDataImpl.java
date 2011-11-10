@@ -145,7 +145,7 @@ public class StripeDataImpl<E> implements StripeData<E>
         return cell == null ? null : cell.getElement();
       }
     };
-    return ListUtils.transform( collection, elementTransformer );
+    return ListUtils.convert( collection, elementTransformer );
   }
   
   @Override

@@ -159,7 +159,7 @@ public class StripeDataHelper
               return stripeData.getTitleInternal().getValue();
             }
           };
-          List<Object> titleValueList = ListUtils.transform( Arrays.asList( stripeDatasOld ), elementTransformer );
+          List<Object> titleValueList = ListUtils.convert( Arrays.asList( stripeDatasOld ), elementTransformer );
           retval.getTitleInternal().setValue( titleValueList );
         }
       }

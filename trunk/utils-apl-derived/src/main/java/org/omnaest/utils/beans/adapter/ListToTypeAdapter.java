@@ -367,7 +367,7 @@ public class ListToTypeAdapter<T, L extends List<?>>
             return beanPropertyAccessor.getPropertyName();
           }
         };
-        propertynameResolvedList.addAll( ListUtils.transform( beanPropertyAccessorList, elementTransformer ) );
+        propertynameResolvedList.addAll( ListUtils.convert( beanPropertyAccessorList, elementTransformer ) );
       }
       
       //

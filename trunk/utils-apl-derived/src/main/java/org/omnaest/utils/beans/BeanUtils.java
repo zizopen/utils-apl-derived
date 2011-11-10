@@ -32,8 +32,11 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter;
 import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration;
+import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter;
+import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter.BeanConversionFilterExcludingPrimitiveAndString;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
@@ -1156,18 +1159,48 @@ public class BeanUtils
         if ( propertyNameToBeanPropertyValueMap != null )
         {
           @SuppressWarnings("unchecked")
-          Class<? extends B> clazz = (Class<B>) bean.getClass();
+          Class<? extends B> type = (Class<B>) bean.getClass();
           
           Configuration configuration = new Configuration();
           configuration.setUnderlyingMapAware( underlyingMapAware );
           
-          retval = PropertynameMapToTypeAdapter.newInstance( propertyNameToBeanPropertyValueMap, clazz, configuration );
+          retval = PropertynameMapToTypeAdapter.newInstance( propertyNameToBeanPropertyValueMap, type, configuration );
         }
         
       }
       catch ( Exception e )
       {
       }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Clones the given Java bean using a {@link BeanToNestedMapConverter} for marshalling and unmarshalling.
+   * 
+   * @param bean
+   * @param underlyingMapAware
+   * @return
+   */
+  public static <B> B cloneBeanUsingNestedfMap( B bean )
+  {
+    //
+    B retval = null;
+    
+    //
+    if ( bean != null )
+    {
+      //
+      @SuppressWarnings("unchecked")
+      Class<B> beanClass = (Class<B>) bean.getClass();
+      PropertyAccessType propertyAccessType = null;
+      BeanToNestedMapConverter<B> beanToNestedMapConverter = new BeanToNestedMapConverter<B>(
+                                                                                              new BeanConversionFilterExcludingPrimitiveAndString(),
+                                                                                              beanClass, propertyAccessType );
+      Map<String, Object> map = beanToNestedMapConverter.marshal( bean );
+      retval = beanToNestedMapConverter.unmarshal( map );
     }
     
     //

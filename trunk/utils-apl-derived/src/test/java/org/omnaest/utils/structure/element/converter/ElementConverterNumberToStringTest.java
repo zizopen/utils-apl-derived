@@ -15,34 +15,22 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.converter;
 
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
 /**
- * @see ElementConverter
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToInteger implements ElementConverter<String, Integer>
+public class ElementConverterNumberToStringTest
 {
   
-  @Override
-  public Integer convert( String element )
+  @Test
+  public void testConvert()
   {
-    //    
-    Integer retval = null;
-    
-    //
-    if ( element != null )
-    {
-      try
-      {
-        retval = Integer.valueOf( element );
-      }
-      catch ( Exception e )
-      {
-      }
-    }
-    
-    //
-    return retval;
+    String value = new ElementConverterNumberToString().convert( Integer.valueOf( 2 ) );
+    assertEquals( "2", value );
   }
   
 }

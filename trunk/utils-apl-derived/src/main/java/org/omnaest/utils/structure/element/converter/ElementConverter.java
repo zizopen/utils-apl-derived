@@ -25,7 +25,7 @@ import org.omnaest.utils.structure.collection.ListUtils;
  * The provides the transformation method to transform one generic element instance into another.
  * 
  * @see MultiElementConverter
- * @see ListUtils#transform(Collection, ElementConverter)
+ * @see ListUtils#convert(Collection, ElementConverter)
  */
 public interface ElementConverter<FROM, TO>
 {
