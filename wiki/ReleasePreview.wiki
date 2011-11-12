@@ -2,3 +2,12 @@
 #labels preview
 
 = Release preview =
+
+ * changed AutowiredContainer signature
+ * changed DualMap signature
+ * adapted LinkedHashDualMap
+ * added decorators: ListDecorator, SetDecorator, CollectionDecorator, IteratorDecorator
+ * renamed MonoHierarchy to TokenMonoHierarchy
+ * added clone support to BeanUtils and BeanToNestedMapConverter
+ * added ForEach and enhanced operation types
+ * added MapBuilder
