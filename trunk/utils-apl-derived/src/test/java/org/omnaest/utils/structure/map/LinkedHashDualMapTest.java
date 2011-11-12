@@ -20,9 +20,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -45,26 +48,26 @@ public class LinkedHashDualMapTest
     dualMap.put( "3", 3 );
     
     //
-    assertEquals( Integer.valueOf( 1 ), dualMap.getSecondElementBy( "1" ) );
-    assertEquals( Integer.valueOf( 2 ), dualMap.getSecondElementBy( "2" ) );
-    assertEquals( Integer.valueOf( 3 ), dualMap.getSecondElementBy( "3" ) );
+    assertEquals( Integer.valueOf( 1 ), dualMap.get( "1" ) );
+    assertEquals( Integer.valueOf( 2 ), dualMap.get( "2" ) );
+    assertEquals( Integer.valueOf( 3 ), dualMap.get( "3" ) );
     
-    assertEquals( "1", dualMap.getFirstElementBy( 1 ) );
-    assertEquals( "2", dualMap.getFirstElementBy( 2 ) );
-    assertEquals( "3", dualMap.getFirstElementBy( 3 ) );
+    assertEquals( "1", dualMap.invert().get( 1 ) );
+    assertEquals( "2", dualMap.invert().get( 2 ) );
+    assertEquals( "3", dualMap.invert().get( 3 ) );
     
     //
     {
       Map<String, Integer> additionalMap = new LinkedHashMap<String, Integer>();
       additionalMap.put( "4", 4 );
       additionalMap.put( "5", 5 );
-      dualMap.putAllFirstElementToSecondElement( additionalMap );
+      dualMap.putAll( additionalMap );
       
-      assertEquals( Integer.valueOf( 4 ), dualMap.getSecondElementBy( "4" ) );
-      assertEquals( Integer.valueOf( 5 ), dualMap.getSecondElementBy( "5" ) );
+      assertEquals( Integer.valueOf( 4 ), dualMap.get( "4" ) );
+      assertEquals( Integer.valueOf( 5 ), dualMap.get( "5" ) );
       
-      assertEquals( "4", dualMap.getFirstElementBy( 4 ) );
-      assertEquals( "5", dualMap.getFirstElementBy( 5 ) );
+      assertEquals( "4", dualMap.invert().get( 4 ) );
+      assertEquals( "5", dualMap.invert().get( 5 ) );
     }
     
     //
@@ -73,40 +76,59 @@ public class LinkedHashDualMapTest
       additionalMap.put( 6, "6" );
       additionalMap.put( 7, "7" );
       
-      dualMap.putAllSecondElementToFirstElement( additionalMap );
+      dualMap.invert().putAll( additionalMap );
       
-      assertEquals( Integer.valueOf( 6 ), dualMap.getSecondElementBy( "6" ) );
-      assertEquals( Integer.valueOf( 7 ), dualMap.getSecondElementBy( "7" ) );
+      assertEquals( Integer.valueOf( 6 ), dualMap.get( "6" ) );
+      assertEquals( Integer.valueOf( 7 ), dualMap.get( "7" ) );
       
-      assertEquals( "6", dualMap.getFirstElementBy( 6 ) );
-      assertEquals( "7", dualMap.getFirstElementBy( 7 ) );
+      assertEquals( "6", dualMap.invert().get( 6 ) );
+      assertEquals( "7", dualMap.invert().get( 7 ) );
     }
     
     //
     {
       assertEquals( 7, dualMap.size() );
       
-      dualMap.removeFirstElement( "4" );
-      dualMap.removeSecondElement( 5 );
+      dualMap.remove( "4" );
+      dualMap.invert().remove( 5 );
       
       assertEquals( 5, dualMap.size() );
       
-      assertNull( dualMap.getSecondElementBy( "4" ) );
-      assertNull( dualMap.getSecondElementBy( "5" ) );
+      assertNull( dualMap.get( "4" ) );
+      assertNull( dualMap.invert().get( "5" ) );
       
-      assertNull( dualMap.getFirstElementBy( 4 ) );
-      assertNull( dualMap.getFirstElementBy( 5 ) );
+      assertNull( dualMap.invert().get( 4 ) );
+      assertNull( dualMap.invert().get( 5 ) );
     }
     
     //
     {
       //
-      List<String> firstElementList = dualMap.getFirstElementList();
-      List<Integer> secondElementList = dualMap.getSecondElementList();
+      Set<String> keyKeySet = dualMap.keySet();
+      Set<Integer> valueKeySet = dualMap.invert().keySet();
       
       //
-      assertEquals( 5, firstElementList.size() );
-      assertEquals( 5, secondElementList.size() );
+      assertEquals( 5, keyKeySet.size() );
+      assertEquals( 5, valueKeySet.size() );
+      
+      //
+      assertEquals( Arrays.asList( 1, 2, 3, 6, 7 ), new ArrayList<Integer>( valueKeySet ) );
+      assertEquals( Arrays.asList( "1", "2", "3", "6", "7" ), new ArrayList<String>( keyKeySet ) );
+    }
+    
+    //
+    {
+      //
+      Collection<Integer> keyValues = dualMap.values();
+      Collection<String> valueValues = dualMap.invert().values();
+      
+      //
+      assertEquals( 5, keyValues.size() );
+      assertEquals( 5, valueValues.size() );
+      
+      //
+      assertEquals( Arrays.asList( 1, 2, 3, 6, 7 ), new ArrayList<Integer>( keyValues ) );
+      assertEquals( Arrays.asList( "1", "2", "3", "6", "7" ), new ArrayList<String>( valueValues ) );
     }
     
     //
@@ -140,6 +162,6 @@ public class LinkedHashDualMapTest
     //
     assertNotNull( invertedDualMap );
     assertEquals( dualMap.size(), invertedDualMap.size() );
-    assertEquals( dualMap.getFirstElementBy( 1 ), invertedDualMap.getSecondElementBy( 1 ) );
+    assertEquals( dualMap.get( 1 ), invertedDualMap.invert().get( 1 ) );
   }
 }

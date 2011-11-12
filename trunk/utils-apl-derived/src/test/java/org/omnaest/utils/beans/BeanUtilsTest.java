@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.annotation.Annotation;
@@ -26,17 +27,23 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.databene.contiperf.PerfTest;
+import org.databene.contiperf.Required;
+import org.databene.contiperf.junit.ContiPerfRule;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
+import org.omnaest.utils.structure.map.MapBuilder;
 import org.omnaest.utils.structure.map.UnderlyingMapAware;
 
 /**
@@ -45,6 +52,9 @@ import org.omnaest.utils.structure.map.UnderlyingMapAware;
  */
 public class BeanUtilsTest
 {
+  
+  @Rule
+  public ContiPerfRule contiPerfRule = new ContiPerfRule();
   
   @Before
   public void setUp() throws Exception
@@ -156,8 +166,9 @@ public class BeanUtilsTest
   
   protected static class TestSuperClass
   {
-    private String          fieldString   = null;
-    private List<TestValue> listTestValue = null;
+    private String                    fieldString             = null;
+    private List<ITestValue>          listTestValue           = null;
+    private Map<TestValue, TestValue> testValueToTestValueMap = null;
     
     public String getFieldString()
     {
@@ -169,14 +180,24 @@ public class BeanUtilsTest
       this.fieldString = fieldString;
     }
     
-    public List<TestValue> getListTestValue()
+    public List<ITestValue> getListTestValue()
     {
       return this.listTestValue;
     }
     
-    public void setListTestValue( List<TestValue> listTestValue )
+    public void setListTestValue( List<ITestValue> listTestValue )
     {
       this.listTestValue = listTestValue;
+    }
+    
+    public Map<TestValue, TestValue> getTestValueToTestValueMap()
+    {
+      return this.testValueToTestValueMap;
+    }
+    
+    public void setTestValueToTestValueMap( Map<TestValue, TestValue> testValueToTestValueMap )
+    {
+      this.testValueToTestValueMap = testValueToTestValueMap;
     }
     
   }
@@ -197,19 +218,26 @@ public class BeanUtilsTest
     
   }
   
-  protected static class TestValue
+  protected static interface ITestValue
   {
-    private String more = null;
+    
+  }
+  
+  protected static class TestValue implements ITestValue
+  {
+    private String more     = null;
+    private String moreMore = null;
     
     public TestValue()
     {
       super();
     }
     
-    public TestValue( String more )
+    public TestValue( String more, String moreMore )
     {
       super();
       this.more = more;
+      this.moreMore = moreMore;
     }
     
     public String getMore()
@@ -259,6 +287,68 @@ public class BeanUtilsTest
         return false;
       }
       return true;
+    }
+    
+    /**
+     * @return the moreMore
+     */
+    public String getMoreMore()
+    {
+      return this.moreMore;
+    }
+    
+    /**
+     * @param moreMore
+     *          the moreMore to set
+     */
+    public void setMoreMore( String moreMore )
+    {
+      this.moreMore = moreMore;
+    }
+    
+  }
+  
+  protected static class TestValueDTO extends TestValue
+  {
+  }
+  
+  protected static class TestValueOther implements ITestValue
+  {
+    private String more  = null;
+    private String other = null;
+    
+    /**
+     * @return the more
+     */
+    public String getMore()
+    {
+      return this.more;
+    }
+    
+    /**
+     * @param more
+     *          the more to set
+     */
+    public void setMore( String more )
+    {
+      this.more = more;
+    }
+    
+    /**
+     * @return the other
+     */
+    public String getOther()
+    {
+      return this.other;
+    }
+    
+    /**
+     * @param other
+     *          the other to set
+     */
+    public void setOther( String other )
+    {
+      this.other = other;
     }
     
   }
@@ -604,14 +694,23 @@ public class BeanUtilsTest
   }
   
   @Test
+  @PerfTest(invocations = 100)
+  @Required(average = 20)
+  public void testCloneBeanUsingNestedfMapPerformance()
+  {
+    //
+    TestSubClass testBean = prepareTestSubClass();
+    
+    //
+    TestSubClass clonedBean = BeanUtils.cloneBeanUsingNestedfMap( testBean );
+    assertNotNull( clonedBean );
+  }
+  
+  @Test
   public void testCloneBeanUsingNestedfMap()
   {
     //
-    TestSubClass testBean = new TestSubClass();
-    testBean.setFieldString( "value1" );
-    testBean.setFieldDouble( 1.234 );
-    List<TestValue> listTestValue = new ArrayList<TestValue>( Arrays.asList( new TestValue( "a" ), new TestValue( "b" ) ) );
-    testBean.setListTestValue( listTestValue );
+    TestSubClass testBean = prepareTestSubClass();
     
     //
     TestSubClass clonedBean = BeanUtils.cloneBeanUsingNestedfMap( testBean );
@@ -620,7 +719,78 @@ public class BeanUtilsTest
     assertEquals( testBean.getFieldDouble(), clonedBean.getFieldDouble() );
     assertEquals( testBean.getFieldString(), clonedBean.getFieldString() );
     assertEquals( testBean.getListTestValue(), clonedBean.getListTestValue() );
+    assertEquals( testBean.getTestValueToTestValueMap(), clonedBean.getTestValueToTestValueMap() );
+    assertNotSame( testBean.getTestValueToTestValueMap(), clonedBean.getTestValueToTestValueMap() );
+    assertEquals( testBean.getTestValueToTestValueMap().entrySet().iterator().next(), clonedBean.getTestValueToTestValueMap()
+                                                                                                .entrySet()
+                                                                                                .iterator()
+                                                                                                .next() );
+    assertNotSame( testBean.getTestValueToTestValueMap().entrySet().iterator().next(), clonedBean.getTestValueToTestValueMap()
+                                                                                                 .entrySet()
+                                                                                                 .iterator()
+                                                                                                 .next() );
     assertNotSame( testBean.getListTestValue(), clonedBean.getListTestValue() );
     assertNotSame( testBean.getListTestValue().get( 0 ), clonedBean.getListTestValue().get( 0 ) );
+    
+  }
+  
+  @Test
+  public void testCloneBeanUsingNestedfMapWithSourceTypeToDestinationTypeMap()
+  {
+    //
+    {
+      //
+      TestSubClass testBean = prepareTestSubClass();
+      
+      //    
+      Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap = MapBuilder.<Class<?>, Class<?>> newHashMapBuilder()
+                                                                         .put( TestValue.class, TestValueDTO.class )
+                                                                         .build();
+      
+      //
+      TestSubClass clonedBean = BeanUtils.cloneBeanUsingNestedfMap( testBean, sourceTypeTodestinationTypeMap );
+      
+      //
+      assertEquals( testBean.getListTestValue(), clonedBean.getListTestValue() );
+      assertTrue( clonedBean.getListTestValue().get( 0 ) instanceof TestValueDTO );
+    }
+    
+    //
+    {
+      //
+      TestSubClass testBean = prepareTestSubClass();
+      
+      //    
+      Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap = MapBuilder.<Class<?>, Class<?>> newHashMapBuilder()
+                                                                         .put( TestValue.class, TestValueOther.class )
+                                                                         .build();
+      
+      //
+      TestSubClass clonedBean = BeanUtils.cloneBeanUsingNestedfMap( testBean, sourceTypeTodestinationTypeMap );
+      
+      //
+      assertTrue( clonedBean.getListTestValue().get( 0 ) instanceof TestValueOther );
+      assertEquals( ( (TestValue) testBean.getListTestValue().get( 0 ) ).getMore(),
+                    ( (TestValueOther) clonedBean.getListTestValue().get( 0 ) ).getMore() );
+      assertNull( ( (TestValueOther) clonedBean.getListTestValue().get( 0 ) ).getOther() );
+    }
+    
+  }
+  
+  private static TestSubClass prepareTestSubClass()
+  {
+    //
+    TestSubClass testBean = new TestSubClass();
+    testBean.setFieldString( "value1" );
+    testBean.setFieldDouble( 1.234 );
+    List<ITestValue> listTestValue = new ArrayList<ITestValue>( Arrays.asList( new TestValue( "a", "aa" ), new TestValue( "b",
+                                                                                                                          "bb" ) ) );
+    testBean.setListTestValue( listTestValue );
+    
+    Map<TestValue, TestValue> testValueToTestValueMap = new HashMap<TestValue, TestValue>();
+    testValueToTestValueMap.put( new TestValue( "key1", "keykey1" ), new TestValue( "value1", "valuevalue1" ) );
+    testValueToTestValueMap.put( new TestValue( "key2", "keykey2" ), new TestValue( "value2", "valuevalue2" ) );
+    testBean.setTestValueToTestValueMap( testValueToTestValueMap );
+    return testBean;
   }
 }

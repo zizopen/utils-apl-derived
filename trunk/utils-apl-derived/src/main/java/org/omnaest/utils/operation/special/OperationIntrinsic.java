@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.operation;
+package org.omnaest.utils.operation.special;
+
+import org.omnaest.utils.operation.Operation;
 
 /**
  * Simple operation without parameters or return value.
  * 
+ * @see Operation
+ * @see OperationVoidParameter
+ * @see OperationVoidResult
  * @author Omnaest
  */
-public interface OperationIntrinsic
+public interface OperationIntrinsic extends OperationVoidResult<Void>, OperationVoidParameter<Void>
 {
-  public void execute();
 }

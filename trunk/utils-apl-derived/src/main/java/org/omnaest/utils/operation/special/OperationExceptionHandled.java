@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.operation;
+package org.omnaest.utils.operation.special;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.omnaest.utils.operation.Operation;
 import org.omnaest.utils.structure.element.ExceptionHandledResult;
 
 /**

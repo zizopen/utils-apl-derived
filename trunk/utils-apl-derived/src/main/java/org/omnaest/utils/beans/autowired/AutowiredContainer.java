@@ -18,10 +18,17 @@ package org.omnaest.utils.beans.autowired;
 import java.io.Serializable;
 import java.util.Set;
 
+import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.collection.SetUtils;
+
 /**
- * An {@link AutowiredContainer} provides a ordered collection of objects. All objects can be retrieved by {@link Class}es they
- * are assignable to.
+ * An {@link AutowiredContainer} provides a ordered collection of objects. All objects can be retrieved by {@link Class} types
+ * they are assignable to.<br>
+ * <br>
+ * This results in the use of interfaces or classes as keys when object instances are put into the {@link AutowiredContainer}.
  * 
+ * @see ListUtils#from(Iterable)
+ * @see SetUtils#from(Iterable)
  * @author Omnaest
  */
 public interface AutowiredContainer<E> extends Iterable<E>, Serializable
@@ -35,7 +42,7 @@ public interface AutowiredContainer<E> extends Iterable<E>, Serializable
    * @param type
    * @return
    */
-  public <O extends E> O getValue( Class<O> type );
+  public <O extends E> O getValue( Class<? extends O> type );
   
   /**
    * Returns a {@link Set} for all values which can be assigned to the given {@link Class}.
@@ -43,7 +50,7 @@ public interface AutowiredContainer<E> extends Iterable<E>, Serializable
    * @param <O>
    * @param type
    */
-  public <O extends E> Set<O> getValueSet( Class<O> type );
+  public <O extends E> Set<O> getValueSet( Class<? extends O> type );
   
   /**
    * Returns true if the current container contains any type which can be assigned to the given one.
@@ -56,6 +63,7 @@ public interface AutowiredContainer<E> extends Iterable<E>, Serializable
   /**
    * Adds an {@link Object} to the {@link AutowiredContainer}.
    * 
+   * @see #put(Object, Class...)
    * @see #putAll(Iterable)
    * @param object
    * @return the number of assigned values within the underlying structure
@@ -70,6 +78,16 @@ public interface AutowiredContainer<E> extends Iterable<E>, Serializable
    * @return
    */
   public int putAll( Iterable<E> iterable );
+  
+  /**
+   * Adds an {@link Object} to the {@link AutowiredContainer} for one or more given {@link Class} types.
+   * 
+   * @see #put(Object)
+   * @param object
+   * @param types
+   * @return the number of assigned values within the underlying structure
+   */
+  public <O extends E> int put( O object, Class<? extends O>... types );
   
   /**
    * Returns true if there are no elements within this container.

@@ -25,10 +25,10 @@ import java.util.Map;
 import org.apache.commons.collections.ListUtils;
 
 /**
- * A {@link MonoHierarchy} allows to create hierarchical structures which are based on {@link List}s of elements.<br>
+ * A {@link TokenMonoHierarchy} allows to create hierarchical structures which are based on {@link List}s of elements.<br>
  * <br>
- * If you take e.g. a {@link String} based {@link MonoHierarchy}, the following two {@link List} of {@link String}s will create a
- * {@link MonoHierarchy}:<br>
+ * If you take e.g. a {@link String} based {@link TokenMonoHierarchy}, the following two {@link List} of {@link String}s will create a
+ * {@link TokenMonoHierarchy}:<br>
  * <br>
  * <ul>
  * <li>"node1","node1","node1":value1</li>
@@ -54,7 +54,7 @@ import org.apache.commons.collections.ListUtils;
  *          Value
  * @author Omnaest
  */
-public class MonoHierarchy<E, V>
+public class TokenMonoHierarchy<E, V>
 {
   /* ********************************************** Variables ********************************************** */
   protected TokenElementNode tokenElementNodeRoot = new TokenElementNode( null, null );
@@ -116,7 +116,7 @@ public class MonoHierarchy<E, V>
   }
   
   /**
-   * Node of a {@link MonoHierarchy} which has children an one parent. Used only internally, so it does not have to protect the
+   * Node of a {@link TokenMonoHierarchy} which has children an one parent. Used only internally, so it does not have to protect the
    * internal {@link Collection}s
    * 
    * @author Omnaest
@@ -208,7 +208,7 @@ public class MonoHierarchy<E, V>
   }
   
   /**
-   * The {@link Navigator} allows to navigate on a given {@link MonoHierarchy}
+   * The {@link Navigator} allows to navigate on a given {@link TokenMonoHierarchy}
    * 
    * @author Omnaest
    */
@@ -645,7 +645,7 @@ public class MonoHierarchy<E, V>
    * @param values
    * @return
    */
-  public MonoHierarchy<E, V> addTokenElementPathWithValues( TokenElementPath<E> tokenElementPath, V... values )
+  public TokenMonoHierarchy<E, V> addTokenElementPathWithValues( TokenElementPath<E> tokenElementPath, V... values )
   {
     //
     if ( tokenElementPath != null && tokenElementPath.isValid() && values.length > 0 )
@@ -666,7 +666,7 @@ public class MonoHierarchy<E, V>
   }
   
   /**
-   * Returns a {@link Navigator} for the {@link MonoHierarchy}
+   * Returns a {@link Navigator} for the {@link TokenMonoHierarchy}
    * 
    * @return
    */

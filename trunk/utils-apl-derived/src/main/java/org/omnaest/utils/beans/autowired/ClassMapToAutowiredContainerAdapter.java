@@ -69,19 +69,19 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
   
   @SuppressWarnings("unchecked")
   @Override
-  public <O extends E> Set<O> getValueSet( Class<O> clazz )
+  public <O extends E> Set<O> getValueSet( Class<? extends O> type )
   {
     //    
     Set<O> retset = new LinkedHashSet<O>();
     
     //
-    if ( clazz != null )
+    if ( type != null )
     {
-      for ( Class<? extends E> iclazz : this.classToObjectMap.keySet() )
+      for ( Class<? extends E> iType : this.classToObjectMap.keySet() )
       {
-        if ( iclazz != null && clazz.isAssignableFrom( iclazz ) )
+        if ( iType != null && type.isAssignableFrom( iType ) )
         {
-          retset.add( (O) this.classToObjectMap.get( iclazz ) );
+          retset.add( (O) this.classToObjectMap.get( iType ) );
         }
       }
     }
@@ -94,24 +94,38 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
   @Override
   public int put( E object )
   {
-    //
-    int retval = 0;
-    
-    //
-    if ( object != null )
-    {
-      this.classToObjectMap.put( (Class<? extends E>) object.getClass(), object );
-      retval++;
-    }
-    
-    // 
-    return retval;
+    return put( object, object != null ? (Class<E>) object.getClass() : null );
   }
   
   @Override
   public Iterator<E> iterator()
   {
     return this.classToObjectMap.values().iterator();
+  }
+  
+  @Override
+  @SuppressWarnings("unchecked")
+  public <O extends E> int put( O object, Class<? extends O>... types )
+  {
+    //
+    int retval = 0;
+    
+    //
+    if ( object != null && types.length > 0 )
+    {
+      for ( Class<?> type : types )
+      {
+        if ( type != null )
+        {
+          //
+          E previous = this.classToObjectMap.put( (Class<E>) type, object );
+          retval += ( previous != null ) ? 1 : 0;
+        }
+      }
+    }
+    
+    // 
+    return retval;
   }
   
 }

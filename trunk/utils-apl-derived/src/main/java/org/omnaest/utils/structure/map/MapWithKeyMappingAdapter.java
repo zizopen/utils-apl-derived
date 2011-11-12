@@ -64,7 +64,7 @@ public class MapWithKeyMappingAdapter<KEY_TO, KEY_FROM, V> implements Map<KEY_TO
     try
     {
       //
-      retval = this.underlyingMapKeyToAdapterMapKeyMap.getFirstElementBy( (KEY_TO) key );
+      retval = this.underlyingMapKeyToAdapterMapKeyMap.invert().get( key );
       
       //
       if ( retval == null )
@@ -90,7 +90,7 @@ public class MapWithKeyMappingAdapter<KEY_TO, KEY_FROM, V> implements Map<KEY_TO
   private KEY_TO translateToNewKey( KEY_FROM key )
   {
     //
-    KEY_TO retval = this.underlyingMapKeyToAdapterMapKeyMap.getSecondElementBy( key );
+    KEY_TO retval = this.underlyingMapKeyToAdapterMapKeyMap.get( key );
     
     if ( retval == null )
     {

@@ -42,7 +42,6 @@ public class BeanToNestedMapConverter<B>
   private final BeanToNestedMapMarshaller                         beanToNestedMapMarshaller;
   private final BeanToNestedMapUnMarshaller<B>                    beanToNestedMapUnMarshaller;
   private final BeanConversionFilter                              beanConversionFilter;
-  private final Class<? extends B>                                beanClass;
   private final PropertyAccessType                                propertyAccessType;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
@@ -130,7 +129,20 @@ public class BeanToNestedMapConverter<B>
    */
   public BeanToNestedMapConverter( Class<? extends B> beanClass )
   {
-    this( BeanToNestedMapConverter.DEFAULT_BEAN_CONVERSION_FILTER, beanClass, BeanToNestedMapConverter.DEFAULT_PROPERTYACCESSTYPE );
+    this( BeanToNestedMapConverter.DEFAULT_BEAN_CONVERSION_FILTER, beanClass,
+          BeanToNestedMapConverter.DEFAULT_PROPERTYACCESSTYPE, null );
+  }
+  
+  /**
+   * @see BeanToNestedMapConverter
+   * @param beanConversionFilter
+   * @param beanClass
+   * @param propertyAccessType
+   * @param sourceTypeTodestinationTypeMap
+   */
+  public BeanToNestedMapConverter( BeanConversionFilter beanConversionFilter, Class<? extends B> beanClass )
+  {
+    this( beanConversionFilter, beanClass, DEFAULT_PROPERTYACCESSTYPE, null );
   }
   
   /**
@@ -142,12 +154,36 @@ public class BeanToNestedMapConverter<B>
   public BeanToNestedMapConverter( BeanConversionFilter beanConversionFilter, Class<? extends B> beanClass,
                                    PropertyAccessType propertyAccessType )
   {
+    this( beanConversionFilter, beanClass, propertyAccessType, null );
+  }
+  
+  /**
+   * @see BeanToNestedMapConverter
+   * @param beanConversionFilter
+   * @param beanClass
+   * @param sourceTypeTodestinationTypeMap
+   */
+  public BeanToNestedMapConverter( BeanConversionFilter beanConversionFilter, Class<? extends B> beanClass,
+                                   Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap )
+  {
+    this( beanConversionFilter, beanClass, DEFAULT_PROPERTYACCESSTYPE, sourceTypeTodestinationTypeMap );
+  }
+  
+  /**
+   * @see BeanToNestedMapConverter
+   * @param beanConversionFilter
+   * @param beanClass
+   * @param propertyAccessType
+   * @param sourceTypeTodestinationTypeMap
+   */
+  public BeanToNestedMapConverter( BeanConversionFilter beanConversionFilter, Class<? extends B> beanClass,
+                                   PropertyAccessType propertyAccessType, Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap )
+  {
     super();
     this.beanConversionFilter = beanConversionFilter != null ? beanConversionFilter : DEFAULT_BEAN_CONVERSION_FILTER;
-    this.beanClass = beanClass;
     this.propertyAccessType = propertyAccessType != null ? propertyAccessType : DEFAULT_PROPERTYACCESSTYPE;
     this.beanToNestedMapMarshaller = new BeanToNestedMapMarshaller( this.beanConversionFilter );
-    this.beanToNestedMapUnMarshaller = new BeanToNestedMapUnMarshaller<B>( this.beanClass );
+    this.beanToNestedMapUnMarshaller = new BeanToNestedMapUnMarshaller<B>( beanClass, sourceTypeTodestinationTypeMap );
   }
   
   /**
@@ -170,6 +206,17 @@ public class BeanToNestedMapConverter<B>
   public B unmarshal( Map<String, Object> map )
   {
     return this.beanToNestedMapUnMarshaller.unmarshal( map, this.propertyAccessType );
+  }
+  
+  /**
+   * Clones a given bean by using {@link #marshal(Object)} and using {@link #unmarshal(Map)} again.
+   * 
+   * @param bean
+   * @return
+   */
+  public B clone( B bean )
+  {
+    return this.unmarshal( this.marshal( bean ) );
   }
   
 }

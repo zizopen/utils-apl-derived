@@ -197,13 +197,56 @@ public class ReflectionUtils
   }
   
   /**
+   * Returns true if the given {@link Class} type has a {@link Constructor} for the given arguments
+   * 
+   * @param type
+   * @param arguments
+   * @return
+   */
+  public static <B> boolean hasConstructorFor( Class<? extends B> type, Object... arguments )
+  {
+    return constructorFor( type, arguments ) != null;
+  }
+  
+  /**
+   * Returns the {@link Constructor} for the given {@link Class} type and arguments
+   * 
+   * @param type
+   * @param arguments
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <B> Constructor<B> constructorFor( Class<? extends B> type, Object... arguments )
+  {
+    //
+    Constructor<B> constructor = null;
+    
+    //
+    Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( arguments ), new ElementConverterObjectClass() )
+                                         .toArray( new Class<?>[arguments.length] );
+    
+    //
+    try
+    {
+      //
+      constructor = (Constructor<B>) type.getDeclaredConstructor( parameterTypes );
+    }
+    catch ( Exception e )
+    {
+    }
+    
+    //
+    return constructor;
+  }
+  
+  /**
    * Creates a new instance of a given {@link Class} using a constructor which has the same parameter signature as the provided
    * arguments.
    * 
    * @param type
-   * @param args
+   * @param arguments
    */
-  public static <B> B createInstanceOf( Class<? extends B> type, Object... args )
+  public static <B> B createInstanceOf( Class<? extends B> type, Object... arguments )
   {
     //
     B retval = null;
@@ -212,14 +255,10 @@ public class ReflectionUtils
     if ( type != null )
     {
       //
-      Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( args ), new ElementConverterObjectClass() )
-                                           .toArray( new Class<?>[args.length] );
-      
-      //
       try
       {
         //
-        Constructor<? extends B> constructor = type.getDeclaredConstructor( parameterTypes );
+        Constructor<? extends B> constructor = constructorFor( type, arguments );
         
         //
         boolean accessible = constructor.isAccessible();
@@ -228,7 +267,7 @@ public class ReflectionUtils
         try
         {
           constructor.setAccessible( true );
-          retval = constructor.newInstance( args );
+          retval = constructor.newInstance( arguments );
         }
         catch ( Exception e )
         {
@@ -252,10 +291,10 @@ public class ReflectionUtils
    * signature as the provided arguments.
    * 
    * @param type
-   * @param args
+   * @param arguments
    */
   @SuppressWarnings("unchecked")
-  public static <B> B createInstanceUsingValueOfMethod( Class<? extends B> type, Object... args )
+  public static <B> B createInstanceUsingValueOfMethod( Class<? extends B> type, Object... arguments )
   {
     //
     B retval = null;
@@ -264,8 +303,8 @@ public class ReflectionUtils
     if ( type != null )
     {
       //
-      Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( args ), new ElementConverterObjectClass() )
-                                           .toArray( new Class<?>[args.length] );
+      Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( arguments ), new ElementConverterObjectClass() )
+                                           .toArray( new Class<?>[arguments.length] );
       
       //
       try
@@ -281,7 +320,7 @@ public class ReflectionUtils
         try
         {
           valueOfMethod.setAccessible( true );
-          retval = (B) valueOfMethod.invoke( null, args );
+          retval = (B) valueOfMethod.invoke( null, arguments );
         }
         catch ( Exception e )
         {

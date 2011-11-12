@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.adapter.SourcePropertyAccessorToTypeAdapter.Configuration.RegardedAnnotationScope;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
@@ -43,7 +44,6 @@ import org.omnaest.utils.proxy.handler.MethodInvocationHandlerDecorator;
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
-import org.springframework.util.Assert;
 
 /**
  * The {@link SourcePropertyAccessorToTypeAdapter} will provide an adapter from a {@link SourcePropertyAccessor} to any given

@@ -58,4 +58,28 @@ public class SetUtils
   {
     return new LinkedHashSet<E>( ListUtils.intersection( collectionOfCollections ) );
   }
+  
+  /**
+   * Returns a new ordered {@link Set} instance with the element of the given {@link Iterable}
+   * 
+   * @param iterable
+   * @return
+   */
+  public static <E> Set<E> from( Iterable<E> iterable )
+  {
+    //    
+    Set<E> retset = new LinkedHashSet<E>();
+    
+    //
+    if ( iterable != null )
+    {
+      for ( E element : iterable )
+      {
+        retset.add( element );
+      }
+    }
+    
+    //
+    return retset;
+  }
 }
