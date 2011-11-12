@@ -1,0 +1,31 @@
+#summary a container allows to retrieve object by any of their implemented types
+
+= AutowiredContainer =
+
+An AutowiredContainer allows to store arbitrary objects based on their implemented types.
+
+Example:
+
+{{{
+public interface ExampleInterface
+ {
+ }
+ 
+ public class Example extends ExampleInterface
+ {
+ }
+ 
+ {
+   Example example = new Example();
+   autowiredContainer.put( example );
+   
+   assertEquals( 1, autowiredContainer.getValueSet( Example.class ).size() );
+   assertEquals( example, autowiredContainer.getValue( Example.class ) );
+   
+   assertEquals( 1, autowiredContainer.getValueSet( ExampleInterface.class ).size() );
+   assertEquals( example, autowiredContainer.getValue( ExampleInterface.class ) );
+ }
+
+
+
+]]]
