@@ -1,0 +1,11 @@
+#summary Spring service to manage the HttpSession
+
+= HttpSessionService =
+
+The HttpSessionService allows to manage the HttpSession using a HttpSessionFacade or directly manipulate attributes using a Map view.
+
+{{{
+&lt;context:annotation-config /&gt;
+&lt;bean class=&quot;org.omnaest.utils.spring.HttpSessionAndServletRequestResolverService&quot; /&gt;
+&lt;bean class=&quot;org.omnaest.utils.spring.HttpSessionService&quot; /&gt;
+}}}
