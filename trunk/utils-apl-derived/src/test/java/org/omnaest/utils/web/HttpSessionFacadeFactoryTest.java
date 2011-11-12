@@ -54,11 +54,11 @@ public class HttpSessionFacadeFactoryTest
                                                                 return HttpSessionFacadeFactoryTest.this.httpSession;
                                                               }
                                                             };
-  private HttpSessionFacadeExample httpSessionFacadeExample = new HttpSessionFacadeFactory( this.httpSessionResolver ).newSessionFacade( HttpSessionFacadeExample.class );
+  private HttpSessionFacadeExample httpSessionFacadeExample = new HttpSessionFacadeFactory( this.httpSessionResolver ).newHttpSessionFacade( HttpSessionFacadeExample.class );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
-  public static interface HttpSessionFacadeExample
+  public static interface HttpSessionFacadeExample extends HttpSessionFacade
   {
     public void setFieldString( String field );
     
@@ -78,7 +78,7 @@ public class HttpSessionFacadeFactoryTest
   /* ********************************************** Methods ********************************************** */
   @SuppressWarnings("unchecked")
   @Test
-  public void testNewSessionFacade()
+  public void testNewHttpSessionFacade()
   {
     //    
     assertNotNull( this.httpSessionFacadeExample );
@@ -104,35 +104,27 @@ public class HttpSessionFacadeFactoryTest
   }
   
   @Test
-  @PerfTest(invocations = 100)
-  @Required(average = 100)
-  public void testNewSessionFacadePerformancePerHundredInstantiations()
+  @PerfTest(invocations = 1000)
+  @Required(average = 1)
+  public void testNewHttpSessionFacadePerformanceInstantiations()
   {
-    //
-    for ( int ii = 0; ii < 100; ii++ )
-    {
-      new HttpSessionFacadeFactory( this.httpSessionResolver ).newSessionFacade( HttpSessionFacadeExample.class );
-    }
+    new HttpSessionFacadeFactory( this.httpSessionResolver ).newHttpSessionFacade( HttpSessionFacadeExample.class );
   }
   
   @Test
-  @PerfTest(invocations = 100)
-  @Required(average = 30)
-  public void testSessionFacadeReadAndWritePerformancePerHundredInvocations()
+  @PerfTest(invocations = 1000)
+  @Required(average = 1)
+  public void testSessionFacadeReadAndWritePerformanceInvocation()
   {
-    //    
-    for ( int ii = 0; ii < 100; ii++ )
-    {
-      //
-      this.httpSessionFacadeExample.setFieldDouble( 1.345d );
-      this.httpSessionFacadeExample.setFieldString( "testValue" );
-      this.httpSessionFacadeExample.setOtherField( "a value" );
-      
-      //
-      this.httpSessionFacadeExample.getFieldDouble();
-      this.httpSessionFacadeExample.getFieldString();
-      this.httpSessionFacadeExample.getOtherField();
-    }
+    //
+    this.httpSessionFacadeExample.setFieldDouble( 1.345d );
+    this.httpSessionFacadeExample.setFieldString( "testValue" );
+    this.httpSessionFacadeExample.setOtherField( "a value" );
+    
+    //
+    this.httpSessionFacadeExample.getFieldDouble();
+    this.httpSessionFacadeExample.getFieldString();
+    this.httpSessionFacadeExample.getOtherField();
   }
   
 }

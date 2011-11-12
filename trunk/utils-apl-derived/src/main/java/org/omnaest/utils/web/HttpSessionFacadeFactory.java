@@ -28,7 +28,7 @@ import org.omnaest.utils.structure.element.converter.Converter;
 /**
  * A {@link HttpSessionFacadeFactory} creates proxy instances for given types which allows to access the {@link HttpSession}. To
  * operate the {@link HttpSessionFacadeFactory} needs an {@link HttpSessionResolver}. The {@link HttpSession} will be resolved for
- * each {@link #newSessionFacade(Class)} method call. <br>
+ * each {@link #newHttpSessionFacade(Class)} method call. <br>
  * <br>
  * <br>
  * The {@link HttpSessionFacadeFactory} supports following {@link Annotation}s:<br>
@@ -41,7 +41,7 @@ import org.omnaest.utils.structure.element.converter.Converter;
  * An example of an interface put on top of a {@link HttpSession} can look like:
  * 
  * <pre>
- * public static interface HttpSessionFacadeExample
+ * public static interface HttpSessionFacadeExample extends HttpSessionFacade
  * {
  *   public void setFieldString( String field );
  *   
@@ -59,6 +59,7 @@ import org.omnaest.utils.structure.element.converter.Converter;
  * }
  * </pre>
  * 
+ * @see HttpSessionFacade
  * @see HttpSession
  * @see HttpSessionResolver
  * @see Converter
@@ -88,7 +89,7 @@ public class HttpSessionFacadeFactory
    * @param type
    * @return
    */
-  public <T> T newSessionFacade( Class<T> type )
+  public <T extends HttpSessionFacade> T newHttpSessionFacade( Class<T> type )
   {
     //    
     T retval = null;
