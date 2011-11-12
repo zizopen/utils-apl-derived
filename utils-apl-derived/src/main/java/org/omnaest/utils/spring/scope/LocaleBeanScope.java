@@ -274,6 +274,17 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
   }
   
   /**
+   * Returns the internally resolved {@link Locale} for the current {@link Thread}. This does not trigger any resolving process if
+   * no {@link Locale} is yet determined.
+   * 
+   * @return
+   */
+  public Locale getResolvedLocaleForTheCurrentThread()
+  {
+    return this.threadLocalLocale.get();
+  }
+  
+  /**
    * Returns a new instance of a {@link Runnable} which manages the {@link Locale} awareness of the running {@link Thread}. To
    * resolve the {@link Locale} the {@link LocaleResolver} is used.
    * 
