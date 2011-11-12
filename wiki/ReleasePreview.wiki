@@ -11,3 +11,6 @@
  * added clone support to BeanUtils and BeanToNestedMapConverter
  * added ForEach and enhanced operation types
  * added MapBuilder
+ * added HttpSessionService
+ * added obligate HttpSessionFacade 
+ * renamed HttpSessionResolver to HttpSessionAndServletRequestResolverService
