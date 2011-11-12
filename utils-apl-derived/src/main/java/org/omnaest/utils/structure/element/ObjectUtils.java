@@ -155,4 +155,16 @@ public class ObjectUtils
     //
     return retval;
   }
+  
+  /**
+   * Returns the object parameter if it is not null otherwise the defaultObject.
+   * 
+   * @param object
+   * @param defaultObject
+   * @return
+   */
+  public static <O extends Object> O defaultObject( O object, O defaultObject )
+  {
+    return object != null ? object : defaultObject;
+  }
 }

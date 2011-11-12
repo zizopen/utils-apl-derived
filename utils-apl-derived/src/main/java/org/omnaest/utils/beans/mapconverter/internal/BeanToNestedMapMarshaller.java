@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter;
@@ -35,6 +36,8 @@ public class BeanToNestedMapMarshaller
 {
   /* ********************************************** Constants ********************************************** */
   public final static String               CLASS_IDENTIFIER     = "clazz";
+  public final static String               MAP_KEY_IDENTIFIER   = "key";
+  public final static String               MAP_VALUE_IDENTIFIER = "value";
   
   /* ********************************************** Variables ********************************************** */
   private BeanConversionFilter             beanConversionFilter = null;
@@ -49,16 +52,6 @@ public class BeanToNestedMapMarshaller
   {
     super();
     this.beanConversionFilter = beanConversionFilter;
-  }
-  
-  /**
-   * @param declaringType
-   * @param bean
-   * @return
-   */
-  private boolean hasToConvertBean( Class<?> declaringType, Object bean )
-  {
-    return this.beanConversionFilter != null && this.beanConversionFilter.hasBeanToBeConverted( declaringType, bean );
   }
   
   /**
@@ -78,8 +71,14 @@ public class BeanToNestedMapMarshaller
     //
     final class Helper
     {
-      public void convertIfNecessary( Class<?> declaringPropertyType, Object object, String propertyName )
+      /**
+       * @param declaringPropertyType
+       * @param object
+       * @param propertyName
+       */
+      public void convertIfNecessaryAndPutToRetmap( Class<?> declaringPropertyType, Object object, String propertyName )
       {
+        //
         boolean hasToConvertBean = hasToConvertBean( declaringPropertyType, object );
         if ( hasToConvertBean )
         {
@@ -95,6 +94,17 @@ public class BeanToNestedMapMarshaller
           //
           retmap.put( propertyName, object );
         }
+      }
+      
+      /**
+       * @param declaringType
+       * @param bean
+       * @return
+       */
+      private boolean hasToConvertBean( Class<?> declaringType, Object bean )
+      {
+        return BeanToNestedMapMarshaller.this.beanConversionFilter != null
+               && BeanToNestedMapMarshaller.this.beanConversionFilter.hasBeanToBeConverted( declaringType, bean );
       }
     }
     Helper helper = new Helper();
@@ -117,7 +127,39 @@ public class BeanToNestedMapMarshaller
           String propertyName = "" + counter++;
           
           //
-          helper.convertIfNecessary( declaringPropertyType, object, propertyName );
+          helper.convertIfNecessaryAndPutToRetmap( declaringPropertyType, object, propertyName );
+        }
+        
+        //
+        retmap.put( CLASS_IDENTIFIER, bean.getClass().getName() );
+      }
+      else if ( bean instanceof Map )
+      {
+        int counter = 0;
+        for ( Entry<?, ?> entry : ( (Map<?, ?>) bean ).entrySet() )
+        {
+          //
+          {
+            //
+            Object key = entry.getKey();
+            
+            //
+            Class<?> declaringPropertyType = key != null ? key.getClass() : null;
+            String propertyName = counter + MAP_KEY_IDENTIFIER;
+            helper.convertIfNecessaryAndPutToRetmap( declaringPropertyType, key, propertyName );
+          }
+          {
+            //
+            Object value = entry.getValue();
+            
+            //
+            Class<?> declaringPropertyType = value != null ? value.getClass() : null;
+            String propertyName = counter + MAP_VALUE_IDENTIFIER;
+            helper.convertIfNecessaryAndPutToRetmap( declaringPropertyType, value, propertyName );
+          }
+          
+          //
+          counter++;
         }
         
         //
@@ -140,7 +182,7 @@ public class BeanToNestedMapMarshaller
             Class<?> declaringPropertyType = beanPropertyAccessor.getDeclaringPropertyType();
             
             //
-            helper.convertIfNecessary( declaringPropertyType, object, propertyName );
+            helper.convertIfNecessaryAndPutToRetmap( declaringPropertyType, object, propertyName );
           }
         }
         

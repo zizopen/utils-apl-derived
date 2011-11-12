@@ -102,4 +102,18 @@ public class ClassMapToAutowiredContainerAdapterTest
     }
   }
   
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testPutWithTypes()
+  {
+    //
+    {
+      //
+      TestClass testClass = new TestClass2();
+      this.autowiredContainer.put( testClass, TestClass.class );
+      assertEquals( 1, this.autowiredContainer.getValueSet( TestClass.class ).size() );
+      assertEquals( 0, this.autowiredContainer.getValueSet( TestClass2.class ).size() );
+    }
+  }
+  
 }

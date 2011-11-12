@@ -18,6 +18,9 @@ package org.omnaest.utils.beans.mapconverter.internal;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.omnaest.utils.beans.BeanUtils;
@@ -25,6 +28,7 @@ import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
 import org.omnaest.utils.reflection.ReflectionUtils;
+import org.omnaest.utils.tuple.TupleTwo;
 
 /**
  * @see BeanToNestedMapConverter
@@ -34,18 +38,22 @@ import org.omnaest.utils.reflection.ReflectionUtils;
 public class BeanToNestedMapUnMarshaller<B>
 {
   /* ********************************************** Variables ********************************************** */
-  private Class<? extends B>               beanClass      = null;
-  private Map<Map<String, Object>, Object> mapToObjectMap = new IdentityHashMap<Map<String, Object>, Object>();
+  private Class<? extends B>               beanClass                      = null;
+  private Map<Map<String, Object>, Object> mapToObjectMap                 = new IdentityHashMap<Map<String, Object>, Object>();
+  private Map<Class<?>, Class<?>>          sourceTypeTodestinationTypeMap = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
+   * @see BeanToNestedMapUnMarshaller
    * @param beanClass
+   * @param sourceTypeTodestinationTypeMap
    */
-  public BeanToNestedMapUnMarshaller( Class<? extends B> beanClass )
+  public BeanToNestedMapUnMarshaller( Class<? extends B> beanClass, Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap )
   {
     super();
     this.beanClass = beanClass;
+    this.sourceTypeTodestinationTypeMap = sourceTypeTodestinationTypeMap;
   }
   
   /**
@@ -83,7 +91,8 @@ public class BeanToNestedMapUnMarshaller<B>
         Object retval = value;
         
         //
-        if ( value instanceof Map && propertyType != null && !Map.class.isAssignableFrom( propertyType ) )
+        if ( value instanceof Map && propertyType != null
+             && ( (Map<?, ?>) value ).containsKey( BeanToNestedMapMarshaller.CLASS_IDENTIFIER ) )
         {
           //
           Map<String, Object> subMap = (Map<String, Object>) value;
@@ -118,11 +127,18 @@ public class BeanToNestedMapUnMarshaller<B>
         }
         
         //
+        if ( this.sourceTypeTodestinationTypeMap != null && this.sourceTypeTodestinationTypeMap.containsKey( objectClass ) )
+        {
+          objectClass = (Class<Object>) this.sourceTypeTodestinationTypeMap.get( objectClass );
+        }
+        
+        //
         Object beanNew = ReflectionUtils.createInstanceOf( objectClass );
         
         //
         if ( beanNew != null )
         {
+          //
           if ( beanNew instanceof Collection )
           {
             //
@@ -136,10 +152,50 @@ public class BeanToNestedMapUnMarshaller<B>
               {
                 //
                 Object object = map.get( counterString );
-                Class<?> propertyType = Collection.class;
+                Class<?> propertyType = Object.class;
                 object = helper.convertValueIfNecessary( object, propertyType );
                 collection.add( object );
               }
+            }
+          }
+          else if ( beanNew instanceof Map )
+          {
+            //
+            Map<Object, Object> mapInstance = (Map<Object, Object>) beanNew;
+            
+            //
+            SortedMap<String, TupleTwo<Object, Object>> counterStringToKeyAndValueMap = new TreeMap<String, TupleTwo<Object, Object>>();
+            for ( String counterAndKeyOrValueString : new TreeSet<String>( map.keySet() ) )
+            {
+              //
+              if ( counterAndKeyOrValueString != null
+                   && !BeanToNestedMapMarshaller.CLASS_IDENTIFIER.equals( counterAndKeyOrValueString ) )
+              {
+                //
+                Object value = map.get( counterAndKeyOrValueString );
+                Class<?> propertyType = Object.class;
+                value = helper.convertValueIfNecessary( value, propertyType );
+                
+                //
+                if ( counterAndKeyOrValueString.endsWith( BeanToNestedMapMarshaller.MAP_KEY_IDENTIFIER ) )
+                {
+                  String key = counterAndKeyOrValueString.replaceAll( BeanToNestedMapMarshaller.MAP_KEY_IDENTIFIER + "$", "" );
+                  counterStringToKeyAndValueMap.put( key, new TupleTwo<Object, Object>( value, null ) );
+                }
+                else if ( counterAndKeyOrValueString.endsWith( BeanToNestedMapMarshaller.MAP_VALUE_IDENTIFIER ) )
+                {
+                  String key = counterAndKeyOrValueString.replaceAll( BeanToNestedMapMarshaller.MAP_VALUE_IDENTIFIER + "$", "" );
+                  counterStringToKeyAndValueMap.get( key ).setValueSecond( value );
+                }
+              }
+            }
+            
+            //
+            for ( Entry<String, TupleTwo<Object, Object>> entry : counterStringToKeyAndValueMap.entrySet() )
+            {
+              //
+              TupleTwo<Object, Object> keyAndValue = entry.getValue();
+              mapInstance.put( keyAndValue.getValueFirst(), keyAndValue.getValueSecond() );
             }
           }
           else

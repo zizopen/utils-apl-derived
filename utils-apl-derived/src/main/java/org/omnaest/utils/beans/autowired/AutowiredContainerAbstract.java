@@ -34,7 +34,7 @@ public abstract class AutowiredContainerAbstract<E> implements AutowiredContaine
   /* ********************************************** Methods ********************************************** */
   
   @Override
-  public <O extends E> O getValue( Class<O> clazz )
+  public <O extends E> O getValue( Class<? extends O> clazz )
   {
     //
     O retval = null;

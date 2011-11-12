@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.operation;
+package org.omnaest.utils.operation.special;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -21,7 +21,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.omnaest.utils.operation.OperationBlockingToFastRepeatingExecutions.ToFastInvocationException;
+import org.omnaest.utils.operation.Operation;
+import org.omnaest.utils.operation.special.OperationBlockingToFastRepeatingExecutions;
+import org.omnaest.utils.operation.special.OperationBlockingToFastRepeatingExecutions.ToFastInvocationException;
 import org.omnaest.utils.structure.element.ExceptionHandledResult;
 
 /**

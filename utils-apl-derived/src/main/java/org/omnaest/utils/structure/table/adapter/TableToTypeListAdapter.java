@@ -214,7 +214,7 @@ public class TableToTypeListAdapter<B> extends ListAbstract<B> implements TableA
         List<String> propertyNameMappedByColumnTitleList = new ArrayList<String>();
         for ( Object columnTitleValue : columnTitleValueList )
         {
-          String propertyName = this.propertyNameToColumnTitleMap.getFirstElementBy( columnTitleValue );
+          String propertyName = this.propertyNameToColumnTitleMap.invert().get( columnTitleValue );
           if ( propertyName != null )
           {
             propertyNameMappedByColumnTitleList.add( propertyName );

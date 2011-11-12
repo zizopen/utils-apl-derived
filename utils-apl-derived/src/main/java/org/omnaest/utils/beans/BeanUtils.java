@@ -36,7 +36,6 @@ import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter;
 import org.omnaest.utils.beans.mapconverter.BeanToNestedMapConverter.BeanConversionFilterExcludingPrimitiveAndString;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
-import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
@@ -1178,13 +1177,27 @@ public class BeanUtils
   }
   
   /**
-   * Clones the given Java bean using a {@link BeanToNestedMapConverter} for marshalling and unmarshalling.
+   * Clones the given Java bean using {@link BeanToNestedMapConverter#clone(Object)}
    * 
    * @param bean
-   * @param underlyingMapAware
    * @return
    */
   public static <B> B cloneBeanUsingNestedfMap( B bean )
+  {
+    Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap = null;
+    return cloneBeanUsingNestedfMap( bean, sourceTypeTodestinationTypeMap );
+  }
+  
+  /**
+   * Clones the given Java bean using a {@link BeanToNestedMapConverter#clone(Object)}. Offers a {@link Map} parameter which needs
+   * source types and destination types. For all found source types the destination types are used for instantiation. Missing
+   * properties will just be ignored and no execpetion is thrown.
+   * 
+   * @param bean
+   * @param sourceTypeTodestinationTypeMap
+   * @return
+   */
+  public static <B> B cloneBeanUsingNestedfMap( B bean, Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap )
   {
     //
     B retval = null;
@@ -1195,12 +1208,11 @@ public class BeanUtils
       //
       @SuppressWarnings("unchecked")
       Class<B> beanClass = (Class<B>) bean.getClass();
-      PropertyAccessType propertyAccessType = null;
       BeanToNestedMapConverter<B> beanToNestedMapConverter = new BeanToNestedMapConverter<B>(
                                                                                               new BeanConversionFilterExcludingPrimitiveAndString(),
-                                                                                              beanClass, propertyAccessType );
-      Map<String, Object> map = beanToNestedMapConverter.marshal( bean );
-      retval = beanToNestedMapConverter.unmarshal( map );
+                                                                                              beanClass,
+                                                                                              sourceTypeTodestinationTypeMap );
+      retval = beanToNestedMapConverter.clone( bean );
     }
     
     //

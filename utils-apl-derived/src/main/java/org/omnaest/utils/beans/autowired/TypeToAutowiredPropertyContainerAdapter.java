@@ -88,31 +88,36 @@ public class TypeToAutowiredPropertyContainerAdapter<B> extends AutowiredContain
   }
   
   @Override
-  public int put( Object value )
+  public <O> int put( O object, Class<? extends O>... types )
   {
     //
     int retval = 0;
     
     //
-    if ( value != null )
+    if ( object != null && types.length > 0 )
     {
       //
-      Class<? extends Object> objectClass = value.getClass();
-      for ( Class<?> propertyType : this.propertyTypeToBeanPropertyAccessorSetMap.keySet() )
+      for ( Class<? extends Object> type : types )
       {
-        if ( propertyType.isAssignableFrom( objectClass ) )
+        if ( type != null )
         {
-          //
-          Set<BeanPropertyAccessor<B>> beanPropertyAccessorSet = this.propertyTypeToBeanPropertyAccessorSetMap.get( propertyType );
-          for ( BeanPropertyAccessor<B> beanPropertyAccessor : beanPropertyAccessorSet )
+          for ( Class<?> propertyType : this.propertyTypeToBeanPropertyAccessorSetMap.keySet() )
           {
-            if ( beanPropertyAccessor.hasSetter() )
+            if ( propertyType.isAssignableFrom( type ) )
             {
               //
-              beanPropertyAccessor.setPropertyValue( this.bean, value );
-              
-              //
-              retval++;
+              Set<BeanPropertyAccessor<B>> beanPropertyAccessorSet = this.propertyTypeToBeanPropertyAccessorSetMap.get( propertyType );
+              for ( BeanPropertyAccessor<B> beanPropertyAccessor : beanPropertyAccessorSet )
+              {
+                if ( beanPropertyAccessor.hasSetter() )
+                {
+                  //
+                  beanPropertyAccessor.setPropertyValue( this.bean, object );
+                  
+                  //
+                  retval++;
+                }
+              }
             }
           }
         }
@@ -121,6 +126,13 @@ public class TypeToAutowiredPropertyContainerAdapter<B> extends AutowiredContain
     
     //
     return retval;
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public int put( Object object )
+  {
+    return this.put( object, ( object != null ) ? object.getClass() : null );
   }
   
   @Override
@@ -184,10 +196,11 @@ public class TypeToAutowiredPropertyContainerAdapter<B> extends AutowiredContain
     return retmap;
   }
   
+  @SuppressWarnings("unchecked")
   @Override
-  public <O> Set<O> getValueSet( Class<O> clazz )
+  public <O> Set<O> getValueSet( Class<? extends O> type )
   {
-    return new LinkedHashSet<O>( this.<O> getPropertynameToValueMap( clazz ).values() );
+    return new LinkedHashSet<O>( this.<O> getPropertynameToValueMap( (Class<O>) type ).values() );
   }
   
   @Override
