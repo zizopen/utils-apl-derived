@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.operation;
+package org.omnaest.utils.operation.foreach;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,7 +23,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.junit.Test;
-import org.omnaest.utils.operation.ForEach.Result;
+import org.omnaest.utils.operation.Operation;
+import org.omnaest.utils.operation.foreach.ForEach.Result;
+import org.omnaest.utils.operation.special.OperationBooleanResult;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
 
 public class ForEachTest
@@ -127,7 +129,7 @@ public class ForEachTest
         return null;
       }
     } };
-    new ForEach<String, Void>( this.iterables ).execute( operations );
+    new ForEach<String, Object>( this.iterables ).execute( operations );
     
     //
     assertEquals( 4, executedCounter[0] );
@@ -137,6 +139,40 @@ public class ForEachTest
     Operation<String, String> operation = null;
     Result<String> result = new ForEach<String, String>( this.iterables ).execute( operation );
     assertNotNull( result );
+  }
+  
+  @Test
+  public void testExecuteOperationOfBooleanOperation()
+  {
+    //
+    {
+      //
+      final Boolean value = true;
+      Operation<Boolean, String> operation = new OperationBooleanResult<String>()
+      {
+        @Override
+        public Boolean execute( String parameter )
+        {
+          // 
+          return value;
+        }
+      };
+      assertTrue( new ForEach<String, Boolean>( this.iterables ).execute( operation ).areAllValuesEqualTo( value ) );
+    }
+    {
+      //
+      final Boolean value = false;
+      Operation<Boolean, String> operation = new OperationBooleanResult<String>()
+      {
+        @Override
+        public Boolean execute( String parameter )
+        {
+          // 
+          return value;
+        }
+      };
+      assertTrue( new ForEach<String, Boolean>( this.iterables ).execute( operation ).areAllValuesEqualTo( value ) );
+    }
   }
   
 }
