@@ -1,0 +1,7 @@
+#summary Spring service bean for resolving the HttpSession and HttpServletRequest from the Thread context
+
+= HttpSessionAndServletRequestResolverService =
+
+{{{
+<bean class="org.omnaest.utils.spring.HttpSessionAndServletRequestResolverService" />
+}}}
