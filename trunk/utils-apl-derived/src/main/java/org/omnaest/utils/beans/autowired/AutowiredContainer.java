@@ -25,7 +25,32 @@ import org.omnaest.utils.structure.collection.SetUtils;
  * An {@link AutowiredContainer} provides a ordered collection of objects. All objects can be retrieved by {@link Class} types
  * they are assignable to.<br>
  * <br>
- * This results in the use of interfaces or classes as keys when object instances are put into the {@link AutowiredContainer}.
+ * This results in the use of interfaces or classes as keys when object instances are put into the {@link AutowiredContainer}.<br>
+ * <br>
+ * Usage example:<br>
+ * 
+ * <pre>
+ * public interface ExampleInterface
+ * {
+ * }
+ * 
+ * public class Example extends ExampleInterface
+ * {
+ * }
+ * </pre>
+ * 
+ * <pre>
+ * {
+ *   Example example = new Example();
+ *   autowiredContainer.put( example );
+ *   
+ *   assertEquals( 1, autowiredContainer.getValueSet( Example.class ).size() );
+ *   assertEquals( example, autowiredContainer.getValue( Example.class ) );
+ *   
+ *   assertEquals( 1, autowiredContainer.getValueSet( ExampleInterface.class ).size() );
+ *   assertEquals( example, autowiredContainer.getValue( ExampleInterface.class ) );
+ * }
+ * </pre>
  * 
  * @see ListUtils#from(Iterable)
  * @see SetUtils#from(Iterable)
