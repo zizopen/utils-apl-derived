@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.operation;
+package org.omnaest.utils.operation.foreach;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omnaest.utils.operation.ForEach.Result;
-import org.omnaest.utils.operation.special.OperationBooleanResult;
+import org.omnaest.utils.operation.Operation;
+import org.omnaest.utils.operation.foreach.ForEach.Result;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.list.ListDecorator;
@@ -38,18 +38,27 @@ import org.omnaest.utils.structure.collection.list.ListDecorator;
 public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
 {
   /* ********************************************** Variables ********************************************** */
-  private final Iterable<E>[] iterables;
+  protected final Iterable<E>[] iterables;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * {@link Result} of a {@link ForEach} {@link Operation}
+   * {@link Result} of a {@link ForEach} {@link Operation} which is basically a {@link List} of all returned instances from the
+   * {@link Operation}s.<br>
+   * <br>
+   * Additionally there a some special methods.<br>
+   * E.g. the {@link #areAllValuesEqualTo(Object)} allows to test for equality of the whole result objects:<br>
+   * 
+   * <pre>
+   * boolean result = new ForEach&lt;String, Boolean&gt;( iterables ).execute( operation ).areAllValuesEqualTo( true );
+   * </pre>
    * 
    * @see #convert(CollectionConverter)
+   * @see #areAllValuesEqualTo(Object)
    * @author Omnaest
-   * @param <O>
+   * @param <V>
    */
-  public static class Result<O> extends ListDecorator<O>
+  public static class Result<V> extends ListDecorator<V>
   {
     /* ********************************************** Constants ********************************************** */
     private static final long serialVersionUID = -3838376068713161966L;
@@ -60,7 +69,7 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
      * @see Result
      * @param list
      */
-    protected Result( List<O> list )
+    protected Result( List<V> list )
     {
       super( list );
     }
@@ -71,9 +80,37 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
      * @param collectionConverter
      * @return
      */
-    public <TO> TO convert( CollectionConverter<O, TO> collectionConverter )
+    public <TO> TO convert( CollectionConverter<V, TO> collectionConverter )
     {
       return ListUtils.convert( this.list, collectionConverter );
+    }
+    
+    /**
+     * Returns true if all values of the {@link Result} are equal to the given value
+     * 
+     * @param value
+     * @return
+     */
+    public boolean areAllValuesEqualTo( V value )
+    {
+      //
+      boolean retval = value != null;
+      
+      //
+      if ( retval )
+      {
+        for ( V iValue : this )
+        {
+          retval &= value.equals( iValue );
+          if ( !retval )
+          {
+            break;
+          }
+        }
+      }
+      
+      //
+      return retval;
     }
   }
   
@@ -96,50 +133,9 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
    * @param operations
    * @return
    */
-  public <R, O> R execute( CollectionConverter<O, R> collectionConverter, Operation<O, E>... operations )
+  public <O> V execute( CollectionConverter<O, V> collectionConverter, Operation<O, E>... operations )
   {
-    return this.execute( operations ).convert( collectionConverter );
-  }
-  
-  /**
-   * Executes the given {@link OperationBooleanResult} instance on the {@link Iterable}s and returns a {@link Boolean} result if
-   * all {@link Operation}s will return true and nothing else.
-   * 
-   * @param operation
-   * @return
-   */
-  @SuppressWarnings("unchecked")
-  public boolean execute( OperationBooleanResult<E> operation )
-  {
-    return this.execute( new OperationBooleanResult[] { operation } );
-  }
-  
-  /**
-   * Executes the given {@link OperationBooleanResult} instances on the {@link Iterable}s and returns a {@link Boolean} result if
-   * all {@link Operation}s will return true and nothing else.
-   * 
-   * @param operation
-   * @return
-   */
-  public boolean execute( OperationBooleanResult<E>... operations )
-  {
-    CollectionConverter<Boolean, Boolean> collectionConverter = new CollectionConverter<Boolean, Boolean>()
-    {
-      private boolean retval = true;
-      
-      @Override
-      public Boolean result()
-      {
-        return this.retval;
-      }
-      
-      @Override
-      public void process( Boolean element )
-      {
-        this.retval &= element != null && element;
-      }
-    };
-    return this.execute( collectionConverter, operations );
+    return new ForEach<E, O>( this.iterables ).execute( operations ).convert( collectionConverter );
   }
   
   /**
@@ -161,10 +157,10 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
    * @param operations
    * @return
    */
-  public <O> Result<O> execute( Operation<O, E>... operations )
+  public Result<V> execute( Operation<V, E>... operations )
   {
     //
-    List<O> retlist = new ArrayList<O>();
+    List<V> retlist = new ArrayList<V>();
     
     //
     for ( Iterable<E> iterable : this.iterables )
@@ -173,7 +169,7 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
       {
         for ( E element : iterable )
         {
-          for ( Operation<O, E> operation : operations )
+          for ( Operation<V, E> operation : operations )
           {
             if ( operation != null )
             {
@@ -185,7 +181,7 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
     }
     
     //
-    return new Result<O>( retlist );
+    return new Result<V>( retlist );
   }
   
 }
