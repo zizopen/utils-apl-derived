@@ -2,7 +2,7 @@
 
 = AutowiredContainer =
 
-An AutowiredContainer allows to store arbitrary objects based on their implemented types.
+An AutowiredContainer allows to store and resolve arbitrary objects based on their implemented types. This makes it to an top level container which operates on type aspects.
 
 Example:
 
