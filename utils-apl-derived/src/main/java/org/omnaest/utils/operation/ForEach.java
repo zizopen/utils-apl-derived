@@ -18,6 +18,7 @@ package org.omnaest.utils.operation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.omnaest.utils.operation.ForEach.Result;
 import org.omnaest.utils.operation.special.OperationBooleanResult;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
 import org.omnaest.utils.structure.collection.ListUtils;
@@ -29,8 +30,12 @@ import org.omnaest.utils.structure.collection.list.ListDecorator;
  * @see Operation
  * @see Iterable
  * @author Omnaest
+ * @param <E>
+ *          elements
+ * @param <V>
+ *          result values
  */
-public class ForEach<E>
+public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
 {
   /* ********************************************** Variables ********************************************** */
   private final Iterable<E>[] iterables;
@@ -44,7 +49,7 @@ public class ForEach<E>
    * @author Omnaest
    * @param <O>
    */
-  public class Result<O> extends ListDecorator<O>
+  public static class Result<O> extends ListDecorator<O>
   {
     /* ********************************************** Constants ********************************************** */
     private static final long serialVersionUID = -3838376068713161966L;
@@ -144,7 +149,8 @@ public class ForEach<E>
    * @return
    */
   @SuppressWarnings("unchecked")
-  public <O> Result<O> execute( Operation<O, E> operation )
+  @Override
+  public Result<V> execute( Operation<V, E> operation )
   {
     return this.execute( new Operation[] { operation } );
   }

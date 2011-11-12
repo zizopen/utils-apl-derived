@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.junit.Test;
+import org.omnaest.utils.operation.ForEach.Result;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
 
 public class ForEachTest
@@ -39,7 +40,7 @@ public class ForEachTest
     
     //    
     @SuppressWarnings("unchecked")
-    Boolean retval = new ForEach<String>( this.iterables ).execute( new CollectionConverter<Boolean, Boolean>()
+    Boolean retval = new ForEach<String, Boolean>( this.iterables ).execute( new CollectionConverter<Boolean, Boolean>()
     {
       /* ********************************************** Variables ********************************************** */
       private boolean localRetval = true;
@@ -126,11 +127,16 @@ public class ForEachTest
         return null;
       }
     } };
-    new ForEach<String>( this.iterables ).execute( operations );
+    new ForEach<String, Void>( this.iterables ).execute( operations );
     
     //
     assertEquals( 4, executedCounter[0] );
     assertEquals( 4, executedCounter[1] );
+    
+    //
+    Operation<String, String> operation = null;
+    Result<String> result = new ForEach<String, String>( this.iterables ).execute( operation );
+    assertNotNull( result );
   }
   
 }
