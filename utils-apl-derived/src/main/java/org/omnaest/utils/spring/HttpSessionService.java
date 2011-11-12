@@ -32,7 +32,15 @@ import org.springframework.stereotype.Service;
  * <br>
  * This Spring service bean should be instantiated as session bean with a given reference to a
  * {@link HttpSessionAndServletRequestResolverService} bean. Using annotation configuration will work since such a service is
- * declared as autowired.
+ * declared as autowired.<br>
+ * <br>
+ * Spring configuration example:
+ * 
+ * <pre>
+ * &lt;context:annotation-config /&gt;
+ * &lt;bean class=&quot;org.omnaest.utils.spring.HttpSessionAndServletRequestResolverService&quot; /&gt;
+ * &lt;bean class=&quot;org.omnaest.utils.spring.HttpSessionService&quot; /&gt;
+ * </pre>
  * 
  * @author Omnaest
  */
