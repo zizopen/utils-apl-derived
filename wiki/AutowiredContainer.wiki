@@ -8,14 +8,14 @@ Example:
 
 {{{
 public interface ExampleInterface
- {
- }
+{
+}
  
- public class Example extends ExampleInterface
- {
- }
+public class Example extends ExampleInterface
+{
+}
  
- {
+{
    Example example = new Example();
    autowiredContainer.put( example );
    
@@ -24,8 +24,5 @@ public interface ExampleInterface
    
    assertEquals( 1, autowiredContainer.getValueSet( ExampleInterface.class ).size() );
    assertEquals( example, autowiredContainer.getValue( ExampleInterface.class ) );
- }
-
-
-
-]]]
+}
+}}}
