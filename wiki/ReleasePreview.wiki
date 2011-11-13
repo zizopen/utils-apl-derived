@@ -2,20 +2,3 @@
 #labels preview
 
 = Release preview =
-
- * changed AutowiredContainer signature
- * changed DualMap signature
- * adapted LinkedHashDualMap
- * added decorators: ListDecorator, SetDecorator, CollectionDecorator, IteratorDecorator
- * renamed MonoHierarchy to TokenMonoHierarchy
- * added clone support to BeanUtils and BeanToNestedMapConverter
- * added ForEach and enhanced operation types
- * added MapBuilder
- * added HttpSessionService
- * added obligate HttpSessionFacade 
- * renamed HttpSessionResolver to HttpSessionAndServletRequestResolverService
- * added new PropertyAccessOption option Capitalize
- * added new methods to ForEach Result
- * enhanced ObjectUtils defaultObject method with a Factory contstruct
- * HttpSessionFacadeFactory and HttpSessionService supports configuration of facades
- * Decorators now support JAXB transformation
