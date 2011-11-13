@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.spring;
+package org.omnaest.utils.spring.resource.implementation;
 
 import java.io.InputStream;
 
+import org.omnaest.utils.spring.resource.ResourceLoaderTable;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
@@ -27,26 +28,18 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 /**
- * Extension of the {@link ResourceLoader} of Spring which allows to retrieve {@link Table} instances
- * 
+ * @see ResourceLoader
  * @author Omnaest
  */
-public class ResourceLoaderTable
+public class ResourceLoaderTableImpl implements ResourceLoaderTable
 {
   /* ********************************************** Variables ********************************************** */
   @Autowired
-  private ResourceLoader resourceLoader = null;
+  protected ResourceLoader resourceLoader = null;
   
   /* ********************************************** Methods ********************************************** */
   
-  /**
-   * Returns a {@link Table} for the given resource location which is parsed using the given {@link TableUnmarshaller}
-   * 
-   * @see TableUnmarshaller
-   * @param location
-   * @param tableUnmarshaller
-   * @return
-   */
+  @Override
   public <E> Table<E> getTableFrom( String location, TableUnmarshaller<E> tableUnmarshaller )
   {
     //
@@ -73,16 +66,7 @@ public class ResourceLoaderTable
     return table;
   }
   
-  /**
-   * Returns a new {@link Table} instance for the location of an Excel xls file
-   * 
-   * @param location
-   * @param workSheetName
-   * @param hasTableName
-   * @param hasColumnTitles
-   * @param hasRowTitles
-   * @return
-   */
+  @Override
   public <E> Table<E> getTableFromXLS( String location,
                                        String workSheetName,
                                        boolean hasTableName,
@@ -94,17 +78,7 @@ public class ResourceLoaderTable
     return this.getTableFrom( location, tableUnmarshaller );
   }
   
-  /**
-   * Returns a new {@link Table} instance for the location of a csv file
-   * 
-   * @param location
-   * @param encoding
-   * @param delimiter
-   * @param hasTableName
-   * @param hasColumnTitles
-   * @param hasRowTitles
-   * @return
-   */
+  @Override
   public <E> Table<E> getTableFromCSV( String location,
                                        String encoding,
                                        String delimiter,
@@ -115,11 +89,6 @@ public class ResourceLoaderTable
     //
     return this.getTableFrom( location, new TableUnmarshallerCSV<E>( encoding, delimiter, hasTableName, hasColumnTitles,
                                                                      hasRowTitles ) );
-  }
-  
-  public void setResourceLoader( ResourceLoader resourceLoader )
-  {
-    this.resourceLoader = resourceLoader;
   }
   
 }

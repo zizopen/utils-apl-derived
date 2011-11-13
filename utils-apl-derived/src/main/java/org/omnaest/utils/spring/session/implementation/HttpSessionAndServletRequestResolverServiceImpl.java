@@ -13,39 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.spring;
+package org.omnaest.utils.spring.session.implementation;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.omnaest.utils.web.HttpServletRequestResolver;
-import org.omnaest.utils.web.HttpSessionResolver;
+import org.omnaest.utils.spring.session.HttpSessionAndServletRequestResolverService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.filter.RequestContextFilter;
 
 /**
- * The {@link HttpSessionAndServletRequestResolverService} provides methods to resolve the {@link HttpSession} and the
- * {@link HttpServletRequest} for a thread. It also can be injected as {@link Service}. It is based on the
- * {@link RequestContextHolder} of Spring.<br>
- * <br>
- * This needs the spring {@link RequestContextListener} or {@link RequestContextFilter} to be enabled within the web.xml.
- * 
- * @see #resolveHttpSession()
+ * @see HttpSessionAndServletRequestResolverService
  * @author Omnaest
  */
 @Service
-public class HttpSessionAndServletRequestResolverService implements HttpSessionResolver, HttpServletRequestResolver
+public class HttpSessionAndServletRequestResolverServiceImpl implements HttpSessionAndServletRequestResolverService
 {
-  /**
-   * Resolves the {@link HttpSession} using the spring {@link RequestContextHolder} from the {@link Thread}s request context.
-   * Returns null if no {@link HttpSession} exists.
-   * 
-   * @return
-   */
+  
   @Override
   public HttpSession resolveHttpSession()
   {
@@ -63,10 +49,6 @@ public class HttpSessionAndServletRequestResolverService implements HttpSessionR
     return session;
   }
   
-  /**
-   * Resolves the {@link HttpServletRequest} using the spring {@link RequestContextHolder} from the {@link Thread}s request
-   * context. Returns null if no {@link HttpServletRequest} exists.
-   */
   @Override
   public HttpServletRequest resolveHttpServletRequest()
   {

@@ -143,4 +143,30 @@ public class ObjectUtilsTest
       assertEquals( object, ( (TestValueOf) objectCasted ).getString() );
     }
   }
+  
+  @Test
+  public void testDefaultObject()
+  {
+    {
+      //
+      Double object = null;
+      Double defaultObject = 1.34;
+      Double value = ObjectUtils.defaultObject( object, defaultObject );
+      assertEquals( defaultObject, value );
+    }
+    {
+      //
+      Double object = 5.67;
+      Double defaultObject = 1.34;
+      Double value = ObjectUtils.defaultObject( object, defaultObject );
+      assertEquals( object, value );
+    }
+    {
+      //
+      Double object = null;
+      Double defaultObject = null;
+      Double value = ObjectUtils.defaultObject( object, defaultObject );
+      assertEquals( null, value );
+    }
+  }
 }

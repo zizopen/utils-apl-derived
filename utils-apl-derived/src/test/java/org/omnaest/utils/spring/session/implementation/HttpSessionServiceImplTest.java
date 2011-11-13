@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.spring;
+package org.omnaest.utils.spring.session.implementation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,6 +27,7 @@ import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.omnaest.utils.spring.session.HttpSessionService;
 import org.omnaest.utils.web.HttpSessionFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -42,7 +43,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "HttpSessionServiceTestAC.xml" })
-public class HttpSessionServiceTest
+public class HttpSessionServiceImplTest
 {
   /* ********************************************** Variables ********************************************** */
   @Autowired
