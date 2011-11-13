@@ -22,7 +22,6 @@ import javax.servlet.http.HttpSession;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
 import org.omnaest.utils.structure.element.converter.Converter;
 
-/* ********************************************** Classes/Interfaces ********************************************** */
 /**
  * Super type interface for all {@link HttpSessionFacade}s. This allows to track all available {@link HttpSessionFacade}s by
  * searching for derivative types. <br>

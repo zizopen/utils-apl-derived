@@ -22,6 +22,7 @@ import javax.servlet.http.HttpSession;
 
 import org.omnaest.utils.beans.adapter.PropertyAccessOption;
 import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter;
+import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
 import org.omnaest.utils.structure.element.converter.Converter;
 
@@ -91,8 +92,38 @@ public class HttpSessionFacadeFactory
    */
   public <T extends HttpSessionFacade> T newHttpSessionFacade( Class<T> type )
   {
+    Configuration configuration = null;
+    return this.newHttpSessionFacade( type, configuration );
+  }
+  
+  /**
+   * Creates a new proxy instance for the given {@link Class} type which relies on the {@link HttpSession} attributes.<br>
+   * <br>
+   * 
+   * @see Configuration
+   * @param type
+   * @param configuration
+   *          : if null a default configuration is used
+   * @return
+   */
+  public <T extends HttpSessionFacade> T newHttpSessionFacade( Class<T> type, Configuration configuration )
+  {
     //    
     T retval = null;
+    
+    //
+    if ( configuration == null )
+    {
+      //
+      PropertyAccessOption propertyAccessOption = PropertyAccessOption.PROPERTY;
+      boolean isRegardingAdapterAnnotation = true;
+      boolean underlyingMapAware = true;
+      boolean isRegardingPropertyNameTemplate = true;
+      boolean simulatingToString = true;
+      configuration = new PropertynameMapToTypeAdapter.Configuration( propertyAccessOption, isRegardingAdapterAnnotation,
+                                                                      isRegardingPropertyNameTemplate, underlyingMapAware,
+                                                                      simulatingToString );
+    }
     
     //
     if ( this.httpSessionResolver != null )
@@ -104,20 +135,7 @@ public class HttpSessionFacadeFactory
         //
         Map<String, Object> httpSessionMap = HttpSessionToMapAdapter.newInstance( httpSession );
         
-        //
-        PropertyAccessOption propertyAccessOption = null;
-        boolean isRegardingAdapterAnnotation = true;
-        boolean underlyingMapAware = true;
-        boolean isRegardingPropertyNameTemplate = true;
-        boolean simulatingToString = true;
-        retval = PropertynameMapToTypeAdapter.newInstance( httpSessionMap,
-                                                           type,
-                                                           new PropertynameMapToTypeAdapter.Configuration(
-                                                                                                           propertyAccessOption,
-                                                                                                           isRegardingAdapterAnnotation,
-                                                                                                           isRegardingPropertyNameTemplate,
-                                                                                                           underlyingMapAware,
-                                                                                                           simulatingToString ) );
+        retval = PropertynameMapToTypeAdapter.newInstance( httpSessionMap, type, configuration );
       }
     }
     

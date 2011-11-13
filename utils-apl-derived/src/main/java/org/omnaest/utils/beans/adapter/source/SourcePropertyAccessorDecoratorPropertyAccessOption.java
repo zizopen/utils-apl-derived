@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.adapter.source;
 
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.beans.adapter.PropertyAccessOption;
 import org.springframework.util.Assert;
 
@@ -84,11 +85,15 @@ public class SourcePropertyAccessorDecoratorPropertyAccessOption extends SourceP
     {
       if ( PropertyAccessOption.PROPERTY_LOWERCASE.equals( this.propertyAccessOption ) )
       {
-        retval = propertyName.toLowerCase();
+        retval = StringUtils.lowerCase( propertyName );
       }
       else if ( PropertyAccessOption.PROPERTY_UPPERCASE.equals( this.propertyAccessOption ) )
       {
-        retval = propertyName.toUpperCase();
+        retval = StringUtils.upperCase( propertyName );
+      }
+      else if ( PropertyAccessOption.PROPERTY_CAPITALIZED.equals( this.propertyAccessOption ) )
+      {
+        retval = StringUtils.capitalize( propertyName );
       }
     }
     

@@ -31,10 +31,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class FutureSimple<V> implements Future<V>
 {
   /* ********************************************** Variables ********************************************** */
-  private AtomicBoolean  shouldCancel   = new AtomicBoolean( false );
-  private AtomicBoolean  isCancelled    = new AtomicBoolean( false );
-  private V              value          = null;
-  private CountDownLatch countDownLatch = new CountDownLatch( 1 );
+  private final AtomicBoolean  shouldCancel   = new AtomicBoolean( false );
+  private final AtomicBoolean  isCancelled    = new AtomicBoolean( false );
+  private final CountDownLatch countDownLatch = new CountDownLatch( 1 );
+  private V                    value          = null;
   
   /* ********************************************** Methods ********************************************** */
   

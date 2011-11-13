@@ -105,7 +105,7 @@ public class PropertynameMapToTypeAdapterTest
   }
   
   @Test
-  public void testNewInstanceUpperAndLowercasePropertyAccess()
+  public void testNewInstancePropertyAccessVariations()
   {
     //
     {
@@ -177,6 +177,43 @@ public class PropertynameMapToTypeAdapterTest
       
       assertEquals( "New String value", map.get( "FIELDSTRING" ) );
       assertEquals( 11.0, (Double) map.get( "FIELDDOUBLE" ), 0.01 );
+      assertEquals( 2, map.size() );
+    }
+    
+    //
+    {
+      //
+      Map<String, Object> map = new HashMap<String, Object>();
+      
+      //reading from facade
+      
+      PropertyAccessOption propertyAccessOption = PropertyAccessOption.PROPERTY_CAPITALIZED;
+      boolean isRegardingAdapterAnnotation = false;
+      boolean isRegardingPropertyNameTemplate = false;
+      boolean underlyingMapAware = false;
+      boolean simulatingToString = false;
+      TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class,
+                                                                    new Configuration( propertyAccessOption,
+                                                                                       isRegardingAdapterAnnotation,
+                                                                                       isRegardingPropertyNameTemplate,
+                                                                                       underlyingMapAware, simulatingToString ) );
+      
+      //
+      map.put( "FieldString", "String value" );
+      map.put( "FieldDouble", 10.0 );
+      
+      assertEquals( "String value", testType.getFieldString() );
+      assertEquals( 10.0, testType.getFieldDouble(), 0.01 );
+      
+      //writing to facade
+      testType.setFieldString( "New String value" );
+      testType.setFieldDouble( 11.0 );
+      
+      assertEquals( "New String value", testType.getFieldString() );
+      assertEquals( 11.0, testType.getFieldDouble(), 0.01 );
+      
+      assertEquals( "New String value", map.get( "FieldString" ) );
+      assertEquals( 11.0, (Double) map.get( "FieldDouble" ), 0.01 );
       assertEquals( 2, map.size() );
     }
   }

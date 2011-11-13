@@ -55,6 +55,14 @@ public class SetDecorator<E> implements Set<E>, Serializable
   }
   
   /**
+   * @see SetDecorator
+   */
+  protected SetDecorator()
+  {
+    super();
+  }
+  
+  /**
    * @return
    * @see java.util.Set#size()
    */
