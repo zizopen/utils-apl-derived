@@ -14,3 +14,8 @@
  * added HttpSessionService
  * added obligate HttpSessionFacade 
  * renamed HttpSessionResolver to HttpSessionAndServletRequestResolverService
+ * added new PropertyAccessOption option Capitalize
+ * added new methods to ForEach Result
+ * enhanced ObjectUtils defaultObject method with a Factory contstruct
+ * HttpSessionFacadeFactory and HttpSessionService supports configuration of facades
+ * Decorators now support JAXB transformation
