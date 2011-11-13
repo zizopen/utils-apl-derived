@@ -16,8 +16,8 @@
 package org.omnaest.utils.beans.adapter.source;
 
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.beans.adapter.PropertyAccessOption;
-import org.springframework.util.Assert;
 
 /**
  * {@link SourcePropertyAccessorDecorator} which will convert incoming keys based on a {@link PropertyAccessOption}
@@ -54,14 +54,14 @@ public class SourcePropertyAccessorDecoratorPropertyAccessOption extends SourceP
   }
   
   @Override
-  public void setValue( String propertyName, Object value, PropertyMetaInformation propertyMetaInformation )
+  public void setValue( String propertyName, Object value, Class<?> parameterType, PropertyMetaInformation propertyMetaInformation )
   {
     //
     String propertyNameProcessed = this.processPropertyNameWithTemplate( propertyName );
     
     //
     Assert.notNull( this.sourcePropertyAccessor );
-    this.sourcePropertyAccessor.setValue( propertyNameProcessed, value, propertyMetaInformation );
+    this.sourcePropertyAccessor.setValue( propertyNameProcessed, value, parameterType, propertyMetaInformation );
   }
   
   @Override

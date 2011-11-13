@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.omnaest.utils.beans.adapter.SourcePropertyAccessorToTypeAdapter;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor.PropertyMetaInformation;
@@ -78,7 +79,7 @@ public class SourcePropertyAccessorDecoratorAdapterTest
     Mockito.doNothing()
            .when( this.underlyingSourcePropertyAccessor )
            .setValue( this.argumentCaptorPropertyName.capture(), this.argumentCaptorPropertyValue.capture(),
-                      this.argumentCaptorPropertyMetaInformation.capture() );
+                      (Class<?>) Matchers.anyObject(), this.argumentCaptorPropertyMetaInformation.capture() );
   }
   
   @Test

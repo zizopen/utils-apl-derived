@@ -17,10 +17,10 @@ package org.omnaest.utils.beans.adapter.source;
 
 import java.lang.reflect.Method;
 
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
-import org.springframework.util.Assert;
 
 /**
  * {@link SourcePropertyAccessorDecorator} which will listen to {@link Converter} annotated {@link Method}s.
@@ -49,7 +49,7 @@ public class SourcePropertyAccessorDecoratorAdapter extends SourcePropertyAccess
   }
   
   @Override
-  public void setValue( String propertyName, Object value, PropertyMetaInformation propertyMetaInformation )
+  public void setValue( String propertyName, Object value, Class<?> parameterType, PropertyMetaInformation propertyMetaInformation )
   {
     //
     Converter converter = propertyMetaInformation.getPropertyAnnotationAutowiredContainer().getValue( Converter.class );
@@ -60,7 +60,7 @@ public class SourcePropertyAccessorDecoratorAdapter extends SourcePropertyAccess
     
     //
     Assert.notNull( this.sourcePropertyAccessor );
-    this.sourcePropertyAccessor.setValue( propertyName, value, propertyMetaInformation );
+    this.sourcePropertyAccessor.setValue( propertyName, value, parameterType, propertyMetaInformation );
   }
   
   @Override

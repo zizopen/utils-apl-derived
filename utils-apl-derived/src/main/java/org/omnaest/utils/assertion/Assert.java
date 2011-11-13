@@ -46,20 +46,21 @@ public class Assert
   /**
    * @param expression
    */
-  public static void assertTrue( boolean expression )
+  public static void isTrue( boolean expression )
   {
-    assertTrue( expression, "Expression must be true but was false" );
+    isTrue( expression, "Expression must be true, but was false" );
   }
   
   /**
    * @param expression
    * @param message
    */
-  public static void assertTrue( boolean expression, String message )
+  public static void isTrue( boolean expression, String message )
   {
     if ( !expression )
     {
       throw new IllegalArgumentException( message );
     }
   }
+  
 }

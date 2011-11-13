@@ -69,4 +69,14 @@ public class ElementHolderUnmodifiable<E>
     this.element = element;
   }
   
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "ElementHolderUnmodifiable [element=" );
+    builder.append( this.element );
+    builder.append( "]" );
+    return builder.toString();
+  }
+  
 }
