@@ -6,6 +6,6 @@ The HttpSessionService allows to manage the HttpSession using a HttpSessionFacad
 
 {{{
 <context:annotation-config />
-<bean class="org.omnaest.utils.spring.HttpSessionAndServletRequestResolverService" />
-<bean class="org.omnaest.utils.spring.HttpSessionService" />
+<bean class="org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceImpl" />
+<bean class="org.omnaest.utils.spring.session.implementation.HttpSessionServiceImpl" />
 }}}
