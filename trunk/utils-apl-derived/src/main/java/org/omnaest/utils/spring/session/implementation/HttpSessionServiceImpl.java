@@ -19,11 +19,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration;
 import org.omnaest.utils.spring.session.HttpSessionAndServletRequestResolverService;
 import org.omnaest.utils.spring.session.HttpSessionService;
 import org.omnaest.utils.web.HttpSessionFacade;
 import org.omnaest.utils.web.HttpSessionFacadeFactory;
+import org.omnaest.utils.web.HttpSessionFacadeFactory.Configuration;
 import org.omnaest.utils.web.HttpSessionToMapAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;

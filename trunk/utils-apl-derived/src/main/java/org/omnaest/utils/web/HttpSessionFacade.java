@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 
 import javax.servlet.http.HttpSession;
 
+import org.omnaest.utils.beans.adapter.source.DefaultValue;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
 import org.omnaest.utils.structure.element.converter.Converter;
 
@@ -30,6 +31,7 @@ import org.omnaest.utils.structure.element.converter.Converter;
  * <ul>
  * <li>{@link Converter}</li>
  * <li>{@link PropertyNameTemplate}</li>
+ * <li>{@link DefaultValue}</li>
  * </ul>
  * <br>
  * <br>
@@ -44,6 +46,7 @@ import org.omnaest.utils.structure.element.converter.Converter;
  *   
  *   public void setFieldDouble( Double fieldDouble );
  *   
+ *   &#064;DefaulValue(value = &quot;3.45&quot;)
  *   public Double getFieldDouble();
  *   
  *   &#064;PropertyNameTemplate(&quot;OTHERFIELD&quot;)

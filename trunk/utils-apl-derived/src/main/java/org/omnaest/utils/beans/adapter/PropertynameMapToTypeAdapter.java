@@ -117,22 +117,29 @@ public class PropertynameMapToTypeAdapter<T>
     
     /* ********************************************** Methods ********************************************** */
     
+    /**
+     * @see Configuration
+     */
     public Configuration()
     {
       super();
     }
     
     /**
+     * @see Configuration
      * @param propertyAccessOption
      * @param isRegardingAdapterAnnotation
-     * @param isRegardingPropertyNameTemplate
+     * @param isRegardingPropertyNameTemplateAnnotation
+     * @param isRegardingDefaultValueAnnotation
      * @param underlyingMapAware
      * @param simulatingToString
      */
     public Configuration( PropertyAccessOption propertyAccessOption, boolean isRegardingAdapterAnnotation,
-                          boolean isRegardingPropertyNameTemplate, boolean underlyingMapAware, boolean simulatingToString )
+                          boolean isRegardingPropertyNameTemplateAnnotation, boolean isRegardingDefaultValueAnnotation,
+                          boolean underlyingMapAware, boolean simulatingToString )
     {
-      super( propertyAccessOption, isRegardingAdapterAnnotation, isRegardingPropertyNameTemplate );
+      super( propertyAccessOption, isRegardingAdapterAnnotation, isRegardingPropertyNameTemplateAnnotation,
+             isRegardingDefaultValueAnnotation );
       this.underlyingMapAware = underlyingMapAware;
       this.simulatingToString = simulatingToString;
     }
@@ -210,7 +217,10 @@ public class PropertynameMapToTypeAdapter<T>
   {
     
     @Override
-    public void setValue( String propertyName, Object value, PropertyMetaInformation propertyMetaInformation )
+    public void setValue( String propertyName,
+                          Object value,
+                          Class<?> parameterType,
+                          PropertyMetaInformation propertyMetaInformation )
     {
       PropertynameMapToTypeAdapter.this.map.put( propertyName, value );
     }

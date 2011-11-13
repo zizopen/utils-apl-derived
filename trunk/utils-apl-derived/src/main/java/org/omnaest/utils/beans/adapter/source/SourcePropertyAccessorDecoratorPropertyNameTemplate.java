@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.Assert;
+import org.omnaest.utils.assertion.Assert;
 
 /**
  * {@link SourcePropertyAccessorDecorator} which will listen to {@link PropertyNameTemplate} annotated {@link Method}s and
@@ -42,7 +42,7 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourceP
   }
   
   @Override
-  public void setValue( String propertyName, Object value, PropertyMetaInformation propertyMetaInformation )
+  public void setValue( String propertyName, Object value, Class<?> parameterType, PropertyMetaInformation propertyMetaInformation )
   {
     //
     String propertyNameProcessed = SourcePropertyAccessorDecoratorPropertyNameTemplate.processPropertyNameWithTemplate( propertyName,
@@ -50,7 +50,7 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourceP
     
     //
     Assert.notNull( this.sourcePropertyAccessor );
-    this.sourcePropertyAccessor.setValue( propertyNameProcessed, value, propertyMetaInformation );
+    this.sourcePropertyAccessor.setValue( propertyNameProcessed, value, parameterType, propertyMetaInformation );
   }
   
   @Override

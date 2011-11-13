@@ -116,13 +116,15 @@ public class PropertynameMapToTypeAdapterTest
       
       PropertyAccessOption propertyAccessOption = PropertyAccessOption.PROPERTY_LOWERCASE;
       boolean isRegardingAdapterAnnotation = false;
-      boolean isRegardingPropertyNameTemplate = false;
+      boolean isRegardingPropertyNameTemplateAnnotation = false;
       boolean underlyingMapAware = false;
       boolean simulatingToString = false;
+      boolean isRegardingDefaultValueAnnotation = false;
       TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class,
                                                                     new Configuration( propertyAccessOption,
                                                                                        isRegardingAdapterAnnotation,
-                                                                                       isRegardingPropertyNameTemplate,
+                                                                                       isRegardingPropertyNameTemplateAnnotation,
+                                                                                       isRegardingDefaultValueAnnotation,
                                                                                        underlyingMapAware, simulatingToString ) );
       
       //
@@ -152,13 +154,15 @@ public class PropertynameMapToTypeAdapterTest
       //reading from facade
       PropertyAccessOption propertyAccessOption = PropertyAccessOption.PROPERTY_UPPERCASE;
       boolean isRegardingAdapterAnnotation = false;
-      boolean isRegardingPropertyNameTemplate = false;
+      boolean isRegardingPropertyNameTemplateAnnotation = false;
       boolean underlyingMapAware = false;
       boolean simulatingToString = false;
+      boolean isRegardingDefaultValueAnnotation = false;
       TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class,
                                                                     new Configuration( propertyAccessOption,
                                                                                        isRegardingAdapterAnnotation,
-                                                                                       isRegardingPropertyNameTemplate,
+                                                                                       isRegardingPropertyNameTemplateAnnotation,
+                                                                                       isRegardingDefaultValueAnnotation,
                                                                                        underlyingMapAware, simulatingToString ) );
       
       //
@@ -189,13 +193,15 @@ public class PropertynameMapToTypeAdapterTest
       
       PropertyAccessOption propertyAccessOption = PropertyAccessOption.PROPERTY_CAPITALIZED;
       boolean isRegardingAdapterAnnotation = false;
-      boolean isRegardingPropertyNameTemplate = false;
+      boolean isRegardingPropertyNameTemplateAnnotation = false;
       boolean underlyingMapAware = false;
       boolean simulatingToString = false;
+      boolean isRegardingDefaultValueAnnotation = false;
       TestType testType = PropertynameMapToTypeAdapter.newInstance( map, TestType.class,
                                                                     new Configuration( propertyAccessOption,
                                                                                        isRegardingAdapterAnnotation,
-                                                                                       isRegardingPropertyNameTemplate,
+                                                                                       isRegardingPropertyNameTemplateAnnotation,
+                                                                                       isRegardingDefaultValueAnnotation,
                                                                                        underlyingMapAware, simulatingToString ) );
       
       //
@@ -273,18 +279,20 @@ public class PropertynameMapToTypeAdapterTest
     Map<String, Object> map = new HashMap<String, Object>();
     
     //reading from facade
+    PropertyAccessOption propertyAccessOption = null;
     boolean underlyingMapAware = true;
     boolean simulatingToString = true;
-    boolean isRegardingPropertyNameTemplate = true;
+    boolean isRegardingPropertyNameTemplateAnnotation = true;
     boolean isRegardingAdapterAnnotation = true;
-    PropertyAccessOption propertyAccessOption = null;
+    boolean isRegardingDefaultValueAnnotation = false;
     
     TestTypeWithAdapter testTypeWithAdapter = PropertynameMapToTypeAdapter.newInstance( map,
                                                                                         TestTypeWithAdapter.class,
                                                                                         new Configuration(
                                                                                                            propertyAccessOption,
                                                                                                            isRegardingAdapterAnnotation,
-                                                                                                           isRegardingPropertyNameTemplate,
+                                                                                                           isRegardingPropertyNameTemplateAnnotation,
+                                                                                                           isRegardingDefaultValueAnnotation,
                                                                                                            underlyingMapAware,
                                                                                                            simulatingToString ) );
     

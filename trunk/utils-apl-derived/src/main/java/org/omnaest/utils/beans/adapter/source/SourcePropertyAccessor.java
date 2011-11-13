@@ -37,12 +37,18 @@ public interface SourcePropertyAccessor
   public static class PropertyMetaInformation
   {
     /* ********************************************** Variables ********************************************** */
-    protected Object[]                       additionalArguments                  = null;
-    protected AutowiredContainer<Annotation> propertyAnnotationAutowiredContainer = null;
-    protected AutowiredContainer<Annotation> classAnnotationAutowiredContainer    = null;
+    protected final Object[]                       additionalArguments;
+    protected final AutowiredContainer<Annotation> propertyAnnotationAutowiredContainer;
+    protected final AutowiredContainer<Annotation> classAnnotationAutowiredContainer;
     
     /* ********************************************** Methods ********************************************** */
     
+    /**
+     * @see PropertyMetaInformation
+     * @param additionalArguments
+     * @param propertyAnnotationAutowiredContainer
+     * @param classAnnotationAutowiredContainer
+     */
     public PropertyMetaInformation( Object[] additionalArguments,
                                     AutowiredContainer<Annotation> propertyAnnotationAutowiredContainer,
                                     AutowiredContainer<Annotation> classAnnotationAutowiredContainer )
@@ -53,16 +59,25 @@ public interface SourcePropertyAccessor
       this.classAnnotationAutowiredContainer = classAnnotationAutowiredContainer;
     }
     
+    /**
+     * @return
+     */
     public Object[] getAdditionalArguments()
     {
       return this.additionalArguments;
     }
     
+    /**
+     * @return
+     */
     public AutowiredContainer<Annotation> getPropertyAnnotationAutowiredContainer()
     {
       return this.propertyAnnotationAutowiredContainer;
     }
     
+    /**
+     * @return
+     */
     public AutowiredContainer<Annotation> getClassAnnotationAutowiredContainer()
     {
       return this.classAnnotationAutowiredContainer;
@@ -91,9 +106,11 @@ public interface SourcePropertyAccessor
    * @see PropertyMetaInformation
    * @param propertyName
    * @param value
+   * @param targetParameterTypes
+   *          : types of the parameter of the property setter method, not the type of the
    * @param propertyMetaInformation
    */
-  public void setValue( String propertyName, Object value, PropertyMetaInformation propertyMetaInformation );
+  public void setValue( String propertyName, Object value, Class<?> parameterType, PropertyMetaInformation propertyMetaInformation );
   
   /**
    * Returns the value related to the given property name.

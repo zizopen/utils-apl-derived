@@ -32,6 +32,7 @@ import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor.PropertyMetaInformation;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessorDecorator;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessorDecoratorAdapter;
+import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessorDecoratorDefaultValue;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessorDecoratorPropertyAccessOption;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessorDecoratorPropertyNameTemplate;
 import org.omnaest.utils.beans.autowired.AutowiredContainer;
@@ -61,7 +62,6 @@ public class SourcePropertyAccessorToTypeAdapter<T>
   protected List<Annotation>                   declaredAnnotationListOfType               = null;
   protected Map<Method, Set<Annotation>>       declaredMethodToAnnotationSetMap           = null;
   protected Map<String, Set<Annotation>>       propertyNameToBeanPropertyAnnotationSetMap = null;
-  protected Map<Method, Class<?>>              methodToReturnTypeMap                      = null;
   protected Map<String, BeanMethodInformation> methodNameToBeanMethodInformationMap       = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
@@ -90,7 +90,7 @@ public class SourcePropertyAccessorToTypeAdapter<T>
         if ( beanMethodInformation != null )
         {
           //
-          final Class<?> returnType = SourcePropertyAccessorToTypeAdapter.this.methodToReturnTypeMap.get( method );
+          final Class<?> returnType = beanMethodInformation.getMethod().getReturnType();//  SourcePropertyAccessorToTypeAdapter.this.methodToReturnTypeMap.get( method );
           final String referencedFieldName = beanMethodInformation.getReferencedFieldName();
           
           //          
@@ -131,16 +131,18 @@ public class SourcePropertyAccessorToTypeAdapter<T>
               //
               String propertyName = referencedFieldName;
               Object value = args[0];
+              Class<?>[] targetParameterTypes = beanMethodInformation.getMethod().getParameterTypes();
+              Class<?> parameterType = targetParameterTypes != null && targetParameterTypes.length >= 1 ? targetParameterTypes[0]
+                                                                                                       : null;
               
               //
               Object[] additionalArguments = isSetterWithAdditionalArguments ? Arrays.copyOfRange( args, 1, args.length )
                                                                             : new Object[0];
-              PropertyMetaInformation propertyMetaInformation = new PropertyMetaInformation(
-                                                                                             additionalArguments,
-                                                                                             propertyAnnotationAutowiredContainer,
-                                                                                             classAnnotationAutowiredContainer );
+              PropertyMetaInformation propertyMetaInformation = new PropertyMetaInformation( additionalArguments,
               
-              SourcePropertyAccessorToTypeAdapter.this.sourcePropertyAccessor.setValue( propertyName, value,
+              propertyAnnotationAutowiredContainer, classAnnotationAutowiredContainer );
+              
+              SourcePropertyAccessorToTypeAdapter.this.sourcePropertyAccessor.setValue( propertyName, value, parameterType,
                                                                                         propertyMetaInformation );
               
               //
@@ -164,7 +166,8 @@ public class SourcePropertyAccessorToTypeAdapter<T>
    * <ul>
    * <li>{@link #setPropertyAccessOption(PropertyAccessOption)}</li>
    * <li>{@link #setRegardingAdapterAnnotation(boolean)}</li>
-   * <li>{@link #setRegardingPropertyNameTemplate(boolean)}</li>
+   * <li>{@link #setRegardingPropertyNameTemplateAnnotation(boolean)}</li>
+   * <li>{@link #setRegardingDefaultValueAnnotation(boolean)}</li>
    * </ul>
    * <br>
    * <br>
@@ -185,13 +188,14 @@ public class SourcePropertyAccessorToTypeAdapter<T>
   public static class Configuration
   {
     /* ********************************************** Variables ********************************************** */
-    private Class<?>[]                         interfaces                        = null;
-    private MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators = null;
-    private SourcePropertyAccessorDecorator[]  sourcePropertyAccessorDecorators  = null;
-    private PropertyAccessOption               propertyAccessOption              = PropertyAccessOption.PROPERTY;
-    private boolean                            isRegardingAdapterAnnotation      = false;
-    private boolean                            isRegardingPropertyNameTemplate   = false;
-    private RegardedAnnotationScope            regardedAnnotationScope           = RegardedAnnotationScope.INHERITED;
+    private Class<?>[]                         interfaces                                = null;
+    private MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators         = null;
+    private SourcePropertyAccessorDecorator[]  sourcePropertyAccessorDecorators          = null;
+    private PropertyAccessOption               propertyAccessOption                      = PropertyAccessOption.PROPERTY;
+    private boolean                            isRegardingAdapterAnnotation              = false;
+    private boolean                            isRegardingPropertyNameTemplateAnnotation = false;
+    private boolean                            isRegardingDefaultValueAnnotation         = false;
+    private RegardedAnnotationScope            regardedAnnotationScope                   = RegardedAnnotationScope.INHERITED;
     
     /* ********************************************** Classes/Interfaces ********************************************** */
     /**
@@ -213,20 +217,6 @@ public class SourcePropertyAccessorToTypeAdapter<T>
     /* ********************************************** Methods ********************************************** */
     
     /**
-     * @param propertyAccessOption
-     * @param isRegardingAdapterAnnotation
-     * @param isRegardingPropertyNameTemplate
-     */
-    public Configuration( PropertyAccessOption propertyAccessOption, boolean isRegardingAdapterAnnotation,
-                          boolean isRegardingPropertyNameTemplate )
-    {
-      super();
-      this.propertyAccessOption = propertyAccessOption;
-      this.isRegardingAdapterAnnotation = isRegardingAdapterAnnotation;
-      this.isRegardingPropertyNameTemplate = isRegardingPropertyNameTemplate;
-    }
-    
-    /**
      * @param methodInvocationHandlerDecorators
      * @param sourcePropertyAccessorDecorators
      */
@@ -236,6 +226,23 @@ public class SourcePropertyAccessorToTypeAdapter<T>
       super();
       this.methodInvocationHandlerDecorators = methodInvocationHandlerDecorators;
       this.sourcePropertyAccessorDecorators = sourcePropertyAccessorDecorators;
+    }
+    
+    /**
+     * @see Configuration
+     * @param propertyAccessOption
+     * @param isRegardingAdapterAnnotation
+     * @param isRegardingPropertyNameTemplateAnnotation
+     * @param isRegardingDefaultValueAnnotation
+     */
+    public Configuration( PropertyAccessOption propertyAccessOption, boolean isRegardingAdapterAnnotation,
+                          boolean isRegardingPropertyNameTemplateAnnotation, boolean isRegardingDefaultValueAnnotation )
+    {
+      super();
+      this.propertyAccessOption = propertyAccessOption;
+      this.isRegardingAdapterAnnotation = isRegardingAdapterAnnotation;
+      this.isRegardingPropertyNameTemplateAnnotation = isRegardingPropertyNameTemplateAnnotation;
+      this.isRegardingDefaultValueAnnotation = isRegardingDefaultValueAnnotation;
     }
     
     /**
@@ -341,14 +348,14 @@ public class SourcePropertyAccessorToTypeAdapter<T>
       this.isRegardingAdapterAnnotation = isRegardingAdapterAnnotation;
     }
     
-    public boolean isRegardingPropertyNameTemplate()
+    public boolean isRegardingPropertyNameTemplateAnnotation()
     {
-      return this.isRegardingPropertyNameTemplate;
+      return this.isRegardingPropertyNameTemplateAnnotation;
     }
     
     public void setRegardingPropertyNameTemplate( boolean isRegardingPropertyNameTemplate )
     {
-      this.isRegardingPropertyNameTemplate = isRegardingPropertyNameTemplate;
+      this.isRegardingPropertyNameTemplateAnnotation = isRegardingPropertyNameTemplate;
     }
     
     public RegardedAnnotationScope getRegardedAnnotationScope()
@@ -359,6 +366,16 @@ public class SourcePropertyAccessorToTypeAdapter<T>
     public void setRegardedAnnotationScope( RegardedAnnotationScope regardedAnnotationScope )
     {
       this.regardedAnnotationScope = regardedAnnotationScope;
+    }
+    
+    public boolean isRegardingDefaultValueAnnotation()
+    {
+      return this.isRegardingDefaultValueAnnotation;
+    }
+    
+    public void setRegardingDefaultValueAnnotation( boolean isRegardingDefaultValueAnnotation )
+    {
+      this.isRegardingDefaultValueAnnotation = isRegardingDefaultValueAnnotation;
     }
     
   }
@@ -435,9 +452,13 @@ public class SourcePropertyAccessorToTypeAdapter<T>
     {
       sourcePropertyAccessor = new SourcePropertyAccessorDecoratorAdapter( sourcePropertyAccessor );
     }
-    if ( configuration.isRegardingPropertyNameTemplate() )
+    if ( configuration.isRegardingPropertyNameTemplateAnnotation() )
     {
       sourcePropertyAccessor = new SourcePropertyAccessorDecoratorPropertyNameTemplate( sourcePropertyAccessor );
+    }
+    if ( configuration.isRegardingDefaultValueAnnotation() )
+    {
+      sourcePropertyAccessor = new SourcePropertyAccessorDecoratorDefaultValue( sourcePropertyAccessor );
     }
     if ( configuration.getPropertyAccessOption() != null
          && !PropertyAccessOption.PROPERTY.equals( configuration.getPropertyAccessOption() ) )
@@ -476,8 +497,6 @@ public class SourcePropertyAccessorToTypeAdapter<T>
       this.declaredMethodToAnnotationSetMap = isRegardingInheritedAnnotations ? ReflectionUtils.methodToAnnotationSetMap( type )
                                                                              : ReflectionUtils.declaredMethodToAnnotationSetMap( type );
       this.propertyNameToBeanPropertyAnnotationSetMap = BeanUtils.propertyNameToBeanPropertyAnnotationSetMap( type );
-      this.methodToReturnTypeMap = isRegardingInheritedAnnotations ? ReflectionUtils.methodToReturnTypeMap( type )
-                                                                  : ReflectionUtils.declaredMethodToReturnTypeMap( type );
       this.methodNameToBeanMethodInformationMap = BeanUtils.methodNameToBeanMethodInformationMap( type );
     }
     

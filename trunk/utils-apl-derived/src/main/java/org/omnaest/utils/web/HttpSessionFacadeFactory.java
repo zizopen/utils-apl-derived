@@ -22,8 +22,9 @@ import javax.servlet.http.HttpSession;
 
 import org.omnaest.utils.beans.adapter.PropertyAccessOption;
 import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter;
-import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
+import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessorDecorator;
+import org.omnaest.utils.proxy.handler.MethodInvocationHandlerDecorator;
 import org.omnaest.utils.structure.element.converter.Converter;
 
 /**
@@ -32,33 +33,7 @@ import org.omnaest.utils.structure.element.converter.Converter;
  * each {@link #newHttpSessionFacade(Class)} method call. <br>
  * <br>
  * <br>
- * The {@link HttpSessionFacadeFactory} supports following {@link Annotation}s:<br>
- * <ul>
- * <li>{@link Converter}</li>
- * <li>{@link PropertyNameTemplate}</li>
- * </ul>
- * <br>
- * <br>
- * An example of an interface put on top of a {@link HttpSession} can look like:
- * 
- * <pre>
- * public static interface HttpSessionFacadeExample extends HttpSessionFacade
- * {
- *   public void setFieldString( String field );
- *   
- *   public String getFieldString();
- *   
- *   public void setFieldDouble( Double fieldDouble );
- *   
- *   public Double getFieldDouble();
- *   
- *   &#064;PropertyNameTemplate(&quot;OTHERFIELD&quot;)
- *   public String getOtherField();
- *   
- *   &#064;Adapter(type = ElementConverterIdentity.class)
- *   public void setOtherField( String value );
- * }
- * </pre>
+ * For examples and supported {@link Annotation}s see {@link HttpSessionFacade}s.<br>
  * 
  * @see HttpSessionFacade
  * @see HttpSession
@@ -71,6 +46,72 @@ public class HttpSessionFacadeFactory
 {
   /* ********************************************** Variables ********************************************** */
   protected HttpSessionResolver httpSessionResolver = null;
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * @see PropertynameMapToTypeAdapter.Configuration
+   * @author Omnaest
+   */
+  public static class Configuration extends PropertynameMapToTypeAdapter.Configuration
+  {
+    
+    /**
+     * @see Configuration
+     */
+    public Configuration()
+    {
+      super();
+    }
+    
+    /**
+     * @see Configuration
+     * @param underlyingMapAware
+     * @param simulatingToString
+     */
+    public Configuration( boolean underlyingMapAware, boolean simulatingToString )
+    {
+      super( underlyingMapAware, simulatingToString );
+    }
+    
+    /**
+     * @see Configuration
+     * @param interfaces
+     */
+    public Configuration( Class<?>[] interfaces )
+    {
+      super( interfaces );
+    }
+    
+    /**
+     * @see Configuration
+     * @param methodInvocationHandlerDecorators
+     * @param sourcePropertyAccessorDecorators
+     */
+    public Configuration( MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators,
+                          SourcePropertyAccessorDecorator[] sourcePropertyAccessorDecorators )
+    {
+      super( methodInvocationHandlerDecorators, sourcePropertyAccessorDecorators );
+    }
+    
+    /**
+     * @see Configuration
+     * @param propertyAccessOption
+     * @param isRegardingAdapterAnnotation
+     * @param isRegardingPropertyNameTemplateAnnotation
+     * @param isRegardingDefaultValueAnnotation
+     * @param underlyingMapAware
+     * @param simulatingToString
+     */
+    public Configuration( PropertyAccessOption propertyAccessOption, boolean isRegardingAdapterAnnotation,
+                          boolean isRegardingPropertyNameTemplateAnnotation, boolean isRegardingDefaultValueAnnotation,
+                          boolean underlyingMapAware, boolean simulatingToString )
+    {
+      super( propertyAccessOption, isRegardingAdapterAnnotation, isRegardingPropertyNameTemplateAnnotation,
+             isRegardingDefaultValueAnnotation, underlyingMapAware, simulatingToString );
+    }
+    
+  }
   
   /* ********************************************** Methods ********************************************** */
   
@@ -118,11 +159,12 @@ public class HttpSessionFacadeFactory
       PropertyAccessOption propertyAccessOption = PropertyAccessOption.PROPERTY;
       boolean isRegardingAdapterAnnotation = true;
       boolean underlyingMapAware = true;
-      boolean isRegardingPropertyNameTemplate = true;
+      boolean isRegardingPropertyNameTemplateAnnotation = true;
       boolean simulatingToString = true;
-      configuration = new PropertynameMapToTypeAdapter.Configuration( propertyAccessOption, isRegardingAdapterAnnotation,
-                                                                      isRegardingPropertyNameTemplate, underlyingMapAware,
-                                                                      simulatingToString );
+      boolean isRegardingDefaultValueAnnotation = true;
+      configuration = new Configuration( propertyAccessOption, isRegardingAdapterAnnotation,
+                                         isRegardingPropertyNameTemplateAnnotation, isRegardingDefaultValueAnnotation,
+                                         underlyingMapAware, simulatingToString );
     }
     
     //
@@ -142,5 +184,4 @@ public class HttpSessionFacadeFactory
     //
     return retval;
   }
-  
 }
