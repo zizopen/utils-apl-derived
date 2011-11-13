@@ -1,0 +1,11 @@
+#summary Generic builder for various default Map implementation
+
+= MapBuilder =
+
+The MapBuilder allows to create Map of the various default types in a fluent manner.
+
+Example:
+
+{{{
+Map<String, String> map = MapBuilder.<String, String> newTreeMapBuilder().put( "key1", "value1" ).put( "key2", "value2" ).build()
+}}}
