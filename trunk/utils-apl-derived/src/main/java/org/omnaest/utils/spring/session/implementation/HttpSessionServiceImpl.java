@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration;
 import org.omnaest.utils.spring.session.HttpSessionAndServletRequestResolverService;
 import org.omnaest.utils.spring.session.HttpSessionService;
 import org.omnaest.utils.web.HttpSessionFacade;
@@ -36,6 +37,9 @@ import org.springframework.stereotype.Service;
 @Scope("session")
 public class HttpSessionServiceImpl implements HttpSessionService
 {
+  /* ********************************************** Variables ********************************************** */
+  protected Configuration                               configuration                               = null;
+  
   /* ********************************************** Beans / Services / References ********************************************** */
   @Autowired
   protected HttpSessionAndServletRequestResolverService httpSessionAndServletRequestResolverService = null;
@@ -45,7 +49,8 @@ public class HttpSessionServiceImpl implements HttpSessionService
   @Override
   public <F extends HttpSessionFacade> F newHttpSessionFacade( Class<? extends F> httpSessionFacadeType )
   {
-    return new HttpSessionFacadeFactory( this.httpSessionAndServletRequestResolverService ).newHttpSessionFacade( httpSessionFacadeType );
+    return new HttpSessionFacadeFactory( this.httpSessionAndServletRequestResolverService ).newHttpSessionFacade( httpSessionFacadeType,
+                                                                                                                  this.configuration );
   }
   
   @Override
@@ -71,6 +76,11 @@ public class HttpSessionServiceImpl implements HttpSessionService
   public void setHttpSessionAttribute( String attributeName, Object value )
   {
     this.resolveHttpSession().setAttribute( attributeName, value );
+  }
+  
+  public void setConfiguration( Configuration configuration )
+  {
+    this.configuration = configuration;
   }
   
 }

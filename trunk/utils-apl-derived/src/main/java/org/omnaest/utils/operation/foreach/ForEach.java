@@ -43,8 +43,8 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * {@link Result} of a {@link ForEach} {@link Operation} which is basically a {@link List} of all returned instances from the
-   * {@link Operation}s.<br>
+   * {@link Result} of a {@link ForEach} {@link Operation} which is basically an unmodifiable {@link List} of all returned
+   * instances from the {@link Operation}s.<br>
    * <br>
    * Additionally there a some special methods.<br>
    * E.g. the {@link #areAllValuesEqualTo(Object)} allows to test for equality of the whole result objects:<br>
@@ -55,6 +55,8 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
    * 
    * @see #convert(CollectionConverter)
    * @see #areAllValuesEqualTo(Object)
+   * @see #areNumberOfValuesEqualTo(Object, int)
+   * @see #isAnyValueEqualTo(Object)
    * @author Omnaest
    * @param <V>
    */
@@ -93,17 +95,42 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
      */
     public boolean areAllValuesEqualTo( V value )
     {
+      return this.areNumberOfValuesEqualTo( value, this.size() );
+    }
+    
+    /**
+     * Returns true if any value of the result is equal to the given value
+     * 
+     * @param value
+     * @return
+     */
+    public boolean isAnyValueEqualTo( V value )
+    {
+      return this.areNumberOfValuesEqualTo( value, 1 );
+    }
+    
+    /**
+     * Returns true if a given number of values of the result are equal to the given value
+     * 
+     * @param value
+     * @param number
+     * @return
+     */
+    public boolean areNumberOfValuesEqualTo( V value, int number )
+    {
       //
-      boolean retval = value != null;
+      boolean retval = false;
       
       //
-      if ( retval )
+      int counter = 0;
+      if ( value != null )
       {
         for ( V iValue : this )
         {
-          retval &= value.equals( iValue );
-          if ( !retval )
+          counter += value.equals( iValue ) ? 1 : 0;
+          if ( counter >= number )
           {
+            retval = true;
             break;
           }
         }
@@ -112,6 +139,7 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
       //
       return retval;
     }
+    
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -157,6 +185,7 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
    * @param operations
    * @return
    */
+  @SuppressWarnings("unchecked")
   public Result<V> execute( Operation<V, E>... operations )
   {
     //
@@ -181,7 +210,7 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
     }
     
     //
-    return new Result<V>( retlist );
+    return new Result<V>( org.apache.commons.collections.ListUtils.unmodifiableList( retlist ) );
   }
   
 }

@@ -55,6 +55,14 @@ public class ListDecorator<E> implements List<E>, Serializable
   }
   
   /**
+   * @see ListDecorator
+   */
+  protected ListDecorator()
+  {
+    super();
+  }
+  
+  /**
    * @return
    * @see java.util.List#size()
    */

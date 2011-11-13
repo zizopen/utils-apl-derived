@@ -37,7 +37,7 @@ public class ThreadLocalMap<K, V> implements Map<K, V>
   protected Factory<Map<K, V>>     mapFactory     = new Factory<Map<K, V>>()
                                                   {
                                                     @Override
-                                                    public Map<K, V> newElement()
+                                                    public Map<K, V> newInstance()
                                                     {
                                                       return new LinkedHashMap<K, V>();
                                                     }
@@ -122,7 +122,7 @@ public class ThreadLocalMap<K, V> implements Map<K, V>
     if ( retmap == null )
     {
       //
-      retmap = this.mapFactory.newElement();
+      retmap = this.mapFactory.newInstance();
       this.threadLocalMap.set( retmap );
     }
     

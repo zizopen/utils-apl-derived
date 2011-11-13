@@ -175,4 +175,25 @@ public class ObjectUtils
   {
     return object != null ? object : defaultObject;
   }
+  
+  /**
+   * Returns the object parameter if it is not null, otherwise the object created by the given {@link Factory} . <br>
+   * <br>
+   * Examples:
+   * 
+   * <pre>
+   * ObjectUtils.defaultObject( x, * ) = x;
+   * ObjectUtils.defaultObject( null, factory ) = factory.newInstance();
+   * ObjectUtils.defaultObject( null, null ) = null;
+   * </pre>
+   * 
+   * @param object
+   * @param defaultObjectFactory
+   * @return
+   */
+  public static <O extends Object> O defaultObject( O object, Factory<O> defaultObjectFactory )
+  {
+    return object != null ? object : ( defaultObjectFactory != null ? defaultObjectFactory.newInstance() : null );
+  }
+  
 }

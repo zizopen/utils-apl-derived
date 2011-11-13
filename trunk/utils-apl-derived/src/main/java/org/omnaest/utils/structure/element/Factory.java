@@ -28,5 +28,5 @@ public interface Factory<E>
    * 
    * @return
    */
-  public E newElement();
+  public E newInstance();
 }

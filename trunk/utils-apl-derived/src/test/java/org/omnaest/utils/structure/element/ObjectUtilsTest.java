@@ -169,4 +169,61 @@ public class ObjectUtilsTest
       assertEquals( null, value );
     }
   }
+  
+  @Test
+  public void testDefaultObjectWithFactory()
+  {
+    {
+      //
+      Double object = null;
+      final Double defaultObject = 1.34;
+      Factory<Double> defaultObjectFactory = new Factory<Double>()
+      {
+        @Override
+        public Double newInstance()
+        {
+          return defaultObject;
+        }
+      };
+      Double value = ObjectUtils.defaultObject( object, defaultObjectFactory );
+      assertEquals( defaultObject, value );
+    }
+    {
+      //
+      Double object = 5.67;
+      final Double defaultObject = 1.34;
+      Factory<Double> defaultObjectFactory = new Factory<Double>()
+      {
+        @Override
+        public Double newInstance()
+        {
+          return defaultObject;
+        }
+      };
+      Double value = ObjectUtils.defaultObject( object, defaultObjectFactory );
+      assertEquals( object, value );
+    }
+    {
+      //
+      Double object = null;
+      final Double defaultObject = null;
+      Factory<Double> defaultObjectFactory = new Factory<Double>()
+      {
+        @Override
+        public Double newInstance()
+        {
+          return defaultObject;
+        }
+      };
+      Double value = ObjectUtils.defaultObject( object, defaultObjectFactory );
+      assertEquals( null, value );
+    }
+    {
+      //
+      Double object = null;
+      Factory<Double> defaultObjectFactory = null;
+      Double value = ObjectUtils.defaultObject( object, defaultObjectFactory );
+      assertEquals( null, value );
+    }
+  }
 }

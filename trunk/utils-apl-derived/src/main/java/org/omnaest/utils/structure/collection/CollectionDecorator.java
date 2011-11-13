@@ -54,6 +54,14 @@ public class CollectionDecorator<E> implements Collection<E>, Serializable
   }
   
   /**
+   * @see CollectionDecorator
+   */
+  protected CollectionDecorator()
+  {
+    super();
+  }
+  
+  /**
    * @return
    * @see java.util.Collection#size()
    */
