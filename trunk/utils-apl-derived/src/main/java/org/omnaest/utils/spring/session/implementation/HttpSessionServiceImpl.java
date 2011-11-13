@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.spring;
+package org.omnaest.utils.spring.session.implementation;
 
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.omnaest.utils.spring.session.HttpSessionAndServletRequestResolverService;
+import org.omnaest.utils.spring.session.HttpSessionService;
 import org.omnaest.utils.web.HttpSessionFacade;
 import org.omnaest.utils.web.HttpSessionFacadeFactory;
 import org.omnaest.utils.web.HttpSessionToMapAdapter;
@@ -27,26 +29,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 /**
- * The {@link HttpSessionService} allows to create {@link HttpSessionFacade} instances, as well as to resolve the
- * {@link HttpSession} directly or to manipulate it a regular {@link Map}.<br>
- * <br>
- * This Spring service bean should be instantiated as session bean with a given reference to a
- * {@link HttpSessionAndServletRequestResolverService} bean. Using annotation configuration will work since such a service is
- * declared as autowired.<br>
- * <br>
- * Spring configuration example:
- * 
- * <pre>
- * &lt;context:annotation-config /&gt;
- * &lt;bean class=&quot;org.omnaest.utils.spring.HttpSessionAndServletRequestResolverService&quot; /&gt;
- * &lt;bean class=&quot;org.omnaest.utils.spring.HttpSessionService&quot; /&gt;
- * </pre>
- * 
+ * @see HttpSessionService
  * @author Omnaest
  */
 @Service
 @Scope("session")
-public class HttpSessionService
+public class HttpSessionServiceImpl implements HttpSessionService
 {
   /* ********************************************** Beans / Services / References ********************************************** */
   @Autowired
@@ -54,58 +42,32 @@ public class HttpSessionService
   
   /* ********************************************** Methods ********************************************** */
   
-  /**
-   * Creates a new {@link HttpSessionFacade} instance for the {@link HttpSession} of the current {@link Thread}
-   * 
-   * @see HttpSessionFacade
-   * @see HttpSessionFacadeFactory
-   * @param httpSessionFacadeType
-   * @return
-   */
+  @Override
   public <F extends HttpSessionFacade> F newHttpSessionFacade( Class<? extends F> httpSessionFacadeType )
   {
     return new HttpSessionFacadeFactory( this.httpSessionAndServletRequestResolverService ).newHttpSessionFacade( httpSessionFacadeType );
   }
   
-  /**
-   * Resolves the {@link HttpSession}
-   * 
-   * @return
-   */
+  @Override
   public HttpSession resolveHttpSession()
   {
     return this.httpSessionAndServletRequestResolverService.resolveHttpSession();
   }
   
-  /**
-   * Returns a {@link Map} based view on the current {@link HttpSession}. Changes to the {@link Map} will be reflected by a change
-   * of the {@link HttpSession} and vice versa.
-   * 
-   * @return
-   */
+  @Override
   public Map<String, Object> resolveHttpSessionAndReturnAsMapView()
   {
     HttpSession httpSession = this.resolveHttpSession();
     return httpSession != null ? HttpSessionToMapAdapter.newInstance( httpSession ) : null;
   }
   
-  /**
-   * Resolves an attribute value from the {@link HttpSession} for the given attribute name
-   * 
-   * @param attributeName
-   * @return
-   */
+  @Override
   public Object getHttpSessionAttribute( String attributeName )
   {
     return this.resolveHttpSession().getAttribute( attributeName );
   }
   
-  /**
-   * Sets an attribute value for the given attribute name within the {@link HttpSession}
-   * 
-   * @param attributeName
-   * @param value
-   */
+  @Override
   public void setHttpSessionAttribute( String attributeName, Object value )
   {
     this.resolveHttpSession().setAttribute( attributeName, value );

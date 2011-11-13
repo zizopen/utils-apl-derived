@@ -157,7 +157,15 @@ public class ObjectUtils
   }
   
   /**
-   * Returns the object parameter if it is not null otherwise the defaultObject.
+   * Returns the object parameter if it is not null, otherwise the defaultObject. <br>
+   * <br>
+   * Examples:
+   * 
+   * <pre>
+   * ObjectUtils.defaultObject( x, * ) = x;
+   * ObjectUtils.defaultObject( null, default ) = default;
+   * ObjectUtils.defaultObject( null, null ) = null;
+   * </pre>
    * 
    * @param object
    * @param defaultObject
