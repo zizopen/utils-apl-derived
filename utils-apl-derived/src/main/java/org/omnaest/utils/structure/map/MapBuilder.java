@@ -32,7 +32,13 @@ import org.omnaest.utils.reflection.ReflectionUtils;
  * <br>
  * The {@link MapBuilder} is not thread safe, since it uses an temporary not thread safe internal {@link Map}.<br>
  * The order of elements is respected when put into the {@link Map}. A {@link Map} implementation which supports ordering will
- * contain the {@link Entry}s in the right order afterwards.
+ * contain the {@link Entry}s in the right order afterwards.<br>
+ * <br>
+ * Example:
+ * 
+ * <pre>
+ * Map&lt;String, String&gt; map = MapBuilder.&lt;String, String&gt; newTreeMapBuilder().put( &quot;key1&quot;, &quot;value1&quot; ).put( &quot;key2&quot;, &quot;value2&quot; ).build()
+ * </pre>
  * 
  * @see Map
  * @see SortedMap
