@@ -3,5 +3,10 @@
 = HttpSessionAndServletRequestResolverService =
 
 {{{
-<bean class="org.omnaest.utils.spring.HttpSessionAndServletRequestResolverService" />
+<bean class="org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceImpl" />
+}}}
+
+{{{
+@Autowired
+protected HttpSessionAndServletRequestResolverService httpSessionAndServletRequestResolverService = null;
 }}}
