@@ -1,6 +1,26 @@
+/*******************************************************************************
+ * Copyright 2011 Danny Kunz
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package org.omnaest.utils.beans.adapter.source;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +32,7 @@ import org.mockito.stubbing.Answer;
 import org.omnaest.utils.beans.adapter.SourcePropertyAccessorToTypeAdapter;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor.PropertyMetaInformation;
 import org.omnaest.utils.structure.element.ElementHolder;
+import org.omnaest.utils.structure.map.MapBuilder;
 
 /**
  * @see SourcePropertyAccessorDecoratorDefaultValue
@@ -36,17 +57,30 @@ public class SourcePropertyAccessorDecoratorDefaultValueTest
   
   protected interface ExampleInterface
   {
-    @DefaultValue(value = "defaultValueSet")
+    @DefaultValue("defaultValueSet")
     public void setFieldString( String value );
     
-    @DefaultValue(value = "defaultValueGet")
+    @DefaultValue("defaultValueGet")
     public String getFieldString();
     
-    @DefaultValue(value = "1.23")
+    @DefaultValue("1.23")
     public void setFieldDouble( Double value );
     
-    @DefaultValue(value = "3.45")
+    @DefaultValue("3.45")
     public Double getFieldDouble();
+    
+    @DefaultValues(values = { "a", "b" })
+    public List<String> getListString();
+    
+    @DefaultValues(values = { "e", "f" })
+    public void setListString( List<String> listString );
+    
+    @DefaultValues(values = { "1.23", "2.34" })
+    public double[] getArrayDouble();
+    
+    @DefaultValues(values = { "key1", "1.23", "key2", "2.34" })
+    public Map<String, Double> getMapStringAndDouble();
+    
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -118,6 +152,24 @@ public class SourcePropertyAccessorDecoratorDefaultValueTest
       //
       assertEquals( 3.45, this.argumentCaptorPropertyValue.getValue() );
     }
+    
+    //
+    {
+      //
+      List<String> value = null;
+      this.testInterface.setListString( value );
+      
+      //
+      assertEquals( Arrays.asList( "e", "f" ), this.argumentCaptorPropertyValue.getValue() );
+    }
+    {
+      //
+      List<String> value = Arrays.asList( "c", "d" );
+      this.testInterface.setListString( value );
+      
+      //
+      assertEquals( value, this.argumentCaptorPropertyValue.getValue() );
+    }
   }
   
   @Test
@@ -145,6 +197,30 @@ public class SourcePropertyAccessorDecoratorDefaultValueTest
       assertEquals( 1.34, this.testInterface.getFieldDouble().doubleValue(), 0.01 );
     }
     
+    //
+    {
+      //
+      this.elementHolderReturnValue.setElement( null );
+      assertEquals( Arrays.asList( "a", "b" ), this.testInterface.getListString() );
+      
+      //
+      this.elementHolderReturnValue.setElement( Arrays.asList( "c", "d" ) );
+      assertEquals( Arrays.asList( "c", "d" ), this.testInterface.getListString() );
+    }
+    
+    //
+    {
+      //
+      this.elementHolderReturnValue.setElement( null );
+      assertArrayEquals( new double[] { 1.23, 2.34 }, this.testInterface.getArrayDouble(), 0.01 );
+    }
+    
+    //
+    {
+      //
+      this.elementHolderReturnValue.setElement( null );
+      assertEquals( new MapBuilder<String, Double>().linkedHashMap().put( "key1", 1.23 ).put( "key2", 2.34 ).build(),
+                    this.testInterface.getMapStringAndDouble() );
+    }
   }
-  
 }

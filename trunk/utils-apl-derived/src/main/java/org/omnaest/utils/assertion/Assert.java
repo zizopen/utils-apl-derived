@@ -22,6 +22,49 @@ package org.omnaest.utils.assertion;
  */
 public class Assert
 {
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * {@link RuntimeException} that indicates a failed operation.
+   * 
+   * @author Omnaest
+   */
+  public static class FailedOperationException extends RuntimeException
+  {
+    /* ********************************************** Constants ********************************************** */
+    private static final long serialVersionUID = 8884612146655100366L;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @see FailedOperationException
+     * @param message
+     */
+    public FailedOperationException( String message )
+    {
+      super( message );
+    }
+    
+  }
+  
+  /* ********************************************** Methods ********************************************** */
+  
+  /**
+   * @see FailedOperationException
+   */
+  public static void fail()
+  {
+    fail( "Operation failed" );
+  }
+  
+  /**
+   * @see FailedOperationException
+   * @param message
+   */
+  public static void fail( String message )
+  {
+    throw new FailedOperationException( message );
+  }
   
   /**
    * @param object

@@ -33,7 +33,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
-import org.omnaest.utils.structure.element.converter.ElementConverterObjectClass;
+import org.omnaest.utils.structure.element.converter.ElementConverterObjectToClassOfObject;
 import org.omnaest.utils.structure.map.MapUtils;
 
 /**
@@ -209,21 +209,44 @@ public class ReflectionUtils
   }
   
   /**
+   * Returns true if the given {@link Class} type has a {@link Constructor} for the given parameter types
+   * 
+   * @param type
+   * @param parameterTypes
+   * @return
+   */
+  public static <B> boolean hasConstructorFor( Class<? extends B> type, Class<?>... parameterTypes )
+  {
+    return constructorFor( type, parameterTypes ) != null;
+  }
+  
+  /**
    * Returns the {@link Constructor} for the given {@link Class} type and arguments
    * 
    * @param type
    * @param arguments
    * @return
    */
-  @SuppressWarnings("unchecked")
   public static <B> Constructor<B> constructorFor( Class<? extends B> type, Object... arguments )
   {
     //
-    Constructor<B> constructor = null;
-    
-    //
-    Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( arguments ), new ElementConverterObjectClass() )
+    Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( arguments ), new ElementConverterObjectToClassOfObject() )
                                          .toArray( new Class<?>[arguments.length] );
+    return constructorFor( type, parameterTypes );
+  }
+  
+  /**
+   * Returns the {@link Constructor} for the given {@link Class} type and parameter types
+   * 
+   * @param type
+   * @param parameterTypes
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <B> Constructor<B> constructorFor( Class<? extends B> type, Class<?>... parameterTypes )
+  {
+    //
+    Constructor<B> constructor = null;
     
     //
     try
@@ -233,10 +256,96 @@ public class ReflectionUtils
     }
     catch ( Exception e )
     {
+      try
+      {
+        constructor = (Constructor<B>) type.getConstructor( parameterTypes );
+      }
+      catch ( Exception e2 )
+      {
+        try
+        {
+          constructor = (Constructor<B>) resolveConstructorFor( type, parameterTypes );
+        }
+        catch ( Exception e3 )
+        {
+        }
+      }
     }
     
     //
     return constructor;
+  }
+  
+  /**
+   * Resolves a matching constructor for the given type and the given parameter types
+   * 
+   * @param type
+   * @param parameterTypes
+   * @return
+   */
+  public static <C> Constructor<C> resolveConstructorFor( Class<C> type, Class<?>... parameterTypes )
+  {
+    //
+    Constructor<C> retval = null;
+    
+    //
+    if ( type != null )
+    {
+      //
+      @SuppressWarnings("unchecked")
+      Constructor<C>[] constructors = (Constructor<C>[]) type.getConstructors();
+      if ( constructors != null )
+      {
+        for ( Constructor<C> constructor : constructors )
+        {
+          Class<?>[] parameterTypesOfContstructor = constructor.getParameterTypes();
+          boolean areConstructorTypesAssignableFromParameterTypes = areAssignableFrom( parameterTypesOfContstructor,
+                                                                                       parameterTypes );
+          if ( areConstructorTypesAssignableFromParameterTypes )
+          {
+            retval = constructor;
+            break;
+          }
+        }
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns true if all types of the assignable types are {@link Class#isAssignableFrom(Class)} to their source type counterpart.
+   * Both arrays have to have the same size. Every element of one of the arrays will map to its counterpart with the same index
+   * position.
+   * 
+   * @param assignableTypes
+   * @param sourceTypes
+   * @return
+   */
+  public static boolean areAssignableFrom( Class<?>[] assignableTypes, Class<?>[] sourceTypes )
+  {
+    //    
+    boolean retval = assignableTypes != null && sourceTypes != null && assignableTypes.length == sourceTypes.length;
+    if ( retval )
+    {
+      for ( int ii = 0; ii < assignableTypes.length; ii++ )
+      {
+        //
+        Class<?> assignableType = assignableTypes[ii];
+        Class<?> sourceType = sourceTypes[ii];
+        
+        //
+        retval &= assignableType.isAssignableFrom( sourceType );
+        if ( !retval )
+        {
+          break;
+        }
+      }
+    }
+    
+    //
+    return retval;
   }
   
   /**
@@ -303,7 +412,7 @@ public class ReflectionUtils
     if ( type != null )
     {
       //
-      Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( arguments ), new ElementConverterObjectClass() )
+      Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( arguments ), new ElementConverterObjectToClassOfObject() )
                                            .toArray( new Class<?>[arguments.length] );
       
       //

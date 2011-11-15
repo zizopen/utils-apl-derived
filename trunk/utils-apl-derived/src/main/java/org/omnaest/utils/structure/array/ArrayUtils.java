@@ -15,11 +15,13 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.array;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.list.ListUtil;
+import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 /**
@@ -89,6 +91,47 @@ public class ArrayUtils
         
         //
         retvals[ii] = value;
+      }
+    }
+    
+    //
+    return retvals;
+  }
+  
+  /**
+   * Returns a non primitive {@link Array} for a primitive one
+   * 
+   * @param primitiveArray
+   * @return
+   */
+  public static Object[] toObject( Object primitiveArray )
+  {
+    //    
+    Object[] retvals = null;
+    
+    //
+    if ( primitiveArray != null )
+    {
+      try
+      {
+        //
+        Class<? extends Object> primitiveArrayType = primitiveArray.getClass();
+        Class<?> componentType = primitiveArrayType.getComponentType();
+        if ( componentType.isPrimitive() )
+        {
+          componentType = ObjectUtils.wrapperTypeForPrimitiveType( componentType );
+        }
+        int length = Array.getLength( primitiveArray );
+        retvals = (Object[]) Array.newInstance( componentType, length );
+        
+        //
+        for ( int ii = 0; ii < retvals.length; ii++ )
+        {
+          retvals[ii] = Array.get( primitiveArray, ii );
+        }
+      }
+      catch ( Exception e )
+      {
       }
     }
     

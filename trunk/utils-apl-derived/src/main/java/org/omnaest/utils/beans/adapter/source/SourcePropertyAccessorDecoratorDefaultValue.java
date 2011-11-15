@@ -16,6 +16,8 @@
 package org.omnaest.utils.beans.adapter.source;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Map;
 
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.element.ObjectUtils;
@@ -28,14 +30,13 @@ import org.omnaest.utils.structure.element.ObjectUtils;
  */
 public class SourcePropertyAccessorDecoratorDefaultValue extends SourcePropertyAccessorDecorator
 {
-  
   /**
+   * @see SourcePropertyAccessorDecoratorDefaultValue
    * @param sourcePropertyAccessor
    */
   public SourcePropertyAccessorDecoratorDefaultValue( SourcePropertyAccessor sourcePropertyAccessor )
   {
-    super();
-    this.sourcePropertyAccessor = sourcePropertyAccessor;
+    super( sourcePropertyAccessor );
   }
   
   @Override
@@ -45,7 +46,7 @@ public class SourcePropertyAccessorDecoratorDefaultValue extends SourcePropertyA
     Assert.notNull( this.sourcePropertyAccessor );
     
     //
-    value = defaultObject( value, parameterType, propertyMetaInformation );
+    value = defaultObject( value, parameterType, propertyMetaInformation, propertyName );
     this.sourcePropertyAccessor.setValue( propertyName, value, parameterType, propertyMetaInformation );
   }
   
@@ -57,7 +58,7 @@ public class SourcePropertyAccessorDecoratorDefaultValue extends SourcePropertyA
     
     //
     Object value = this.sourcePropertyAccessor.getValue( propertyName, returnType, propertyMetaInformation );
-    return defaultObject( value, returnType, propertyMetaInformation );
+    return defaultObject( value, returnType, propertyMetaInformation, propertyName );
   }
   
   /**
@@ -66,26 +67,74 @@ public class SourcePropertyAccessorDecoratorDefaultValue extends SourcePropertyA
    * @param propertyMetaInformation
    * @return
    */
-  private static Object defaultObject( Object value, Class<?> type, PropertyMetaInformation propertyMetaInformation )
+  private static Object defaultObject( Object value,
+                                       Class<?> type,
+                                       PropertyMetaInformation propertyMetaInformation,
+                                       String propertyName )
   {
     //
     Object retval = value;
-    if ( value == null && propertyMetaInformation != null )
+    if ( value == null && propertyMetaInformation != null && type != null )
     {
       //
       DefaultValue defaultValueAnnotation = propertyMetaInformation.getPropertyAnnotationAutowiredContainer()
                                                                    .getValue( DefaultValue.class );
       
       //
+      DefaultValues defaultValuesAnnotation = propertyMetaInformation.getPropertyAnnotationAutowiredContainer()
+                                                                     .getValue( DefaultValues.class );
+      
+      //
       if ( defaultValueAnnotation != null )
       {
         //
-        String defaultValueString = defaultValueAnnotation.value();
-        retval = ObjectUtils.castTo( type, defaultValueString );
+        String defaultValue = defaultValueAnnotation.value();
+        retval = ObjectUtils.castTo( type, defaultValue );
+      }
+      else if ( defaultValuesAnnotation != null )
+      {
+        //
+        String[] defaultValues = defaultValuesAnnotation.values();
+        
+        //
+        @SuppressWarnings("unchecked")
+        Class<Object> wrapperType = (Class<Object>) type;
+        
+        {
+          //
+          if ( propertyMetaInformation.getGenericType() != null )
+          {
+            //
+            Type[] actualTypeArguments = propertyMetaInformation.getGenericType().getActualTypeArguments();
+            if ( actualTypeArguments != null && actualTypeArguments.length >= 1 )
+            {
+              if ( actualTypeArguments.length == 1 && actualTypeArguments[0] instanceof Class )
+              {
+                //
+                Class<?> elementType = (Class<?>) actualTypeArguments[0];
+                retval = ObjectUtils.castArrayTo( wrapperType, elementType, defaultValues );
+              }
+              else if ( Map.class.isAssignableFrom( wrapperType ) && actualTypeArguments.length == 2
+                        && actualTypeArguments[0] instanceof Class && actualTypeArguments[1] instanceof Class )
+              {
+                //
+                Class<?> keyType = (Class<?>) actualTypeArguments[0];
+                Class<?> valueType = (Class<?>) actualTypeArguments[1];
+                retval = ObjectUtils.castArrayToMap( wrapperType, keyType, valueType, defaultValues );
+              }
+            }
+            
+          }
+          else if ( type.isArray() )
+          {
+            //
+            Class<?> elementType = type.getComponentType();
+            retval = ObjectUtils.castArrayTo( wrapperType, elementType, defaultValues );
+          }
+        }
       }
     }
     
     return retval;
   }
-  
 }

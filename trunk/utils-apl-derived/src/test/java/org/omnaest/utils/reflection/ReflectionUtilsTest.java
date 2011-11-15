@@ -16,9 +16,15 @@
 package org.omnaest.utils.reflection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
@@ -188,6 +194,23 @@ public class ReflectionUtilsTest
       assertEquals( new LinkedHashSet<Class<?>>( Arrays.asList( TestSuperInterface.class, TestSubSuperInterface.class,
                                                                 TestSubSubType.class, TestSubType.class, TestSupertype.class,
                                                                 Object.class ) ), interfaceSet );
+    }
+  }
+  
+  @Test
+  public void testAreAssignableFrom()
+  {
+    {
+      //
+      Class<?>[] sourceTypes = new Class[] { ArrayList.class, HashSet.class };
+      Class<?>[] assignableTypes = new Class[] { List.class, Set.class };
+      assertTrue( ReflectionUtils.areAssignableFrom( assignableTypes, sourceTypes ) );
+    }
+    {
+      //
+      Class<?>[] sourceTypes = new Class[] { HashMap.class, HashSet.class };
+      Class<?>[] assignableTypes = new Class[] { List.class, Set.class };
+      assertFalse( ReflectionUtils.areAssignableFrom( assignableTypes, sourceTypes ) );
     }
   }
 }

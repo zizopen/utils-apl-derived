@@ -16,6 +16,7 @@
 package org.omnaest.utils.beans.adapter.source;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 
 import org.omnaest.utils.beans.autowired.AutowiredContainer;
@@ -40,16 +41,18 @@ public interface SourcePropertyAccessor
     protected final Object[]                       additionalArguments;
     protected final AutowiredContainer<Annotation> propertyAnnotationAutowiredContainer;
     protected final AutowiredContainer<Annotation> classAnnotationAutowiredContainer;
+    protected final ParameterizedType              genericType;
     
     /* ********************************************** Methods ********************************************** */
     
     /**
      * @see PropertyMetaInformation
      * @param additionalArguments
+     * @param genericType
      * @param propertyAnnotationAutowiredContainer
      * @param classAnnotationAutowiredContainer
      */
-    public PropertyMetaInformation( Object[] additionalArguments,
+    public PropertyMetaInformation( Object[] additionalArguments, ParameterizedType genericType,
                                     AutowiredContainer<Annotation> propertyAnnotationAutowiredContainer,
                                     AutowiredContainer<Annotation> classAnnotationAutowiredContainer )
     {
@@ -57,6 +60,7 @@ public interface SourcePropertyAccessor
       this.additionalArguments = additionalArguments;
       this.propertyAnnotationAutowiredContainer = propertyAnnotationAutowiredContainer;
       this.classAnnotationAutowiredContainer = classAnnotationAutowiredContainer;
+      this.genericType = genericType;
     }
     
     /**
@@ -97,6 +101,11 @@ public interface SourcePropertyAccessor
       return builder.toString();
     }
     
+    public ParameterizedType getGenericType()
+    {
+      return this.genericType;
+    }
+    
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -106,8 +115,8 @@ public interface SourcePropertyAccessor
    * @see PropertyMetaInformation
    * @param propertyName
    * @param value
-   * @param targetParameterTypes
-   *          : types of the parameter of the property setter method, not the type of the
+   * @param parameterType
+   *          : type of the first parameter of the property setter method, or type of the return type of the getter method
    * @param propertyMetaInformation
    */
   public void setValue( String propertyName, Object value, Class<?> parameterType, PropertyMetaInformation propertyMetaInformation );

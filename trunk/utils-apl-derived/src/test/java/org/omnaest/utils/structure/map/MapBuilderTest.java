@@ -37,25 +37,26 @@ public class MapBuilderTest
   public void testBuild()
   {
     //
-    assertMapBuilder( MapBuilder.<String, String> newMapBuilder( LinkedHashMap.class ) );
-    assertMapBuilder( MapBuilder.<String, String> newConcurrentHashMapBuilder() );
-    assertMapBuilder( MapBuilder.<String, String> newLinkedHashMapBuilder() );
-    assertMapBuilder( MapBuilder.<String, String> newTreeMapBuilder() );
+    assertMapBuilder( new MapBuilder<String, String>().map( LinkedHashMap.class ) );
+    assertMapBuilder( new MapBuilder<String, String>().concurrentHashMap() );
+    assertMapBuilder( new MapBuilder<String, String>().linkedHashMap() );
+    assertMapBuilder( new MapBuilder<String, String>().hashMap() );
+    assertMapBuilder( new MapBuilder<String, String>().treeMap() );
   }
   
   @Test
   public void testBuildMultipleTimes()
   {
     //
-    assertNotSame( MapBuilder.<String, String> newMapBuilder( LinkedHashMap.class ),
-                   MapBuilder.<String, String> newMapBuilder( LinkedHashMap.class ) );
+    assertNotSame( new MapBuilder<String, String>().map( LinkedHashMap.class ),
+                   new MapBuilder<String, String>().map( LinkedHashMap.class ) );
     
   }
   
-  private static void assertMapBuilder( MapBuilder<String, String> mapBuilder )
+  private static void assertMapBuilder( MapBuilder<String, String>.MapBuilderWithMap mapBuilderWithMap )
   {
     //
-    Map<String, String> map = mapBuilder.put( "key1", "value1" ).put( "key2", "value2" ).build();
+    Map<String, String> map = mapBuilderWithMap.put( "key1", "value1" ).put( "key2", "value2" ).build();
     assertNotNull( map );
     
     //

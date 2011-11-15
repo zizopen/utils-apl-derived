@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * The {@link DefaultValue} {@link Annotation} allows to declare a value which is used as default value, if a given or returned
+ * The {@link DefaultValues} {@link Annotation} allows to declare a value which is used as default value, if a given or returned
  * value of a method is null.<br>
  * <br>
  * The values are specified as {@link String} and will be converted to any type which has a single {@link String} parameter
@@ -53,7 +53,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })
-public @interface DefaultValue
+public @interface DefaultValues
 {
-  public String value();
+  public String[] values();
 }

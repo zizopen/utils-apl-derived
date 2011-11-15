@@ -17,6 +17,8 @@ package org.omnaest.utils.beans.adapter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -90,7 +92,6 @@ public class SourcePropertyAccessorToTypeAdapter<T>
         if ( beanMethodInformation != null )
         {
           //
-          final Class<?> returnType = beanMethodInformation.getMethod().getReturnType();//  SourcePropertyAccessorToTypeAdapter.this.methodToReturnTypeMap.get( method );
           final String referencedFieldName = beanMethodInformation.getReferencedFieldName();
           
           //          
@@ -116,9 +117,16 @@ public class SourcePropertyAccessorToTypeAdapter<T>
             if ( isGetter || isGetterWithAddtionalArguments )
             {
               //
+              final Class<?> returnType = beanMethodInformation.getMethod().getReturnType();
+              final Type genericReturnType = beanMethodInformation.getMethod().getGenericReturnType();
+              final ParameterizedType genericType = (ParameterizedType) ( genericReturnType instanceof ParameterizedType ? genericReturnType
+                                                                                                                        : null );
+              
+              //
               Object[] additionalArguments = isGetterWithAddtionalArguments ? Arrays.copyOf( args, args.length ) : new Object[0];
               PropertyMetaInformation propertyMetaInformation = new PropertyMetaInformation(
                                                                                              additionalArguments,
+                                                                                             genericType,
                                                                                              propertyAnnotationAutowiredContainer,
                                                                                              classAnnotationAutowiredContainer );
               
@@ -131,16 +139,25 @@ public class SourcePropertyAccessorToTypeAdapter<T>
               //
               String propertyName = referencedFieldName;
               Object value = args[0];
-              Class<?>[] targetParameterTypes = beanMethodInformation.getMethod().getParameterTypes();
-              Class<?> parameterType = targetParameterTypes != null && targetParameterTypes.length >= 1 ? targetParameterTypes[0]
-                                                                                                       : null;
+              
+              final Class<?>[] targetParameterTypes = beanMethodInformation.getMethod().getParameterTypes();
+              final Class<?> parameterType = targetParameterTypes != null && targetParameterTypes.length >= 1 ? targetParameterTypes[0]
+                                                                                                             : null;
+              
+              final Type[] genericParameterTypes = beanMethodInformation.getMethod().getGenericParameterTypes();
+              final ParameterizedType genericParameterType = (ParameterizedType) ( genericParameterTypes != null
+                                                                                   && genericParameterTypes.length >= 1
+                                                                                   && genericParameterTypes[0] instanceof ParameterizedType ? genericParameterTypes[0]
+                                                                                                                                           : null );
               
               //
               Object[] additionalArguments = isSetterWithAdditionalArguments ? Arrays.copyOfRange( args, 1, args.length )
                                                                             : new Object[0];
-              PropertyMetaInformation propertyMetaInformation = new PropertyMetaInformation( additionalArguments,
-              
-              propertyAnnotationAutowiredContainer, classAnnotationAutowiredContainer );
+              PropertyMetaInformation propertyMetaInformation = new PropertyMetaInformation(
+                                                                                             additionalArguments,
+                                                                                             genericParameterType,
+                                                                                             propertyAnnotationAutowiredContainer,
+                                                                                             classAnnotationAutowiredContainer );
               
               SourcePropertyAccessorToTypeAdapter.this.sourcePropertyAccessor.setValue( propertyName, value, parameterType,
                                                                                         propertyMetaInformation );
@@ -456,15 +473,15 @@ public class SourcePropertyAccessorToTypeAdapter<T>
     {
       sourcePropertyAccessor = new SourcePropertyAccessorDecoratorPropertyNameTemplate( sourcePropertyAccessor );
     }
-    if ( configuration.isRegardingDefaultValueAnnotation() )
-    {
-      sourcePropertyAccessor = new SourcePropertyAccessorDecoratorDefaultValue( sourcePropertyAccessor );
-    }
     if ( configuration.getPropertyAccessOption() != null
          && !PropertyAccessOption.PROPERTY.equals( configuration.getPropertyAccessOption() ) )
     {
       sourcePropertyAccessor = new SourcePropertyAccessorDecoratorPropertyAccessOption( sourcePropertyAccessor,
                                                                                         configuration.getPropertyAccessOption() );
+    }
+    if ( configuration.isRegardingDefaultValueAnnotation() )
+    {
+      sourcePropertyAccessor = new SourcePropertyAccessorDecoratorDefaultValue( sourcePropertyAccessor );
     }
     
     //
