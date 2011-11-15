@@ -87,7 +87,7 @@ public class SourcePropertyAccessorToTypeAdapterTest
     public double getFieldPrimitiveDouble();
     
     @Converter(type = ElementConverterStringToDouble.class)
-    @DefaultValue(value = "1.23")
+    @DefaultValue("1.23")
     public Double getFieldDouble();
     
   }
@@ -99,7 +99,7 @@ public class SourcePropertyAccessorToTypeAdapterTest
     
     public void setFieldPrimitiveDouble( double value );
     
-    @DefaultValue(value = "3.45")
+    @DefaultValue("3.45")
     @Converter(type = ElementConverterNumberToString.class)
     public void setFieldDouble( Double value );
   }

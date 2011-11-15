@@ -16,6 +16,7 @@
 package org.omnaest.utils.beans.autowired;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,16 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
   private Map<Class<? extends E>, E> classToObjectMap = null;
   
   /* ********************************************** Methods ********************************************** */
+  
+  /**
+   * Creates a new instance of a {@link AutowiredContainer} using a regular {@link LinkedHashMap}
+   * 
+   * @return
+   */
+  public static <E> AutowiredContainer<E> newInstanceUsingLinkedHashMap()
+  {
+    return newInstance( new LinkedHashMap<Class<? extends E>, E>() );
+  }
   
   /**
    * Creates a new instance of a {@link AutowiredContainer} for a given {@link Map}
@@ -126,6 +137,45 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
     
     // 
     return retval;
+  }
+  
+  @Override
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( this.classToObjectMap == null ) ? 0 : this.classToObjectMap.hashCode() );
+    return result;
+  }
+  
+  @Override
+  public boolean equals( Object obj )
+  {
+    if ( this == obj )
+    {
+      return true;
+    }
+    if ( obj == null )
+    {
+      return false;
+    }
+    if ( !( obj instanceof ClassMapToAutowiredContainerAdapter ) )
+    {
+      return false;
+    }
+    ClassMapToAutowiredContainerAdapter<?> other = (ClassMapToAutowiredContainerAdapter<?>) obj;
+    if ( this.classToObjectMap == null )
+    {
+      if ( other.classToObjectMap != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.classToObjectMap.equals( other.classToObjectMap ) )
+    {
+      return false;
+    }
+    return true;
   }
   
 }

@@ -15,10 +15,17 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Test;
+import org.omnaest.utils.structure.map.MapBuilder;
 
 /**
  * @see ObjectUtils
@@ -145,33 +152,33 @@ public class ObjectUtilsTest
   }
   
   @Test
-  public void testDefaultObject()
+  public void testDefaultIfNull()
   {
     {
       //
       Double object = null;
       Double defaultObject = 1.34;
-      Double value = ObjectUtils.defaultObject( object, defaultObject );
+      Double value = ObjectUtils.defaultIfNull( object, defaultObject );
       assertEquals( defaultObject, value );
     }
     {
       //
       Double object = 5.67;
       Double defaultObject = 1.34;
-      Double value = ObjectUtils.defaultObject( object, defaultObject );
+      Double value = ObjectUtils.defaultIfNull( object, defaultObject );
       assertEquals( object, value );
     }
     {
       //
       Double object = null;
       Double defaultObject = null;
-      Double value = ObjectUtils.defaultObject( object, defaultObject );
+      Double value = ObjectUtils.defaultIfNull( object, defaultObject );
       assertEquals( null, value );
     }
   }
   
   @Test
-  public void testDefaultObjectWithFactory()
+  public void testDefaultIfNullWithFactory()
   {
     {
       //
@@ -185,7 +192,7 @@ public class ObjectUtilsTest
           return defaultObject;
         }
       };
-      Double value = ObjectUtils.defaultObject( object, defaultObjectFactory );
+      Double value = ObjectUtils.defaultIfNull( object, defaultObjectFactory );
       assertEquals( defaultObject, value );
     }
     {
@@ -200,7 +207,7 @@ public class ObjectUtilsTest
           return defaultObject;
         }
       };
-      Double value = ObjectUtils.defaultObject( object, defaultObjectFactory );
+      Double value = ObjectUtils.defaultIfNull( object, defaultObjectFactory );
       assertEquals( object, value );
     }
     {
@@ -215,15 +222,69 @@ public class ObjectUtilsTest
           return defaultObject;
         }
       };
-      Double value = ObjectUtils.defaultObject( object, defaultObjectFactory );
+      Double value = ObjectUtils.defaultIfNull( object, defaultObjectFactory );
       assertEquals( null, value );
     }
     {
       //
       Double object = null;
       Factory<Double> defaultObjectFactory = null;
-      Double value = ObjectUtils.defaultObject( object, defaultObjectFactory );
+      Double value = ObjectUtils.defaultIfNull( object, defaultObjectFactory );
       assertEquals( null, value );
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testCastArrayTo()
+  {
+    {
+      //
+      Double[] doubles = new Double[] { 1.5, 1.6 };
+      List<String> castedArray = ObjectUtils.castArrayTo( List.class, String.class, doubles );
+      assertEquals( Arrays.asList( "1.5", "1.6" ), castedArray );
+    }
+    {
+      //
+      Double[] doubles = new Double[] { 1.5, 1.6 };
+      LinkedHashSet<String> castedArray = ObjectUtils.castArrayTo( LinkedHashSet.class, String.class, doubles );
+      assertEquals( new LinkedHashSet<String>( Arrays.asList( "1.5", "1.6" ) ), castedArray );
+    }
+    {
+      //
+      Double[] doubles = new Double[] { 1.5, 1.6, 2.5, 2.6 };
+      Map<String, String> castedArray = ObjectUtils.castArrayTo( Map.class, String.class, doubles );
+      assertEquals( new MapBuilder<String, String>().linkedHashMap().put( "1.5", "1.6" ).put( "2.5", "2.6" ).build(), castedArray );
+    }
+    {
+      //
+      double[] doubles = new double[] { 1.5, 1.6 };
+      LinkedHashSet<String> castedArray = ObjectUtils.castArrayTo( LinkedHashSet.class, String.class, doubles );
+      assertEquals( new LinkedHashSet<String>( Arrays.asList( "1.5", "1.6" ) ), castedArray );
+    }
+    {
+      //
+      float[] floats = new float[] { 1.5f, 1.6f };
+      double[] castedArray = ObjectUtils.castArrayTo( double[].class, double.class, floats );
+      assertArrayEquals( new double[] { 1.5, 1.6 }, castedArray, 0.1 );
+    }
+    {
+      //
+      int[] ints = new int[] { 10, 11 };
+      long[] castedArray = ObjectUtils.castArrayTo( long[].class, long.class, ints );
+      assertArrayEquals( new long[] { 10l, 11l }, castedArray );
+    }
+    {
+      //
+      int[] ints = new int[] { 10, 11 };
+      long[] castedArray = ObjectUtils.castArrayTo( long[].class, Long.class, ints );
+      assertArrayEquals( new long[] { 10l, 11l }, castedArray );
+    }
+    {
+      //
+      int[] ints = new int[] { 10, 11 };
+      Long[] castedArray = ObjectUtils.castArrayTo( Long[].class, long.class, ints );
+      assertArrayEquals( new Long[] { 10l, 11l }, castedArray );
     }
   }
 }

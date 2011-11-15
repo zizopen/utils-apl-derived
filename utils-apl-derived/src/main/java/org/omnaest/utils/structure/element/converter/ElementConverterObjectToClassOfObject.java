@@ -21,7 +21,7 @@ package org.omnaest.utils.structure.element.converter;
  * 
  * @author Omnaest
  */
-public class ElementConverterObjectClass implements ElementConverter<Object, Class<? extends Object>>
+public class ElementConverterObjectToClassOfObject implements ElementConverter<Object, Class<? extends Object>>
 {
   @Override
   public Class<? extends Object> convert( Object element )

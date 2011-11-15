@@ -743,9 +743,10 @@ public class BeanUtilsTest
       TestSubClass testBean = prepareTestSubClass();
       
       //    
-      Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap = MapBuilder.<Class<?>, Class<?>> newHashMapBuilder()
-                                                                         .put( TestValue.class, TestValueDTO.class )
-                                                                         .build();
+      Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap = new MapBuilder<Class<?>, Class<?>>().hashMap()
+                                                                                                   .put( TestValue.class,
+                                                                                                         TestValueDTO.class )
+                                                                                                   .build();
       
       //
       TestSubClass clonedBean = BeanUtils.cloneBeanUsingNestedfMap( testBean, sourceTypeTodestinationTypeMap );
@@ -761,9 +762,10 @@ public class BeanUtilsTest
       TestSubClass testBean = prepareTestSubClass();
       
       //    
-      Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap = MapBuilder.<Class<?>, Class<?>> newHashMapBuilder()
-                                                                         .put( TestValue.class, TestValueOther.class )
-                                                                         .build();
+      Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap = new MapBuilder<Class<?>, Class<?>>().hashMap()
+                                                                                                   .put( TestValue.class,
+                                                                                                         TestValueOther.class )
+                                                                                                   .build();
       
       //
       TestSubClass clonedBean = BeanUtils.cloneBeanUsingNestedfMap( testBean, sourceTypeTodestinationTypeMap );
