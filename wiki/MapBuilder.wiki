@@ -7,5 +7,5 @@ The MapBuilder allows to create Map of the various default types in a fluent man
 Example:
 
 {{{
-Map<String, String> map = MapBuilder.<String, String> newTreeMapBuilder().put( "key1", "value1" ).put( "key2", "value2" ).build()
+Map<String, String> map = new MapBuilder<String, String>().linkedHashMap().put( "key1", "value1" ).put( "key2", "value2" ).build()
 }}}
