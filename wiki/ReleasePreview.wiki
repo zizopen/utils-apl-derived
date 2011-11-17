@@ -2,3 +2,9 @@
 #labels preview
 
 = Release preview =
+
+ * added CaseinsensitiveMapDecorator
+ * changed signature of ListUtils
+ * changed name from XMLHelper to JAXBXMLHelper
+ * Tested several decorators for JAXB compliance
+ 
