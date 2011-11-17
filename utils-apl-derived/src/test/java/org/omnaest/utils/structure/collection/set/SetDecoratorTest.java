@@ -22,7 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.Test;
-import org.omnaest.utils.xml.XMLHelper;
+import org.omnaest.utils.xml.JAXBXMLHelper;
 
 /**
  * @see SetDecorator
@@ -46,7 +46,7 @@ public class SetDecoratorTest
     
     //
     @SuppressWarnings("unchecked")
-    Set<String> fromXML = XMLHelper.loadObjectFromXML( XMLHelper.storeObjectAsXML( decoratedSet ), SetDecorator.class );
+    Set<String> fromXML = JAXBXMLHelper.loadObjectFromXML( JAXBXMLHelper.storeObjectAsXML( decoratedSet ), SetDecorator.class );
     assertEquals( stringSet, fromXML );
   }
   

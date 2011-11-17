@@ -18,9 +18,14 @@ package org.omnaest.utils.structure.collection;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 
 public class CollectionUtils
 {
@@ -475,6 +480,40 @@ public class CollectionUtils
       }
     }
     return result;
+  }
+  
+  /**
+   * Transforms a given {@link Iterable} into a {@link Map} using a {@link LinkedHashMap} which keeps the order of the
+   * {@link List}. Returns an empty {@link Map} for a null value as {@link Iterable}. Null values within the {@link Iterable} will
+   * be excluded from the map, if the respective {@link ElementConverterElementToMapEntry#convert(Object)} returns null.
+   * 
+   * @see ElementConverterElementToMapEntry
+   * @param iterable
+   * @param elementToMapEntryTransformer
+   * @return
+   */
+  public static <K, V, E> Map<K, V> toMap( Iterable<E> iterable,
+                                           ElementConverterElementToMapEntry<E, K, V> elementToMapEntryTransformer )
+  {
+    //
+    Map<K, V> retmap = new LinkedHashMap<K, V>();
+    
+    //
+    if ( iterable != null && elementToMapEntryTransformer != null )
+    {
+      for ( E element : iterable )
+      {
+        //
+        Entry<K, V> entry = elementToMapEntryTransformer.convert( element );
+        if ( entry != null )
+        {
+          retmap.put( entry.getKey(), entry.getValue() );
+        }
+      }
+    }
+    
+    //
+    return retmap;
   }
   
 }

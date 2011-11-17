@@ -23,6 +23,10 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * @see JAXBMap
+ * @author Omnaest
+ */
 public class JAXBMapTest
 {
   
@@ -45,12 +49,12 @@ public class JAXBMapTest
     assertEquals( map, jaxbMap );
     
     //
-    String xmlContent = XMLHelper.storeObjectAsXML( jaxbMap );
+    String xmlContent = JAXBXMLHelper.storeObjectAsXML( jaxbMap );
     //System.out.println( xmlContent );
     
     //
     @SuppressWarnings("unchecked")
-    Map<String, String> jaxbMapLoaded = XMLHelper.loadObjectFromXML( xmlContent, JAXBMap.class );
+    Map<String, String> jaxbMapLoaded = JAXBXMLHelper.loadObjectFromXML( xmlContent, JAXBMap.class );
     assertEquals( map, jaxbMapLoaded );
   }
   

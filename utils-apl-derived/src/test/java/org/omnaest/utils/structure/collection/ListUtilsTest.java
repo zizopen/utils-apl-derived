@@ -100,7 +100,7 @@ public class ListUtilsTest
   }
   
   @Test
-  public void testAsMap()
+  public void testToMap()
   {
     //
     List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
@@ -122,7 +122,7 @@ public class ListUtilsTest
     };
     
     //
-    Map<String, String> map = ListUtils.asMap( testList, elementToMapEntryTransformer );
+    Map<String, String> map = ListUtils.toMap( testList, elementToMapEntryTransformer );
     
     //
     assertNotNull( map );
@@ -154,5 +154,24 @@ public class ListUtilsTest
     //
     assertEquals( Arrays.asList( "abc", "ghi" ), ListUtils.filterExcludingIndexPositions( list, 1 ) );
     assertEquals( Arrays.asList( "def", "ghi" ), ListUtils.filterIncludingIndexPositions( list, Arrays.asList( 1, 2 ) ) );
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testFilterAndOrderBy()
+  {
+    //
+    List<String> sourceList = Arrays.asList( "a", "b", "c", "d", "e" );
+    
+    List<String> filterList1 = Arrays.asList( "b", "c", "d" );
+    List<String> filterList2 = Arrays.asList( "a", "c", "d", "b", "e" );
+    
+    //
+    List<String> filterAndOrderBy = ListUtils.filterAndOrderBy( sourceList, filterList1, filterList2 );
+    assertNotNull( filterAndOrderBy );
+    
+    //
+    assertEquals( Arrays.asList( "c", "d", "b" ), filterAndOrderBy );
+    
   }
 }

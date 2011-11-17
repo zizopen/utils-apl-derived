@@ -23,7 +23,7 @@ import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
 import org.omnaest.utils.structure.table.serializer.common.XMLDataContainer;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerXML;
 import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer;
-import org.omnaest.utils.xml.XMLHelper;
+import org.omnaest.utils.xml.JAXBXMLHelper;
 
 /**
  * @see TableMarshallerXML
@@ -69,7 +69,7 @@ public class TableUnmarshallerXML<E> implements TableUnmarshaller<E>
       {
         //
         @SuppressWarnings("unchecked")
-        XMLDataContainer<E> xmlDataContainer = XMLHelper.loadObjectFromXML( inputStream, XMLDataContainer.class );
+        XMLDataContainer<E> xmlDataContainer = JAXBXMLHelper.loadObjectFromXML( inputStream, XMLDataContainer.class );
         
         //
         this.writeXMLDataContainerToTableContent( table, xmlDataContainer );

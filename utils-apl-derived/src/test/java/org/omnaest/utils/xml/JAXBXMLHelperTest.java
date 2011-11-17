@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.junit.Before;
 import org.junit.Test;
 
-public class XMLHelperTest
+public class JAXBXMLHelperTest
 {
   
   @Before
@@ -50,13 +50,13 @@ public class XMLHelperTest
       Mock mock = new Mock();
       
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      XMLHelper.storeObjectAsXML( mock, bos );
+      JAXBXMLHelper.storeObjectAsXML( mock, bos );
       bos.close();
       
       //
       byte[] buffer = bos.toByteArray();
       ByteArrayInputStream bis = new ByteArrayInputStream( buffer );
-      Mock mockResult = XMLHelper.loadObjectFromXML( bis, Mock.class );
+      Mock mockResult = JAXBXMLHelper.loadObjectFromXML( bis, Mock.class );
       
       //      
       assertEquals( mock.fieldString, mockResult.fieldString );

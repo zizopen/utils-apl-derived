@@ -45,12 +45,12 @@ public class JAXBCollectionTest
     JAXBCollection<String> jaxbCollection = JAXBCollection.newInstance( list );
     
     //
-    String xmlContent = XMLHelper.storeObjectAsXML( jaxbCollection );
+    String xmlContent = JAXBXMLHelper.storeObjectAsXML( jaxbCollection );
     assertNotNull( xmlContent );
     //System.out.println( xmlContent );
     
     //
-    assertEquals( list, new ArrayList<String>( XMLHelper.cloneObject( jaxbCollection ) ) );
+    assertEquals( list, new ArrayList<String>( JAXBXMLHelper.cloneObject( jaxbCollection ) ) );
   }
   
 }

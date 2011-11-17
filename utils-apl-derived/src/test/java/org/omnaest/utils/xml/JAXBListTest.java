@@ -45,11 +45,11 @@ public class JAXBListTest
     JAXBList<String> jaxbList = JAXBList.newInstance( list );
     
     //
-    String xmlContent = XMLHelper.storeObjectAsXML( jaxbList );
+    String xmlContent = JAXBXMLHelper.storeObjectAsXML( jaxbList );
     assertNotNull( xmlContent );
     
     //
-    assertEquals( list, new ArrayList<String>( XMLHelper.cloneObject( jaxbList ) ) );
+    assertEquals( list, new ArrayList<String>( JAXBXMLHelper.cloneObject( jaxbList ) ) );
   }
   
 }

@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
-import org.omnaest.utils.xml.XMLHelper;
+import org.omnaest.utils.xml.JAXBXMLHelper;
 
 /**
  * Transfer data class for HTML table serialization
@@ -168,7 +168,7 @@ public class XHTMLDataContainer<E>
   @Override
   public String toString()
   {
-    return XMLHelper.storeObjectAsXML( this );
+    return JAXBXMLHelper.storeObjectAsXML( this );
   }
   
   public Header getHeader()

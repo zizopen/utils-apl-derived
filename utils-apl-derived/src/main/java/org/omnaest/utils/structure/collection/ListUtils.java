@@ -18,11 +18,12 @@ package org.omnaest.utils.structure.collection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
 import org.omnaest.utils.structure.collection.ListUtils.ElementFilterIndexPositionBasedForGivenIndexes.Mode;
@@ -205,8 +206,7 @@ public class ListUtils
   }
   
   /**
-   * Transforms a given {@link Collection} instance from one generic type into a single value using a
-   * {@link CollectionConverter}
+   * Transforms a given {@link Collection} instance from one generic type into a single value using a {@link CollectionConverter}
    * 
    * @param collection
    * @param collectionConverter
@@ -253,8 +253,7 @@ public class ListUtils
    * @param collection
    * @param multiElementConverter
    */
-  public static <FROM, TO> List<TO> convert( Collection<FROM> collection,
-                                               MultiElementConverter<FROM, TO> multiElementConverter )
+  public static <FROM, TO> List<TO> convert( Collection<FROM> collection, MultiElementConverter<FROM, TO> multiElementConverter )
   {
     return ListUtils.convert( collection, multiElementConverter, false );
   }
@@ -268,7 +267,7 @@ public class ListUtils
    * @param elementConverter
    */
   public static <FROM, TO> List<TO> convertListExcludingNullElements( Collection<FROM> collection,
-                                                                        ElementConverter<FROM, TO> elementConverter )
+                                                                      ElementConverter<FROM, TO> elementConverter )
   {
     return ListUtils.convert( collection, elementConverter, true );
   }
@@ -283,7 +282,7 @@ public class ListUtils
    * @param multiElementConverter
    */
   public static <FROM, TO> List<TO> convertListExcludingNullElements( Collection<FROM> collection,
-                                                                        MultiElementConverter<FROM, TO> multiElementConverter )
+                                                                      MultiElementConverter<FROM, TO> multiElementConverter )
   {
     return ListUtils.convert( collection, multiElementConverter, true );
   }
@@ -298,8 +297,8 @@ public class ListUtils
    *          : true->all null results from the element transformer will be discarded and not inserted into the result list.
    */
   public static <FROM, TO> List<TO> convert( Collection<FROM> collection,
-                                               final ElementConverter<FROM, TO> elementConverter,
-                                               boolean eliminateNullValues )
+                                             final ElementConverter<FROM, TO> elementConverter,
+                                             boolean eliminateNullValues )
   {
     //
     List<TO> retlist = new ArrayList<TO>();
@@ -332,8 +331,8 @@ public class ListUtils
    * @return always new (ordered) list instance containing transformed elements
    */
   public static <FROM, TO> List<TO> convert( Collection<FROM> collection,
-                                               MultiElementConverter<FROM, TO> multiElementConverter,
-                                               boolean eliminateNullValues )
+                                             MultiElementConverter<FROM, TO> multiElementConverter,
+                                             boolean eliminateNullValues )
   {
     //
     List<TO> retlist = new ArrayList<TO>();
@@ -485,27 +484,11 @@ public class ListUtils
    * @param elementToMapEntryTransformer
    * @return
    */
-  public static <K, V, E> Map<K, V> asMap( Iterable<E> iterable, ElementConverterElementToMapEntry<E, K, V> elementToMapEntryTransformer )
+  public static <K, V, E> Map<K, V> toMap( Iterable<E> iterable,
+                                           ElementConverterElementToMapEntry<E, K, V> elementToMapEntryTransformer )
   {
     //
-    Map<K, V> retmap = new LinkedHashMap<K, V>();
-    
-    //
-    if ( iterable != null && elementToMapEntryTransformer != null )
-    {
-      for ( E element : iterable )
-      {
-        //
-        Entry<K, V> entry = elementToMapEntryTransformer.convert( element );
-        if ( entry != null )
-        {
-          retmap.put( entry.getKey(), entry.getValue() );
-        }
-      }
-    }
-    
-    //
-    return retmap;
+    return CollectionUtils.toMap( iterable, elementToMapEntryTransformer );
   }
   
   /**
@@ -686,6 +669,51 @@ public class ListUtils
       for ( E element : iterable )
       {
         retlist.add( element );
+      }
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Creates a new {@link List} instance based on the given source {@link Iterable}. The given {@link Iterable} is then filtered
+   * by the additional filter and order providing {@link Iterable}s. Filtering means that the list of source elements will only
+   * retain elements, which are in the filter list, too. Additionally the order of the filter lists will be used to sort the ouput
+   * {@link List}. Naturally the last applied filter will decide the order only.<br>
+   * <br>
+   * If null is given as source, null is returned. If filter are not given or null, they are ignored, but still a {@link List}
+   * instance is returned.
+   * 
+   * @param sourceIterable
+   * @param retainingAndOrderingIterable
+   * @return
+   */
+  public static <E> List<E> filterAndOrderBy( Iterable<E> sourceIterable, Iterable<E>... filterAndOrderProvidingIterables )
+  {
+    //
+    List<E> retlist = null;
+    
+    //
+    if ( sourceIterable != null )
+    {
+      //
+      retlist = ListUtils.from( sourceIterable );
+      for ( Iterable<E> iterable : filterAndOrderProvidingIterables )
+      {
+        if ( iterable != null )
+        {
+          //
+          Set<E> tempSet = new HashSet<E>( retlist );
+          retlist = new ArrayList<E>();
+          for ( E element : iterable )
+          {
+            if ( tempSet.contains( element ) )
+            {
+              retlist.add( element );
+            }
+          }
+        }
       }
     }
     
