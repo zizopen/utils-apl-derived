@@ -29,7 +29,7 @@ import org.omnaest.utils.structure.container.ByteArrayContainer;
  * 
  * @author Omnaest
  */
-public class XMLHelper
+public class JAXBXMLHelper
 {
   /* ********************************************** Constants ********************************************** */
   final static public String ENCODING_UTF_8 = "utf-8";
@@ -46,7 +46,7 @@ public class XMLHelper
   public static void storeObjectAsXML( Object object, OutputStream outputStream )
   {
     String encoding = ENCODING_UTF_8;
-    XMLHelper.storeObjectAsXML( object, outputStream, encoding );
+    JAXBXMLHelper.storeObjectAsXML( object, outputStream, encoding );
   }
   
   /**
@@ -88,7 +88,7 @@ public class XMLHelper
   public static void storeObjectAsXML( Object object, Appendable appendable )
   {
     final String encoding = ENCODING_UTF_8;
-    XMLHelper.storeObjectAsXML( object, appendable, encoding );
+    JAXBXMLHelper.storeObjectAsXML( object, appendable, encoding );
   }
   
   /**
@@ -108,7 +108,7 @@ public class XMLHelper
       ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
       
       //
-      XMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream(), encoding );
+      JAXBXMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream(), encoding );
       
       //
       byteArrayContainer.writeTo( appendable, encoding );
@@ -124,7 +124,7 @@ public class XMLHelper
    */
   public static String storeObjectAsXML( Object object )
   {
-    return XMLHelper.storeObjectAsXML( object, ENCODING_UTF_8 );
+    return JAXBXMLHelper.storeObjectAsXML( object, ENCODING_UTF_8 );
   }
   
   /**
@@ -142,7 +142,7 @@ public class XMLHelper
     ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
     
     //
-    XMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream(), encoding );
+    JAXBXMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream(), encoding );
     
     //
     return byteArrayContainer.toString( encoding );
@@ -184,7 +184,7 @@ public class XMLHelper
     byteArrayContainer.copyFrom( charSequence );
     
     //
-    return XMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz );
+    return JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz );
   }
   
   public static <E> E loadObjectFromXML( String xmlContent, Class<E> typeClazz )
@@ -194,7 +194,7 @@ public class XMLHelper
     byteArrayContainer.copyFrom( xmlContent );
     
     //
-    return XMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz );
+    return JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz );
   }
   
   @SuppressWarnings("unchecked")
@@ -210,10 +210,10 @@ public class XMLHelper
       ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
       
       //
-      XMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream() );
+      JAXBXMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream() );
       
       //
-      retval = (E) XMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), object.getClass() );
+      retval = (E) JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), object.getClass() );
     }
     
     //

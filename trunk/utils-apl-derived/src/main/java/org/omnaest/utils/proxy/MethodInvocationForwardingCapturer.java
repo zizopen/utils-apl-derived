@@ -488,7 +488,7 @@ public class MethodInvocationForwardingCapturer
       };
       Iterable<MethodInvocationAndResult> iterable = newMethodInvocationAndResultIterable( inputStream, range );
       
-      Map<MethodInvocationComparison, Object> methodInvocationComparisonToResultMap = ListUtils.asMap( iterable,
+      Map<MethodInvocationComparison, Object> methodInvocationComparisonToResultMap = ListUtils.toMap( iterable,
                                                                                                        elementToMapEntryTransformer );
       
       //

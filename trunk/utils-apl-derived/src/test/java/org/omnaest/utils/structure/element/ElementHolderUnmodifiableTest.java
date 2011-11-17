@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
-import org.omnaest.utils.xml.XMLHelper;
+import org.omnaest.utils.xml.JAXBXMLHelper;
 
 /**
  * @see ElementHolderUnmodifiable
@@ -38,7 +38,7 @@ public class ElementHolderUnmodifiableTest
       ElementHolderUnmodifiable<String> elementHolder = new ElementHolder<String>( value );
       
       //
-      String objectAsXML = XMLHelper.storeObjectAsXML( elementHolder );
+      String objectAsXML = JAXBXMLHelper.storeObjectAsXML( elementHolder );
       assertNotNull( objectAsXML );
       //System.out.println( objectAsXML );
       

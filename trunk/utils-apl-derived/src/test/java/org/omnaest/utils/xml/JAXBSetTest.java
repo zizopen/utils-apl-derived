@@ -45,10 +45,10 @@ public class JAXBSetTest
     JAXBSet<String> jaxbSet = JAXBSet.newInstance( set );
     
     //
-    String xmlContent = XMLHelper.storeObjectAsXML( jaxbSet );
+    String xmlContent = JAXBXMLHelper.storeObjectAsXML( jaxbSet );
     assertNotNull( xmlContent );
     
     //
-    assertEquals( set, new HashSet<String>( XMLHelper.cloneObject( jaxbSet ) ) );
+    assertEquals( set, new HashSet<String>( JAXBXMLHelper.cloneObject( jaxbSet ) ) );
   }
 }

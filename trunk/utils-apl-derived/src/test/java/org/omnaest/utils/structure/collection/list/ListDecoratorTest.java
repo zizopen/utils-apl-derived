@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-import org.omnaest.utils.xml.XMLHelper;
+import org.omnaest.utils.xml.JAXBXMLHelper;
 
 /**
  * @see ListDecorator
@@ -45,7 +45,7 @@ public class ListDecoratorTest
     
     //
     @SuppressWarnings("unchecked")
-    List<String> fromXML = XMLHelper.loadObjectFromXML( XMLHelper.storeObjectAsXML( decoratedList ), ListDecorator.class );
+    List<String> fromXML = JAXBXMLHelper.loadObjectFromXML( JAXBXMLHelper.storeObjectAsXML( decoratedList ), ListDecorator.class );
     assertEquals( stringList, fromXML );
   }
 }

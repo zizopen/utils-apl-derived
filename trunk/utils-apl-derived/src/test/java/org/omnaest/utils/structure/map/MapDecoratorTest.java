@@ -13,42 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.collection;
+package org.omnaest.utils.structure.map;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.junit.Test;
 import org.omnaest.utils.xml.JAXBXMLHelper;
 
 /**
- * @see CollectionDecorator
+ * @see MapDecorator
  * @author Omnaest
  */
-public class CollectionDecoratorTest
+public class MapDecoratorTest
 {
   
   @Test
-  public void testCollectionDecoratorJAXBCompatibility()
+  public void testJAXBCompliance()
   {
     //
-    Collection<String> stringList = Arrays.asList( "a", "b" );
+    Map<String, Double> map = new LinkedHashMap<String, Double>();
+    map.put( "key1", 1.34 );
     
     //
-    Collection<String> decoratedList = new CollectionDecorator<String>( stringList );
-    assertEquals( stringList, new ArrayList<String>( decoratedList ) );
+    MapDecorator<String, Double> mapDecorator = new MapDecorator<String, Double>( map );
     
     //
-    //System.out.println( XMLHelper.storeObjectAsXML( decoratedList ) );
+    String objectAsXML = JAXBXMLHelper.storeObjectAsXML( mapDecorator );
+    //System.out.println( objectAsXML );
     
     //
     @SuppressWarnings("unchecked")
-    Collection<String> fromXML = JAXBXMLHelper.loadObjectFromXML( JAXBXMLHelper.storeObjectAsXML( decoratedList ),
-                                                              CollectionDecorator.class );
-    assertEquals( stringList, new ArrayList<String>( fromXML ) );
+    Map<String, Double> restoredMap = JAXBXMLHelper.loadObjectFromXML( objectAsXML, MapDecorator.class );
+    
+    //
+    assertEquals( map, mapDecorator );
+    assertEquals( map, restoredMap );
+    
   }
   
 }

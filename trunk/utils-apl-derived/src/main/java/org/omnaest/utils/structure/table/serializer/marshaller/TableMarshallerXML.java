@@ -24,7 +24,7 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.serializer.TableMarshaller;
 import org.omnaest.utils.structure.table.serializer.common.XMLDataContainer;
 import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer;
-import org.omnaest.utils.xml.XMLHelper;
+import org.omnaest.utils.xml.JAXBXMLHelper;
 
 /**
  * @see TableMarshaller
@@ -65,7 +65,7 @@ public class TableMarshallerXML<E> implements TableMarshaller<E>
     if ( table != null && outputStream != null )
     {
       //
-      XMLHelper.storeObjectAsXML( this.createXMLDataContainerFromTableContent( table ), outputStream, this.encoding );
+      JAXBXMLHelper.storeObjectAsXML( this.createXMLDataContainerFromTableContent( table ), outputStream, this.encoding );
     }
   }
   

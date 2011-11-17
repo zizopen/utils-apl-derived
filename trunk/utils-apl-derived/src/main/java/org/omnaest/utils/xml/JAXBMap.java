@@ -15,16 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.xml;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+
+import org.omnaest.utils.structure.map.MapDecorator;
 
 /**
  * The {@link JAXBMap} is a artificial {@link XmlRootElement} for an arbitrary {@link Map} instance. It just stores an internal
@@ -36,25 +32,24 @@ import javax.xml.bind.annotation.XmlType;
  * @param <V>
  */
 @XmlRootElement(name = "map")
-@XmlType
-@XmlAccessorType(XmlAccessType.FIELD)
-public class JAXBMap<K, V> implements Map<K, V>
+public class JAXBMap<K, V> extends MapDecorator<K, V>
 {
-  /* ********************************************** Variables ********************************************** */
-  @XmlElementWrapper(name = "entries")
-  protected Map<K, V> map = null;
   
-  /* ********************************************** Methods ********************************************** */
-  
+  /**
+   * @see JAXBMap
+   */
   protected JAXBMap()
   {
     this.map = new HashMap<K, V>();
   }
   
+  /**
+   * @see JAXBMap
+   * @param map
+   */
   protected JAXBMap( Map<K, V> map )
   {
-    super();
-    this.map = map;
+    super( map );
   }
   
   /**
@@ -82,75 +77,4 @@ public class JAXBMap<K, V> implements Map<K, V>
     return retmap;
   }
   
-  @Override
-  public int size()
-  {
-    return this.map.size();
-  }
-  
-  @Override
-  public boolean isEmpty()
-  {
-    return this.map.isEmpty();
-  }
-  
-  @Override
-  public boolean containsKey( Object key )
-  {
-    return this.map.containsKey( key );
-  }
-  
-  @Override
-  public boolean containsValue( Object value )
-  {
-    return this.map.containsValue( value );
-  }
-  
-  @Override
-  public V get( Object key )
-  {
-    return this.map.get( key );
-  }
-  
-  @Override
-  public V put( K key, V value )
-  {
-    return this.map.put( key, value );
-  }
-  
-  @Override
-  public V remove( Object key )
-  {
-    return this.map.remove( key );
-  }
-  
-  @Override
-  public void putAll( Map<? extends K, ? extends V> m )
-  {
-    this.map.putAll( m );
-  }
-  
-  @Override
-  public void clear()
-  {
-    this.map.clear();
-  }
-  
-  @Override
-  public Set<K> keySet()
-  {
-    return this.map.keySet();
-  }
-  
-  @Override
-  public Collection<V> values()
-  {
-    return this.map.values();
-  }
-  
-  @Override
-  public Set<Entry<K, V>> entrySet()
-  {
-    return this.map.entrySet();
-  }
 }

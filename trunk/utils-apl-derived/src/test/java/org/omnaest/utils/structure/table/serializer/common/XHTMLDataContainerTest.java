@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.omnaest.utils.structure.table.serializer.common.XHTMLDataContainer.Anker;
 import org.omnaest.utils.structure.table.serializer.common.XHTMLDataContainer.Cell;
 import org.omnaest.utils.structure.table.serializer.common.XHTMLDataContainer.Row;
-import org.omnaest.utils.xml.XMLHelper;
+import org.omnaest.utils.xml.JAXBXMLHelper;
 
 public class XHTMLDataContainerTest
 {
@@ -91,7 +91,7 @@ public class XHTMLDataContainerTest
     }
     
     //
-    String asXML = XMLHelper.storeObjectAsXML( xhtmlDataContainer );
+    String asXML = JAXBXMLHelper.storeObjectAsXML( xhtmlDataContainer );
     
     //System.out.println( asXML );
     asXML = asXML.replaceAll( "\\s+", " " );
