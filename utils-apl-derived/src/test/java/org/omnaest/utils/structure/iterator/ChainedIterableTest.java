@@ -40,6 +40,6 @@ public class ChainedIterableTest
   @Test
   public void testIterator()
   {
-    assertEquals( Arrays.asList( "a", "b", "c", "d" ), ListUtils.from( this.iterable ) );
+    assertEquals( Arrays.asList( "a", "b", "c", "d" ), ListUtils.valueOf( this.iterable ) );
   }
 }

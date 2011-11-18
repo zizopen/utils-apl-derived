@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.omnaest.utils.operation.Operation;
 import org.omnaest.utils.operation.foreach.ForEach.Result;
+import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
-import org.omnaest.utils.structure.collection.ListUtils;
 import org.omnaest.utils.structure.collection.list.ListDecorator;
 
 /**
@@ -84,7 +84,7 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
      */
     public <TO> TO convert( CollectionConverter<V, TO> collectionConverter )
     {
-      return ListUtils.convert( this.list, collectionConverter );
+      return CollectionUtils.convert( this.list, collectionConverter );
     }
     
     /**

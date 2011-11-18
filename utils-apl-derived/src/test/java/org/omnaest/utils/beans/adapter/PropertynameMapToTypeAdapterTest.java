@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration;
-import org.omnaest.utils.structure.element.Range;
+import org.omnaest.utils.operation.foreach.Range;
 import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverterNumberToString;
 import org.omnaest.utils.structure.element.converter.ElementConverterStringToInteger;

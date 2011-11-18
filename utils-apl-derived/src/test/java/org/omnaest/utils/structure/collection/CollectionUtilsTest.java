@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -81,6 +82,15 @@ public class CollectionUtilsTest
     
     //
     assertEquals( 5, CollectionUtils.lastIndexOfObjectIdentity( valueList, value ) );
+  }
+  
+  @Test
+  public void testToString()
+  {
+    //
+    String string = CollectionUtils.toString( Arrays.asList( "element1", "element2", "element3" ) );
+    //System.out.println( string );
+    assertEquals( "[\n element1,\n element2,\n element3\n]\n", string );
   }
   
 }

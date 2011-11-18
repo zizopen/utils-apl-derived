@@ -35,8 +35,8 @@ public class DurationCapture
   
   /* ********************************************** Variables ********************************************** */
   
-  protected Map<Object, Interval> intervalKeyToIntervalMap = new ConcurrentHashMap<Object, DurationCapture.Interval>();
-  protected Object                intervalDefaultKey       = "DEFAULT";
+  protected final Map<Object, Interval> intervalKeyToIntervalMap = new ConcurrentHashMap<Object, DurationCapture.Interval>();
+  protected final Object                intervalDefaultKey       = "DEFAULT";
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**

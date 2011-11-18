@@ -17,8 +17,8 @@ package org.omnaest.utils.structure.iterator;
 
 import java.util.Iterator;
 
-import org.omnaest.utils.structure.element.CachedElement;
-import org.omnaest.utils.structure.element.CachedElement.ValueResolver;
+import org.omnaest.utils.structure.element.cached.CachedElement;
+import org.omnaest.utils.structure.element.cached.CachedElement.ValueResolver;
 import org.omnaest.utils.structure.element.ElementStream;
 
 /**

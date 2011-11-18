@@ -74,7 +74,7 @@ public abstract class AutowiredContainerAbstract<E> implements AutowiredContaine
   {
     StringBuilder builder = new StringBuilder();
     builder.append( "AutowiredContainerAbstract [content=" );
-    builder.append( ListUtils.from( this ) );
+    builder.append( ListUtils.valueOf( this ) );
     builder.append( "]" );
     return builder.toString();
   }
