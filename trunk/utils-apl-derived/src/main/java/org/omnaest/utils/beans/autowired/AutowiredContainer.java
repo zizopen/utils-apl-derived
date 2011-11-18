@@ -52,7 +52,7 @@ import org.omnaest.utils.structure.collection.SetUtils;
  * }
  * </pre>
  * 
- * @see ListUtils#from(Iterable)
+ * @see ListUtils#valueOf(Iterable)
  * @see SetUtils#from(Iterable)
  * @author Omnaest
  */

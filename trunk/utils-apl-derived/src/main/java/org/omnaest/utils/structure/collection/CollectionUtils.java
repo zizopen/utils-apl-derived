@@ -66,6 +66,12 @@ public class CollectionUtils
     /* ********************************************** Variables ********************************************** */
     private StringBuilder resultStringBuilder = new StringBuilder();
     
+    @Override
+    public void process( FROM element )
+    {
+      this.process( element, this.resultStringBuilder );
+    }
+    
     /* ********************************************** Methods ********************************************** */
     /**
      * The {@link #process(Object, StringBuilder)} method will be invoked for every element of the processed {@link Collection}.
@@ -78,12 +84,6 @@ public class CollectionUtils
     public abstract void process( FROM element, StringBuilder resultStringBuilder );
     
     @Override
-    public void process( FROM element )
-    {
-      this.process( element, this.resultStringBuilder );
-    }
-    
-    @Override
     public String result()
     {
       return this.resultStringBuilder.toString();
@@ -92,67 +92,6 @@ public class CollectionUtils
   }
   
   /* ********************************************** Methods ********************************************** */
-  
-  /**
-   * Returns the sum of the values within an {@link Integer} {@link Collection}.
-   * 
-   * @param collectionInteger
-   * @return
-   */
-  public static int sumOfCollectionInteger( Collection<Integer> collectionInteger )
-  {
-    //
-    int retval = 0;
-    
-    //
-    for ( Integer iValue : collectionInteger )
-    {
-      retval += iValue;
-    }
-    
-    //
-    return retval;
-  }
-  
-  /**
-   * Returns the sum of the values within an {@link Double} {@link Collection}.
-   * 
-   * @param collectionDouble
-   * @return
-   */
-  public static double sumOfCollectionDouble( Collection<Double> collectionDouble )
-  {
-    //
-    double retval = 0;
-    
-    //
-    for ( Double iValue : collectionDouble )
-    {
-      retval += iValue;
-    }
-    
-    //
-    return retval;
-  }
-  
-  /**
-   * Prints the collection values to the system out.
-   * 
-   * @param collection
-   */
-  public static void printCollection( Collection<?> collection )
-  {
-    for ( Object iElement : collection )
-    {
-      try
-      {
-        System.out.println( String.valueOf( iElement ) );
-      }
-      catch ( Exception e )
-      {
-      }
-    }
-  }
   
   /**
    * Adds an array of integer values to a collection of Integer
@@ -183,84 +122,75 @@ public class CollectionUtils
   }
   
   /**
-   * Returns the values of a Integer collection as array.
-   * 
-   * @param integerList
-   * @return
-   */
-  public static int[] toArrayInt( Collection<Integer> integerList )
-  {
-    //
-    int[] retvals = new int[integerList.size()];
-    
-    //
-    int ii = 0;
-    for ( Integer iValue : integerList )
-    {
-      retvals[ii++] = iValue;
-    }
-    
-    //
-    return retvals;
-  }
-  
-  /**
-   * Converts a given {@link Collection} into a typed array
+   * Returns true if the given {@link Collection} contains the given object. Contains uses the "object == element" instead of the
+   * "equals" method to determine the object identity.
    * 
    * @param collection
-   * @param clazz
+   * @param object
    * @return
    */
-  @SuppressWarnings("unchecked")
-  public static <E> E[] toArray( Collection<E> collection, Class<? extends E> clazz )
+  public static <E> boolean containsObjectIdentity( Collection<E> collection, Object object )
   {
-    //
-    E[] retvals = null;
-    
-    //
-    if ( collection != null )
-    {
-      try
-      {
-        ///
-        retvals = (E[]) Array.newInstance( clazz, collection.size() );
-        
-        //
-        Iterator<E> iterator = collection.iterator();
-        for ( int indexPosition = 0; iterator.hasNext(); indexPosition++ )
-        {
-          retvals[indexPosition] = iterator.next();
-        }
-      }
-      catch ( Exception e )
-      {
-      }
-    }
-    
-    //
-    return retvals;
+    return indexOfObjectIdentity( collection, object ) >= 0;
   }
   
   /**
-   * Tests, if the two collection have the same elements.
+   * Converts a given {@link Collection} instance from one generic type into a single value using a {@link CollectionConverter}
    * 
-   * @param collection1
-   * @param collection2
-   * @return
+   * @see CollectionConverter
+   * @param collection
+   * @param collectionConverter
    */
-  public static boolean equalsUnordered( Collection<?> collection1, Collection<?> collection2 )
+  public static <FROM, TO> TO convert( Collection<FROM> collection, CollectionConverter<FROM, TO> collectionConverter )
   {
     //
-    boolean retval = collection1.size() == collection2.size();
+    TO retval = null;
     
     //
-    for ( Object iObject : collection1 )
+    if ( collection != null && collectionConverter != null )
     {
-      retval &= collection2.contains( iObject );
+      //
+      for ( FROM element : collection )
+      {
+        collectionConverter.process( element );
+      }
+      
+      //
+      retval = collectionConverter.result();
     }
     
     //
     return retval;
+  }
+  
+  /**
+   * Converts a given {@link Collection} into another {@link Collection} with other element types using an
+   * {@link ElementConverter}.
+   * 
+   * @see ElementConverter
+   * @param collectionFrom
+   * @param elementConverter
+   * @return
+   */
+  public static <TO, FROM> Collection<TO> convertCollection( Collection<FROM> collectionFrom,
+                                                             ElementConverter<FROM, TO> elementConverter )
+  {
+    return ListUtils.convert( collectionFrom, elementConverter );
+  }
+  
+  /**
+   * Converts a given {@link Collection} into another {@link Collection} with other element types, whereby all elements which
+   * convert to null will not be inserted into the target {@link Collection}.
+   * 
+   * @see ElementConverter
+   * @param collectionFrom
+   * @param elementConverter
+   * @return
+   */
+  public static <TO, FROM> Collection<TO> convertCollectionExcludingNullElements( Collection<FROM> collectionFrom,
+                                                                                  ElementConverter<FROM, TO> elementConverter )
+  {
+    return ListUtils.convertListExcludingNullElements( collectionFrom, elementConverter );
   }
   
   /**
@@ -313,46 +243,69 @@ public class CollectionUtils
   }
   
   /**
-   * Converts a given {@link Collection} into another {@link Collection} with other element types using an
-   * {@link ElementConverter}.
+   * Tests, if the two collection have the same elements.
    * 
-   * @see ElementConverter
-   * @param collectionFrom
-   * @param elementConverter
+   * @param collection1
+   * @param collection2
    * @return
    */
-  public static <TO, FROM> Collection<TO> convertCollection( Collection<FROM> collectionFrom,
-                                                             ElementConverter<FROM, TO> elementConverter )
+  public static boolean equalsUnordered( Collection<?> collection1, Collection<?> collection2 )
   {
-    return ListUtils.convert( collectionFrom, elementConverter );
+    //
+    boolean retval = collection1.size() == collection2.size();
+    
+    //
+    for ( Object iObject : collection1 )
+    {
+      retval &= collection2.contains( iObject );
+    }
+    
+    //
+    return retval;
   }
   
   /**
-   * Converts a given {@link Collection} into another {@link Collection} with other element types, whereby all elements which
-   * convert to null will not be inserted into the target {@link Collection}.
-   * 
-   * @see ElementConverter
-   * @param collectionFrom
-   * @param elementConverter
-   * @return
-   */
-  public static <TO, FROM> Collection<TO> convertCollectionExcludingNullElements( Collection<FROM> collectionFrom,
-                                                                                  ElementConverter<FROM, TO> elementConverter )
-  {
-    return ListUtils.convertListExcludingNullElements( collectionFrom, elementConverter );
-  }
-  
-  /**
-   * Returns true if the given {@link Collection} contains the given object. Contains uses the "object == element" instead of the
-   * "equals" method to determine the object identity.
+   * Calculates the hash code for a given collection including the order of elements
    * 
    * @param collection
-   * @param object
    * @return
    */
-  public static <E> boolean containsObjectIdentity( Collection<E> collection, Object object )
+  public static <E> int hashCode( Collection<E> collection )
   {
-    return indexOfObjectIdentity( collection, object ) >= 0;
+    final int prime = 31;
+    int result = 1;
+    if ( collection != null )
+    {
+      Iterator<E> iterator = collection.iterator();
+      while ( iterator.hasNext() )
+      {
+        E next = iterator.next();
+        result = prime * result + ( next != null ? next.hashCode() : 0 );
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Calculates the hash code for a given collection not including the order of elements. This can be used for {@link Set}
+   * implementations e.g.
+   * 
+   * @param collection
+   * @return
+   */
+  public static <E> int hashCodeUnordered( Collection<E> collection )
+  {
+    int result = 1;
+    if ( collection != null )
+    {
+      Iterator<E> iterator = collection.iterator();
+      while ( iterator.hasNext() )
+      {
+        E next = iterator.next();
+        result = result * ( next != null ? next.hashCode() : 0 );
+      }
+    }
+    return result;
   }
   
   /**
@@ -439,47 +392,162 @@ public class CollectionUtils
   }
   
   /**
-   * Calculates the hash code for a given collection including the order of elements
+   * Merges all elements of the given {@link Collection} instances into one single {@link Collection} instance which keeps the
+   * order of the elements.
    * 
-   * @param collection
+   * @see #mergeAll(Collection)
+   * @param <E>
+   * @param collections
    * @return
    */
-  public static <E> int hashCode( Collection<E> collection )
+  public static <E> Collection<E> mergeAll( Collection<E>... collections )
   {
-    final int prime = 31;
-    int result = 1;
-    if ( collection != null )
-    {
-      Iterator<E> iterator = collection.iterator();
-      while ( iterator.hasNext() )
-      {
-        E next = iterator.next();
-        result = prime * result + ( next != null ? next.hashCode() : 0 );
-      }
-    }
-    return result;
+    return ListUtils.mergeAll( collections );
   }
   
   /**
-   * Calculates the hash code for a given collection not including the order of elements. This can be used for {@link Set}
-   * implementations e.g.
+   * Returns a {@link String} representation of the given {@link Iterable} using {@link String#valueOf(boolean)}
    * 
-   * @param collection
+   * @param iterable
    * @return
    */
-  public static <E> int hashCodeUnordered( Collection<E> collection )
+  public static String toString( Iterable<?> iterable )
   {
-    int result = 1;
-    if ( collection != null )
+    //
+    StringBuilder retval = new StringBuilder();
+    retval.append( "[" );
+    
+    //
+    boolean first = true;
+    for ( Object iElement : iterable )
     {
-      Iterator<E> iterator = collection.iterator();
-      while ( iterator.hasNext() )
+      //
+      try
       {
-        E next = iterator.next();
-        result = result * ( next != null ? next.hashCode() : 0 );
+        //
+        retval.append( !first ? "," : "" );
+        retval.append( "\n " + String.valueOf( iElement ) );
+      }
+      catch ( Exception e )
+      {
+      }
+      
+      //
+      first = false;
+    }
+    
+    //
+    retval.append( "\n]\n" );
+    
+    //
+    return retval.toString();
+  }
+  
+  /**
+   * Returns the sum of the values within an {@link Double} {@link Iterable}.
+   * 
+   * @param doubleIterable
+   * @return
+   */
+  public static double sumOfCollectionDouble( Iterable<Double> doubleIterable )
+  {
+    //
+    double retval = 0;
+    
+    //
+    for ( Double iValue : doubleIterable )
+    {
+      if ( iValue != null )
+      {
+        retval += iValue;
       }
     }
-    return result;
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns the sum of the values within an {@link Integer} {@link Iterable}.
+   * 
+   * @param integerIterable
+   * @return
+   */
+  public static int sumOfCollectionInteger( Iterable<Integer> integerIterable )
+  {
+    //
+    int retval = 0;
+    
+    //
+    for ( Integer iValue : integerIterable )
+    {
+      if ( iValue != null )
+      {
+        retval += iValue;
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Converts a given {@link Collection} into a typed array
+   * 
+   * @param collection
+   * @param clazz
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> E[] toArray( Collection<E> collection, Class<? extends E> clazz )
+  {
+    //
+    E[] retvals = null;
+    
+    //
+    if ( collection != null )
+    {
+      try
+      {
+        ///
+        retvals = (E[]) Array.newInstance( clazz, collection.size() );
+        
+        //
+        Iterator<E> iterator = collection.iterator();
+        for ( int indexPosition = 0; iterator.hasNext(); indexPosition++ )
+        {
+          retvals[indexPosition] = iterator.next();
+        }
+      }
+      catch ( Exception e )
+      {
+      }
+    }
+    
+    //
+    return retvals;
+  }
+  
+  /**
+   * Returns the values of a {@link Integer} {@link Collection} as array.
+   * 
+   * @param integerCollection
+   * @return
+   */
+  public static int[] toArrayInt( Collection<Integer> integerCollection )
+  {
+    //
+    int[] retvals = new int[integerCollection.size()];
+    
+    //
+    int ii = 0;
+    for ( Integer iValue : integerCollection )
+    {
+      retvals[ii++] = iValue;
+    }
+    
+    //
+    return retvals;
   }
   
   /**

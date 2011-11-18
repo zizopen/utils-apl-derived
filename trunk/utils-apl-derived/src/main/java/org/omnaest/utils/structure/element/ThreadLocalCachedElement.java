@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element;
 
+import org.omnaest.utils.structure.element.cached.CachedElement;
+
 /**
  * {@link ThreadLocal} variant of a {@link CachedElement} which caches resolved element values for each thread independently.<br>
  * <br>
@@ -46,7 +48,7 @@ public class ThreadLocalCachedElement<T> extends CachedElement<T>
    * @param valueResolver
    * @param inherited
    */
-  public ThreadLocalCachedElement( org.omnaest.utils.structure.element.CachedElement.ValueResolver<T> valueResolver,
+  public ThreadLocalCachedElement( org.omnaest.utils.structure.element.cached.CachedElement.ValueResolver<T> valueResolver,
                                    boolean inherited )
   {
     super( valueResolver );

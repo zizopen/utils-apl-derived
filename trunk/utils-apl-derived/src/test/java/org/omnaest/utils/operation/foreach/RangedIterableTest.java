@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.iterator;
+package org.omnaest.utils.operation.foreach;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,7 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-import org.omnaest.utils.structure.element.Range;
+import org.omnaest.utils.operation.foreach.Range;
+import org.omnaest.utils.structure.iterator.RangedIterable;
 
 /**
  * @see RangedIterable

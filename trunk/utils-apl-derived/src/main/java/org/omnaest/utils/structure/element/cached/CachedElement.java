@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.element;
+package org.omnaest.utils.structure.element.cached;
 
 /**
  * A {@link CachedElement} provides an abstract cache mechanism around a given value. The value is initially resolved once from a

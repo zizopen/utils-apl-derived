@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
-import org.omnaest.utils.structure.element.CachedElement.ValueResolver;
+import org.omnaest.utils.structure.element.cached.CachedElement.ValueResolver;
 
 /**
  * @see ThreadLocalCachedElement

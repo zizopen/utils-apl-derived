@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
 import org.omnaest.utils.operation.Operation;
 import org.omnaest.utils.strings.CharacterPathBuilder;
 import org.omnaest.utils.strings.CharacterPathBuilder.CharacterPath;
+import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
-import org.omnaest.utils.structure.collection.ListUtils;
 
 /**
  * Static helper class related to {@link Pattern} concerns
@@ -134,25 +134,25 @@ public class PatternUtils
           String previousStringNew = previousString + ( characterPrevious != null ? characterPrevious : "" );
           
           //          
-          String mergedFirstCharacters = ListUtils.convert( characterPathList,
-                                                              new CollectionConverter<CharacterPath, String>()
-                                                              {
-                                                                @SuppressWarnings("hiding")
-                                                                private StringBuilder stringBuilder = new StringBuilder();
-                                                                
-                                                                @Override
-                                                                public void process( CharacterPath characterPath )
-                                                                {
-                                                                  this.stringBuilder.append( characterPath.getCharacter() );
-                                                                }
-                                                                
-                                                                @Override
-                                                                public String result()
-                                                                {
-                                                                  return this.stringBuilder.toString();
-                                                                }
-                                                                
-                                                              } );
+          String mergedFirstCharacters = CollectionUtils.convert( characterPathList,
+                                                                  new CollectionConverter<CharacterPath, String>()
+                                                                  {
+                                                                    @SuppressWarnings("hiding")
+                                                                    private StringBuilder stringBuilder = new StringBuilder();
+                                                                    
+                                                                    @Override
+                                                                    public void process( CharacterPath characterPath )
+                                                                    {
+                                                                      this.stringBuilder.append( characterPath.getCharacter() );
+                                                                    }
+                                                                    
+                                                                    @Override
+                                                                    public String result()
+                                                                    {
+                                                                      return this.stringBuilder.toString();
+                                                                    }
+                                                                    
+                                                                  } );
           
           //          //
           //          String firstCharactersOfChildrenAsString = "";

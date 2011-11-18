@@ -17,8 +17,8 @@ package org.omnaest.utils.structure.iterator;
 
 import java.util.Iterator;
 
+import org.omnaest.utils.operation.foreach.Range;
 import org.omnaest.utils.structure.element.ElementHolderUnmodifiable;
-import org.omnaest.utils.structure.element.Range;
 
 /**
  * A {@link RangedIterable} will only iterate over the subset of elements within the given {@link Range} of index positions.

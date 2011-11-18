@@ -26,9 +26,9 @@ import java.lang.reflect.Method;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.Times;
+import org.omnaest.utils.operation.foreach.Range;
 import org.omnaest.utils.proxy.MethodInvocationForwardingCapturer.MethodInvocationAndResult;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
-import org.omnaest.utils.structure.element.Range;
 
 /**
  * @see MethodInvocationForwardingCapturer

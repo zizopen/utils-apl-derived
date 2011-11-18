@@ -312,7 +312,7 @@ public class LinkedHashDualMap<K, V> implements DualMap<K, V>
         if ( collection != null )
         {
           //
-          List<V> valueList = ListUtils.from( this );
+          List<V> valueList = ListUtils.valueOf( this );
           valueList.removeAll( collection );
           
           //
@@ -436,7 +436,7 @@ public class LinkedHashDualMap<K, V> implements DualMap<K, V>
         if ( collection != null )
         {
           //
-          List<Entry<K, V>> valueList = ListUtils.from( this );
+          List<Entry<K, V>> valueList = ListUtils.valueOf( this );
           valueList.removeAll( collection );
           
           //

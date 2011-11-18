@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionTransformerToString;
 import org.omnaest.utils.structure.collection.ListUtils;
@@ -74,18 +75,18 @@ public class CharacterPathBuilder
           resultStringBuilder.append( character != null ? character : "" );
         }
       };
-      return ListUtils.convert( ListUtils.filterExcludingNullElements( ListUtils.convert( this.characterPathChildrenList,
-                                                                                              new ElementConverter<CharacterPath, Character>()
-                                                                                              {
-                                                                                                @Override
-                                                                                                public Character convert( CharacterPath characterPath )
+      return CollectionUtils.convert( ListUtils.filterExcludingNullElements( ListUtils.convert( this.characterPathChildrenList,
+                                                                                                new ElementConverter<CharacterPath, Character>()
                                                                                                 {
-                                                                                                  //
-                                                                                                  boolean characterPathIsEmptyOrNull = ( characterPath == null || characterPath.getCharacter() == null );
-                                                                                                  return !characterPathIsEmptyOrNull ? characterPath.getCharacter()
-                                                                                                                                    : null;
-                                                                                                }
-                                                                                              } ) ), collectionTransformer );
+                                                                                                  @Override
+                                                                                                  public Character convert( CharacterPath characterPath )
+                                                                                                  {
+                                                                                                    //
+                                                                                                    boolean characterPathIsEmptyOrNull = ( characterPath == null || characterPath.getCharacter() == null );
+                                                                                                    return !characterPathIsEmptyOrNull ? characterPath.getCharacter()
+                                                                                                                                      : null;
+                                                                                                  }
+                                                                                                } ) ), collectionTransformer );
     }
     
     public Character getCharacter()
@@ -278,17 +279,17 @@ public class CharacterPathBuilder
     {
       //
       List<Character> firstCharacterList = ListUtils.filterExcludingNullElements( ListUtils.convert( stringList,
-                                                                                                       new ElementConverter<String, Character>()
+                                                                                                     new ElementConverter<String, Character>()
+                                                                                                     {
+                                                                                                       @Override
+                                                                                                       public Character convert( String element )
                                                                                                        {
-                                                                                                         @Override
-                                                                                                         public Character convert( String element )
-                                                                                                         {
-                                                                                                           //
-                                                                                                           boolean elementIsEmptyOrNull = ( element == null || element.length() == 0 );
-                                                                                                           return !elementIsEmptyOrNull ? element.charAt( 0 )
-                                                                                                                                       : null;
-                                                                                                         }
-                                                                                                       } ) );
+                                                                                                         //
+                                                                                                         boolean elementIsEmptyOrNull = ( element == null || element.length() == 0 );
+                                                                                                         return !elementIsEmptyOrNull ? element.charAt( 0 )
+                                                                                                                                     : null;
+                                                                                                       }
+                                                                                                     } ) );
       
       //
       Set<Character> firstCharacterSet = new LinkedHashSet<Character>( firstCharacterList );
@@ -299,33 +300,33 @@ public class CharacterPathBuilder
         
         //          
         List<String> stringListForCurrentCharacterWithRemovedFirstCharacter = ListUtils.filterExcludingNullElements( ListUtils.convert( ListUtils.filterIncludingIndexPositions( stringList,
-                                                                                                                                                                                   ListUtils.indexListOf( firstCharacterList,
-                                                                                                                                                                                                          firstCharacter ) ),
-                                                                                                                                          new ElementConverter<String, String>()
+                                                                                                                                                                                 ListUtils.indexListOf( firstCharacterList,
+                                                                                                                                                                                                        firstCharacter ) ),
+                                                                                                                                        new ElementConverter<String, String>()
+                                                                                                                                        {
+                                                                                                                                          @Override
+                                                                                                                                          public String convert( String element )
                                                                                                                                           {
-                                                                                                                                            @Override
-                                                                                                                                            public String convert( String element )
+                                                                                                                                            //
+                                                                                                                                            String retval = null;
+                                                                                                                                            
+                                                                                                                                            //
+                                                                                                                                            boolean elementIsEmptyOrNull = ( element == null || element.length() == 0 );
+                                                                                                                                            
+                                                                                                                                            //
+                                                                                                                                            retval = elementIsEmptyOrNull ? null
+                                                                                                                                                                         : element.substring( 1 );
+                                                                                                                                            
+                                                                                                                                            //
+                                                                                                                                            if ( StringUtils.isEmpty( retval ) )
                                                                                                                                             {
-                                                                                                                                              //
-                                                                                                                                              String retval = null;
-                                                                                                                                              
-                                                                                                                                              //
-                                                                                                                                              boolean elementIsEmptyOrNull = ( element == null || element.length() == 0 );
-                                                                                                                                              
-                                                                                                                                              //
-                                                                                                                                              retval = elementIsEmptyOrNull ? null
-                                                                                                                                                                           : element.substring( 1 );
-                                                                                                                                              
-                                                                                                                                              //
-                                                                                                                                              if ( StringUtils.isEmpty( retval ) )
-                                                                                                                                              {
-                                                                                                                                                hasEmptyElementHolder.setElement( true );
-                                                                                                                                              }
-                                                                                                                                              
-                                                                                                                                              //
-                                                                                                                                              return retval;
+                                                                                                                                              hasEmptyElementHolder.setElement( true );
                                                                                                                                             }
-                                                                                                                                          } ) );
+                                                                                                                                            
+                                                                                                                                            //
+                                                                                                                                            return retval;
+                                                                                                                                          }
+                                                                                                                                        } ) );
         //
         CharacterPath characterPath = CharacterPathBuilder.buildPath( stringListForCurrentCharacterWithRemovedFirstCharacter );
         
