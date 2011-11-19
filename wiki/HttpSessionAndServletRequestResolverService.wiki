@@ -3,7 +3,7 @@
 = HttpSessionAndServletRequestResolverService =
 
 {{{
-<bean class="org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceImpl" />
+<bean class="org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceBean" />
 }}}
 
 {{{
