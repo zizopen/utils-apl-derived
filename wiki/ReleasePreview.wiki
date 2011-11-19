@@ -11,4 +11,11 @@
  * changed signature of ListUtils
  * changed name from XMLHelper to JAXBXMLHelper
  * Tested several decorators for JAXB compliance
+ * enhanced and changed signature of AutowiredContainer
+ * added AutowiredContainerDecorator
+ * added AutowiredContainerUtils
+ * enhanced AssertLogger
+ * enhanced HttpSessionService
+ * enhanced CaseinsensitiveMapDecorator
+ 
  
