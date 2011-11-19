@@ -88,11 +88,8 @@ public class TypeToAutowiredPropertyContainerAdapter<B> extends AutowiredContain
   }
   
   @Override
-  public <O> int put( O object, Class<? extends O>... types )
+  public <O> AutowiredContainer<Object> put( O object, Class<? extends O>... types )
   {
-    //
-    int retval = 0;
-    
     //
     if ( object != null && types.length > 0 )
     {
@@ -113,9 +110,6 @@ public class TypeToAutowiredPropertyContainerAdapter<B> extends AutowiredContain
                 {
                   //
                   beanPropertyAccessor.setPropertyValue( this.bean, object );
-                  
-                  //
-                  retval++;
                 }
               }
             }
@@ -125,22 +119,20 @@ public class TypeToAutowiredPropertyContainerAdapter<B> extends AutowiredContain
     }
     
     //
-    return retval;
+    return this;
   }
   
   @SuppressWarnings("unchecked")
   @Override
-  public int put( Object object )
+  public AutowiredContainer<Object> put( Object object )
   {
-    return this.put( object, ( object != null ) ? object.getClass() : null );
+    this.put( object, ( object != null ) ? object.getClass() : null );
+    return this;
   }
   
   @Override
-  public boolean put( String propertyname, Object value )
+  public AutowiredPropertyContainer put( String propertyname, Object value )
   {
-    //
-    boolean retval = false;
-    
     //
     if ( propertyname != null )
     {
@@ -149,12 +141,12 @@ public class TypeToAutowiredPropertyContainerAdapter<B> extends AutowiredContain
       if ( beanPropertyAccessor != null && beanPropertyAccessor.hasSetter() )
       {
         //
-        retval = beanPropertyAccessor.setPropertyValue( this.bean, value );
+        beanPropertyAccessor.setPropertyValue( this.bean, value );
       }
     }
     
     //
-    return retval;
+    return this;
   }
   
   @Override
@@ -207,6 +199,12 @@ public class TypeToAutowiredPropertyContainerAdapter<B> extends AutowiredContain
   public Iterator<Object> iterator()
   {
     return this.getPropertynameToValueMapForArbitraryType( Object.class ).values().iterator();
+  }
+  
+  @Override
+  public AutowiredContainer<Object> remove( Class<? extends Object> type )
+  {
+    return this.put( null, type );
   }
   
 }

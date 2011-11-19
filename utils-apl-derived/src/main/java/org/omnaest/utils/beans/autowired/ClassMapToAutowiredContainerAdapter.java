@@ -15,11 +15,17 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.autowired;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Adapter to allow {@link Map}s to be treated as {@link AutowiredContainer}. The key of the {@link Map} will be the {@link Class}
@@ -28,12 +34,15 @@ import java.util.Set;
  * @see AutowiredContainer
  * @author Omnaest
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long          serialVersionUID = -6432970316176438546L;
   
   /* ********************************************** Variables ********************************************** */
+  @XmlElementWrapper(name = "entries")
   private Map<Class<? extends E>, E> classToObjectMap = null;
   
   /* ********************************************** Methods ********************************************** */
@@ -45,7 +54,7 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
    */
   public static <E> AutowiredContainer<E> newInstanceUsingLinkedHashMap()
   {
-    return newInstance( new LinkedHashMap<Class<? extends E>, E>() );
+    return newInstance( null );
   }
   
   /**
@@ -60,10 +69,7 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
     AutowiredContainer<E> retval = null;
     
     //
-    if ( classToObjectMap != null )
-    {
-      retval = new ClassMapToAutowiredContainerAdapter<E>( classToObjectMap );
-    }
+    retval = new ClassMapToAutowiredContainerAdapter<E>( classToObjectMap );
     
     //
     return retval;
@@ -75,7 +81,15 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
   protected ClassMapToAutowiredContainerAdapter( Map<Class<? extends E>, E> classToObjectMap )
   {
     super();
-    this.classToObjectMap = classToObjectMap;
+    this.classToObjectMap = classToObjectMap != null ? classToObjectMap : new LinkedHashMap<Class<? extends E>, E>();
+  }
+  
+  /**
+   * @see ClassMapToAutowiredContainerAdapter
+   */
+  protected ClassMapToAutowiredContainerAdapter()
+  {
+    this( null );
   }
   
   @SuppressWarnings("unchecked")
@@ -88,11 +102,35 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
     //
     if ( type != null )
     {
+      //
+      Set<Class<? extends E>> assignableTypeSet = this.determineAssignableTypeSet( type );
+      for ( Class<? extends E> iType : assignableTypeSet )
+      {
+        retset.add( (O) this.classToObjectMap.get( iType ) );
+      }
+    }
+    
+    //
+    return retset;
+  }
+  
+  /**
+   * @param type
+   * @return
+   */
+  protected Set<Class<? extends E>> determineAssignableTypeSet( Class<? extends E> type )
+  {
+    //    
+    Set<Class<? extends E>> retset = new HashSet<Class<? extends E>>();
+    
+    //
+    if ( type != null )
+    {
       for ( Class<? extends E> iType : this.classToObjectMap.keySet() )
       {
         if ( iType != null && type.isAssignableFrom( iType ) )
         {
-          retset.add( (O) this.classToObjectMap.get( iType ) );
+          retset.add( iType );
         }
       }
     }
@@ -103,7 +141,7 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
   
   @SuppressWarnings("unchecked")
   @Override
-  public int put( E object )
+  public AutowiredContainer<E> put( E object )
   {
     return put( object, object != null ? (Class<E>) object.getClass() : null );
   }
@@ -116,11 +154,8 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
   
   @Override
   @SuppressWarnings("unchecked")
-  public <O extends E> int put( O object, Class<? extends O>... types )
+  public <O extends E> AutowiredContainer<E> put( O object, Class<? extends O>... types )
   {
-    //
-    int retval = 0;
-    
     //
     if ( object != null && types.length > 0 )
     {
@@ -129,53 +164,30 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
         if ( type != null )
         {
           //
-          E previous = this.classToObjectMap.put( (Class<E>) type, object );
-          retval += ( previous != null ) ? 1 : 0;
+          this.classToObjectMap.put( (Class<E>) type, object );
         }
       }
     }
     
     // 
-    return retval;
+    return this;
   }
   
   @Override
-  public int hashCode()
+  public AutowiredContainer<E> remove( Class<? extends E> type )
   {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ( ( this.classToObjectMap == null ) ? 0 : this.classToObjectMap.hashCode() );
-    return result;
-  }
-  
-  @Override
-  public boolean equals( Object obj )
-  {
-    if ( this == obj )
+    
+    //
+    Set<Class<? extends E>> assignableTypeSet = this.determineAssignableTypeSet( type );
+    if ( !assignableTypeSet.isEmpty() )
     {
-      return true;
-    }
-    if ( obj == null )
-    {
-      return false;
-    }
-    if ( !( obj instanceof ClassMapToAutowiredContainerAdapter ) )
-    {
-      return false;
-    }
-    ClassMapToAutowiredContainerAdapter<?> other = (ClassMapToAutowiredContainerAdapter<?>) obj;
-    if ( this.classToObjectMap == null )
-    {
-      if ( other.classToObjectMap != null )
+      for ( Class<? extends E> iType : assignableTypeSet )
       {
-        return false;
+        this.classToObjectMap.remove( iType );
       }
     }
-    else if ( !this.classToObjectMap.equals( other.classToObjectMap ) )
-    {
-      return false;
-    }
-    return true;
+    
+    // 
+    return this;
   }
-  
 }

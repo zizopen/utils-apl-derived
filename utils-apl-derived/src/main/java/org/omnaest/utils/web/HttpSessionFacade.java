@@ -21,7 +21,9 @@ import javax.servlet.http.HttpSession;
 
 import org.omnaest.utils.beans.adapter.source.DefaultValue;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
+import org.omnaest.utils.spring.session.HttpSessionService;
 import org.omnaest.utils.structure.element.converter.Converter;
+import org.omnaest.utils.web.HttpSessionFacadeFactory;
 
 /**
  * Super type interface for all {@link HttpSessionFacade}s. This allows to track all available {@link HttpSessionFacade}s by
@@ -57,7 +59,12 @@ import org.omnaest.utils.structure.element.converter.Converter;
  * }
  * </pre>
  * 
+ * <br>
+ * A {@link HttpSessionFacade} is produced by a {@link HttpSessionFacadeFactory}. As a {@link HttpSession} related Spring service
+ * you can use the {@link HttpSessionService}.
+ * 
  * @see HttpSessionFacadeFactory
+ * @see HttpSessionService
  * @author Omnaest
  */
 public interface HttpSessionFacade

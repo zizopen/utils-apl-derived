@@ -43,7 +43,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "HttpSessionServiceTestAC.xml" })
-public class HttpSessionServiceImplTest
+public class HttpSessionServiceBeanTest
 {
   /* ********************************************** Variables ********************************************** */
   @Autowired
@@ -148,6 +148,34 @@ public class HttpSessionServiceImplTest
     assertEquals( 3, map.size() );
     assertEquals( Arrays.asList( "fieldString", "fieldDouble", "newAttribute" ), new ArrayList<String>( map.keySet() ) );
     assertEquals( Arrays.asList( "value", 1.45, "new value" ), map.values() );
+    
+    //
+    map.remove( "fieldString" );
+    assertEquals( 2, map.size() );
+    assertEquals( Arrays.asList( "fieldDouble", "newAttribute" ), new ArrayList<String>( map.keySet() ) );
+    assertEquals( Arrays.asList( 1.45, "new value" ), map.values() );
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testResolveHttpSessionAndReturnAsCaseinsensitiveMapView()
+  {
+    //
+    Map<String, Object> map = this.httpSessionService.resolveHttpSessionAndReturnAsCaseinsensitiveMapView();
+    assertNotNull( map );
+    assertEquals( 2, map.size() );
+    assertEquals( Arrays.asList( "fieldString", "fieldDouble" ), new ArrayList<String>( map.keySet() ) );
+    assertEquals( Arrays.asList( "value", 1.45 ), map.values() );
+    
+    //
+    map.put( "newAttribute", "new value" );
+    assertEquals( 3, map.size() );
+    assertEquals( Arrays.asList( "fieldString", "fieldDouble", "newAttribute" ), new ArrayList<String>( map.keySet() ) );
+    assertEquals( Arrays.asList( "value", 1.45, "new value" ), map.values() );
+    
+    assertEquals( 1.45, map.get( "FIEldDouble" ) );
+    assertEquals( 1.45, map.get( "fieldDouble" ) );
+    assertEquals( 1.45, map.get( "FIELDDOUBLE" ) );
     
     //
     map.remove( "fieldString" );

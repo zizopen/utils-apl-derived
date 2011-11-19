@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.iterator.IterableUtils;
 
 /**
  * Abstract implementation for {@link AutowiredContainer} which reduces the number of methods to be implemented.
@@ -51,11 +52,8 @@ public abstract class AutowiredContainerAbstract<E> implements AutowiredContaine
   }
   
   @Override
-  public int putAll( Iterable<E> iterable )
+  public AutowiredContainer<E> putAll( Iterable<E> iterable )
   {
-    //
-    int retval = 0;
-    
     //
     if ( iterable != null )
     {
@@ -66,14 +64,14 @@ public abstract class AutowiredContainerAbstract<E> implements AutowiredContaine
     }
     
     // 
-    return retval;
+    return this;
   }
   
   @Override
   public String toString()
   {
     StringBuilder builder = new StringBuilder();
-    builder.append( "AutowiredContainerAbstract [content=" );
+    builder.append( "AutowiredContainer [content=" );
     builder.append( ListUtils.valueOf( this ) );
     builder.append( "]" );
     return builder.toString();
@@ -92,6 +90,40 @@ public abstract class AutowiredContainerAbstract<E> implements AutowiredContaine
     // 
     Iterator<E> iterator = this.iterator();
     return iterator == null || !iterator.hasNext();
+  }
+  
+  @Override
+  public <O extends E> AutowiredContainer<E> remove( O object )
+  {
+    //
+    if ( object != null )
+    {
+      //
+      @SuppressWarnings("unchecked")
+      Class<? extends E> type = (Class<? extends E>) object.getClass();
+      this.remove( type );
+    }
+    
+    //
+    return this;
+  }
+  
+  @Override
+  public int hashCode()
+  {
+    return IterableUtils.hashCode( this );
+  }
+  
+  @Override
+  public boolean equals( Object obj )
+  {
+    return obj instanceof Iterable && IterableUtils.equals( this, (Iterable<?>) obj );
+  }
+  
+  @Override
+  public int size()
+  {
+    return IterableUtils.size( this );
   }
   
 }

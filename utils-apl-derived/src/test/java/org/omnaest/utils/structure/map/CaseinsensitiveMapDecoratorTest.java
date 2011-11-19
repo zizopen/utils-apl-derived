@@ -16,6 +16,8 @@
 package org.omnaest.utils.structure.map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
@@ -28,15 +30,15 @@ import org.junit.Test;
 public class CaseinsensitiveMapDecoratorTest
 {
   /* ********************************************** Variables ********************************************** */
-  private final Map<String, Object> map          = new MapBuilder<String, Object>().linkedHashMap()
-                                                                                   .put( "kEy0", "value0" )
-                                                                                   .put( "key1", "value1" )
-                                                                                   .put( "KEY2", "value2" )
-                                                                                   .put( "Key3", "value3" )
-                                                                                   .put( "kEy4", "value4" )
-                                                                                   .build();
+  private final Map<String, Object>                 map          = new MapBuilder<String, Object>().linkedHashMap()
+                                                                                                   .put( "kEy0", "value0" )
+                                                                                                   .put( "key1", "value1" )
+                                                                                                   .put( "KEY2", "value2" )
+                                                                                                   .put( "Key3", "value3" )
+                                                                                                   .put( "kEy4", "value4" )
+                                                                                                   .build();
   
-  private final Map<String, Object> mapDecorator = new CaseinsensitiveMapDecorator<Object>( this.map );
+  private final CaseinsensitiveMapDecorator<Object> mapDecorator = new CaseinsensitiveMapDecorator<Object>( this.map );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -46,9 +48,16 @@ public class CaseinsensitiveMapDecoratorTest
     assertEquals( this.mapDecorator, this.map );
     
     assertEquals( "value0", this.mapDecorator.get( "kEy0" ) );
+    assertTrue( this.mapDecorator.isFastHit() );
     assertEquals( "value1", this.mapDecorator.get( "KeY1" ) );
+    assertTrue( this.mapDecorator.isFastHit() );
     assertEquals( "value2", this.mapDecorator.get( "key2" ) );
+    assertTrue( this.mapDecorator.isFastHit() );
     assertEquals( "value3", this.mapDecorator.get( "key3" ) );
+    assertTrue( this.mapDecorator.isFastHit() );
     assertEquals( "value4", this.mapDecorator.get( "key4" ) );
+    assertFalse( this.mapDecorator.isFastHit() );
+    assertEquals( "value4", this.mapDecorator.get( "key4" ) );
+    assertTrue( this.mapDecorator.isFastHit() );
   }
 }

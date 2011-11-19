@@ -324,7 +324,7 @@ public class MapBuilder<K, V>
   public MapBuilderWithMap map( MapFactory<K, V> mapFactory )
   {
     //
-    Assert.notNull( mapFactory, "MapFactory must not be null" );
+    Assert.isNotNull( mapFactory, "MapFactory must not be null" );
     return new MapBuilderWithMap( mapFactory );
   }
   
@@ -372,7 +372,7 @@ public class MapBuilder<K, V>
     }
     
     //
-    Assert.notNull( mapFactory, "The given type of Map does not have a constructor for the given arguments." );
+    Assert.isNotNull( mapFactory, "The given type of Map does not have a constructor for the given arguments." );
     return new MapBuilderWithMap( mapFactory );
   }
   

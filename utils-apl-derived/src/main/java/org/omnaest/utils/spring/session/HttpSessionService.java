@@ -34,10 +34,13 @@ import org.omnaest.utils.web.HttpSessionFacadeFactory;
  * 
  * <pre>
  * &lt;context:annotation-config /&gt;
- * &lt;bean class=&quot;org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceImpl&quot; /&gt;
- * &lt;bean class=&quot;org.omnaest.utils.spring.session.implementation.HttpSessionServiceImpl&quot; /&gt;
+ * &lt;bean class=&quot;org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceBean&quot; /&gt;
+ * &lt;bean class=&quot;org.omnaest.utils.spring.session.implementation.HttpSessionServiceBean&quot; /&gt;
  * </pre>
  * 
+ * @see HttpSession
+ * @see HttpSessionFacade
+ * @see HttpSessionAndServletRequestResolverService
  * @author Omnaest
  */
 public interface HttpSessionService
@@ -63,6 +66,7 @@ public interface HttpSessionService
    * Returns a {@link Map} based view on the current {@link HttpSession}. Changes to the {@link Map} will be reflected by a change
    * of the {@link HttpSession} and vice versa.
    * 
+   * @see #resolveHttpSessionAndReturnAsCaseinsensitiveMapView()
    * @return
    */
   public Map<String, Object> resolveHttpSessionAndReturnAsMapView();
@@ -70,6 +74,8 @@ public interface HttpSessionService
   /**
    * Resolves the {@link HttpSession}
    * 
+   * @see #resolveHttpSessionAndReturnAsMapView()
+   * @see #newHttpSessionFacade(Class)
    * @return
    */
   public HttpSession resolveHttpSession();
@@ -83,5 +89,13 @@ public interface HttpSessionService
    * @return
    */
   public <F extends HttpSessionFacade> F newHttpSessionFacade( Class<? extends F> httpSessionFacadeType );
+  
+  /**
+   * Resolves the {@link HttpSession} and provides a caseinsensitive {@link Map} view on its attributes
+   * 
+   * @see #resolveHttpSessionAndReturnAsMapView()
+   * @return
+   */
+  public Map<String, Object> resolveHttpSessionAndReturnAsCaseinsensitiveMapView();
   
 }

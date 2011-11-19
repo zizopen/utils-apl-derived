@@ -43,7 +43,7 @@ public class SourcePropertyAccessorDecoratorDefaultValue extends SourcePropertyA
   public void setValue( String propertyName, Object value, Class<?> parameterType, PropertyMetaInformation propertyMetaInformation )
   {
     //
-    Assert.notNull( this.sourcePropertyAccessor );
+    Assert.isNotNull( this.sourcePropertyAccessor );
     
     //
     value = defaultObject( value, parameterType, propertyMetaInformation, propertyName );
@@ -54,7 +54,7 @@ public class SourcePropertyAccessorDecoratorDefaultValue extends SourcePropertyA
   public Object getValue( String propertyName, Class<?> returnType, PropertyMetaInformation propertyMetaInformation )
   {
     //
-    Assert.notNull( this.sourcePropertyAccessor );
+    Assert.isNotNull( this.sourcePropertyAccessor );
     
     //
     Object value = this.sourcePropertyAccessor.getValue( propertyName, returnType, propertyMetaInformation );

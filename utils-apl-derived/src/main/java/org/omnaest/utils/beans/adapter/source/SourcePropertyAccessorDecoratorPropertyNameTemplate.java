@@ -49,7 +49,7 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourceP
                                                                                                                         propertyMetaInformation );
     
     //
-    Assert.notNull( this.sourcePropertyAccessor );
+    Assert.isNotNull( this.sourcePropertyAccessor );
     this.sourcePropertyAccessor.setValue( propertyNameProcessed, value, parameterType, propertyMetaInformation );
   }
   
@@ -61,7 +61,7 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourceP
                                                                                                                         propertyMetaInformation );
     
     //
-    Assert.notNull( this.sourcePropertyAccessor );
+    Assert.isNotNull( this.sourcePropertyAccessor );
     return this.sourcePropertyAccessor.getValue( propertyNameProcessed, returnType, propertyMetaInformation );
   }
   
