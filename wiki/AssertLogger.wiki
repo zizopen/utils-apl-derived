@@ -10,9 +10,11 @@ A nice example is the following:
 
 {{{
 
-AssertLogger.traceAssertNotNull(object,"Object must not be null at this location");
-if (object != null)
-{...}
+ AssertLogger assertLogger = new AssertLogger( this.logger );
+
+ assertLogger.debug.assertThis.isTrue( expression );
+ assertLogger.warn.assertThis.isNotNull( object, "Additional message" );
+ assertLogger.info.assertThis.fails( "Additional message" );
 
 }}}
 
