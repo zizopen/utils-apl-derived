@@ -15,12 +15,22 @@
  ******************************************************************************/
 package org.omnaest.utils.assertion;
 
+import org.omnaest.utils.assertion.AssertLogger.Loglevel.LoglevelSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * An {@link AssertLogger} provides methods of a {@link Logger} as well as methods of an {@link Assert} helper. This allows to
- * easily log assertions.
+ * easily log assertions.<br>
+ * <br>
+ * Usage example:
+ * 
+ * <pre>
+ * AssertLogger assertLogger = new AssertLogger( this.logger );
+ * assertLogger.debug.assertThis.isTrue( expression );
+ * assertLogger.warn.assertThis.isNotNull( object, &quot;Additional message&quot; );
+ * assertLogger.info.assertThis.fails( &quot;Additional message&quot; );
+ * </pre>
  * 
  * @see Assert
  * @see Logger
@@ -29,7 +39,12 @@ import org.slf4j.LoggerFactory;
 public class AssertLogger
 {
   /* ********************************************** Variables ********************************************** */
-  protected final Logger logger;
+  public final Logger   logger;
+  public final Loglevel trace;
+  public final Loglevel debug;
+  public final Loglevel info;
+  public final Loglevel warn;
+  public final Loglevel error;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
@@ -47,6 +62,269 @@ public class AssertLogger
     public String message();
   }
   
+  /**
+   * Representation of a selected {@link Loglevel} of the {@link AssertLogger}. This usually maps to log level like error, warn,
+   * info, debug or trace.
+   * 
+   * @author Omnaest
+   */
+  public static class Loglevel
+  {
+    /* ********************************************** Variables ********************************************** */
+    public final LoglevelAssert     assertThis = new LoglevelAssert();
+    public final MessageWriter      message    = new MessageWriter();
+    
+    protected final LoglevelSupport loglevelSupport;
+    
+    /* ********************************************** Classes/Interfaces ********************************************** */
+    
+    /**
+     * Necessarily supported operations for a {@link Loglevel}
+     * 
+     * @author Omnaest
+     */
+    public static interface LoglevelSupport
+    {
+      /**
+       * @return
+       */
+      public boolean isLoglevelEnabled();
+      
+      /**
+       * @param message
+       */
+      public void writeMessage( String message );
+      
+      /**
+       * @param message
+       * @param e
+       */
+      public void writeMessage( String message, Throwable e );
+    }
+    
+    /**
+     * Provider for {@link Assert} based methods which catches all {@link Exception}s and logs it to the underlying {@link Logger}
+     * using the selected {@link Loglevel}
+     * 
+     * @author Omnaest
+     */
+    public class LoglevelAssert
+    {
+      /**
+       * @see Assert#isTrue(boolean)
+       * @param expression
+       * @return
+       */
+      public boolean isTrue( boolean expression )
+      {
+        //
+        try
+        {
+          return Assert.isTrue( expression );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message.message( "Assert.isTrue(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
+       * @see Assert#isTrue(boolean)
+       * @param expression
+       * @param message
+       * @return
+       */
+      public boolean isTrue( boolean expression, String message )
+      {
+        //
+        try
+        {
+          return Assert.isTrue( expression, message );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message.message( "Assert.isTrue(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
+       * @see Assert#isNotNull(Object)
+       * @param object
+       * @return
+       */
+      public boolean isNotNull( Object object )
+      {
+        //
+        try
+        {
+          return Assert.isNotNull( object );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message.message( "Assert.isNotNull(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
+       * @see Assert#isNotNull(Object)
+       * @param object
+       * @param message
+       * @return
+       */
+      public boolean isNotNull( Object object, String message )
+      {
+        //
+        try
+        {
+          return Assert.isNotNull( object, message );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message.message( "Assert.isNotNull(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
+       * @see Assert#fails()
+       */
+      public void fails()
+      {
+        //
+        try
+        {
+          Assert.fails();
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message.message( "Assert.fails() notifies about a failure", e );
+        }
+      }
+      
+      /**
+       * @see Assert#fails()
+       * @param message
+       */
+      public void fails( String message )
+      {
+        //
+        try
+        {
+          Assert.fails( message );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message.message( "Assert.fails() notifies about a failure", e );
+        }
+      }
+      
+      /**
+       * @see LoglevelAssert
+       */
+      protected LoglevelAssert()
+      {
+        super();
+      }
+      
+    }
+    
+    /**
+     * @see Loglevel
+     * @author Omnaest
+     */
+    public class MessageWriter
+    {
+      
+      /**
+       * Writes a message to the {@link Logger} using the selected {@link Loglevel}
+       * 
+       * @param message
+       * @return {@link Loglevel}
+       */
+      public Loglevel message( String message )
+      {
+        //
+        Loglevel.this.loglevelSupport.writeMessage( message );
+        return Loglevel.this;
+      }
+      
+      /**
+       * Writes a message and a given {@link Throwable} to the {@link Logger} using the selected {@link Loglevel}
+       * 
+       * @param message
+       * @param e
+       *          {@link Throwable}
+       * @return {@link Loglevel}
+       */
+      public Loglevel message( String message, Throwable e )
+      {
+        //
+        Loglevel.this.loglevelSupport.writeMessage( message, e );
+        return Loglevel.this;
+      }
+      
+      /**
+       * Writes a message to the {@link Logger} using the selected {@link Loglevel} <br>
+       * <br>
+       * The {@link MessageFactory#message()} method is only invoked if the respective {@link Loglevel} is set to true within the
+       * logging configuration.
+       * 
+       * @param messageFactory
+       *          {@link MessageFactory}
+       * @return {@link Loglevel}
+       */
+      public Loglevel message( MessageFactory messageFactory )
+      {
+        //
+        if ( Loglevel.this.loglevelSupport.isLoglevelEnabled() )
+        {
+          String message = messageFactory != null ? messageFactory.message() : "";
+          Loglevel.this.loglevelSupport.writeMessage( message );
+        }
+        return Loglevel.this;
+      }
+      
+      /**
+       * Writes a message and a given {@link Throwable} to the {@link Logger} using the selected {@link Loglevel}.<br>
+       * <br>
+       * The {@link MessageFactory#message()} method is only invoked if the respective {@link Loglevel} is set to true within the
+       * logging configuration.
+       * 
+       * @param messageFactory
+       *          {@link MessageFactory}
+       * @param e
+       *          {@link Throwable}
+       * @return {@link Loglevel}
+       */
+      public Loglevel message( MessageFactory messageFactory, Throwable e )
+      {
+        //
+        if ( Loglevel.this.loglevelSupport.isLoglevelEnabled() )
+        {
+          String message = messageFactory != null ? messageFactory.message() : "";
+          Loglevel.this.loglevelSupport.writeMessage( message, e );
+        }
+        return Loglevel.this;
+      }
+      
+    }
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @see Loglevel
+     * @param lomessage
+     */
+    protected Loglevel( LoglevelSupport loglevelSupport )
+    {
+      super();
+      this.loglevelSupport = loglevelSupport;
+    }
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**
@@ -57,595 +335,119 @@ public class AssertLogger
    */
   public AssertLogger( Class<?> type )
   {
-    super();
-    this.logger = LoggerFactory.getLogger( type );
+    this( LoggerFactory.getLogger( type ) );
   }
   
   /**
    * @see AssertLogger
    * @param logger
    */
-  public AssertLogger( Logger logger )
+  public AssertLogger( final Logger logger )
   {
     super();
+    Assert.isNotNull( logger, "Logger reference must not be null, but a null reference has been given" );
     this.logger = logger;
-  }
-  
-  /**
-   * @see MessageFactory
-   * @param messageFactory
-   */
-  public void debug( MessageFactory messageFactory )
-  {
-    if ( messageFactory != null && this.isDebugEnabled() )
+    this.trace = new Loglevel( new LoglevelSupport()
     {
-      this.debug( messageFactory.message() );
-    }
-  }
-  
-  /**
-   * @param msg
-   * @see org.slf4j.Logger#debug(java.lang.String)
-   */
-  public void debug( String msg )
-  {
-    this.logger.debug( msg );
-  }
-  
-  /**
-   * @param msg
-   * @param e
-   * @see org.slf4j.Logger#debug(java.lang.String, java.lang.Throwable)
-   */
-  public void debug( String msg, Throwable e )
-  {
-    this.logger.debug( msg, e );
-  }
-  
-  /**
-   * @see #debug(String, Throwable)
-   * @see Assert#isTrue(boolean)
-   * @param expression
-   */
-  public void debugAssertIsTrue( boolean expression )
-  {
-    //
-    try
+      @Override
+      public void writeMessage( String message, Throwable e )
+      {
+        logger.trace( message, e );
+      }
+      
+      @Override
+      public void writeMessage( String message )
+      {
+        logger.trace( message );
+      }
+      
+      @Override
+      public boolean isLoglevelEnabled()
+      {
+        return logger.isTraceEnabled();
+      }
+    } );
+    this.debug = new Loglevel( new LoglevelSupport()
     {
-      Assert.isTrue( expression );
-    }
-    catch ( Exception e )
+      @Override
+      public void writeMessage( String message, Throwable e )
+      {
+        logger.debug( message, e );
+      }
+      
+      @Override
+      public void writeMessage( String message )
+      {
+        logger.debug( message );
+      }
+      
+      @Override
+      public boolean isLoglevelEnabled()
+      {
+        return logger.isDebugEnabled();
+      }
+    } );
+    this.info = new Loglevel( new LoglevelSupport()
     {
-      this.debug( "Assert is true failed", e );
-    }
-  }
-  
-  /**
-   * @see #debug(String, Throwable)
-   * @see Assert#isTrue(boolean)
-   * @param object
-   */
-  public void debugAssertIsTrue( boolean expression, String message )
-  {
-    //
-    try
+      @Override
+      public void writeMessage( String message, Throwable e )
+      {
+        logger.info( message, e );
+      }
+      
+      @Override
+      public void writeMessage( String message )
+      {
+        logger.info( message );
+      }
+      
+      @Override
+      public boolean isLoglevelEnabled()
+      {
+        return logger.isInfoEnabled();
+      }
+    } );
+    this.warn = new Loglevel( new LoglevelSupport()
     {
-      Assert.isTrue( expression );
-    }
-    catch ( Exception e )
+      @Override
+      public void writeMessage( String message, Throwable e )
+      {
+        logger.warn( message, e );
+      }
+      
+      @Override
+      public void writeMessage( String message )
+      {
+        logger.warn( message );
+      }
+      
+      @Override
+      public boolean isLoglevelEnabled()
+      {
+        return logger.isWarnEnabled();
+      }
+    } );
+    this.error = new Loglevel( new LoglevelSupport()
     {
-      this.debug( "Assert is true failed", e );
-    }
-  }
-  
-  /**
-   * @see #debug(String, Throwable)
-   * @see Assert#notNull(Object)
-   * @param object
-   */
-  public void debugAssertNotNull( Object object )
-  {
-    //
-    try
-    {
-      Assert.notNull( object );
-    }
-    catch ( Exception e )
-    {
-      this.debug( "Assert not null failed", e );
-    }
-  }
-  
-  /**
-   * @see #debug(String, Throwable)
-   * @see Assert#notNull(Object)
-   * @param object
-   */
-  public void debugAssertNotNull( Object object, String message )
-  {
-    //
-    try
-    {
-      Assert.notNull( object, message );
-    }
-    catch ( Exception e )
-    {
-      this.debug( "Assert not null failed", e );
-    }
-  }
-  
-  /**
-   * @see MessageFactory
-   * @param messageFactory
-   */
-  public void error( MessageFactory messageFactory )
-  {
-    if ( messageFactory != null && this.isErrorEnabled() )
-    {
-      this.error( messageFactory.message() );
-    }
-  }
-  
-  /**
-   * @param msg
-   * @see org.slf4j.Logger#error(java.lang.String)
-   */
-  public void error( String msg )
-  {
-    this.logger.error( msg );
-  }
-  
-  /**
-   * @param msg
-   * @param e
-   * @see org.slf4j.Logger#error(java.lang.String, java.lang.Throwable)
-   */
-  public void error( String msg, Throwable e )
-  {
-    this.logger.error( msg, e );
-  }
-  
-  /**
-   * @see #error(String, Throwable)
-   * @see Assert#isTrue(boolean)
-   * @param expression
-   */
-  public void errorAssertIsTrue( boolean expression )
-  {
-    //
-    try
-    {
-      Assert.isTrue( expression );
-    }
-    catch ( Exception e )
-    {
-      this.error( "Assert is true failed", e );
-    }
-  }
-  
-  /**
-   * @see #error(String, Throwable)
-   * @see Assert#isTrue(boolean)
-   * @param object
-   */
-  public void errorAssertIsTrue( boolean expression, String message )
-  {
-    //
-    try
-    {
-      Assert.isTrue( expression );
-    }
-    catch ( Exception e )
-    {
-      this.error( "Assert is true failed", e );
-    }
-  }
-  
-  /**
-   * @see #error(String, Throwable)
-   * @see Assert#notNull(Object)
-   * @param object
-   */
-  public void errorAssertNotNull( Object object )
-  {
-    //
-    try
-    {
-      Assert.notNull( object );
-    }
-    catch ( Exception e )
-    {
-      this.error( "Assert not null failed", e );
-    }
-  }
-  
-  /**
-   * @see #error(String, Throwable)
-   * @see Assert#notNull(Object)
-   * @param object
-   */
-  public void errorAssertNotNull( Object object, String message )
-  {
-    //
-    try
-    {
-      Assert.notNull( object, message );
-    }
-    catch ( Exception e )
-    {
-      this.error( "Assert not null failed", e );
-    }
-  }
-  
-  /**
-   * @return the logger
-   */
-  public Logger getLogger()
-  {
-    return this.logger;
-  }
-  
-  /**
-   * @return
-   * @see org.slf4j.Logger#getName()
-   */
-  public String getName()
-  {
-    return this.logger.getName();
-  }
-  
-  /**
-   * @see MessageFactory
-   * @param messageFactory
-   */
-  public void info( MessageFactory messageFactory )
-  {
-    if ( messageFactory != null && this.isInfoEnabled() )
-    {
-      this.info( messageFactory.message() );
-    }
-  }
-  
-  /**
-   * @param msg
-   * @see org.slf4j.Logger#info(java.lang.String)
-   */
-  public void info( String msg )
-  {
-    this.logger.info( msg );
-  }
-  
-  /**
-   * @param msg
-   * @param e
-   * @see org.slf4j.Logger#info(java.lang.String, java.lang.Throwable)
-   */
-  public void info( String msg, Throwable e )
-  {
-    this.logger.info( msg, e );
-  }
-  
-  /**
-   * @see #info(String, Throwable)
-   * @see Assert#isTrue(boolean)
-   * @param expression
-   */
-  public void infoAssertIsTrue( boolean expression )
-  {
-    //
-    try
-    {
-      Assert.isTrue( expression );
-    }
-    catch ( Exception e )
-    {
-      this.info( "Assert is true failed", e );
-    }
-  }
-  
-  /**
-   * @see #info(String, Throwable)
-   * @see Assert#isTrue(boolean)
-   * @param object
-   */
-  public void infoAssertIsTrue( boolean expression, String message )
-  {
-    //
-    try
-    {
-      Assert.isTrue( expression );
-    }
-    catch ( Exception e )
-    {
-      this.info( "Assert is true failed", e );
-    }
-  }
-  
-  /**
-   * @see #info(String, Throwable)
-   * @see Assert#notNull(Object)
-   * @param object
-   */
-  public void infoAssertNotNull( Object object )
-  {
-    //
-    try
-    {
-      Assert.notNull( object );
-    }
-    catch ( Exception e )
-    {
-      this.info( "Assert not null failed", e );
-    }
-  }
-  
-  /**
-   * @see #info(String, Throwable)
-   * @see Assert#notNull(Object)
-   * @param object
-   */
-  public void infoAssertNotNull( Object object, String message )
-  {
-    //
-    try
-    {
-      Assert.notNull( object, message );
-    }
-    catch ( Exception e )
-    {
-      this.info( "Assert not null failed", e );
-    }
-  }
-  
-  /**
-   * @return
-   * @see org.slf4j.Logger#isDebugEnabled()
-   */
-  public boolean isDebugEnabled()
-  {
-    return this.logger.isDebugEnabled();
-  }
-  
-  /**
-   * @return
-   * @see org.slf4j.Logger#isErrorEnabled()
-   */
-  public boolean isErrorEnabled()
-  {
-    return this.logger.isErrorEnabled();
-  }
-  
-  /**
-   * @return
-   * @see org.slf4j.Logger#isInfoEnabled()
-   */
-  public boolean isInfoEnabled()
-  {
-    return this.logger.isInfoEnabled();
-  }
-  
-  /**
-   * @return
-   * @see org.slf4j.Logger#isTraceEnabled()
-   */
-  public boolean isTraceEnabled()
-  {
-    return this.logger.isTraceEnabled();
-  }
-  
-  /**
-   * @return
-   * @see org.slf4j.Logger#isWarnEnabled()
-   */
-  public boolean isWarnEnabled()
-  {
-    return this.logger.isWarnEnabled();
-  }
-  
-  /**
-   * @see MessageFactory
-   * @param messageFactory
-   */
-  public void trace( MessageFactory messageFactory )
-  {
-    if ( messageFactory != null && this.isTraceEnabled() )
-    {
-      this.trace( messageFactory.message() );
-    }
-  }
-  
-  /**
-   * @param msg
-   * @see org.slf4j.Logger#trace(java.lang.String)
-   */
-  public void trace( String msg )
-  {
-    this.logger.trace( msg );
-  }
-  
-  /**
-   * @param msg
-   * @param e
-   * @see org.slf4j.Logger#trace(java.lang.String, java.lang.Throwable)
-   */
-  public void trace( String msg, Throwable e )
-  {
-    this.logger.trace( msg, e );
-  }
-  
-  /**
-   * @see #trace(String, Throwable)
-   * @see Assert#isTrue(boolean)
-   * @param expression
-   */
-  public void traceAssertIsTrue( boolean expression )
-  {
-    //
-    try
-    {
-      Assert.isTrue( expression );
-    }
-    catch ( Exception e )
-    {
-      this.trace( "Assert is true failed", e );
-    }
-  }
-  
-  /**
-   * @see #trace(String, Throwable)
-   * @see Assert#isTrue(boolean)
-   * @param object
-   */
-  public void traceAssertIsTrue( boolean expression, String message )
-  {
-    //
-    try
-    {
-      Assert.isTrue( expression );
-    }
-    catch ( Exception e )
-    {
-      this.trace( "Assert is true failed", e );
-    }
-  }
-  
-  /**
-   * @see #trace(String, Throwable)
-   * @see Assert#notNull(Object)
-   * @param object
-   */
-  public void traceAssertNotNull( Object object )
-  {
-    //
-    try
-    {
-      Assert.notNull( object );
-    }
-    catch ( Exception e )
-    {
-      this.trace( "Assert not null failed", e );
-    }
-  }
-  
-  /**
-   * @see #trace(String, Throwable)
-   * @see Assert#notNull(Object)
-   * @param object
-   */
-  public void traceAssertNotNull( Object object, String message )
-  {
-    //
-    try
-    {
-      Assert.notNull( object, message );
-    }
-    catch ( Exception e )
-    {
-      this.trace( "Assert not null failed", e );
-    }
-  }
-  
-  /**
-   * @see MessageFactory
-   * @param messageFactory
-   */
-  public void warn( MessageFactory messageFactory )
-  {
-    if ( messageFactory != null && this.isWarnEnabled() )
-    {
-      this.warn( messageFactory.message() );
-    }
-  }
-  
-  /**
-   * @param msg
-   * @see org.slf4j.Logger#warn(java.lang.String)
-   */
-  public void warn( String msg )
-  {
-    this.logger.warn( msg );
-  }
-  
-  /**
-   * @param msg
-   * @param e
-   * @see org.slf4j.Logger#warn(java.lang.String, java.lang.Throwable)
-   */
-  public void warn( String msg, Throwable e )
-  {
-    this.logger.warn( msg, e );
-  }
-  
-  /**
-   * @see #warn(String, Throwable)
-   * @see Assert#isTrue(boolean)
-   * @param expression
-   */
-  public void warnAssertIsTrue( boolean expression )
-  {
-    //
-    try
-    {
-      Assert.isTrue( expression );
-    }
-    catch ( Exception e )
-    {
-      this.warn( "Assert is true failed", e );
-    }
-  }
-  
-  /**
-   * @see #warn(String, Throwable)
-   * @see Assert#isTrue(boolean)
-   * @param object
-   */
-  public void warnAssertIsTrue( boolean expression, String message )
-  {
-    //
-    try
-    {
-      Assert.isTrue( expression );
-    }
-    catch ( Exception e )
-    {
-      this.warn( "Assert is true failed", e );
-    }
-  }
-  
-  /**
-   * @see #warn(String, Throwable)
-   * @see Assert#notNull(Object)
-   * @param object
-   */
-  public void warnAssertNotNull( Object object )
-  {
-    //
-    try
-    {
-      Assert.notNull( object );
-    }
-    catch ( Exception e )
-    {
-      this.warn( "Assert not null failed", e );
-    }
-  }
-  
-  /**
-   * @see #warn(String, Throwable)
-   * @see Assert#notNull(Object)
-   * @param object
-   */
-  public void warnAssertNotNull( Object object, String message )
-  {
-    //
-    try
-    {
-      Assert.notNull( object, message );
-    }
-    catch ( Exception e )
-    {
-      this.warn( "Assert not null failed", e );
-    }
+      @Override
+      public void writeMessage( String message, Throwable e )
+      {
+        logger.error( message, e );
+      }
+      
+      @Override
+      public void writeMessage( String message )
+      {
+        logger.error( message );
+      }
+      
+      @Override
+      public boolean isLoglevelEnabled()
+      {
+        return logger.isErrorEnabled();
+      }
+    } );
+    
   }
   
 }

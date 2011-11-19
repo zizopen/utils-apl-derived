@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.map;
 
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,12 +28,31 @@ import org.apache.commons.lang3.StringUtils;
  * underlying {@link Map} and compares each key to the given one using caseinsensitive comparision.<br>
  * <br>
  * This behavior result in at least retaining the performance of the underlying {@link Map} if one of the special cases does
- * match, otherwise the performance is reduced due to the iteration over the whole keyset for each {@link #get(Object)} request.
+ * match, otherwise the performance is reduced due to the iteration over the whole keyset for each {@link #get(Object)} request.<br>
+ * <br>
+ * If the simple constructor is used or the useCacheForKeys flag is set to true, a {@link WeakHashMap} is used to cache known key
+ * to key mappings, but only these which make a full iteration over the keys of the underlying {@link Map} necessary.
  * 
  * @author Omnaest
  */
 public class CaseinsensitiveMapDecorator<V> extends MapDecorator<String, V>
 {
+  /* ********************************************** Variables ********************************************** */
+  protected final Map<String, String> sourceKeyToTargetKeyTranslationMap;
+  protected boolean                   fastHit = false;
+  
+  /* ********************************************** Methods ********************************************** */
+  
+  /**
+   * @see CaseinsensitiveMapDecorator
+   * @param map
+   * @param useCacheForKeys
+   */
+  public CaseinsensitiveMapDecorator( Map<String, V> map, boolean useCacheForKeys )
+  {
+    super( map );
+    this.sourceKeyToTargetKeyTranslationMap = useCacheForKeys ? new WeakHashMap<String, String>() : null;
+  }
   
   /**
    * @see CaseinsensitiveMapDecorator
@@ -40,7 +60,38 @@ public class CaseinsensitiveMapDecorator<V> extends MapDecorator<String, V>
    */
   public CaseinsensitiveMapDecorator( Map<String, V> map )
   {
-    super( map );
+    this( map, true );
+  }
+  
+  /**
+   * @param sourceKey
+   * @return
+   */
+  public String tryTranslateKeyByCache( String sourceKey )
+  {
+    //
+    String retval = null;
+    
+    //
+    if ( this.sourceKeyToTargetKeyTranslationMap != null )
+    {
+      retval = this.sourceKeyToTargetKeyTranslationMap.get( sourceKey );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * @param sourceKey
+   * @param targetKey
+   */
+  public void addKeyToKeyTranslationToCache( String sourceKey, String targetKey )
+  {
+    if ( this.sourceKeyToTargetKeyTranslationMap != null )
+    {
+      this.sourceKeyToTargetKeyTranslationMap.put( sourceKey, targetKey );
+    }
   }
   
   @Override
@@ -48,6 +99,9 @@ public class CaseinsensitiveMapDecorator<V> extends MapDecorator<String, V>
   {
     //
     V retval = null;
+    
+    //
+    this.fastHit = true;
     
     //
     if ( super.containsKey( object ) )
@@ -84,14 +138,26 @@ public class CaseinsensitiveMapDecorator<V> extends MapDecorator<String, V>
           }
           else
           {
-            for ( String iKey : super.keySet() )
+            //
+            keyModified = this.tryTranslateKeyByCache( key );
+            if ( super.containsKey( keyModified ) )
+            {
+              retval = super.get( keyModified );
+            }
+            else
             {
               //
-              if ( StringUtils.equalsIgnoreCase( key, iKey ) )
+              for ( String iKey : super.keySet() )
               {
                 //
-                retval = super.get( iKey );
-                break;
+                if ( StringUtils.equalsIgnoreCase( key, iKey ) )
+                {
+                  //
+                  retval = super.get( iKey );
+                  this.addKeyToKeyTranslationToCache( key, iKey );
+                  this.fastHit = false;
+                  break;
+                }
               }
             }
           }
@@ -101,5 +167,13 @@ public class CaseinsensitiveMapDecorator<V> extends MapDecorator<String, V>
     
     // 
     return retval;
+  }
+  
+  /**
+   * @return the fastHit
+   */
+  protected boolean isFastHit()
+  {
+    return this.fastHit;
   }
 }

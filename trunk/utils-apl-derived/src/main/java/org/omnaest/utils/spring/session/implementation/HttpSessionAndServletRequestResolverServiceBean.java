@@ -29,7 +29,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * @author Omnaest
  */
 @Service
-public class HttpSessionAndServletRequestResolverServiceImpl implements HttpSessionAndServletRequestResolverService
+public class HttpSessionAndServletRequestResolverServiceBean implements HttpSessionAndServletRequestResolverService
 {
   
   @Override

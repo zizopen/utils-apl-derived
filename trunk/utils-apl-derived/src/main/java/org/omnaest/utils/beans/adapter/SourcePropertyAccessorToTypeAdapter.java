@@ -458,8 +458,8 @@ public class SourcePropertyAccessorToTypeAdapter<T>
     super();
     
     //
-    Assert.notNull( type );
-    Assert.notNull( sourcePropertyAccessor );
+    Assert.isNotNull( type );
+    Assert.isNotNull( sourcePropertyAccessor );
     
     //
     configuration = configuration != null ? configuration : new Configuration();

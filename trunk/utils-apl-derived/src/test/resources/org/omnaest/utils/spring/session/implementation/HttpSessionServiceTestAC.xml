@@ -9,8 +9,8 @@
 
     <context:annotation-config />
 
-    <bean class="org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceImpl" />
-    <bean class="org.omnaest.utils.spring.session.implementation.HttpSessionServiceImpl" />
+    <bean class="org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceBean" />
+    <bean class="org.omnaest.utils.spring.session.implementation.HttpSessionServiceBean" />
 
     <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
         <property name="scopes">

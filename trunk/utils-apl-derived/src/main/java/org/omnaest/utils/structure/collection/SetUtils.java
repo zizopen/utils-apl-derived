@@ -65,7 +65,7 @@ public class SetUtils
    * @param iterable
    * @return
    */
-  public static <E> Set<E> from( Iterable<E> iterable )
+  public static <E> Set<E> valueOf( Iterable<E> iterable )
   {
     //    
     Set<E> retset = new LinkedHashSet<E>();

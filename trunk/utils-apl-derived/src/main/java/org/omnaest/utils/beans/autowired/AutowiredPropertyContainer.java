@@ -41,7 +41,7 @@ public interface AutowiredPropertyContainer extends AutowiredContainer<Object>
    * 
    * @param propertyname
    * @param object
-   * @return true : assign was successful
+   * @return this
    */
-  public boolean put( String propertyname, Object object );
+  public AutowiredPropertyContainer put( String propertyname, Object object );
 }

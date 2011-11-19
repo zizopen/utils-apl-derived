@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpSession;
 
-import org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceImpl;
+import org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceBean;
 import org.omnaest.utils.web.HttpSessionResolver;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectFactory;
@@ -73,7 +73,7 @@ public class TrailingBeanIdentifierPatternBeanScope implements Scope, Applicatio
   public static class TrailingPatternBySessionAttributeResolver implements TrailingPatternResolver
   {
     /* ********************************************** Variables ********************************************** */
-    private HttpSessionResolver httpSessionResolver  = new HttpSessionAndServletRequestResolverServiceImpl();
+    private HttpSessionResolver httpSessionResolver  = new HttpSessionAndServletRequestResolverServiceBean();
     private String              sessionAttributeName = null;
     
     /* ********************************************** Methods ********************************************** */

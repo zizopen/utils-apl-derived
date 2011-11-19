@@ -59,7 +59,7 @@ public class SourcePropertyAccessorDecoratorAdapter extends SourcePropertyAccess
     }
     
     //
-    Assert.notNull( this.sourcePropertyAccessor );
+    Assert.isNotNull( this.sourcePropertyAccessor );
     this.sourcePropertyAccessor.setValue( propertyName, value, parameterType, propertyMetaInformation );
   }
   
@@ -70,7 +70,7 @@ public class SourcePropertyAccessorDecoratorAdapter extends SourcePropertyAccess
     Object retval = null;
     
     //
-    Assert.notNull( this.sourcePropertyAccessor );
+    Assert.isNotNull( this.sourcePropertyAccessor );
     retval = this.sourcePropertyAccessor.getValue( propertyName, returnType, propertyMetaInformation );
     
     //

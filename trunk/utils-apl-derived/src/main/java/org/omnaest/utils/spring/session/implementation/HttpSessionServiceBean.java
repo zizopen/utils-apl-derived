@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import org.omnaest.utils.spring.session.HttpSessionAndServletRequestResolverService;
 import org.omnaest.utils.spring.session.HttpSessionService;
+import org.omnaest.utils.structure.map.CaseinsensitiveMapDecorator;
 import org.omnaest.utils.web.HttpSessionFacade;
 import org.omnaest.utils.web.HttpSessionFacadeFactory;
 import org.omnaest.utils.web.HttpSessionFacadeFactory.Configuration;
@@ -35,10 +36,10 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Scope("session")
-public class HttpSessionServiceImpl implements HttpSessionService
+public class HttpSessionServiceBean implements HttpSessionService
 {
   /* ********************************************** Variables ********************************************** */
-  protected Configuration                               configuration                               = null;
+  protected Configuration                               httpSessionFacadeConfiguration                               = null;
   
   /* ********************************************** Beans / Services / References ********************************************** */
   @Autowired
@@ -50,7 +51,7 @@ public class HttpSessionServiceImpl implements HttpSessionService
   public <F extends HttpSessionFacade> F newHttpSessionFacade( Class<? extends F> httpSessionFacadeType )
   {
     return new HttpSessionFacadeFactory( this.httpSessionAndServletRequestResolverService ).newHttpSessionFacade( httpSessionFacadeType,
-                                                                                                                  this.configuration );
+                                                                                                                  this.httpSessionFacadeConfiguration );
   }
   
   @Override
@@ -62,8 +63,18 @@ public class HttpSessionServiceImpl implements HttpSessionService
   @Override
   public Map<String, Object> resolveHttpSessionAndReturnAsMapView()
   {
+    //
     HttpSession httpSession = this.resolveHttpSession();
     return httpSession != null ? HttpSessionToMapAdapter.newInstance( httpSession ) : null;
+  }
+  
+  @Override
+  public Map<String, Object> resolveHttpSessionAndReturnAsCaseinsensitiveMapView()
+  {
+    //
+    Map<String, Object> map = this.resolveHttpSessionAndReturnAsMapView();
+    boolean useCacheForKeys = true;
+    return new CaseinsensitiveMapDecorator<Object>( map, useCacheForKeys );
   }
   
   @Override
@@ -78,9 +89,9 @@ public class HttpSessionServiceImpl implements HttpSessionService
     this.resolveHttpSession().setAttribute( attributeName, value );
   }
   
-  public void setConfiguration( Configuration configuration )
+  public void setHttpSessionFacadeConfiguration( Configuration httpSessionFacadeConfiguration )
   {
-    this.configuration = configuration;
+    this.httpSessionFacadeConfiguration = httpSessionFacadeConfiguration;
   }
   
 }

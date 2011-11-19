@@ -52,13 +52,14 @@ import org.omnaest.utils.structure.collection.SetUtils;
  * }
  * </pre>
  * 
+ * @see AutowiredContainerUtils
  * @see ListUtils#valueOf(Iterable)
- * @see SetUtils#from(Iterable)
+ * @see SetUtils#valueOf(Iterable)
+ * @see AutowiredContainerAbstract
  * @author Omnaest
  */
 public interface AutowiredContainer<E> extends Iterable<E>, Serializable
 {
-  
   /**
    * Returns the value which can be assigned as value to the given {@link Class} type. If there are multiple values available with
    * fitting types null is returned.
@@ -86,23 +87,30 @@ public interface AutowiredContainer<E> extends Iterable<E>, Serializable
   public <O extends E> boolean containsAssignable( Class<O> type );
   
   /**
+   * Returns true if there are no elements within this container.
+   * 
+   * @return
+   */
+  public boolean isEmpty();
+  
+  /**
    * Adds an {@link Object} to the {@link AutowiredContainer}.
    * 
    * @see #put(Object, Class...)
    * @see #putAll(Iterable)
    * @param object
-   * @return the number of assigned values within the underlying structure
+   * @return this
    */
-  public int put( E object );
+  public AutowiredContainer<E> put( E object );
   
   /**
    * Adds multiple {@link Object}s to the {@link AutowiredContainer}.
    * 
    * @see #put(Object)
    * @param iterable
-   * @return
+   * @return this
    */
-  public int putAll( Iterable<E> iterable );
+  public AutowiredContainer<E> putAll( Iterable<E> iterable );
   
   /**
    * Adds an {@link Object} to the {@link AutowiredContainer} for one or more given {@link Class} types.
@@ -110,15 +118,31 @@ public interface AutowiredContainer<E> extends Iterable<E>, Serializable
    * @see #put(Object)
    * @param object
    * @param types
-   * @return the number of assigned values within the underlying structure
+   * @return this
    */
-  public <O extends E> int put( O object, Class<? extends O>... types );
+  public <O extends E> AutowiredContainer<E> put( O object, Class<? extends O>... types );
   
   /**
-   * Returns true if there are no elements within this container.
+   * Removes the given element from the {@link AutowiredContainer}
+   * 
+   * @param object
+   * @return this
+   */
+  public <O extends E> AutowiredContainer<E> remove( O object );
+  
+  /**
+   * Removes all elements within the {@link AutowiredContainer} which are {@link Class#isAssignableFrom(Class)} to the given type.
+   * 
+   * @param type
+   * @return this
+   */
+  public AutowiredContainer<E> remove( Class<? extends E> type );
+  
+  /**
+   * Returns the size of the {@link AutowiredContainer}
    * 
    * @return
    */
-  public boolean isEmpty();
+  public int size();
   
 }

@@ -52,16 +52,16 @@ public class Assert
   /**
    * @see FailedOperationException
    */
-  public static void fail()
+  public static void fails()
   {
-    fail( "Operation failed" );
+    fails( "Operation failed" );
   }
   
   /**
    * @see FailedOperationException
    * @param message
    */
-  public static void fail( String message )
+  public static void fails( String message )
   {
     throw new FailedOperationException( message );
   }
@@ -69,41 +69,43 @@ public class Assert
   /**
    * @param object
    */
-  public static void notNull( Object object )
+  public static boolean isNotNull( Object object )
   {
-    notNull( object, "Object was null, but must be not null" );
+    return isNotNull( object, "Object was null, but must be not null" );
   }
   
   /**
    * @param object
    * @param message
    */
-  public static void notNull( Object object, String message )
+  public static boolean isNotNull( Object object, String message )
   {
     if ( object == null )
     {
       throw new IllegalArgumentException( message );
     }
+    return true;
   }
   
   /**
    * @param expression
    */
-  public static void isTrue( boolean expression )
+  public static boolean isTrue( boolean expression )
   {
-    isTrue( expression, "Expression must be true, but was false" );
+    return isTrue( expression, "Expression must be true, but was false" );
   }
   
   /**
    * @param expression
    * @param message
    */
-  public static void isTrue( boolean expression, String message )
+  public static boolean isTrue( boolean expression, String message )
   {
     if ( !expression )
     {
       throw new IllegalArgumentException( message );
     }
+    return true;
   }
   
 }
