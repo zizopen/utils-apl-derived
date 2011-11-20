@@ -17,7 +17,7 @@ package org.omnaest.utils.structure.element.converter;
 
 import java.util.Collection;
 
-import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 
 /**
  * The provides the transformation method to transform one generic {@link Collection} instance into one or multiple elements of

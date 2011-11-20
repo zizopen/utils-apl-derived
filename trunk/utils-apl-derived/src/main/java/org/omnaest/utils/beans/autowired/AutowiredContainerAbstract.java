@@ -18,7 +18,7 @@ package org.omnaest.utils.beans.autowired;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 
 /**

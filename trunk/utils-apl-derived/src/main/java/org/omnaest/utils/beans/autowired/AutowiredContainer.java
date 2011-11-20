@@ -18,8 +18,8 @@ package org.omnaest.utils.beans.autowired;
 import java.io.Serializable;
 import java.util.Set;
 
-import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.SetUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
 
 /**
  * An {@link AutowiredContainer} provides a ordered collection of objects. All objects can be retrieved by {@link Class} types

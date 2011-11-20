@@ -23,7 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+import org.omnaest.utils.structure.collection.decorator.LockingCollectionDecorator;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 
@@ -584,4 +588,28 @@ public class CollectionUtils
     return retmap;
   }
   
+  /**
+   * Returns a view of the given {@link Collection} which uses the given {@link Lock} to synchronize all of its methods
+   * 
+   * @param collection
+   * @param lock
+   * @return
+   */
+  public static <E> Collection<E> locked( Collection<E> collection, Lock lock )
+  {
+    return new LockingCollectionDecorator<E>( collection, lock );
+  }
+  
+  /**
+   * Returns a view of the given {@link Collection} which uses a new {@link ReentrantLock} instance to synchronize all of its
+   * methods
+   * 
+   * @param collection
+   * F@return
+   */
+  public static <E> Collection<E> lockedByReentrantLock( Collection<E> collection )
+  {
+    Lock lock = new ReentrantLock();
+    return new LockingCollectionDecorator<E>( collection, lock );
+  }
 }

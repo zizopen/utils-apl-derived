@@ -30,6 +30,10 @@ import org.omnaest.utils.structure.element.ObjectUtils;
  */
 public class SourcePropertyAccessorDecoratorDefaultValue extends SourcePropertyAccessorDecorator
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long serialVersionUID = 1054528663696959420L;
+  
+  /* ********************************************** Methods ********************************************** */
   /**
    * @see SourcePropertyAccessorDecoratorDefaultValue
    * @param sourcePropertyAccessor

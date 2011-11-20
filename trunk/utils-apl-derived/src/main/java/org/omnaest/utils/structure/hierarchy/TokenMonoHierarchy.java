@@ -453,7 +453,7 @@ public class TokenMonoHierarchy<E, V>
         {
           //
           Map<E, TokenElementNode> tokenElementTotokenElementNodeChildrenMap = parentTokenElementNode.getTokenElementTotokenElementNodeChildrenMap();
-          List<TokenElementNode> siblingList = org.omnaest.utils.structure.collection.ListUtils.valueOf( tokenElementTotokenElementNodeChildrenMap.values() );
+          List<TokenElementNode> siblingList = org.omnaest.utils.structure.collection.list.ListUtils.valueOf( tokenElementTotokenElementNodeChildrenMap.values() );
           int index = siblingList.indexOf( tokenElementNode );
           if ( index >= 0 )
           {

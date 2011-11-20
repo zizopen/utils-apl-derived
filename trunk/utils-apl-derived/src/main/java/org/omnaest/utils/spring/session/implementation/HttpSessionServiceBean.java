@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import org.omnaest.utils.spring.session.HttpSessionAndServletRequestResolverService;
 import org.omnaest.utils.spring.session.HttpSessionService;
-import org.omnaest.utils.structure.map.CaseinsensitiveMapDecorator;
+import org.omnaest.utils.structure.map.decorator.CaseinsensitiveMapDecorator;
 import org.omnaest.utils.web.HttpSessionFacade;
 import org.omnaest.utils.web.HttpSessionFacadeFactory;
 import org.omnaest.utils.web.HttpSessionFacadeFactory.Configuration;

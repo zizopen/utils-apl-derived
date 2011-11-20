@@ -22,6 +22,8 @@ package org.omnaest.utils.beans.adapter.source;
  */
 public abstract class SourcePropertyAccessorDecorator implements SourcePropertyAccessor
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long        serialVersionUID       = -3420846101586221728L;
   /* ********************************************** Variables ********************************************** */
   protected SourcePropertyAccessor sourcePropertyAccessor = null;
   

@@ -28,6 +28,8 @@ import org.omnaest.utils.beans.adapter.PropertyAccessOption;
  */
 public class SourcePropertyAccessorDecoratorPropertyAccessOption extends SourcePropertyAccessorDecorator
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long      serialVersionUID     = 5409932035118994085L;
   /* ********************************************** Variables ********************************************** */
   protected PropertyAccessOption propertyAccessOption = null;
   

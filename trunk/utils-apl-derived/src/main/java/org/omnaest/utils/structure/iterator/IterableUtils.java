@@ -1,8 +1,26 @@
+/*******************************************************************************
+ * Copyright 2011 Danny Kunz
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package org.omnaest.utils.structure.iterator;
 
 import java.util.Iterator;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
 
 /**
  * Helper class related to {@link Iterable} instances
@@ -108,4 +126,29 @@ public class IterableUtils
     //
     return retval;
   }
+  
+  /**
+   * Returns a view on the given {@link Iterator} which uses a {@link Lock} to synchronize all its methods.
+   * 
+   * @param iterator
+   * @param lock
+   * @return
+   */
+  public static <E> Iterator<E> locked( Iterator<E> iterator, Lock lock )
+  {
+    return new LockingIteratorDecorator<E>( iterator, lock );
+  }
+  
+  /**
+   * Returns a view on the given {@link Iterator} which uses a {@link ReentrantLock} to synchronize all its methods.
+   * 
+   * @param iterator
+   * @return
+   */
+  public static <E> Iterator<E> lockedByReentrantLock( Iterator<E> iterator )
+  {
+    Lock lock = new ReentrantLock();
+    return locked( iterator, lock );
+  }
+  
 }
