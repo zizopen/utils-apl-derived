@@ -39,6 +39,10 @@ import org.omnaest.utils.propertyfile.content.element.Property;
  */
 public class PropertyFileContentParser
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final String DEFAULT_LINESEPARATOR = System.getProperty( "line.separator" );
+  
+  /* ********************************************** Methods ********************************************** */
   
   /**
    * @see #parsePropertyFileContent(String)
@@ -106,7 +110,7 @@ public class PropertyFileContentParser
           }
           
           //See http://code.google.com/p/i18n-binder/issues/detail?id=1#c1
-          String lineSeparator = System.getProperty( "line.separator" );
+          String lineSeparator = PropertyFileContentParser.DEFAULT_LINESEPARATOR;
           {
             //
             if ( fileContent.contains( "\r\n" ) )
