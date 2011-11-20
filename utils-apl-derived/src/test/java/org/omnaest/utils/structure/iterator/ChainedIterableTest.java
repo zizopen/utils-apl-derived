@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.junit.Test;
-import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 
 /**
  * @see ChainedIterable

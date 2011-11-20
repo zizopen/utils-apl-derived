@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.omnaest.utils.structure.collection.ListUtils;
-import org.omnaest.utils.structure.collection.SetUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterObjectToClassOfObject;
 import org.omnaest.utils.structure.map.MapUtils;

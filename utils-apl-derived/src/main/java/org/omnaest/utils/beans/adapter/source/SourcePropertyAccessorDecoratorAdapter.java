@@ -30,7 +30,10 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
  */
 public class SourcePropertyAccessorDecoratorAdapter extends SourcePropertyAccessorDecorator
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long serialVersionUID = -6289909653064728549L;
   
+  /* ********************************************** Methods ********************************************** */
   /**
    * 
    */

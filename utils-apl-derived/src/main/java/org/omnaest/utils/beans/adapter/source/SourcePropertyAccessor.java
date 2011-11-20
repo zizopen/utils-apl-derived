@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.adapter.source;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
@@ -27,7 +28,7 @@ import org.omnaest.utils.beans.autowired.AutowiredContainer;
  * 
  * @author Omnaest
  */
-public interface SourcePropertyAccessor
+public interface SourcePropertyAccessor extends Serializable
 {
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
@@ -35,8 +36,10 @@ public interface SourcePropertyAccessor
    * 
    * @author Omnaest
    */
-  public static class PropertyMetaInformation
+  public static class PropertyMetaInformation implements Serializable
   {
+    /* ********************************************** Constants ********************************************** */
+    private static final long                      serialVersionUID = -1057678339296760166L;
     /* ********************************************** Variables ********************************************** */
     protected final Object[]                       additionalArguments;
     protected final AutowiredContainer<Annotation> propertyAnnotationAutowiredContainer;

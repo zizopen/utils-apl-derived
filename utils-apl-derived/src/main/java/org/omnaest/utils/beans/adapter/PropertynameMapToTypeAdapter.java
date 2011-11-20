@@ -15,9 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.adapter;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
+import org.omnaest.utils.beans.adapter.source.DefaultValue;
+import org.omnaest.utils.beans.adapter.source.DefaultValues;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessorDecorator;
@@ -40,6 +43,9 @@ import org.omnaest.utils.structure.map.UnderlyingMapAware;
  * <br>
  * Also the {@link PropertyNameTemplate} {@link Annotation} is supported. This allows to specify alternative property names,
  * including dynamic names which are based on additional parameters of the method itself. <br>
+ * <br>
+ * Further the {@link DefaultValue} and {@link DefaultValues} {@link Annotation} can be used to specify default values which are
+ * used instead of the return value or parameter values in the case the return value or parameter value would be null. <br>
  * <br>
  * Example:<br>
  * 
@@ -74,15 +80,19 @@ import org.omnaest.utils.structure.map.UnderlyingMapAware;
  * @see Converter
  * @see PropertyNameTemplate
  * @see PropertyAccessOption
+ * @see DefaultValue
+ * @see DefaultValues
  * @param <T>
  * @author Omnaest
  */
-public class PropertynameMapToTypeAdapter<T>
+public class PropertynameMapToTypeAdapter<T> implements Serializable
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long     serialVersionUID = 2245226860618141171L;
   /* ********************************************** Variables ********************************************** */
-  protected Map<String, Object> map          = null;
-  protected T                   classAdapter = null;
-  protected Class<T>            clazz        = null;
+  
+  protected Map<String, Object> map              = null;
+  protected T                   classAdapter     = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
@@ -111,9 +121,11 @@ public class PropertynameMapToTypeAdapter<T>
    */
   public static class Configuration extends SourcePropertyAccessorToTypeAdapter.Configuration
   {
+    /* ********************************************** Constants ********************************************** */
+    private static final long serialVersionUID   = -4976626371731665509L;
     /* ********************************************** Variables ********************************************** */
-    private boolean underlyingMapAware = false;
-    private boolean simulatingToString = true;
+    private boolean           underlyingMapAware = false;
+    private boolean           simulatingToString = true;
     
     /* ********************************************** Methods ********************************************** */
     
@@ -215,7 +227,10 @@ public class PropertynameMapToTypeAdapter<T>
    */
   protected class SourePropertyAccessorForMap implements SourcePropertyAccessor
   {
+    /* ********************************************** Constants ********************************************** */
+    private static final long serialVersionUID = 5413119292636127784L;
     
+    /* ********************************************** Methods ********************************************** */
     @Override
     public void setValue( String propertyName,
                           Object value,
@@ -249,16 +264,16 @@ public class PropertynameMapToTypeAdapter<T>
    * 
    * @see #newInstance(Map, Class)
    * @param map
-   * @param clazz
+   * @param type
    * @param underlyingMapAware
    *          : true > returned stub implements {@link UnderlyingMapAware}
    * @param propertyAccessOption
    * @return new
    */
-  public static <T> T newInstance( Map<String, Object> map, Class<? extends T> clazz )
+  public static <T> T newInstance( Map<String, Object> map, Class<? extends T> type )
   {
     Configuration configuration = null;
-    return newInstance( map, clazz, configuration );
+    return newInstance( map, type, configuration );
   }
   
   /**
@@ -267,21 +282,21 @@ public class PropertynameMapToTypeAdapter<T>
    * 
    * @see #newInstance(Map, Class)
    * @param map
-   * @param clazz
+   * @param type
    * @param configuration
    *          {@link Configuration}
    * @return new
    */
-  public static <T> T newInstance( Map<String, Object> map, Class<? extends T> clazz, Configuration configuration )
+  public static <T> T newInstance( Map<String, Object> map, Class<? extends T> type, Configuration configuration )
   {
     //    
     T retval = null;
     
     //
-    if ( clazz != null && map != null )
+    if ( type != null && map != null )
     {
       //
-      PropertynameMapToTypeAdapter<T> mapToInterfaceAdapter = new PropertynameMapToTypeAdapter<T>( map, clazz, configuration );
+      PropertynameMapToTypeAdapter<T> mapToInterfaceAdapter = new PropertynameMapToTypeAdapter<T>( map, type, configuration );
       
       //
       retval = mapToInterfaceAdapter.classAdapter;
@@ -307,7 +322,6 @@ public class PropertynameMapToTypeAdapter<T>
     //
     super();
     this.map = map;
-    this.clazz = (Class<T>) type;
     
     //
     configuration = configuration != null ? configuration : new Configuration();

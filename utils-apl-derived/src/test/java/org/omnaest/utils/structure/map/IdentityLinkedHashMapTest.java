@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Before;
@@ -43,6 +44,18 @@ public class IdentityLinkedHashMapTest
     this.map.put( "key3", "value3" );
     this.map.put( "key4", "value4" );
     this.map.put( "key5", "value5" );
+  }
+  
+  @Test
+  public void testMapContract()
+  {
+    //
+    Map<String, String> testDataMap = new LinkedHashMap<String, String>();
+    testDataMap.put( "abc", "value1" );
+    testDataMap.put( "def", "value2" );
+    testDataMap.put( "ghi", "value2" );
+    
+    AssertContract.assertMapContract( this.map, testDataMap );
   }
   
   @Test

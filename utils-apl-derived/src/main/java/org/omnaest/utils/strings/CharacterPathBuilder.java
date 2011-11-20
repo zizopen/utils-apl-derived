@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionTransformerToString;
-import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 

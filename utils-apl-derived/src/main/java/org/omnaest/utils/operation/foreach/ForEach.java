@@ -22,7 +22,7 @@ import org.omnaest.utils.operation.Operation;
 import org.omnaest.utils.operation.foreach.ForEach.Result;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
-import org.omnaest.utils.structure.collection.list.ListDecorator;
+import org.omnaest.utils.structure.collection.list.decorator.ListDecorator;
 
 /**
  * A {@link ForEach} will iterate over a given {@link Iterable} instance and executes a given {@link List} of {@link Operation}s.

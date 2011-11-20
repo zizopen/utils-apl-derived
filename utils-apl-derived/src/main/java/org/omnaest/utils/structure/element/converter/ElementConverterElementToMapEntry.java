@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 
 /**
  * A transformer from a {@link List} element type to a {@link Entry} type

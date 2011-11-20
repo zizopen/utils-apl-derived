@@ -25,10 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
+import org.omnaest.utils.structure.map.decorator.LockingMapDecorator;
 import org.omnaest.utils.tuple.TupleTwo;
 
 /**
@@ -464,4 +467,31 @@ public class MapUtils
     //
     new MapPrinter().printMap( map, 0 );
   }
+  
+  /**
+   * Returns a view of the given {@link Map} using the given {@link Lock} to synchronize all of its methods
+   * 
+   * @see #lockedByReentrantLock(Map)
+   * @param map
+   * @param lock
+   * @return
+   */
+  public static <K, V> Map<K, V> locked( Map<K, V> map, Lock lock )
+  {
+    return new LockingMapDecorator<K, V>( map, lock );
+  }
+  
+  /**
+   * Returns a view of the given {@link Map} using a new {@link ReentrantLock} instance to synchronize all of its methods
+   * 
+   * @see #locked(Map, Lock)
+   * @param map
+   * @return
+   */
+  public static <K, V> Map<K, V> lockedByReentrantLock( Map<K, V> map )
+  {
+    Lock lock = new ReentrantLock();
+    return locked( map, lock );
+  }
+  
 }

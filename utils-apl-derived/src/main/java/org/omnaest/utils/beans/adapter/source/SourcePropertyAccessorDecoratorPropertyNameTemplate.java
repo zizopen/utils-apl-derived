@@ -31,8 +31,13 @@ import org.omnaest.utils.assertion.Assert;
  */
 public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourcePropertyAccessorDecorator
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long serialVersionUID = 6165218599151510835L;
+  
+  /* ********************************************** Methods ********************************************** */
   
   /**
+   * @see SourcePropertyAccessorDecoratorPropertyNameTemplate
    * @param sourcePropertyAccessor
    */
   public SourcePropertyAccessorDecoratorPropertyNameTemplate( SourcePropertyAccessor sourcePropertyAccessor )

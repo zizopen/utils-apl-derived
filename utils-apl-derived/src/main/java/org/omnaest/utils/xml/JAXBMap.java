@@ -20,7 +20,7 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.omnaest.utils.structure.map.MapDecorator;
+import org.omnaest.utils.structure.map.decorator.MapDecorator;
 
 /**
  * The {@link JAXBMap} is a artificial {@link XmlRootElement} for an arbitrary {@link Map} instance. It just stores an internal

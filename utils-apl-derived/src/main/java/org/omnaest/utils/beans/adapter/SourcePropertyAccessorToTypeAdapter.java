@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.adapter;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -55,9 +56,12 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
  * @see Configuration
  * @author Omnaest
  */
-public class SourcePropertyAccessorToTypeAdapter<T>
+public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
 {
+  /* ********************************************** Constants ********************************************** */
+  private static final long                    serialVersionUID                           = 5957600557802418027L;
   /* ********************************************** Variables ********************************************** */
+  
   protected T                                  classAdapter                               = null;
   protected Class<T>                           type                                       = null;
   protected SourcePropertyAccessor             sourcePropertyAccessor                     = null;
@@ -71,8 +75,13 @@ public class SourcePropertyAccessorToTypeAdapter<T>
   /**
    * @author Omnaest
    */
-  protected class ClassAdapterMethodInvocationHandler implements MethodInvocationHandler
+  protected class ClassAdapterMethodInvocationHandler implements MethodInvocationHandler, Serializable
   {
+    /* ********************************************** Constants ********************************************** */
+    private static final long serialVersionUID = 7923602793508877717L;
+    
+    /* ********************************************** Methods ********************************************** */
+    
     @Override
     public Object handle( MethodCallCapture methodCallCapture ) throws Throwable
     {
@@ -202,8 +211,10 @@ public class SourcePropertyAccessorToTypeAdapter<T>
    * @see SourcePropertyAccessorToTypeAdapter
    * @author Omnaest
    */
-  public static class Configuration
+  public static class Configuration implements Serializable
   {
+    /* ********************************************** Constants ********************************************** */
+    private static final long                  serialVersionUID                          = 1537703849251094863L;
     /* ********************************************** Variables ********************************************** */
     private Class<?>[]                         interfaces                                = null;
     private MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators         = null;

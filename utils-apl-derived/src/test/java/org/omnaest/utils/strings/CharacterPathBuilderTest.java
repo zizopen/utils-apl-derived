@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.omnaest.utils.strings.CharacterPathBuilder.CharacterPath;
-import org.omnaest.utils.structure.collection.ListUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 
 /**
  * @see CharacterPathBuilder
