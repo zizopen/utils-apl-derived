@@ -20,6 +20,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.structure.element.Factory;
 import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
 
 /**
@@ -151,4 +153,141 @@ public class IterableUtils
     return locked( iterator, lock );
   }
   
+  /**
+   * Returns a new {@link Iterator} instance which will iterate over all {@link Iterator} instances created by the given
+   * {@link Factory}. If the {@link Factory#newInstance()} returns null, the {@link Iterator} ends.
+   * 
+   * @param iteratorFactory
+   * @return
+   */
+  public static <E> Iterator<E> factoryBasedIterator( final Factory<Iterator<E>> iteratorFactory )
+  {
+    //
+    Assert.isNotNull( iteratorFactory );
+    
+    //
+    return new Iterator<E>()
+    {
+      /* ********************************************** Variables ********************************************** */
+      private Iterator<E> iterator = null;
+      
+      /* ********************************************** Methods ********************************************** */
+      
+      /**
+       * @return
+       */
+      private Iterator<E> getOrSwitchIterator()
+      {
+        //
+        if ( this.iterator == null )
+        {
+          this.iterator = iteratorFactory.newInstance();
+        }
+        
+        //
+        return this.iterator;
+      }
+      
+      @Override
+      public boolean hasNext()
+      {
+        //
+        boolean retval = false;
+        
+        //
+        Iterator<E> iterator = this.getOrSwitchIterator();
+        while ( iterator != null && !iterator.hasNext() )
+        {
+          this.iterator = null;
+          iterator = this.getOrSwitchIterator();
+        }
+        
+        //
+        retval = iterator != null;
+        
+        //
+        return retval;
+      }
+      
+      @Override
+      public E next()
+      {
+        //
+        Iterator<E> iterator = this.getOrSwitchIterator();
+        
+        //
+        return iterator != null ? iterator.next() : null;
+      }
+      
+      @Override
+      public void remove()
+      {
+        //
+        Iterator<E> iterator = this.getOrSwitchIterator();
+        
+        //
+        if ( iterator != null )
+        {
+          iterator.remove();
+        }
+      }
+    };
+  }
+  
+  /**
+   * Returns a new {@link Iterable} instance for the given one which will return a circular {@link Iterator} which circulates
+   * endlessly.<br>
+   * <br>
+   * Be aware of the fact, that the given {@link Iterable} has to return new {@link Iterator} instances otherwise this will cause
+   * an infinite loop.
+   * 
+   * @see #circular(Iterator)
+   * @param iterable
+   * @return
+   */
+  public static <E> Iterable<E> circular( final Iterable<E> iterable )
+  {
+    long limit = -1;
+    return circular( iterable, limit );
+  }
+  
+  /**
+   * Returns a new {@link Iterable} instance for the given one which will return a circular {@link Iterator}. The {@link Iterator}
+   * will stop additionally if the given limit of cycles is reached. If no limit should be used set the parameter to -1
+   * 
+   * @see #circular(Iterator)
+   * @param iterable
+   * @param limit
+   * @return
+   */
+  public static <E> Iterable<E> circular( final Iterable<E> iterable, final long limit )
+  {
+    //
+    Assert.isNotNull( iterable );
+    
+    //
+    return new Iterable<E>()
+    {
+      
+      @Override
+      public Iterator<E> iterator()
+      {
+        //
+        Factory<Iterator<E>> iteratorFactory = new Factory<Iterator<E>>()
+        {
+          /* ********************************************** Variables ********************************************** */
+          private long counter = 0;
+          
+          /* ********************************************** Methods ********************************************** */
+          
+          @Override
+          public Iterator<E> newInstance()
+          {
+            return limit < 0 || this.counter++ < limit ? iterable.iterator() : null;
+          }
+        };
+        return factoryBasedIterator( iteratorFactory );
+      }
+    };
+  }
 }

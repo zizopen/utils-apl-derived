@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
  * 
  * <pre>
  * AssertLogger assertLogger = new AssertLogger( this.logger );
- * assertLogger.debug.assertThis.isTrue( expression );
- * assertLogger.warn.assertThis.isNotNull( object, &quot;Additional message&quot; );
- * assertLogger.info.assertThis.fails( &quot;Additional message&quot; );
+ * assertLogger.debug.assertThat.isTrue( expression );
+ * assertLogger.warn.assertThat.isNotNull( object, &quot;Additional message&quot; );
+ * assertLogger.info.assertThat.fails( &quot;Additional message&quot; );
  * </pre>
  * 
  * @see Assert
@@ -71,7 +71,7 @@ public class AssertLogger
   public static class Loglevel
   {
     /* ********************************************** Variables ********************************************** */
-    public final LoglevelAssert     assertThis = new LoglevelAssert();
+    public final LoglevelAssert     assertThat = new LoglevelAssert();
     public final MessageWriter      message    = new MessageWriter();
     
     protected final LoglevelSupport loglevelSupport;
@@ -200,7 +200,7 @@ public class AssertLogger
         }
         catch ( Exception e )
         {
-          Loglevel.this.message.message( "Assert.fails() notifies about a failure", e );
+          Loglevel.this.message.message( "Assert.fails() notifies about an operation failure", e );
         }
       }
       
@@ -217,7 +217,25 @@ public class AssertLogger
         }
         catch ( Exception e )
         {
-          Loglevel.this.message.message( "Assert.fails() notifies about a failure", e );
+          Loglevel.this.message.message( "Assert.fails() notifies about an operation failure", e );
+        }
+      }
+      
+      /**
+       * @see Assert#fails()
+       * @param message
+       * @param cause
+       */
+      public void fails( String message, Exception cause )
+      {
+        //
+        try
+        {
+          Assert.fails( message, cause );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message.message( "Assert.fails() notifies about an operation failure", e );
         }
       }
       

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.element;
+package org.omnaest.utils.structure.element.cached;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
+import org.omnaest.utils.structure.element.cached.ThreadLocalCachedElement;
 import org.omnaest.utils.structure.element.cached.CachedElement.ValueResolver;
 
 /**
