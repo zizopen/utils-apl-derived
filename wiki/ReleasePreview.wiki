@@ -3,27 +3,7 @@
 
 = Release preview =
 
- * added OSGI-Bundle generation via Springsource Bundlor Tool
- * added AssertLogger
- * added WeakCachedElement
- * added SoftCachedElement
- * improved CollectionUtils and ListUtils
- * added CaseinsensitiveMapDecorator
- * changed signature of ListUtils
- * changed name from XMLHelper to JAXBXMLHelper
- * Tested several decorators for JAXB compliance
- * enhanced and changed signature of AutowiredContainer
- * added AutowiredContainerDecorator
- * added AutowiredContainerUtils
- * enhanced AssertLogger
- * enhanced HttpSessionService
- * enhanced CaseinsensitiveMapDecorator
- * added LockingCollectionDecorator, LockingSetDecorator, LockingListIterator, LockingMapDecorator, LockingIteratorDecorator, LockingListIteratorDecorator
- * made CaseinsensitiveMapDecorator thread safe
- * moved ListUtils and SetUtils
- * added OperationComposite
- * enhanced IterableUtils
- * enhanced FutureTaskManager
+
 
 
  
