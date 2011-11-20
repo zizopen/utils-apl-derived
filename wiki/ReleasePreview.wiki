@@ -3,6 +3,7 @@
 
 = Release preview =
 
+ * added OSGI-Bundle generation via Springsource Bundlor Tool
  * added AssertLogger
  * added WeakCachedElement
  * added SoftCachedElement
