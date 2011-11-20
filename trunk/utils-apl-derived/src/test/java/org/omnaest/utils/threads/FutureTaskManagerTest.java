@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -34,13 +33,14 @@ import org.omnaest.utils.structure.element.ExceptionHandledResult;
 public class FutureTaskManagerTest
 {
   /* ********************************************** Variables ********************************************** */
-  private int                     corePoolSize    = 10;
-  private int                     maximumPoolSize = 10;
-  private long                    keepAliveTime   = 1;
-  private TimeUnit                unit            = TimeUnit.SECONDS;
-  private BlockingQueue<Runnable> workQueue       = new ArrayBlockingQueue<Runnable>( 10 );
-  private ExecutorService         executorService = new ThreadPoolExecutor( this.corePoolSize, this.maximumPoolSize,
-                                                                            this.keepAliveTime, this.unit, this.workQueue );
+  private final int                     corePoolSize      = 10;
+  private final int                     maximumPoolSize   = 10;
+  private final long                    keepAliveTime     = 1;
+  private final TimeUnit                unit              = TimeUnit.SECONDS;
+  private final BlockingQueue<Runnable> workQueue         = new ArrayBlockingQueue<Runnable>( 10 );
+  private final ExecutorService         executorService   = new ThreadPoolExecutor( this.corePoolSize, this.maximumPoolSize,
+                                                                                    this.keepAliveTime, this.unit, this.workQueue );
+  private final FutureTaskManager       futureTaskManager = new FutureTaskManager( this.executorService );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -59,10 +59,10 @@ public class FutureTaskManagerTest
     };
     
     //
-    Future<?> future = this.executorService.submit( runnable );
+    this.futureTaskManager.submitAndManage( runnable );
     
     //
-    ExceptionHandledResult<?> exceptionHandledResult = FutureTaskManager.waitForTaskToFinish( future );
+    ExceptionHandledResult<?> exceptionHandledResult = this.futureTaskManager.waitForAllTasksToFinish();
     assertTrue( exceptionHandledResult.hasExceptions() );
     assertTrue( exceptionHandledResult.containsAssignableException( RuntimeException.class ) );
   }

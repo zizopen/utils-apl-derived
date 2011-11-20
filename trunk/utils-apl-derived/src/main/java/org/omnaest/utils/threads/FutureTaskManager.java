@@ -18,52 +18,56 @@ package org.omnaest.utils.threads;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.ExceptionHandledResult;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 /**
  * A {@link FutureTaskManager} will manage the {@link Future}s created e.g. by a
- * {@link ExecutorService#submit(java.util.concurrent.Callable)} call and allows to wait on all {@link Future}s.
+ * {@link ExecutorService#submit(java.util.concurrent.Callable)} call and allows to wait on all managed {@link Future}s.<br>
+ * <br>
+ * If an {@link ExecutorService} instance is declared using {@link #FutureTaskManager(ExecutorService)}, it is possible to let the
+ * {@link FutureTaskManager} submit tasks by invoking {@link #submitAndManage(Callable)} or {@link #submitAndManage(Runnable)}.
  * 
  * @author Omnaest
  */
 public class FutureTaskManager
 {
   /* ********************************************** Variables ********************************************** */
-  private List<Future<?>> futureList = new ArrayList<Future<?>>();
-  
-  /* ********************************************** Classes/Interfaces ********************************************** */
-  
-  public static interface CallableTaskSubmitter
-  {
-    /**
-     * Submits a given {@link Callable} and returns the {@link Future} which provides information about the state of the
-     * {@link Thread}s task.
-     * 
-     * @param callable
-     * @return
-     */
-    public Future<?> submitTask( Callable<?> callable );
-    
-  }
-  
-  public static interface RunnableTaskSubmitter
-  {
-    /**
-     * Submits a given {@link Runnable} and returns the {@link Future} which provides information about the state of the
-     * {@link Thread}s task.
-     * 
-     * @param runnable
-     * @return
-     */
-    public Future<?> submitTask( Runnable runnable );
-  }
+  protected final List<Future<?>> futureList = new ArrayList<Future<?>>();
+  protected final ExecutorService executorService;
   
   /* ********************************************** Methods ********************************************** */
+  
+  /**
+   * @see FutureTaskManager
+   * @param executorService
+   */
+  public FutureTaskManager( ExecutorService executorService )
+  {
+    super();
+    this.executorService = executorService;
+  }
+  
+  /**
+   * Does not support {@link #submitAndManage(Callable)} and {@link #submitAndManage(Runnable)}. If these methods should be used
+   * provide an {@link ExecutorService} instance using {@link #FutureTaskManager(ExecutorService)}
+   * 
+   * @see FutureTaskManager
+   */
+  public FutureTaskManager()
+  {
+    super();
+    this.executorService = null;
+  }
   
   /**
    * Manages the given {@link Future}
@@ -79,86 +83,151 @@ public class FutureTaskManager
   }
   
   /**
-   * Manages the given {@link Future}
+   * Manages the given {@link Future} instances
    * 
-   * @param future
+   * @param futureIterable
    */
-  public void manageFutureTask( List<Future<?>> futureList )
+  public void manageFutureTask( Iterable<Future<?>> futureIterable )
   {
-    if ( futureList != null )
+    if ( futureIterable != null )
     {
-      for ( Future<?> future : futureList )
+      for ( Future<?> future : futureIterable )
       {
         this.manageFutureTask( future );
       }
     }
   }
   
+  /**
+   * Submits the given {@link Callable} to the given {@link ExecutorService} instance and calls {@link #manageFutureTask(Future)}
+   * for the resulting {@link FutureTask}
+   * 
+   * @param executorService
+   * @param callable
+   */
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void submitAndManage( CallableTaskSubmitter callableTaskSubmitter, Callable<?> callable )
+  public void submitAndManage( ExecutorService executorService, Callable<?> callable )
   {
-    this.submitAndManage( callableTaskSubmitter, (Collection) Arrays.asList( callable ), 1 );
+    this.submitAndManageCallables( executorService, (Collection) Arrays.asList( callable ), 1 );
   }
   
   /**
+   * Submits the given {@link Runnable} to the given {@link ExecutorService} instance and calls {@link #manageFutureTask(Future)}
+   * for the resulting {@link FutureTask}
+   * 
+   * @param executorService
+   * @param callable
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes", "cast" })
+  public void submitAndManage( ExecutorService executorService, Runnable runnable )
+  {
+    this.submitAndManageRunnables( executorService, (Collection) Arrays.asList( runnable ), 1 );
+  }
+  
+  /**
+   * Submits the given {@link Callable} to the internal {@link ExecutorService}. Throws an {@link UnsupportedOperationException}
+   * if not {@link ExecutorService} instance is available.
+   * 
+   * @see Callable
+   * @param callable
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void submitAndManage( Callable<?> callable )
+  {
+    if ( this.executorService == null )
+    {
+      throw new UnsupportedOperationException(
+                                               "The "
+                                                   + FutureTaskManager.class
+                                                   + " must be initialied with an instance of an ExecutorService to support this operation" );
+    }
+    this.submitAndManageCallables( this.executorService, (Collection) Arrays.asList( callable ), 1 );
+  }
+  
+  /**
+   * @see Runnable
+   * @see #submitAndManage(Callable)
+   * @param runnable
+   */
+  public void submitAndManage( Runnable runnable )
+  {
+    //
+    if ( runnable != null )
+    {
+      this.submitAndManage( new RunnableToCallableAdapter( runnable ) );
+    }
+  }
+  
+  /**
+   * @see #submitAndManage(Callable)
+   * @see #submitAndManageRunnables(ExecutorService, Collection, int)
+   * @param executorService
+   * @param runnable
+   * @param submitCount
+   */
+  public void submitAndManage( ExecutorService executorService, Runnable runnable, int submitCount )
+  {
+    this.submitAndManage( executorService, new RunnableToCallableAdapter( runnable ), submitCount );
+  }
+  
+  /**
+   * @see #submitAndManage(ExecutorService, Callable)
+   * @see #submitAndManageCallables(ExecutorService, Collection, int)
+   * @param executorService
+   * @param callable
+   * @param submitCount
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void submitAndManage( ExecutorService executorService, Callable<?> callable, int submitCount )
+  {
+    //
+    if ( callable != null )
+    {
+      this.submitAndManageCallables( executorService, (Collection) Arrays.asList( callable ), submitCount );
+    }
+  }
+  
+  /**
+   * @see #submitAndManageCallables(ExecutorService, Collection, int)
+   * @param executorService
+   * @param runnableCollection
+   * @param submitCount
+   */
+  public void submitAndManageRunnables( ExecutorService executorService, Collection<Runnable> runnableCollection, int submitCount )
+  {
+    //
+    final ElementConverter<Runnable, Callable<?>> elementConverter = new ElementConverter<Runnable, Callable<?>>()
+    {
+      @Override
+      public Callable<?> convert( Runnable runnable )
+      {
+        return new RunnableToCallableAdapter( runnable );
+      }
+    };
+    final Collection<Callable<?>> callableCollection = ListUtils.convert( runnableCollection, elementConverter );
+    this.submitAndManageCallables( executorService, callableCollection, submitCount );
+  }
+  
+  /**
+   * @see #submitAndManage(ExecutorService, Callable)
+   * @see #submitAndManage(Callable)
    * @param callableTaskSubmitter
    * @param callableCollection
    * @param submitCount
    */
-  public void submitAndManage( CallableTaskSubmitter callableTaskSubmitter,
-                               Collection<Callable<?>> callableCollection,
-                               int submitCount )
+  public void submitAndManageCallables( ExecutorService executorService,
+                                        Collection<Callable<?>> callableCollection,
+                                        int submitCount )
   {
     //
-    if ( callableTaskSubmitter != null && callableCollection != null )
+    if ( executorService != null && callableCollection != null )
     {
       for ( Callable<?> callable : callableCollection )
       {
         for ( int ii = 1; ii <= submitCount; ii++ )
         {
           //
-          Future<?> future = callableTaskSubmitter.submitTask( callable );
-          
-          //
-          if ( future != null )
-          {
-            this.manageFutureTask( future );
-          }
-        }
-      }
-    }
-  }
-  
-  @SuppressWarnings({ "cast", "unchecked", "rawtypes" })
-  public void submitAndManage( RunnableTaskSubmitter runnableTaskSubmitter, Runnable runnable )
-  {
-    this.submitAndManage( runnableTaskSubmitter, (Collection) Arrays.asList( runnable ), 1 );
-  }
-  
-  @SuppressWarnings({ "cast", "unchecked", "rawtypes" })
-  public void submitAndManage( RunnableTaskSubmitter runnableTaskSubmitter, Runnable runnable, int submitCount )
-  {
-    this.submitAndManage( runnableTaskSubmitter, (Collection) Arrays.asList( runnable ), submitCount );
-  }
-  
-  /**
-   * @param runnableTaskSubmitter
-   * @param runnableCollection
-   * @param submitCount
-   */
-  public void submitAndManage( RunnableTaskSubmitter runnableTaskSubmitter,
-                               Collection<Runnable> runnableCollection,
-                               int submitCount )
-  {
-    //
-    if ( runnableTaskSubmitter != null && runnableCollection != null )
-    {
-      for ( Runnable runnable : runnableCollection )
-      {
-        for ( int ii = 1; ii <= submitCount; ii++ )
-        {
-          //
-          Future<?> future = runnableTaskSubmitter.submitTask( runnable );
+          Future<?> future = executorService.submit( callable );
           
           //
           if ( future != null )
@@ -173,7 +242,7 @@ public class FutureTaskManager
   /**
    * Uses the {@link Future#get()} to wait on all managed {@link Future}s until they are finished
    * 
-   * @return true, if no exception has occurred
+   * @return {@link ExceptionHandledResult}
    */
   public ExceptionHandledResult<List<Object>> waitForAllTasksToFinish()
   {
@@ -242,6 +311,30 @@ public class FutureTaskManager
     return new ExceptionHandledResult<V>( result, exceptionCollection );
   }
   
+  /**
+   * Clears all {@link Future}s which are {@link Future#isDone()}
+   */
+  public void clearFinishedTasks()
+  {
+    //
+    Set<Future<?>> removeFutureSet = new HashSet<Future<?>>();
+    for ( Future<?> future : this.futureList )
+    {
+      if ( future == null || future.isDone() )
+      {
+        removeFutureSet.add( future );
+      }
+    }
+    
+    //
+    this.futureList.removeAll( removeFutureSet );
+  }
+  
+  /**
+   * Returns the {@link List} of manage {@link Future}s
+   * 
+   * @return
+   */
   public List<Future<?>> getFutureList()
   {
     return this.futureList;

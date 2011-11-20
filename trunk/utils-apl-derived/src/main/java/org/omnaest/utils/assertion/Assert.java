@@ -45,6 +45,16 @@ public class Assert
       super( message );
     }
     
+    /**
+     * @see FailedOperationException
+     * @param message
+     * @param cause
+     */
+    public FailedOperationException( String message, Throwable cause )
+    {
+      super( message, cause );
+    }
+    
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -64,6 +74,16 @@ public class Assert
   public static void fails( String message )
   {
     throw new FailedOperationException( message );
+  }
+  
+  /**
+   * @see FailedOperationException
+   * @param message
+   * @param cause
+   */
+  public static void fails( String message, Exception cause )
+  {
+    throw new FailedOperationException( message, cause );
   }
   
   /**

@@ -17,10 +17,14 @@ package org.omnaest.utils.structure.iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -56,4 +60,54 @@ public class IterableUtilsTest
     assertFalse( IterableUtils.hashCode( Arrays.asList( "a", "c", "b" ) ) == IterableUtils.hashCode( Arrays.asList( "a", "b", "c" ) ) );
   }
   
+  @Test
+  public void testCircular()
+  {
+    //
+    List<String> list = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
+    
+    //
+    {
+      //
+      Iterable<String> circularIterable = IterableUtils.circular( list );
+      assertNotNull( circularIterable );
+      
+      //
+      Iterator<String> iterator = circularIterable.iterator();
+      for ( int ii = 0; ii < 10; ii++ )
+      {
+        //
+        assertTrue( iterator.hasNext() );
+        assertEquals( "a", iterator.next() );
+        assertTrue( iterator.hasNext() );
+        assertEquals( "b", iterator.next() );
+        assertTrue( iterator.hasNext() );
+        assertEquals( "c", iterator.next() );
+      }
+    }
+    
+    //
+    {
+      //
+      Iterable<String> circularIterable = IterableUtils.circular( list, 10 );
+      assertNotNull( circularIterable );
+      
+      //
+      Iterator<String> iterator = circularIterable.iterator();
+      for ( int ii = 0; ii < 10; ii++ )
+      {
+        //
+        assertTrue( iterator.hasNext() );
+        assertEquals( "a", iterator.next() );
+        assertTrue( iterator.hasNext() );
+        assertEquals( "b", iterator.next() );
+        assertTrue( iterator.hasNext() );
+        assertEquals( "c", iterator.next() );
+      }
+      
+      //
+      assertFalse( iterator.hasNext() );
+    }
+    
+  }
 }

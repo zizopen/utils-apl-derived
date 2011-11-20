@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.Future;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.http.HttpSession;
@@ -33,10 +33,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.omnaest.utils.spring.mock.LocaleScopedBean;
 import org.omnaest.utils.threads.FutureTaskManager;
-import org.omnaest.utils.threads.FutureTaskManager.RunnableTaskSubmitter;
 import org.omnaest.utils.web.HttpSessionResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.support.ExecutorServiceAdapter;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.ContextConfiguration;
@@ -95,6 +95,7 @@ public class TrailingBeanIdentifierPatternBeanScopeTest
     final LocaleScopedBean localeScopedBean = this.localeScopedBean;
     final BeanScopeThreadContextManager beanScopeThreadContextManager = this.beanScopeThreadContextManager;
     final ThreadPoolTaskExecutor threadPoolTaskExecutor = this.threadPoolTaskExecutor;
+    final ExecutorService executorService = new ExecutorServiceAdapter( threadPoolTaskExecutor );
     
     //
     final Multimap<String, String> localeToObjectMultimap = LinkedListMultimap.create();
@@ -184,18 +185,10 @@ public class TrailingBeanIdentifierPatternBeanScopeTest
     
     //
     FutureTaskManager futureTaskManager = new FutureTaskManager();
-    RunnableTaskSubmitter runnableTaskSubmitter = new RunnableTaskSubmitter()
-    {
-      @Override
-      public Future<?> submitTask( Runnable runnable )
-      {
-        return threadPoolTaskExecutor.submit( runnable );
-      }
-    };
     
     //
     final int submitCount = 80;
-    futureTaskManager.submitAndManage( runnableTaskSubmitter, runnable, submitCount );
+    futureTaskManager.submitAndManage( executorService, runnable, submitCount );
     
     //
     futureTaskManager.waitForAllTasksToFinish();
