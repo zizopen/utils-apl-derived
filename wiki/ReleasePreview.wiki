@@ -17,5 +17,9 @@
  * enhanced AssertLogger
  * enhanced HttpSessionService
  * enhanced CaseinsensitiveMapDecorator
+ * added LockingCollectionDecorator, LockingSetDecorator, LockingListIterator, LockingMapDecorator, LockingIteratorDecorator, LockingListIteratorDecorator
+ * made CaseinsensitiveMapDecorator thread safe
+ * moved ListUtils and SetUtils
+
  
  
