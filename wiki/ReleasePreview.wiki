@@ -3,6 +3,9 @@
 
 = Release preview =
 
+ * enhanced AssertLogger
+ * enhanced DurationCapture statistic
+
 
 
 
