@@ -15,7 +15,10 @@
  ******************************************************************************/
 package org.omnaest.utils.assertion;
 
+import java.util.concurrent.TimeUnit;
+
 import org.omnaest.utils.assertion.AssertLogger.Loglevel.LoglevelSupport;
+import org.omnaest.utils.time.DurationCapture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,6 +239,31 @@ public class AssertLogger
         catch ( Exception e )
         {
           Loglevel.this.message.message( "Assert.fails() notifies about an operation failure", e );
+        }
+      }
+      
+      /**
+       * @see Assert#isInterimTimeLowerThan(int, TimeUnit, DurationCapture, Object[])
+       * @param durationLimit
+       * @param timeUnit
+       * @param durationCapture
+       * @param intervalKeys
+       * @return
+       */
+      public boolean isInterimTimeLowerThan( int durationLimit,
+                                             TimeUnit timeUnit,
+                                             DurationCapture durationCapture,
+                                             Object[] intervalKeys )
+      {
+        //
+        try
+        {
+          return Assert.isInterimTimeLowerThan( durationLimit, timeUnit, durationCapture, intervalKeys );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message.message( "Assert.isInterimTimeLowerThan(...) failed", e );
+          return false;
         }
       }
       

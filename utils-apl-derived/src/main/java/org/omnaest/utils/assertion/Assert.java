@@ -15,6 +15,10 @@
  ******************************************************************************/
 package org.omnaest.utils.assertion;
 
+import java.util.concurrent.TimeUnit;
+
+import org.omnaest.utils.time.DurationCapture;
+
 /**
  * The {@link Assert} class offers assert methods which throw {@link RuntimeException}s if constraints are not fulfilled.
  * 
@@ -128,4 +132,36 @@ public class Assert
     return true;
   }
   
+  /**
+   * Asserts that the {@link DurationCapture#getInterimTimeInMilliseconds(Object...)} is lower than the given duration limit for
+   * the given {@link TimeUnit} and interval keys.
+   * 
+   * @param durationLimit
+   * @param timeUnit
+   * @param durationCapture
+   * @param intervalKeys
+   * @return true if the assertion fulfilled the requirement
+   */
+  public static boolean isInterimTimeLowerThan( int durationLimit,
+                                                TimeUnit timeUnit,
+                                                DurationCapture durationCapture,
+                                                Object[] intervalKeys )
+  {
+    //
+    boolean retval = false;
+    
+    //
+    if ( timeUnit != null && durationCapture != null )
+    {
+      //
+      long interimTimeInMilliseconds = durationCapture.getInterimTimeInMilliseconds( intervalKeys );
+      long durationLimitInMilliseconds = timeUnit.toMillis( durationLimit );
+      retval = isTrue( interimTimeInMilliseconds <= durationLimitInMilliseconds,
+                       "Interim time for the interval keys " + String.valueOf( intervalKeys ) + " should be lower than "
+                           + durationLimitInMilliseconds + " ms but actually was " + interimTimeInMilliseconds + " ms" );
+    }
+    
+    //
+    return retval;
+  }
 }

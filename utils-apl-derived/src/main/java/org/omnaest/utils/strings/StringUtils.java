@@ -22,6 +22,11 @@ package org.omnaest.utils.strings;
  */
 public class StringUtils
 {
+  /* ********************************************** Constants ********************************************** */
+  public static final String DEFAULT_LINESEPARATOR = System.getProperty( "line.separator" );
+  
+  /* ********************************************** Methods ********************************************** */
+  
   /**
    * Returns true if the given text ends with the start of the other given text. E.g. "bcd" will start with the and of "abc"
    * 
@@ -38,6 +43,11 @@ public class StringUtils
     return retval;
   }
   
+  /**
+   * @param strings
+   * @param delimiter
+   * @return
+   */
   public static String stringJoin( String[] strings, String delimiter )
   {
     String retval = null;
@@ -95,6 +105,11 @@ public class StringUtils
     return retval;
   }
   
+  /**
+   * @param value
+   * @param width
+   * @return
+   */
   public static String setFixedWitdth( String value, int width )
   {
     if ( width > 0 )
@@ -111,5 +126,86 @@ public class StringUtils
     
     //
     return "";
+  }
+  
+  /**
+   * Determines the maximum width of the given {@link Iterable} {@link String} elements
+   * 
+   * @param iterable
+   * @return
+   */
+  public static int maximumWidth( Iterable<String> iterable )
+  {
+    //
+    int retval = 0;
+    
+    //
+    if ( iterable != null )
+    {
+      for ( String value : iterable )
+      {
+        if ( value != null )
+        {
+          retval = Math.max( retval, value.length() );
+        }
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Repeats the given {@link CharSequence}
+   * 
+   * @param token
+   * @param repeats
+   * @return
+   */
+  public static String repeat( CharSequence token, int repeats )
+  {
+    //
+    StringBuilder stringBuilder = new StringBuilder();
+    
+    //
+    if ( token != null && repeats > 0 )
+    {
+      for ( int ii = 1; ii <= repeats; ii++ )
+      {
+        stringBuilder.append( token );
+      }
+    }
+    
+    //
+    return stringBuilder.toString();
+  }
+  
+  /**
+   * Returns a percentage bar looking like:<br>
+   * [====o ]
+   * 
+   * @param value
+   * @param width
+   * @return
+   */
+  public static String percentageBar( double value, int width )
+  {
+    //
+    final StringBuilder stringBuilder = new StringBuilder();
+    
+    //
+    value = Math.min( 1.0, Math.max( value, 0.0 ) );
+    int widthOfArrow = (int) Math.round( value * ( width - 2 ) );
+    stringBuilder.append( "[" );
+    if ( widthOfArrow > 0 )
+    {
+      stringBuilder.append( repeat( "=", widthOfArrow - 1 ) );
+      stringBuilder.append( ">" );
+    }
+    stringBuilder.append( repeat( " ", width - 2 - widthOfArrow ) );
+    stringBuilder.append( "]" );
+    
+    //
+    return stringBuilder.toString();
   }
 }

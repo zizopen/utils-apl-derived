@@ -52,6 +52,11 @@ public class DurationCaptureTest
       durationCapture.startTimeMeasurement( "Interval2" );
       tempStringList.add( "value2" + ii );
       durationCapture.stopTimeMeasurement( "Interval2" );
+      
+      //
+      durationCapture.startTimeMeasurement( "Interval999" );
+      tempStringList.add( "value3" + ii );
+      durationCapture.stopTimeMeasurement( "Interval999" );
     }
     durationCapture.stopTimeMeasurement();
     
@@ -60,7 +65,7 @@ public class DurationCaptureTest
     assertTrue( duration > 0 );
     
     //
-    //System.out.println( durationCapture.calculateIntervalStatisticLogMessage() );
+    System.out.println( durationCapture.calculateIntervalStatisticLogMessage() );
   }
   
 }

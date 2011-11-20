@@ -23,6 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.omnaest.utils.strings.StringUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverterObjectToString;
+
 /**
  * A {@link DurationCapture} will measure time intervals.
  * 
@@ -32,11 +36,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DurationCapture
 {
+  /* ********************************************** Constants ********************************************** */
+  public static final Object            INTERVAL_DEFAULTKEY      = "DEFAULT";
+  private static final String           DEFAULT_LINESEPARATOR    = System.getProperty( "line.separator" );
   
   /* ********************************************** Variables ********************************************** */
-  
   protected final Map<Object, Interval> intervalKeyToIntervalMap = new ConcurrentHashMap<Object, DurationCapture.Interval>();
-  protected final Object                intervalDefaultKey       = "DEFAULT";
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
@@ -237,7 +242,7 @@ public class DurationCapture
   public DurationCapture startTimeMeasurement()
   {
     //
-    this.determineInterval( this.intervalDefaultKey ).startMeasurement();
+    this.determineInterval( DurationCapture.INTERVAL_DEFAULTKEY ).startMeasurement();
     
     //
     return this;
@@ -248,7 +253,7 @@ public class DurationCapture
    */
   public void resetTimer()
   {
-    this.determineInterval( this.intervalDefaultKey ).reset();
+    this.determineInterval( DurationCapture.INTERVAL_DEFAULTKEY ).reset();
   }
   
   /**
@@ -275,7 +280,7 @@ public class DurationCapture
   public DurationCapture stopTimeMeasurement()
   {
     //
-    this.determineInterval( this.intervalDefaultKey ).stopMeasurement();
+    this.determineInterval( DurationCapture.INTERVAL_DEFAULTKEY ).stopMeasurement();
     
     //
     return this;
@@ -313,7 +318,7 @@ public class DurationCapture
       Interval interval = this.intervalKeyToIntervalMap.get( intervalKey );
       
       //
-      if ( interval.getKey() != this.intervalDefaultKey )
+      if ( interval.getKey() != DurationCapture.INTERVAL_DEFAULTKEY )
       {
         //
         long durationInMilliseconds = interval.getDurationInMilliseconds();
@@ -371,7 +376,7 @@ public class DurationCapture
    */
   public long getDurationInMilliseconds()
   {
-    return this.getDurationInMilliseconds( this.intervalDefaultKey );
+    return this.getDurationInMilliseconds( DurationCapture.INTERVAL_DEFAULTKEY );
   }
   
   /**
@@ -387,13 +392,45 @@ public class DurationCapture
   }
   
   /**
+   * Returns the time duration sum between measurement start and stop in milliseconds for all given interval keys. If no interval
+   * key is specified {@link #getDurationInMilliseconds()} is returned.
+   * 
+   * @param intervalKeys
+   * @return
+   */
+  public long getDurationInMilliseconds( Object... intervalKeys )
+  {
+    //
+    long retval = 0;
+    
+    //
+    //
+    if ( intervalKeys.length > 0 )
+    {
+      //
+      for ( Object intervalKey : intervalKeys )
+      {
+        retval += this.getDurationInMilliseconds( intervalKey );
+      }
+    }
+    else
+    {
+      //
+      retval = this.getDurationInMilliseconds();
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
    * Returns the time since starting the measurement and now in milliseconds.
    * 
    * @return
    */
   public long getInterimTimeInMilliseconds()
   {
-    return this.getInterimTimeInMilliseconds( this.intervalDefaultKey );
+    return this.getInterimTimeInMilliseconds( DurationCapture.INTERVAL_DEFAULTKEY );
   }
   
   /**
@@ -407,13 +444,44 @@ public class DurationCapture
   }
   
   /**
-   * Returns true, if there is an {@link Interval} instance for the {@link #intervalDefaultKey}.
+   * Returns the time sum since starting the measurement and now in milliseconds for all given interval keys. If no interval key
+   * is given {@link #getInterimTimeInMilliseconds()} is returned instead.
+   * 
+   * @param intervalKeys
+   * @return
+   */
+  public long getInterimTimeInMilliseconds( Object... intervalKeys )
+  {
+    //
+    long retval = 0;
+    
+    //
+    if ( intervalKeys.length > 0 )
+    {
+      //
+      for ( Object intervalKey : intervalKeys )
+      {
+        retval += this.getInterimTimeInMilliseconds( intervalKey );
+      }
+    }
+    else
+    {
+      //
+      retval = this.getInterimTimeInMilliseconds();
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns true, if there is an {@link Interval} instance for the {@link #INTERVAL_DEFAULTKEY}.
    * 
    * @return
    */
   protected boolean hasDefaultInterval()
   {
-    return this.intervalKeyToIntervalMap.containsKey( this.intervalDefaultKey );
+    return this.intervalKeyToIntervalMap.containsKey( DurationCapture.INTERVAL_DEFAULTKEY );
   }
   
   /**
@@ -423,26 +491,37 @@ public class DurationCapture
    */
   public String calculateIntervalStatisticLogMessage()
   {
+    //
     String retval = null;
-    StringBuffer sb = new StringBuffer();
-    final String lineSeparator = "-------------------------------------------------------------------------------------------------\n";
     
     //    
-    Map<Object, IntervalStatistic> intervalStatisticMap = this.calculateIntervalStatisticMap();
+    final Map<Object, IntervalStatistic> intervalStatisticMap = this.calculateIntervalStatisticMap();
     
     //
-    if ( intervalStatisticMap.containsKey( this.intervalDefaultKey ) )
+    final int maximumWidth = Math.max( 20, StringUtils.maximumWidth( ListUtils.convert( intervalStatisticMap.keySet(),
+                                                                                        new ElementConverterObjectToString() ) ) );
+    final String lineSeparator = StringUtils.repeat( "-", maximumWidth + 35 ) + DEFAULT_LINESEPARATOR;
+    final String ROW_FORMAT_STRING = "%-" + maximumWidth + "s : %5d ms (%6.2f%%) %s %n";
+    
+    //
+    final StringBuffer sb = new StringBuffer();
+    
+    //
+    if ( intervalStatisticMap.containsKey( DurationCapture.INTERVAL_DEFAULTKEY ) )
     {
       //
-      IntervalStatistic intervalStatistic = intervalStatisticMap.get( this.intervalDefaultKey );
+      IntervalStatistic intervalStatistic = intervalStatisticMap.get( DurationCapture.INTERVAL_DEFAULTKEY );
+      String intervalKeyAsString = intervalStatistic.getIntervalKeyAsString();
+      long durationInMilliseconds = intervalStatistic.getDurationInMilliseconds();
+      double durationPercentage = intervalStatistic.getDurationPercentage();
+      String percentageBar = StringUtils.percentageBar( durationPercentage * 0.01, 12 );
       
       //
       sb.append( lineSeparator );
-      sb.append( String.format( "%s : %d ms (%3.2f%%)\n", intervalStatistic.getIntervalKeyAsString(),
-                                intervalStatistic.getDurationInMilliseconds(), intervalStatistic.getDurationPercentage() ) );
+      sb.append( String.format( ROW_FORMAT_STRING, intervalKeyAsString, durationInMilliseconds, durationPercentage, percentageBar ) );
       
       //
-      intervalStatisticMap.remove( this.intervalDefaultKey );
+      intervalStatisticMap.remove( DurationCapture.INTERVAL_DEFAULTKEY );
     }
     
     //    
@@ -455,10 +534,15 @@ public class DurationCapture
       {
         //
         IntervalStatistic intervalStatistic = intervalStatisticMap.get( intervalKey );
+        String intervalKeyAsString = intervalStatistic.getIntervalKeyAsString();
+        long durationInMilliseconds = intervalStatistic.getDurationInMilliseconds();
+        double durationPercentage = intervalStatistic.getDurationPercentage();
+        String percentageBar = StringUtils.percentageBar( durationPercentage * 0.01, 12 );
         
         //
-        sb.append( String.format( "%s : %d ms (%3.2f%%)\n", intervalStatistic.getIntervalKeyAsString(),
-                                  intervalStatistic.getDurationInMilliseconds(), intervalStatistic.getDurationPercentage() ) );
+        sb.append( lineSeparator );
+        sb.append( String.format( ROW_FORMAT_STRING, intervalKeyAsString, durationInMilliseconds, durationPercentage,
+                                  percentageBar ) );
         
         //
         intervalDurationTimeSum += intervalStatistic.getDurationInMilliseconds();
@@ -469,7 +553,7 @@ public class DurationCapture
     if ( intervalStatisticMap.size() > 1 )
     {
       sb.append( lineSeparator );
-      sb.append( "Whole interval duration time: " + intervalDurationTimeSum + " ms\n" );
+      sb.append( "Whole interval key duration time: " + intervalDurationTimeSum + " ms\n" );
     }
     
     //
