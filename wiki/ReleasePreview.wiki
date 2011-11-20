@@ -20,6 +20,10 @@
  * added LockingCollectionDecorator, LockingSetDecorator, LockingListIterator, LockingMapDecorator, LockingIteratorDecorator, LockingListIteratorDecorator
  * made CaseinsensitiveMapDecorator thread safe
  * moved ListUtils and SetUtils
+ * added OperationComposite
+ * enhanced IterableUtils
+ * enhanced FutureTaskManager
+
 
  
  
