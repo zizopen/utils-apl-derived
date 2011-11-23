@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.assertion;
 
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import org.omnaest.utils.time.DurationCapture;
@@ -126,6 +127,68 @@ public class Assert
   public static boolean isTrue( boolean expression, String message )
   {
     if ( !expression )
+    {
+      throw new IllegalArgumentException( message );
+    }
+    return true;
+  }
+  
+  /**
+   * @param expression
+   */
+  public static boolean isFalse( boolean expression )
+  {
+    return isFalse( expression, "Expression must be false, but was true" );
+  }
+  
+  /**
+   * @param expression
+   * @param message
+   */
+  public static boolean isFalse( boolean expression, String message )
+  {
+    return isTrue( !expression, message );
+  }
+  
+  /**
+   * @param collection
+   */
+  public static boolean isNotEmpty( Collection<?> collection )
+  {
+    return isNotEmpty( collection, "Collection must be not empty" );
+  }
+  
+  /**
+   * @param collection
+   * @param message
+   */
+  public static boolean isNotEmpty( Collection<?> collection, String message )
+  {
+    if ( collection == null || collection.isEmpty() )
+    {
+      throw new IllegalArgumentException( message );
+    }
+    return true;
+  }
+  
+  /**
+   * @param object1
+   * @param object2
+   */
+  public static boolean isEqual( Object object1, Object object2 )
+  {
+    return isEqual( object1, object2, "The two given objects must be equal" );
+  }
+  
+  /**
+   * @param object1
+   * @param object2
+   * @param message
+   */
+  public static boolean isEqual( Object object1, Object object2, String message )
+  {
+    if ( object1 != object2 && !( object1 != null && object1.equals( object2 ) )
+         && !( object2 != null && object2.equals( object1 ) ) )
     {
       throw new IllegalArgumentException( message );
     }

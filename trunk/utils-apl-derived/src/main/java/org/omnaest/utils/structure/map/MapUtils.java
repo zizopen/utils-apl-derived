@@ -329,7 +329,7 @@ public class MapUtils
    * @param mapEntryToElementTransformer
    * @return {@link List}
    */
-  public static <TO, K, V> List<TO> asList( Map<K, V> map, MapEntryToElementTransformer<TO, K, V> mapEntryToElementTransformer )
+  public static <TO, K, V> List<TO> toList( Map<K, V> map, MapEntryToElementTransformer<TO, K, V> mapEntryToElementTransformer )
   {
     //
     List<TO> retlist = new ArrayList<TO>();

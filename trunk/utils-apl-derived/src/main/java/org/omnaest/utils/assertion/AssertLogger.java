@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.assertion;
 
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import org.omnaest.utils.assertion.AssertLogger.Loglevel.LoglevelSupport;
@@ -75,7 +76,6 @@ public class AssertLogger
   {
     /* ********************************************** Variables ********************************************** */
     public final LoglevelAssert     assertThat = new LoglevelAssert();
-    public final MessageWriter      message    = new MessageWriter();
     
     protected final LoglevelSupport loglevelSupport;
     
@@ -127,13 +127,13 @@ public class AssertLogger
         }
         catch ( Exception e )
         {
-          Loglevel.this.message.message( "Assert.isTrue(...) failed", e );
+          Loglevel.this.message( "Assert.isTrue(...) failed", e );
           return false;
         }
       }
       
       /**
-       * @see Assert#isTrue(boolean)
+       * @see Assert#isTrue(boolean, String)
        * @param expression
        * @param message
        * @return
@@ -147,7 +147,126 @@ public class AssertLogger
         }
         catch ( Exception e )
         {
-          Loglevel.this.message.message( "Assert.isTrue(...) failed", e );
+          Loglevel.this.message( "Assert.isTrue(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
+       * @see Assert#isFalse(boolean)
+       * @param expression
+       * @return
+       */
+      public boolean isFalse( boolean expression )
+      {
+        //
+        try
+        {
+          return Assert.isFalse( expression );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message( "Assert.isFalse(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
+       * @see Assert#isFalse(boolean, String)
+       * @param expression
+       * @param message
+       * @return
+       */
+      public boolean isFalse( boolean expression, String message )
+      {
+        //
+        try
+        {
+          return Assert.isFalse( expression, message );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message( "Assert.isFalse(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
+       * @see Assert#isEqual(Object, Object)
+       * @param object1
+       * @param object2
+       * @return
+       */
+      public boolean isEqual( Object object1, Object object2 )
+      {
+        //
+        try
+        {
+          return Assert.isEqual( object1, object2 );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message( "Assert.isEqual(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
+       * @see Assert#isEqual(Object, Object, String)
+       * @param object1
+       * @param object2
+       * @param message
+       * @return
+       */
+      public boolean isEqual( Object object1, Object object2, String message )
+      {
+        //
+        try
+        {
+          return Assert.isEqual( object1, object2, message );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message( "Assert.isEqual(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
+       * @see Assert#isNotEmpty(Collection)
+       * @param collection
+       * @return
+       */
+      public boolean isNotEmpty( Collection<?> collection )
+      {
+        //
+        try
+        {
+          return Assert.isNotEmpty( collection );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message( "Assert.isNotEmpty(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
+       * @see Assert#isNotEmpty(Collection, String)
+       * @param message
+       * @param collection
+       * @return
+       */
+      public boolean isNotEmpty( Collection<?> collection, String message )
+      {
+        //
+        try
+        {
+          return Assert.isNotEmpty( collection, message );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message( "Assert.isNotEmpty(...) failed", e );
           return false;
         }
       }
@@ -166,7 +285,7 @@ public class AssertLogger
         }
         catch ( Exception e )
         {
-          Loglevel.this.message.message( "Assert.isNotNull(...) failed", e );
+          Loglevel.this.message( "Assert.isNotNull(...) failed", e );
           return false;
         }
       }
@@ -186,7 +305,7 @@ public class AssertLogger
         }
         catch ( Exception e )
         {
-          Loglevel.this.message.message( "Assert.isNotNull(...) failed", e );
+          Loglevel.this.message( "Assert.isNotNull(...) failed", e );
           return false;
         }
       }
@@ -203,7 +322,7 @@ public class AssertLogger
         }
         catch ( Exception e )
         {
-          Loglevel.this.message.message( "Assert.fails() notifies about an operation failure", e );
+          Loglevel.this.message( "Assert.fails() notifies about an operation failure", e );
         }
       }
       
@@ -220,7 +339,7 @@ public class AssertLogger
         }
         catch ( Exception e )
         {
-          Loglevel.this.message.message( "Assert.fails() notifies about an operation failure", e );
+          Loglevel.this.message( "Assert.fails() notifies about an operation failure", e );
         }
       }
       
@@ -238,7 +357,7 @@ public class AssertLogger
         }
         catch ( Exception e )
         {
-          Loglevel.this.message.message( "Assert.fails() notifies about an operation failure", e );
+          Loglevel.this.message( "Assert.fails() notifies about an operation failure", e );
         }
       }
       
@@ -262,7 +381,7 @@ public class AssertLogger
         }
         catch ( Exception e )
         {
-          Loglevel.this.message.message( "Assert.isInterimTimeLowerThan(...) failed", e );
+          Loglevel.this.message( "Assert.isInterimTimeLowerThan(...) failed", e );
           return false;
         }
       }
@@ -277,87 +396,6 @@ public class AssertLogger
       
     }
     
-    /**
-     * @see Loglevel
-     * @author Omnaest
-     */
-    public class MessageWriter
-    {
-      
-      /**
-       * Writes a message to the {@link Logger} using the selected {@link Loglevel}
-       * 
-       * @param message
-       * @return {@link Loglevel}
-       */
-      public Loglevel message( String message )
-      {
-        //
-        Loglevel.this.loglevelSupport.writeMessage( message );
-        return Loglevel.this;
-      }
-      
-      /**
-       * Writes a message and a given {@link Throwable} to the {@link Logger} using the selected {@link Loglevel}
-       * 
-       * @param message
-       * @param e
-       *          {@link Throwable}
-       * @return {@link Loglevel}
-       */
-      public Loglevel message( String message, Throwable e )
-      {
-        //
-        Loglevel.this.loglevelSupport.writeMessage( message, e );
-        return Loglevel.this;
-      }
-      
-      /**
-       * Writes a message to the {@link Logger} using the selected {@link Loglevel} <br>
-       * <br>
-       * The {@link MessageFactory#message()} method is only invoked if the respective {@link Loglevel} is set to true within the
-       * logging configuration.
-       * 
-       * @param messageFactory
-       *          {@link MessageFactory}
-       * @return {@link Loglevel}
-       */
-      public Loglevel message( MessageFactory messageFactory )
-      {
-        //
-        if ( Loglevel.this.loglevelSupport.isLoglevelEnabled() )
-        {
-          String message = messageFactory != null ? messageFactory.message() : "";
-          Loglevel.this.loglevelSupport.writeMessage( message );
-        }
-        return Loglevel.this;
-      }
-      
-      /**
-       * Writes a message and a given {@link Throwable} to the {@link Logger} using the selected {@link Loglevel}.<br>
-       * <br>
-       * The {@link MessageFactory#message()} method is only invoked if the respective {@link Loglevel} is set to true within the
-       * logging configuration.
-       * 
-       * @param messageFactory
-       *          {@link MessageFactory}
-       * @param e
-       *          {@link Throwable}
-       * @return {@link Loglevel}
-       */
-      public Loglevel message( MessageFactory messageFactory, Throwable e )
-      {
-        //
-        if ( Loglevel.this.loglevelSupport.isLoglevelEnabled() )
-        {
-          String message = messageFactory != null ? messageFactory.message() : "";
-          Loglevel.this.loglevelSupport.writeMessage( message, e );
-        }
-        return Loglevel.this;
-      }
-      
-    }
-    
     /* ********************************************** Methods ********************************************** */
     
     /**
@@ -368,6 +406,78 @@ public class AssertLogger
     {
       super();
       this.loglevelSupport = loglevelSupport;
+    }
+    
+    /**
+     * Writes a message to the {@link Logger} using the selected {@link Loglevel}
+     * 
+     * @param message
+     * @return {@link Loglevel}
+     */
+    public Loglevel message( String message )
+    {
+      //
+      Loglevel.this.loglevelSupport.writeMessage( message );
+      return Loglevel.this;
+    }
+    
+    /**
+     * Writes a message and a given {@link Throwable} to the {@link Logger} using the selected {@link Loglevel}
+     * 
+     * @param message
+     * @param e
+     *          {@link Throwable}
+     * @return {@link Loglevel}
+     */
+    public Loglevel message( String message, Throwable e )
+    {
+      //
+      Loglevel.this.loglevelSupport.writeMessage( message, e );
+      return Loglevel.this;
+    }
+    
+    /**
+     * Writes a message to the {@link Logger} using the selected {@link Loglevel} <br>
+     * <br>
+     * The {@link MessageFactory#message()} method is only invoked if the respective {@link Loglevel} is set to true within the
+     * logging configuration.
+     * 
+     * @param messageFactory
+     *          {@link MessageFactory}
+     * @return {@link Loglevel}
+     */
+    public Loglevel message( MessageFactory messageFactory )
+    {
+      //
+      if ( Loglevel.this.loglevelSupport.isLoglevelEnabled() )
+      {
+        String message = messageFactory != null ? messageFactory.message() : "";
+        Loglevel.this.loglevelSupport.writeMessage( message );
+      }
+      return Loglevel.this;
+    }
+    
+    /**
+     * Writes a message and a given {@link Throwable} to the {@link Logger} using the selected {@link Loglevel}.<br>
+     * <br>
+     * The {@link MessageFactory#message()} method is only invoked if the respective {@link Loglevel} is set to true within the
+     * logging configuration.
+     * 
+     * @param messageFactory
+     *          {@link MessageFactory}
+     * @param e
+     *          {@link Throwable}
+     * @return {@link Loglevel}
+     */
+    public Loglevel message( MessageFactory messageFactory, Throwable e )
+    {
+      //
+      if ( Loglevel.this.loglevelSupport.isLoglevelEnabled() )
+      {
+        String message = messageFactory != null ? messageFactory.message() : "";
+        Loglevel.this.loglevelSupport.writeMessage( message, e );
+      }
+      return Loglevel.this;
     }
   }
   

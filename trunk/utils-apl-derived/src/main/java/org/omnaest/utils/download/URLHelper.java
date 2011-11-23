@@ -68,7 +68,7 @@ public class URLHelper
     try
     {
       //    
-      List<String> queryList = MapUtils.asList( queryMap, new MapEntryToElementTransformer<String, String, String>()
+      List<String> queryList = MapUtils.toList( queryMap, new MapEntryToElementTransformer<String, String, String>()
       {
         @Override
         public String transform( Entry<String, String> entry )
