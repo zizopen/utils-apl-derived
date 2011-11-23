@@ -39,29 +39,29 @@ public class MapUtilsTest
 {
   
   @Test
-  public void testAsList()
-  {
-    //
-    Map<String, String> map = new LinkedHashMap<String, String>();
-    map.put( "key1", "value1" );
-    map.put( "key2", "value2" );
-    
-    //
-    MapEntryToElementTransformer<String, String, String> mapEntryToElementTransformer = new MapEntryToElementTransformer<String, String, String>()
+    public void testToList()
     {
-      @Override
-      public String transform( Entry<String, String> entry )
+      //
+      Map<String, String> map = new LinkedHashMap<String, String>();
+      map.put( "key1", "value1" );
+      map.put( "key2", "value2" );
+      
+      //
+      MapEntryToElementTransformer<String, String, String> mapEntryToElementTransformer = new MapEntryToElementTransformer<String, String, String>()
       {
-        return entry.getKey() + "=" + entry.getValue();
-      }
-    };
-    
-    //
-    List<String> list = MapUtils.asList( map, mapEntryToElementTransformer );
-    assertNotNull( list );
-    assertEquals( "key1=value1,key2=value2", StringUtils.join( list, "," ) );
-    
-  }
+        @Override
+        public String transform( Entry<String, String> entry )
+        {
+          return entry.getKey() + "=" + entry.getValue();
+        }
+      };
+      
+      //
+      List<String> list = MapUtils.toList( map, mapEntryToElementTransformer );
+      assertNotNull( list );
+      assertEquals( "key1=value1,key2=value2", StringUtils.join( list, "," ) );
+      
+    }
   
   @Test
   public void testFilteredMap()

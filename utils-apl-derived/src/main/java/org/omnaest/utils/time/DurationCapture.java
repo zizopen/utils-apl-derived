@@ -540,7 +540,6 @@ public class DurationCapture
         String percentageBar = StringUtils.percentageBar( durationPercentage * 0.01, 12 );
         
         //
-        sb.append( lineSeparator );
         sb.append( String.format( ROW_FORMAT_STRING, intervalKeyAsString, durationInMilliseconds, durationPercentage,
                                   percentageBar ) );
         

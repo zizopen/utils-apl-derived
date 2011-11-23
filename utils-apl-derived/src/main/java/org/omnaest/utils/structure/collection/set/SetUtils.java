@@ -24,6 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.decorator.LockingSetDecorator;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 public class SetUtils
 {
@@ -112,5 +113,17 @@ public class SetUtils
   {
     Lock lock = new ReentrantLock();
     return locked( set, lock );
+  }
+  
+  /**
+   * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementConverter}.
+   * 
+   * @see #convert(Collection, ElementConverter, boolean)
+   * @param collection
+   * @param elementConverter
+   */
+  public static <FROM, TO> Set<TO> convert( Collection<FROM> collection, ElementConverter<FROM, TO> elementConverter )
+  {
+    return new LinkedHashSet<TO>( ListUtils.convert( collection, elementConverter ) );
   }
 }
