@@ -3,6 +3,7 @@
 
 = Release preview =
 
+ * added Tree, TreeNode, TreeNavigator
  * enhanced AssertLogger
  * enhanced DurationCapture statistic
 
