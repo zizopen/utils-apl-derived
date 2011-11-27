@@ -601,6 +601,21 @@ public class ObjectUtils
   }
   
   /**
+   * Returns true if the given {@link Class} type is a wrapper type of a primitive.
+   * 
+   * @param type
+   * @return
+   */
+  public static boolean isWrapperTypeOfPrimitiveType( Class<?> type )
+  {
+    //   
+    return type != null
+           && ( Integer.class.equals( type ) || Long.class.equals( type ) || Short.class.equals( type )
+                || Byte.class.equals( type ) || Character.class.equals( type ) || Float.class.equals( type )
+                || Double.class.equals( type ) || Boolean.class.equals( type ) || Void.class.equals( type ) );
+  }
+  
+  /**
    * Returns the auto boxing type for a primitive {@link Class} type. If the given type is null or not a primitive type null is
    * returned.
    * 
