@@ -788,4 +788,130 @@ public class ListUtils
     return locked( listIterator, lock );
   }
   
+  /**
+   * Removes the last element of a given {@link List} instance. If the {@link List} reference is null or the {@link List} is empty
+   * nothing will be done to the {@link List}.
+   * 
+   * @param list
+   * @return the removed element
+   */
+  public static <E> E removeLast( List<E> list )
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( list != null && !list.isEmpty() )
+    {
+      retval = list.remove( list.size() - 1 );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Removes the first element of a given {@link List} instance. If the {@link List} reference is null or the {@link List} is
+   * empty nothing will be done to the {@link List}.
+   * 
+   * @param list
+   * @return the removed element
+   */
+  public static <E> E removeFirst( List<E> list )
+  {
+    int index = 0;
+    return remove( list, index );
+  }
+  
+  /**
+   * Removes the element at the given index position of a given {@link List} instance. If the {@link List} reference is null or
+   * the {@link List} is empty nothing will be done to the {@link List}.
+   * 
+   * @param list
+   * @return the removed element
+   */
+  public static <E> E remove( List<E> list, int index )
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( list != null && index >= 0 && list.size() > index )
+    {
+      retval = list.remove( index );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns the first element of the given {@link List}. Returns null if the {@link List} reference is null or the
+   * {@link List#isEmpty()}.
+   * 
+   * @see #lastElement(List)
+   * @see #elementAt(List, int)
+   * @param list
+   */
+  public static <E> E firstElement( List<E> list )
+  {
+    int index = 0;
+    return elementAt( list, index );
+  }
+  
+  /**
+   * Returns the last element of the given {@link List}. Returns null if the {@link List} reference is null or the
+   * {@link List#isEmpty()}.
+   * 
+   * @see #firstElement(List)
+   * @see #elementAt(List, int)
+   * @param list
+   */
+  public static <E> E lastElement( List<E> list )
+  {
+    int index = list != null ? list.size() - 1 : -1;
+    return elementAt( list, index );
+  }
+  
+  /**
+   * Returns the element at the given inverse index position of the given {@link List}. If the {@link List} reference is null or
+   * the {@link List#size()} is to small, null is returned.
+   * 
+   * @see #firstElement(List)
+   * @see #lastElement(List)
+   * @see #elementAt(List, int)
+   * @param list
+   * @param inverseIndex
+   */
+  public static <E> E elementAtInverseIndex( List<E> list, int inverseIndex )
+  {
+    int index = list != null ? list.size() - 1 - inverseIndex : -1;
+    return elementAt( list, index );
+  }
+  
+  /**
+   * Returns the element at the given index position of the given {@link List}. If the {@link List} reference is null or the
+   * {@link List#size()} is to small, null is returned.
+   * 
+   * @see #elementAtInverseIndex(List, int)
+   * @see #firstElement(List)
+   * @see #lastElement(List)
+   * @param list
+   * @param index
+   */
+  public static <E> E elementAt( List<E> list, int index )
+  {
+    //    
+    E retval = null;
+    
+    //
+    if ( list != null && index >= 0 && list.size() > index )
+    {
+      retval = list.get( index );
+    }
+    
+    //
+    return retval;
+  }
+  
 }

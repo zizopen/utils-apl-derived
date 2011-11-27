@@ -17,6 +17,7 @@ package org.omnaest.utils.structure.element;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -286,5 +287,13 @@ public class ObjectUtilsTest
       Long[] castedArray = ObjectUtils.castArrayTo( Long[].class, long.class, ints );
       assertArrayEquals( new Long[] { 10l, 11l }, castedArray );
     }
+  }
+  
+  @Test
+  public void testIsWrapperTypeOfPrimitiveType()
+  {
+    assertTrue( ObjectUtils.isWrapperTypeOfPrimitiveType( Integer.class ) );
+    assertFalse( ObjectUtils.isWrapperTypeOfPrimitiveType( boolean.class ) );
+    assertFalse( ObjectUtils.isWrapperTypeOfPrimitiveType( String.class ) );
   }
 }

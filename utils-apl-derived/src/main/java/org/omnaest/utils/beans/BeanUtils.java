@@ -159,6 +159,21 @@ public class BeanUtils
   }
   
   /**
+   * Returns as {@link List} of the values of all available properties of the given JavaBean object instance.
+   * 
+   * @see #propertyValueList(Object, String...)
+   * @param bean
+   * @return
+   */
+  public static <B> List<B> propertyValueList( B bean )
+  {
+    //
+    Class<?> type = bean != null ? bean.getClass() : null;
+    String[] propertyNames = propertyNamesForMethodAccess( type );
+    return propertyValueList( bean, propertyNames );
+  }
+  
+  /**
    * Returns a {@link Map} with all properties of a given Java Bean class and an instance of the given {@link Annotation} type if
    * the respective property does have one. Otherwise the map contains a key with a null value.
    * 
@@ -1054,23 +1069,24 @@ public class BeanUtils
   }
   
   /**
-   * Determines the property names of a given bean class which are addressed by getter or setter.
+   * Determines the property names of a given bean class which are addressed by getter or setter. Returns always an array, even if
+   * no property name could be determined.
    * 
    * @see #propertyNameSetForMethodAccess(Class)
-   * @param clazz
+   * @param type
    * @return
    */
-  public static String[] propertyNamesForMethodAccess( Class<?> clazz )
+  public static String[] propertyNamesForMethodAccess( Class<?> type )
   {
     //
-    String[] retvals = null;
+    String[] retvals = new String[0];
     
     //
-    Set<String> propertyNameSet = new HashSet<String>();
-    if ( clazz != null )
+    final Set<String> propertyNameSet = new HashSet<String>();
+    if ( type != null )
     {
       //
-      Map<String, Set<BeanMethodInformation>> fieldnameToBeanMethodInformationMap = BeanUtils.propertyNameToBeanMethodInformationMap( clazz );
+      final Map<String, Set<BeanMethodInformation>> fieldnameToBeanMethodInformationMap = BeanUtils.propertyNameToBeanMethodInformationMap( type );
       propertyNameSet.addAll( fieldnameToBeanMethodInformationMap.keySet() );
       propertyNameSet.remove( null );
       propertyNameSet.remove( "class" );
