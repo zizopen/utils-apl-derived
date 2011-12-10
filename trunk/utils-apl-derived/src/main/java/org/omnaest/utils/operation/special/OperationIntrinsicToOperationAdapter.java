@@ -15,50 +15,42 @@
  ******************************************************************************/
 package org.omnaest.utils.operation.special;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.omnaest.utils.operation.Operation;
-import org.omnaest.utils.structure.element.ExceptionHandledResult;
 
 /**
- * {@link Operation} which is wrapped with a try catch block catching all {@link Exception} derivative types. As result a
- * {@link ExceptionHandledResult} is returned.
+ * Adapter to use an {@link OperationIntrinsic} instance as {@link Operation} instance.
  * 
+ * @see Operation
+ * @see OperationIntrinsic
  * @author Omnaest
- * @param <RESULT>
- * @param <PARAMETER>
  */
-public class OperationExceptionHandled<RESULT, PARAMETER> implements Operation<ExceptionHandledResult<RESULT>, PARAMETER>
+public class OperationIntrinsicToOperationAdapter implements Operation<Void, Void>
 {
   /* ********************************************** Variables ********************************************** */
-  protected Operation<RESULT, PARAMETER> operation = null;
+  protected final OperationIntrinsic operationIntrinsic;
   
   /* ********************************************** Methods ********************************************** */
+  /**
+   * @see OperationIntrinsicToOperationAdapter
+   * @param operationIntrinsic
+   */
+  public OperationIntrinsicToOperationAdapter( OperationIntrinsic operationIntrinsic )
+  {
+    super();
+    this.operationIntrinsic = operationIntrinsic;
+  }
   
   @Override
-  public ExceptionHandledResult<RESULT> execute( PARAMETER parameter )
+  public Void execute( Void parameter )
   {
     //
-    RESULT result = null;
-    Collection<Exception> exceptionCollection = new ArrayList<Exception>();
-    
-    //
-    if ( this.operation != null )
+    if ( this.operationIntrinsic != null )
     {
-      try
-      {
-        //
-        result = this.operation.execute( parameter );
-      }
-      catch ( Exception e )
-      {
-        exceptionCollection.add( e );
-      }
+      this.operationIntrinsic.execute();
     }
     
-    // 
-    return new ExceptionHandledResult<RESULT>( result, exceptionCollection );
+    //
+    return null;
   }
   
 }

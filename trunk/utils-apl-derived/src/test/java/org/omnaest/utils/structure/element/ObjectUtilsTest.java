@@ -176,6 +176,14 @@ public class ObjectUtilsTest
       Double value = ObjectUtils.defaultIfNull( object, defaultObject );
       assertEquals( null, value );
     }
+    {
+      //
+      Double object = null;
+      Double defaultObject = null;
+      Double defaultObject2 = 1.34;
+      Double value = ObjectUtils.defaultIfNull( object, defaultObject, defaultObject2 );
+      assertEquals( defaultObject2, value );
+    }
   }
   
   @Test

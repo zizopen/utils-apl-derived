@@ -66,6 +66,17 @@ public class SetUtils
   }
   
   /**
+   * Same as {@link #valueOf(Iterable)} for one or more elements
+   * 
+   * @param elements
+   * @return
+   */
+  public static <E> Set<E> valueOf( E... elements )
+  {
+    return valueOf( Arrays.asList( elements ) );
+  }
+  
+  /**
    * Returns a new ordered {@link Set} instance with the element of the given {@link Iterable}
    * 
    * @param iterable

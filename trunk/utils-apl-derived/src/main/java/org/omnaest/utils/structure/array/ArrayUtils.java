@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.omnaest.utils.structure.collection.CollectionUtils;
-import org.omnaest.utils.structure.collection.list.ListUtil;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 
@@ -45,7 +45,7 @@ public class ArrayUtils
   
   public static <TO, FROM> TO[] convertArray( FROM[] arrayFrom, TO[] arrayTo, ElementConverter<FROM, TO> elementConverter )
   {
-    List<TO> listTo = ListUtil.convertList( Arrays.asList( arrayFrom ), elementConverter );
+    List<TO> listTo = ListUtils.convert( Arrays.asList( arrayFrom ), elementConverter );
     return listTo == null ? null : listTo.toArray( arrayTo );
   }
   
@@ -61,7 +61,7 @@ public class ArrayUtils
                                                                    TO[] arrayTo,
                                                                    ElementConverter<FROM, TO> elementConverter )
   {
-    List<TO> listTo = ListUtil.convertListExcludingNullElements( Arrays.asList( arrayFrom ), elementConverter );
+    List<TO> listTo = ListUtils.convertExcludingNullElements( Arrays.asList( arrayFrom ), elementConverter );
     return listTo == null ? null : listTo.toArray( arrayTo );
   }
   
@@ -138,4 +138,5 @@ public class ArrayUtils
     //
     return retvals;
   }
+  
 }

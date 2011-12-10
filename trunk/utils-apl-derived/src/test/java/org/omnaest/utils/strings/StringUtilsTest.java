@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.strings;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -37,7 +38,7 @@ public class StringUtilsTest
       assertEquals( "[          ]", percentageBar );
     }
     {
-            //
+      //
       double value = 0.1;
       int width = 12;
       String percentageBar = StringUtils.percentageBar( value, width );
@@ -86,6 +87,15 @@ public class StringUtilsTest
       //
       assertEquals( "[=========>]", percentageBar );
     }
+  }
+  
+  @Test
+  public void testSplitByInterval()
+  {
+    int interval = 3;
+    String text = "This is an easy text";
+    String[] splitByInterval = StringUtils.splitByInterval( text, interval );
+    assertArrayEquals( new String[] { "Thi", "s i", "s a", "n e", "asy", " te", "xt" }, splitByInterval );
   }
   
 }

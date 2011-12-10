@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.operation.special;
-
-import org.omnaest.utils.operation.Operation;
+package org.omnaest.utils.events.exception;
 
 /**
- * An {@link Operation} without parameters
+ * Interface for classes handling {@link Exception}s
  * 
  * @author Omnaest
- * @param <RESULT>
  */
-public interface OperationVoidParameter<RESULT> extends Operation<RESULT, Void>
+public interface ExceptionHandler
 {
+  
+  /**
+   * Handles the given {@link Exception}
+   * 
+   * @param e
+   *          {@link Exception}
+   */
+  public void handleExcpetion( Exception e );
 }

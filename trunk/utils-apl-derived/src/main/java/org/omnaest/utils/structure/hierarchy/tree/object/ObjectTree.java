@@ -21,6 +21,7 @@ import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode.ObjectMo
 /**
  * {@link Tree} for {@link Object} graphs
  * 
+ * @see ObjectToTreeNodeAdapter
  * @see ObjectTreeNode
  * @see ObjectModel
  * @see Tree

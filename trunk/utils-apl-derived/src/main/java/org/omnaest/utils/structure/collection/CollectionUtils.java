@@ -194,7 +194,7 @@ public class CollectionUtils
   public static <TO, FROM> Collection<TO> convertCollectionExcludingNullElements( Collection<FROM> collectionFrom,
                                                                                   ElementConverter<FROM, TO> elementConverter )
   {
-    return ListUtils.convertListExcludingNullElements( collectionFrom, elementConverter );
+    return ListUtils.convertExcludingNullElements( collectionFrom, elementConverter );
   }
   
   /**

@@ -28,6 +28,9 @@ import java.util.Set;
 
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.hierarchy.tree.object.ObjectToTreeNodeAdapter;
+import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNavigator;
+import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode.ObjectModel;
 
 /**
  * Offers methods for arbitrary {@link Object}s
@@ -680,16 +683,34 @@ public class ObjectUtils
    * <pre>
    * ObjectUtils.defaultObject( x, * ) = x;
    * ObjectUtils.defaultObject( null, default ) = default;
+   * ObjectUtils.defaultObject( null, null, null, default ) = default;
+   * ObjectUtils.defaultObject( null, default, null, null ) = default;
+   * ObjectUtils.defaultObject( null, default1, null, default2 ) = default1;
    * ObjectUtils.defaultObject( null, null ) = null;
    * </pre>
    * 
    * @param object
-   * @param defaultObject
+   * @param defaultObjects
    * @return
    */
-  public static <O extends Object> O defaultIfNull( O object, O defaultObject )
+  public static <O extends Object> O defaultIfNull( O object, O... defaultObjects )
   {
-    return object != null ? object : defaultObject;
+    //
+    O retval = null;
+    
+    //
+    if ( object != null )
+    {
+      retval = object;
+    }
+    else if ( defaultObjects.length > 0 )
+    {
+      retval = defaultIfNull( defaultObjects[0],
+                              org.apache.commons.lang3.ArrayUtils.subarray( defaultObjects, 1, defaultObjects.length ) );
+    }
+    
+    //
+    return retval;
   }
   
   /**
@@ -710,6 +731,39 @@ public class ObjectUtils
   public static <O extends Object> O defaultIfNull( O object, Factory<O> defaultObjectFactory )
   {
     return object != null ? object : ( defaultObjectFactory != null ? defaultObjectFactory.newInstance() : null );
+  }
+  
+  /**
+   * Generates a hierarchy representation of the object graph for the given {@link Object}.<br>
+   * <br>
+   * E.g.:<br>
+   * 
+   * <pre>
+   * |--[ org.omnaest.utils.structure.hierarchy.tree.adapter.ObjectToTreeNodeAdapterTest$TestClass@5801319c ]
+   *    |--[ fieldDouble = 1.234 ]
+   *    |--[ fieldString = value1 ]
+   *    |--[ fieldString2 = value2 ]
+   *    |--[ testClassSub = org.omnaest.utils.structure.hierarchy.tree.adapter.ObjectToTreeNodeAdapterTest$TestClassSub@790bc49d ]
+   *       |--[ fieldString = value3 ]
+   * </pre>
+   * 
+   * @param object
+   * @return
+   */
+  public static String toStringAsNestedHierarchy( Object object )
+  {
+    return String.valueOf( treeNavigator( object ) );
+  }
+  
+  /**
+   * Returns a {@link ObjectTreeNavigator} for the given {@link Object}
+   * 
+   * @param object
+   * @return
+   */
+  public static ObjectTreeNavigator treeNavigator( Object object )
+  {
+    return new ObjectTreeNavigator( new ObjectToTreeNodeAdapter( new ObjectModel( object ) ) );
   }
   
 }

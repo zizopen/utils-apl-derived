@@ -309,7 +309,7 @@ public class ListUtils
    * @param collection
    * @param elementConverter
    */
-  public static <FROM, TO> List<TO> convertListExcludingNullElements( Collection<FROM> collection,
+  public static <FROM, TO> List<TO> convertExcludingNullElements( Collection<FROM> collection,
                                                                       ElementConverter<FROM, TO> elementConverter )
   {
     return ListUtils.convert( collection, elementConverter, true );
@@ -537,6 +537,17 @@ public class ListUtils
     
     //
     return retlist;
+  }
+  
+  /**
+   * Same as {@link #valueOf(Iterable)} for one or more elements
+   * 
+   * @param elements
+   * @return
+   */
+  public static <E> List<E> valueOf( E... elements )
+  {
+    return valueOf( Arrays.asList( elements ) );
   }
   
   /**

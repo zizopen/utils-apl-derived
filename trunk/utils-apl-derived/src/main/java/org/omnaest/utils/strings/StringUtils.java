@@ -208,4 +208,49 @@ public class StringUtils
     //
     return stringBuilder.toString();
   }
+  
+  /**
+   * Splits a given {@link String} text by an interval. <br>
+   * <br>
+   * E.g. "This is a text" is split into "Thi","s i","s a", " te", "xt" <br>
+   * <br>
+   * A given interval will be reduced to 1 if it is lower than that and reduced to the length of the text if it is larger than
+   * that.
+   * 
+   * @param text
+   * @param interval
+   * @return
+   */
+  public static String[] splitByInterval( String text, int interval )
+  {
+    //
+    String[] retvals = null;
+    
+    //
+    if ( text != null )
+    {
+      //
+      final int length = text.length();
+      interval = Math.max( 1, interval );
+      interval = Math.min( length, interval );
+      
+      //
+      final int tokenNumber = (int) Math.ceil( length * 1.0 / interval );
+      retvals = new String[tokenNumber];
+      
+      //
+      for ( int ii = 0; ii < tokenNumber; ii++ )
+      {
+        final int beginIndex = ii * interval;
+        final int endIndex = Math.min( ( ii + 1 ) * interval, length );
+        final String token = text.substring( beginIndex, endIndex );
+        
+        //
+        retvals[ii] = token;
+      }
+    }
+    
+    //
+    return retvals;
+  }
 }

@@ -13,16 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.operation.special;
-
-import org.omnaest.utils.operation.Operation;
+package org.omnaest.utils.structure.element.converter;
 
 /**
- * An {@link Operation} without a return value.
- * 
+ * @see Short
+ * @see ElementConverter
+ * @see ElementConverterNumberToString
  * @author Omnaest
- * @param <PARAMETER>
  */
-public interface OperationVoidResult<PARAMETER> extends Operation<Void, PARAMETER>
+public class ElementConverterStringToShort implements ElementConverter<String, Short>
 {
+  
+  @Override
+  public Short convert( String element )
+  {
+    //    
+    Short retval = null;
+    
+    //
+    if ( element != null )
+    {
+      try
+      {
+        retval = Short.valueOf( element );
+      }
+      catch ( Exception e )
+      {
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
 }
