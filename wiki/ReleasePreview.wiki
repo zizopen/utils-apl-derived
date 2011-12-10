@@ -3,6 +3,12 @@
 
 = Release preview =
 
+ * added ExceptionHandler and ExceptionHandlerManager
+ * enhanced TreeNavigator
+ * enhanced Assert and AssertLogger
+ * enhanced HttpSessionService and HttpSessionServiceBean
+ * changed signature of OperationIntrinsic
+ * added Codec
 
 
 
