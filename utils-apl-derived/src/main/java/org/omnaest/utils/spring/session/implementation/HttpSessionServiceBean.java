@@ -25,6 +25,7 @@ import org.omnaest.utils.structure.map.decorator.CaseinsensitiveMapDecorator;
 import org.omnaest.utils.web.HttpSessionFacade;
 import org.omnaest.utils.web.HttpSessionFacadeFactory;
 import org.omnaest.utils.web.HttpSessionFacadeFactory.Configuration;
+import org.omnaest.utils.web.HttpSessionResolver;
 import org.omnaest.utils.web.HttpSessionToMapAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -39,7 +40,7 @@ import org.springframework.stereotype.Service;
 public class HttpSessionServiceBean implements HttpSessionService
 {
   /* ********************************************** Variables ********************************************** */
-  protected Configuration                               httpSessionFacadeConfiguration                               = null;
+  protected Configuration                               httpSessionFacadeConfiguration              = null;
   
   /* ********************************************** Beans / Services / References ********************************************** */
   @Autowired
@@ -50,8 +51,16 @@ public class HttpSessionServiceBean implements HttpSessionService
   @Override
   public <F extends HttpSessionFacade> F newHttpSessionFacade( Class<? extends F> httpSessionFacadeType )
   {
-    return new HttpSessionFacadeFactory( this.httpSessionAndServletRequestResolverService ).newHttpSessionFacade( httpSessionFacadeType,
-                                                                                                                  this.httpSessionFacadeConfiguration );
+    return this.newHttpSessionFacade( httpSessionFacadeType, this.httpSessionAndServletRequestResolverService );
+    
+  }
+  
+  @Override
+  public <F extends HttpSessionFacade> F newHttpSessionFacade( Class<? extends F> httpSessionFacadeType,
+                                                               HttpSessionResolver httpSessionResolver )
+  {
+    return new HttpSessionFacadeFactory( httpSessionResolver ).newHttpSessionFacade( httpSessionFacadeType,
+                                                                                     this.httpSessionFacadeConfiguration );
   }
   
   @Override

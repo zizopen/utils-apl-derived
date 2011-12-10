@@ -16,20 +16,27 @@
 package org.omnaest.utils.structure.hierarchy.tree;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.strings.StringUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.ObjectUtils;
+import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator.TreeNodeVisitor.TraversalControl;
 
 /**
  * A {@link TreeNavigator} allows to navigate on a given {@link Tree}. It will store a path to the current {@link TreeNode}, so
- * that it can navigate in a upward direction, too.
+ * that it can navigate in a upward direction, too. <br>
+ * <br>
+ * The {@link TreeNavigator} will use an internal cache to cache the children of the selected {@link TreeNode} path. This can be
+ * turned of using #se
  * 
  * @see Tree
  * @see TreeNode
@@ -43,11 +50,12 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
 public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
 {
   /* ********************************************** Variables ********************************************** */
-  protected final T      tree;
-  /** Stores the current path through the {@link TreeNode}s. The last element is the current. */
+  protected final T              tree;
   
-  protected TreeNodePath treeNodePath         = new TreeNodePath();
-  protected boolean      navigationSuccessful = true;
+  /** Stores the current path through the {@link TreeNode}s. The last element is the current. */
+  protected TreeNodePathAndCache treeNodePath               = new TreeNodePathAndCache();
+  protected boolean              navigationSuccessful       = true;
+  protected boolean              cachingChildrenOfPathNodes = true;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -56,41 +64,42 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
    * @author Omnaest
    * @param <TN>
    */
-  public static interface TreeNodeVisitor<TN extends TreeNode>
+  public static interface TreeNodeVisitor<T extends Tree<?, TN>, TN extends TreeNode>
   {
+    /**
+     * Controls the traversal of the {@link TreeNavigator}
+     * 
+     * @author Omnaest
+     */
+    public static enum TraversalControl
+    {
+      GO_ON,
+      GO_ON_INCLUDE_ALREADY_TRAVERSED_NODES,
+      SKIP_CHILDREN,
+      SKIP_FURTHER_SIBLINGS,
+      SKIP_CHILDREN_AND_FURTHER_SIBLINGS,
+      CANCEL_TRAVERSAL
+    }
     
     /**
      * Visit method for the traversed {@link TreeNode}s
      * 
      * @param treeNode
-     * @param treeNavigatorTraversalControl
-     *          {@link TreeNavigatorTraversalControl}
+     * @param treeNavigator
+     *          {@link TreeNavigator#fork()}
+     * @return {@link TraversalControl}, return of null is treated as {@link TraversalControl#GO_ON}
      */
-    public void visit( TN treeNode, TreeNavigatorTraversalControl treeNavigatorTraversalControl );
-  }
-  
-  /**
-   * Control instance for the traversal mechanism of the {@link TreeNavigator}
-   * 
-   * @see TreeNavigator
-   * @author Omnaest
-   */
-  public static interface TreeNavigatorTraversalControl
-  {
-    /**
-     * Cancels the current traversal of the {@link Tree}
-     */
-    public void cancelTraversal();
+    public TraversalControl visit( TN treeNode, TreeNavigator<T, TN> treeNavigator );
   }
   
   /**
    * Internal representation of the path of {@link TreeNode}s.<br>
    * <br>
-   * The children of all path {@link TreeNode}s are stored as well to allow sibling determination.
+   * The children of all path {@link TreeNode}s are cached to allow sibling determination.
    * 
    * @author Omnaest
    */
-  protected class TreeNodePath
+  protected class TreeNodePathAndCache
   {
     /* ********************************************** Variables ********************************************** */
     private final List<TN>            treeNodePathList          = new ArrayList<TN>();
@@ -99,14 +108,14 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
     /* ********************************************** Methods ********************************************** */
     
     /**
-     * Creates a fork of the current {@link TreeNodePath}
+     * Creates a fork of the current {@link TreeNodePathAndCache}
      * 
      * @return
      */
-    public TreeNodePath fork()
+    public TreeNodePathAndCache fork()
     {
       //
-      final TreeNodePath retval = new TreeNodePath();
+      final TreeNodePathAndCache retval = new TreeNodePathAndCache();
       retval.treeNodePathList.addAll( this.treeNodePathList );
       retval.treeNodeToChildrenListMap.putAll( this.treeNodeToChildrenListMap );
       
@@ -163,7 +172,12 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
         {
           //
           retlist = treeNode.getChildrenList();
-          this.treeNodeToChildrenListMap.put( treeNode, retlist );
+          
+          //
+          if ( TreeNavigator.this.cachingChildrenOfPathNodes )
+          {
+            this.treeNodeToChildrenListMap.put( treeNode, retlist );
+          }
         }
       }
       
@@ -212,7 +226,8 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
     }
     
     /**
-     * Returns the {@link List} of children which are determined when the {@link TreeNode} is added to the {@link TreeNodePath}
+     * Returns the {@link List} of children which are determined when the {@link TreeNode} is added to the
+     * {@link TreeNodePathAndCache}
      * 
      * @param treeNode
      * @return
@@ -262,6 +277,14 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
       return this.getChildrenListOfParent().indexOf( this.getCurrentTreeNode() );
     }
     
+    /**
+     * @return the treeNodePathList
+     */
+    public List<TN> getTreeNodePathList()
+    {
+      return this.treeNodePathList;
+    }
+    
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -281,7 +304,7 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
   {
     super();
     this.tree = tree;
-    Assert.isNotNull( tree );
+    
     this.treeNodePath.addTreeNodeToTreeNodePath( tree.getTreeRootNode() );
   }
   
@@ -289,12 +312,25 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
    * @see TreeNavigator
    * @param tree
    * @param treeNodePath
-   *          {@link TreeNodePath}
+   * @param cachingChildrenOfPathNodes
    */
-  protected TreeNavigator( T tree, TreeNodePath treeNodePath )
+  protected TreeNavigator( T tree, TreeNodePathAndCache treeNodePath, boolean cachingChildrenOfPathNodes )
   {
     this.tree = tree;
     this.treeNodePath = treeNodePath;
+    this.cachingChildrenOfPathNodes = cachingChildrenOfPathNodes;
+  }
+  
+  /**
+   * @see TreeNavigator
+   * @param tree
+   * @param cachingChildrenOfPathNodes
+   */
+  public TreeNavigator( T tree, boolean cachingChildrenOfPathNodes )
+  {
+    //
+    this( tree );
+    this.cachingChildrenOfPathNodes = cachingChildrenOfPathNodes;
   }
   
   /**
@@ -305,7 +341,7 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
    */
   public TreeNavigator<T, TN> fork()
   {
-    return new TreeNavigator<T, TN>( this.tree, this.treeNodePath.fork() );
+    return new TreeNavigator<T, TN>( this.tree, this.treeNodePath.fork(), this.cachingChildrenOfPathNodes );
   }
   
   /**
@@ -502,74 +538,144 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
   }
   
   /**
-   * Visits all children of the current {@link TreeNode}. If transitive is set to true, the children of the children, and so on...
-   * are included.
+   * Traverses the current {@link TreeNode} and its children transitively invoking {@link TreeNodeVisitor}s for each
+   * {@link TreeNode}.<br>
+   * <br>
+   * As default the {@link TraversalControl#GO_ON} is used for the case the {@link TreeNodeVisitor} returns null.<br>
+   * If multiple {@link TreeNodeVisitor} instances are given and they return different {@link TraversalControl} results they are
+   * grouped and a {@link TreeNavigator#fork()} is used for the different groups.<br>
+   * <br>
+   * Nodes which are already visited will be excluded by default. This prevents indefinite loops related to cyclic references. To
+   * override this use {@link TraversalControl#GO_ON_INCLUDE_ALREADY_TRAVERSED_NODES} in combination with
+   * {@link #traverse(TraversalControl, TreeNodeVisitor...)}
    * 
-   * @param transitive
+   * @see #traverse(TraversalControl, TreeNodeVisitor...)
    * @param treeNodeVisitors
+   *          {@link TreeNodeVisitor}
    * @return this
    */
-  public TreeNavigator<T, TN> visitChildren( boolean transitive, TreeNodeVisitor<TN>... treeNodeVisitors )
+  public TreeNavigator<T, TN> traverse( TreeNodeVisitor<T, TN>... treeNodeVisitors )
+  {
+    return this.traverse( TraversalControl.GO_ON, treeNodeVisitors );
+  }
+  
+  /**
+   * Similar to {@link #traverse(TreeNodeVisitor...)} but allows to specify a default {@link TraversalControl}. <br>
+   * The default {@link TraversalControl} is used if the {@link TreeNodeVisitor} returns null.<br>
+   * <br>
+   * Nodes which are already visited will be excluded by default. This prevents indefinite loops related to cyclic references. To
+   * override this use {@link TraversalControl#GO_ON_INCLUDE_ALREADY_TRAVERSED_NODES} as default {@link TraversalControl}.
+   * 
+   * @see #traverse(TreeNodeVisitor...)
+   * @param defaultTraversalControl
+   *          {@link TraversalControl}
+   * @param treeNodeVisitors
+   *          {@link TreeNodeVisitor}
+   * @return this
+   */
+  public TreeNavigator<T, TN> traverse( TraversalControl defaultTraversalControl, TreeNodeVisitor<T, TN>... treeNodeVisitors )
   {
     //
-    if ( treeNodeVisitors.length > 0 )
-    {
-      //
-      final Set<TreeNodeVisitor> treeNodeVisitorTraversingSet = new HashSet<TreeNodeVisitor>( Arrays.asList( treeNodeVisitors ) );
-      
-      //
-      final List<TN> childrenListOfCurrentTreeNode = this.treeNodePath.getChildrenListOfCurrentTreeNode();
-      this.visitTreeNodeList( transitive, treeNodeVisitorTraversingSet, childrenListOfCurrentTreeNode, treeNodeVisitors );
-    }
+    final Set<TN> visitedTreeNodeSet = new LinkedHashSet<TN>();
+    this.traverse( defaultTraversalControl, visitedTreeNodeSet, treeNodeVisitors );
     
     //
     return this;
   }
   
   /**
-   * @see #visitChildren(boolean, TreeNodeVisitor...)
-   * @param transitive
-   * @param treeNodeVisitorTraversingSet
-   * @param treeNodeList
+   * @see #traverse(TraversalControl, TreeNodeVisitor...)
+   * @param defaultTraversalControl
+   * @param visitedTreeNodeSet
    * @param treeNodeVisitors
+   * @return {@link Map} of {@link TraversalControl} to a {@link Set} of {@link TreeNodeVisitor}s including only for the caller
+   *         relevant types of {@link TraversalControl} like {@link TraversalControl#CANCEL_TRAVERSAL}
    */
-  private void visitTreeNodeList( boolean transitive,
-                                  final Set<TreeNodeVisitor> treeNodeVisitorTraversingSet,
-                                  final List<TN> treeNodeList,
-                                  final TreeNodeVisitor<TN>... treeNodeVisitors )
+  @SuppressWarnings("unchecked")
+  protected Map<TraversalControl, Set<TreeNodeVisitor<T, TN>>> traverse( TraversalControl defaultTraversalControl,
+                                                                         Set<TN> visitedTreeNodeSet,
+                                                                         TreeNodeVisitor<T, TN>... treeNodeVisitors )
   {
     //
-    if ( treeNodeList != null )
+    final Map<TraversalControl, Set<TreeNodeVisitor<T, TN>>> retmap = new LinkedHashMap<TraversalControl, Set<TreeNodeVisitor<T, TN>>>();
+    retmap.put( TraversalControl.CANCEL_TRAVERSAL, new LinkedHashSet<TreeNodeVisitor<T, TN>>() );
+    retmap.put( TraversalControl.SKIP_CHILDREN_AND_FURTHER_SIBLINGS, new LinkedHashSet<TreeNodeVisitor<T, TN>>() );
+    retmap.put( TraversalControl.SKIP_FURTHER_SIBLINGS, new LinkedHashSet<TreeNodeVisitor<T, TN>>() );
+    
+    //
+    final Map<TraversalControl, Set<TreeNodeVisitor<T, TN>>> traversalControlToTreeNodeVisitorSetMap = new EnumMap<TraversalControl, Set<TreeNodeVisitor<T, TN>>>(
+                                                                                                                                                                   TraversalControl.class );
+    for ( TraversalControl traversalControl : TraversalControl.values() )
     {
-      for ( TN treeNode : treeNodeList )
+      traversalControlToTreeNodeVisitorSetMap.put( traversalControl, new LinkedHashSet<TreeNodeVisitor<T, TN>>() );
+    }
+    
+    //    
+    final Set<TreeNodeVisitor<T, TN>> treeNodeVisitorTraversingSet = SetUtils.valueOf( treeNodeVisitors );
+    for ( TreeNodeVisitor<T, TN> treeNodeVisitor : treeNodeVisitorTraversingSet )
+    {
+      //
+      final TreeNavigator<T, TN> treeNavigator = this.fork();
+      final TN treeNode = this.getCurrentTreeNode();
+      TraversalControl traversalControl = null;
+      try
       {
-        for ( final TreeNodeVisitor<TN> treeNodeVisitor : treeNodeVisitors )
-        {
-          //
-          if ( treeNodeVisitorTraversingSet.contains( treeNodeVisitor ) )
-          {
-            //          
-            final TreeNavigatorTraversalControl treeNavigatorTraversalControl = new TreeNavigatorTraversalControl()
-            {
-              @Override
-              public void cancelTraversal()
-              {
-                treeNodeVisitorTraversingSet.remove( treeNodeVisitor );
-              }
-            };
-            treeNodeVisitor.visit( treeNode, treeNavigatorTraversalControl );
-          }
-          
-          //
-          if ( transitive && treeNodeVisitorTraversingSet.contains( treeNodeVisitor ) )
-          {
-            @SuppressWarnings("unchecked")
-            final List<TN> childrenListOfCurrentTreeNode = treeNode.getChildrenList();
-            this.visitTreeNodeList( transitive, treeNodeVisitorTraversingSet, childrenListOfCurrentTreeNode, treeNodeVisitors );
-          }
-        }
+        traversalControl = treeNodeVisitor.visit( treeNode, treeNavigator );
+      }
+      catch ( Exception e )
+      {
+      }
+      
+      //
+      traversalControl = ObjectUtils.defaultIfNull( traversalControl, defaultTraversalControl );
+      if ( traversalControl != null )
+      {
+        traversalControlToTreeNodeVisitorSetMap.get( traversalControl ).add( treeNodeVisitor );
       }
     }
+    
+    //
+    {
+      //
+      final Set<TreeNodeVisitor<T, TN>> treeNodeVisitorSet = traversalControlToTreeNodeVisitorSetMap.get( TraversalControl.GO_ON );
+      
+      //
+      final TreeNavigator<T, TN> fork = this.fork();
+      boolean navigationSuccessful = fork.navigateToFirstChild().isNavigationSuccessful();
+      while ( navigationSuccessful )
+      {
+        //
+        final Map<TraversalControl, Set<TreeNodeVisitor<T, TN>>> currentTraversalControlToTreeNodeVisitorSetMap = fork.traverse( defaultTraversalControl,
+                                                                                                                                 visitedTreeNodeSet,
+                                                                                                                                 treeNodeVisitorSet.toArray( new TreeNodeVisitor[0] ) );
+        
+        final Set<TreeNodeVisitor<T, TN>> cancelTreeNodeVisitorSet = currentTraversalControlToTreeNodeVisitorSetMap.get( TraversalControl.CANCEL_TRAVERSAL );
+        final Set<TreeNodeVisitor<T, TN>> skipFurtherSiblingsTreeNodeVisitorSet = currentTraversalControlToTreeNodeVisitorSetMap.get( TraversalControl.SKIP_FURTHER_SIBLINGS );
+        final Set<TreeNodeVisitor<T, TN>> skipChildrenAndFurtherSiblingsTreeNodeVisitorSet = currentTraversalControlToTreeNodeVisitorSetMap.get( TraversalControl.SKIP_CHILDREN_AND_FURTHER_SIBLINGS );
+        
+        //
+        treeNodeVisitorSet.removeAll( cancelTreeNodeVisitorSet );
+        treeNodeVisitorSet.removeAll( skipFurtherSiblingsTreeNodeVisitorSet );
+        treeNodeVisitorSet.removeAll( skipChildrenAndFurtherSiblingsTreeNodeVisitorSet );
+        
+        //
+        retmap.get( TraversalControl.CANCEL_TRAVERSAL ).addAll( cancelTreeNodeVisitorSet );
+        
+        //
+        navigationSuccessful = fork.navigateToNextSibling().isNavigationSuccessful();
+      }
+    }
+    {
+      retmap.get( TraversalControl.CANCEL_TRAVERSAL )
+            .addAll( traversalControlToTreeNodeVisitorSetMap.get( TraversalControl.CANCEL_TRAVERSAL ) );
+      retmap.get( TraversalControl.SKIP_CHILDREN_AND_FURTHER_SIBLINGS )
+            .addAll( traversalControlToTreeNodeVisitorSetMap.get( TraversalControl.SKIP_CHILDREN_AND_FURTHER_SIBLINGS ) );
+      retmap.get( TraversalControl.SKIP_FURTHER_SIBLINGS )
+            .addAll( traversalControlToTreeNodeVisitorSetMap.get( TraversalControl.SKIP_FURTHER_SIBLINGS ) );
+    }
+    
+    //
+    return retmap;
   }
   
   /**
@@ -594,7 +700,7 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
   public String toString()
   {
     //
-    StringBuilder builder = new StringBuilder();
+    final StringBuilder builder = new StringBuilder();
     
     //
     final TreeNavigator<T, TN> treeNavigator = this.fork();
@@ -611,7 +717,7 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
       if ( currentTreeNode != null )
       {
         //
-        Object model = currentTreeNode.getModel();
+        final Object model = currentTreeNode.getModel();
         alreadyTraversedNode = alreadyTraversedModelSet.contains( model );
         if ( !alreadyTraversedNode )
         {
@@ -655,5 +761,40 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
     
     //
     return builder.toString();
+  }
+  
+  /**
+   * @return the cachingChildrenOfPathNodes
+   */
+  public boolean isCachingChildrenOfPathNodes()
+  {
+    return this.cachingChildrenOfPathNodes;
+  }
+  
+  /**
+   * @param cachingChildrenOfPathNodes
+   *          the cachingChildrenOfPathNodes to set
+   */
+  public void setCachingChildrenOfPathNodes( boolean cachingChildrenOfPathNodes )
+  {
+    this.cachingChildrenOfPathNodes = cachingChildrenOfPathNodes;
+  }
+  
+  /**
+   * @return the tree
+   */
+  public T getTree()
+  {
+    return this.tree;
+  }
+  
+  /**
+   * Returns a new {@link List} instance containing the current path of {@link TreeNode}s
+   * 
+   * @return
+   */
+  public List<TN> getTreeNodePathList()
+  {
+    return new ArrayList<TN>( this.treeNodePath.getTreeNodePathList() );
   }
 }

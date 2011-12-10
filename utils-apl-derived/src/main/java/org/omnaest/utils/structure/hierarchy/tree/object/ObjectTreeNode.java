@@ -101,14 +101,17 @@ public interface ObjectTreeNode extends TreeNode<ObjectModel>
     public String toString()
     {
       StringBuilder builder = new StringBuilder();
-      builder.append( "[ " );
-      if ( this.propertyName != null )
-      {
-        builder.append( this.propertyName );
-        builder.append( " = " );
-      }
+      builder.append( "ObjectModel [object=" );
       builder.append( this.object );
-      builder.append( " ]" );
+      builder.append( ", setterMethod=" );
+      builder.append( this.setterMethod );
+      builder.append( ", getterMethod=" );
+      builder.append( this.getterMethod );
+      builder.append( ", field=" );
+      builder.append( this.field );
+      builder.append( ", propertyName=" );
+      builder.append( this.propertyName );
+      builder.append( "]" );
       return builder.toString();
     }
     

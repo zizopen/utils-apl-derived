@@ -18,13 +18,17 @@ package org.omnaest.utils.operation.special;
 import org.omnaest.utils.operation.Operation;
 
 /**
- * Simple operation without parameters or return value.
+ * Simple {@link Operation} without parameters or return value. To be usable as an {@link Operation} the
+ * {@link OperationIntrinsicToOperationAdapter} is available.
  * 
  * @see Operation
- * @see OperationVoidParameter
- * @see OperationVoidResult
+ * @see OperationIntrinsicToOperationAdapter
  * @author Omnaest
  */
-public interface OperationIntrinsic extends OperationVoidResult<Void>, OperationVoidParameter<Void>
+public interface OperationIntrinsic
 {
+  /**
+   * @see Operation#execute(Object)
+   */
+  public void execute();
 }

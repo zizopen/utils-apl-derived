@@ -65,7 +65,7 @@ public class Assert
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @see FailedOperationException
+   * @throws FailedOperationException
    */
   public static void fails()
   {
@@ -73,7 +73,7 @@ public class Assert
   }
   
   /**
-   * @see FailedOperationException
+   * @throws FailedOperationException
    * @param message
    */
   public static void fails( String message )
@@ -82,13 +82,22 @@ public class Assert
   }
   
   /**
-   * @see FailedOperationException
+   * @throws FailedOperationException
    * @param message
    * @param cause
    */
   public static void fails( String message, Exception cause )
   {
     throw new FailedOperationException( message, cause );
+  }
+  
+  /**
+   * @throws FailedOperationException
+   * @param cause
+   */
+  public static void fails( Exception cause )
+  {
+    throw new FailedOperationException( "Operation failed", cause );
   }
   
   /**
@@ -100,6 +109,28 @@ public class Assert
   }
   
   /**
+   * @see #isNotNull(Object)
+   * @param object
+   * @param objects
+   */
+  public static boolean isNotNull( Object object, Object... objects )
+  {
+    //
+    isNotNull( object );
+    for ( Object iObject : objects )
+    {
+      isNotNull( iObject );
+    }
+    
+    //
+    return true;
+  }
+  
+  /**
+   * Returns true if the given {@link Object} is not null, otherwise an {@link IllegalArgumentException} is thrown
+   * 
+   * @throws IllegalArgumentException
+   * @see {@link #isNotNull(String, Object, Object...)}
    * @param object
    * @param message
    */
@@ -109,6 +140,26 @@ public class Assert
     {
       throw new IllegalArgumentException( message );
     }
+    return true;
+  }
+  
+  /**
+   * @see #isNotNull(Object, String)
+   * @param message
+   * @param object
+   * @param objects
+   * @return
+   */
+  public static boolean isNotNull( String message, Object object, Object... objects )
+  {
+    //
+    isNotNull( object, message );
+    for ( Object iObject : objects )
+    {
+      isNotNull( iObject, message );
+    }
+    
+    //
     return true;
   }
   

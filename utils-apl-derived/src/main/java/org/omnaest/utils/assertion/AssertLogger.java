@@ -291,7 +291,27 @@ public class AssertLogger
       }
       
       /**
-       * @see Assert#isNotNull(Object)
+       * @see Assert#isNotNull(Object, Object...)
+       * @param object
+       * @param objects
+       * @return
+       */
+      public boolean isNotNull( Object object, Object... objects )
+      {
+        //
+        try
+        {
+          return Assert.isNotNull( object, objects );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message( "Assert.isNotNull(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
+       * @see Assert#isNotNull(Object, String)
        * @param object
        * @param message
        * @return
@@ -311,6 +331,27 @@ public class AssertLogger
       }
       
       /**
+       * @see Assert#isNotNull(String, Object, Object...)
+       * @param message
+       * @param object
+       * @param objects
+       * @return
+       */
+      public boolean isNotNull( String message, Object object, Object... objects )
+      {
+        //
+        try
+        {
+          return Assert.isNotNull( message, object, objects );
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message( "Assert.isNotNull(...) failed", e );
+          return false;
+        }
+      }
+      
+      /**
        * @see Assert#fails()
        */
       public void fails()
@@ -319,6 +360,23 @@ public class AssertLogger
         try
         {
           Assert.fails();
+        }
+        catch ( Exception e )
+        {
+          Loglevel.this.message( "Assert.fails() notifies about an operation failure", e );
+        }
+      }
+      
+      /**
+       * @see Assert#fails(Exception)
+       * @param cause
+       */
+      public void fails( Exception cause )
+      {
+        //
+        try
+        {
+          Assert.fails( cause );
         }
         catch ( Exception e )
         {
@@ -433,6 +491,20 @@ public class AssertLogger
     {
       //
       Loglevel.this.loglevelSupport.writeMessage( message, e );
+      return Loglevel.this;
+    }
+    
+    /**
+     * Writes the stacktracke of a given {@link Throwable} to the {@link Logger} using the selected {@link Loglevel}
+     * 
+     * @param e
+     *          {@link Throwable}
+     * @return {@link Loglevel}
+     */
+    public Loglevel message( Throwable e )
+    {
+      //
+      Loglevel.this.loglevelSupport.writeMessage( "Exception occurred", e );
       return Loglevel.this;
     }
     

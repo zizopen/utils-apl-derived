@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.hierarchy.tree.adapter;
+package org.omnaest.utils.structure.hierarchy.tree.object;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -28,8 +28,6 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.hierarchy.tree.TreeNode;
-import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTree;
-import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode;
 
 /**
  * Adapter to make any {@link Object} available as {@link ObjectTreeNode}. Implements additionally the {@link ObjectTree}
@@ -118,5 +116,63 @@ public class ObjectToTreeNodeAdapter implements ObjectTreeNode, ObjectTree
   public ObjectTreeNode getTreeRootNode()
   {
     return this;
+  }
+  
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "ObjectToTreeNodeAdapter [objectModel=" );
+    builder.append( this.objectModel );
+    builder.append( "]" );
+    return builder.toString();
+  }
+  
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( this.objectModel == null ) ? 0 : this.objectModel.hashCode() );
+    return result;
+  }
+  
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals( Object obj )
+  {
+    if ( this == obj )
+    {
+      return true;
+    }
+    if ( obj == null )
+    {
+      return false;
+    }
+    if ( !( obj instanceof ObjectToTreeNodeAdapter ) )
+    {
+      return false;
+    }
+    ObjectToTreeNodeAdapter other = (ObjectToTreeNodeAdapter) obj;
+    if ( this.objectModel == null )
+    {
+      if ( other.objectModel != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.objectModel.equals( other.objectModel ) )
+    {
+      return false;
+    }
+    return true;
   }
 }

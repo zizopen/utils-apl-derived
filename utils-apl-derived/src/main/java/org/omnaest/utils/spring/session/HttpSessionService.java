@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import org.omnaest.utils.web.HttpSessionFacade;
 import org.omnaest.utils.web.HttpSessionFacadeFactory;
+import org.omnaest.utils.web.HttpSessionResolver;
 
 /**
  * The {@link HttpSessionService} allows to create {@link HttpSessionFacade} instances, as well as to resolve the
@@ -86,9 +87,24 @@ public interface HttpSessionService
    * @see HttpSessionFacade
    * @see HttpSessionFacadeFactory
    * @param httpSessionFacadeType
+   *          {@link Class} of {@link HttpSessionFacade}
    * @return
    */
   public <F extends HttpSessionFacade> F newHttpSessionFacade( Class<? extends F> httpSessionFacadeType );
+  
+  /**
+   * Same as {@link #newHttpSessionFacade(Class)} but uses the given {@link HttpSessionResolver} instance to determine the
+   * {@link HttpSession} used by the {@link HttpSessionFacade}
+   * 
+   * @see #newHttpSessionFacade(Class)
+   * @param httpSessionFacadeType
+   *          {@link Class} of {@link HttpSessionFacade}
+   * @param httpSessionResolver
+   *          {@link HttpSessionResolver}
+   * @return
+   */
+  public <F extends HttpSessionFacade> F newHttpSessionFacade( Class<? extends F> httpSessionFacadeType,
+                                                               HttpSessionResolver httpSessionResolver );
   
   /**
    * Resolves the {@link HttpSession} and provides a caseinsensitive {@link Map} view on its attributes

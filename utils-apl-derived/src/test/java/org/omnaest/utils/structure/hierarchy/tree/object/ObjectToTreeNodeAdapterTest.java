@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.hierarchy.tree.adapter;
+package org.omnaest.utils.structure.hierarchy.tree.object;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -27,8 +27,8 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator;
-import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator.TreeNavigatorTraversalControl;
 import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator.TreeNodeVisitor;
+import org.omnaest.utils.structure.hierarchy.tree.object.ObjectToTreeNodeAdapter;
 import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTree;
 import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode;
 import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode.ObjectModel;
@@ -147,26 +147,35 @@ public class ObjectToTreeNodeAdapterTest
     //
     final Set<Object> traversedObjectSet = new HashSet<Object>();
     
-    boolean transitive = true;
-    TreeNodeVisitor<ObjectTreeNode> treeNodeVisitors = new TreeNodeVisitor<ObjectTreeNode>()
+    TreeNodeVisitor<ObjectTree, ObjectTreeNode> treeNodeVisitors = new TreeNodeVisitor<ObjectTree, ObjectTreeNode>()
     {
       @Override
-      public void visit( ObjectTreeNode treeNode, TreeNavigatorTraversalControl treeNavigatorTraversalControl )
+      public TraversalControl visit( ObjectTreeNode treeNode, TreeNavigator<ObjectTree, ObjectTreeNode> treeNavigator )
       {
         //
-        ObjectModel model = treeNode.getModel();
-        assertNotNull( model.getPropertyName() );
-        assertNotNull( model.getField() );
-        assertNotNull( model.getGetterMethod() );
-        assertNull( model.getSetterMethod() );
+        assertNotNull( treeNode );
+        assertNotNull( treeNavigator );
+        
+        //
+        final ObjectModel model = treeNode.getModel();
+        if ( treeNavigator.hasParent() )
+        {
+          assertNotNull( model.getPropertyName() );
+          assertNotNull( model.getField() );
+          assertNotNull( model.getGetterMethod() );
+          assertNull( model.getSetterMethod() );
+        }
         assertNotNull( model.getObject() );
         
         //
         traversedObjectSet.add( model.getObject() );
+        
+        //
+        return null;
       }
     };
     assertTrue( treeNavigator.hasChildren() );
-    treeNavigator.visitChildren( transitive, treeNodeVisitors );
+    treeNavigator.traverse( treeNodeVisitors );
     
     //
     assertTrue( traversedObjectSet.contains( this.testClass.getFieldDouble() ) );

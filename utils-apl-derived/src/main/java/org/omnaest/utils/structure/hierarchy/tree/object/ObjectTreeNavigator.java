@@ -13,37 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.element.converter;
+package org.omnaest.utils.structure.hierarchy.tree.object;
+
+import org.omnaest.utils.structure.element.ObjectUtils;
+import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator;
 
 /**
- * @see Integer
- * @see ElementConverter
- * @see ElementConverterNumberToString
+ * {@link TreeNavigator} for {@link ObjectTree} and {@link ObjectTreeNode}
+ * 
+ * @see ObjectUtils#treeNavigator(Object)
  * @author Omnaest
  */
-public class ElementConverterStringToInteger implements ElementConverter<String, Integer>
+public class ObjectTreeNavigator extends TreeNavigator<ObjectTree, ObjectTreeNode>
 {
   
-  @Override
-  public Integer convert( String element )
+  /**
+   * @see ObjectTreeNavigator
+   * @param tree
+   * @param cachingChildrenOfPathNodes
+   */
+  public ObjectTreeNavigator( ObjectTree tree, boolean cachingChildrenOfPathNodes )
   {
-    //    
-    Integer retval = null;
-    
-    //
-    if ( element != null )
-    {
-      try
-      {
-        retval = Integer.valueOf( element );
-      }
-      catch ( Exception e )
-      {
-      }
-    }
-    
-    //
-    return retval;
+    super( tree, cachingChildrenOfPathNodes );
+  }
+  
+  /**
+   * @see ObjectTreeNavigator
+   * @param tree
+   */
+  public ObjectTreeNavigator( ObjectTree tree )
+  {
+    super( tree );
   }
   
 }

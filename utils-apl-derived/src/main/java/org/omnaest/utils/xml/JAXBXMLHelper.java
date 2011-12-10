@@ -177,14 +177,22 @@ public class JAXBXMLHelper
     return retval;
   }
   
-  public static <E> E loadObjectFromXML( CharSequence charSequence, Class<E> typeClazz )
+  /**
+   * Loads an {@link Object} from a {@link CharSequence} which contains valid xml text content. The given {@link Class} type
+   * specifies the root object type.
+   * 
+   * @param charSequence
+   * @param type
+   * @return
+   */
+  public static <E> E loadObjectFromXML( CharSequence charSequence, Class<E> type )
   {
     //
     ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
     byteArrayContainer.copyFrom( charSequence );
     
     //
-    return JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz );
+    return JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), type );
   }
   
   public static <E> E loadObjectFromXML( String xmlContent, Class<E> typeClazz )
@@ -197,6 +205,12 @@ public class JAXBXMLHelper
     return JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz );
   }
   
+  /**
+   * Clones a given {@link Object} using {@link #storeObjectAsXML(Object)} and {@link #loadObjectFromXML(CharSequence, Class)}
+   * 
+   * @param object
+   * @return
+   */
   @SuppressWarnings("unchecked")
   public static <E> E cloneObject( E object )
   {
