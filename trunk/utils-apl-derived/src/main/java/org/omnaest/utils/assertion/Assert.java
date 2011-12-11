@@ -168,7 +168,15 @@ public class Assert
    */
   public static boolean isTrue( boolean expression )
   {
-    return isTrue( expression, "Expression must be true, but was false" );
+    return isTrue( new boolean[] { expression } );
+  }
+  
+  /**
+   * @param expressions
+   */
+  public static boolean isTrue( boolean... expressions )
+  {
+    return isTrue( "Expression must be true, but was false", expressions );
   }
   
   /**
@@ -180,6 +188,19 @@ public class Assert
     if ( !expression )
     {
       throw new IllegalArgumentException( message );
+    }
+    return true;
+  }
+  
+  /**
+   * @param message
+   * @param expressions
+   */
+  public static boolean isTrue( String message, boolean... expressions )
+  {
+    for ( boolean expression : expressions )
+    {
+      isTrue( expression, message );
     }
     return true;
   }

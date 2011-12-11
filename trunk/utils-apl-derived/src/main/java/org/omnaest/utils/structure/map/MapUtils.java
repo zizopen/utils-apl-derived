@@ -19,8 +19,10 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,7 +30,9 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.structure.element.Factory;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.map.decorator.LockingMapDecorator;
@@ -494,4 +498,69 @@ public class MapUtils
     return locked( map, lock );
   }
   
+  /**
+   * Returns the inverted {@link Map} for the given one. If the given {@link Map} reference is null, null is returned.<br>
+   * <br>
+   * Since Multiple key of the original {@link Map} can be mapped to the same value, the inverted {@link Map} will contain a
+   * {@link Set} of original key values per original value.
+   * 
+   * @param map
+   * @return
+   */
+  public static <K, V> Map<V, Set<K>> invert( final Map<K, V> map )
+  {
+    //
+    final Map<V, Set<K>> retmap = map == null ? null : new LinkedHashMap<V, Set<K>>();
+    
+    //
+    if ( retmap != null )
+    {
+      //
+      for ( Entry<K, V> entry : map.entrySet() )
+      {
+        //
+        final K key = entry.getKey();
+        final V value = entry.getValue();
+        
+        //
+        if ( !retmap.containsKey( value ) )
+        {
+          retmap.put( value, new LinkedHashSet<K>() );
+        }
+        
+        //
+        retmap.get( value ).add( key );
+      }
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Returns an {@link EnumMap} filled with all available values of the given {@link Enum} type as keys and the result of the
+   * {@link Factory} as value for each {@link Enum} key.
+   * 
+   * @param enumType
+   * @param factory
+   * @return {@link EnumMap}
+   */
+  public static <K extends Enum<K>, V> EnumMap<K, V> enumMapWithFilledDefaultValues( Class<K> enumType, Factory<V> factory )
+  {
+    //    
+    final EnumMap<K, V> retmap = enumType != null ? new EnumMap<K, V>( enumType ) : null;
+    
+    //
+    if ( retmap != null )
+    {
+      for ( K key : EnumUtils.getEnumList( enumType ) )
+      {
+        V value = factory != null ? factory.newInstance() : null;
+        retmap.put( key, value );
+      }
+    }
+    
+    //
+    return retmap;
+  }
 }

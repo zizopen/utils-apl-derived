@@ -17,8 +17,10 @@ package org.omnaest.utils.structure.map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -29,6 +31,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
+import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.Factory;
 import org.omnaest.utils.structure.map.MapUtils.MapEntryToElementTransformer;
 
 /**
@@ -39,29 +43,29 @@ public class MapUtilsTest
 {
   
   @Test
-    public void testToList()
+  public void testToList()
+  {
+    //
+    Map<String, String> map = new LinkedHashMap<String, String>();
+    map.put( "key1", "value1" );
+    map.put( "key2", "value2" );
+    
+    //
+    MapEntryToElementTransformer<String, String, String> mapEntryToElementTransformer = new MapEntryToElementTransformer<String, String, String>()
     {
-      //
-      Map<String, String> map = new LinkedHashMap<String, String>();
-      map.put( "key1", "value1" );
-      map.put( "key2", "value2" );
-      
-      //
-      MapEntryToElementTransformer<String, String, String> mapEntryToElementTransformer = new MapEntryToElementTransformer<String, String, String>()
+      @Override
+      public String transform( Entry<String, String> entry )
       {
-        @Override
-        public String transform( Entry<String, String> entry )
-        {
-          return entry.getKey() + "=" + entry.getValue();
-        }
-      };
-      
-      //
-      List<String> list = MapUtils.toList( map, mapEntryToElementTransformer );
-      assertNotNull( list );
-      assertEquals( "key1=value1,key2=value2", StringUtils.join( list, "," ) );
-      
-    }
+        return entry.getKey() + "=" + entry.getValue();
+      }
+    };
+    
+    //
+    List<String> list = MapUtils.toList( map, mapEntryToElementTransformer );
+    assertNotNull( list );
+    assertEquals( "key1=value1,key2=value2", StringUtils.join( list, "," ) );
+    
+  }
   
   @Test
   public void testFilteredMap()
@@ -83,6 +87,92 @@ public class MapUtilsTest
     Iterator<String> iterator = filteredMap.keySet().iterator();
     assertEquals( "key1", iterator.next() );
     assertEquals( "key3", iterator.next() );
+  }
+  
+  @Test
+  public void testInvert()
+  {
+    final Map<String, Integer> sourceMap = new LinkedHashMap<String, Integer>();
+    sourceMap.put( "key1", 1 );
+    sourceMap.put( "key2", 1 );
+    sourceMap.put( "key3", 2 );
+    sourceMap.put( "key4", 3 );
+    
+    //
+    final Map<Integer, Set<String>> invertedMap = MapUtils.invert( sourceMap );
+    assertNotNull( invertedMap );
+    assertEquals( 3, invertedMap.size() );
+    
+    //
+    final Iterator<Entry<Integer, Set<String>>> iteratorEntrySet = invertedMap.entrySet().iterator();
+    {
+      assertTrue( iteratorEntrySet.hasNext() );
+      final Entry<Integer, Set<String>> entry = iteratorEntrySet.next();
+      {
+        final int key = entry.getKey();
+        final Set<String> value = entry.getValue();
+        
+        assertEquals( 1, key );
+        assertEquals( SetUtils.valueOf( "key1", "key2" ), value );
+      }
+    }
+    {
+      assertTrue( iteratorEntrySet.hasNext() );
+      final Entry<Integer, Set<String>> entry = iteratorEntrySet.next();
+      {
+        final int key = entry.getKey();
+        final Set<String> value = entry.getValue();
+        
+        assertEquals( 2, key );
+        assertEquals( SetUtils.valueOf( "key3" ), value );
+      }
+    }
+    {
+      assertTrue( iteratorEntrySet.hasNext() );
+      final Entry<Integer, Set<String>> entry = iteratorEntrySet.next();
+      {
+        final int key = entry.getKey();
+        final Set<String> value = entry.getValue();
+        
+        assertEquals( 3, key );
+        assertEquals( SetUtils.valueOf( "key4" ), value );
+      }
+    }
+  }
+  
+  /**
+   * @see MapUtilsTest#testEnumMapWithFilledDefaultValues()
+   * @author Omnaest
+   */
+  private enum TestEnum
+  {
+    key1,
+    key2
+  }
+  
+  /**
+   * @see TestEnum
+   */
+  @Test
+  public void testEnumMapWithFilledDefaultValues()
+  {
+    //
+    final Class<TestEnum> enumType = TestEnum.class;
+    final Factory<Set<String>> factory = new Factory<Set<String>>()
+    {
+      @Override
+      public Set<String> newInstance()
+      {
+        return SetUtils.valueOf( "a", "b" );
+      }
+    };
+    
+    final EnumMap<TestEnum, Set<String>> enumMapWithFilledDefaultValues = MapUtils.enumMapWithFilledDefaultValues( enumType,
+                                                                                                                   factory );
+    assertNotNull( enumMapWithFilledDefaultValues );
+    assertEquals( 2, enumMapWithFilledDefaultValues.size() );
+    assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key1 ) );
+    assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key2 ) );
   }
   
 }

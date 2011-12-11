@@ -591,6 +591,80 @@ public class ReflectionUtils
   }
   
   /**
+   * Returns true if the given {@link Class} type declares or inherits the given {@link Annotation} class from any supertype, but
+   * not from interfaces
+   * 
+   * @see #hasDeclaredAnnotation(Class, Class)
+   * @see #hasAnnotationIncludingInterfaces(Class, Class)
+   * @param type
+   * @param annotationType
+   * @return
+   */
+  public static boolean hasAnnotation( Class<?> type, Class<? extends Annotation> annotationType )
+  {
+    //
+    boolean retval = false;
+    
+    //
+    List<Annotation> annotationList = annotationList( type );
+    for ( Annotation annotation : annotationList )
+    {
+      if ( annotation.annotationType().equals( annotationType ) )
+      {
+        retval = true;
+        break;
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns true if the given {@link Class} type declares or inherits the given {@link Annotation} class from any supertype, but
+   * not from interfaces
+   * 
+   * @param type
+   * @param annotationType
+   * @return
+   */
+  public static boolean hasAnnotationIncludingInterfaces( Class<?> type, Class<? extends Annotation> annotationType )
+  {
+    //
+    boolean retval = false;
+    
+    //
+    final List<Annotation> annotationList = annotationList( type );
+    for ( Annotation annotation : annotationList )
+    {
+      if ( annotation.annotationType().equals( annotationType ) )
+      {
+        retval = true;
+        break;
+      }
+    }
+    
+    //
+    if ( !retval )
+    {
+      //
+      final boolean inherited = true;
+      final Set<Class<?>> interfaceSet = interfaceSet( type, inherited );
+      for ( Class<?> interfaceType : interfaceSet )
+      {
+        if ( hasDeclaredAnnotation( interfaceType, annotationType ) )
+        {
+          retval = true;
+          break;
+        }
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
    * Returns true if the given {@link Class} type declares the given {@link Annotation} class
    * 
    * @param type
@@ -777,13 +851,57 @@ public class ReflectionUtils
   public static List<Method> declaredMethodList( Class<?> type )
   {
     //    
-    List<Method> retlist = new ArrayList<Method>();
+    final List<Method> retlist = new ArrayList<Method>();
     
     //
     if ( type != null )
     {
       //
       retlist.addAll( Arrays.asList( type.getDeclaredMethods() ) );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Returns the {@link Class#getDeclaredFields()} for a given {@link Class}. Returns always a {@link List} instance.
+   * 
+   * @param type
+   * @return
+   */
+  public static List<Field> declaredFieldList( Class<?> type )
+  {
+    //    
+    final List<Field> retlist = new ArrayList<Field>();
+    
+    //
+    if ( type != null )
+    {
+      //
+      retlist.addAll( Arrays.asList( type.getDeclaredFields() ) );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Returns the {@link Class#getFields()} for a given {@link Class}. Returns always a {@link List} instance.
+   * 
+   * @param type
+   * @return
+   */
+  public static List<Field> fieldList( Class<?> type )
+  {
+    //    
+    final List<Field> retlist = new ArrayList<Field>();
+    
+    //
+    if ( type != null )
+    {
+      //
+      retlist.addAll( Arrays.asList( type.getFields() ) );
     }
     
     //
@@ -799,7 +917,7 @@ public class ReflectionUtils
   public static List<Method> methodList( Class<?> type )
   {
     //    
-    List<Method> retlist = new ArrayList<Method>();
+    final List<Method> retlist = new ArrayList<Method>();
     
     //
     if ( type != null )

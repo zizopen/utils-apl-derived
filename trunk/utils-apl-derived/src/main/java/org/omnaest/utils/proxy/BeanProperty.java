@@ -303,7 +303,7 @@ public class BeanProperty
    * 
    * @return {@link BeanProperty}
    */
-  public static BeanProperty beanProperty()
+  public static BeanProperty getInstance()
   {
     return BeanProperty.threadLocalCachedElementOfBeanProperty.getValue();
   }

@@ -18,7 +18,7 @@ package org.omnaest.utils.proxy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.omnaest.utils.proxy.BeanProperty.beanProperty;
+import static org.omnaest.utils.proxy.BeanProperty.getInstance;
 
 import java.util.Iterator;
 
@@ -147,10 +147,10 @@ public class BeanPropertyTest
   }
   
   @Test
-  public void testBeanProperty()
-  {
-    String name = beanProperty().name.of( beanProperty().newInstanceOfCapturedType( TestClass.class ).getFieldDouble() );
-    assertEquals( "fieldDouble", name );
-  }
+    public void testGetInstance()
+    {
+      String name = getInstance().name.of( getInstance().newInstanceOfCapturedType( TestClass.class ).getFieldDouble() );
+      assertEquals( "fieldDouble", name );
+    }
   
 }
