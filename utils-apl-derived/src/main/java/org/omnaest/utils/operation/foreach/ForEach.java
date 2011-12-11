@@ -155,6 +155,16 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
   }
   
   /**
+   * @see ForEach
+   * @param iterable
+   */
+  @SuppressWarnings("unchecked")
+  public ForEach( Iterable<E> iterable )
+  {
+    this( new Iterable[] { iterable } );
+  }
+  
+  /**
    * Executes the given {@link Operation} and uses the given {@link CollectionConverter} to produce a single result value
    * 
    * @param collectionConverter

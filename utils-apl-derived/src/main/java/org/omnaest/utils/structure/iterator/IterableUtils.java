@@ -290,4 +290,31 @@ public class IterableUtils
       }
     };
   }
+  
+  /**
+   * <pre>
+   * isEmpty( null ) = true
+   * isEmpty( Arrays.asList()) = true
+   * isEmpty( Arrays.asList("") ) = false
+   * </pre>
+   * 
+   * @param iterable
+   * @return
+   */
+  public static boolean isEmpty( Iterable<?> iterable )
+  {
+    //
+    boolean retval = true;
+    
+    //
+    if ( iterable != null )
+    {
+      //
+      Iterator<?> iterator = iterable.iterator();
+      retval = iterator == null || !iterator.hasNext();
+    }
+    
+    //
+    return retval;
+  }
 }

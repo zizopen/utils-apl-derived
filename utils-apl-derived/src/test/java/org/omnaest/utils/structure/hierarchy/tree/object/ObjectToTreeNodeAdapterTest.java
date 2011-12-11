@@ -24,13 +24,15 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.databene.contiperf.PerfTest;
+import org.databene.contiperf.Required;
+import org.databene.contiperf.junit.ContiPerfRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator;
 import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator.TreeNodeVisitor;
-import org.omnaest.utils.structure.hierarchy.tree.object.ObjectToTreeNodeAdapter;
-import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTree;
-import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode;
+import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator.TreeNodeVisitor.TraversalControl;
 import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode.ObjectModel;
 
 /**
@@ -39,15 +41,19 @@ import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode.ObjectMo
  */
 public class ObjectToTreeNodeAdapterTest
 {
+  @Rule
+  public ContiPerfRule contiPerfRule = new ContiPerfRule();
   
   /* ********************************************** Variables ********************************************** */
-  private TestClass testClass = null;
+  private TestClass    testClass     = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   protected static class TestClass
   {
     /* ********************************************** Variables ********************************************** */
     protected final TestClassSub testClassSub;
+    protected final TestClass    testClass = this;
+    protected final TestClassSub testClassSub2;
     protected final String       fieldString;
     protected final String       fieldString2;
     protected final Double       fieldDouble;
@@ -57,6 +63,7 @@ public class ObjectToTreeNodeAdapterTest
     {
       super();
       this.testClassSub = testClassSub;
+      this.testClassSub2 = testClassSub;
       this.fieldString = fieldString;
       this.fieldString2 = fieldString2;
       this.fieldDouble = fieldDouble;
@@ -92,6 +99,22 @@ public class ObjectToTreeNodeAdapterTest
     public Double getFieldDouble()
     {
       return this.fieldDouble;
+    }
+    
+    /**
+     * @return the testClass
+     */
+    public TestClass getTestClass()
+    {
+      return this.testClass;
+    }
+    
+    /**
+     * @return the testClassSub2
+     */
+    public TestClassSub getTestClassSub2()
+    {
+      return this.testClassSub2;
     }
     
   }
@@ -168,14 +191,21 @@ public class ObjectToTreeNodeAdapterTest
         assertNotNull( model.getObject() );
         
         //
+        TraversalControl traversalControl = null;
+        if ( traversedObjectSet.contains( model.getObject() ) )
+        {
+          traversalControl = TraversalControl.SKIP_CHILDREN;
+        }
+        
+        //
         traversedObjectSet.add( model.getObject() );
         
         //
-        return null;
+        return traversalControl;
       }
     };
     assertTrue( treeNavigator.hasChildren() );
-    treeNavigator.traverse( treeNodeVisitors );
+    treeNavigator.traverse( TraversalControl.GO_ON_INCLUDE_ALREADY_TRAVERSED_NODES, treeNodeVisitors );
     
     //
     assertTrue( traversedObjectSet.contains( this.testClass.getFieldDouble() ) );
@@ -191,9 +221,13 @@ public class ObjectToTreeNodeAdapterTest
     assertTrue( treeNavigator.navigateToNextSibling().isNavigationSuccessful() );
     assertTrue( treeNavigator.navigateToNextSibling().isNavigationSuccessful() );
     assertTrue( treeNavigator.navigateToNextSibling().isNavigationSuccessful() );
+    assertTrue( treeNavigator.navigateToNextSibling().isNavigationSuccessful() );
+    assertTrue( treeNavigator.navigateToNextSibling().isNavigationSuccessful() );
     assertFalse( treeNavigator.navigateToNextSibling().isNavigationSuccessful() );
     
     //
+    assertTrue( treeNavigator.navigateToPreviousSibling().isNavigationSuccessful() );
+    assertTrue( treeNavigator.navigateToPreviousSibling().isNavigationSuccessful() );
     assertTrue( treeNavigator.navigateToPreviousSibling().isNavigationSuccessful() );
     assertTrue( treeNavigator.navigateToPreviousSibling().isNavigationSuccessful() );
     assertTrue( treeNavigator.navigateToPreviousSibling().isNavigationSuccessful() );
@@ -209,6 +243,30 @@ public class ObjectToTreeNodeAdapterTest
     }
     
     //
-    System.out.print( treeNavigator );
+    //System.out.print( treeNavigator );
+  }
+  
+  @PerfTest(invocations = 200)
+  @Required(average = 10)
+  @Test
+  public void testTraversalPerformance()
+  {
+    //
+    ObjectTree tree = new ObjectToTreeNodeAdapter( new ObjectModel( this.testClass ) );
+    TreeNavigator<ObjectTree, ObjectTreeNode> treeNavigator = new TreeNavigator<ObjectTree, ObjectTreeNode>( tree );
+    
+    //
+    
+    TreeNodeVisitor<ObjectTree, ObjectTreeNode> treeNodeVisitors = new TreeNodeVisitor<ObjectTree, ObjectTreeNode>()
+    {
+      @Override
+      public TraversalControl visit( ObjectTreeNode treeNode, TreeNavigator<ObjectTree, ObjectTreeNode> treeNavigator )
+      {
+        //
+        return null;
+      }
+    };
+    treeNavigator.traverse( treeNodeVisitors );
+    
   }
 }
