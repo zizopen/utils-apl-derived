@@ -22,6 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+
 /**
  * The {@link DefaultValue} {@link Annotation} allows to declare a value which is used as default value, if a given or returned
  * value of a method is null.<br>
@@ -48,6 +50,7 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  * 
+ * @see #defaultValueConverterTypes()
  * @author Omnaest
  */
 @Documented
@@ -56,4 +59,13 @@ import java.lang.annotation.Target;
 public @interface DefaultValue
 {
   public String value();
+  
+  /**
+   * {@link ElementConverter} types specified here can be used to transform a default value {@link String} into any other result
+   * object. This can be used to create more complex default value {@link Object}s. If multiple {@link ElementConverter} types are
+   * specified, they are used in ascending index position order (from left to right).
+   * 
+   * @return
+   */
+  public Class<? extends ElementConverter<String, ?>>[] defaultValueConverterTypes() default {};
 }

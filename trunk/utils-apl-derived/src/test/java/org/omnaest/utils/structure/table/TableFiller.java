@@ -16,8 +16,7 @@
 package org.omnaest.utils.structure.table;
 
 import org.omnaest.utils.structure.table.Table.Column;
-
-import com.sun.rowset.internal.Row;
+import org.omnaest.utils.structure.table.Table.Row;
 
 /**
  * Helper class which offers methods to fill {@link Table} instances with {@link Row}s and {@link Column}s

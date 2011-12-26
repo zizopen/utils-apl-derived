@@ -18,12 +18,11 @@ package org.omnaest.utils.structure.table.concrete.predicates.internal.filter;
 import java.util.Collection;
 
 import org.omnaest.utils.structure.table.Table.Column;
+import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableBlock;
 import org.omnaest.utils.structure.table.concrete.predicates.PredicateFactory;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
-
-import com.sun.rowset.internal.Row;
 
 /**
  * Every {@link PredicateFilter} should be represented by a static factory method within the {@link PredicateFactory}.

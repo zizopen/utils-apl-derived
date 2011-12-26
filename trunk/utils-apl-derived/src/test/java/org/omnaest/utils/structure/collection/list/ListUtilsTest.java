@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.junit.Test;
-import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
+import org.omnaest.utils.structure.element.converter.ElementConverterStringToInteger;
 
 public class ListUtilsTest
 {
@@ -68,24 +68,24 @@ public class ListUtilsTest
   }
   
   @Test
-    public void testElementWithReverseIndexPosition()
-    {
-      //
-      List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
-      
-      //
-      assertEquals( "c", ListUtils.lastElementOf( testList ) );
-      assertEquals( "c", ListUtils.elementWithReverseIndexPosition( testList, 0 ) );
-      assertEquals( "b", ListUtils.elementWithReverseIndexPosition( testList, 1 ) );
-      
-      assertEquals( null, ListUtils.lastElementOf( Arrays.asList() ) );
-      assertEquals( null, ListUtils.elementWithReverseIndexPosition( Arrays.asList(), 0 ) );
-      assertEquals( null, ListUtils.elementWithReverseIndexPosition( Arrays.asList(), 1 ) );
-      assertEquals( null, ListUtils.elementWithReverseIndexPosition( testList, testList.size() ) );
-      
-      assertEquals( null, ListUtils.lastElementOf( null ) );
-      assertEquals( null, ListUtils.elementWithReverseIndexPosition( null, 0 ) );
-    }
+  public void testElementWithReverseIndexPosition()
+  {
+    //
+    List<String> testList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
+    
+    //
+    assertEquals( "c", ListUtils.lastElementOf( testList ) );
+    assertEquals( "c", ListUtils.elementWithReverseIndexPosition( testList, 0 ) );
+    assertEquals( "b", ListUtils.elementWithReverseIndexPosition( testList, 1 ) );
+    
+    assertEquals( null, ListUtils.lastElementOf( Arrays.asList() ) );
+    assertEquals( null, ListUtils.elementWithReverseIndexPosition( Arrays.asList(), 0 ) );
+    assertEquals( null, ListUtils.elementWithReverseIndexPosition( Arrays.asList(), 1 ) );
+    assertEquals( null, ListUtils.elementWithReverseIndexPosition( testList, testList.size() ) );
+    
+    assertEquals( null, ListUtils.lastElementOf( null ) );
+    assertEquals( null, ListUtils.elementWithReverseIndexPosition( null, 0 ) );
+  }
   
   @Test
   public void testIntersection()
@@ -174,5 +174,11 @@ public class ListUtilsTest
     //
     assertEquals( Arrays.asList( "c", "d", "b" ), filterAndOrderBy );
     
+  }
+  
+  @Test
+  public void testConvert()
+  {
+    assertEquals( Arrays.asList( 0, 1 ), ListUtils.convert( new ElementConverterStringToInteger(), "0", "1" ) );
   }
 }

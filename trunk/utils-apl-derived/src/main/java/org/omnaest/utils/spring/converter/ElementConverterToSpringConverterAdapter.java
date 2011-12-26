@@ -22,6 +22,7 @@ import org.springframework.util.Assert;
 /**
  * Adapter for {@link ElementConverter} to act as {@link Converter} used by Spring
  * 
+ * @see SpringConverterToElementConverterAdapter
  * @see #ElementConverterToSpringConverterAdapter(ElementConverter)
  * @author Omnaest
  * @param <S>
@@ -42,12 +43,12 @@ public class ElementConverterToSpringConverterAdapter<S, T> implements Converter
   {
     super();
     this.elementConverter = elementConverter;
+    Assert.notNull( elementConverter, "Please provide a non null ElementConverter reference" );
   }
   
   @Override
   public T convert( S element )
   {
-    Assert.notNull( this.elementConverter, "Missing ElementConverter within the ElementConverterToSpringConverterAdapter" );
     return this.elementConverter.convert( element );
   }
   

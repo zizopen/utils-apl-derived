@@ -23,6 +23,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+
 /**
  * A {@link PropertyNameTemplate} allows to declare a mapping template string which is normally used to map methods of interfaces
  * to properties of an underlying structure.<br>
@@ -74,6 +76,7 @@ import java.lang.reflect.Method;
  * }
  * </pre>
  * 
+ * @see #additionalArgumentConverterTypes()
  * @author Omnaest
  */
 @Documented
@@ -82,4 +85,13 @@ import java.lang.reflect.Method;
 public @interface PropertyNameTemplate
 {
   public String value();
+  
+  /**
+   * This declares {@link ElementConverter}s which will be used to convert any <b>additionally</b> given template parameter into a
+   * {@link String}. The array index of the {@link ElementConverter} types will correspond to the {0},{1},... placeholder
+   * definitions.
+   * 
+   * @return
+   */
+  public Class<? extends ElementConverter<?, String>>[] additionalArgumentConverterTypes() default {};
 }

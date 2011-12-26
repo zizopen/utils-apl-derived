@@ -61,10 +61,10 @@ public class PropertynameMapToTypeAdapterTest
   
   protected static interface TestTypeWithAdapter
   {
-    @Converter(type = ElementConverterNumberToString.class)
+    @Converter(types = ElementConverterNumberToString.class)
     public String getFieldString();
     
-    @Converter(type = ElementConverterStringToInteger.class)
+    @Converter(types = ElementConverterStringToInteger.class)
     public void setFieldString( String fieldString );
   }
   

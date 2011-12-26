@@ -21,7 +21,7 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToByte implements ElementConverter<String, Byte>
+public class ElementConverterStringToByte implements ElementConverterTypeAware<String, Byte>
 {
   
   @Override
@@ -44,6 +44,12 @@ public class ElementConverterStringToByte implements ElementConverter<String, By
     
     //
     return retval;
+  }
+  
+  @Override
+  public org.omnaest.utils.structure.element.converter.ElementConverterTypeAware.SourceAndTargetType<String, Byte> getSourceAndTargetType()
+  {
+    return new SourceAndTargetType<String, Byte>( String.class, Byte.class );
   }
   
 }

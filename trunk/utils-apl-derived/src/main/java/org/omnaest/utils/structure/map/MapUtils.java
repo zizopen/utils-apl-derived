@@ -32,10 +32,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.structure.collection.list.ListUtils.ElementFilter;
+import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.Factory;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.map.decorator.LockingMapDecorator;
+import org.omnaest.utils.structure.map.decorator.MapDecorator;
 import org.omnaest.utils.tuple.TupleTwo;
 
 /**
@@ -352,22 +356,39 @@ public class MapUtils
   }
   
   /**
-   * Filters a given {@link Map} by its keys. Only keys which are contained within the given key {@link Set} will be returned.
+   * Returns a new filtered {@link Map} instance. All keys of the given {@link Map} are filtered using the given
+   * {@link ElementFilter}
    * 
+   * @see #filteredMap(Map, Iterable)
    * @param map
-   * @param filterKeySet
+   * @param keyElementFilter
+   * @return
+   */
+  public static <K, V> Map<K, V> filteredMap( Map<K, V> map, ElementFilter<K> keyElementFilter )
+  {
+    Set<K> filterKeySet = SetUtils.filter( map.keySet(), keyElementFilter );
+    return filteredMap( map, filterKeySet );
+  }
+  
+  /**
+   * Filters a given {@link Map} by its keys. Only keys which are contained within the given key {@link Iterable} will be
+   * returned.
+   * 
+   * @see #filteredMap(Map, ElementFilter)
+   * @param map
+   * @param filterKeyIterable
    * @return new {@link LinkedHashMap} instance
    */
-  public static <K, V> Map<K, V> filteredMap( Map<K, V> map, Set<K> filterKeySet )
+  public static <K, V> Map<K, V> filteredMap( Map<K, V> map, Iterable<K> filterKeyIterable )
   {
     //
     Map<K, V> retmap = new LinkedHashMap<K, V>();
     
     //
-    if ( map != null && filterKeySet != null )
+    if ( map != null && filterKeyIterable != null )
     {
       //
-      for ( K key : filterKeySet )
+      for ( K key : filterKeyIterable )
       {
         //
         if ( map.containsKey( key ) )
@@ -562,5 +583,106 @@ public class MapUtils
     
     //
     return retmap;
+  }
+  
+  /**
+   * Similar to {@link #initializeMap(Map, Iterable, Factory, boolean)} but does not overwrite values of already existing keys.
+   * 
+   * @param map
+   * @param keyIterable
+   * @param valueFactory
+   */
+  public static <K, V> void initializeMap( Map<K, V> map, Iterable<K> keyIterable, Factory<V> valueFactory )
+  {
+    boolean overwriteValuesOfExistingKeys = false;
+    initializeMap( map, keyIterable, valueFactory, overwriteValuesOfExistingKeys );
+  }
+  
+  /**
+   * Initializes the given {@link Map} for all keys from the key {@link Iterable} with values created by the value
+   * {@link Factory#newInstance()} method. If the overwrite values of existing keys flag is set to true, any value of an already
+   * existing key is overwritten.
+   * 
+   * @see #initializedMap(Map, Factory)
+   * @param map
+   * @param keyIterable
+   * @param valueFactory
+   * @param overwriteValuesOfExistingKeys
+   */
+  public static <K, V> void initializeMap( Map<K, V> map,
+                                           Iterable<K> keyIterable,
+                                           Factory<V> valueFactory,
+                                           boolean overwriteValuesOfExistingKeys )
+  {
+    //
+    if ( map != null && keyIterable != null && valueFactory != null )
+    {
+      //
+      final Set<K> keySet = SetUtils.valueOf( keyIterable );
+      if ( !overwriteValuesOfExistingKeys )
+      {
+        keySet.removeAll( map.keySet() );
+      }
+      
+      //
+      for ( K key : keySet )
+      {
+        map.put( key, valueFactory.newInstance() );
+      }
+    }
+  }
+  
+  /**
+   * Similar to {@link #initializedMap(Map, Factory)} using a new {@link LinkedHashMap} instance
+   * 
+   * @param valueFactory
+   * @return
+   */
+  public static <K, V> Map<K, V> initializedMap( final Factory<V> valueFactory )
+  {
+    Map<K, V> map = new LinkedHashMap<K, V>();
+    return initializedMap( map, valueFactory );
+  }
+  
+  /**
+   * Returns a {@link MapDecorator} which ensures that all {@link Map#get(Object)} invocations with a valid key type will return a
+   * value. If the underlying {@link Map} would return a null value the value {@link Factory#newInstance()} is invoked and the new
+   * value is stored within the {@link Map}.<br>
+   * <br>
+   * This is e.g. useful for scenarios where a {@link Map} contains a {@link Collection} as value and the {@link Collection}
+   * should always be present.<br>
+   * <br>
+   * Be aware of the fact, that {@link Map#containsKey(Object)} will still return false for any non existing key.
+   * 
+   * @see #initializeMap(Map, Iterable, Factory)
+   * @param map
+   * @param valueFactory
+   * @return
+   */
+  public static <K, V> Map<K, V> initializedMap( Map<K, V> map, final Factory<V> valueFactory )
+  {
+    Assert.isNotNull( valueFactory, "Factory must be not null" );
+    Assert.isNotNull( map, "Map must be not null" );
+    return new MapDecorator<K, V>( map )
+    {
+      @SuppressWarnings("unchecked")
+      @Override
+      public V get( Object key )
+      {
+        //
+        V value = super.get( key );
+        
+        //
+        if ( value == null )
+        {
+          value = valueFactory.newInstance();
+          this.put( (K) key, value );
+        }
+        
+        //
+        return value;
+      }
+      
+    };
   }
 }

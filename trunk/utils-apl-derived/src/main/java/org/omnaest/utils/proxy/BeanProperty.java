@@ -23,9 +23,10 @@ import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.proxy.MethodCallCapturer.MethodCallCaptureContext;
+import org.omnaest.utils.proxy.MethodCallCapturer.TypeCaptureAware;
 import org.omnaest.utils.proxy.handler.MethodCallCapture;
-import org.omnaest.utils.structure.element.cached.ThreadLocalCachedElement;
 import org.omnaest.utils.structure.element.cached.CachedElement.ValueResolver;
+import org.omnaest.utils.structure.element.cached.ThreadLocalCachedElement;
 
 /**
  * A {@link BeanProperty} allows to capture method calls for getter and setter methods on a Java Bean. The captured method calls
@@ -143,11 +144,10 @@ public class BeanProperty
               Object object = methodCallCapture.getObject();
               if ( object != null )
               {
-                //
-                Class<? extends B> beanClass = (Class<? extends B>) object.getClass();
-                
-                //
-                Method method = methodCallCapture.getMethod();
+                //                
+                final Class<?> beanClass = object instanceof TypeCaptureAware ? ( (TypeCaptureAware) object ).getCapturedType()
+                                                                             : null;
+                final Method method = methodCallCapture.getMethod();
                 
                 //
                 BeanPropertyAccessor<B> beanPropertyAccessor = (BeanPropertyAccessor<B>) BeanUtils.beanPropertyAccessor( beanClass,

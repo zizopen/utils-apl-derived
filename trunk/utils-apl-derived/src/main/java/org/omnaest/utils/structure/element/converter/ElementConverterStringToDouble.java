@@ -20,7 +20,7 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToDouble implements ElementConverter<String, Double>
+public class ElementConverterStringToDouble implements ElementConverterTypeAware<String, Double>
 {
   
   @Override
@@ -43,6 +43,12 @@ public class ElementConverterStringToDouble implements ElementConverter<String, 
     
     //
     return retval;
+  }
+  
+  @Override
+  public org.omnaest.utils.structure.element.converter.ElementConverterTypeAware.SourceAndTargetType<String, Double> getSourceAndTargetType()
+  {
+    return new SourceAndTargetType<String, Double>( String.class, Double.class );
   }
   
 }

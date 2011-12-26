@@ -21,6 +21,8 @@ import java.util.Map;
 
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.element.ObjectUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterHelper;
 
 /**
  * {@link SourcePropertyAccessorDecorator} which will listen to {@link DefaultValue} annotated {@link Method}s
@@ -92,8 +94,10 @@ public class SourcePropertyAccessorDecoratorDefaultValue extends SourcePropertyA
       if ( defaultValueAnnotation != null )
       {
         //
-        String defaultValue = defaultValueAnnotation.value();
-        retval = ObjectUtils.castTo( type, defaultValue );
+        final String defaultValue = defaultValueAnnotation.value();
+        final Class<? extends ElementConverter<String, ?>>[] defaultValueConverterTypes = defaultValueAnnotation.defaultValueConverterTypes();
+        retval = ElementConverterHelper.convert( defaultValue, defaultValueConverterTypes );
+        retval = ObjectUtils.castTo( type, retval );
       }
       else if ( defaultValuesAnnotation != null )
       {

@@ -22,11 +22,10 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Column;
+import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection.Order;
-
-import com.sun.rowset.internal.Row;
 
 /**
  * @see SelectionExecutor

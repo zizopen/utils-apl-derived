@@ -119,7 +119,7 @@ public class ArrayUtils
         Class<?> componentType = primitiveArrayType.getComponentType();
         if ( componentType.isPrimitive() )
         {
-          componentType = ObjectUtils.wrapperTypeForPrimitiveType( componentType );
+          componentType = ObjectUtils.primitiveWrapperTypeFor( componentType );
         }
         int length = Array.getLength( primitiveArray );
         retvals = (Object[]) Array.newInstance( componentType, length );

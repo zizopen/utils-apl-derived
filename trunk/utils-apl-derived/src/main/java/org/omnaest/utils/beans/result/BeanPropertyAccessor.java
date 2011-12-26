@@ -479,7 +479,21 @@ public class BeanPropertyAccessor<B>
   @Override
   public String toString()
   {
-    return "BeanPropertyAccessor [propertyname=" + this.propertyName + ", beanClass=" + this.beanClass + "]";
+    StringBuilder builder = new StringBuilder();
+    builder.append( "BeanPropertyAccessor [propertyName=" );
+    builder.append( this.propertyName );
+    builder.append( ", field=" );
+    builder.append( this.field );
+    builder.append( ", methodGetter=" );
+    builder.append( this.methodGetter );
+    builder.append( ", methodSetter=" );
+    builder.append( this.methodSetter );
+    builder.append( ", beanClass=" );
+    builder.append( this.beanClass );
+    builder.append( ", propertyAccessType=" );
+    builder.append( this.propertyAccessType );
+    builder.append( "]" );
+    return builder.toString();
   }
   
   /**

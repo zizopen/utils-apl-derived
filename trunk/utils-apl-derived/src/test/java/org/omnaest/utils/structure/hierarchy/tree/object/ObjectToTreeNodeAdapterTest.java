@@ -32,7 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator;
 import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator.TreeNodeVisitor;
-import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator.TreeNodeVisitor.TraversalControl;
+import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator.TreeNodeVisitor.TraversalConfiguration;
 import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode.ObjectModel;
 
 /**
@@ -151,7 +151,6 @@ public class ObjectToTreeNodeAdapterTest
     this.testClass = new TestClass( testClassSub, fieldString, fieldString2, fieldDouble );
   }
   
-  @SuppressWarnings("unchecked")
   @Test
   public void testNavigate()
   {
@@ -205,7 +204,11 @@ public class ObjectToTreeNodeAdapterTest
       }
     };
     assertTrue( treeNavigator.hasChildren() );
-    treeNavigator.traverse( TraversalControl.GO_ON_INCLUDE_ALREADY_TRAVERSED_NODES, treeNodeVisitors );
+    boolean includingCurrentNode = true;
+    boolean includingAlreadyTraversedNodes = true;
+    boolean includingChildren = true;
+    treeNavigator.traverse( new TraversalConfiguration( includingCurrentNode, includingAlreadyTraversedNodes, includingChildren ),
+                            treeNodeVisitors );
     
     //
     assertTrue( traversedObjectSet.contains( this.testClass.getFieldDouble() ) );
@@ -252,11 +255,9 @@ public class ObjectToTreeNodeAdapterTest
   public void testTraversalPerformance()
   {
     //
-    ObjectTree tree = new ObjectToTreeNodeAdapter( new ObjectModel( this.testClass ) );
-    TreeNavigator<ObjectTree, ObjectTreeNode> treeNavigator = new TreeNavigator<ObjectTree, ObjectTreeNode>( tree );
+    final TreeNavigator<ObjectTree, ObjectTreeNode> treeNavigator = new ObjectTreeNavigator( this.testClass );
     
-    //
-    
+    //    
     TreeNodeVisitor<ObjectTree, ObjectTreeNode> treeNodeVisitors = new TreeNodeVisitor<ObjectTree, ObjectTreeNode>()
     {
       @Override

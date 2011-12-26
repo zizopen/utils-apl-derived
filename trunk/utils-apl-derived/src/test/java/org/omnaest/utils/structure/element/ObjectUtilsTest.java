@@ -150,6 +150,18 @@ public class ObjectUtilsTest
       assertTrue( objectCasted instanceof TestValueOf );
       assertEquals( object, ( (TestValueOf) objectCasted ).getString() );
     }
+    {
+      //
+      Object object = new Object();
+      Class<?> type = String.class;
+      
+      //
+      Object objectCasted = ObjectUtils.castTo( type, object );
+      
+      //
+      assertTrue( objectCasted instanceof String );
+      assertTrue( ( (String) objectCasted ).startsWith( "java.lang.Object@" ) );
+    }
   }
   
   @Test
@@ -298,10 +310,18 @@ public class ObjectUtilsTest
   }
   
   @Test
-  public void testIsWrapperTypeOfPrimitiveType()
+  public void testIsPrimitiveWrapperType()
   {
-    assertTrue( ObjectUtils.isWrapperTypeOfPrimitiveType( Integer.class ) );
-    assertFalse( ObjectUtils.isWrapperTypeOfPrimitiveType( boolean.class ) );
-    assertFalse( ObjectUtils.isWrapperTypeOfPrimitiveType( String.class ) );
+    assertTrue( ObjectUtils.isPrimitiveWrapperType( Integer.class ) );
+    assertFalse( ObjectUtils.isPrimitiveWrapperType( boolean.class ) );
+    assertFalse( ObjectUtils.isPrimitiveWrapperType( String.class ) );
+  }
+  
+  @Test
+  public void testObjectTypeFor()
+  {
+    assertEquals( null, ObjectUtils.objectTypeFor( null ) );
+    assertEquals( Double.class, ObjectUtils.objectTypeFor( double.class ) );
+    assertEquals( String.class, ObjectUtils.objectTypeFor( String.class ) );
   }
 }

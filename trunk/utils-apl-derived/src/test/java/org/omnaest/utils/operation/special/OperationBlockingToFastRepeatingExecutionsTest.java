@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.omnaest.utils.operation.Operation;
-import org.omnaest.utils.operation.special.OperationBlockingToFastRepeatingExecutions;
 import org.omnaest.utils.operation.special.OperationBlockingToFastRepeatingExecutions.ToFastInvocationException;
 import org.omnaest.utils.structure.element.ExceptionHandledResult;
 
@@ -33,22 +32,25 @@ import org.omnaest.utils.structure.element.ExceptionHandledResult;
 public class OperationBlockingToFastRepeatingExecutionsTest
 {
   
-  @SuppressWarnings("rawtypes")
   @Test
-  public void testExecuteToFast()
+  public void testExecuteToFast() throws InterruptedException
   {
     //
-    long forcedDurationAfterToFastInvocationInMilliseconds = 1000;
+    long forcedDurationAfterToFastInvocationInMilliseconds = 200;
     long minimalDurationBetweenExecutionInMilliseconds = 50;
+    int maximumNumberOfToleratedTooFastInvocations = 2;
     @SuppressWarnings("unchecked")
     Operation<String, String> operationOriginal = Mockito.mock( Operation.class );
     Mockito.when( operationOriginal.execute( Matchers.anyString() ) ).thenReturn( "tata" );
     
     //
-    Operation<ExceptionHandledResult<String>, String> operation = new OperationBlockingToFastRepeatingExecutions<String, String>(
-                                                                                                                                  operationOriginal,
-                                                                                                                                  minimalDurationBetweenExecutionInMilliseconds,
-                                                                                                                                  forcedDurationAfterToFastInvocationInMilliseconds );
+    final OperationBlockingToFastRepeatingExecutions<String, String> operationBlockingToFastRepeatingExecutions = new OperationBlockingToFastRepeatingExecutions<String, String>(
+                                                                                                                                                                                  operationOriginal,
+                                                                                                                                                                                  maximumNumberOfToleratedTooFastInvocations,
+                                                                                                                                                                                  minimalDurationBetweenExecutionInMilliseconds,
+                                                                                                                                                                                  forcedDurationAfterToFastInvocationInMilliseconds );
+    final Operation<ExceptionHandledResult<String>, String> operation = new OperationExceptionHandledResult<String, String>(
+                                                                                                                             operationBlockingToFastRepeatingExecutions );
     
     //
     {
@@ -60,9 +62,43 @@ public class OperationBlockingToFastRepeatingExecutionsTest
     {
       //
       ExceptionHandledResult<String> exceptionHandledResult = operation.execute( "lala" );
+      assertEquals( "tata", exceptionHandledResult.getResult() );
+      assertTrue( exceptionHandledResult.hasNoExceptions() );
+    }
+    {
+      //
+      ExceptionHandledResult<String> exceptionHandledResult = operation.execute( "lala" );
+      assertEquals( "tata", exceptionHandledResult.getResult() );
+      assertTrue( exceptionHandledResult.hasNoExceptions() );
+    }
+    
+    //
+    Thread.sleep( minimalDurationBetweenExecutionInMilliseconds );
+    
+    {
+      //
+      ExceptionHandledResult<String> exceptionHandledResult = operation.execute( "lala" );
+      assertEquals( "tata", exceptionHandledResult.getResult() );
+      assertTrue( exceptionHandledResult.hasNoExceptions() );
+    }
+    {
+      //
+      ExceptionHandledResult<String> exceptionHandledResult = operation.execute( "lala" );
+      assertEquals( "tata", exceptionHandledResult.getResult() );
+      assertTrue( exceptionHandledResult.hasNoExceptions() );
+    }
+    {
+      //
+      ExceptionHandledResult<String> exceptionHandledResult = operation.execute( "lala" );
+      assertEquals( "tata", exceptionHandledResult.getResult() );
+      assertTrue( exceptionHandledResult.hasNoExceptions() );
+    }
+    {
+      //
+      ExceptionHandledResult<String> exceptionHandledResult = operation.execute( "lala" );
       assertEquals( null, exceptionHandledResult.getResult() );
       assertTrue( exceptionHandledResult.hasExceptions() );
-      assertTrue( ( (OperationBlockingToFastRepeatingExecutions) operation ).hasLastInvocationExceededMinimalDurationBetweenTwoExcecutionCalls() );
+      assertTrue( operationBlockingToFastRepeatingExecutions.hasLastInvocationExceededMinimalDurationBetweenTwoExcecutionCalls() );
       assertTrue( exceptionHandledResult.getFirstException() instanceof ToFastInvocationException );
       assertTrue( ( (ToFastInvocationException) exceptionHandledResult.getFirstException() ).getDurationToWaitInMilliseconds() > 0 );
     }
@@ -71,11 +107,33 @@ public class OperationBlockingToFastRepeatingExecutionsTest
       ExceptionHandledResult<String> exceptionHandledResult = operation.execute( "lala" );
       assertEquals( null, exceptionHandledResult.getResult() );
       assertTrue( exceptionHandledResult.hasExceptions() );
-      assertTrue( ( (OperationBlockingToFastRepeatingExecutions) operation ).hasLastInvocationExceededMinimalDurationBetweenTwoExcecutionCalls() );
+      assertTrue( operationBlockingToFastRepeatingExecutions.hasLastInvocationExceededMinimalDurationBetweenTwoExcecutionCalls() );
       assertTrue( exceptionHandledResult.getFirstException() instanceof ToFastInvocationException );
       assertTrue( ( (ToFastInvocationException) exceptionHandledResult.getFirstException() ).getDurationToWaitInMilliseconds() > 100 );
     }
     
+    //
+    Thread.sleep( forcedDurationAfterToFastInvocationInMilliseconds );
+    
+    //
+    {
+      //
+      ExceptionHandledResult<String> exceptionHandledResult = operation.execute( "lala" );
+      assertEquals( "tata", exceptionHandledResult.getResult() );
+      assertTrue( exceptionHandledResult.hasNoExceptions() );
+    }
+    {
+      //
+      ExceptionHandledResult<String> exceptionHandledResult = operation.execute( "lala" );
+      assertEquals( "tata", exceptionHandledResult.getResult() );
+      assertTrue( exceptionHandledResult.hasNoExceptions() );
+    }
+    {
+      //
+      ExceptionHandledResult<String> exceptionHandledResult = operation.execute( "lala" );
+      assertEquals( "tata", exceptionHandledResult.getResult() );
+      assertTrue( exceptionHandledResult.hasNoExceptions() );
+    }
   }
   
 }

@@ -18,14 +18,17 @@ package org.omnaest.utils.structure.element.converter;
 import java.util.Collection;
 
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.iterator.IterableUtils;
 
-
-/* ********************************************** Classes/Interfaces ********************************************** */
 /**
- * The provides the transformation method to transform one generic element instance into another.
+ * The provides a {@link #convert(Object)} method to transform one element instance into another.
  * 
  * @see MultiElementConverter
+ * @see ElementConverterTypeAware
  * @see ListUtils#convert(Collection, ElementConverter)
+ * @see SetUtils#convert(Collection, ElementConverter)
+ * @see IterableUtils#convert(Iterable, ElementConverter)
  */
 public interface ElementConverter<FROM, TO>
 {
