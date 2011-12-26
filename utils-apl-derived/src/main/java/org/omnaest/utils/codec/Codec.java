@@ -16,6 +16,8 @@
 package org.omnaest.utils.codec;
 
 import org.omnaest.utils.codec.component.EncoderAndDecoderAlphanumericTokens;
+import org.omnaest.utils.structure.element.converter.ElementConverterAlphaNumericEncodedStringToDecodedString;
+import org.omnaest.utils.structure.element.converter.ElementConverterStringToAlphaNumericEncodedString;
 
 /**
  * Class containing {@link Codec}
@@ -29,6 +31,9 @@ public interface Codec
   /**
    * The {@link EncoderAndDecoderAlphanumericTokens} instance (thread safe) allows to process texts as pure alphanumeric token
    * streams with a encoding for non alphanumeric characters.
+   * 
+   * @see ElementConverterStringToAlphaNumericEncodedString
+   * @see ElementConverterAlphaNumericEncodedStringToDecodedString
    */
   public final EncoderAndDecoder<String, String> AlphaNumeric = new EncoderAndDecoderAlphanumericTokens();
   

@@ -21,7 +21,7 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToShort implements ElementConverter<String, Short>
+public class ElementConverterStringToShort implements ElementConverterTypeAware<String, Short>
 {
   
   @Override
@@ -44,6 +44,12 @@ public class ElementConverterStringToShort implements ElementConverter<String, S
     
     //
     return retval;
+  }
+  
+  @Override
+  public org.omnaest.utils.structure.element.converter.ElementConverterTypeAware.SourceAndTargetType<String, Short> getSourceAndTargetType()
+  {
+    return new SourceAndTargetType<String, Short>( String.class, Short.class );
   }
   
 }

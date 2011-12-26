@@ -17,7 +17,10 @@ package org.omnaest.utils.structure.collection;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
+import org.omnaest.utils.tuple.TupleTwo;
 import org.springframework.util.Assert;
 
 /**
@@ -75,6 +78,44 @@ public class ComparatorUtils
         
         //
         return retval;
+      }
+    };
+  }
+  
+  /**
+   * Returns a {@link Comparator} decorator using an internal {@link WeakHashMap} to cache the comparison values returned from the
+   * given {@link Comparator}. This speeds up {@link Comparator}s which have a long running calculation to determine the
+   * comparison value.
+   * 
+   * @param comparator
+   * @return
+   */
+  public static <T> Comparator<T> comparatorDecoratorUsingWeakHashMapCache( final Comparator<T> comparator )
+  {
+    return comparator == null ? null : new Comparator<T>()
+    {
+      /* ********************************************** Variables ********************************************** */
+      private Map<TupleTwo<T, T>, Integer> objectAndObjectTupleToComparisonValueMap = new WeakHashMap<TupleTwo<T, T>, Integer>();
+      
+      /* ********************************************** Methods ********************************************** */
+      
+      @Override
+      public int compare( T valueFirst, T valueSecond )
+      {
+        //
+        final TupleTwo<T, T> keyTuple = new TupleTwo<T, T>( valueFirst, valueSecond );
+        
+        //
+        Integer comparisonValue = this.objectAndObjectTupleToComparisonValueMap.get( keyTuple );
+        if ( comparisonValue == null )
+        {
+          //
+          comparisonValue = comparator.compare( valueFirst, valueSecond );
+          this.objectAndObjectTupleToComparisonValueMap.put( keyTuple, comparisonValue );
+        }
+        
+        //
+        return comparisonValue;
       }
     };
   }

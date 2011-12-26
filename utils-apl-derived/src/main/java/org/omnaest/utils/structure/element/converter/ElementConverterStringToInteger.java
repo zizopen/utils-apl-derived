@@ -17,11 +17,11 @@ package org.omnaest.utils.structure.element.converter;
 
 /**
  * @see Integer
- * @see ElementConverter
+ * @see ElementConverterTypeAware
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToInteger implements ElementConverter<String, Integer>
+public class ElementConverterStringToInteger implements ElementConverterTypeAware<String, Integer>
 {
   
   @Override
@@ -44,6 +44,12 @@ public class ElementConverterStringToInteger implements ElementConverter<String,
     
     //
     return retval;
+  }
+  
+  @Override
+  public SourceAndTargetType<String, Integer> getSourceAndTargetType()
+  {
+    return new SourceAndTargetType<String, Integer>( String.class, Integer.class );
   }
   
 }

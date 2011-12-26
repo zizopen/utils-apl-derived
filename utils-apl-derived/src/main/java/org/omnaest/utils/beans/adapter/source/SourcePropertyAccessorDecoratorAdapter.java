@@ -18,9 +18,9 @@ package org.omnaest.utils.beans.adapter.source;
 import java.lang.reflect.Method;
 
 import org.omnaest.utils.assertion.Assert;
-import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterHelper;
 
 /**
  * {@link SourcePropertyAccessorDecorator} which will listen to {@link Converter} annotated {@link Method}s.
@@ -87,7 +87,6 @@ public class SourcePropertyAccessorDecoratorAdapter extends SourcePropertyAccess
     return retval;
   }
   
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   private static Object convertByAdapter( Object value, Converter converter )
   {
     //
@@ -96,19 +95,10 @@ public class SourcePropertyAccessorDecoratorAdapter extends SourcePropertyAccess
     //
     if ( converter != null )
     {
-      //   
-      try
-      {
-        Class<? extends ElementConverter> type = converter.type();
-        ElementConverter elementConverter = ReflectionUtils.createInstanceOf( type );
-        if ( elementConverter != null )
-        {
-          retval = elementConverter.convert( value );
-        }
-      }
-      catch ( Exception e )
-      {
-      }
+      //
+      @SuppressWarnings("unchecked")
+      final Class<? extends ElementConverter<?, ?>>[] elementConverterTypes = (Class<? extends ElementConverter<?, ?>>[]) converter.types();
+      retval = ElementConverterHelper.convert( retval, elementConverterTypes );
     }
     
     //

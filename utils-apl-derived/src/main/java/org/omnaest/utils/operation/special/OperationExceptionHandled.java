@@ -25,6 +25,7 @@ import org.omnaest.utils.operation.Operation;
  * {@link #getExceptionHandlerRegistration()} any {@link ExceptionHandler} instances can register themselves to be notified for
  * any occuring {@link Exception}
  * 
+ * @see OperationExceptionHandledResult
  * @author Omnaest
  * @param <RESULT>
  * @param <PARAMETER>

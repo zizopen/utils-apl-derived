@@ -23,6 +23,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils.ElementFilter;
 import org.omnaest.utils.structure.collection.set.decorator.LockingSetDecorator;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 
@@ -127,14 +128,39 @@ public class SetUtils
   }
   
   /**
+   * Transforms elements to a {@link Set} of instances of another type using a given {@link ElementConverter}.
+   * 
+   * @see #convert(Iterable, ElementConverter)
+   * @param elementConverter
+   * @param elements
+   */
+  public static <FROM, TO> Set<TO> convert( ElementConverter<FROM, TO> elementConverter, FROM... elements )
+  {
+    return convert( SetUtils.valueOf( elements ), elementConverter );
+  }
+  
+  /**
    * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementConverter}.
    * 
    * @see #convert(Collection, ElementConverter, boolean)
-   * @param collection
+   * @param iterable
    * @param elementConverter
    */
-  public static <FROM, TO> Set<TO> convert( Collection<FROM> collection, ElementConverter<FROM, TO> elementConverter )
+  public static <FROM, TO> Set<TO> convert( Iterable<FROM> iterable, ElementConverter<FROM, TO> elementConverter )
   {
-    return new LinkedHashSet<TO>( ListUtils.convert( collection, elementConverter ) );
+    return new LinkedHashSet<TO>( ListUtils.convert( iterable, elementConverter ) );
+  }
+  
+  /**
+   * Filters the given {@link Collection} and returns a {@link Set} which only contains the elements which are not filtered out by
+   * the given element filter.
+   * 
+   * @param collection
+   * @param elementFilter
+   * @return
+   */
+  public static <E> Set<E> filter( Collection<E> collection, ElementFilter<E> elementFilter )
+  {
+    return SetUtils.valueOf( ListUtils.filter( collection, elementFilter ) );
   }
 }

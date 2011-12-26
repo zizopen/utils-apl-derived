@@ -54,6 +54,16 @@ public class ObjectToTreeNodeAdapter implements ObjectTreeNode, ObjectTree
     this.objectModel = objectModel;
   }
   
+  /**
+   * @see ObjectToTreeNodeAdapter
+   * @param object
+   */
+  public ObjectToTreeNodeAdapter( Object object )
+  {
+    super();
+    this.objectModel = new ObjectModel( object );
+  }
+  
   @Override
   public ObjectModel getModel()
   {
@@ -73,7 +83,7 @@ public class ObjectToTreeNodeAdapter implements ObjectTreeNode, ObjectTree
     
     boolean isPrimitiveType = type != null && type.isPrimitive();
     boolean isStringType = type != null && String.class.equals( type );
-    boolean isPrimitiveWrapperType = ObjectUtils.isWrapperTypeOfPrimitiveType( type );
+    boolean isPrimitiveWrapperType = ObjectUtils.isPrimitiveWrapperType( type );
     
     final Set<BeanPropertyAccessor<Object>> beanPropertyAccessorSet = !isPrimitiveType && !isStringType
                                                                       && !isPrimitiveWrapperType ? BeanUtils.beanPropertyAccessorSet( type )

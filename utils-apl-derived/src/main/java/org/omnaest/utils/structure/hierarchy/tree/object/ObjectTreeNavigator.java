@@ -46,4 +46,23 @@ public class ObjectTreeNavigator extends TreeNavigator<ObjectTree, ObjectTreeNod
     super( tree );
   }
   
+  /**
+   * @see ObjectTreeNavigator
+   * @param object
+   * @param cachingChildrenOfPathNodes
+   */
+  public ObjectTreeNavigator( Object object, boolean cachingChildrenOfPathNodes )
+  {
+    super( new ObjectToTreeNodeAdapter( object ), cachingChildrenOfPathNodes );
+  }
+  
+  /**
+   * @see ObjectTreeNavigator
+   * @param object
+   */
+  public ObjectTreeNavigator( Object object )
+  {
+    super( new ObjectToTreeNodeAdapter( object ) );
+  }
+  
 }

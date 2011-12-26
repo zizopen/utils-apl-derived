@@ -16,14 +16,20 @@
 package org.omnaest.utils.structure.element.converter;
 
 /**
- * @see ElementConverter
+ * @see ElementConverterTypeAware
  * @author Omnaest
  */
-public class ElementConverterObjectToString implements ElementConverter<Object, String>
+public class ElementConverterObjectToString implements ElementConverterTypeAware<Object, String>
 {
   @Override
   public String convert( Object element )
   {
     return element != null ? String.valueOf( element ) : null;
+  }
+  
+  @Override
+  public SourceAndTargetType<Object, String> getSourceAndTargetType()
+  {
+    return new SourceAndTargetType<Object, String>( Object.class, String.class );
   }
 }

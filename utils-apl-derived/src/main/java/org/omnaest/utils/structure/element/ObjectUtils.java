@@ -25,15 +25,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterRegistration;
 import org.omnaest.utils.structure.hierarchy.tree.object.ObjectToTreeNodeAdapter;
 import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNavigator;
 import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode.ObjectModel;
 
 /**
- * Offers methods for arbitrary {@link Object}s
+ * Helper which offers methods allowing to deal with arbitrary {@link Object}s
  * 
  * @author Omnaest
  */
@@ -561,38 +565,48 @@ public class ObjectUtils
         else
         {
           //
-          C createdInstance = ReflectionUtils.createInstanceOf( type, object );
-          if ( createdInstance != null )
+          final ElementConverter<Object, C> elementConverter = ElementConverterRegistration.determineElementConverterFor( (Class<Object>) objectType,
+                                                                                                                          type );
+          if ( elementConverter != null )
           {
-            retval = createdInstance;
+            retval = elementConverter.convert( object );
           }
           else
           {
+            
             //
-            createdInstance = ReflectionUtils.createInstanceUsingValueOfMethod( type, object );
+            C createdInstance = ReflectionUtils.createInstanceOf( type, object );
             if ( createdInstance != null )
             {
               retval = createdInstance;
             }
             else
             {
-              try
-              {
-                retval = type.cast( object );
-              }
-              catch ( Exception e )
-              {
-              }
-              
               //
-              if ( retval == null )
+              createdInstance = ReflectionUtils.createInstanceUsingValueOfMethod( type, object );
+              if ( createdInstance != null )
               {
-                retval = (C) object;
+                retval = createdInstance;
+              }
+              else
+              {
+                try
+                {
+                  retval = type.cast( object );
+                }
+                catch ( Exception e )
+                {
+                }
+                
+                //
+                if ( retval == null )
+                {
+                  retval = (C) object;
+                }
               }
             }
           }
         }
-        
       }
       catch ( Exception e )
       {
@@ -609,7 +623,7 @@ public class ObjectUtils
    * @param type
    * @return
    */
-  public static boolean isWrapperTypeOfPrimitiveType( Class<?> type )
+  public static boolean isPrimitiveWrapperType( Class<?> type )
   {
     //   
     return type != null
@@ -619,55 +633,212 @@ public class ObjectUtils
   }
   
   /**
-   * Returns the auto boxing type for a primitive {@link Class} type. If the given type is null or not a primitive type null is
-   * returned.
+   * Returns true if type is not null and {@link Class#isPrimitive()} is true for the given type
    * 
+   * @param type
+   * @return
+   */
+  public static boolean isPrimitiveType( Class<?> type )
+  {
+    return type != null && type.isPrimitive();
+  }
+  
+  /**
+   * Returns true if {@link #isPrimitiveType(Class)} or {@link #isPrimitiveWrapperType(Class)} returns true
+   * 
+   * @param type
+   * @return
+   */
+  public static boolean isPrimitiveOrPrimitiveWrapperType( Class<?> type )
+  {
+    return isPrimitiveType( type ) || isPrimitiveWrapperType( type );
+  }
+  
+  /**
+   * <pre>
+   * isString( null ) = false
+   * isString( "" ) = true
+   * isString( "xyz" ) = true
+   * isString( 123 ) = false
+   * </pre>
+   * 
+   * @param object
+   * @return
+   */
+  public static boolean isString( Object object )
+  {
+    return isAssignableFrom( String.class, object );
+  }
+  
+  /**
+   * Returns true if the given {@link Object} is not null and a {@link Map} derived type
+   * 
+   * @param object
+   * @return
+   */
+  public static boolean isMap( Object object )
+  {
+    return isAssignableFrom( Map.class, object );
+  }
+  
+  /**
+   * Returns true if the given {@link Object} is not null and a {@link SortedMap} derived type
+   * 
+   * @param object
+   * @return
+   */
+  public static boolean isSortedMap( Object object )
+  {
+    return isAssignableFrom( SortedMap.class, object );
+  }
+  
+  /**
+   * Returns true if the given {@link Object} is not null and a {@link SortedSet} derived type
+   * 
+   * @param object
+   * @return
+   */
+  public static boolean isSortedSet( Object object )
+  {
+    return isAssignableFrom( SortedSet.class, object );
+  }
+  
+  /**
+   * Returns true if the given {@link Object} is not null and a {@link List} derived type
+   * 
+   * @param object
+   * @return
+   */
+  public static boolean isList( Object object )
+  {
+    return isAssignableFrom( List.class, object );
+  }
+  
+  /**
+   * Returns true if the given {@link Object} is not null and a {@link Collection} derived type
+   * 
+   * @param object
+   * @return
+   */
+  public static boolean isCollection( Object object )
+  {
+    return isAssignableFrom( Collection.class, object );
+  }
+  
+  /**
+   * Returns true if the given {@link Object} is not null and a {@link Iterable} derived type
+   * 
+   * @param object
+   * @return
+   */
+  public static boolean isIterable( Object object )
+  {
+    return isAssignableFrom( Iterable.class, object );
+  }
+  
+  /**
+   * Returns true if the given target {@link Class} is {@link Class#isAssignableFrom(Class)} from the given {@link Object}. In
+   * other words is the assignment "<code>TargetType target = (TargetType) object;</code>" valid
+   * 
+   * @param targetType
+   * @param object
+   * @return
+   */
+  public static boolean isAssignableFrom( Class<?> targetType, Object object )
+  {
+    return object != null && targetType != null && targetType.isAssignableFrom( object.getClass() );
+  }
+  
+  /**
+   * Returns the {@link Object} type for the given type. <br>
+   * <br>
+   * 
+   * <pre>
+   * objectTypeFor(null) = null
+   * objectTypeFor(double) = Double
+   * objectTypeFor(String) = String
+   * objectTypeFor(Object) = Object
+   * </pre>
+   * 
+   * @see #primitiveWrapperTypeFor(Class)
+   * @see #isPrimitiveOrPrimitiveWrapperType(Class)
+   * @param type
+   * @return
+   */
+  public static Class<?> objectTypeFor( Class<?> type )
+  {
+    return type != null ? ( isPrimitiveType( type ) ? primitiveWrapperTypeFor( type ) : type ) : null;
+  }
+  
+  /**
+   * Returns the auto boxing type for a primitive {@link Class} type. <br>
+   * <br>
+   * 
+   * <pre>
+   * wrapperTypeForPrimitiveType( null ) = null
+   * wrapperTypeForPrimitiveType( boolean ) = Boolean
+   * wrapperTypeForPrimitiveType( double ) = Double
+   * wrapperTypeForPrimitiveType( primitiveType ) = wrapperType
+   * wrapperTypeForPrimitiveType( Double ) = Double
+   * wrapperTypeForPrimitiveType( wrapperType ) = wrapperType
+   * wrapperTypeForPrimitiveType( String ) = null
+   * </pre>
+   * 
+   * @see #objectTypeFor(Class)
    * @param primitiveType
    * @return
    */
-  public static Class<?> wrapperTypeForPrimitiveType( Class<?> primitiveType )
+  public static Class<?> primitiveWrapperTypeFor( Class<?> primitiveType )
   {
     //
     Class<?> retval = null;
     
     //
-    if ( primitiveType != null && primitiveType.isPrimitive() )
+    if ( primitiveType != null )
     {
-      if ( primitiveType.equals( int.class ) )
+      //
+      if ( primitiveType.isPrimitive() )
       {
-        retval = Integer.class;
+        if ( primitiveType.equals( int.class ) )
+        {
+          retval = Integer.class;
+        }
+        else if ( primitiveType.equals( long.class ) )
+        {
+          retval = Long.class;
+        }
+        else if ( primitiveType.equals( short.class ) )
+        {
+          retval = Short.class;
+        }
+        else if ( primitiveType.equals( byte.class ) )
+        {
+          retval = Byte.class;
+        }
+        else if ( primitiveType.equals( char.class ) )
+        {
+          retval = Character.class;
+        }
+        else if ( primitiveType.equals( float.class ) )
+        {
+          retval = Float.class;
+        }
+        else if ( primitiveType.equals( double.class ) )
+        {
+          retval = Double.class;
+        }
+        else if ( primitiveType.equals( boolean.class ) )
+        {
+          retval = Boolean.class;
+        }
+        else if ( primitiveType.equals( void.class ) )
+        {
+          retval = Void.class;
+        }
       }
-      else if ( primitiveType.equals( long.class ) )
+      else if ( isPrimitiveWrapperType( primitiveType ) )
       {
-        retval = Long.class;
-      }
-      else if ( primitiveType.equals( short.class ) )
-      {
-        retval = Short.class;
-      }
-      else if ( primitiveType.equals( byte.class ) )
-      {
-        retval = Byte.class;
-      }
-      else if ( primitiveType.equals( char.class ) )
-      {
-        retval = Character.class;
-      }
-      else if ( primitiveType.equals( float.class ) )
-      {
-        retval = Float.class;
-      }
-      else if ( primitiveType.equals( double.class ) )
-      {
-        retval = Double.class;
-      }
-      else if ( primitiveType.equals( boolean.class ) )
-      {
-        retval = Boolean.class;
-      }
-      else if ( primitiveType.equals( void.class ) )
-      {
-        retval = Void.class;
+        return primitiveType;
       }
     }
     

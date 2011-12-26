@@ -52,17 +52,17 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
 public class MethodCallCapturer
 {
   /* ********************************************** Constants ********************************************** */
-  public final MethodName                               methodName                            = new MethodName( this );
-  public final BeanProperty                             beanProperty                          = new BeanProperty( this );
+  public final MethodName                                     methodName                            = new MethodName( this );
+  public final BeanProperty                                   beanProperty                          = new BeanProperty( this );
   
   /* ********************************************** Variables ********************************************** */
-  protected Map<Object, List<MethodCallCaptureContext>> stubToMethodCallCaptureContextListMap = Collections.synchronizedMap( new IdentityHashMap<Object, List<MethodCallCaptureContext>>() );
-  protected Object                                      lastActiveRootStub                    = null;
+  protected final Map<Object, List<MethodCallCaptureContext>> stubToMethodCallCaptureContextListMap = Collections.synchronizedMap( new IdentityHashMap<Object, List<MethodCallCaptureContext>>() );
+  protected Object                                            lastActiveRootStub                    = null;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * Interface stubs are implementing when they are created by
+   * This interface stubs are implementing when they are created by
    * {@link MethodCallCapturer#newInstanceOfCapturedTypeWhichIsMethodCallCapturerAware(Class)}.
    * 
    * @see MethodCallCapturer
@@ -75,6 +75,22 @@ public class MethodCallCapturer
      * @return
      */
     public MethodCallCapturer getMethodCallCapturer();
+  }
+  
+  /**
+   * This interface stubs are always implementing when they are created by
+   * {@link MethodCallCapturer#newInstanceOfCapturedType(Class)}.
+   * 
+   * @author Omnaest
+   */
+  public static interface TypeCaptureAware
+  {
+    /**
+     * Returns the captured type
+     * 
+     * @return
+     */
+    public Class<?> getCapturedType();
   }
   
   /**
@@ -101,11 +117,22 @@ public class MethodCallCapturer
       Object retval = null;
       
       //
+      final String methodName = methodCallCapture.getMethod().getName();
       if ( this.capturedTypeInstanceCreationConfiguration.isMethodCallCapturerAware()
-           && "getMethodCallCapturer".equals( methodCallCapture.getMethod().getName() ) )
+           && "getMethodCallCapturer".equals( methodName ) )
       {
         //
         retval = MethodCallCapturer.this;
+      }
+      else if ( "getCapturedType".equals( methodName ) )
+      {
+        //
+        retval = this.capturedTypeInstanceCreationConfiguration.getType();
+      }
+      else if ( "toString".equals( methodName ) )
+      {
+        //
+        retval = "Capturer proxy for " + String.valueOf( this.capturedTypeInstanceCreationConfiguration.getType() );
       }
       else
       {
@@ -156,17 +183,17 @@ public class MethodCallCapturer
   protected static class CapturedTypeInstanceCreationConfiguration
   {
     /* ********************************************** Variables ********************************************** */
-    protected Class<?>                 clazz                            = null;
+    protected Class<?>                 type                             = null;
     protected Class<?>[]               interfaces                       = null;
     protected boolean                  isCreatingTransitiveStubs        = false;
     protected MethodCallCaptureContext previousMethodCallCaptureContext = null;
     
     /* ********************************************** Methods ********************************************** */
     
-    public CapturedTypeInstanceCreationConfiguration( Class<?> clazz, Class<?>[] interfaces, boolean isCreatingTransitiveStubs )
+    public CapturedTypeInstanceCreationConfiguration( Class<?> type, Class<?>[] interfaces, boolean isCreatingTransitiveStubs )
     {
       super();
-      this.clazz = clazz;
+      this.type = type;
       this.interfaces = interfaces;
       this.isCreatingTransitiveStubs = isCreatingTransitiveStubs;
     }
@@ -174,17 +201,17 @@ public class MethodCallCapturer
     /**
      * @return
      */
-    public Class<?> getClazz()
+    public Class<?> getType()
     {
-      return this.clazz;
+      return this.type;
     }
     
     /**
-     * @param clazz
+     * @param type
      */
-    public void setClazz( Class<?> clazz )
+    public void setType( Class<?> type )
     {
-      this.clazz = clazz;
+      this.type = type;
     }
     
     /**
@@ -464,6 +491,14 @@ public class MethodCallCapturer
   /* ********************************************** Methods ********************************************** */
   
   /**
+   * @see MethodCallCapturer
+   */
+  public MethodCallCapturer()
+  {
+    super();
+  }
+  
+  /**
    * Creates a new stub instance for the given class or interface which records all method invocations to this
    * {@link MethodCallCapturer}.
    * 
@@ -546,11 +581,12 @@ public class MethodCallCapturer
   protected <E> E newInstanceOfCapturedType( CapturedTypeInstanceCreationConfiguration capturedTypeInstanceCreationConfiguration )
   {
     //
-    MethodCaptureMethodInvocationHandler methodCaptureMethodInvocationHandler = new MethodCaptureMethodInvocationHandler(
-                                                                                                                          capturedTypeInstanceCreationConfiguration );
-    E stubInstance = StubCreator.<E> newStubInstance( (Class<? extends E>) capturedTypeInstanceCreationConfiguration.getClazz(),
-                                                      capturedTypeInstanceCreationConfiguration.getInterfaces(),
-                                                      methodCaptureMethodInvocationHandler );
+    final MethodCaptureMethodInvocationHandler methodCaptureMethodInvocationHandler = new MethodCaptureMethodInvocationHandler(
+                                                                                                                                capturedTypeInstanceCreationConfiguration );
+    final E stubInstance = StubCreator.<E> newStubInstance( (Class<? extends E>) capturedTypeInstanceCreationConfiguration.getType(),
+                                                            ArrayUtils.add( capturedTypeInstanceCreationConfiguration.getInterfaces(),
+                                                                            TypeCaptureAware.class ),
+                                                            methodCaptureMethodInvocationHandler );
     
     //
     if ( capturedTypeInstanceCreationConfiguration.getPreviousMethodCallCaptureContext() == null )
@@ -717,7 +753,7 @@ public class MethodCallCapturer
       }
     };
     canonicalPropertyNameList = ListUtils.convert( this.getOrCreateMethodCallCaptureContextListForStub( stub ),
-                                                     elementTransformer );
+                                                   elementTransformer );
     
     //
     return canonicalPropertyNameList;
@@ -745,8 +781,7 @@ public class MethodCallCapturer
         return methodCallCaptureContext.determineCanonicalMethodName( stub );
       }
     };
-    canonicalMethodNameList = ListUtils.convert( this.getOrCreateMethodCallCaptureContextListForStub( stub ),
-                                                   elementTransformer );
+    canonicalMethodNameList = ListUtils.convert( this.getOrCreateMethodCallCaptureContextListForStub( stub ), elementTransformer );
     
     //
     return canonicalMethodNameList;

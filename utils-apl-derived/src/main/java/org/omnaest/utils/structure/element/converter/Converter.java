@@ -25,7 +25,11 @@ import java.lang.annotation.Target;
  * An {@link Converter} allows to declare a {@link Class} of an {@link ElementConverter} which should be used to translate a
  * return value or a single given parameter before storing it in the underlying structure.<br>
  * <br>
- * The instance of the {@link ElementConverter} must have a default constructor.
+ * The instance of the {@link ElementConverter} must have a default constructor.<br>
+ * <br>
+ * If multiple {@link ElementConverter} types are specified they are chained in ascending index order (left to right). Please
+ * ensure that the output of any left handed {@link ElementConverter} can be used as input for any following
+ * {@link ElementConverter}. If any {@link Exception} occurs it is catched and null is returned.
  * 
  * @see ElementConverter
  * @author Omnaest
@@ -35,6 +39,10 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD })
 public @interface Converter
 {
+  /**
+   * @see Converter
+   * @return
+   */
   @SuppressWarnings("rawtypes")
-  public Class<? extends ElementConverter> type();
+  public Class<? extends ElementConverter>[] types();
 }

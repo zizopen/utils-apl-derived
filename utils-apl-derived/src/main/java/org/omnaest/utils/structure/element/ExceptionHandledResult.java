@@ -58,6 +58,16 @@ public class ExceptionHandledResult<E>
   }
   
   /**
+   * Returns true if {@link #getResult()} is not null
+   * 
+   * @return
+   */
+  public boolean hasResult()
+  {
+    return this.result != null;
+  }
+  
+  /**
    * Returns the {@link List} of all catched {@link Exception}s
    * 
    * @return

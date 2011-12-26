@@ -205,6 +205,30 @@ public class ListUtils
   }
   
   /**
+   * @see #convert(Collection, ElementConverter)
+   * @see #valueOf(Object...)
+   * @param elementConverter
+   * @param elements
+   * @return
+   */
+  public static <FROM, TO> List<TO> convert( ElementConverter<FROM, TO> elementConverter, FROM... elements )
+  {
+    return ListUtils.convert( ListUtils.valueOf( elements ), elementConverter );
+  }
+  
+  /**
+   * Transforms a given {@link Iterable} instance from one generic type into the other using a given {@link ElementConverter}
+   * 
+   * @see #convert(Collection, ElementConverter)
+   * @param iterable
+   * @param elementConverter
+   */
+  public static <FROM, TO> List<TO> convert( Iterable<FROM> iterable, ElementConverter<FROM, TO> elementConverter )
+  {
+    return convert( ListUtils.valueOf( iterable ), elementConverter );
+  }
+  
+  /**
    * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementConverter}.
    * 
    * @see #convert(Collection, ElementConverter)
@@ -310,7 +334,7 @@ public class ListUtils
    * @param elementConverter
    */
   public static <FROM, TO> List<TO> convertExcludingNullElements( Collection<FROM> collection,
-                                                                      ElementConverter<FROM, TO> elementConverter )
+                                                                  ElementConverter<FROM, TO> elementConverter )
   {
     return ListUtils.convert( collection, elementConverter, true );
   }

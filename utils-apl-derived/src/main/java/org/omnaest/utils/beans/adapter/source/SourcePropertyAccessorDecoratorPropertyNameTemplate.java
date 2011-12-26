@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.reflection.ReflectionUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 
 /**
  * {@link SourcePropertyAccessorDecorator} which will listen to {@link PropertyNameTemplate} annotated {@link Method}s and
@@ -89,7 +91,9 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourceP
       //
       if ( propertyNameTemplate != null )
       {
-        String template = propertyNameTemplate.value();
+        //
+        final Class<? extends ElementConverter<?, String>>[] additionalArgumentConverterTypes = propertyNameTemplate.additionalArgumentConverterTypes();
+        final String template = propertyNameTemplate.value();
         if ( template != null )
         {
           //
@@ -122,7 +126,11 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourceP
                                + " has to be between 0 and " + parameterIndexPositionMax );
             
             //
-            matcher.appendReplacement( stringBuffer, String.valueOf( additionalArguments[additionalArgumentIndexPosition] ) );
+            final Object additionalArgument = determineAdditionalArgument( additionalArgumentConverterTypes,
+                                                                           additionalArgumentIndexPosition, additionalArguments );
+            
+            final String additionalArgumentString = String.valueOf( additionalArgument );
+            matcher.appendReplacement( stringBuffer, additionalArgumentString );
           }
           matcher.appendTail( stringBuffer );
           
@@ -133,6 +141,30 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourceP
     }
     
     return retval;
+  }
+  
+  private static Object determineAdditionalArgument( final Class<? extends ElementConverter<?, String>>[] additionalArgumentConverterTypes,
+                                                     int additionalArgumentIndexPosition,
+                                                     Object[] additionalArguments )
+  {
+    //
+    Object additionalArgument = additionalArguments[additionalArgumentIndexPosition];
+    
+    //
+    if ( additionalArgumentIndexPosition >= 0 && additionalArgumentIndexPosition < additionalArgumentConverterTypes.length )
+    {
+      //
+      final Class<? extends ElementConverter<?, String>> elementConverterType = additionalArgumentConverterTypes[additionalArgumentIndexPosition];
+      @SuppressWarnings("unchecked")
+      final ElementConverter<Object, String> elementConverter = (ElementConverter<Object, String>) ReflectionUtils.createInstanceOf( elementConverterType );
+      if ( elementConverter != null )
+      {
+        additionalArgument = elementConverter.convert( additionalArgument );
+      }
+    }
+    
+    //
+    return additionalArgument;
   }
   
 }

@@ -20,6 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlType;
 
 import org.junit.Before;
@@ -38,6 +41,7 @@ import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCast;
 import org.omnaest.utils.structure.element.converter.ElementConverterNumberToString;
+import org.omnaest.utils.structure.element.converter.ElementConverterStringToAlphaNumericEncodedString;
 import org.omnaest.utils.structure.element.converter.ElementConverterStringToDouble;
 
 /**
@@ -52,6 +56,7 @@ public class SourcePropertyAccessorToTypeAdapterTest
                                                                                                                    this.propertyAccessor );
   
   private ElementHolder<String>  elementHolderDoubleReturnValue = new ElementHolder<String>();
+  private Map<String, Object>    keyToValueHolderMap            = new HashMap<String, Object>();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   @XmlType
@@ -63,7 +68,7 @@ public class SourcePropertyAccessorToTypeAdapterTest
     
     public double getFieldPrimitiveDouble();
     
-    @Converter(type = ElementConverterIdentitiyCast.class)
+    @Converter(types = ElementConverterIdentitiyCast.class)
     public void setFieldPrimitiveDouble( double value, String additionalArgument );
   }
   
@@ -86,7 +91,7 @@ public class SourcePropertyAccessorToTypeAdapterTest
     
     public double getFieldPrimitiveDouble();
     
-    @Converter(type = ElementConverterStringToDouble.class)
+    @Converter(types = ElementConverterStringToDouble.class)
     @DefaultValue("1.23")
     public Double getFieldDouble();
     
@@ -100,8 +105,26 @@ public class SourcePropertyAccessorToTypeAdapterTest
     public void setFieldPrimitiveDouble( double value );
     
     @DefaultValue("3.45")
-    @Converter(type = ElementConverterNumberToString.class)
+    @Converter(types = ElementConverterNumberToString.class)
     public void setFieldDouble( Double value );
+  }
+  
+  public static interface TestType3
+  {
+    @PropertyNameTemplate(value = "field({0})", additionalArgumentConverterTypes = ElementConverterStringToAlphaNumericEncodedString.class)
+    public String getFieldString( String tag );
+    
+    public void setFieldString( String value, String tag );
+    
+  }
+  
+  public static interface TestType4
+  {
+    @DefaultValue(value = "default 1", defaultValueConverterTypes = ElementConverterStringToAlphaNumericEncodedString.class)
+    public String getFieldString();
+    
+    public void setFieldString( String value );
+    
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -112,9 +135,40 @@ public class SourcePropertyAccessorToTypeAdapterTest
     //
     {
       //
-      Mockito.when( this.propertyAccessor.getValue( Matchers.eq( "fieldString" ), Matchers.eq( String.class ),
+      Mockito.when( this.propertyAccessor.getValue( Matchers.anyString(), (Class<?>) Matchers.anyObject(),
                                                     (PropertyMetaInformation) Matchers.anyObject() ) )
-             .thenReturn( "return string" );
+             .thenAnswer( new Answer<Object>()
+             {
+               @Override
+               public Object answer( InvocationOnMock invocation ) throws Throwable
+               {
+                 String key = (String) invocation.getArguments()[0];
+                 return SourcePropertyAccessorToTypeAdapterTest.this.keyToValueHolderMap.get( key );
+               }
+             } );
+      
+      //
+      Mockito.doAnswer( new Answer<Void>()
+      {
+        @Override
+        public Void answer( InvocationOnMock invocation ) throws Throwable
+        {
+          SourcePropertyAccessorToTypeAdapterTest.this.keyToValueHolderMap.put( (String) invocation.getArguments()[0],
+                                                                                invocation.getArguments()[1] );
+          return null;
+        }
+      } )
+             .when( this.propertyAccessor )
+             .setValue( Matchers.anyString(), Matchers.anyObject(), (Class<?>) Matchers.anyObject(),
+                        (PropertyMetaInformation) Matchers.anyObject() );
+    }
+    
+    //
+    {
+      //
+      //      Mockito.when( this.propertyAccessor.getValue( Matchers.eq( "fieldString" ), Matchers.eq( String.class ),
+      //                                                    (PropertyMetaInformation) Matchers.anyObject() ) )
+      //             .thenReturn( "return string" );
       
       Mockito.when( this.propertyAccessor.getValue( Matchers.eq( "fieldPrimitiveDouble" ), Matchers.eq( double.class ),
                                                     (PropertyMetaInformation) Matchers.anyObject() ) ).thenReturn( 1234.2234 );
@@ -148,6 +202,7 @@ public class SourcePropertyAccessorToTypeAdapterTest
              .when( this.propertyAccessor )
              .setValue( Matchers.eq( "fieldDouble" ), Matchers.anyObject(), (Class<?>) Matchers.anyObject(),
                         (PropertyMetaInformation) Matchers.anyObject() );
+      
     }
     //
     {
@@ -164,11 +219,15 @@ public class SourcePropertyAccessorToTypeAdapterTest
              .setValue( Matchers.eq( "fieldprimitivedouble" ), Matchers.eq( 1234.223 ), (Class<?>) Matchers.anyObject(),
                         (PropertyMetaInformation) Matchers.anyObject() );
     }
+    
   }
   
   @Test
   public void testNewInstance()
   {
+    //
+    this.keyToValueHolderMap.put( "fieldString", "return string" );
+    
     //
     assertEquals( "return string", this.testType.getFieldString() );
     assertEquals( 1234.2234, this.testType.getFieldPrimitiveDouble(), 0.0001 );
@@ -334,6 +393,48 @@ public class SourcePropertyAccessorToTypeAdapterTest
       this.elementHolderDoubleReturnValue.setElement( null );
       assertEquals( 1.23, testType2SplittedInternal.getFieldDouble().doubleValue(), 0.01 );
     }
+    
+  }
+  
+  @Test
+  public void testAdditionalArgumentsConverter()
+  {
+    //
+    PropertyAccessOption propertyAccessOption = PropertyAccessOption.PROPERTY;
+    boolean isRegardingAdapterAnnotation = true;
+    boolean isRegardingPropertyNameTemplateAnnotation = true;
+    boolean isRegardingDefaultValueAnnotation = true;
+    
+    TestType3 testType3 = this.newInstance( TestType3.class, propertyAccessOption, isRegardingAdapterAnnotation,
+                                            isRegardingPropertyNameTemplateAnnotation, isRegardingDefaultValueAnnotation );
+    
+    //
+    testType3.setFieldString( "value", "additional parameter" );
+    assertEquals( "value", testType3.getFieldString( "additional parameter" ) );
+    assertEquals( "value", this.keyToValueHolderMap.get( "field(additional160parameter)" ) );
+    
+  }
+  
+  @Test
+  public void testDefaultValueConverter()
+  {
+    //
+    PropertyAccessOption propertyAccessOption = PropertyAccessOption.PROPERTY;
+    boolean isRegardingAdapterAnnotation = true;
+    boolean isRegardingPropertyNameTemplateAnnotation = true;
+    boolean isRegardingDefaultValueAnnotation = true;
+    
+    TestType4 testType4 = this.newInstance( TestType4.class, propertyAccessOption, isRegardingAdapterAnnotation,
+                                            isRegardingPropertyNameTemplateAnnotation, isRegardingDefaultValueAnnotation );
+    
+    //
+    testType4.setFieldString( null );
+    assertEquals( "default160177", this.keyToValueHolderMap.get( "fieldString" ) );
+    assertEquals( "default160177", testType4.getFieldString() );
+    
+    //
+    assertEquals( "default160177", this.keyToValueHolderMap.remove( "fieldString" ) );
+    assertEquals( "default160177", testType4.getFieldString() );
     
   }
   

@@ -29,14 +29,14 @@ import org.springframework.util.Assert;
 /**
  * A bean {@link Scope} using {@link Locale}s as separation aspect. A given {@link LocaleResolver} is used to resolve a
  * {@link Locale} for every request for a bean and for the creation of a {@link Locale} aware
- * {@link BeanScopeThreadContextManager} with calling {@link #newLocalAwareBeanScopeThreadContextManager()}. <br>
+ * {@link BeanScopeThreadContextManager} with calling {@link #newLocaleAwareBeanScopeThreadContextManager()}. <br>
  * <br>
  * An example is:
  * 
  * <pre>
  * 
  * final Locale locale = new Locale( language, country );
- * BeanScopeThreadContextManager beanScopeThreadContextManager = localeBeanScope.newLocalAwareBeanScopeThreadContextManager( locale );
+ * BeanScopeThreadContextManager beanScopeThreadContextManager = localeBeanScope.newLocaleAwareBeanScopeThreadContextManager( locale );
  *                  
  * threadPoolTaskExecutor.submit( new BeanScopeAwareRunnableDecorator( new Runnable(){...}, beanScopeThreadContextManager );
  * 
@@ -56,8 +56,8 @@ import org.springframework.util.Assert;
  * Whereby the {@link LocaleAware} interface is optional. If it is present the {@link Locale} will be injected into the created
  * bean instance the first time it is used. <br>
  * <br>
- * Note: The {@link LocaleBeanScope} allows to use a {@link InheritableThreadLocal} instance and therefore {@link Thread} to
- * {@link Thread} inheritance.
+ * Note: The {@link LocaleBeanScope} allows to use a regular {@link ThreadLocal} as well as an {@link InheritableThreadLocal}
+ * instance and therefore {@link Thread} to {@link Thread} inheritance.
  * 
  * @see BeanScopeThreadContextManager
  * @see BeanScopeAwareRunnableDecorator
@@ -198,14 +198,14 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
    * 
    * @return
    */
-  public BeanScopeThreadContextManager newLocalAwareBeanScopeThreadContextManager()
+  public BeanScopeThreadContextManager newLocaleAwareBeanScopeThreadContextManager()
   {
     //
     Assert.notNull( this.localeResolver,
                     "LocaleResolver instance is null but is necessary to resolve the right bean for the locale bean scope" );
     
     //    
-    return this.newLocalAwareBeanScopeThreadContextManager( this.localeResolver );
+    return this.newLocaleAwareBeanScopeThreadContextManager( this.localeResolver );
   }
   
   /**
@@ -216,7 +216,7 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
    *          {@link LocaleResolver}
    * @return
    */
-  public BeanScopeThreadContextManager newLocalAwareBeanScopeThreadContextManager( LocaleResolver localeResolver )
+  public BeanScopeThreadContextManager newLocaleAwareBeanScopeThreadContextManager( LocaleResolver localeResolver )
   {
     //
     Assert.notNull( localeResolver,
@@ -224,7 +224,7 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
     
     //
     Locale locale = this.localeResolver.resolveLocale();
-    return this.newLocalAwareBeanScopeThreadContextManager( locale );
+    return this.newLocaleAwareBeanScopeThreadContextManager( locale );
   }
   
   /**
@@ -235,7 +235,7 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
    *          {@link Locale}
    * @return
    */
-  public BeanScopeThreadContextManager newLocalAwareBeanScopeThreadContextManager( final Locale locale )
+  public BeanScopeThreadContextManager newLocaleAwareBeanScopeThreadContextManager( final Locale locale )
   {
     //    
     Assert.notNull( locale,
@@ -294,7 +294,7 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
    */
   public Runnable newLocaleAwareRunnableDecorator( Runnable runnable, LocaleResolver localeResolver )
   {
-    return new BeanScopeAwareRunnableDecorator( runnable, this.newLocalAwareBeanScopeThreadContextManager( localeResolver ) );
+    return new BeanScopeAwareRunnableDecorator( runnable, this.newLocaleAwareBeanScopeThreadContextManager( localeResolver ) );
   }
   
   /**
@@ -307,7 +307,7 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
    */
   public <V> Callable<V> newLocaleAwareCallableDecorator( Callable<V> callable, LocaleResolver localeResolver )
   {
-    return new BeanScopeAwareCallableDecorator<V>( callable, this.newLocalAwareBeanScopeThreadContextManager( localeResolver ) );
+    return new BeanScopeAwareCallableDecorator<V>( callable, this.newLocaleAwareBeanScopeThreadContextManager( localeResolver ) );
   }
   
   /**
@@ -318,7 +318,7 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
    */
   public Runnable newLocaleAwareRunnableDecorator( Runnable runnable )
   {
-    return new BeanScopeAwareRunnableDecorator( runnable, this.newLocalAwareBeanScopeThreadContextManager() );
+    return new BeanScopeAwareRunnableDecorator( runnable, this.newLocaleAwareBeanScopeThreadContextManager() );
   }
   
   /**
@@ -330,7 +330,35 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
    */
   public <V> Callable<V> newLocaleAwareCallableDecorator( Callable<V> callable )
   {
-    return new BeanScopeAwareCallableDecorator<V>( callable, this.newLocalAwareBeanScopeThreadContextManager() );
+    return new BeanScopeAwareCallableDecorator<V>( callable, this.newLocaleAwareBeanScopeThreadContextManager() );
+  }
+  
+  /**
+   * Returns a new instance of a {@link Runnable} which manages the {@link Locale} awareness of the running {@link Thread}. To
+   * resolve the {@link Locale} the {@link #getResolvedLocaleForTheCurrentThread()} is used statically.
+   * 
+   * @param runnable
+   * @return
+   */
+  public Runnable newLocaleAwareRunnableDecoratorForLocaleOfCurrentThread( Runnable runnable )
+  {
+    return new BeanScopeAwareRunnableDecorator(
+                                                runnable,
+                                                this.newLocaleAwareBeanScopeThreadContextManager( this.getResolvedLocaleForTheCurrentThread() ) );
+  }
+  
+  /**
+   * Returns a new instance of a {@link Callable} which manages the {@link Locale} awareness of the running {@link Thread}. To
+   * resolve the {@link Locale} the {@link #getResolvedLocaleForTheCurrentThread()} is used statically.
+   * 
+   * @param callable
+   * @return
+   */
+  public <V> Callable<V> newLocaleAwareCallableDecoratorForLocaleOfCurrentThread( Callable<V> callable )
+  {
+    return new BeanScopeAwareCallableDecorator<V>(
+                                                   callable,
+                                                   this.newLocaleAwareBeanScopeThreadContextManager( this.getResolvedLocaleForTheCurrentThread() ) );
   }
   
   /**
@@ -342,7 +370,7 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
    */
   public Runnable newLocaleAwareRunnableDecorator( Runnable runnable, Locale locale )
   {
-    return new BeanScopeAwareRunnableDecorator( runnable, this.newLocalAwareBeanScopeThreadContextManager( locale ) );
+    return new BeanScopeAwareRunnableDecorator( runnable, this.newLocaleAwareBeanScopeThreadContextManager( locale ) );
   }
   
   /**
@@ -354,7 +382,7 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
    */
   public <V> Callable<V> newLocaleAwareCallableDecorator( Callable<V> callable, Locale locale )
   {
-    return new BeanScopeAwareCallableDecorator<V>( callable, this.newLocalAwareBeanScopeThreadContextManager( locale ) );
+    return new BeanScopeAwareCallableDecorator<V>( callable, this.newLocaleAwareBeanScopeThreadContextManager( locale ) );
   }
   
   @Override

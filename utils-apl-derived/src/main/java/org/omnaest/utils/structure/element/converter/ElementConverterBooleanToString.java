@@ -16,14 +16,20 @@
 package org.omnaest.utils.structure.element.converter;
 
 /**
- * @see ElementConverter
+ * @see ElementConverterTypeAware
  * @author Omnaest
  */
-public class ElementConverterBooleanToString implements ElementConverter<Boolean, String>
+public class ElementConverterBooleanToString implements ElementConverterTypeAware<Boolean, String>
 {
   @Override
   public String convert( Boolean element )
   {
     return element != null ? String.valueOf( element ) : null;
+  }
+  
+  @Override
+  public SourceAndTargetType<Boolean, String> getSourceAndTargetType()
+  {
+    return new SourceAndTargetType<Boolean, String>( Boolean.class, String.class );
   }
 }

@@ -21,7 +21,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.Factory;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
 
 /**
@@ -316,5 +318,17 @@ public class IterableUtils
     
     //
     return retval;
+  }
+  
+  /**
+   * Converts a given {@link Iterable} to a new {@link Iterable} type using the given {@link ElementConverter}
+   * 
+   * @param iterable
+   * @param elementConverter
+   * @return
+   */
+  public <FROM, TO> Iterable<TO> convert( Iterable<FROM> iterable, ElementConverter<FROM, TO> elementConverter )
+  {
+    return ListUtils.convert( ListUtils.valueOf( iterable ), elementConverter );
   }
 }

@@ -16,14 +16,28 @@
 package org.omnaest.utils.structure.element.converter;
 
 /**
- * @see ElementConverter
+ * @see ElementConverterStringToInteger
+ * @see ElementConverterStringToLong
+ * @see ElementConverterStringToBigInteger
+ * @see ElementConverterStringToBigDecimal
+ * @see ElementConverterStringToByte
+ * @see ElementConverterStringToDouble
+ * @see ElementConverterStringToFloat
+ * @see ElementConverterStringToShort
+ * @see ElementConverterTypeAware
  * @author Omnaest
  */
-public class ElementConverterNumberToString implements ElementConverter<Number, String>
+public class ElementConverterNumberToString implements ElementConverterTypeAware<Number, String>
 {
   @Override
   public String convert( Number element )
   {
     return element != null ? String.valueOf( element ) : null;
+  }
+  
+  @Override
+  public SourceAndTargetType<Number, String> getSourceAndTargetType()
+  {
+    return new SourceAndTargetType<Number, String>( Number.class, String.class );
   }
 }

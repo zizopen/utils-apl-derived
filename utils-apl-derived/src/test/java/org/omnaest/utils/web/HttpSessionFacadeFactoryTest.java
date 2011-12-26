@@ -71,7 +71,7 @@ public class HttpSessionFacadeFactoryTest
     @PropertyNameTemplate("OTHERFIELD")
     public String getOtherField();
     
-    @Converter(type = ElementConverterIdentity.class)
+    @Converter(types = ElementConverterIdentity.class)
     public void setOtherField( String value );
   }
   

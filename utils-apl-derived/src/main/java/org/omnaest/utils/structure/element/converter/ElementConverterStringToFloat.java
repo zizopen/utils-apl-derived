@@ -20,7 +20,7 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToFloat implements ElementConverter<String, Float>
+public class ElementConverterStringToFloat implements ElementConverterTypeAware<String, Float>
 {
   
   @Override
@@ -43,6 +43,12 @@ public class ElementConverterStringToFloat implements ElementConverter<String, F
     
     //
     return retval;
+  }
+  
+  @Override
+  public org.omnaest.utils.structure.element.converter.ElementConverterTypeAware.SourceAndTargetType<String, Float> getSourceAndTargetType()
+  {
+    return new SourceAndTargetType<String, Float>( String.class, Float.class );
   }
   
 }

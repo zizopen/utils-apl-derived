@@ -24,14 +24,13 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.ElementHolderUnmodifiable;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.table.Table.Column;
+import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.Table.Stripe;
 import org.omnaest.utils.structure.table.concrete.internal.selection.data.TableBlock;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeData;
 import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Predicate;
 import org.omnaest.utils.structure.table.subspecification.TableSelectable.Selection;
-
-import com.sun.rowset.internal.Row;
 
 /**
  * Filters all duplicate {@link Row}s / {@link Row}s with the same {@link Column} values will be collapsed to one.

@@ -124,6 +124,7 @@ public class BeanPropertyTest
       //
       assertNotNull( beanPropertyAccessor );
       assertEquals( "fieldDouble", beanPropertyAccessor.getPropertyName() );
+      assertEquals( TestClass.class, beanPropertyAccessor.getBeanClass() );
       assertTrue( beanPropertyAccessor.hasGetterAndSetter() );
     }
     
@@ -147,10 +148,10 @@ public class BeanPropertyTest
   }
   
   @Test
-    public void testGetInstance()
-    {
-      String name = getInstance().name.of( getInstance().newInstanceOfCapturedType( TestClass.class ).getFieldDouble() );
-      assertEquals( "fieldDouble", name );
-    }
+  public void testGetInstance()
+  {
+    String name = getInstance().name.of( getInstance().newInstanceOfCapturedType( TestClass.class ).getFieldDouble() );
+    assertEquals( "fieldDouble", name );
+  }
   
 }

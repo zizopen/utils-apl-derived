@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
 
@@ -47,6 +48,27 @@ public class ComparatorUtilsTest
     
     //
     //System.out.println( list  );
+  }
+  
+  @Test
+  public void testComparatorDecoratorUsingWeakHashMapCache()
+  {
+    //
+    final AtomicBoolean atomicBoolean = new AtomicBoolean( true );
+    final Comparator<String> comparator = new Comparator<String>()
+    {
+      @Override
+      public int compare( String o1, String o2 )
+      {
+        return atomicBoolean.get() ? o1.compareTo( o2 ) : -1;
+      }
+    };
+    
+    Comparator<String> comparatorDecoratorUsingWeakHashMapCache = ComparatorUtils.comparatorDecoratorUsingWeakHashMapCache( comparator );
+    
+    assertEquals( 0, comparatorDecoratorUsingWeakHashMapCache.compare( "test", "test" ) );
+    atomicBoolean.set( false );
+    assertEquals( 0, comparatorDecoratorUsingWeakHashMapCache.compare( "test", "test" ) );
   }
   
 }

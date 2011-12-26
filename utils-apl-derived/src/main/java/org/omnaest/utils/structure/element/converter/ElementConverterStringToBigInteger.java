@@ -22,7 +22,7 @@ import java.math.BigInteger;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToBigInteger implements ElementConverter<String, BigInteger>
+public class ElementConverterStringToBigInteger implements ElementConverterTypeAware<String, BigInteger>
 {
   
   @Override
@@ -45,6 +45,12 @@ public class ElementConverterStringToBigInteger implements ElementConverter<Stri
     
     //
     return retval;
+  }
+  
+  @Override
+  public org.omnaest.utils.structure.element.converter.ElementConverterTypeAware.SourceAndTargetType<String, BigInteger> getSourceAndTargetType()
+  {
+    return new SourceAndTargetType<String, BigInteger>( String.class, BigInteger.class );
   }
   
 }

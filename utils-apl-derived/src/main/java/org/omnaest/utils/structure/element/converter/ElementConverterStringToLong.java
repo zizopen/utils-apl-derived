@@ -20,7 +20,7 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToLong implements ElementConverter<String, Long>
+public class ElementConverterStringToLong implements ElementConverterTypeAware<String, Long>
 {
   
   @Override
@@ -43,6 +43,12 @@ public class ElementConverterStringToLong implements ElementConverter<String, Lo
     
     //
     return retval;
+  }
+  
+  @Override
+  public SourceAndTargetType<String, Long> getSourceAndTargetType()
+  {
+    return new SourceAndTargetType<String, Long>( String.class, Long.class );
   }
   
 }

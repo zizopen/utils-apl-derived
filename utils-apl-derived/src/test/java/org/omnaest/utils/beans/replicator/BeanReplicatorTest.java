@@ -15,111 +15,43 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.replicator;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.Ignore;
+import org.databene.contiperf.PerfTest;
+import org.databene.contiperf.junit.ContiPerfRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.omnaest.utils.beans.replicator.BeanReplicator.Adapter;
-import org.omnaest.utils.structure.element.converter.ElementConverterNumberToString;
+import org.omnaest.utils.beans.replicator.BeanReplicator.AdapterDeclarableBindings;
 import org.omnaest.utils.structure.element.converter.ElementConverterStringToInteger;
 
+/**
+ * @see BeanReplicator
+ * @author Omnaest
+ */
 public class BeanReplicatorTest
 {
+  @Rule
+  public ContiPerfRule contiPerfRule = new ContiPerfRule();
   
-  /**
-   * @author Omnaest
-   */
-  public static class TestClass
-  {
-    /* ********************************************** Variables ********************************************** */
-    private final String  fieldString;
-    private final Integer fieldInteger;
-    
-    /* ********************************************** Methods ********************************************** */
-    
-    /**
-     * @see TestClass
-     * @param fieldString
-     * @param fieldInteger
-     */
-    public TestClass( String fieldString, Integer fieldInteger )
-    {
-      super();
-      this.fieldString = fieldString;
-      this.fieldInteger = fieldInteger;
-    }
-    
-    /**
-     * @return the fieldString
-     */
-    public String getFieldString()
-    {
-      return this.fieldString;
-    }
-    
-    /**
-     * @return the fieldInteger
-     */
-    public Integer getFieldInteger()
-    {
-      return this.fieldInteger;
-    }
-    
-  }
-  
-  /**
-   * @author Omnaest
-   */
-  public static class TestClassDTO
-  {
-    /* ********************************************** Variables ********************************************** */
-    private final String  fieldString;
-    private final Integer fieldInteger;
-    
-    /* ********************************************** Methods ********************************************** */
-    
-    /**
-     * @see TestClassDTO
-     * @param fieldString
-     * @param fieldInteger
-     */
-    public TestClassDTO( String fieldString, Integer fieldInteger )
-    {
-      super();
-      this.fieldString = fieldString;
-      this.fieldInteger = fieldInteger;
-    }
-    
-    /**
-     * @return the fieldString
-     */
-    public String getFieldString()
-    {
-      return this.fieldString;
-    }
-    
-    /**
-     * @return the fieldInteger
-     */
-    public Integer getFieldInteger()
-    {
-      return this.fieldInteger;
-    }
-  }
-  
+  @PerfTest(invocations = 10)
   @Test
-  @Ignore
   public void testCopy()
   {
-    Adapter<TestClass, TestClassDTO> adapter = new Adapter<TestClass, TestClassDTO>( TestClass.class, TestClassDTO.class )
+    //
+    final AdapterDeclarableBindings<TestClass, TestClassDTO> adapter = new AdapterDeclarableBindings<TestClass, TestClassDTO>(
+                                                                                                                               TestClass.class,
+                                                                                                                               TestClassDTO.class )
     {
       @Override
-      public void declare( TestClass source, TestClassDTO target )
+      public void declareBindings( TestClass source, TestClassDTO target )
       {
-        this.map( source.getFieldString() ).to( target.getFieldInteger() ).using( new ElementConverterStringToInteger() );
-        this.map( source.getFieldInteger() ).to( target.getFieldString() ).using( new ElementConverterNumberToString() );
+        this.bind( source.getFieldString() ).to( target.getFieldInteger() ).using( new ElementConverterStringToInteger() );
+        this.bind( source.getFieldInteger() ).to( target.getFieldString() ).usingAutodetectedElementConverter();
       }
     };
+    
+    //
     BeanReplicator beanReplicator = new BeanReplicator( adapter );
     
     //    
@@ -129,6 +61,14 @@ public class BeanReplicatorTest
     
     TestClassDTO copy = beanReplicator.copy( testClass );
     assertNotNull( copy );
+    assertEquals( 10, copy.getFieldInteger().intValue() );
+    assertEquals( "5", copy.getFieldString() );
+  }
+  
+  @Test
+  public void testReplicate()
+  {
+    
   }
   
 }

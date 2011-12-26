@@ -22,7 +22,7 @@ import java.math.BigDecimal;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToBigDecimal implements ElementConverter<String, BigDecimal>
+public class ElementConverterStringToBigDecimal implements ElementConverterTypeAware<String, BigDecimal>
 {
   
   @Override
@@ -45,6 +45,12 @@ public class ElementConverterStringToBigDecimal implements ElementConverter<Stri
     
     //
     return retval;
+  }
+  
+  @Override
+  public org.omnaest.utils.structure.element.converter.ElementConverterTypeAware.SourceAndTargetType<String, BigDecimal> getSourceAndTargetType()
+  {
+    return new SourceAndTargetType<String, BigDecimal>( String.class, BigDecimal.class );
   }
   
 }
