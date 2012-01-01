@@ -21,9 +21,9 @@
         </license>
     </licenses>
     <scm>
-        <developerConnection>scm:svn:https://utils-apl-derived.googlecode.com/svn/tags/0.1.11/utils-apl-derived</developerConnection>
-        <url>http://utils-apl-derived.googlecode.com/svn/tags/0.1.11/utils-apl-derived</url>
-        <connection>scm:svn:http://utils-apl-derived.googlecode.com/svn/tags/0.1.11/utils-apl-derived</connection>
+        <developerConnection>scm:svn:https://utils-apl-derived.googlecode.com/svn/trunk/utils-apl-derived</developerConnection>
+        <url>http://utils-apl-derived.googlecode.com/svn/trunk/utils-apl-derived</url>
+        <connection>scm:svn:http://utils-apl-derived.googlecode.com/svn/trunk/utils-apl-derived</connection>
     </scm>
     <issueManagement>
         <url>http://code.google.com/p/utils-apl-derived/issues/list</url>
@@ -73,7 +73,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.1</version>
+                <version>2.2.2</version>
+				<configuration>
+				  <autoVersionSubmodules>true</autoVersionSubmodules>
+				  <tagNameFormat>@{project.version}/utils-apl-derived</tagNameFormat>
+				</configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
