@@ -22,8 +22,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.collection.list.ListUtils;
-import org.omnaest.utils.structure.element.Factory;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
 
 /**

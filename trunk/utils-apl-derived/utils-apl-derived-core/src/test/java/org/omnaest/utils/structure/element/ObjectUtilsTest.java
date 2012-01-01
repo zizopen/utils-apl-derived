@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.map.MapBuilder;
 
 /**

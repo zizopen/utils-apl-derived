@@ -44,14 +44,48 @@ public class TupleTwo<T1, T2> implements Tuple
   
   /* ********************************************** Methods ********************************************** */
   
+  /**
+   * @see TupleTwo
+   */
   public TupleTwo()
   {
   }
   
+  /**
+   * @see TupleTwo
+   * @param valueFirst
+   * @param valueSecond
+   */
   public TupleTwo( T1 valueFirst, T2 valueSecond )
   {
     this.valueFirst = valueFirst;
     this.valueSecond = valueSecond;
+  }
+  
+  /**
+   * Creates a new {@link TupleTwo} instance based on the values of an already existing instance
+   * 
+   * @see TupleTwo
+   * @param tupleTwo
+   */
+  public TupleTwo( TupleTwo<T1, T2> tupleTwo )
+  {
+    //
+    if ( tupleTwo != null )
+    {
+      this.valueFirst = tupleTwo.valueFirst;
+      this.valueSecond = tupleTwo.valueSecond;
+    }
+  }
+  
+  /**
+   * Returns a new {@link TupleTwo} instance with inverted first and second value
+   * 
+   * @return {@link TupleTwo}
+   */
+  public TupleTwo<T2, T1> newInvertedInstance()
+  {
+    return new TupleTwo<T2, T1>( this.valueSecond, this.valueFirst );
   }
   
   /**

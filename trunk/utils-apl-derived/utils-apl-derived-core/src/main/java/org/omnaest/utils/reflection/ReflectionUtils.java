@@ -1112,4 +1112,16 @@ public class ReflectionUtils
     return retset;
   }
   
+  /**
+   * Returns true if the given target {@link Class} is {@link Class#isAssignableFrom(Class)} for the given {@link Class} type.
+   * 
+   * @param targetType
+   * @param type
+   * @return
+   */
+  public static boolean isAssignableFrom( Class<?> targetType, Class<?> type )
+  {
+    return type != null && targetType != null && targetType.isAssignableFrom( type );
+  }
+  
 }

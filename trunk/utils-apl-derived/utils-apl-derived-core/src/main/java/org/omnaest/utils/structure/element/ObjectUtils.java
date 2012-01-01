@@ -32,6 +32,7 @@ import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterRegistration;
+import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.hierarchy.tree.object.ObjectToTreeNodeAdapter;
 import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNavigator;
 import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode.ObjectModel;
@@ -667,7 +668,7 @@ public class ObjectUtils
    */
   public static boolean isString( Object object )
   {
-    return isAssignableFrom( String.class, object );
+    return isAssignableFromInstance( String.class, object );
   }
   
   /**
@@ -678,7 +679,7 @@ public class ObjectUtils
    */
   public static boolean isMap( Object object )
   {
-    return isAssignableFrom( Map.class, object );
+    return isAssignableFromInstance( Map.class, object );
   }
   
   /**
@@ -689,7 +690,7 @@ public class ObjectUtils
    */
   public static boolean isSortedMap( Object object )
   {
-    return isAssignableFrom( SortedMap.class, object );
+    return isAssignableFromInstance( SortedMap.class, object );
   }
   
   /**
@@ -700,7 +701,7 @@ public class ObjectUtils
    */
   public static boolean isSortedSet( Object object )
   {
-    return isAssignableFrom( SortedSet.class, object );
+    return isAssignableFromInstance( SortedSet.class, object );
   }
   
   /**
@@ -711,7 +712,7 @@ public class ObjectUtils
    */
   public static boolean isList( Object object )
   {
-    return isAssignableFrom( List.class, object );
+    return isAssignableFromInstance( List.class, object );
   }
   
   /**
@@ -722,7 +723,7 @@ public class ObjectUtils
    */
   public static boolean isCollection( Object object )
   {
-    return isAssignableFrom( Collection.class, object );
+    return isAssignableFromInstance( Collection.class, object );
   }
   
   /**
@@ -733,7 +734,7 @@ public class ObjectUtils
    */
   public static boolean isIterable( Object object )
   {
-    return isAssignableFrom( Iterable.class, object );
+    return isAssignableFromInstance( Iterable.class, object );
   }
   
   /**
@@ -744,7 +745,7 @@ public class ObjectUtils
    * @param object
    * @return
    */
-  public static boolean isAssignableFrom( Class<?> targetType, Object object )
+  public static boolean isAssignableFromInstance( Class<?> targetType, Object object )
   {
     return object != null && targetType != null && targetType.isAssignableFrom( object.getClass() );
   }

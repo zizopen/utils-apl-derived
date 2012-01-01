@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.omnaest.utils.structure.element.Factory;
+import org.omnaest.utils.structure.element.factory.Factory;
 
 /**
  * A {@link ThreadLocalMap} is a {@link Map} stored independently for each {@link Thread} by using {@link ThreadLocal}. As

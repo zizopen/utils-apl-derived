@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.element;
+package org.omnaest.utils.structure.element.converter;
+
+import org.omnaest.utils.structure.element.factory.concrete.FactoryTypeAwareReflectionBased;
 
 /**
- * Arbitrary {@link Factory} interface.
+ * {@link ElementConverter} which converts a given {@link Class} type to an instance using {@link FactoryTypeAwareReflectionBased}
  * 
+ * @see ElementConverterClassToClassInstanceFactory
  * @author Omnaest
- * @param <E>
+ * @param <T>
+ *          type
  */
-public interface Factory<E>
+public class ElementConverterClassToInstance<T> implements ElementConverter<Class<? extends T>, T>
 {
-  /**
-   * Factory method for an element
-   * 
-   * @return
-   */
-  public E newInstance();
+  @Override
+  public T convert( Class<? extends T> type )
+  {
+    return new FactoryTypeAwareReflectionBased<T>( type ).newInstance();
+  }
 }

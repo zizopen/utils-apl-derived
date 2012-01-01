@@ -38,6 +38,7 @@ import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.reflection.ReflectionUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.map.MapUtils;
@@ -1028,12 +1029,13 @@ public class BeanUtils
     if ( beanSource != null && beanDestination != null )
     {
       //
-      Map<String, BeanPropertyAccessor<S>> fieldnameToBeanPropertyAccessorSourceMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( (Class<S>) beanSource.getClass() );
-      Map<String, BeanPropertyAccessor<D>> fieldnameToBeanPropertyAccessorDestinationMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( (Class<D>) beanDestination.getClass() );
+      final Map<String, BeanPropertyAccessor<S>> fieldnameToBeanPropertyAccessorSourceMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( (Class<S>) beanSource.getClass() );
+      final Map<String, BeanPropertyAccessor<D>> fieldnameToBeanPropertyAccessorDestinationMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( (Class<D>) beanDestination.getClass() );
       
       //
-      List<TupleTwo<BeanPropertyAccessor<S>, BeanPropertyAccessor<D>>> joinTupleList = MapUtils.innerJoinMapByKey( fieldnameToBeanPropertyAccessorSourceMap,
-                                                                                                                   fieldnameToBeanPropertyAccessorDestinationMap );
+      final List<TupleTwo<BeanPropertyAccessor<S>, BeanPropertyAccessor<D>>> joinTupleList = ListUtils.valueOf( MapUtils.innerJoinMapByKey( fieldnameToBeanPropertyAccessorSourceMap,
+                                                                                                                                            fieldnameToBeanPropertyAccessorDestinationMap )
+                                                                                                                        .values() );
       
       //
       for ( TupleTwo<BeanPropertyAccessor<S>, BeanPropertyAccessor<D>> tupleDuad : joinTupleList )
