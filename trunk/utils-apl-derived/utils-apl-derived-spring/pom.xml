@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>utils-apl-derived</artifactId>
+    <groupId>org.omnaest.utils</groupId>
+    <version>0.1.11-SNAPSHOT</version>
+  </parent>
+  <groupId>org.omnaest.utils</groupId>
+  <artifactId>utils-apl-derived-spring</artifactId>
+  <name>utils-apl-derived-spring</name>
+  <version>0.1.11-SNAPSHOT</version>
+  <url>http://code.google.com/p/utils-apl-derived/</url>
+  <dependencies>
+  	<dependency>
+  		<groupId>org.omnaest.utils</groupId>
+  		<artifactId>utils-apl-derived-core</artifactId>
+  		<version>0.1.11-SNAPSHOT</version>
+  		<type>jar</type>
+  		<scope>compile</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.omnaest.utils</groupId>
+  		<artifactId>utils-apl-derived-table</artifactId>
+  		<version>0.1.11-SNAPSHOT</version>
+  		<type>jar</type>
+  		<scope>compile</scope>
+  	</dependency>
+  </dependencies>
+</project>
