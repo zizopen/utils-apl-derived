@@ -73,7 +73,7 @@ public class OperationBlockingToFastRepeatingExecutionsTest
     }
     
     //
-    Thread.sleep( minimalDurationBetweenExecutionInMilliseconds );
+    Thread.sleep( minimalDurationBetweenExecutionInMilliseconds * 2 );
     
     {
       //
@@ -113,7 +113,7 @@ public class OperationBlockingToFastRepeatingExecutionsTest
     }
     
     //
-    Thread.sleep( forcedDurationAfterToFastInvocationInMilliseconds );
+    Thread.sleep( forcedDurationAfterToFastInvocationInMilliseconds * 2 );
     
     //
     {
