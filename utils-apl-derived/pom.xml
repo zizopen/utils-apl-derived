@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
@@ -22,9 +21,9 @@
         </license>
     </licenses>
     <scm>
-        <developerConnection>scm:svn:https://utils-apl-derived.googlecode.com/svn/trunk/utils-apl-derived</developerConnection>
-        <url>http://utils-apl-derived.googlecode.com/svn/trunk/</url>
-        <connection>scm:svn:http://utils-apl-derived.googlecode.com/svn/trunk/utils-apl-derived</connection>
+        <developerConnection>scm:svn:https://utils-apl-derived.googlecode.com/svn/tags/utils-apl-derived-0.1.11</developerConnection>
+        <url>http://utils-apl-derived.googlecode.com/svn/tags/utils-apl-derived-0.1.11</url>
+        <connection>scm:svn:http://utils-apl-derived.googlecode.com/svn/tags/utils-apl-derived-0.1.11</connection>
     </scm>
     <issueManagement>
         <url>http://code.google.com/p/utils-apl-derived/issues/list</url>
