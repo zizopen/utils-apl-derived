@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.omnaest.utils.structure.map.MapUtils;
-import org.omnaest.utils.structure.map.MapUtils.MapEntryToElementTransformer;
+import org.omnaest.utils.structure.map.MapUtils.MapEntryToElementConverter;
 
 /**
  * Helper for {@link URL} related actions
@@ -68,10 +68,10 @@ public class URLHelper
     try
     {
       //    
-      List<String> queryList = MapUtils.toList( queryMap, new MapEntryToElementTransformer<String, String, String>()
+      List<String> queryList = MapUtils.toList( queryMap, new MapEntryToElementConverter<String, String, String>()
       {
         @Override
-        public String transform( Entry<String, String> entry )
+        public String convert( Entry<String, String> entry )
         {
           return entry.getKey() + "=" + entry.getValue();
         }

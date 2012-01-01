@@ -16,8 +16,10 @@
 package org.omnaest.utils.structure.map.decorator;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -26,36 +28,36 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * A decorator for any {@link Map} implementation
+ * A decorator for any {@link SortedMap} implementation
  * 
- * @see SortedMapDecorator
+ * @see MapDecorator
  * @author Omnaest
  */
-@XmlRootElement(name = "map")
+@XmlRootElement(name = "sortedmap")
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
-public class MapDecorator<K, V> implements Map<K, V>
+public class SortedMapDecorator<K, V> implements SortedMap<K, V>
 {
   /* ********************************************** Variables ********************************************** */
   @XmlElementWrapper(name = "entries")
-  protected Map<K, V> map = null;
+  protected SortedMap<K, V> sortedMap = null;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @see MapDecorator
-   * @param map
+   * @see SortedMapDecorator
+   * @param sortedMap
    */
-  public MapDecorator( Map<K, V> map )
+  public SortedMapDecorator( SortedMap<K, V> sortedMap )
   {
     super();
-    this.map = map;
+    this.sortedMap = sortedMap;
   }
   
   /**
-   * @see MapDecorator
+   * @see SortedMapDecorator
    */
-  protected MapDecorator()
+  protected SortedMapDecorator()
   {
     super();
   }
@@ -67,7 +69,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public int size()
   {
-    return this.map.size();
+    return this.sortedMap.size();
   }
   
   /**
@@ -77,7 +79,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public boolean isEmpty()
   {
-    return this.map.isEmpty();
+    return this.sortedMap.isEmpty();
   }
   
   /**
@@ -88,7 +90,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public boolean containsKey( Object key )
   {
-    return this.map.containsKey( key );
+    return this.sortedMap.containsKey( key );
   }
   
   /**
@@ -99,7 +101,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public boolean containsValue( Object value )
   {
-    return this.map.containsValue( value );
+    return this.sortedMap.containsValue( value );
   }
   
   /**
@@ -110,7 +112,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public V get( Object key )
   {
-    return this.map.get( key );
+    return this.sortedMap.get( key );
   }
   
   /**
@@ -122,7 +124,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public V put( K key, V value )
   {
-    return this.map.put( key, value );
+    return this.sortedMap.put( key, value );
   }
   
   /**
@@ -133,7 +135,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public V remove( Object key )
   {
-    return this.map.remove( key );
+    return this.sortedMap.remove( key );
   }
   
   /**
@@ -143,7 +145,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public void putAll( Map<? extends K, ? extends V> m )
   {
-    this.map.putAll( m );
+    this.sortedMap.putAll( m );
   }
   
   /**
@@ -152,7 +154,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public void clear()
   {
-    this.map.clear();
+    this.sortedMap.clear();
   }
   
   /**
@@ -162,7 +164,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public Set<K> keySet()
   {
-    return this.map.keySet();
+    return this.sortedMap.keySet();
   }
   
   /**
@@ -172,7 +174,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public Collection<V> values()
   {
-    return this.map.values();
+    return this.sortedMap.values();
   }
   
   /**
@@ -182,7 +184,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   @Override
   public Set<java.util.Map.Entry<K, V>> entrySet()
   {
-    return this.map.entrySet();
+    return this.sortedMap.entrySet();
   }
   
   /* (non-Javadoc)
@@ -204,11 +206,11 @@ public class MapDecorator<K, V> implements Map<K, V>
       return false;
     }
     Map<?, ?> other = (Map<?, ?>) obj;
-    if ( this.map == null )
+    if ( this.sortedMap == null )
     {
       return false;
     }
-    else if ( !this.map.equals( other ) )
+    else if ( !this.sortedMap.equals( other ) )
     {
       return false;
     }
@@ -223,7 +225,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ( ( this.map == null ) ? 0 : this.map.hashCode() );
+    result = prime * result + ( ( this.sortedMap == null ) ? 0 : this.sortedMap.hashCode() );
     return result;
   }
   
@@ -234,7 +236,7 @@ public class MapDecorator<K, V> implements Map<K, V>
   public String toString()
   {
     StringBuilder builder = new StringBuilder();
-    builder.append( this.map );
+    builder.append( this.sortedMap );
     return builder.toString();
   }
   
@@ -243,16 +245,74 @@ public class MapDecorator<K, V> implements Map<K, V>
    */
   protected Map<K, V> getMap()
   {
-    return this.map;
+    return this.sortedMap;
   }
   
   /**
-   * @param map
+   * @param sortedMap
    *          the map to set
    */
-  protected void setMap( Map<K, V> map )
+  protected void setMap( SortedMap<K, V> sortedMap )
   {
-    this.map = map;
+    this.sortedMap = sortedMap;
+  }
+  
+  /**
+   * @return
+   * @see java.util.SortedMap#comparator()
+   */
+  public Comparator<? super K> comparator()
+  {
+    return this.sortedMap.comparator();
+  }
+  
+  /**
+   * @param fromKey
+   * @param toKey
+   * @return
+   * @see java.util.SortedMap#subMap(java.lang.Object, java.lang.Object)
+   */
+  public SortedMap<K, V> subMap( K fromKey, K toKey )
+  {
+    return this.sortedMap.subMap( fromKey, toKey );
+  }
+  
+  /**
+   * @param toKey
+   * @return
+   * @see java.util.SortedMap#headMap(java.lang.Object)
+   */
+  public SortedMap<K, V> headMap( K toKey )
+  {
+    return this.sortedMap.headMap( toKey );
+  }
+  
+  /**
+   * @param fromKey
+   * @return
+   * @see java.util.SortedMap#tailMap(java.lang.Object)
+   */
+  public SortedMap<K, V> tailMap( K fromKey )
+  {
+    return this.sortedMap.tailMap( fromKey );
+  }
+  
+  /**
+   * @return
+   * @see java.util.SortedMap#firstKey()
+   */
+  public K firstKey()
+  {
+    return this.sortedMap.firstKey();
+  }
+  
+  /**
+   * @return
+   * @see java.util.SortedMap#lastKey()
+   */
+  public K lastKey()
+  {
+    return this.sortedMap.lastKey();
   }
   
 }

@@ -15,6 +15,9 @@
  ******************************************************************************/
 package org.omnaest.utils.strings;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Utility class for supporting the work with {@link String}s
  * 
@@ -252,5 +255,49 @@ public class StringUtils
     
     //
     return retvals;
+  }
+  
+  /**
+   * Counts the number of matching substrings within the given text. As substring a regular expression is expected, please use
+   * {@link Pattern#quote(String)} if a substring contains special characters. <br>
+   * <br>
+   * 
+   * <pre>
+   * count("ab ab","ab") = 2
+   * count("abab","ab") = 2
+   * count("ababab","abab") = 1
+   * count("ababab ababab","abab") = 2
+   * count("aba bab","abab") = 0
+   * </pre>
+   * 
+   * @param text
+   * @param regExSubstring
+   * @return
+   */
+  public static int count( String text, String regExSubstring )
+  {
+    //
+    int retval = 0;
+    
+    //
+    if ( regExSubstring != null && text != null )
+    {
+      try
+      {
+        //
+        final Pattern pattern = Pattern.compile( regExSubstring );
+        final Matcher matcher = pattern.matcher( text );
+        while ( matcher.find() )
+        {
+          retval++;
+        }
+      }
+      catch ( Exception e )
+      {
+      }
+    }
+    
+    //
+    return retval;
   }
 }

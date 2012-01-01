@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.Factory;
-import org.omnaest.utils.structure.map.MapUtils.MapEntryToElementTransformer;
+import org.omnaest.utils.structure.map.MapUtils.MapEntryToElementConverter;
 
 /**
  * @see MapUtils
@@ -51,10 +51,10 @@ public class MapUtilsTest
     map.put( "key2", "value2" );
     
     //
-    MapEntryToElementTransformer<String, String, String> mapEntryToElementTransformer = new MapEntryToElementTransformer<String, String, String>()
+    MapEntryToElementConverter<String, String, String> mapEntryToElementTransformer = new MapEntryToElementConverter<String, String, String>()
     {
       @Override
-      public String transform( Entry<String, String> entry )
+      public String convert( Entry<String, String> entry )
       {
         return entry.getKey() + "=" + entry.getValue();
       }
