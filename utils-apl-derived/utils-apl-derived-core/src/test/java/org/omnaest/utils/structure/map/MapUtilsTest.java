@@ -32,7 +32,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.omnaest.utils.structure.collection.set.SetUtils;
-import org.omnaest.utils.structure.element.Factory;
+import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.map.MapUtils.MapEntryToElementConverter;
 
 /**

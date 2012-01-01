@@ -21,7 +21,9 @@ import java.util.concurrent.TimeUnit;
 import org.omnaest.utils.time.DurationCapture;
 
 /**
- * The {@link Assert} class offers assert methods which throw {@link RuntimeException}s if constraints are not fulfilled.
+ * The {@link Assert} class offers assert methods which throw {@link RuntimeException}s if constraints are not fulfilled.<br>
+ * <br>
+ * Be aware of the special behavior regarding to {@link String} instances which are used to identify messages.
  * 
  * @author Omnaest
  */
@@ -146,14 +148,16 @@ public class Assert
   /**
    * @see #isNotNull(Object, String)
    * @param message
-   * @param object
+   * @param object1
+   * @param object2
    * @param objects
    * @return
    */
-  public static boolean isNotNull( String message, Object object, Object... objects )
+  public static boolean isNotNull( String message, Object object1, Object object2, Object... objects )
   {
     //
-    isNotNull( object, message );
+    isNotNull( object1, message );
+    isNotNull( object2, message );
     for ( Object iObject : objects )
     {
       isNotNull( iObject, message );

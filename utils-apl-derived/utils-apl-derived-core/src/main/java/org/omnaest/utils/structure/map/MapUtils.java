@@ -36,9 +36,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.collection.list.ListUtils.ElementFilter;
 import org.omnaest.utils.structure.collection.set.SetUtils;
-import org.omnaest.utils.structure.element.Factory;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
+import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.map.decorator.LockingMapDecorator;
 import org.omnaest.utils.structure.map.decorator.MapDecorator;
 import org.omnaest.utils.structure.map.decorator.SortedMapDecorator;
@@ -106,7 +106,8 @@ public class MapUtils
    * @param maps
    * @return
    */
-  public static <K, V> Map<K, V> mergeAll( MapElementMergeOperation<K, V> mapElementMergeOperation, Map<K, V>... maps )
+  public static <K, V> Map<K, V> mergeAll( MapElementMergeOperation<K, V> mapElementMergeOperation,
+                                           Map<? extends K, ? extends V>... maps )
   {
     return MapUtils.mergeAll( Arrays.asList( maps ), mapElementMergeOperation );
   }
@@ -121,16 +122,16 @@ public class MapUtils
    * @param mapElementMergeOperation
    * @return
    */
-  public static <K, V> Map<K, V> mergeAll( Collection<Map<K, V>> mapCollection,
+  public static <K, V> Map<K, V> mergeAll( Collection<Map<? extends K, ? extends V>> mapCollection,
                                            MapElementMergeOperation<K, V> mapElementMergeOperation )
   {
     //
-    Map<K, V> retmap = new LinkedHashMap<K, V>();
+    final Map<K, V> retmap = new LinkedHashMap<K, V>();
     
     //
     if ( mapCollection != null && mapElementMergeOperation != null )
     {
-      for ( Map<K, V> map : mapCollection )
+      for ( Map<? extends K, ? extends V> map : mapCollection )
       {
         if ( map != null )
         {
@@ -190,8 +191,9 @@ public class MapUtils
   }
   
   /**
-   * Returns a list of {@link TupleTwo} instances which have always the value of the first map and the value of the second map
-   * which share the same key over both maps.
+   * Returns a {@link Map} with the matching keys and the respective value instances within a of {@link TupleTwo} wrapper, which
+   * has always the value of the first map and the value of the second map. Only the keys which are contained in both {@link Map}s
+   * will be returned.
    * 
    * @param <K>
    * @param <VA>
@@ -200,10 +202,10 @@ public class MapUtils
    * @param mapB
    * @return
    */
-  public static <K, VA, VB> List<TupleTwo<VA, VB>> innerJoinMapByKey( Map<K, VA> mapA, Map<K, VB> mapB )
+  public static <K, VA, VB> Map<K, TupleTwo<VA, VB>> innerJoinMapByKey( Map<K, VA> mapA, Map<K, VB> mapB )
   {
     //
-    List<TupleTwo<VA, VB>> retlist = new ArrayList<TupleTwo<VA, VB>>();
+    final Map<K, TupleTwo<VA, VB>> retmap = new LinkedHashMap<K, TupleTwo<VA, VB>>();
     
     //
     if ( mapA != null && mapB != null )
@@ -216,56 +218,62 @@ public class MapUtils
         VB valueB = mapB.get( key );
         
         //
-        retlist.add( new TupleTwo<VA, VB>( valueA, valueB ) );
+        retmap.put( key, new TupleTwo<VA, VB>( valueA, valueB ) );
       }
     }
     
     //
-    return retlist;
+    return retmap;
   }
   
   /**
-   * Converts the key of a map into another key.
+   * Returns a new {@link Map} instance with converted keys using the given {@link ElementConverter}
    * 
+   * @see #convertMap(Map, ElementConverter, ElementConverter)
+   * @see #convertMapValue(Map, ElementConverter)
    * @param <KeyFrom>
    * @param <KeyTo>
    * @param <Value>
    * @param map
    * @param keyElementConverter
-   * @return
+   * @return new ordered {@link Map}
    */
-  public static <KeyFrom, KeyTo, Value> Map<KeyTo, Value> convertMapKey( Map<KeyFrom, Value> map,
+  public static <KeyFrom, KeyTo, Value> Map<KeyTo, Value> convertMapKey( Map<? extends KeyFrom, ? extends Value> map,
                                                                          ElementConverter<KeyFrom, KeyTo> keyElementConverter )
   {
     return MapUtils.convertMap( map, keyElementConverter, new ElementConverterIdentity<Value>() );
   }
   
   /**
-   * Converts the value of a map into another key.
+   * Returns a new {@link Map} instance with all values converted using the given {@link ElementConverter}
    * 
+   * @see #convertMapKey(Map, ElementConverter)
+   * @see #convertMap(Map, ElementConverter, ElementConverter)
    * @param <Key>
    * @param <ValueFrom>
    * @param <ValueTo>
    * @param map
    * @param valueElementConverter
-   * @return
+   * @return new ordered {@link Map}
    */
-  public static <Key, ValueFrom, ValueTo> Map<Key, ValueTo> convertMapValue( Map<Key, ValueFrom> map,
+  public static <Key, ValueFrom, ValueTo> Map<Key, ValueTo> convertMapValue( Map<? extends Key, ? extends ValueFrom> map,
                                                                              ElementConverter<ValueFrom, ValueTo> valueElementConverter )
   {
     return MapUtils.convertMap( map, new ElementConverterIdentity<Key>(), valueElementConverter );
   }
   
   /**
-   * Converts a given map into a new map with new types. Makes use of element converters.
+   * Returns a new {@link Map} instance with converted keys and values using the given {@link ElementConverter}s
    * 
+   * @see #convertMapKey(Map, ElementConverter)
+   * @see #convertMapValue(Map, ElementConverter)
    * @see ElementConverter
    * @param map
    * @param keyElementConverter
    * @param valueElementConverter
-   * @return
+   * @return new ordered {@link Map}
    */
-  public static <KeyFrom, KeyTo, ValueFrom, ValueTo> Map<KeyTo, ValueTo> convertMap( Map<KeyFrom, ValueFrom> map,
+  public static <KeyFrom, KeyTo, ValueFrom, ValueTo> Map<KeyTo, ValueTo> convertMap( Map<? extends KeyFrom, ? extends ValueFrom> map,
                                                                                      ElementConverter<KeyFrom, KeyTo> keyElementConverter,
                                                                                      ElementConverter<ValueFrom, ValueTo> valueElementConverter )
   {

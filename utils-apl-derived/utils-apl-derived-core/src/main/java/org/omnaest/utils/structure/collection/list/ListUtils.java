@@ -776,14 +776,14 @@ public class ListUtils
    * @see CollectionUtils#toMap(Iterable, ElementConverterElementToMapEntry)
    * @see ElementConverterElementToMapEntry
    * @param iterable
-   * @param elementToMapEntryTransformer
+   * @param elementToMapEntryConverter
    * @return
    */
   public static <K, V, E> Map<K, V> toMap( Iterable<E> iterable,
-                                           ElementConverterElementToMapEntry<E, K, V> elementToMapEntryTransformer )
+                                           ElementConverterElementToMapEntry<E, K, V> elementToMapEntryConverter )
   {
     //
-    return CollectionUtils.toMap( iterable, elementToMapEntryTransformer );
+    return CollectionUtils.toMap( iterable, elementToMapEntryConverter );
   }
   
   /**
