@@ -17,10 +17,10 @@ package org.omnaest.utils.operation.battery;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.operation.Operation;
 import org.omnaest.utils.operation.OperationFactory;
 import org.omnaest.utils.operation.decorator.OperationDecoratorReentrantLock;
-import org.springframework.util.Assert;
 
 /**
  * An {@link OperationBattery} allows to use a single operation facade to access a pool of object instances which offers one and
@@ -99,12 +99,12 @@ public abstract class OperationBattery<RESULT, PARAMETER> implements Operation<R
     Operation<RESULT, PARAMETER> retval = null;
     
     //
-    Assert.notNull( this.operationFactory,
-                    "OperationFactory reference is null, but is needed to create a new Operation instance." );
+    Assert.isNotNull( this.operationFactory,
+                      "OperationFactory reference is null, but is needed to create a new Operation instance." );
     retval = this.operationFactory.newOperation();
     
     //
-    Assert.notNull( retval, "OperationFactory created a null reference, but it should provide new instances." );
+    Assert.isNotNull( retval, "OperationFactory created a null reference, but it should provide new instances." );
     if ( this.usingReentrantLock )
     {
       //

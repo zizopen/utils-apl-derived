@@ -95,7 +95,7 @@ public class DownloadConnection implements Runnable
     //if there is a downloadmanager uses the threadpool of the manager, else start the thread directly
     if ( this.downloadManager != null )
     {
-      this.downloadManager.startThreadPooled( thread );
+      this.downloadManager.startThreadPooled( this.thread );
     }
     else
     {
@@ -413,29 +413,29 @@ public class DownloadConnection implements Runnable
       isr = new InputStreamReader( bais );
       this.usedStringEncoding = System.getProperty( "file.encoding" );
     }
-    if ( isr != null )
+    
+    //
+    BufferedReader br = new BufferedReader( isr );
+    StringBuffer sb = new StringBuffer();
+    String line = null;
+    try
     {
-      BufferedReader br = new BufferedReader( isr );
-      StringBuffer sb = new StringBuffer();
-      String line = null;
-      try
+      boolean firstline = true;
+      while ( ( line = br.readLine() ) != null )
       {
-        boolean firstline = true;
-        while ( ( line = br.readLine() ) != null )
+        if ( !firstline )
         {
-          if ( !firstline )
-          {
-            sb.append( "\n" );
-          }
-          sb.append( line );
-          firstline = false;
+          sb.append( "\n" );
         }
+        sb.append( line );
+        firstline = false;
       }
-      catch ( IOException e )
-      {
-      }
-      retval = sb.toString();
     }
+    catch ( IOException e )
+    {
+    }
+    retval = sb.toString();
+    
     return retval;
   }
   
@@ -520,7 +520,7 @@ public class DownloadConnection implements Runnable
   
   public String getAuthenticationUser()
   {
-    return authenticationUser;
+    return this.authenticationUser;
   }
   
   public void setAuthenticationUser( String authenticationUser )
@@ -530,7 +530,7 @@ public class DownloadConnection implements Runnable
   
   public String getAuthenticationPassword()
   {
-    return authenticationPassword;
+    return this.authenticationPassword;
   }
   
   public void setAuthenticationPassword( String authenticationPassword )
@@ -540,7 +540,7 @@ public class DownloadConnection implements Runnable
   
   public DownloadManager getDownloadManager()
   {
-    return downloadManager;
+    return this.downloadManager;
   }
   
   public void setDownloadManager( DownloadManager downloadManager )
@@ -550,7 +550,7 @@ public class DownloadConnection implements Runnable
   
   public String getContentEncoding()
   {
-    return contentEncoding;
+    return this.contentEncoding;
   }
   
   public void setContentEncoding( String contentEncoding )
@@ -560,7 +560,7 @@ public class DownloadConnection implements Runnable
   
   public String getContentType()
   {
-    return contentType;
+    return this.contentType;
   }
   
   public void setContentType( String contentType )
@@ -594,7 +594,7 @@ public class DownloadConnection implements Runnable
   
   public String getStandardEncoding()
   {
-    return standardEncoding;
+    return this.standardEncoding;
   }
   
   public void setStandardEncoding( String standardEncoding )
@@ -604,7 +604,7 @@ public class DownloadConnection implements Runnable
   
   public String getUsedStringEncoding()
   {
-    return usedStringEncoding;
+    return this.usedStringEncoding;
   }
   
   public void setUsedStringEncoding( String usedStringEncoding )
@@ -614,7 +614,7 @@ public class DownloadConnection implements Runnable
   
   public URL getUrl()
   {
-    return url;
+    return this.url;
   }
   
   public DownloadConnection setDownloadMonitor( DownloadMonitor downloadMonitor )

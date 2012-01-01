@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.tuple.TupleTwo;
-import org.springframework.util.Assert;
 
 /**
  * Helper for {@link Comparator}
@@ -40,7 +40,7 @@ public class ComparatorUtils
    */
   public static <T> Comparator<T> comparatorUsingListIndexPosition( final List<T> list )
   {
-    Assert.notNull( list );
+    Assert.isNotNull( list );
     return new Comparator<T>()
     {
       

@@ -55,7 +55,10 @@ public class HttpSessionFacadeFactory
    */
   public static class Configuration extends PropertynameMapToTypeAdapter.Configuration
   {
+    /* ********************************************** Constants ********************************************** */
+    private static final long serialVersionUID = 6150726866781532600L;
     
+    /* ********************************************** Methods ********************************************** */
     /**
      * @see Configuration
      */

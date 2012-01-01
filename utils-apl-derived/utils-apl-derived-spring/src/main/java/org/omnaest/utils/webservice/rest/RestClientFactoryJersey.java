@@ -16,7 +16,6 @@
 package org.omnaest.utils.webservice.rest;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
@@ -30,7 +29,9 @@ import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.client.urlconnection.HTTPSProperties;
 
 /**
- * Implementation for a {@link RestClientFactory} for Jersey
+ * Implementation for a {@link RestClientFactory} for Jersey.<br>
+ * <br>
+ * This implementation does currently <b>not support matrix parameters</b>
  * 
  * @author Omnaest
  */
@@ -138,11 +139,11 @@ public class RestClientFactoryJersey extends RestClientFactory
               else if ( parameter instanceof MatrixParameter )
               {
                 //
-                MatrixParameter matrixParameter = (MatrixParameter) parameter;
+                //MatrixParameter matrixParameter = (MatrixParameter) parameter;
                 
                 //
-                String key = matrixParameter.getKey();
-                Collection<Object> valueCollection = matrixParameter.getValueCollection();
+                //String key = matrixParameter.getKey();
+                //Collection<Object> valueCollection = matrixParameter.getValueCollection();
                 
                 //FIXME missing matrix parameter
               }

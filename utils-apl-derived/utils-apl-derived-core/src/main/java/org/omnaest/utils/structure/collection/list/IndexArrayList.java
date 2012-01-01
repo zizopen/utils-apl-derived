@@ -61,7 +61,7 @@ public class IndexArrayList<E extends Comparable<? super E>> implements IndexLis
     
     public int getIndexPositionInDataList()
     {
-      return indexPositionInDataList;
+      return this.indexPositionInDataList;
     }
     
     public E getData()
@@ -258,7 +258,7 @@ public class IndexArrayList<E extends Comparable<? super E>> implements IndexLis
     
     public DataListWithIndexListIndexPosition getLower()
     {
-      return lower;
+      return this.lower;
     }
     
     public void setLower( DataListWithIndexListIndexPosition lower )
@@ -268,7 +268,7 @@ public class IndexArrayList<E extends Comparable<? super E>> implements IndexLis
     
     public DataListWithIndexListIndexPosition getUpper()
     {
-      return upper;
+      return this.upper;
     }
     
     public void setUpper( DataListWithIndexListIndexPosition upper )
@@ -288,7 +288,7 @@ public class IndexArrayList<E extends Comparable<? super E>> implements IndexLis
     
     public int getDataListIndexPosition()
     {
-      return dataListIndexPosition;
+      return this.dataListIndexPosition;
     }
     
     public void setDataListIndexPosition( int dataListIndexPosition )
@@ -298,7 +298,7 @@ public class IndexArrayList<E extends Comparable<? super E>> implements IndexLis
     
     public int getIndexListIndexPosition()
     {
-      return indexListIndexPosition;
+      return this.indexListIndexPosition;
     }
     
     public void setIndexListIndexPosition( int indexListIndexPosition )
