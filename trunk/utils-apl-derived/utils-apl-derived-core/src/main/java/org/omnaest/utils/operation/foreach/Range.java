@@ -18,9 +18,9 @@ package org.omnaest.utils.operation.foreach;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.iterator.ElementStreamToIteratorAdapter;
-import org.springframework.util.Assert;
 
 /**
  * Represents a {@link Range} for {@link Long} values which can be used as {@link Iterable}. The number limits are always
@@ -103,7 +103,7 @@ public class Range implements Iterable<Long>
   {
     super();
     
-    Assert.notNull( rangeExpression );
+    Assert.isNotNull( rangeExpression );
     String[] tokens = rangeExpression.split( "-" );
     Assert.isTrue( tokens.length == 2 );
     StringUtils.isNumeric( tokens[0] );

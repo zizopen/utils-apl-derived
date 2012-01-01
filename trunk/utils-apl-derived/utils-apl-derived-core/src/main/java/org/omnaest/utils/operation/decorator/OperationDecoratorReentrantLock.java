@@ -17,8 +17,8 @@ package org.omnaest.utils.operation.decorator;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.operation.Operation;
-import org.springframework.util.Assert;
 
 /**
  * An {@link OperationDecorator} which decorates the {@link Operation#execute(Object)} invocation with the use of
@@ -61,8 +61,8 @@ public class OperationDecoratorReentrantLock<RESULT, PARAMETER> extends Operatio
     RESULT retval = null;
     
     //
-    Assert.notNull( this.operation,
-                    "OperationDecoratorReentrantLock cannot decorate an non existing operation. Provide an instance reference which is not null." );
+    Assert.isNotNull( this.operation,
+                      "OperationDecoratorReentrantLock cannot decorate an non existing operation. Provide an instance reference which is not null." );
     if ( this.reentrantLock != null )
     {
       //
