@@ -3,12 +3,11 @@
     <parent>
         <artifactId>utils-apl-derived</artifactId>
         <groupId>org.omnaest.utils</groupId>
-        <version>0.1.11</version>
+        <version>0.1.11-SNAPSHOT</version>
     </parent>
     <groupId>org.omnaest.utils</groupId>
     <artifactId>utils-apl-derived-spring</artifactId>
     <name>utils-apl-derived-spring</name>
-    <version>0.1.11</version>
     <url>http://code.google.com/p/utils-apl-derived/</url>
     <dependencies>
         <dependency>
