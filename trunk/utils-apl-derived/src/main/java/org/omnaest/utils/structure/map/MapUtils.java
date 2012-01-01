@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -40,6 +41,7 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.map.decorator.LockingMapDecorator;
 import org.omnaest.utils.structure.map.decorator.MapDecorator;
+import org.omnaest.utils.structure.map.decorator.SortedMapDecorator;
 import org.omnaest.utils.tuple.TupleTwo;
 
 /**
@@ -73,13 +75,13 @@ public class MapUtils
   /**
    * Converted to transform a given {@link Entry} of a {@link Map} to a single {@link List} element
    * 
-   * @see #transform(Entry)
+   * @see #convert(Entry)
    * @author Omnaest
    * @param <TO>
    * @param <K>
    * @param <V>
    */
-  public static interface MapEntryToElementTransformer<TO, K, V>
+  public static interface MapEntryToElementConverter<TO, K, V> extends ElementConverter<Entry<K, V>, TO>
   {
     /**
      * Converts a {@link Entry} of a {@link Map} to a single element for a {@link List}
@@ -87,7 +89,8 @@ public class MapUtils
      * @param entry
      * @return
      */
-    public TO transform( Entry<K, V> entry );
+    @Override
+    public TO convert( Entry<K, V> entry );
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -330,24 +333,24 @@ public class MapUtils
   }
   
   /**
-   * Transforms a given {@link Map} to a {@link List} using the given {@link MapEntryToElementTransformer} to create single
-   * elements for the {@link List} based on the {@link Entry}s of the given {@link Map}
+   * Transforms a given {@link Map} to a {@link List} using the given {@link MapEntryToElementConverter} to create single elements
+   * for the {@link List} based on the {@link Entry}s of the given {@link Map}
    * 
    * @param map
-   * @param mapEntryToElementTransformer
+   * @param mapEntryToElementConverter
    * @return {@link List}
    */
-  public static <TO, K, V> List<TO> toList( Map<K, V> map, MapEntryToElementTransformer<TO, K, V> mapEntryToElementTransformer )
+  public static <TO, K, V> List<TO> toList( Map<K, V> map, MapEntryToElementConverter<TO, K, V> mapEntryToElementConverter )
   {
     //
     List<TO> retlist = new ArrayList<TO>();
     
     //
-    if ( map != null && mapEntryToElementTransformer != null )
+    if ( map != null && mapEntryToElementConverter != null )
     {
       for ( Entry<K, V> entry : map.entrySet() )
       {
-        retlist.add( mapEntryToElementTransformer.transform( entry ) );
+        retlist.add( mapEntryToElementConverter.convert( entry ) );
       }
     }
     
@@ -657,7 +660,7 @@ public class MapUtils
    * @see #initializeMap(Map, Iterable, Factory)
    * @param map
    * @param valueFactory
-   * @return
+   * @return {@link Map} decorator
    */
   public static <K, V> Map<K, V> initializedMap( Map<K, V> map, final Factory<V> valueFactory )
   {
@@ -683,6 +686,39 @@ public class MapUtils
         return value;
       }
       
+    };
+  }
+  
+  /**
+   * Similar to {@link #initializedMap(Map, Factory)} but for any {@link SortedMap} instance
+   * 
+   * @param sortedMap
+   * @param valueFactory
+   * @return {@link SortedMap} decorator
+   */
+  public static <K, V> SortedMap<K, V> initializedMap( SortedMap<K, V> sortedMap, final Factory<V> valueFactory )
+  {
+    Assert.isNotNull( valueFactory, "Factory must be not null" );
+    Assert.isNotNull( sortedMap, "Map must be not null" );
+    return new SortedMapDecorator<K, V>( sortedMap )
+    {
+      @SuppressWarnings("unchecked")
+      @Override
+      public V get( Object key )
+      {
+        //
+        V value = super.get( key );
+        
+        //
+        if ( value == null )
+        {
+          value = valueFactory.newInstance();
+          this.put( (K) key, value );
+        }
+        
+        //
+        return value;
+      }
     };
   }
 }

@@ -98,4 +98,13 @@ public class StringUtilsTest
     assertArrayEquals( new String[] { "Thi", "s i", "s a", "n e", "asy", " te", "xt" }, splitByInterval );
   }
   
+  @Test
+  public void testCount()
+  {
+    final String text = "ab lalala ab lalala ab lalala ab lala a lalalalala";
+    assertEquals( 4, StringUtils.count( text, "ab" ) );
+    assertEquals( 16, StringUtils.count( text, "la" ) );
+    assertEquals( 6, StringUtils.count( text, "lala" ) );
+  }
+  
 }

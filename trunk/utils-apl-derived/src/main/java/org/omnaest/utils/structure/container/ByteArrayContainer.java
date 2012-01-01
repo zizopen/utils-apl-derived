@@ -24,8 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -79,7 +81,7 @@ public class ByteArrayContainer
    */
   public ByteArrayContainer( byte[] content )
   {
-    super();
+    this();
     this.copyFrom( content );
   }
   
@@ -89,7 +91,7 @@ public class ByteArrayContainer
    */
   public ByteArrayContainer( String content )
   {
-    super();
+    this();
     this.copyFrom( content );
   }
   
@@ -99,7 +101,7 @@ public class ByteArrayContainer
    */
   public ByteArrayContainer( String content, String encoding )
   {
-    super();
+    this();
     this.copyFrom( content, encoding );
   }
   
@@ -109,7 +111,7 @@ public class ByteArrayContainer
    */
   public ByteArrayContainer( CharSequence charsequence, String encoding )
   {
-    super();
+    this();
     this.copyFrom( charsequence, encoding );
   }
   
@@ -120,7 +122,7 @@ public class ByteArrayContainer
    */
   public ByteArrayContainer( InputStream sourceInputStream )
   {
-    super();
+    this();
     this.copyFrom( sourceInputStream );
   }
   
@@ -130,8 +132,19 @@ public class ByteArrayContainer
    */
   public ByteArrayContainer( CharSequence charsequence )
   {
-    super();
+    this();
     this.copyFrom( charsequence );
+  }
+  
+  /**
+   * @see ByteArrayContainer
+   * @see #copyFrom(Readable)
+   * @param readable
+   */
+  public ByteArrayContainer( Readable readable )
+  {
+    this();
+    this.copyFrom( readable );
   }
   
   /**
@@ -261,6 +274,63 @@ public class ByteArrayContainer
     catch ( IOException e )
     {
       this.isContentInvalid = true;
+    }
+    
+    //
+    return this;
+  }
+  
+  /**
+   * Copies the content from a {@link Readable} using the {@value #ENCODING_UTF8} encoding
+   * 
+   * @param readable
+   * @return this
+   */
+  public ByteArrayContainer copyFrom( Readable readable )
+  {
+    return this.copyFrom( readable, ENCODING_UTF8 );
+  }
+  
+  /**
+   * Copies the content from a {@link Readable} using the given encoding
+   * 
+   * @param readable
+   * @param encoding
+   * @return this
+   */
+  public ByteArrayContainer copyFrom( Readable readable, String encoding )
+  {
+    //
+    this.isContentInvalid = false;
+    if ( readable != null )
+    {
+      //
+      encoding = StringUtils.defaultString( encoding, ENCODING_UTF8 );
+      
+      //
+      try
+      {
+        //
+        final StringBuffer stringBuffer = new StringBuffer();
+        final CharBuffer charBuffer = CharBuffer.wrap( new char[1000] );
+        for ( int read = 0; read >= 0; )
+        {
+          //
+          charBuffer.clear();
+          read = readable.read( charBuffer );
+          charBuffer.flip();
+          if ( read > 0 )
+          {
+            stringBuffer.append( charBuffer, 0, read );
+          }
+        }
+        
+        this.copyFrom( stringBuffer, encoding );
+      }
+      catch ( IOException e )
+      {
+        this.isContentInvalid = true;
+      }
     }
     
     //
@@ -445,6 +515,50 @@ public class ByteArrayContainer
     
     //
     return retlist;
+  }
+  
+  /**
+   * Writes the content of the {@link ByteArrayContainer} to the given {@link Writer} instance. The {@link Writer#flush()} method
+   * will be invoked afterwards but it will not be closed.
+   * 
+   * @see #writeTo(Writer)
+   * @param writer
+   * @param encoding
+   * @return true, if no error occurs
+   */
+  public boolean writeTo( Writer writer, String encoding )
+  {
+    //
+    boolean retval = true;
+    
+    //
+    if ( writer != null )
+    {
+      try
+      {
+        writer.write( this.toString( encoding ) );
+        writer.flush();
+      }
+      catch ( IOException e )
+      {
+        retval = false;
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Similar to {@link #writeTo(Writer, String)} using the default encoding {@value #ENCODING_UTF8}
+   * 
+   * @see #writeTo(Writer, String)
+   * @param writer
+   * @return true, if no error occurs
+   */
+  public boolean writeTo( Writer writer )
+  {
+    return this.writeTo( writer, ENCODING_UTF8 );
   }
   
   /**

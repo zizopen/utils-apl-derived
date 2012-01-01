@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.container;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.nio.CharBuffer;
 import java.util.List;
 
 import org.junit.Before;
@@ -55,5 +56,14 @@ public class ByteArrayContainerTest
       assertEquals( part[ii], retlist.get( ii ) );
     }
     
+  }
+  
+  @Test
+  public void testCopyFrom()
+  {
+    //
+    Readable readable = CharBuffer.wrap( "test" );
+    ByteArrayContainer byteArrayContainer = new ByteArrayContainer( readable );
+    assertEquals( "test", byteArrayContainer.toString() );
   }
 }

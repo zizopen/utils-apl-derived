@@ -363,13 +363,26 @@ public class ListUtils
    */
   public static <E> List<E> filter( Collection<E> collection, ElementFilter<E> elementFilter )
   {
+    return filter( (Iterable<E>) collection, elementFilter );
+  }
+  
+  /**
+   * Returns a filtered {@link List} using a {@link ElementFilter}
+   * 
+   * @param iterable
+   *          {@link Iterable}
+   * @param elementFilter
+   * @return a new {@link List} instance containing only the not filtered elements of the given {@link List}
+   */
+  public static <E> List<E> filter( Iterable<E> iterable, ElementFilter<E> elementFilter )
+  {
     //
     List<E> retlist = new ArrayList<E>();
     
     //
-    if ( collection != null && elementFilter != null )
+    if ( iterable != null && elementFilter != null )
     {
-      for ( E element : collection )
+      for ( E element : iterable )
       {
         if ( !elementFilter.filter( element ) )
         {
@@ -947,6 +960,30 @@ public class ListUtils
     
     //
     return retval;
+  }
+  
+  /**
+   * Returns a sublist of the given {@link List} with the maximum given size. There will always a new {@link List} instance be
+   * returned, but empty. If the given {@link List} has less elements only these are returned and the returned {@link List} will
+   * not be filled with additional null references.
+   * 
+   * @param list
+   * @param maximumSize
+   * @return
+   */
+  public static <E> List<E> max( List<E> list, int maximumSize )
+  {
+    //   
+    final List<E> retlist = new ArrayList<E>();
+    
+    //
+    if ( list != null && maximumSize >= 0 )
+    {
+      retlist.addAll( list.subList( 0, Math.min( list.size(), maximumSize ) ) );
+    }
+    
+    //
+    return retlist;
   }
   
 }
