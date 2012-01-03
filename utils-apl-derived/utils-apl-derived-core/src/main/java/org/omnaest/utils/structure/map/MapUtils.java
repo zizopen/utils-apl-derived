@@ -34,11 +34,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils.ElementFilter;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.element.factory.Factory;
+import org.omnaest.utils.structure.element.factory.FactoryParameterized;
 import org.omnaest.utils.structure.map.decorator.LockingMapDecorator;
 import org.omnaest.utils.structure.map.decorator.MapDecorator;
 import org.omnaest.utils.structure.map.decorator.SortedMapDecorator;
@@ -656,6 +658,18 @@ public class MapUtils
   }
   
   /**
+   * Similar to {@link #initializedMap(Map, FactoryParameterized)} using a new {@link LinkedHashMap} instance
+   * 
+   * @param valueFactory
+   * @return
+   */
+  public static <K, V> Map<K, V> initializedMap( final FactoryParameterized<V, K> valueFactory )
+  {
+    Map<K, V> map = new LinkedHashMap<K, V>();
+    return initializedMap( map, valueFactory );
+  }
+  
+  /**
    * Returns a {@link MapDecorator} which ensures that all {@link Map#get(Object)} invocations with a valid key type will return a
    * value. If the underlying {@link Map} would return a null value the value {@link Factory#newInstance()} is invoked and the new
    * value is stored within the {@link Map}.<br>
@@ -698,13 +712,60 @@ public class MapUtils
   }
   
   /**
+   * Returns a {@link MapDecorator} which ensures that all {@link Map#get(Object)} invocations with a valid key type will return a
+   * value. If the underlying {@link Map} would return a null value the value {@link FactoryParameterized#newInstance(Object...)}
+   * with the key as argument is invoked and the new value is stored within the {@link Map}.<br>
+   * <br>
+   * This is e.g. useful for scenarios where a {@link Map} contains a {@link Collection} as value and the {@link Collection}
+   * should always be present.<br>
+   * <br>
+   * Be aware of the fact, that {@link Map#containsKey(Object)} will still return false for any non existing key.
+   * 
+   * @see #initializeMap(Map, Iterable, Factory)
+   * @see #initializedMap(Map, Factory)
+   * @param map
+   * @param valueFactory
+   *          {@link FactoryParameterized}
+   * @return {@link Map} decorator
+   */
+  public static <K, V> Map<K, V> initializedMap( Map<K, V> map, final FactoryParameterized<V, K> valueFactory )
+  {
+    Assert.isNotNull( valueFactory, "Factory must be not null" );
+    Assert.isNotNull( map, "Map must be not null" );
+    return new MapDecorator<K, V>( map )
+    {
+      @SuppressWarnings("unchecked")
+      @Override
+      public V get( Object keyObject )
+      {
+        //
+        V value = super.get( keyObject );
+        
+        //
+        if ( value == null )
+        {
+          //
+          final K key = (K) keyObject;
+          K[] newInstance = ArrayUtils.valueOf( key );
+          value = valueFactory.newInstance( newInstance );
+          this.put( key, value );
+        }
+        
+        //
+        return value;
+      }
+      
+    };
+  }
+  
+  /**
    * Similar to {@link #initializedMap(Map, Factory)} but for any {@link SortedMap} instance
    * 
    * @param sortedMap
    * @param valueFactory
    * @return {@link SortedMap} decorator
    */
-  public static <K, V> SortedMap<K, V> initializedMap( SortedMap<K, V> sortedMap, final Factory<V> valueFactory )
+  public static <K, V> SortedMap<K, V> initializedSortedMap( SortedMap<K, V> sortedMap, final Factory<V> valueFactory )
   {
     Assert.isNotNull( valueFactory, "Factory must be not null" );
     Assert.isNotNull( sortedMap, "Map must be not null" );

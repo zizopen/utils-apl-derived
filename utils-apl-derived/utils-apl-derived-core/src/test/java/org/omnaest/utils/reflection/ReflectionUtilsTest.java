@@ -17,17 +17,22 @@ package org.omnaest.utils.reflection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
+import org.omnaest.utils.beans.replicator.BeanReplicator.DTOPackage;
+import org.omnaest.utils.structure.element.converter.Converter;
 
 /**
  * @see ReflectionUtils
@@ -212,5 +217,20 @@ public class ReflectionUtilsTest
       Class<?>[] assignableTypes = new Class[] { List.class, Set.class };
       assertFalse( ReflectionUtils.areAssignableFrom( assignableTypes, sourceTypes ) );
     }
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testAnnotatedPackageToAnnotationSetMap()
+  {
+    //
+    final Map<Package, Set<Annotation>> annotatedPackageToAnnotationSetMap = ReflectionUtils.annotatedPackageToAnnotationSetMap( DTOPackage.class,
+                                                                                                                                 Converter.class );
+    assertNotNull( annotatedPackageToAnnotationSetMap );
+    
+    //
+    assertTrue( !annotatedPackageToAnnotationSetMap.isEmpty() );
+    final Set<Package> packageSet = annotatedPackageToAnnotationSetMap.keySet();
+    assertTrue( packageSet.contains( ReflectionUtils.class.getPackage() ) );
   }
 }

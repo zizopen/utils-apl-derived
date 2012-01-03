@@ -139,4 +139,28 @@ public class ArrayUtils
     return retvals;
   }
   
+  /**
+   * @param elements
+   * @return
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public static <E> E[] valueOf( E... elements )
+  {
+    //
+    E[] retvals = null;
+    
+    //
+    Class componentType = elements.length == 0 ? Object.class : elements[0].getClass();
+    int length = elements.length;
+    retvals = (E[]) Array.newInstance( componentType, length );
+    
+    //
+    for ( int ii = 0; ii < length; ii++ )
+    {
+      retvals[ii] = elements[ii];
+    }
+    
+    //
+    return retvals;
+  }
 }

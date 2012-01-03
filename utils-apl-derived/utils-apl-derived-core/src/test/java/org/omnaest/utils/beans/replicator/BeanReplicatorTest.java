@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.omnaest.utils.beans.replicator.BeanReplicator.Adapter;
 import org.omnaest.utils.beans.replicator.BeanReplicator.AdapterDeclarableBindings;
 import org.omnaest.utils.beans.replicator.BeanReplicator.AdapterSourceToTargetTypeMapBased;
+import org.omnaest.utils.beans.replicator.BeanReplicator.AdapterTypePatternBased;
 import org.omnaest.utils.beans.replicator.BeanReplicatorTest.TestClass.TestClassSub;
 import org.omnaest.utils.beans.replicator.BeanReplicatorTest.TestClassDTO.TestClassDTOSub;
 import org.omnaest.utils.structure.element.converter.ElementConverterStringToInteger;
@@ -45,7 +46,7 @@ public class BeanReplicatorTest
     /* ********************************************** Variables ********************************************** */
     private String          fieldString;
     private Integer         fieldInteger;
-    private TestClassDTOSub testClassDTOSub;
+    private TestClassDTOSub testClassSub;
     
     /* ********************************************** Classes/Interfaces ********************************************** */
     
@@ -159,18 +160,18 @@ public class BeanReplicatorTest
     /**
      * @return the testClassDTOSub
      */
-    public TestClassDTOSub getTestClassDTOSub()
+    public TestClassDTOSub getTestClassSub()
     {
-      return this.testClassDTOSub;
+      return this.testClassSub;
     }
     
     /**
      * @param testClassDTOSub
      *          the testClassDTOSub to set
      */
-    public void setTestClassDTOSub( TestClassDTOSub testClassDTOSub )
+    public void setTestClassSub( TestClassDTOSub testClassDTOSub )
     {
-      this.testClassDTOSub = testClassDTOSub;
+      this.testClassSub = testClassDTOSub;
     }
   }
   
@@ -277,7 +278,7 @@ public class BeanReplicatorTest
       {
         this.bind( source.getFieldString() ).to( target.getFieldInteger() ).using( new ElementConverterStringToInteger() );
         this.bind( source.getFieldInteger() ).to( target.getFieldString() ).usingAutodetectedElementConverter();
-        this.bind( source.getTestClassSub() ).to( target.getTestClassDTOSub() ).usingOngoingBeanReplication();
+        this.bind( source.getTestClassSub() ).to( target.getTestClassSub() ).usingOngoingBeanReplication();
       }
     };
     
@@ -302,7 +303,36 @@ public class BeanReplicatorTest
     assertEquals( "5", copy.getFieldString() );
     
     //
-    final TestClassDTOSub testClassDTOSub = copy.getTestClassDTOSub();
+    final TestClassDTOSub testClassDTOSub = copy.getTestClassSub();
+    assertNotNull( testClassDTOSub );
+    assertEquals( testClassSub.getFieldString(), testClassDTOSub.getFieldString() );
+  }
+  
+  @Test
+  public void testCopy2()
+  {
+    //    
+    //final String replacement = "{package}.{type}DTO";
+    Adapter adapter1 = new AdapterTypePatternBased( "org.omnaest.utils.beans.replicator.BeanReplicatorTest${type}DTO" );
+    Adapter adapter2 = new AdapterTypePatternBased(
+                                                    "org.omnaest.utils.beans.replicator.BeanReplicatorTest$TestClassDTO$TestClassDTOSub" );
+    
+    //
+    BeanReplicator beanReplicator = new BeanReplicator( adapter1, adapter2 );
+    
+    //    
+    final String fieldString = "10";
+    final Integer fieldInteger = 5;
+    TestClassSub testClassSub = new TestClassSub( "subfield" );
+    TestClass testClass = new TestClass( fieldString, fieldInteger, testClassSub );
+    
+    TestClassDTO copy = beanReplicator.copy( testClass );
+    assertNotNull( copy );
+    assertEquals( 5, copy.getFieldInteger().intValue() );
+    assertEquals( "10", copy.getFieldString() );
+    
+    //
+    final TestClassDTOSub testClassDTOSub = copy.getTestClassSub();
     assertNotNull( testClassDTOSub );
     assertEquals( testClassSub.getFieldString(), testClassDTOSub.getFieldString() );
   }
