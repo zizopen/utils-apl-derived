@@ -15,41 +15,39 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.replicator;
 
-import java.util.ArrayList;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.WeakHashMap;
+import java.util.regex.Pattern;
 
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.replicator.BeanReplicator.AdapterInternal.Handler;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
-import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.operation.Operation;
 import org.omnaest.utils.operation.foreach.ForEach;
 import org.omnaest.utils.proxy.BeanProperty;
 import org.omnaest.utils.reflection.ReflectionUtils;
+import org.omnaest.utils.strings.StringReplacementBuilder;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
-import org.omnaest.utils.structure.element.converter.ElementConverterBeanPropertyAccessorToProperty;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.element.converter.ElementConverterRegistration;
+import org.omnaest.utils.structure.element.factory.FactoryParameterized;
 import org.omnaest.utils.structure.element.factory.FactoryTypeAware;
 import org.omnaest.utils.structure.element.factory.concrete.FactoryTypeAwareReflectionBased;
-import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator;
-import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator.TreeNodeVisitor;
-import org.omnaest.utils.structure.hierarchy.tree.TreeNavigator.TreeNodeVisitor.TraversalConfiguration;
-import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTree;
-import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNavigator;
-import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode;
-import org.omnaest.utils.structure.hierarchy.tree.object.ObjectTreeNode.ObjectModel;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.structure.map.SimpleEntry;
 import org.omnaest.utils.tuple.TupleTwo;
@@ -71,12 +69,17 @@ public class BeanReplicator
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * Marker interface for all {@link Adapter} used in combination with the {@link BeanReplicator}
+   * Marker interface for all {@link Adapter} used in combination with the {@link BeanReplicator}<br>
+   * <br>
+   * An {@link Adapter} is thread safe and can be reused even by multiple {@link Thread}s or multiple {@link BeanReplicator}
+   * instances. <br>
+   * <br>
+   * <small> Any concrete implementation has to implement {@link AdapterInternal} as well.</small>
    * 
    * @see BeanReplicator
    * @see #canHandle(Class)
-   * @see #createNewTargetObjectInstance()
-   * @see #copyPropertiesAndReturnBeanPropertyAccessorsForUnhandledProperties(Object, Object)
+   * @see #createNewTargetObjectInstance(Class, Object)
+   * @see #copyProperties(Object, Object)
    * @author Omnaest
    */
   public static interface Adapter
@@ -84,13 +87,29 @@ public class BeanReplicator
   }
   
   /**
-   * Internal extension of the {@link Adapter} interface
+   * Internal extension of the {@link Adapter} interface which provides a {@link Set} of {@link Handler} instances which can be
+   * used to copy concrete source objects. <br>
+   * <br>
+   * {@link AdapterInternal} instances have to be thread safe. This allows to use a single {@link AdapterInternal} instance by
+   * multiple {@link Thread}s
    * 
    * @author Omnaest
    */
   public static interface AdapterInternal extends Adapter
   {
     /* ********************************************** Classes/Interfaces ********************************************** */
+    /**
+     * Every {@link Handler} is specialized to handle a set of types. It allows to create a copy of a given source object using
+     * {@link #createNewTargetObjectInstance(Class, Object)} if it supports its {@link Class} type returning true for
+     * {@link #canHandle(Class)} <br>
+     * <br>
+     * {@link Handler} instances are created by an {@link AdapterInternal} for each copy request. This ensures that the
+     * {@link AdapterInternal} itself can be reused even by multiple {@link Thread}s.
+     * 
+     * @see #canHandle(Class)
+     * @see #createNewTargetObjectInstance(Class, Object)
+     * @author Omnaest
+     */
     public static interface Handler
     {
       /**
@@ -102,25 +121,14 @@ public class BeanReplicator
       public boolean canHandle( Class<? extends Object> sourceObjectType );
       
       /**
-       * Creates a new target object instance
+       * Creates a <b>new target object</b> instance and <b>copies</b> all properties of the source object to the target object
+       * for which the {@link Adapter} knows how to handle them.
        * 
-       * @see #copyPropertiesAndReturnBeanPropertyAccessorsForUnhandledProperties(Object, Object)
-       * @return
-       */
-      public Object createNewTargetObjectInstance();
-      
-      /**
-       * Copies all properties of the source object to the target object for which the {@link Adapter} knows how to handle them.
-       * For all other properties which are present within the source type but not handled by the {@link Adapter}
-       * {@link BeanPropertyAccessors} will be returned.
-       * 
-       * @see #createNewTargetObjectInstance()
+       * @param sourceObjectType
        * @param sourceObject
-       * @param targetObject
-       * @return
+       * @return new instance
        */
-      public BeanPropertyAccessors<Object> copyPropertiesAndReturnBeanPropertyAccessorsForUnhandledProperties( Object sourceObject,
-                                                                                                               Object targetObject );
+      public Object createNewTargetObjectInstance( Class<?> sourceObjectType, Object sourceObject );
       
     }
     
@@ -227,6 +235,270 @@ public class BeanReplicator
     
   }
   
+  /**
+   * Package level annotation which can be used in combination of <code>package-info.java</code> to annotate a {@link Package}<br>
+   * <br>
+   * An example of a <code>package-info.java</code> created within the <code>org.omnaest.utils.dtoexample</code> {@link Package}
+   * looks like:<br>
+   * 
+   * <pre>
+   * &#064;DTOPackage
+   * package org.omnaest.utils.dtoexample;
+   * 
+   * import org.omnaest.utils.beans.replicator.BeanReplicator.DTOPackage;
+   * </pre>
+   * 
+   * @author Omnaest
+   */
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.PACKAGE)
+  public static @interface DTOPackage
+  {
+  }
+  
+  /**
+   * @see DTOPackage
+   * @author Omnaest
+   */
+  public static class AdapterTypePatternBased implements AdapterInternal
+  {
+    /* ********************************************** Variables ********************************************** */
+    protected final Set<PackageAndPatternBasedTargetTypeFactory> patternBasedTargetTypeFactorySet;
+    
+    /* ********************************************** Classes/Interfaces ********************************************** */
+    /**
+     * @author Omnaest
+     */
+    protected static class PackageAndPatternBasedTargetTypeFactory
+    {
+      /* ********************************************** Variables ********************************************** */
+      private final Package package_;
+      private final String  replacement;
+      
+      /* ********************************************** Methods ********************************************** */
+      
+      /**
+       * @see PackageAndPatternBasedTargetTypeFactory
+       * @param package_
+       * @param replacement
+       */
+      public PackageAndPatternBasedTargetTypeFactory( Package package_, String replacement )
+      {
+        super();
+        this.package_ = package_;
+        this.replacement = replacement;
+      }
+      
+      /**
+       * Returns a new {@link FactoryTypeAware} instance for the given source type, if the
+       * {@link PackageAndPatternBasedTargetTypeFactory} can resolve a {@link Class} based on the given type and the internal
+       * {@link Package} and replacement {@link String} information.<br>
+       * 
+       * @param type
+       * @return
+       */
+      public FactoryTypeAware<Object> newFactory( Class<?> type )
+      {
+        //
+        FactoryTypeAware<Object> retval = null;
+        
+        //
+        final Class<?> resolvedClass = this.resolveClassFor( type );
+        final boolean hasDefaultConstructor = ReflectionUtils.hasDefaultConstructorFor( resolvedClass );
+        if ( hasDefaultConstructor )
+        {
+          retval = new FactoryTypeAware<Object>()
+          {
+            @Override
+            public Object newInstance()
+            {
+              return ReflectionUtils.createInstanceOf( resolvedClass );
+            }
+            
+            @Override
+            public Class<?> getInstanceType()
+            {
+              return resolvedClass;
+            }
+          };
+        }
+        
+        return retval;
+      }
+      
+      /**
+       * @param type
+       * @return
+       */
+      private Class<?> resolveClassFor( Class<?> type )
+      {
+        //        
+        Class<?> retval = null;
+        
+        //
+        if ( type != null )
+        {
+          try
+          {
+            //
+            final Package packageCurrent = this.package_ != null ? this.package_ : type.getPackage();
+            String className = new StringReplacementBuilder().add( Pattern.quote( "{type}" ), type.getSimpleName() )
+                                                             .add( Pattern.quote( "{package}" ), packageCurrent.getName() )
+                                                             .process( this.replacement );
+            retval = Class.forName( className );
+          }
+          catch ( Exception e )
+          {
+          }
+        }
+        
+        //
+        return retval;
+      }
+    }
+    
+    /* ********************************************** Methods ********************************************** */
+    /**
+     * @see AdapterTypePatternBased
+     * @param replacement
+     */
+    public AdapterTypePatternBased( String replacement )
+    {
+      this( replacement, null );
+    }
+    
+    /**
+     * @see AdapterTypePatternBased
+     * @param replacement
+     * @param packageAnnotationType
+     */
+    public AdapterTypePatternBased( String replacement, Class<? extends Annotation> packageAnnotationType )
+    {
+      //
+      super();
+      Assert.isNotNull( replacement, "replacement must not be null" );
+      
+      //
+      this.patternBasedTargetTypeFactorySet = determinePatternBasedTargetTypeFactorySet( replacement, packageAnnotationType );
+    }
+    
+    /**
+     * @param replacement
+     * @param packageAnnotationType
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private static Set<PackageAndPatternBasedTargetTypeFactory> determinePatternBasedTargetTypeFactorySet( String replacement,
+                                                                                                           Class<? extends Annotation> packageAnnotationType )
+    {
+      final Set<Package> packageSet = packageAnnotationType != null ? ReflectionUtils.annotatedPackageSet( packageAnnotationType )
+                                                                   : SetUtils.valueOf( Package.getPackages() );
+      return determinePatternBasedTargetTypeFactorySet( replacement, packageSet );
+    }
+    
+    /**
+     * @param replacement
+     * @param packageSet
+     * @return
+     */
+    private static Set<PackageAndPatternBasedTargetTypeFactory> determinePatternBasedTargetTypeFactorySet( String replacement,
+                                                                                                           Set<Package> packageSet )
+    {
+      //
+      final Set<PackageAndPatternBasedTargetTypeFactory> retset = new LinkedHashSet<PackageAndPatternBasedTargetTypeFactory>();
+      
+      //
+      Assert.isNotNull( packageSet, "packageSet must not be null" );
+      for ( Package package_ : packageSet )
+      {
+        retset.add( new PackageAndPatternBasedTargetTypeFactory( package_, replacement ) );
+      }
+      
+      //
+      return retset;
+    }
+    
+    @Override
+    public Set<Handler> newHandlerSet( final TransitiveBeanReplicationInvocationHandler transitiveBeanReplicationInvocationHandler )
+    {
+      //
+      final Set<Handler> retset = new LinkedHashSet<Handler>();
+      
+      //
+      final Set<PackageAndPatternBasedTargetTypeFactory> patternBasedTargetTypeFactorySet = this.patternBasedTargetTypeFactorySet;
+      retset.add( new Handler()
+      {
+        /* ********************************************** Variables ********************************************** */
+        private Map<Class<?>, FactoryTypeAware<Object>> sourceObjectTypeToFactoryMap = MapUtils.initializedMap( new WeakHashMap<Class<?>, FactoryTypeAware<Object>>(),
+                                                                                                                new FactoryParameterized<FactoryTypeAware<Object>, Class<?>>()
+                                                                                                                {
+                                                                                                                  @Override
+                                                                                                                  public FactoryTypeAware<Object> newInstance( Class<?>... arguments )
+                                                                                                                  {
+                                                                                                                    //
+                                                                                                                    FactoryTypeAware<Object> retval = null;
+                                                                                                                    
+                                                                                                                    //
+                                                                                                                    if ( arguments.length == 1 )
+                                                                                                                    {
+                                                                                                                      //
+                                                                                                                      final Class<?> type = arguments[0];
+                                                                                                                      for ( PackageAndPatternBasedTargetTypeFactory packageAndPatternBasedTargetTypeFactory : patternBasedTargetTypeFactorySet )
+                                                                                                                      {
+                                                                                                                        //
+                                                                                                                        retval = packageAndPatternBasedTargetTypeFactory.newFactory( type );
+                                                                                                                        if ( retval != null )
+                                                                                                                        {
+                                                                                                                          break;
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                    
+                                                                                                                    //
+                                                                                                                    return retval;
+                                                                                                                  }
+                                                                                                                } );
+        
+        /* ********************************************** Methods ********************************************** */
+        
+        @Override
+        public Object createNewTargetObjectInstance( Class<?> sourceObjectType, Object sourceObject )
+        {
+          //
+          Object retval = null;
+          
+          //
+          if ( sourceObject != null )
+          {
+            final FactoryTypeAware<Object> factory = this.resolveFactoryFor( sourceObjectType );
+            retval = factory.newInstance();
+          }
+          
+          //
+          BeanPropertiesAutowireHelper.copyProperties( sourceObject, retval, transitiveBeanReplicationInvocationHandler );
+          
+          //
+          return retval;
+        }
+        
+        @Override
+        public boolean canHandle( Class<? extends Object> sourceObjectType )
+        {
+          return this.resolveFactoryFor( sourceObjectType ) != null;
+        }
+        
+        private FactoryTypeAware<Object> resolveFactoryFor( Class<? extends Object> sourceObjectType )
+        {
+          return this.sourceObjectTypeToFactoryMap.get( sourceObjectType );
+        }
+        
+      } );
+      
+      //
+      return retset;
+    }
+  }
+  
   public static class AdapterSourceToTargetFactoryMapBased implements AdapterInternal
   {
     /* ********************************************** Variables ********************************************** */
@@ -235,17 +507,17 @@ public class BeanReplicator
     /* ********************************************** Methods ********************************************** */
     /**
      * @see AdapterSourceToTargetFactoryMapBased
-     * @param sourceTypeToTargetFactoryMap
+     * @param sourceToTargetFactoryMap
      */
-    public AdapterSourceToTargetFactoryMapBased( Map<FactoryTypeAware<?>, FactoryTypeAware<?>> sourceTypeToTargetFactoryMap )
+    public AdapterSourceToTargetFactoryMapBased( Map<FactoryTypeAware<?>, FactoryTypeAware<?>> sourceToTargetFactoryMap )
     {
       super();
-      this.sourceToTargetFactoryMap = HashBiMap.<FactoryTypeAware<?>, FactoryTypeAware<?>> create( sourceTypeToTargetFactoryMap );
+      this.sourceToTargetFactoryMap = HashBiMap.<FactoryTypeAware<?>, FactoryTypeAware<?>> create( sourceToTargetFactoryMap );
     }
     
     @SuppressWarnings("unchecked")
     @Override
-    public Set<Handler> newHandlerSet( TransitiveBeanReplicationInvocationHandler transitiveBeanReplicationInvocationHandler )
+    public Set<Handler> newHandlerSet( final TransitiveBeanReplicationInvocationHandler transitiveBeanReplicationInvocationHandler )
     {
       //
       final Set<Handler> retset = new LinkedHashSet<Handler>();
@@ -261,43 +533,16 @@ public class BeanReplicator
           retset.add( new Handler()
           {
             @Override
-            public Object createNewTargetObjectInstance()
+            public Object createNewTargetObjectInstance( Class<?> sourceObjectType, Object sourceObject )
             {
               //
-              return sourceToTargetTypeEntry.getValue().newInstance();
-            }
-            
-            @Override
-            public BeanPropertyAccessors<Object> copyPropertiesAndReturnBeanPropertyAccessorsForUnhandledProperties( Object sourceObject,
-                                                                                                                     Object targetObject )
-            {
-              //
-              if ( sourceObject != null && targetObject != null )
-              {
-                //
-                final Set<BeanPropertyAccessor<Object>> beanPropertyAccessorSetTarget = BeanUtils.beanPropertyAccessorSet( (Class<Object>) targetObject.getClass() );
-                final Set<BeanPropertyAccessor<Object>> beanPropertyAccessorSetSource = BeanUtils.beanPropertyAccessorSet( (Class<Object>) sourceObject.getClass() );
-                
-                //
-                Map<String, TupleTwo<BeanPropertyAccessor<Object>, BeanPropertyAccessor<Object>>> matchingPropertyNameToBeanPropertyAccessorSourceToTargetTupleMap = BeanPropertiesAutowireHelper.determineMatchingPropertyNameToBeanPropertyAccessorSourceToTargetTupleMap( beanPropertyAccessorSetSource,
-                                                                                                                                                                                                                                                                             beanPropertyAccessorSetTarget );
-                
-                //
-                for ( String propertyName : matchingPropertyNameToBeanPropertyAccessorSourceToTargetTupleMap.keySet() )
-                {
-                  //
-                  final TupleTwo<BeanPropertyAccessor<Object>, BeanPropertyAccessor<Object>> beanPropertyAccessorSourceToTargetTuple = matchingPropertyNameToBeanPropertyAccessorSourceToTargetTupleMap.get( propertyName );
-                  final BeanPropertyAccessor<Object> beanPropertyAccessorSource = beanPropertyAccessorSourceToTargetTuple.getValueFirst();
-                  final BeanPropertyAccessor<Object> beanPropertyAccessorTarget = beanPropertyAccessorSourceToTargetTuple.getValueSecond();
-                  
-                  //
-                  Object propertyValue = beanPropertyAccessorSource.getPropertyValue( sourceObject );
-                  beanPropertyAccessorTarget.setPropertyValue( targetObject, propertyValue );
-                }
-              }
+              Object retval = sourceToTargetTypeEntry.getValue().newInstance();
               
-              // TODO
-              return null;
+              //              
+              BeanPropertiesAutowireHelper.copyProperties( sourceObject, retval, transitiveBeanReplicationInvocationHandler );
+              
+              //
+              return retval;
             }
             
             @Override
@@ -589,18 +834,20 @@ public class BeanReplicator
       }
       
       @Override
-      public Object createNewTargetObjectInstance()
-      {
-        return ReflectionUtils.createInstanceOf( this.targetType );
-      }
-      
-      @Override
-      public BeanPropertyAccessors<Object> copyPropertiesAndReturnBeanPropertyAccessorsForUnhandledProperties( Object sourceObject,
-                                                                                                               Object targetObject )
+      public Object createNewTargetObjectInstance( Class<?> sourceObjectType, Object sourceObject )
       {
         //
-        final Collection<BeanPropertyAccessor<Object>> beanPropertyAccessorCollection = new ArrayList<BeanPropertyAccessor<Object>>();
+        final Object retval = ReflectionUtils.createInstanceOf( this.targetType );
         
+        //
+        this.copyProperties( sourceObject, retval );
+        
+        //
+        return retval;
+      }
+      
+      public void copyProperties( Object sourceObject, Object targetObject )
+      {
         //
         final Set<TupleTwo<BeanPropertyAccessor<Object>, BeanPropertyAccessor<Object>>> sourceAndTargetBindingSet = this.bindingMap.keySet();
         for ( TupleTwo<BeanPropertyAccessor<Object>, BeanPropertyAccessor<Object>> sourceAndTargetBinding : sourceAndTargetBindingSet )
@@ -627,9 +874,25 @@ public class BeanReplicator
           }
           beanPropertyAccessorTarget.setPropertyValue( targetObject, propertyValueTarget );
         }
-        
-        // 
-        return new BeanPropertyAccessors<Object>( beanPropertyAccessorCollection );
+      }
+      
+      /* (non-Javadoc)
+       * @see java.lang.Object#toString()
+       */
+      @Override
+      public String toString()
+      {
+        StringBuilder builder = new StringBuilder();
+        builder.append( "HandlerForAdapterDeclarableBindings [sourceType=" );
+        builder.append( this.sourceType );
+        builder.append( ", targetType=" );
+        builder.append( this.targetType );
+        builder.append( ", bindingMap=" );
+        builder.append( this.bindingMap );
+        builder.append( ", transitiveBeanReplicationInvocationHandler=" );
+        builder.append( this.transitiveBeanReplicationInvocationHandler );
+        builder.append( "]" );
+        return builder.toString();
       }
     }
     
@@ -660,6 +923,27 @@ public class BeanReplicator
       return SetUtils.valueOf( (Handler) new HandlerForAdapterDeclarableBindings( this.sourceType, this.targetType,
                                                                                   this.bindingMap,
                                                                                   transitiveBeanReplicationInvocationHandler ) );
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+      StringBuilder builder = new StringBuilder();
+      builder.append( "AdapterDeclarableBindings [beanProperty=" );
+      builder.append( this.beanProperty );
+      builder.append( ", bindingMap=" );
+      builder.append( this.bindingMap );
+      builder.append( ", elementConverterResolver=" );
+      builder.append( this.elementConverterResolver );
+      builder.append( ", sourceType=" );
+      builder.append( this.sourceType );
+      builder.append( ", targetType=" );
+      builder.append( this.targetType );
+      builder.append( "]" );
+      return builder.toString();
     }
     
   }
@@ -726,6 +1010,59 @@ public class BeanReplicator
       //
       return retmap;
     }
+    
+    @SuppressWarnings("unchecked")
+    public static void copyProperties( Object sourceObject,
+                                       Object targetObject,
+                                       TransitiveBeanReplicationInvocationHandler transitiveBeanReplicationInvocationHandler )
+    {
+      //
+      if ( sourceObject != null && targetObject != null )
+      {
+        //
+        final Set<BeanPropertyAccessor<Object>> beanPropertyAccessorSetTarget = BeanUtils.beanPropertyAccessorSet( (Class<Object>) targetObject.getClass() );
+        final Set<BeanPropertyAccessor<Object>> beanPropertyAccessorSetSource = BeanUtils.beanPropertyAccessorSet( (Class<Object>) sourceObject.getClass() );
+        
+        //
+        Map<String, TupleTwo<BeanPropertyAccessor<Object>, BeanPropertyAccessor<Object>>> matchingPropertyNameToBeanPropertyAccessorSourceToTargetTupleMap = BeanPropertiesAutowireHelper.determineMatchingPropertyNameToBeanPropertyAccessorSourceToTargetTupleMap( beanPropertyAccessorSetSource,
+                                                                                                                                                                                                                                                                     beanPropertyAccessorSetTarget );
+        
+        //
+        for ( String propertyName : matchingPropertyNameToBeanPropertyAccessorSourceToTargetTupleMap.keySet() )
+        {
+          //
+          final TupleTwo<BeanPropertyAccessor<Object>, BeanPropertyAccessor<Object>> beanPropertyAccessorSourceToTargetTuple = matchingPropertyNameToBeanPropertyAccessorSourceToTargetTupleMap.get( propertyName );
+          final BeanPropertyAccessor<Object> beanPropertyAccessorSource = beanPropertyAccessorSourceToTargetTuple.getValueFirst();
+          final BeanPropertyAccessor<Object> beanPropertyAccessorTarget = beanPropertyAccessorSourceToTargetTuple.getValueSecond();
+          
+          //
+          if ( beanPropertyAccessorSource != null && beanPropertyAccessorTarget != null )
+          {
+            //
+            Object propertyValue = beanPropertyAccessorSource.getPropertyValue( sourceObject );
+            
+            //
+            if ( propertyValue != null )
+            {
+              //
+              boolean isPrimitiveOrPrimitiveWrapperTypeOrString = ObjectUtils.isPrimitiveOrPrimitiveWrapperType( propertyValue.getClass() )
+                                                                  || ObjectUtils.isString( propertyValue );
+              if ( !isPrimitiveOrPrimitiveWrapperTypeOrString )
+              {
+                propertyValue = transitiveBeanReplicationInvocationHandler.replicate( propertyValue );
+              }
+            }
+            
+            //
+            beanPropertyAccessorTarget.setPropertyValue( targetObject, propertyValue );
+          }
+          else
+          {
+            //TODO catch unwired properties
+          }
+        }
+      }
+    }
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -768,122 +1105,32 @@ public class BeanReplicator
     if ( bean != null )
     {
       //
-      final ObjectTreeNavigator treeNavigator = new ObjectTreeNavigator( bean );
-      
-      final TreeNodeVisitor<ObjectTree, ObjectTreeNode> treeNodeVisitor = new TreeNodeVisitor<ObjectTree, ObjectTreeNode>()
+      final Handler matchingAdapterHandler = resolveMatchingAdapterHandler( sourceObjectToTargetObjectMap, bean );
+      if ( matchingAdapterHandler != null )
       {
-        /* ********************************************** Variables ********************************************** */
-        private Set<String> unhandledBeanPropertyNameSet = new HashSet<String>();
-        
-        /* ********************************************** Methods ********************************************** */
-        
-        @Override
-        public TraversalControl visit( ObjectTreeNode treeNode, TreeNavigator<ObjectTree, ObjectTreeNode> treeNavigator )
+        //
+        final Class<? extends Object> sourceObjectType = bean.getClass();
+        Object targetObject = null;
+        if ( sourceObjectToTargetObjectMap.containsKey( bean ) )
         {
-          //
-          TraversalControl traversalControl = TraversalControl.SKIP_CHILDREN;
-          
-          //
-          final ObjectModel objectModel = treeNode.getModel();
-          final Object sourceObject = objectModel.getObject();
-          
-          //
-          Object targetObject = null;
-          if ( sourceObjectToTargetObjectMap.containsKey( sourceObject ) )
-          {
-            targetObject = sourceObjectToTargetObjectMap.get( sourceObject );
-          }
-          else
-          {
-            //
-            boolean isParentNode = sourceObject == bean;
-            if ( isParentNode )
-            {
-              //
-              final Handler matchingAdapterHandler = resolveMatchingAdapterHandler( sourceObjectToTargetObjectMap, sourceObject );
-              if ( matchingAdapterHandler != null )
-              {
-                //
-                targetObject = matchingAdapterHandler.createNewTargetObjectInstance();
-                
-                //
-                final BeanPropertyAccessors<Object> beanPropertyAccessorsForUnhandledProperties = matchingAdapterHandler.copyPropertiesAndReturnBeanPropertyAccessorsForUnhandledProperties( sourceObject,
-                                                                                                                                                                                             targetObject );
-                
-                //
-                this.unhandledBeanPropertyNameSet.addAll( SetUtils.convert( beanPropertyAccessorsForUnhandledProperties,
-                                                                            new ElementConverterBeanPropertyAccessorToProperty<Object>() ) );
-                
-                //
-                traversalControl = TraversalControl.GO_ON_INCLUDE_ALREADY_TRAVERSED_NODES;
-              }
-            }
-            else
-            {
-              //
-              final String propertyName = objectModel.getPropertyName();
-              if ( this.unhandledBeanPropertyNameSet.contains( propertyName ) )
-              {
-                //
-                targetObject = copy( sourceObject, sourceObjectToTargetObjectMap );
-              }
-            }
-            
-            //
-            sourceObjectToTargetObjectMap.put( sourceObject, targetObject );
-          }
-          
-          // 
-          return traversalControl;
+          targetObject = sourceObjectToTargetObjectMap.get( bean );
+        }
+        else
+        {
+          targetObject = matchingAdapterHandler.createNewTargetObjectInstance( sourceObjectType, bean );
+          sourceObjectToTargetObjectMap.put( bean, targetObject );
         }
         
-        /**
-         * @param sourceObjectToTargetObjectMap
-         * @param sourceObject
-         * @return
-         */
-        private Handler resolveMatchingAdapterHandler( final Map<Object, Object> sourceObjectToTargetObjectMap,
-                                                       final Object sourceObject )
+        //
+        try
         {
-          //
-          Handler matchingAdapterHandler = null;
-          
-          //
-          if ( sourceObject != null )
-          {
-            //
-            final Class<? extends Object> sourceObjectType = sourceObject.getClass();
-            final TransitiveBeanReplicationInvocationHandler transitiveBeanReplicationInvocationHandler = new TransitiveBeanReplicationInvocationHandler()
-            {
-              @Override
-              public Object replicate( Object bean )
-              {
-                return copy( bean, sourceObjectToTargetObjectMap );
-              }
-            };
-            
-            //
-            final Set<Handler> handlerSet = BeanReplicator.this.adapter.newHandlerSet( transitiveBeanReplicationInvocationHandler );
-            for ( Handler handler : handlerSet )
-            {
-              if ( handler.canHandle( sourceObjectType ) )
-              {
-                matchingAdapterHandler = handler;
-                break;
-              }
-            }
-          }
-          
-          return matchingAdapterHandler;
+          retval = (R) targetObject;
         }
-      };
-      
-      //
-      boolean includingAlreadyTraversedNodes = true;
-      boolean includingCurrentNode = true;
-      boolean includingChildren = true;
-      treeNavigator.traverse( new TraversalConfiguration( includingCurrentNode, includingAlreadyTraversedNodes, includingChildren ),
-                              treeNodeVisitor );
+        catch ( Exception e )
+        {
+          Assert.fails( "Generated instance object can not be cast to generic return type. (" + targetObject + ")", e );
+        }
+      }
     }
     
     //
@@ -891,5 +1138,45 @@ public class BeanReplicator
     
     //
     return retval;
+  }
+  
+  /**
+   * @param sourceObjectToTargetObjectMap
+   * @param sourceObject
+   * @return
+   */
+  private Handler resolveMatchingAdapterHandler( final Map<Object, Object> sourceObjectToTargetObjectMap,
+                                                 final Object sourceObject )
+  {
+    //
+    Handler matchingAdapterHandler = null;
+    
+    //
+    if ( sourceObject != null )
+    {
+      //
+      final Class<? extends Object> sourceObjectType = sourceObject.getClass();
+      final TransitiveBeanReplicationInvocationHandler transitiveBeanReplicationInvocationHandler = new TransitiveBeanReplicationInvocationHandler()
+      {
+        @Override
+        public Object replicate( Object bean )
+        {
+          return copy( bean, sourceObjectToTargetObjectMap );
+        }
+      };
+      
+      //
+      final Set<Handler> handlerSet = this.adapter.newHandlerSet( transitiveBeanReplicationInvocationHandler );
+      for ( Handler handler : handlerSet )
+      {
+        if ( handler.canHandle( sourceObjectType ) )
+        {
+          matchingAdapterHandler = handler;
+          break;
+        }
+      }
+    }
+    
+    return matchingAdapterHandler;
   }
 }

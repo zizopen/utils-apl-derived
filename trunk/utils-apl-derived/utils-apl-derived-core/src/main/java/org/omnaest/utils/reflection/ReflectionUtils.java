@@ -1,7 +1,5 @@
-/*******************************************************************************
- * Copyright 2011 Danny Kunz
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
+/*****************************************************import org.omnaest.utils.beans.replicator.BeanReplicator.DTOPackage;
+nsed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
@@ -34,6 +32,7 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterObjectToClassOfObject;
+import org.omnaest.utils.structure.element.factory.concrete.LinkedHashSetFactory;
 import org.omnaest.utils.structure.map.MapUtils;
 
 /**
@@ -218,6 +217,17 @@ public class ReflectionUtils
   public static <B> boolean hasConstructorFor( Class<? extends B> type, Class<?>... parameterTypes )
   {
     return constructorFor( type, parameterTypes ) != null;
+  }
+  
+  /**
+   * Returns true if the given {@link Class} type has a default {@link Constructor}
+   * 
+   * @param type
+   * @return
+   */
+  public static <B> boolean hasDefaultConstructorFor( Class<? extends B> type )
+  {
+    return hasConstructorFor( type );
   }
   
   /**
@@ -1124,4 +1134,87 @@ public class ReflectionUtils
     return type != null && targetType != null && targetType.isAssignableFrom( type );
   }
   
+  /**
+   * Returns a {@link Set} of all {@link Package} instances known to the {@link ClassLoader} which are annotated with the given
+   * package {@link Annotation} type
+   * 
+   * @see #annotatedPackageToAnnotationSetMap(Class...)
+   * @param packageAnnotationTypes
+   * @return
+   */
+  public static <A extends Annotation> Set<Package> annotatedPackageSet( Class<? extends A>... packageAnnotationTypes )
+  {
+    return annotatedPackageToAnnotationSetMap( packageAnnotationTypes ).keySet();
+  }
+  
+  /**
+   * Returns a {@link Set} of all {@link Package} instances out of the given {@link Set} of {@link Package}s which are annotated
+   * with at least one of the given package {@link Annotation} types
+   * 
+   * @see #annotatedPackageToAnnotationSetMap(Class...)
+   * @param scannedPackageSet
+   * @param packageAnnotationTypes
+   * @return
+   */
+  public static <A extends Annotation> Set<Package> annotatedPackageSet( Set<Package> scannedPackageSet,
+                                                                         Class<? extends A>... packageAnnotationTypes )
+  {
+    return annotatedPackageToAnnotationSetMap( scannedPackageSet, packageAnnotationTypes ).keySet();
+  }
+  
+  /**
+   * Returns a {@link Map} of all {@link Package}s annotated with at least one of the given package level {@link Annotation}s
+   * including the {@link Annotation} instances related to each {@link Package}. <br>
+   * <br>
+   * If no {@link Annotation} is specified an empty {@link Map} is returned.
+   * 
+   * @see #annotatedPackageSet(Class...)
+   * @param packageAnnotationTypes
+   * @return
+   */
+  public static <A extends Annotation> Map<Package, Set<A>> annotatedPackageToAnnotationSetMap( Class<? extends A>... packageAnnotationTypes )
+  {
+    final Set<Package> scannedPackageSet = SetUtils.valueOf( Package.getPackages() );
+    return annotatedPackageToAnnotationSetMap( scannedPackageSet, packageAnnotationTypes );
+  }
+  
+  /**
+   * Returns a {@link Map} of all {@link Package}s out of the given {@link Package}s {@link Set} annotated with at least one of
+   * the given package level {@link Annotation}s including the {@link Annotation} instances related to each {@link Package}. <br>
+   * <br>
+   * If no {@link Annotation} or {@link Package} is specified an empty {@link Map} is returned.
+   * 
+   * @see #annotatedPackageSet(Class...)
+   * @param scannedPackageSet
+   * @param packageAnnotationTypes
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <A extends Annotation> Map<Package, Set<A>> annotatedPackageToAnnotationSetMap( Set<Package> scannedPackageSet,
+                                                                                                Class<? extends A>... packageAnnotationTypes )
+  {
+    //
+    final Map<Package, Set<A>> retmap = MapUtils.initializedMap( new LinkedHashSetFactory<A>() );
+    
+    //
+    if ( scannedPackageSet != null && packageAnnotationTypes.length > 0 )
+    {
+      //
+      for ( Package package_ : scannedPackageSet )
+      {
+        for ( Class<? extends Annotation> packageAnnotationType : packageAnnotationTypes )
+        {
+          //
+          final Annotation annotation = package_.getAnnotation( packageAnnotationType );
+          if ( annotation != null )
+          {
+            retmap.get( package_ ).add( (A) annotation );
+          }
+        }
+      }
+    }
+    
+    //
+    return retmap;
+  }
 }

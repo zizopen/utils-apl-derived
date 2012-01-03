@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.factory.Factory;
+import org.omnaest.utils.structure.element.factory.FactoryParameterized;
 import org.omnaest.utils.structure.map.MapUtils.MapEntryToElementConverter;
 
 /**
@@ -173,6 +174,21 @@ public class MapUtilsTest
     assertEquals( 2, enumMapWithFilledDefaultValues.size() );
     assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key1 ) );
     assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key2 ) );
+  }
+  
+  @Test
+  public void testInitializedMap()
+  {
+    FactoryParameterized<Boolean, String> valueFactory = new FactoryParameterized<Boolean, String>()
+    {
+      @Override
+      public Boolean newInstance( String... arguments )
+      {
+        return true;
+      }
+    };
+    final Map<String, Boolean> initializedMap = MapUtils.initializedMap( valueFactory );
+    assertTrue( initializedMap.get( "test" ) );
   }
   
 }
