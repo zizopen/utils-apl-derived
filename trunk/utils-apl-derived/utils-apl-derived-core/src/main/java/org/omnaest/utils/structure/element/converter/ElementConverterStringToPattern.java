@@ -13,30 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.element.factory;
+package org.omnaest.utils.structure.element.converter;
+
+import java.util.regex.Pattern;
 
 /**
- * Parameterized alternative to the {@link Factory}
+ * {@link ElementConverter} for converting {@link String}s into {@link Pattern}s using {@link Pattern#compile(String)}
  * 
- * @see #newInstance()
- * @see #newInstance(Object...)
  * @author Omnaest
  */
-public abstract class FactoryParameterized<E, P> implements Factory<E>
+public class ElementConverterStringToPattern implements ElementConverter<String, Pattern>
 {
-  /**
-   * Returns a new element instance for the given parameters
-   * 
-   * @param arguments
-   * @return new instance
-   */
-  public abstract E newInstance( P... arguments );
   
-  @SuppressWarnings("unchecked")
   @Override
-  public E newInstance()
+  public Pattern convert( String element )
   {
-    return this.newInstance( (P[]) new Object[0] );
+    return element == null ? null : Pattern.compile( element );
   }
   
 }

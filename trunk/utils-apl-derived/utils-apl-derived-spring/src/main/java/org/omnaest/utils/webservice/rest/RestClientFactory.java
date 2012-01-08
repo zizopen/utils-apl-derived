@@ -157,11 +157,8 @@ public abstract class RestClientFactory
      * @param httpMethod
      * @param parameterList
      * @param returnType
-     *          TODO
      * @param consumesMediaTypes
-     *          TODO
      * @param producesMediaTypes
-     *          TODO
      * @return
      */
     public <T> T handleMethodInvocation( URI baseAddress,
@@ -344,7 +341,10 @@ public abstract class RestClientFactory
     
   }
   
-  protected static enum HttpMethod
+  /**
+   * @author Omnaest
+   */
+  public static enum HttpMethod
   {
     GET,
     PUT,

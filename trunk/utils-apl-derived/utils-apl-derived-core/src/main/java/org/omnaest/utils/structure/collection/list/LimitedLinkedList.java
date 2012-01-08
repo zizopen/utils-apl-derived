@@ -50,7 +50,6 @@ public class LimitedLinkedList<E> extends LinkedList<E>
   }
   
   /**
-   * @param collection
    * @param sizeMax
    */
   public LimitedLinkedList( int sizeMax )

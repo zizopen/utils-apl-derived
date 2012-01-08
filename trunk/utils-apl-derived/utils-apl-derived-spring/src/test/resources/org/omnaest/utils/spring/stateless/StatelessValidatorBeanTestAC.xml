@@ -8,13 +8,16 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
     <context:annotation-config />
-    
-    <bean class="org.omnaest.utils.spring.stateless.StatelessValidatorBean" />
+
+    <bean class="org.omnaest.utils.spring.stateless.StatelessValidatorBean">
+        <property name="excludingFieldnamePatterns" value="fieldExcluded" />
+        <property name="excludingAnnotationTypes" value="org.springframework.beans.factory.annotation.Autowired" />
+    </bean>
 
     <bean class="org.omnaest.utils.spring.stateless.StatelessValidatorBeanTest.TestClass" />
     <bean class="org.omnaest.utils.spring.stateless.StatelessValidatorBeanTest.TestClass2" />
     <bean class="org.omnaest.utils.spring.stateless.StatelessValidatorBeanTest.TestClass3" />
 
-    
+
 
 </beans>

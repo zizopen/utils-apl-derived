@@ -50,7 +50,7 @@ public class HttpSessionFacadeFactory
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * @see PropertynameMapToTypeAdapter.Configuration
+   * @see org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration
    * @author Omnaest
    */
   public static class Configuration extends PropertynameMapToTypeAdapter.Configuration

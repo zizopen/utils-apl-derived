@@ -5,7 +5,6 @@
         <groupId>org.omnaest.utils</groupId>
         <version>0.1.11-SNAPSHOT</version>
     </parent>
-    <groupId>org.omnaest.utils</groupId>
     <artifactId>utils-apl-derived-core</artifactId>
     <name>utils-apl-derived-core</name>
     <url>http://code.google.com/p/utils-apl-derived/</url>

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,8 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlElement;
+
 import org.junit.Test;
-import org.omnaest.utils.beans.replicator.BeanReplicator.DTOPackage;
+import org.omnaest.utils.beans.replicator.adapter.helper.DTOPackage;
 import org.omnaest.utils.structure.element.converter.Converter;
 
 /**
@@ -80,6 +84,13 @@ public class ReflectionUtilsTest
   
   private static class TestSubSubType extends TestSubType
   {
+  }
+  
+  private static class TestFieldAnnotation
+  {
+    @SuppressWarnings("unused")
+    @XmlElement
+    public final String fieldString = null;
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -232,5 +243,24 @@ public class ReflectionUtilsTest
     assertTrue( !annotatedPackageToAnnotationSetMap.isEmpty() );
     final Set<Package> packageSet = annotatedPackageToAnnotationSetMap.keySet();
     assertTrue( packageSet.contains( ReflectionUtils.class.getPackage() ) );
+  }
+  
+  @Test
+  public void testHasAnnotation()
+  {
+    //
+    List<Field> declaredFieldList = ReflectionUtils.declaredFieldList( TestFieldAnnotation.class );
+    assertEquals( 1, declaredFieldList.size() );
+    
+    //
+    final Field field = declaredFieldList.iterator().next();
+    {
+      boolean hasAnnotation = ReflectionUtils.hasAnnotation( field, XmlElement.class );
+      assertTrue( hasAnnotation );
+    }
+    {
+      boolean hasAnnotation = ReflectionUtils.hasAnnotation( field, XmlAnyElement.class );
+      assertFalse( hasAnnotation );
+    }
   }
 }

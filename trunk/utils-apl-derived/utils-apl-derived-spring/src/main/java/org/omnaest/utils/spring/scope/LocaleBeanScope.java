@@ -124,12 +124,12 @@ public class LocaleBeanScope implements Scope, ApplicationContextAware
     this( initialCapacity, localeResolver, false );
   }
   
-/**
+  /**
    * @param initialCapacity
    *          : number of estimated spring beans the {@link Scope} should handle
    * @param localeResolver
-   *          {@link LocaleResolver
-   *          @param threadLocalInheritance
+   *          {@link LocaleResolver}
+   * @param threadLocalInheritance
    */
   public LocaleBeanScope( int initialCapacity, LocaleResolver localeResolver, boolean threadLocalInheritance )
   {

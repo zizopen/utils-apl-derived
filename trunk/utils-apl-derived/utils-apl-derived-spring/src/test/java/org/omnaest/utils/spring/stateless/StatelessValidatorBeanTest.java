@@ -51,12 +51,19 @@ public class StatelessValidatorBeanTest
   {
     @SuppressWarnings("unused")
     private final static String fieldPrivateStatic = "";
+    
+    @SuppressWarnings("unused")
+    @Autowired
+    private TestClass2          testClass2         = null;
   }
   
   protected static class TestClass2 extends TestClassSupertype
   {
     @SuppressWarnings("unused")
     private final static String fieldPrivateStatic = "";
+    
+    @SuppressWarnings("unused")
+    private String              fieldExcluded      = null;
   }
   
   protected static class TestClass3

@@ -751,6 +751,18 @@ public class ObjectUtils
   }
   
   /**
+   * Returns true if the given {@link Object} is not null and an {@link Array} type.
+   * 
+   * @see Class#isArray()
+   * @param object
+   * @return
+   */
+  public static boolean isArray( Object object )
+  {
+    return ArrayUtils.isArray( object );
+  }
+  
+  /**
    * Returns the {@link Object} type for the given type. <br>
    * <br>
    * 

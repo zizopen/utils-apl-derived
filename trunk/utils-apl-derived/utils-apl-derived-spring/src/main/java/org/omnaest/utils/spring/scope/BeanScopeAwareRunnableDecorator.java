@@ -21,7 +21,6 @@ package org.omnaest.utils.spring.scope;
  * 
  * @see Runnable
  * @author Omnaest
- * @param <V>
  */
 public class BeanScopeAwareRunnableDecorator implements Runnable
 {
