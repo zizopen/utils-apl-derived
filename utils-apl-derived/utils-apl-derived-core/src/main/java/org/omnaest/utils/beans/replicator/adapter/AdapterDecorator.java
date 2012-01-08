@@ -13,52 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.element.factory.adapter;
+package org.omnaest.utils.beans.replicator.adapter;
+
+import java.util.Set;
 
 import org.omnaest.utils.assertion.Assert;
-import org.omnaest.utils.structure.element.factory.Factory;
-import org.omnaest.utils.structure.element.factory.FactoryTypeAware;
+import org.omnaest.utils.beans.replicator.BeanReplicator.AdapterInternal;
+import org.omnaest.utils.beans.replicator.BeanReplicator.TransitiveBeanReplicationInvocationHandler;
 
 /**
- * Adapter which allows to use a {@link Factory} in combination with a given type as {@link FactoryTypeAware} instance
+ * Decorator of a {@link AdapterInternal} instance
  * 
- * @see Factory
- * @see FactoryTypeAware
  * @author Omnaest
  */
-public class FactoryToFactoryTypeAwareAdapter<E> implements FactoryTypeAware<E>
+public class AdapterDecorator implements AdapterInternal
 {
   /* ********************************************** Variables ********************************************** */
-  private final Factory<E> factory;
-  private final Class<E>   instanceType;
+  protected final AdapterInternal adapterInternal;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @see FactoryToFactoryTypeAwareAdapter
-   * @param factory
-   * @param instanceType
+   * @see AdapterDecorator
+   * @param adapterInternal
    */
-  public FactoryToFactoryTypeAwareAdapter( Factory<E> factory, Class<E> instanceType )
+  public AdapterDecorator( AdapterInternal adapterInternal )
   {
     //
     super();
-    this.factory = factory;
-    this.instanceType = instanceType;
+    this.adapterInternal = adapterInternal;
     
     //
-    Assert.isNotNull( "Factory and instanceType must not be null", factory, instanceType );
+    Assert.isNotNull( adapterInternal, "The given adapterInternal instance must not be null" );
   }
   
+  /**
+   * @param transitiveBeanReplicationInvocationHandler
+   * @return
+   * @see AdapterInternal#newHandlerSet(org.omnaest.utils.beans.replicator.BeanReplicator.TransitiveBeanReplicationInvocationHandler)
+   */
   @Override
-  public E newInstance()
+  public Set<Handler> newHandlerSet( TransitiveBeanReplicationInvocationHandler transitiveBeanReplicationInvocationHandler )
   {
-    return this.factory.newInstance();
+    return this.adapterInternal.newHandlerSet( transitiveBeanReplicationInvocationHandler );
   }
   
-  @Override
-  public Class<?> getInstanceType()
-  {
-    return this.instanceType;
-  }
 }

@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.omnaest.utils.structure.collection.list.ListUtils;
+
 /**
  * Container for a ordered set of {@link BeanPropertyAccessor} instances.
  * 
@@ -33,7 +35,7 @@ public class BeanPropertyAccessors<B> implements Iterable<BeanPropertyAccessor<B
   protected List<BeanPropertyAccessor<B>> beanPropertyAccessorList = new ArrayList<BeanPropertyAccessor<B>>();
   
   /* ********************************************** Methods ********************************************** */
-
+  
   /**
    * @see BeanPropertyAccessors
    */
@@ -118,12 +120,24 @@ public class BeanPropertyAccessors<B> implements Iterable<BeanPropertyAccessor<B
   /**
    * Adds {@link BeanPropertyAccessor} instances to the {@link BeanPropertyAccessors} container
    * 
-   * @param c
+   * @param collection
+   *          {@link Collection}
    * @return
    */
-  public boolean addAll( Collection<? extends BeanPropertyAccessor<B>> c )
+  public boolean addAll( Collection<? extends BeanPropertyAccessor<B>> collection )
   {
-    return this.beanPropertyAccessorList.addAll( c );
+    return this.beanPropertyAccessorList.addAll( collection );
+  }
+  
+  /**
+   * Adds {@link BeanPropertyAccessor} instances to the {@link BeanPropertyAccessors} container
+   * 
+   * @param iterable
+   * @return
+   */
+  public boolean addAll( Iterable<? extends BeanPropertyAccessor<B>> iterable )
+  {
+    return this.addAll( ListUtils.valueOf( iterable ) );
   }
   
   /**

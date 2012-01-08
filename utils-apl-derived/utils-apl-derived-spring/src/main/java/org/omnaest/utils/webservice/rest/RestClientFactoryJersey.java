@@ -47,7 +47,7 @@ public class RestClientFactoryJersey extends RestClientFactory
   }
   
   /**
-   * @see Authentification
+   * @see RestClientFactory.Authentification
    * @param baseAddress
    * @param authentification
    */

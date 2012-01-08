@@ -601,6 +601,28 @@ public class ReflectionUtils
   }
   
   /**
+   * Returns all {@link Field#getAnnotations()} as {@link List}
+   * 
+   * @param field
+   * @return
+   */
+  public static List<Annotation> annotationList( Field field )
+  {
+    //    
+    List<Annotation> retlist = new ArrayList<Annotation>();
+    
+    //
+    if ( field != null )
+    {
+      //
+      retlist.addAll( Arrays.asList( field.getAnnotations() ) );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
    * Returns true if the given {@link Class} type declares or inherits the given {@link Annotation} class from any supertype, but
    * not from interfaces
    * 
@@ -617,6 +639,33 @@ public class ReflectionUtils
     
     //
     List<Annotation> annotationList = annotationList( type );
+    for ( Annotation annotation : annotationList )
+    {
+      if ( annotation.annotationType().equals( annotationType ) )
+      {
+        retval = true;
+        break;
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns true if the given {@link Field} declares the given {@link Annotation} class
+   * 
+   * @param field
+   * @param annotationType
+   * @return
+   */
+  public static boolean hasAnnotation( Field field, Class<? extends Annotation> annotationType )
+  {
+    //
+    boolean retval = false;
+    
+    //
+    final List<Annotation> annotationList = annotationList( field );
     for ( Annotation annotation : annotationList )
     {
       if ( annotation.annotationType().equals( annotationType ) )
@@ -1216,5 +1265,32 @@ public class ReflectionUtils
     
     //
     return retmap;
+  }
+  
+  /**
+   * Invokes {@link Class#forName(String)} for the given type name but does not throw any {@link Exception}. Instead it returns
+   * null, if the resolvation failed.
+   * 
+   * @param className
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> Class<T> classForName( String className )
+  {
+    //
+    Class<T> retval = null;
+    
+    //
+    try
+    {
+      Class<?> forName = Class.forName( className );
+      retval = (Class<T>) forName;
+    }
+    catch ( Exception e )
+    {
+    }
+    
+    //
+    return retval;
   }
 }

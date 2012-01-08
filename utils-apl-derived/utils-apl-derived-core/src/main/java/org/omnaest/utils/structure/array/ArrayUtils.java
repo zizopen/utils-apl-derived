@@ -53,7 +53,8 @@ public class ArrayUtils
    * Converts a given array into a new list with a new element type, whereby all elements which convert to null will be excluded
    * in the target list.
    * 
-   * @param listFrom
+   * @param arrayFrom
+   * @param arrayTo
    * @param elementConverter
    * @return
    */
@@ -137,6 +138,51 @@ public class ArrayUtils
     
     //
     return retvals;
+  }
+  
+  /**
+   * Returns true if the given type is not null and {@link Class#isArray()} is true
+   * 
+   * @param type
+   * @return
+   */
+  public static boolean isArrayType( Class<?> type )
+  {
+    return type != null && type.isArray();
+  }
+  
+  /**
+   * Returns true if the object is an {@link Array}
+   * 
+   * @param object
+   * @return
+   */
+  public static boolean isArray( Object object )
+  {
+    return object != null && isArrayType( object.getClass() );
+  }
+  
+  /**
+   * Returns the component type of a given array type. Returns null if the given type is no array type or there can no component
+   * type be detected.
+   * 
+   * @param arrayType
+   * @return
+   */
+  public static Class<?> componentType( Class<?> arrayType )
+  {
+    return isArrayType( arrayType ) ? arrayType.getComponentType() : null;
+  }
+  
+  /**
+   * Returns the length of a given array instance or -1 if the given instance is not an array instance.
+   * 
+   * @param arrayObject
+   * @return
+   */
+  public static int length( Object arrayObject )
+  {
+    return isArray( arrayObject ) ? Array.getLength( arrayObject ) : -1;
   }
   
   /**

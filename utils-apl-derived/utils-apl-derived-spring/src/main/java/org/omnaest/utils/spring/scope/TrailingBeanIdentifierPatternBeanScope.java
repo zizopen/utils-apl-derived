@@ -221,8 +221,8 @@ public class TrailingBeanIdentifierPatternBeanScope implements Scope, Applicatio
   /**
    * Creates a new instance of a {@link TrailingBeanIdentifierPatternBeanScopeThreadContextManager}
    * 
-   * @param trailingPattern
-   *          : the pattern the {@link BeanScopeThreadContextManager} sets to the calling {@link Thread}
+   * @param trailingPatternResolver
+   *          {@link TrailingPatternResolver}
    * @return
    */
   public TrailingBeanIdentifierPatternBeanScopeThreadContextManager newTrailingBeanIdentifierPatternBeanScopeThreadContextManager( TrailingPatternResolver trailingPatternResolver )

@@ -28,8 +28,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils;
-import org.omnaest.utils.structure.collection.list.ListUtils.ElementFilterIndexPositionBasedForGivenIndexes.Mode;
+import org.omnaest.utils.structure.collection.list.ListUtils.ElementFilter.FilterMode;
 import org.omnaest.utils.structure.collection.list.decorator.LockingListDecorator;
 import org.omnaest.utils.structure.collection.list.decorator.LockingListIteratorDecorator;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
@@ -46,15 +47,42 @@ public class ListUtils
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * An {@link ElementFilter} is used to filter elements.
+   * An {@link ElementFilter} provides a {@link #filter(Object)} and a {@link #getFilterMode()} method. Both allow to identify
+   * elements to be excluded or included. <br>
+   * <br>
+   * The {@link ExcludingElementFilter} provides an abstract implementation which return the {@link FilterMode#EXCLUDING} by
+   * default and only needs to implement the {@link #filter(Object)} method
    * 
+   * @see ExcludingElementFilter
    * @author Omnaest
    * @param <E>
    */
   public static interface ElementFilter<E>
   {
+    /* ********************************************** Classes/Interfaces ********************************************** */
     /**
-     * The filter method should return true if the given element should be filtered out / removed.
+     * Declares the behavior mode which can be {@link #EXCLUDING} or {@link #INCLUDING}
+     * 
+     * @author Omnaest
+     */
+    public static enum FilterMode
+    {
+      EXCLUDING,
+      INCLUDING
+    }
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * Returns the {@link FilterMode} in which the filter acts. This can be {@link FilterMode#EXCLUDING} or
+     * {@link FilterMode#INCLUDING}
+     * 
+     * @return {@link FilterMode}
+     */
+    public FilterMode getFilterMode();
+    
+    /**
+     * The {@link #filter(Object)} method should return true if the given element matches the internal {@link FilterMode}
      * 
      * @param element
      * @return
@@ -63,12 +91,37 @@ public class ListUtils
   }
   
   /**
-   * {@link ElementFilter} which removes all given elements where the constructor element equals to.
+   * Abstract implementation of the {@link ElementFilter} which returns {@link FilterMode#EXCLUDING} for the
+   * {@link #getFilterMode()} method
    * 
    * @author Omnaest
    * @param <E>
    */
-  public static class ElementFilterConstant<E> implements ElementFilter<E>
+  public static abstract class ExcludingElementFilter<E> implements ElementFilter<E>
+  {
+    /**
+     * The filter method should return true if the given element should be excluded
+     * 
+     * @see ElementFilter#filter(Object)
+     * @param element
+     * @return
+     */
+    public abstract boolean filter( E element );
+    
+    @Override
+    public FilterMode getFilterMode()
+    {
+      return FilterMode.EXCLUDING;
+    }
+  }
+  
+  /**
+   * {@link ExcludingElementFilter} which removes all given elements where the constructor element equals to.
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  public static class ExcludingElementFilterConstant<E> extends ExcludingElementFilter<E>
   {
     /* ********************************************** Variables ********************************************** */
     private E element = null;
@@ -79,7 +132,7 @@ public class ListUtils
      * @param element
      *          != null
      */
-    public ElementFilterConstant( E element )
+    public ExcludingElementFilterConstant( E element )
     {
       super();
       this.element = element;
@@ -98,10 +151,10 @@ public class ListUtils
    * 
    * @author Omnaest
    */
-  public static interface ElementFilterIndexPositionBased
+  public static interface ExcludingElementFilterIndexPositionBased
   {
     /**
-     * Returns true for all elements with the given index position to be filtered out / removed
+     * Returns true for all to be excluded elements with the given index position
      * 
      * @param indexPosition
      * @return
@@ -110,62 +163,49 @@ public class ListUtils
   }
   
   /**
-   * {@link ElementFilterIndexPositionBased} which filters all elements which do not have any of the given index numbers
+   * {@link ExcludingElementFilterIndexPositionBased} which filters all elements which do not have any of the given index numbers
    * 
-   * @see Mode
+   * @see FilterMode
    * @author Omnaest
-   * @param <E>
    */
-  public static class ElementFilterIndexPositionBasedForGivenIndexes implements ElementFilterIndexPositionBased
+  public static class ElementFilterIndexPositionBasedForGivenIndexes implements ExcludingElementFilterIndexPositionBased
   {
-    /**
-     * Declares the behavior mode which can be {@link #EXCLUDING} or {@link #INCLUDING}
-     * 
-     * @author Omnaest
-     */
-    public static enum Mode
-    {
-      EXCLUDING,
-      INCLUDING
-    }
     
     /* ********************************************** Variables ********************************************** */
     private Collection<Integer> indexCollection = null;
+    private FilterMode          mode            = null;
     
-    /* ********************************************** Classes/Interfaces ********************************************** */
-    
-    private Mode                mode            = null;
+    /* ********************************************** Methods ********************************************** */
     
     /**
-     * @see Mode
+     * @see FilterMode
      * @param indexCollection
      * @param mode
      */
-    public ElementFilterIndexPositionBasedForGivenIndexes( Collection<Integer> indexCollection, Mode mode )
+    public ElementFilterIndexPositionBasedForGivenIndexes( Collection<Integer> indexCollection, FilterMode mode )
     {
       super();
       this.indexCollection = indexCollection;
       this.mode = mode;
     }
     
-    /* ********************************************** Methods ********************************************** */
     @Override
     public boolean filter( int indexPosition )
     {
       boolean contained = this.indexCollection.contains( indexPosition );
       return this.indexCollection != null
-             && ( ( Mode.INCLUDING.equals( this.mode ) && !contained ) | ( ( Mode.EXCLUDING.equals( this.mode ) && contained ) ) );
+             && ( ( FilterMode.INCLUDING.equals( this.mode ) && !contained ) | ( ( FilterMode.EXCLUDING.equals( this.mode ) && contained ) ) );
     }
     
   }
   
   /**
-   * {@link ElementFilter} which filters / removes all null elements
+   * {@link ExcludingElementFilter} which filters / removes all null elements
    * 
    * @author Omnaest
    * @param <E>
    */
-  public static class ElementFilterNotNull<E> implements ElementFilter<E>
+  public static class ExcludingElementFilterNotNull<E> extends ExcludingElementFilter<E>
   {
     @Override
     public boolean filter( E element )
@@ -175,13 +215,12 @@ public class ListUtils
   }
   
   /**
-   * {@link ElementFilter} which filters / removes all blank elements. This {@link ElementFilter} can only be applied to elements
-   * of type {@link String}
+   * {@link ExcludingElementFilter} which filters / removes all blank elements. This {@link ExcludingElementFilter} can only be
+   * applied to elements of type {@link String}
    * 
    * @author Omnaest
-   * @param <E>
    */
-  public static class ElementFilterNotBlank implements ElementFilter<String>
+  public static class ElementFilterNotBlank extends ExcludingElementFilter<String>
   {
     @Override
     public boolean filter( String element )
@@ -355,8 +394,10 @@ public class ListUtils
   }
   
   /**
-   * Returns a filtered {@link List} using a {@link ElementFilter}
+   * Returns a filtered {@link List} using a {@link ElementFilter} on the given {@link Collection}
    * 
+   * @see ElementFilter
+   * @see ExcludingElementFilter
    * @param collection
    * @param elementFilter
    * @return a new {@link List} instance containing only the not filtered elements of the given {@link List}
@@ -367,8 +408,10 @@ public class ListUtils
   }
   
   /**
-   * Returns a filtered {@link List} using a {@link ElementFilter}
+   * Returns a filtered {@link List} using a {@link ElementFilter} on the given {@link Iterable}
    * 
+   * @see ElementFilter
+   * @see ExcludingElementFilter
    * @param iterable
    *          {@link Iterable}
    * @param elementFilter
@@ -382,9 +425,16 @@ public class ListUtils
     //
     if ( iterable != null && elementFilter != null )
     {
+      //
+      final boolean excludingMode = FilterMode.EXCLUDING.equals( elementFilter.getFilterMode() );
+      
+      //
       for ( E element : iterable )
       {
-        if ( !elementFilter.filter( element ) )
+        //
+        final boolean matchingFilter = elementFilter.filter( element );
+        final boolean excluded = ( excludingMode && matchingFilter ) || ( !excludingMode && !matchingFilter );
+        if ( !excluded )
         {
           retlist.add( element );
         }
@@ -396,13 +446,13 @@ public class ListUtils
   }
   
   /**
-   * Returns a filtered {@link List} using a {@link ElementFilterIndexPositionBased}
+   * Returns a filtered {@link List} using a {@link ExcludingElementFilterIndexPositionBased}
    * 
    * @param list
    * @param elementFilterIndexBased
    * @return a new {@link List} instance containing only the not filtered elements of the given {@link List}
    */
-  public static <E> List<E> filter( List<E> list, ElementFilterIndexPositionBased elementFilterIndexBased )
+  public static <E> List<E> filter( List<E> list, ExcludingElementFilterIndexPositionBased elementFilterIndexBased )
   {
     //
     List<E> retlist = new ArrayList<E>();
@@ -437,7 +487,7 @@ public class ListUtils
    * instance is returned.
    * 
    * @param sourceIterable
-   * @param retainingAndOrderingIterable
+   * @param filterAndOrderProvidingIterables
    * @return
    */
   public static <E> List<E> filterAndOrderBy( Iterable<E> sourceIterable, Iterable<E>... filterAndOrderProvidingIterables )
@@ -475,36 +525,36 @@ public class ListUtils
   /**
    * Returns a filtered {@link List} which does not contain the given element
    * 
-   * @see #filter(List, ElementFilter)
+   * @see #filter(Iterable, ElementFilter)
    * @param collection
    * @param element
    * @return a new {@link List} instance containing only the not filtered elements of the given {@link List}
    */
   public static <E> List<E> filterExcludingElement( Collection<E> collection, E element )
   {
-    return filter( collection, new ElementFilterConstant<E>( element ) );
+    return filter( collection, new ExcludingElementFilterConstant<E>( element ) );
   }
   
   /**
-   * @see #filter(List, ElementFilterIndexPositionBased)
+   * @see #filter(List, ExcludingElementFilterIndexPositionBased)
    * @param list
    * @param indexPositionCollection
    * @return
    */
   public static <E> List<E> filterExcludingIndexPositions( List<E> list, Collection<Integer> indexPositionCollection )
   {
-    return filter( list, new ElementFilterIndexPositionBasedForGivenIndexes( indexPositionCollection, Mode.EXCLUDING ) );
+    return filter( list, new ElementFilterIndexPositionBasedForGivenIndexes( indexPositionCollection, FilterMode.EXCLUDING ) );
   }
   
   /**
-   * @see #filter(List, ElementFilterIndexPositionBased)
+   * @see #filter(List, ExcludingElementFilterIndexPositionBased)
    * @param list
    * @param indexPositions
    * @return
    */
-  public static <E> List<E> filterExcludingIndexPositions( List<E> list, Integer... indexPositions )
+  public static <E> List<E> filterExcludingIndexPositions( List<E> list, int... indexPositions )
   {
-    return filterExcludingIndexPositions( list, Arrays.asList( indexPositions ) );
+    return filterExcludingIndexPositions( list, Arrays.asList( (Integer[]) ArrayUtils.toObject( indexPositions ) ) );
   }
   
   /**
@@ -515,7 +565,7 @@ public class ListUtils
    */
   public static <E> List<E> filterExcludingNullElements( Collection<E> collection )
   {
-    return filter( collection, new ElementFilterNotNull<E>() );
+    return filter( collection, new ExcludingElementFilterNotNull<E>() );
   }
   
   /**
@@ -531,18 +581,18 @@ public class ListUtils
   }
   
   /**
-   * @see #filter(List, ElementFilterIndexPositionBased)
+   * @see #filter(List, ExcludingElementFilterIndexPositionBased)
    * @param list
    * @param indexPositionCollection
    * @return
    */
   public static <E> List<E> filterIncludingIndexPositions( List<E> list, Collection<Integer> indexPositionCollection )
   {
-    return filter( list, new ElementFilterIndexPositionBasedForGivenIndexes( indexPositionCollection, Mode.INCLUDING ) );
+    return filter( list, new ElementFilterIndexPositionBasedForGivenIndexes( indexPositionCollection, FilterMode.INCLUDING ) );
   }
   
   /**
-   * @see #filter(List, ElementFilterIndexPositionBased)
+   * @see #filter(List, ExcludingElementFilterIndexPositionBased)
    * @param list
    * @param indexPositions
    * @return
@@ -621,10 +671,21 @@ public class ListUtils
   }
   
   /**
-   * Returns a new {@link List} with only this elements which are in all of the given {@link List}s
+   * Returns a new {@link List} with only this elements which are in all of the given {@link Collection}s
+   * 
+   * @param collections
+   * @return new {@link List} instance
+   */
+  public static <E> List<E> intersection( Collection<E>... collections )
+  {
+    return intersection( Arrays.asList( collections ) );
+  }
+  
+  /**
+   * Returns a new {@link List} with only this elements which are in all of the given {@link Collection}s
    * 
    * @param listCollection
-   * @return
+   * @return new {@link List} instance
    */
   public static <E> List<E> intersection( Collection<? extends Collection<E>> listCollection )
   {

@@ -152,29 +152,29 @@ public class MapUtilsTest
   }
   
   /**
-   * @see TestEnum
-   */
-  @Test
-  public void testEnumMapWithFilledDefaultValues()
-  {
-    //
-    final Class<TestEnum> enumType = TestEnum.class;
-    final Factory<Set<String>> factory = new Factory<Set<String>>()
+     * @see TestEnum
+     */
+    @Test
+    public void testInitializedEnumMap()
     {
-      @Override
-      public Set<String> newInstance()
+      //
+      final Class<TestEnum> enumType = TestEnum.class;
+      final Factory<Set<String>> factory = new Factory<Set<String>>()
       {
-        return SetUtils.valueOf( "a", "b" );
-      }
-    };
-    
-    final EnumMap<TestEnum, Set<String>> enumMapWithFilledDefaultValues = MapUtils.enumMapWithFilledDefaultValues( enumType,
-                                                                                                                   factory );
-    assertNotNull( enumMapWithFilledDefaultValues );
-    assertEquals( 2, enumMapWithFilledDefaultValues.size() );
-    assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key1 ) );
-    assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key2 ) );
-  }
+        @Override
+        public Set<String> newInstance()
+        {
+          return SetUtils.valueOf( "a", "b" );
+        }
+      };
+      
+      final EnumMap<TestEnum, Set<String>> enumMapWithFilledDefaultValues = MapUtils.initializedEnumMap( enumType,
+                                                                                                                     factory );
+      assertNotNull( enumMapWithFilledDefaultValues );
+      assertEquals( 2, enumMapWithFilledDefaultValues.size() );
+      assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key1 ) );
+      assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key2 ) );
+    }
   
   @Test
   public void testInitializedMap()

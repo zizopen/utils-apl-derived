@@ -579,7 +579,7 @@ public class MapUtils
    * @param factory
    * @return {@link EnumMap}
    */
-  public static <K extends Enum<K>, V> EnumMap<K, V> enumMapWithFilledDefaultValues( Class<K> enumType, Factory<V> factory )
+  public static <K extends Enum<K>, V> EnumMap<K, V> initializedEnumMap( Class<K> enumType, Factory<V> factory )
   {
     //    
     final EnumMap<K, V> retmap = enumType != null ? new EnumMap<K, V>( enumType ) : null;

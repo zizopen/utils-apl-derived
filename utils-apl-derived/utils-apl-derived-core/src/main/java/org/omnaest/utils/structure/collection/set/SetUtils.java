@@ -27,6 +27,11 @@ import org.omnaest.utils.structure.collection.list.ListUtils.ElementFilter;
 import org.omnaest.utils.structure.collection.set.decorator.LockingSetDecorator;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 
+/**
+ * Helper for {@link Set} types
+ * 
+ * @author Omnaest
+ */
 public class SetUtils
 {
   /**
@@ -142,7 +147,6 @@ public class SetUtils
   /**
    * Transforms a given {@link Collection} instance from one generic type into the other using a given {@link ElementConverter}.
    * 
-   * @see #convert(Collection, ElementConverter, boolean)
    * @param iterable
    * @param elementConverter
    */
@@ -152,15 +156,17 @@ public class SetUtils
   }
   
   /**
-   * Filters the given {@link Collection} and returns a {@link Set} which only contains the elements which are not filtered out by
-   * the given element filter.
+   * Filters the given {@link Iterable} and returns a {@link Set} which only contains the elements which are not filtered out by
+   * the given {@link ElementFilter}.
    * 
-   * @param collection
+   * @param iterable
+   *          {@link Iterable}
    * @param elementFilter
-   * @return
+   *          {@link ElementFilter}
+   * @return new {@link Set} instance
    */
-  public static <E> Set<E> filter( Collection<E> collection, ElementFilter<E> elementFilter )
+  public static <E> Set<E> filter( Iterable<E> iterable, ElementFilter<E> elementFilter )
   {
-    return SetUtils.valueOf( ListUtils.filter( collection, elementFilter ) );
+    return SetUtils.valueOf( ListUtils.filter( iterable, elementFilter ) );
   }
 }

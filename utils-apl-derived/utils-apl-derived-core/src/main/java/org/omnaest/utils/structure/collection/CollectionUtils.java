@@ -47,7 +47,7 @@ public class CollectionUtils
      * Processes the given {@link Collection} element. This method will be called for each element of the original
      * {@link Collection}
      * 
-     * @param collection
+     * @param element
      */
     public void process( FROM element );
     
@@ -399,7 +399,6 @@ public class CollectionUtils
    * Merges all elements of the given {@link Collection} instances into one single {@link Collection} instance which keeps the
    * order of the elements.
    * 
-   * @see #mergeAll(Collection)
    * @param <E>
    * @param collections
    * @return
@@ -605,7 +604,7 @@ public class CollectionUtils
    * methods
    * 
    * @param collection
-   * F@return
+   *          F@return
    */
   public static <E> Collection<E> lockedByReentrantLock( Collection<E> collection )
   {
