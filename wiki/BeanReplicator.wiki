@@ -1,0 +1,19 @@
+#summary The BeanReplicator allows to copy and clone Java beans
+
+= BeanReplicator =
+
+The BeanReplicator offers two methods:
+
+ * clone
+ * copy
+
+With help of the clone method direct type clones are constructed. This means identical types but different instances. These can then be modified independently afterwards.
+This makes the clone method first choice for replicating a *state*.
+
+The copy method instead transforms the types and copies the properties one by one. This makes this one to be preferred for use in combination with data transfer objects (DTOs). Those have mostly to be located in another project/module for mostly decoupling reasons. The BeanReplicator can act here as data transfer. 
+
+== Adapter ==
+
+A BeanReplicator instance is only as performant and robust as the Adapter instances provided at its creation time.
+
+An Adapter ensures the recursive copying process when the copy method is invoked. The clone method does not make any use of Adapters.
