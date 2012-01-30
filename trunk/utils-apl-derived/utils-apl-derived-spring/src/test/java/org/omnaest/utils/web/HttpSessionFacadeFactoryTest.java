@@ -105,7 +105,7 @@ public class HttpSessionFacadeFactoryTest
   
   @Test
   @PerfTest(invocations = 1000)
-  @Required(average = 1)
+  @Required(average = 10)
   public void testNewHttpSessionFacadePerformanceInstantiations()
   {
     new HttpSessionFacadeFactory( this.httpSessionResolver ).newHttpSessionFacade( HttpSessionFacadeExample.class );
@@ -113,7 +113,7 @@ public class HttpSessionFacadeFactoryTest
   
   @Test
   @PerfTest(invocations = 1000)
-  @Required(average = 1)
+  @Required(average = 10)
   public void testSessionFacadeReadAndWritePerformanceInvocation()
   {
     //
