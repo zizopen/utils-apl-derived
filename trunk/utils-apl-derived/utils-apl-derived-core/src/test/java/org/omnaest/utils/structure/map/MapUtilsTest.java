@@ -152,29 +152,29 @@ public class MapUtilsTest
   }
   
   /**
-     * @see TestEnum
-     */
-    @Test
-    public void testInitializedEnumMap()
+   * @see TestEnum
+   */
+  @SuppressWarnings("javadoc")
+  @Test
+  public void testInitializedEnumMap()
+  {
+    //
+    final Class<TestEnum> enumType = TestEnum.class;
+    final Factory<Set<String>> factory = new Factory<Set<String>>()
     {
-      //
-      final Class<TestEnum> enumType = TestEnum.class;
-      final Factory<Set<String>> factory = new Factory<Set<String>>()
+      @Override
+      public Set<String> newInstance()
       {
-        @Override
-        public Set<String> newInstance()
-        {
-          return SetUtils.valueOf( "a", "b" );
-        }
-      };
-      
-      final EnumMap<TestEnum, Set<String>> enumMapWithFilledDefaultValues = MapUtils.initializedEnumMap( enumType,
-                                                                                                                     factory );
-      assertNotNull( enumMapWithFilledDefaultValues );
-      assertEquals( 2, enumMapWithFilledDefaultValues.size() );
-      assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key1 ) );
-      assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key2 ) );
-    }
+        return SetUtils.valueOf( "a", "b" );
+      }
+    };
+    
+    final EnumMap<TestEnum, Set<String>> enumMapWithFilledDefaultValues = MapUtils.initializedEnumMap( enumType, factory );
+    assertNotNull( enumMapWithFilledDefaultValues );
+    assertEquals( 2, enumMapWithFilledDefaultValues.size() );
+    assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key1 ) );
+    assertEquals( SetUtils.valueOf( "a", "b" ), enumMapWithFilledDefaultValues.get( TestEnum.key2 ) );
+  }
   
   @Test
   public void testInitializedMap()
@@ -189,6 +189,30 @@ public class MapUtilsTest
     };
     final Map<String, Boolean> initializedMap = MapUtils.initializedMap( valueFactory );
     assertTrue( initializedMap.get( "test" ) );
+  }
+  
+  @Test
+  public void testInvertBidirectionalMap()
+  {
+    //
+    final Map<String, Integer> sourceMap = new LinkedHashMap<String, Integer>();
+    sourceMap.put( "key1", 1 );
+    sourceMap.put( "key2", 2 );
+    sourceMap.put( "key3", 3 );
+    sourceMap.put( "key4", 4 );
+    
+    //
+    final Map<Integer, String> invertedMap = MapUtils.invertBidirectionalMap( sourceMap );
+    assertNotNull( invertedMap );
+    assertEquals( 4, invertedMap.size() );
+    
+    //
+    assertEquals( new MapBuilder<Integer, String>().linkedHashMap()
+                                                   .put( 1, "key1" )
+                                                   .put( 2, "key2" )
+                                                   .put( 3, "key3" )
+                                                   .put( 4, "key4" )
+                                                   .build(), invertedMap );
   }
   
 }

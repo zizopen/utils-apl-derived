@@ -76,32 +76,32 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
     {
       /** Goes on with an unchanged {@link TraversalConfiguration} */
       GO_ON,
-      /** Changes the {@link TraversalConfiguration#isIncludeAlreadyTraversedNodes()} permanently to true */
+      /** Changes the {@link TraversalConfiguration#isIncludingAlreadyTraversedNodes()} permanently to true */
       GO_ON_INCLUDE_ALREADY_TRAVERSED_NODES,
-      /** Changes the {@link TraversalConfiguration#isIncludeAlreadyTraversedNodes()} permanently to false */
+      /** Changes the {@link TraversalConfiguration#isIncludingAlreadyTraversedNodes()} permanently to false */
       GO_ON_EXCLUDE_ALREADY_TRAVERSED_NODES,
-      /** Changes the {@link TraversalConfiguration#isIncludeChildren()} permanently to true */
+      /** Changes the {@link TraversalConfiguration#isIncludingChildren()} permanently to true */
       GO_ON_INCLUDE_CHILDREN,
-      /** Changes the {@link TraversalConfiguration#isIncludeChildren()} permanently to false */
+      /** Changes the {@link TraversalConfiguration#isIncludingChildren()} permanently to false */
       GO_ON_EXCLUDE_CHILDREN,
       /**
-       * Changes the {@link TraversalConfiguration#isIncludeChildren()} permanently to true and the
-       * {@link TraversalConfiguration#isIncludeAlreadyTraversedNodes()} to true
+       * Changes the {@link TraversalConfiguration#isIncludingChildren()} permanently to true and the
+       * {@link TraversalConfiguration#isIncludingAlreadyTraversedNodes()} to true
        */
       GO_ON_INCLUDE_CHILDREN_AND_ALREADY_TRAVERSED_NODES,
       /**
-       * Changes the {@link TraversalConfiguration#isIncludeChildren()} permanently to false and the
-       * {@link TraversalConfiguration#isIncludeAlreadyTraversedNodes()} to false
+       * Changes the {@link TraversalConfiguration#isIncludingChildren()} permanently to false and the
+       * {@link TraversalConfiguration#isIncludingAlreadyTraversedNodes()} to false
        */
       GO_ON_EXCLUDE_CHILDREN_AND_ALREADY_TRAVERSED_NODES,
       /**
-       * Changes the {@link TraversalConfiguration#isIncludeChildren()} permanently to false and the
-       * {@link TraversalConfiguration#isIncludeAlreadyTraversedNodes()} to true
+       * Changes the {@link TraversalConfiguration#isIncludingChildren()} permanently to false and the
+       * {@link TraversalConfiguration#isIncludingAlreadyTraversedNodes()} to true
        */
       GO_ON_EXCLUDE_CHILDREN_AND_INCLUDE_ALREADY_TRAVERSED_NODES,
       /**
-       * Changes the {@link TraversalConfiguration#isIncludeChildren()} permanently to true and the
-       * {@link TraversalConfiguration#isIncludeAlreadyTraversedNodes()} to false
+       * Changes the {@link TraversalConfiguration#isIncludingChildren()} permanently to true and the
+       * {@link TraversalConfiguration#isIncludingAlreadyTraversedNodes()} to false
        */
       GO_ON_INCLUDE_CHILDREN_AND_EXCLUDE_ALREADY_TRAVERSED_NODES,
       /** Skips all children only for the current node */
@@ -111,8 +111,9 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
       /** Skips all children and further siblings of the current node */
       SKIP_CHILDREN_AND_FURTHER_SIBLINGS,
       /**
-       * Cancels the traversal for the current {@link TreeNodeVisitor}. If multiple {@link TreeNodeVisitor}s are specified the
-       * others are unaffected. Each {@link TreeNodeVisitor} has to cancel the traversal for itself.
+       * Cancels the traversal for the current {@link TreeNavigator.TreeNodeVisitor}. If multiple
+       * {@link TreeNavigator.TreeNodeVisitor}s are specified the others are unaffected. Each
+       * {@link TreeNavigator.TreeNodeVisitor} has to cancel the traversal for itself.
        */
       CANCEL_TRAVERSAL
     }
@@ -147,7 +148,6 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
        * Copies the current {@link TraversalConfiguration} but uses all explicit given flags if they are not null. This means if a
        * flag should not be overridden it should be set to null.
        * 
-       * @param traversalConfiguration
        * @param includingCurrentNode
        * @param includingAlreadyTraversedNodes
        * @param includingChildren
@@ -556,7 +556,6 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
   {
     /**
      * @param defaultTraversalConfiguration
-     * @param visitedTreeNodeSet
      * @param treeNodeVisitors
      */
     public void traverse( TraversalConfiguration defaultTraversalConfiguration, TNV... treeNodeVisitors )
@@ -733,9 +732,9 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
    * @see TreeNavigator
    * @see Tree
    * @see TreeNode
+   * @param tree
    * @throws IllegalArgumentException
    *           if the {@link Tree} reference is null
-   * @param tree
    */
   public TreeNavigator( T tree )
   {
@@ -864,7 +863,6 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
    * @see #isNavigationSuccessful()
    * @see #navigateToNextSibling(int)
    * @see #navigateToPreviousSibling(int)
-   * @param relativeIndexPosition
    * @return this
    */
   public TreeNavigator<T, TN> navigateToPreviousSibling()
@@ -984,9 +982,9 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
    * <br>
    * Nodes which are already visited will be excluded by default. This prevents indefinite loops related to cyclic references. To
    * override this use {@link TraversalControl#GO_ON_INCLUDE_ALREADY_TRAVERSED_NODES} in combination with
-   * {@link #traverse(TraversalControl, TreeNodeVisitor...)}
+   * {@link #traverse(TraversalConfiguration, TreeNodeVisitor)}
    * 
-   * @see #traverse(TraversalControl, TreeNodeVisitor...)
+   * @see #traverse(TraversalConfiguration, TreeNodeVisitor)
    * @param treeNodeVisitors
    *          {@link TreeNodeVisitor}
    * @return this
@@ -1008,9 +1006,9 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
   }
   
   /**
-   * Similar to {@link #traverse(TraversalControl, TreeNodeVisitor...)}
+   * Similar to {@link #traverse(TraversalConfiguration, TreeNodeVisitor)}
    * 
-   * @param defaultTraversalControl
+   * @param defaultTraversalConfiguration
    * @param treeNodeVisitor
    * @return
    */

@@ -18,6 +18,8 @@ package org.omnaest.utils.structure.hierarchy.tree;
 /**
  * A {@link Tree} acts as a container for a {@link TreeNode} object graph.
  * 
+ * @see TreeNavigator
+ * @see TreeHelper
  * @author Omnaest
  * @param <M>
  *          model of the tree (not necessarily the same as one of the {@link TreeNode}s models)

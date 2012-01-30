@@ -15,10 +15,14 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.session.threadcontext.internal;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceBean;
 import org.omnaest.utils.spring.session.threadcontext.RequestContextAwareCallableDecorator;
 import org.omnaest.utils.spring.session.threadcontext.RequestContextAwareRunnableDecorator;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * @see RequestContextAwareRunnableDecorator
@@ -28,8 +32,11 @@ import org.springframework.web.context.request.RequestContextHolder;
 public class RequestContextManagerForCallableAndRunnableDecorator
 {
   /* ********************************************** Variables ********************************************** */
-  private final RequestAttributes requestAttributes;
-  private final boolean           inheritable;
+  private final HttpServletRequest                              httpServletRequest;
+  private final boolean                                         inheritable;
+  
+  /* ********************************************** Beans / Services / References ********************************************** */
+  private final HttpSessionAndServletRequestResolverServiceBean httpSessionAndServletRequestResolverServiceBean = new HttpSessionAndServletRequestResolverServiceBean();
   
   /* ********************************************** Methods ********************************************** */
   
@@ -41,7 +48,7 @@ public class RequestContextManagerForCallableAndRunnableDecorator
   {
     super();
     this.inheritable = inheritable;
-    this.requestAttributes = RequestContextHolder.getRequestAttributes();
+    this.httpServletRequest = this.httpSessionAndServletRequestResolverServiceBean.resolveHttpServletRequest();
   }
   
   /**
@@ -60,7 +67,7 @@ public class RequestContextManagerForCallableAndRunnableDecorator
    */
   public RequestAttributes setRequestAttributesResolvedAtCreationTime()
   {
-    return this.setRequestAttributes( this.requestAttributes );
+    return this.setRequestAttributes( new ServletRequestAttributes( this.httpServletRequest ) );
   }
   
   /**
@@ -85,8 +92,8 @@ public class RequestContextManagerForCallableAndRunnableDecorator
   public String toString()
   {
     StringBuilder builder = new StringBuilder();
-    builder.append( "RequestContextManagerForCallableAndRunnableDecorator [requestAttributes=" );
-    builder.append( this.requestAttributes );
+    builder.append( "RequestContextManagerForCallableAndRunnableDecorator [httpServletRequest=" );
+    builder.append( this.httpServletRequest );
     builder.append( ", inheritable=" );
     builder.append( this.inheritable );
     builder.append( "]" );

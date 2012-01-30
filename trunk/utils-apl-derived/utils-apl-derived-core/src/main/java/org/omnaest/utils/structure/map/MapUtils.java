@@ -533,15 +533,59 @@ public class MapUtils
   }
   
   /**
+   * Returns the inverted {@link Map} for the given one.<br>
+   * <br>
+   * The given {@link Map} has to be <b>bidirectional</b>, which means that the key value pairs inverted into value to key pairs
+   * have unique values, too.<br>
+   * <br>
+   * If the given {@link Map} reference is null, null is returned.<br>
+   * <br>
+   * For non bidirectional {@link Map}s use {@link #invert(Map)} instead. <br>
+   * <br>
+   * If a given {@link Map} has some non unique values the first occurring value wins and all further values are dropped.
+   * 
+   * @param map
+   * @return {@link LinkedHashMap}
+   */
+  public static <K, V> Map<V, K> invertBidirectionalMap( final Map<? extends K, ? extends V> map )
+  {
+    //
+    final Map<V, K> retmap = map == null ? null : new LinkedHashMap<V, K>();
+    
+    //
+    if ( retmap != null )
+    {
+      //
+      for ( Entry<? extends K, ? extends V> entry : map.entrySet() )
+      {
+        //
+        final K key = entry.getKey();
+        final V value = entry.getValue();
+        
+        //
+        if ( !retmap.containsKey( value ) )
+        {
+          retmap.put( value, key );
+        }
+      }
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
    * Returns the inverted {@link Map} for the given one. If the given {@link Map} reference is null, null is returned.<br>
    * <br>
    * Since Multiple key of the original {@link Map} can be mapped to the same value, the inverted {@link Map} will contain a
-   * {@link Set} of original key values per original value.
+   * {@link Set} of original key values per original value. <br>
+   * <br>
+   * For bidirectional {@link Map}s consider using {@link #invertBidirectionalMap(Map)}
    * 
    * @param map
-   * @return
+   * @return {@link LinkedHashMap} and {@link LinkedHashSet}
    */
-  public static <K, V> Map<V, Set<K>> invert( final Map<K, V> map )
+  public static <K, V> Map<V, Set<K>> invert( final Map<? extends K, ? extends V> map )
   {
     //
     final Map<V, Set<K>> retmap = map == null ? null : new LinkedHashMap<V, Set<K>>();
@@ -550,7 +594,7 @@ public class MapUtils
     if ( retmap != null )
     {
       //
-      for ( Entry<K, V> entry : map.entrySet() )
+      for ( Entry<? extends K, ? extends V> entry : map.entrySet() )
       {
         //
         final K key = entry.getKey();

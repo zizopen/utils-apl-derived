@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotNull;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -289,6 +290,65 @@ public class BeanReplicatorTest
     
   }
   
+  /**
+   * @author Omnaest
+   */
+  protected static class TestClassIncludingMap
+  {
+    /* ********************************************** Variables ********************************************** */
+    private Map<TestClass, TestClassSub> testClassToTestClassSubMap;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @see TestClassIncludingMap
+     * @param testClassToTestClassSubMap
+     */
+    public TestClassIncludingMap( Map<TestClass, TestClassSub> testClassToTestClassSubMap )
+    {
+      super();
+      this.testClassToTestClassSubMap = testClassToTestClassSubMap;
+    }
+    
+    /**
+     * @return the testClassToTestClassSubMap
+     */
+    protected Map<TestClass, TestClassSub> getTestClassToTestClassSubMap()
+    {
+      return this.testClassToTestClassSubMap;
+    }
+    
+  }
+  
+  /**
+   * @author Omnaest
+   */
+  protected static class TestClassIncludingMapDTO
+  {
+    /* ********************************************** Variables ********************************************** */
+    private Map<TestClassDTO, TestClassDTOSub> testClassToTestClassSubMap;
+    
+    /* ********************************************** Methods ********************************************** */
+    /**
+     * @return the testClassToTestClassSubMap
+     */
+    protected Map<TestClassDTO, TestClassDTOSub> getTestClassToTestClassSubMap()
+    {
+      return this.testClassToTestClassSubMap;
+    }
+    
+    /**
+     * @param testClassToTestClassSubMap
+     *          the testClassToTestClassSubMap to set
+     */
+    protected void setTestClassToTestClassSubMap( Map<TestClassDTO, TestClassDTOSub> testClassToTestClassSubMap )
+    {
+      this.testClassToTestClassSubMap = testClassToTestClassSubMap;
+    }
+    
+  }
+  
+  /* ********************************************** Methods ********************************************** */
   @Rule
   public ContiPerfRule contiPerfRule = new ContiPerfRule();
   
@@ -368,6 +428,38 @@ public class BeanReplicatorTest
     Map<Object, Object> mapCopy = beanReplicator.copy( map );
     TestClassDTO copy = (TestClassDTO) mapCopy.get( "key" );
     assertTestClassCopy( copy );
+  }
+  
+  @PerfTest(invocations = 100)
+  @Test
+  public void testCopyEntityWithMapOfEntities()
+  {
+    //
+    final Adapter adapter = prepareAdapter2();
+    BeanReplicator beanReplicator = new BeanReplicator( adapter );
+    
+    //
+    final Map<TestClass, TestClassSub> testClassToTestClassSubMap = new LinkedHashMap<TestClass, TestClassSub>();
+    {
+      //
+      TestClass testClass = prepareTestClassInstance();
+      TestClassSub testClassSub = testClass.getTestClassSub();
+      testClassToTestClassSubMap.put( testClass, testClassSub );
+    }
+    
+    final TestClassIncludingMap testClassIncludingMap = new TestClassIncludingMap( testClassToTestClassSubMap );
+    
+    //    
+    TestClassIncludingMapDTO testClassIncludingMapCopy = beanReplicator.copy( testClassIncludingMap );
+    assertNotNull( testClassIncludingMapCopy );
+    
+    //
+    Map<TestClassDTO, TestClassDTOSub> testClassToTestClassSubMapCopy = testClassIncludingMapCopy.getTestClassToTestClassSubMap();
+    
+    assertNotNull( testClassIncludingMapCopy );
+    assertEquals( 1, testClassToTestClassSubMapCopy.size() );
+    assertTestClassCopy( testClassToTestClassSubMapCopy.keySet().iterator().next() );
+    
   }
   
   @Test
@@ -472,6 +564,24 @@ public class BeanReplicatorTest
     final Adapter adapter4 = new AdapterTypePatternBased(
                                                           "org.omnaest.utils.beans.replicator.BeanReplicatorTest$TestClassDTO$TestClassDTOSub" );
     final Adapter adapter = new AdapterComposite( adapter3, adapter4 );
+    return adapter;
+  }
+  
+  /**
+   * @return
+   */
+  private static Adapter prepareAdapter2()
+  {
+    //
+    Map<Class<?>, Class<?>> sourceToTargetTypeMap = new LinkedHashMap<Class<?>, Class<?>>();
+    sourceToTargetTypeMap.put( TestClass.class, TestClassDTO.class );
+    sourceToTargetTypeMap.put( TestClassSub.class, TestClassDTOSub.class );
+    sourceToTargetTypeMap.put( TestClassIncludingMapDTO.class, TestClassIncludingMap.class );//inversion
+    
+    //
+    final Adapter adapter = new AdapterSourceToTargetTypeMapBased( sourceToTargetTypeMap );
+    
+    //
     return adapter;
   }
   

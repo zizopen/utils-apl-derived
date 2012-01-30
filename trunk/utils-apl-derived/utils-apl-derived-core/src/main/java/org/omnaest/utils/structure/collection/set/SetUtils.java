@@ -72,6 +72,17 @@ public class SetUtils
   }
   
   /**
+   * Returns the intersection of the {@link Collection}s of the given container {@link Collection}
+   * 
+   * @param collections
+   * @return
+   */
+  public static <E> Set<E> intersection( Collection<E>... collections )
+  {
+    return new LinkedHashSet<E>( ListUtils.intersection( collections ) );
+  }
+  
+  /**
    * Same as {@link #valueOf(Iterable)} for one or more elements
    * 
    * @param elements

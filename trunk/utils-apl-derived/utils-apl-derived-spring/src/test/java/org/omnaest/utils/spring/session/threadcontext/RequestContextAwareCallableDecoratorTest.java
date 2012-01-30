@@ -61,7 +61,7 @@ public class RequestContextAwareCallableDecoratorTest
     MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
     mockHttpServletRequest.setSession( new MockHttpSession() );
     RequestAttributes requestAttributes = new ServletRequestAttributes( mockHttpServletRequest );
-    RequestContextHolder.setRequestAttributes( requestAttributes );
+    RequestContextHolder.setRequestAttributes( requestAttributes, false );
     assertEquals( requestAttributes, RequestContextHolder.getRequestAttributes() );
   }
   
