@@ -209,4 +209,25 @@ public class ArrayUtils
     //
     return retvals;
   }
+  
+  /**
+   * Return the sum of all given {@link Integer} values
+   * 
+   * @param values
+   * @return
+   */
+  public static int sumOf( int... values )
+  {
+    //
+    int retval = 0;
+    
+    //
+    for ( int value : values )
+    {
+      retval += value;
+    }
+    
+    //
+    return retval;
+  }
 }
