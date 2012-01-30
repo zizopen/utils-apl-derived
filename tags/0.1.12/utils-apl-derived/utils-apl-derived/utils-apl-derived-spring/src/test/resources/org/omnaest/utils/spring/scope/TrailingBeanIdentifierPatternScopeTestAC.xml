@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context" xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <context:annotation-config />
+
+    <context:component-scan base-package="org.omnaest.utils.spring.mock"></context:component-scan>
+
+    <bean class="org.omnaest.utils.spring.mock.MockHttpSessionResolverFactory" />
+
+    <!-- The component scan will create a locale scoped bean which will resolve the following two beans if the locale attribute 
+        within the session is the same as the trailing sequence -->
+    <bean id="localeScopedBean_en_US" class="org.omnaest.utils.spring.mock.LocaleScopedBean" scope="singleton">
+        <property name="value" value="en_US" />
+    </bean>
+    <bean id="localeScopedBean_de_DE" class="org.omnaest.utils.spring.mock.LocaleScopedBean" scope="singleton">
+        <property name="value" value="de_DE" />
+    </bean>
+
+    <bean id="trailingBeanIdentifierPatternScope" class="org.omnaest.utils.spring.scope.TrailingBeanIdentifierPatternBeanScope" />
+
+    <bean id="trailingPatternBySessionAttributeResolver"
+        class="org.omnaest.utils.spring.scope.TrailingBeanIdentifierPatternBeanScope.TrailingPatternBySessionAttributeResolver">
+        <constructor-arg value="locale"></constructor-arg>
+        <property name="httpSessionResolver" ref="newHttpSessionResolver"></property>
+    </bean>
+
+    <bean id="trailingBeanIdentifierPatternBeanScopeThreadContextManagerForLocalePattern"
+        class="org.omnaest.utils.spring.scope.TrailingBeanIdentifierPatternBeanScope.TrailingBeanIdentifierPatternBeanScopeThreadContextManager"
+        factory-bean="trailingBeanIdentifierPatternScope" factory-method="newTrailingBeanIdentifierPatternBeanScopeThreadContextManager">
+        <constructor-arg ref="trailingPatternBySessionAttributeResolver"></constructor-arg>
+    </bean>
+
+
+    <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
+        <property name="scopes">
+            <map>
+                <entry key="locale">
+                    <ref bean="trailingBeanIdentifierPatternScope" />
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <task:executor id="threadPool" pool-size="20" />
+
+</beans>
