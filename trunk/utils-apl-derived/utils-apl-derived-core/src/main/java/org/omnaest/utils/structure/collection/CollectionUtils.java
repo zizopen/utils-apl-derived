@@ -611,4 +611,5 @@ public class CollectionUtils
     Lock lock = new ReentrantLock();
     return new LockingCollectionDecorator<E>( collection, lock );
   }
+  
 }

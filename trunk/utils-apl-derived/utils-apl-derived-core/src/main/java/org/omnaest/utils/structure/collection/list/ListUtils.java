@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.collection.list;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -1042,6 +1043,25 @@ public class ListUtils
     {
       retlist.addAll( list.subList( 0, Math.min( list.size(), maximumSize ) ) );
     }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Returns a new {@link List} instance with the same elements of the given {@link Collection} but in reversed order.
+   * 
+   * @see Collections#reverse(List)
+   * @param collection
+   * @return
+   */
+  public static <E> List<E> reverse( Collection<E> collection )
+  {
+    //
+    List<E> retlist = new ArrayList<E>( collection );
+    
+    //
+    Collections.reverse( retlist );
     
     //
     return retlist;

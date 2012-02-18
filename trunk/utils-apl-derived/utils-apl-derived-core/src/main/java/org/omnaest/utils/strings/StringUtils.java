@@ -18,6 +18,9 @@ package org.omnaest.utils.strings;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.omnaest.utils.strings.tokenizer.ConvertingCharacterSequenceTokenizerDecoratorToString;
+import org.omnaest.utils.strings.tokenizer.PatternBasedCharacterSequenceTokenizer;
+
 /**
  * Utility class for supporting the work with {@link String}s
  * 
@@ -299,5 +302,33 @@ public class StringUtils
     
     //
     return retval;
+  }
+  
+  /**
+   * Returns a new {@link Iterable} instance for the given {@link CharSequence} which uses the given regular expression delimiter
+   * to produce tokens. <br>
+   * <br>
+   * If the given {@link CharSequence} or the given delimiter is null this returns null. <br>
+   * <br>
+   * Example:
+   * 
+   * <pre>
+   * StringUtils.tokenizerPatternBased( "a;b", ";" )  => "a","b"
+   * StringUtils.tokenizerPatternBased( null, ";" )   => null
+   * StringUtils.tokenizerPatternBased( "a;b", null ) => null
+   * </pre>
+   * 
+   * @param charSequence
+   * @param regexDelimiter
+   * @return
+   */
+  public static Iterable<String> tokenizerPatternBased( CharSequence charSequence, String regexDelimiter )
+  {
+    //
+    return charSequence != null && regexDelimiter != null ? new ConvertingCharacterSequenceTokenizerDecoratorToString(
+                                                                                                                       new PatternBasedCharacterSequenceTokenizer(
+                                                                                                                                                                   charSequence,
+                                                                                                                                                                   regexDelimiter ) )
+                                                         : null;
   }
 }
