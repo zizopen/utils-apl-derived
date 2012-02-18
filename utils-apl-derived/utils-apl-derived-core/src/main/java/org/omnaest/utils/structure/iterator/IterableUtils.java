@@ -24,6 +24,7 @@ import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.factory.Factory;
+import org.omnaest.utils.structure.iterator.decorator.ConverterIteratorDecorator;
 import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
 
 /**
@@ -234,6 +235,23 @@ public class IterableUtils
         }
       }
     };
+  }
+  
+  /**
+   * Returns a new decorator instance of the given {@link Iterator} which uses the given {@link ElementConverter} to convert the
+   * result of the {@link Iterator#next()} method. <br>
+   * <br>
+   * If the given {@link ElementConverter} or {@link Iterator} is null, this method return null.
+   * 
+   * @param iterator
+   * @param elementConverter
+   * @return
+   */
+  public static <TO, FROM> Iterator<TO> convertingIteratorDecorator( Iterator<FROM> iterator,
+                                                                     ElementConverter<FROM, TO> elementConverter )
+  {
+    return iterator != null && elementConverter != null ? new ConverterIteratorDecorator<FROM, TO>( iterator, elementConverter )
+                                                       : null;
   }
   
   /**

@@ -18,7 +18,10 @@ package org.omnaest.utils.strings;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+
 import org.junit.Test;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 
 public class StringUtilsTest
 {
@@ -105,6 +108,12 @@ public class StringUtilsTest
     assertEquals( 4, StringUtils.count( text, "ab" ) );
     assertEquals( 16, StringUtils.count( text, "la" ) );
     assertEquals( 6, StringUtils.count( text, "lala" ) );
+  }
+  
+  @Test
+  public void testTokenizerPatternBased()
+  {
+    assertEquals( Arrays.asList( "a", "b" ), ListUtils.valueOf( StringUtils.tokenizerPatternBased( "a;b", ";" ) ) );
   }
   
 }
