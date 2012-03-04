@@ -31,6 +31,27 @@ import org.omnaest.utils.structure.element.converter.ElementConverterRegistratio
 import org.omnaest.utils.tuple.TupleTwo;
 
 /**
+ * The abstract {@link AdapterDeclarableBindings} allows to declare bindings based on capture instances of the given types. To do
+ * this the {@link #declareBindings(Object, Object)} method has to be implemented like following example:<br>
+ * 
+ * <pre>
+ * final AdapterDeclarableBindings&lt;TestClass, TestClassDTO&gt; adapter;
+ * adapter = new AdapterDeclarableBindings&lt;TestClass, TestClassDTO&gt;( TestClass.class, TestClassDTO.class )
+ * {
+ *   &#064;Override
+ *   public void declareBindings( TestClass source, TestClassDTO target )
+ *   {
+ *     this.bind( source.getFieldString() ).to( target.getFieldInteger() ).using( new ElementConverterStringToInteger() );
+ *     this.bind( source.getFieldInteger() ).to( target.getFieldString() ).usingAutodetectedElementConverter();
+ *     this.bind( source.getTestClassSub() ).to( target.getTestClassSub() ).usingOngoingBeanReplication();
+ *   }
+ * };
+ * </pre>
+ * 
+ * <br>
+ * This allows a faster replication (less than 1 ms per call), since the reflection based adapter has only to be created once
+ * (high cost about 200 ms).
+ * 
  * @author Omnaest
  * @param <FROM>
  * @param <TO>

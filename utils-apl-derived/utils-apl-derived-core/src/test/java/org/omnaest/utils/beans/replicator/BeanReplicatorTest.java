@@ -52,7 +52,12 @@ import org.omnaest.utils.structure.map.MapBuilder;
 public class BeanReplicatorTest
 {
   /* ********************************************** Variables ********************************************** */
-  private BeanReplicator beanReplicatorDefault = new BeanReplicator();
+  private BeanReplicator       beanReplicatorDefault = new BeanReplicator();
+  
+  private final static Adapter preparedAdapter1      = prepareAdapter();
+  private final static Adapter preparedAdapter2      = prepareAdapter2();
+  private final static Adapter preparedAdapter3      = prepareAdapter3();
+  private final static Adapter preparedAdapter4      = prepareAdapter4();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
@@ -392,6 +397,42 @@ public class BeanReplicatorTest
     assertEquals( "subfield", testClassDTOSub.getFieldString() );
   }
   
+  @PerfTest(invocations = 1000)
+  @Test
+  public void testDeclarableBindingsAdapter()
+  {
+    //
+    final Adapter adapter = preparedAdapter4;
+    
+    //
+    BeanReplicator beanReplicator = new BeanReplicator( adapter );
+    
+    TestClass testClass = prepareTestClassInstance();
+    
+    TestClassDTO copy = beanReplicator.copy( testClass );
+    assertNotNull( copy );
+    assertEquals( 10, copy.getFieldInteger().intValue() );
+    assertEquals( "5", copy.getFieldString() );
+    
+  }
+  
+  private static AdapterDeclarableBindings<TestClass, TestClassDTO> prepareAdapter4()
+  {
+    final AdapterDeclarableBindings<TestClass, TestClassDTO> adapter = new AdapterDeclarableBindings<TestClass, TestClassDTO>(
+                                                                                                                               TestClass.class,
+                                                                                                                               TestClassDTO.class )
+    {
+      @Override
+      public void declareBindings( TestClass source, TestClassDTO target )
+      {
+        this.bind( source.getFieldString() ).to( target.getFieldInteger() ).using( new ElementConverterStringToInteger() );
+        this.bind( source.getFieldInteger() ).to( target.getFieldString() ).usingAutodetectedElementConverter();
+        this.bind( source.getTestClassSub() ).to( target.getTestClassSub() ).usingOngoingBeanReplication();
+      }
+    };
+    return adapter;
+  }
+  
   @Test
   public void testCopyReplacementAdapter()
   {
@@ -410,12 +451,12 @@ public class BeanReplicatorTest
     assertTestClassCopy( copy );
   }
   
-  @PerfTest(invocations = 10)
+  @PerfTest(invocations = 5)
   @Test
   public void testCopyMap()
   {
     //
-    final Adapter adapter = prepareAdapter();
+    final Adapter adapter = preparedAdapter1;
     BeanReplicator beanReplicator = new BeanReplicator( adapter );
     
     //    
@@ -435,7 +476,7 @@ public class BeanReplicatorTest
   public void testCopyEntityWithMapOfEntities()
   {
     //
-    final Adapter adapter = prepareAdapter2();
+    final Adapter adapter = preparedAdapter2;
     BeanReplicator beanReplicator = new BeanReplicator( adapter );
     
     //
@@ -462,11 +503,12 @@ public class BeanReplicatorTest
     
   }
   
+  @PerfTest(invocations = 2)
   @Test
   public void testCopyArray()
   {
     //
-    final Adapter adapter = prepareAdapter();
+    final Adapter adapter = preparedAdapter3;
     BeanReplicator beanReplicator = new BeanReplicator( adapter );
     
     //    
@@ -480,11 +522,12 @@ public class BeanReplicatorTest
     assertTestClassCopy( copy );
   }
   
+  @PerfTest(invocations = 2)
   @Test
   public void testCopySet()
   {
     //    
-    final Adapter adapter = prepareAdapter();
+    final Adapter adapter = preparedAdapter3;
     BeanReplicator beanReplicator = new BeanReplicator( adapter );
     
     //    
@@ -499,11 +542,12 @@ public class BeanReplicatorTest
     assertTestClassCopy( copy );
   }
   
+  @PerfTest(invocations = 2)
   @Test
   public void testCopyList()
   {
     //    
-    final Adapter adapter = prepareAdapter();
+    final Adapter adapter = preparedAdapter3;
     BeanReplicator beanReplicator = new BeanReplicator( adapter );
     
     //    
@@ -518,11 +562,12 @@ public class BeanReplicatorTest
     assertTestClassCopy( copy );
   }
   
+  @PerfTest(invocations = 10)
   @Test
   public void testCopySortedSet()
   {
     //    
-    final Adapter adapter = prepareAdapter();
+    final Adapter adapter = preparedAdapter3;
     BeanReplicator beanReplicator = new BeanReplicator( adapter );
     
     //    
@@ -564,6 +609,23 @@ public class BeanReplicatorTest
     final Adapter adapter4 = new AdapterTypePatternBased(
                                                           "org.omnaest.utils.beans.replicator.BeanReplicatorTest$TestClassDTO$TestClassDTOSub" );
     final Adapter adapter = new AdapterComposite( adapter3, adapter4 );
+    return adapter;
+  }
+  
+  /**
+   * @return
+   */
+  private static Adapter prepareAdapter3()
+  {
+    //
+    Map<Class<?>, Class<?>> sourceToTargetTypeMap = new LinkedHashMap<Class<?>, Class<?>>();
+    sourceToTargetTypeMap.put( TestClass.class, TestClassDTO.class );
+    sourceToTargetTypeMap.put( TestClassSub.class, TestClassDTOSub.class );
+    
+    //
+    final Adapter adapter = new AdapterSourceToTargetTypeMapBased( sourceToTargetTypeMap );
+    
+    //
     return adapter;
   }
   

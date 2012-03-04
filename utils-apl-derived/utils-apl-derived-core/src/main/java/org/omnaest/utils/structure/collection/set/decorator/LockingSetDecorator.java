@@ -22,7 +22,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.omnaest.utils.structure.collection.set.SetUtils;
-import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.structure.iterator.IteratorUtils;
 
 /**
  * {@link SetDecorator} which uses a {@link Lock} to synchronize all of its methods. The {@link #iterator()} method will return a
@@ -144,7 +144,7 @@ public class LockingSetDecorator<E> extends SetDecorator<E>
   @Override
   public Iterator<E> iterator()
   {
-    return IterableUtils.locked( super.iterator(), this.lock );
+    return IteratorUtils.lockedIterator( super.iterator(), this.lock );
   }
   
   /* (non-Javadoc)

@@ -16,20 +16,18 @@
 package org.omnaest.utils.structure.iterator;
 
 import java.util.Iterator;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.factory.Factory;
-import org.omnaest.utils.structure.iterator.decorator.ConverterIteratorDecorator;
-import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
 
 /**
  * Helper class related to {@link Iterable} instances
  * 
+ * @see IteratorUtils
  * @author Omnaest
  */
 public class IterableUtils
@@ -50,14 +48,8 @@ public class IterableUtils
     if ( iterable != null )
     {
       //
-      Iterator<?> iterator = iterable.iterator();
-      if ( iterator != null )
-      {
-        for ( ; iterator.hasNext(); iterator.next() )
-        {
-          retval++;
-        }
-      }
+      final Iterator<?> iterator = iterable.iterator();
+      retval = IteratorUtils.size( iterator );
     }
     
     //
@@ -133,135 +125,13 @@ public class IterableUtils
   }
   
   /**
-   * Returns a view on the given {@link Iterator} which uses a {@link Lock} to synchronize all its methods.
-   * 
-   * @param iterator
-   * @param lock
-   * @return
-   */
-  public static <E> Iterator<E> locked( Iterator<E> iterator, Lock lock )
-  {
-    return new LockingIteratorDecorator<E>( iterator, lock );
-  }
-  
-  /**
-   * Returns a view on the given {@link Iterator} which uses a {@link ReentrantLock} to synchronize all its methods.
-   * 
-   * @param iterator
-   * @return
-   */
-  public static <E> Iterator<E> lockedByReentrantLock( Iterator<E> iterator )
-  {
-    Lock lock = new ReentrantLock();
-    return locked( iterator, lock );
-  }
-  
-  /**
-   * Returns a new {@link Iterator} instance which will iterate over all {@link Iterator} instances created by the given
-   * {@link Factory}. If the {@link Factory#newInstance()} returns null, the {@link Iterator} ends.
-   * 
-   * @param iteratorFactory
-   * @return
-   */
-  public static <E> Iterator<E> factoryBasedIterator( final Factory<Iterator<E>> iteratorFactory )
-  {
-    //
-    Assert.isNotNull( iteratorFactory );
-    
-    //
-    return new Iterator<E>()
-    {
-      /* ********************************************** Variables ********************************************** */
-      private Iterator<E> iterator = null;
-      
-      /* ********************************************** Methods ********************************************** */
-      
-      /**
-       * @return
-       */
-      private Iterator<E> getOrSwitchIterator()
-      {
-        //
-        if ( this.iterator == null )
-        {
-          this.iterator = iteratorFactory.newInstance();
-        }
-        
-        //
-        return this.iterator;
-      }
-      
-      @Override
-      public boolean hasNext()
-      {
-        //
-        boolean retval = false;
-        
-        //
-        Iterator<E> iterator = this.getOrSwitchIterator();
-        while ( iterator != null && !iterator.hasNext() )
-        {
-          this.iterator = null;
-          iterator = this.getOrSwitchIterator();
-        }
-        
-        //
-        retval = iterator != null;
-        
-        //
-        return retval;
-      }
-      
-      @Override
-      public E next()
-      {
-        //
-        Iterator<E> iterator = this.getOrSwitchIterator();
-        
-        //
-        return iterator != null ? iterator.next() : null;
-      }
-      
-      @Override
-      public void remove()
-      {
-        //
-        Iterator<E> iterator = this.getOrSwitchIterator();
-        
-        //
-        if ( iterator != null )
-        {
-          iterator.remove();
-        }
-      }
-    };
-  }
-  
-  /**
-   * Returns a new decorator instance of the given {@link Iterator} which uses the given {@link ElementConverter} to convert the
-   * result of the {@link Iterator#next()} method. <br>
-   * <br>
-   * If the given {@link ElementConverter} or {@link Iterator} is null, this method return null.
-   * 
-   * @param iterator
-   * @param elementConverter
-   * @return
-   */
-  public static <TO, FROM> Iterator<TO> convertingIteratorDecorator( Iterator<FROM> iterator,
-                                                                     ElementConverter<FROM, TO> elementConverter )
-  {
-    return iterator != null && elementConverter != null ? new ConverterIteratorDecorator<FROM, TO>( iterator, elementConverter )
-                                                       : null;
-  }
-  
-  /**
    * Returns a new {@link Iterable} instance for the given one which will return a circular {@link Iterator} which circulates
    * endlessly.<br>
    * <br>
    * Be aware of the fact, that the given {@link Iterable} has to return new {@link Iterator} instances otherwise this will cause
    * an infinite loop.
    * 
-   * @see #circular(Iterator)
+   * @see #circular(Iterable)
    * @param iterable
    * @return
    */
@@ -275,7 +145,7 @@ public class IterableUtils
    * Returns a new {@link Iterable} instance for the given one which will return a circular {@link Iterator}. The {@link Iterator}
    * will stop additionally if the given limit of cycles is reached. If no limit should be used set the parameter to -1
    * 
-   * @see #circular(Iterator)
+   * @see #circular(Iterable)
    * @param iterable
    * @param limit
    * @return
@@ -306,7 +176,7 @@ public class IterableUtils
             return limit < 0 || this.counter++ < limit ? iterable.iterator() : null;
           }
         };
-        return factoryBasedIterator( iteratorFactory );
+        return IteratorUtils.factoryBasedIterator( iteratorFactory );
       }
     };
   }
@@ -345,8 +215,85 @@ public class IterableUtils
    * @param elementConverter
    * @return
    */
-  public <FROM, TO> Iterable<TO> convert( Iterable<FROM> iterable, ElementConverter<FROM, TO> elementConverter )
+  public static <FROM, TO> Iterable<TO> convert( Iterable<FROM> iterable, ElementConverter<FROM, TO> elementConverter )
   {
     return ListUtils.convert( ListUtils.valueOf( iterable ), elementConverter );
+  }
+  
+  /**
+   * Returns an {@link Iterable} on an {@link ElementStream}
+   * 
+   * @param elementStream
+   * @return
+   */
+  public static <E> Iterable<E> valueOf( final ElementStream<E> elementStream )
+  {
+    //
+    final Iterator<E> iterator = IteratorUtils.adapter( elementStream );
+    return valueOf( iterator );
+  }
+  
+  /**
+   * Returns a new {@link Iterable} based on a given {@link Factory} for {@link Iterator}s
+   * 
+   * @param iteratorFactory
+   * @return
+   */
+  public static <E> Iterable<E> valueOf( final Factory<Iterator<E>> iteratorFactory )
+  {
+    return new Iterable<E>()
+    {
+      @Override
+      public Iterator<E> iterator()
+      {
+        return iteratorFactory != null ? iteratorFactory.newInstance() : null;
+      }
+    };
+  }
+  
+  /**
+   * Returns a new instance of an {@link Iterable} which returns the given {@link Iterator} instance
+   * 
+   * @param iterator
+   * @return
+   */
+  public static <E> Iterable<E> valueOf( final Iterator<E> iterator )
+  {
+    return new Iterable<E>()
+    {
+      @Override
+      public Iterator<E> iterator()
+      {
+        return iterator;
+      }
+    };
+  }
+  
+  /**
+   * Counts all elements within an {@link Iterable} which are equal to the given element.
+   * 
+   * @param iterable
+   * @param element
+   * @return
+   */
+  public static <E> int countEquals( Iterable<E> iterable, E element )
+  {
+    //
+    int retval = 0;
+    
+    //
+    if ( iterable != null )
+    {
+      for ( E iElement : iterable )
+      {
+        if ( ObjectUtils.equals( element, iElement ) )
+        {
+          retval++;
+        }
+      }
+    }
+    
+    //
+    return retval;
   }
 }

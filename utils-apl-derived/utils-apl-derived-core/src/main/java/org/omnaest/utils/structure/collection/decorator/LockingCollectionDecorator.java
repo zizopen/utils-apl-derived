@@ -21,7 +21,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.omnaest.utils.structure.collection.CollectionUtils;
-import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.structure.iterator.IteratorUtils;
 
 /**
  * A {@link CollectionDecorator} which uses a {@link Lock} instance to synchronize all methods of an underlying {@link Collection}
@@ -143,7 +143,7 @@ public class LockingCollectionDecorator<E> extends CollectionDecorator<E>
   @Override
   public Iterator<E> iterator()
   {
-    return IterableUtils.locked( super.iterator(), this.lock );
+    return IteratorUtils.lockedIterator( super.iterator(), this.lock );
   }
   
   /* (non-Javadoc)

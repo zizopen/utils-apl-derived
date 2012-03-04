@@ -24,8 +24,8 @@ import org.omnaest.utils.structure.iterator.IterableUtils;
 /**
  * {@link IteratorDecorator} which uses a {@link Lock} instance to synchronize its methods
  * 
- * @see IterableUtils#locked(Iterator, Lock)
- * @see IterableUtils#lockedByReentrantLock(Iterator)
+ * @see IterableUtils#lockedIterator(Iterator, Lock)
+ * @see IterableUtils#lockedByReentrantLockIterator(Iterator)
  * @author Omnaest
  * @param <E>
  */
