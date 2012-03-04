@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -547,7 +548,7 @@ public class MapUtils
    * @param map
    * @return {@link LinkedHashMap}
    */
-  public static <K, V> Map<V, K> invertBidirectionalMap( final Map<? extends K, ? extends V> map )
+  public static <K, V> Map<V, K> invertedBidirectionalMap( final Map<? extends K, ? extends V> map )
   {
     //
     final Map<V, K> retmap = map == null ? null : new LinkedHashMap<V, K>();
@@ -580,7 +581,7 @@ public class MapUtils
    * Since Multiple key of the original {@link Map} can be mapped to the same value, the inverted {@link Map} will contain a
    * {@link Set} of original key values per original value. <br>
    * <br>
-   * For bidirectional {@link Map}s consider using {@link #invertBidirectionalMap(Map)}
+   * For bidirectional {@link Map}s consider using {@link #invertedBidirectionalMap(Map)}
    * 
    * @param map
    * @return {@link LinkedHashMap} and {@link LinkedHashSet}
@@ -833,5 +834,69 @@ public class MapUtils
         return value;
       }
     };
+  }
+  
+  /**
+   * Returns the value of the first key within a {@link Map} which matches a given regular expression.<br>
+   * <br>
+   * 
+   * <pre>
+   * MapUtils.getValueByRegex( null, anyRegex ) = null
+   * MapUtils.getValueByRegex( map, null ) = null
+   * MapUtils.getValueByRegex( map, regex ) = value for first key matching the regex
+   * MapUtils.getValueByRegex( map, ".*" ) = first value of the map for {@link LinkedHashMap}, random value for {@link HashMap}
+   * 
+   * </pre>
+   * 
+   * <br>
+   * Example:
+   * 
+   * <pre>
+   * //
+   * final Map&lt;String, String&gt; map = new LinkedHashMap&lt;String, String&gt;();
+   * map.put( &quot;key1&quot;, &quot;value1&quot; );
+   * map.put( &quot;key2&quot;, &quot;value2&quot; );
+   * map.put( &quot;thisKey&quot;, &quot;value3&quot; );
+   * 
+   * //
+   * String regex = &quot;this.*&quot;;
+   * String value = MapUtils.getValueByRegex( map, regex );
+   * 
+   * //
+   * assertEquals( &quot;value3&quot;, value );
+   * </pre>
+   * 
+   * @param map
+   * @param regex
+   * @return
+   */
+  public static <E> E getValueByRegex( Map<String, ? extends E> map, String regex )
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( map != null )
+    {
+      //
+      retval = map.get( regex );
+      
+      //
+      if ( retval == null )
+      {
+        //
+        for ( String key : map.keySet() )
+        {
+          if ( key != null && key.matches( regex ) )
+          {
+            retval = map.get( key );
+            break;
+          }
+        }
+      }
+    }
+    
+    //
+    return retval;
   }
 }

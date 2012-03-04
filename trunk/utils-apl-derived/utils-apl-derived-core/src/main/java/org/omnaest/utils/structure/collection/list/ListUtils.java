@@ -34,9 +34,11 @@ import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils.ElementFilter.FilterMode;
 import org.omnaest.utils.structure.collection.list.decorator.LockingListDecorator;
 import org.omnaest.utils.structure.collection.list.decorator.LockingListIteratorDecorator;
+import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.element.converter.MultiElementConverter;
+import org.omnaest.utils.structure.iterator.IterableUtils;
 
 /**
  * Helper class for modifying {@link List} instances.
@@ -625,6 +627,19 @@ public class ListUtils
     
     //
     return retlist;
+  }
+  
+  /**
+   * Returns a new {@link List} instance for a given {@link ElementStream}
+   * 
+   * @param elementStream
+   * @return
+   */
+  public static <E> List<E> valueOf( ElementStream<E> elementStream )
+  {
+    //
+    final Iterable<E> iterable = IterableUtils.valueOf( elementStream );
+    return valueOf( iterable );
   }
   
   /**

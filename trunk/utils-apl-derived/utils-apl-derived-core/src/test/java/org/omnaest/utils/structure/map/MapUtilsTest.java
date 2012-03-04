@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -192,7 +193,7 @@ public class MapUtilsTest
   }
   
   @Test
-  public void testInvertBidirectionalMap()
+  public void testInvertedBidirectionalMap()
   {
     //
     final Map<String, Integer> sourceMap = new LinkedHashMap<String, Integer>();
@@ -202,7 +203,7 @@ public class MapUtilsTest
     sourceMap.put( "key4", 4 );
     
     //
-    final Map<Integer, String> invertedMap = MapUtils.invertBidirectionalMap( sourceMap );
+    final Map<Integer, String> invertedMap = MapUtils.invertedBidirectionalMap( sourceMap );
     assertNotNull( invertedMap );
     assertEquals( 4, invertedMap.size() );
     
@@ -213,6 +214,27 @@ public class MapUtilsTest
                                                    .put( 3, "key3" )
                                                    .put( 4, "key4" )
                                                    .build(), invertedMap );
+  }
+  
+  @Test
+  public void testGetValueByRegex()
+  {
+    //
+    {
+      //
+      final Map<String, String> map = new LinkedHashMap<String, String>();
+      map.put( "key1", "value1" );
+      map.put( "key2", "value2" );
+      map.put( "thisKey", "value3" );
+      
+      //
+      assertEquals( "value3", MapUtils.getValueByRegex( map, "this.*" ) );
+      assertEquals( "value1", MapUtils.getValueByRegex( map, ".*" ) );
+    }
+    
+    //
+    assertEquals( null, MapUtils.getValueByRegex( null, "" ) );
+    assertEquals( null, MapUtils.getValueByRegex( new HashMap<String, String>(), null ) );
   }
   
 }

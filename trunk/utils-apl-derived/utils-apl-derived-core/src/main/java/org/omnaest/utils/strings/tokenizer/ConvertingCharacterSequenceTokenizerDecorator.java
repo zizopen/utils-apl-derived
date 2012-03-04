@@ -18,7 +18,7 @@ package org.omnaest.utils.strings.tokenizer;
 import java.util.Iterator;
 
 import org.omnaest.utils.structure.element.converter.ElementConverter;
-import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.structure.iterator.IteratorUtils;
 
 /**
  * Decorator of a {@link CharacterSequenceTokenizer} which allows to use an {@link ElementConverter} to modify the output type of
@@ -40,7 +40,7 @@ public class ConvertingCharacterSequenceTokenizerDecorator<TO> implements Iterab
    * @param elementConverter
    */
   public ConvertingCharacterSequenceTokenizerDecorator( CharacterSequenceTokenizer characterSequenceTokenizer,
-                                                         ElementConverter<CharSequence, TO> elementConverter )
+                                                        ElementConverter<CharSequence, TO> elementConverter )
   {
     this.characterSequenceTokenizer = characterSequenceTokenizer;
     this.elementConverter = elementConverter;
@@ -51,7 +51,7 @@ public class ConvertingCharacterSequenceTokenizerDecorator<TO> implements Iterab
   {
     // 
     final Iterator<CharSequence> iterator = this.characterSequenceTokenizer.iterator();
-    final Iterator<TO> convertingIteratorDecorator = IterableUtils.convertingIteratorDecorator( iterator, this.elementConverter );
+    final Iterator<TO> convertingIteratorDecorator = IteratorUtils.convertingIteratorDecorator( iterator, this.elementConverter );
     
     //
     return convertingIteratorDecorator;

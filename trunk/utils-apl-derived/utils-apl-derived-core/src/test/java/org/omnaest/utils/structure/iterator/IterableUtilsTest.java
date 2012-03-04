@@ -110,4 +110,10 @@ public class IterableUtilsTest
     }
     
   }
+  
+  @Test
+  public void testCountEquals()
+  {
+    assertEquals( 2, IterableUtils.countEquals( Arrays.asList( "a", "a", "b" ), "a" ) );
+  }
 }
