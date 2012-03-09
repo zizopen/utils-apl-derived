@@ -21,7 +21,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import org.databene.contiperf.PerfTest;
+import org.databene.contiperf.Required;
+import org.databene.contiperf.junit.ContiPerfRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
@@ -30,9 +36,12 @@ import org.junit.Test;
  */
 public class TreeListTest
 {
+  @Rule
+  public ContiPerfRule         contiPerfRule = new ContiPerfRule();
+  
   /* ********************************************** Variables ********************************************** */
-  protected final List<String> sourceList = Arrays.asList( "e", "c", "d", "e", "b" );
-  protected final List<String> treeList   = new TreeList<String>( this.sourceList );
+  protected final List<String> sourceList    = Arrays.asList( "e", "c", "d", "e", "b" );
+  protected final List<String> treeList      = new TreeList<String>( this.sourceList );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -48,6 +57,30 @@ public class TreeListTest
     this.treeList.add( "a" );
     assertEquals( this.sourceList.size() + 1, this.treeList.size() );
     assertEquals( 0, this.treeList.indexOf( "a" ) );
+  }
+  
+  @PerfTest(invocations = 10)
+  @Required(average = 100)
+  @Test
+  public void testAddEPerformance()
+  {
+    List<String> treeList = new TreeList<String>();
+    for ( int ii = 0; ii < 100000; ii++ )
+    {
+      treeList.add( "a" + Math.round( Math.random() * 10 ) );
+    }
+  }
+  
+  @PerfTest(invocations = 10)
+  @Required(average = 100)
+  @Test
+  public void testAddEPerformanceSortedSet()
+  {
+    final SortedSet<String> sortedSet = new TreeSet<String>();
+    for ( int ii = 0; ii < 100000; ii++ )
+    {
+      sortedSet.add( "a" + Math.round( Math.random() * 10 ) );
+    }
   }
   
   @Test

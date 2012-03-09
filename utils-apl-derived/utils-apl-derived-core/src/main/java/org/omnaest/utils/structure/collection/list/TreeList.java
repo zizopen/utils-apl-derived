@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.utils.structure.element.ElementHolder;
@@ -42,7 +43,27 @@ import org.omnaest.utils.structure.map.MapUtils;
  * of the {@link TreeMap} have to be traversed to identify the right index position. <br>
  * <br>
  * The {@link TreeList} does break the contract of the {@link List#add(Object)}, as well as the {@link List#add(int, Object)} in
- * the way, that it does insert new elements at the appropriate sort position.
+ * the way, that it does insert new elements at the appropriate sort position. <br>
+ * <br>
+ * Performance is about 2x slower compared to a {@link TreeSet}.<br>
+ * <br>
+ * The following example is based on about 10000 iterations adding a value from 10 random generated {@link String}s: <br>
+ * ( Of course a {@link TreeList} will contain about 1000 times more elements than the {@link TreeSet} since it allows duplicates
+ * )
+ * 
+ * <pre>
+ * --- TreeList ---
+ * samples: 100
+ * max:     225
+ * average: 38.05
+ * median:  28
+ * 
+ * --- TreeSet ---
+ * samples: 100
+ * max:     130
+ * average: 26.75
+ * median:  22
+ * </pre>
  * 
  * @author Omnaest
  * @param <E>
