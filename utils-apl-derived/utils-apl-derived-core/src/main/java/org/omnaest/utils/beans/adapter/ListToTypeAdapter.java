@@ -291,8 +291,8 @@ public class ListToTypeAdapter<T, L extends List<?>>
    * Factory method to create a new {@link ListToTypeAdapter} for a given {@link List} with the given {@link Class} as facade.
    * 
    * @see #newInstance(List, Class)
-   * @see #newInstance(List, Class, Comparator)
-   * @see #newInstance(List, Class, List)
+   * @see #newInstance(List, Class, Comparator, boolean)
+   * @see #newInstance(List, Class, List, boolean)
    * @param list
    * @param clazz
    * @param comparatorPropertyname
@@ -390,8 +390,6 @@ public class ListToTypeAdapter<T, L extends List<?>>
   
   /**
    * Initializes the given {@link List} to match the size of the list of declared methods of the underlying {@link Class}.
-   * 
-   * @param list
    */
   protected void ensureListSize()
   {
