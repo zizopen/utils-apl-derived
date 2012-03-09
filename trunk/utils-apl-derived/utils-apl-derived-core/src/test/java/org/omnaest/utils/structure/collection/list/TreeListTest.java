@@ -67,7 +67,7 @@ public class TreeListTest
     List<String> treeList = new TreeList<String>();
     for ( int ii = 0; ii < 100000; ii++ )
     {
-      treeList.add( "a" + Math.round( Math.random() * 10 ) );
+      treeList.add( "a" + Math.round( Math.random() * 100 ) );
     }
   }
   
@@ -79,7 +79,7 @@ public class TreeListTest
     final SortedSet<String> sortedSet = new TreeSet<String>();
     for ( int ii = 0; ii < 100000; ii++ )
     {
-      sortedSet.add( "a" + Math.round( Math.random() * 10 ) );
+      sortedSet.add( "a" + Math.round( Math.random() * 100 ) );
     }
   }
   
