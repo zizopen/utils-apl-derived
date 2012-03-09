@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -1077,6 +1078,50 @@ public class ListUtils
     
     //
     Collections.reverse( retlist );
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Similar to {@link #sorted(Collection, Comparator)} using the {@link Comparable} interface of the given elements
+   * 
+   * @param collection
+   * @return
+   */
+  public static <E extends Comparable<E>> List<E> sorted( Collection<E> collection )
+  {
+    //
+    final List<E> retlist = collection != null ? new ArrayList<E>( collection ) : null;
+    
+    //
+    if ( retlist != null )
+    {
+      Collections.sort( retlist );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Returns a new {@link List} instance which is based on the elements of the given {@link Collection} and which is sorted using
+   * the given {@link Comparator}
+   * 
+   * @param collection
+   * @param comparator
+   * @return a new {@link List} instance
+   */
+  public static <E> List<E> sorted( Collection<E> collection, Comparator<E> comparator )
+  {
+    //
+    final List<E> retlist = collection != null ? new ArrayList<E>( collection ) : null;
+    
+    //
+    if ( comparator != null && retlist != null )
+    {
+      Collections.sort( retlist, comparator );
+    }
     
     //
     return retlist;

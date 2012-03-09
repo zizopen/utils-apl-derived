@@ -78,8 +78,6 @@ public class JAXBList<E> implements List<E>
   
   /**
    * Used internally when JAXB does create a new default instance.
-   * 
-   * @param list
    */
   protected JAXBList()
   {
