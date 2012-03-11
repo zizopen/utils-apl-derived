@@ -15,7 +15,10 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.iterator;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -192,4 +195,59 @@ public class IteratorUtils
     return new ElementStreamToIteratorAdapter<E>( elementStream );
   }
   
+  /**
+   * Returns the {@link Iterator} instances of the given {@link Iterable}s. If an {@link Iterator} instance is null it will not be
+   * added to the returned array. This circumstance can lead to different array sizes.
+   * 
+   * @param iterables
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> Iterator<E>[] valueOf( Iterable<E>... iterables )
+  {
+    //    
+    final List<Iterator<E>> retlist = new ArrayList<Iterator<E>>();
+    
+    //
+    for ( Iterable<E> iterable : iterables )
+    {
+      //
+      final Iterator<E> iterator = iterable.iterator();
+      if ( iterator != null )
+      {
+        retlist.add( iterator );
+      }
+    }
+    
+    //
+    return retlist.toArray( new Iterator[retlist.size()] );
+  }
+  
+  /**
+   * Returns the {@link ListIterator} instances of the given {@link List}s. If an {@link ListIterator} instance is null it will
+   * not be added to the returned array. This circumstance can lead to different array sizes.
+   * 
+   * @param lists
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> ListIterator<E>[] valueOf( List<E>... lists )
+  {
+    //    
+    final List<Iterator<E>> retlist = new ArrayList<Iterator<E>>();
+    
+    //
+    for ( List<E> list : lists )
+    {
+      //
+      final ListIterator<E> listIterator = list.listIterator();
+      if ( listIterator != null )
+      {
+        retlist.add( listIterator );
+      }
+    }
+    
+    //
+    return retlist.toArray( new ListIterator[retlist.size()] );
+  }
 }

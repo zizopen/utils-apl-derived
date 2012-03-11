@@ -19,6 +19,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.omnaest.utils.structure.element.accessor.Accessor;
+
 /**
  * Modifiable version of an {@link ElementHolderUnmodifiable} allows to {@link #setElement(Object)}
  * 
@@ -28,7 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ElementHolder<E> extends ElementHolderUnmodifiable<E>
+public class ElementHolder<E> extends ElementHolderUnmodifiable<E> implements Accessor<E>
 {
   
   /**
@@ -48,9 +50,10 @@ public class ElementHolder<E> extends ElementHolderUnmodifiable<E>
   }
   
   @Override
-  public void setElement( E element )
+  public ElementHolder<E> setElement( E element )
   {
     this.element = element;
+    return this;
   }
   
   @Override

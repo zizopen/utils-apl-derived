@@ -26,7 +26,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.omnaest.utils.structure.collection.list.TreeList.ElementVisitor.TraversalHint;
+import org.omnaest.utils.structure.collection.list.TreeListOld.ElementVisitor.TraversalHint;
 import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.element.factory.concrete.ArrayListFactory;
@@ -39,18 +39,18 @@ import org.omnaest.utils.structure.map.MapUtils;
  * But be aware, that the order of elements, which are considered equal due to the {@link Comparator#compare(Object, Object)}
  * method, is not determined. <br>
  * <br>
- * The {@link TreeList} has a quite fast {@link #add(Object)} method which uses the advantages of the underlying {@link TreeMap}.
- * All index based operations like {@link #get(int)} or {@link #remove(int)} are slow for large {@link List}s, since all elements
- * of the {@link TreeMap} have to be traversed to identify the right index position. <br>
+ * The {@link TreeListOld} has a quite fast {@link #add(Object)} method which uses the advantages of the underlying
+ * {@link TreeMap}. All index based operations like {@link #get(int)} or {@link #remove(int)} are slow for large {@link List}s,
+ * since all elements of the {@link TreeMap} have to be traversed to identify the right index position. <br>
  * <br>
- * The {@link TreeList} does break the contract of the {@link List#add(Object)}, as well as the {@link List#add(int, Object)} in
- * the way, that it does insert new elements at the appropriate sort position. <br>
+ * The {@link TreeListOld} does break the contract of the {@link List#add(Object)}, as well as the {@link List#add(int, Object)}
+ * in the way, that it does insert new elements at the appropriate sort position. <br>
  * <br>
  * Performance is about 2x slower compared to a {@link TreeSet}.<br>
  * <br>
  * The following example is based on about 10000 iterations adding a value from 10 random generated {@link String}s: <br>
- * ( Of course a {@link TreeList} will contain about 1000 times more elements than the {@link TreeSet} since it allows duplicates
- * )
+ * ( Of course a {@link TreeListOld} will contain about 1000 times more elements than the {@link TreeSet} since it allows
+ * duplicates )
  * 
  * <pre>
  * --- TreeList ---
@@ -68,8 +68,10 @@ import org.omnaest.utils.structure.map.MapUtils;
  * 
  * @author Omnaest
  * @param <E>
+ * @deprecated use {@link TreeList} instead
  */
-public class TreeList<E> extends ListAbstract<E>
+@Deprecated
+public class TreeListOld<E> extends ListAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long           serialVersionUID = -3181777537000872260L;
@@ -78,8 +80,8 @@ public class TreeList<E> extends ListAbstract<E>
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
-   * @see TreeList
-   * @see TreeList#visitElements(ElementVisitor)
+   * @see TreeListOld
+   * @see TreeListOld#visitElements(ElementVisitor)
    * @see TraversalHint
    * @author Omnaest
    * @param <E>
@@ -89,7 +91,7 @@ public class TreeList<E> extends ListAbstract<E>
     /* ********************************************** Classes/Interfaces ********************************************** */
     
     /**
-     * A {@link TraversalHint} affects the traversal over the elements of the {@link TreeList}
+     * A {@link TraversalHint} affects the traversal over the elements of the {@link TreeListOld}
      * 
      * @see ElementVisitor
      * @author Omnaest
@@ -131,9 +133,9 @@ public class TreeList<E> extends ListAbstract<E>
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @see TreeList
+   * @see TreeListOld
    */
-  public TreeList()
+  public TreeListOld()
   {
     this( new Factory<SortedMap<E, List<E>>>()
     {
@@ -146,10 +148,10 @@ public class TreeList<E> extends ListAbstract<E>
   }
   
   /**
-   * @see TreeList
+   * @see TreeListOld
    * @param comparator
    */
-  public TreeList( final Comparator<E> comparator )
+  public TreeListOld( final Comparator<E> comparator )
   {
     this( new Factory<SortedMap<E, List<E>>>()
     {
@@ -163,10 +165,10 @@ public class TreeList<E> extends ListAbstract<E>
   }
   
   /**
-   * @see TreeList
+   * @see TreeListOld
    * @param collection
    */
-  public TreeList( Collection<E> collection )
+  public TreeListOld( Collection<E> collection )
   {
     this();
     
@@ -175,11 +177,11 @@ public class TreeList<E> extends ListAbstract<E>
   }
   
   /**
-   * @see TreeList
+   * @see TreeListOld
    * @param comparator
    * @param collection
    */
-  public TreeList( Comparator<E> comparator, Collection<E> collection )
+  public TreeListOld( Comparator<E> comparator, Collection<E> collection )
   {
     this( comparator );
     
@@ -188,10 +190,10 @@ public class TreeList<E> extends ListAbstract<E>
   }
   
   /**
-   * @see TreeList
+   * @see TreeListOld
    * @param elementToEqualElementListMapFactory
    */
-  protected TreeList( Factory<SortedMap<E, List<E>>> elementToEqualElementListMapFactory )
+  protected TreeListOld( Factory<SortedMap<E, List<E>>> elementToEqualElementListMapFactory )
   {
     super();
     this.elementToEqualElementListMap = MapUtils.initializedSortedMap( elementToEqualElementListMapFactory.newInstance(),
@@ -553,7 +555,7 @@ public class TreeList<E> extends ListAbstract<E>
   }
   
   /**
-   * Removes the first occurring element within the {@link TreeList}, which is {@link Object#equals(Object)} to the given
+   * Removes the first occurring element within the {@link TreeListOld}, which is {@link Object#equals(Object)} to the given
    * {@link Object}
    * 
    * @return true: if any equal {@link Object} is found
@@ -597,7 +599,7 @@ public class TreeList<E> extends ListAbstract<E>
   }
   
   /**
-   * Returns true if any element within the {@link TreeList} is {@link Object#equals(Object)} to the given {@link Object}
+   * Returns true if any element within the {@link TreeListOld} is {@link Object#equals(Object)} to the given {@link Object}
    */
   @Override
   public boolean contains( Object object )

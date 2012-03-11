@@ -631,6 +631,17 @@ public class ListUtils
   }
   
   /**
+   * Returns a new {@link List} instance for a given {@link Iterator}
+   * 
+   * @param iterator
+   * @return
+   */
+  public static <E> List<E> valueOf( Iterator<E> iterator )
+  {
+    return valueOf( IterableUtils.valueOf( iterator ) );
+  }
+  
+  /**
    * Returns a new {@link List} instance for a given {@link ElementStream}
    * 
    * @param elementStream
