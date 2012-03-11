@@ -82,7 +82,7 @@ public class TreeListTest
   @PerfTest(invocations = 2)
   @Required(average = 2000)
   @Test
-  public void testAddEPerformance()
+  public void testPerformance()
   {
     List<String> treeList = new TreeList<String>();
     runLoad( treeList );
@@ -91,7 +91,7 @@ public class TreeListTest
   @PerfTest(invocations = 2)
   @Required(average = 2000)
   @Test
-  public void testAddEPerformanceSortedSet()
+  public void testPerformanceSortedSet()
   {
     final SortedSet<String> sortedSet = new TreeSet<String>();
     runLoad( sortedSet );
@@ -100,10 +100,20 @@ public class TreeListTest
   @PerfTest(invocations = 2)
   @Required(average = 2000)
   @Test
-  public void testAddEPerformanceSortedMultiSet()
+  public void testPerformanceSortedMultiSet()
   {
     final SortedMultiset<String> sortedSet = TreeMultiset.create();
     runLoad( sortedSet );
+  }
+  
+  @PerfTest(invocations = 2)
+  @Required(average = 2000)
+  @Test
+  public void testPerformanceApacheCommonsTreeList()
+  {
+    @SuppressWarnings("unchecked")
+    final List<String> list = new org.apache.commons.collections.list.TreeList();
+    runLoad( list );
   }
   
   @Test
