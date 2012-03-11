@@ -20,6 +20,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.omnaest.utils.structure.element.accessor.AccessorReadable;
+
 /**
  * Simple predefined {@link ElementHolderUnmodifiable} around an arbitrary element
  * 
@@ -29,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ElementHolderUnmodifiable<E>
+public class ElementHolderUnmodifiable<E> implements AccessorReadable<E>
 {
   /* ********************************************** Variables ********************************************** */
   @XmlElement
@@ -54,6 +56,7 @@ public class ElementHolderUnmodifiable<E>
   /**
    * @return the element
    */
+  @Override
   public E getElement()
   {
     return this.element;
@@ -63,10 +66,12 @@ public class ElementHolderUnmodifiable<E>
    * Sets the given element to the {@link ElementHolderUnmodifiable}
    * 
    * @param element
+   * @return this
    */
-  protected void setElement( E element )
+  protected ElementHolderUnmodifiable<E> setElement( E element )
   {
     this.element = element;
+    return this;
   }
   
   @Override

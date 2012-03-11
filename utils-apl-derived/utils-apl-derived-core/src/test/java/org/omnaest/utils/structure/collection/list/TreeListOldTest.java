@@ -31,17 +31,17 @@ import org.junit.Rule;
 import org.junit.Test;
 
 /**
- * @see TreeList
+ * @see TreeListOld
  * @author Omnaest
  */
-public class TreeListTest
+public class TreeListOldTest
 {
   @Rule
   public ContiPerfRule         contiPerfRule = new ContiPerfRule();
   
   /* ********************************************** Variables ********************************************** */
   protected final List<String> sourceList    = Arrays.asList( "e", "c", "e", "d", "e", "b" );
-  protected final List<String> treeList      = new TreeList<String>( this.sourceList );
+  protected final List<String> treeList      = new TreeListOld<String>( this.sourceList );
   
   /* ********************************************** Methods ********************************************** */
   
@@ -64,7 +64,7 @@ public class TreeListTest
   @Test
   public void testAddEPerformance()
   {
-    List<String> treeList = new TreeList<String>();
+    List<String> treeList = new TreeListOld<String>();
     for ( int ii = 0; ii < 100000; ii++ )
     {
       treeList.add( "a" + Math.round( Math.random() * 100 ) );
