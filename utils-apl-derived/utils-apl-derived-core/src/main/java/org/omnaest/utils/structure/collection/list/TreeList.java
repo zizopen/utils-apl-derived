@@ -68,7 +68,7 @@ import com.google.common.collect.TreeMultiset;
  * for each sample. <br>
  * <br>
  * ( Of course a {@link TreeList} and a {@link TreeMultiset} will contain about 100 times more elements than the {@link TreeSet}
- * since it allows duplicates )
+ * since they allow duplicates )
  * 
  * <pre>
  * --- TreeList ---
