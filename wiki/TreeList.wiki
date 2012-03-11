@@ -1,0 +1,6 @@
+#summary TreeMap based implementation of a sorted List
+#labels sortedlist
+
+= TreeList =
+
+The TreeList is a sorted List implementation based on the TreeMap class of the JDK.
