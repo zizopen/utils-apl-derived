@@ -26,6 +26,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.omnaest.utils.structure.collection.list.TreeList.ElementVisitor.TraversalHint;
 import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.element.factory.concrete.ArrayListFactory;
@@ -79,11 +80,28 @@ public class TreeList<E> extends ListAbstract<E>
   /**
    * @see TreeList
    * @see TreeList#visitElements(ElementVisitor)
+   * @see TraversalHint
    * @author Omnaest
    * @param <E>
    */
   protected static interface ElementVisitor<E>
   {
+    /* ********************************************** Classes/Interfaces ********************************************** */
+    
+    /**
+     * A {@link TraversalHint} affects the traversal over the elements of the {@link TreeList}
+     * 
+     * @see ElementVisitor
+     * @author Omnaest
+     */
+    public static enum TraversalHint
+    {
+      GO_ON,
+      SKIP_SUBLIST,
+      CANCEL_TRAVERSAL
+    }
+    
+    /* ********************************************** Methods ********************************************** */
     /**
      * This method is called for each visited element of the internal {@link SortedMap#keySet()}<br>
      * <br>
@@ -92,9 +110,9 @@ public class TreeList<E> extends ListAbstract<E>
      * @param element
      * @param indexPosition
      * @param elementToEqualElementListMap
-     * @return
+     * @return {@link TraversalHint}
      */
-    public boolean visitKeyElements( E element, int indexPosition, SortedMap<E, List<E>> elementToEqualElementListMap );
+    public TraversalHint visitKeyElements( E element, int indexPosition, SortedMap<E, List<E>> elementToEqualElementListMap );
     
     /**
      * This method is called for each visited element of a sub {@link List} of the internal {@link SortedMap#values()}<br>
@@ -105,9 +123,9 @@ public class TreeList<E> extends ListAbstract<E>
      * @param indexPosition
      * @param elementList
      * @param subListIndexPosition
-     * @return
+     * @return {@link TraversalHint}
      */
-    public boolean visitSubList( E element, int indexPosition, List<E> elementList, int subListIndexPosition );
+    public TraversalHint visitSubList( E element, int indexPosition, List<E> elementList, int subListIndexPosition );
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -237,15 +255,10 @@ public class TreeList<E> extends ListAbstract<E>
     ElementVisitor<E> elementVisitor = new ElementVisitor<E>()
     {
       @Override
-      public boolean visitKeyElements( E element, int indexPosition, SortedMap<E, List<E>> elementToEqualElementListMap )
-      {
-        return this.visitElements( element, indexPosition );
-      }
-      
-      public boolean visitElements( E element, int indexPosition )
+      public TraversalHint visitKeyElements( E element, int indexPosition, SortedMap<E, List<E>> elementToEqualElementListMap )
       {
         //
-        boolean retval = true;
+        TraversalHint retval = null;
         
         //
         if ( indexPosition == index )
@@ -254,7 +267,16 @@ public class TreeList<E> extends ListAbstract<E>
           retvalHolder.setElement( element );
           
           //
-          retval = false;
+          retval = TraversalHint.CANCEL_TRAVERSAL;
+        }
+        else
+        {
+          //
+          final int subListSize = elementToEqualElementListMap.get( element ).size();
+          if ( indexPosition + subListSize < index )
+          {
+            retval = TraversalHint.SKIP_SUBLIST;
+          }
         }
         
         //
@@ -262,9 +284,23 @@ public class TreeList<E> extends ListAbstract<E>
       }
       
       @Override
-      public boolean visitSubList( E element, int indexPosition, List<E> elementList, int subListIndexPosition )
+      public TraversalHint visitSubList( E element, int indexPosition, List<E> elementList, int subListIndexPosition )
       {
-        return this.visitElements( element, indexPosition );
+        //
+        TraversalHint retval = null;
+        
+        //
+        if ( indexPosition == index )
+        {
+          //
+          retvalHolder.setElement( element );
+          
+          //
+          retval = TraversalHint.CANCEL_TRAVERSAL;
+        }
+        
+        //
+        return retval;
       }
       
     };
@@ -278,7 +314,7 @@ public class TreeList<E> extends ListAbstract<E>
    * Visitor method which allows to traverse over all elements in their current order and execute the
    * {@link ElementVisitor#visitKeyElements(Object, int, SortedMap)} on them.
    * 
-   * @see ElementVisitor
+   * @see #visitElements(ElementVisitor, int)
    * @param elementVisitor
    */
   protected void visitElements( ElementVisitor<E> elementVisitor )
@@ -288,15 +324,24 @@ public class TreeList<E> extends ListAbstract<E>
     outerloop: for ( E element : this.elementToEqualElementListMap.keySet() )
     {
       //
+      
+      //
       indexPosition++;
-      boolean traverseToNextElement = elementVisitor.visitKeyElements( element, indexPosition, this.elementToEqualElementListMap );
-      if ( !traverseToNextElement )
+      TraversalHint traversalHint = elementVisitor.visitKeyElements( element, indexPosition, this.elementToEqualElementListMap );
+      if ( TraversalHint.CANCEL_TRAVERSAL.equals( traversalHint ) )
       {
         break;
       }
       
       //
       final List<E> elementList = this.elementToEqualElementListMap.get( element );
+      if ( TraversalHint.SKIP_SUBLIST.equals( traversalHint ) )
+      {
+        indexPosition += elementList.size();
+        continue;
+      }
+      
+      //      
       int subListIndexPosition = -1;
       for ( E innerElement : elementList )
       {
@@ -305,14 +350,13 @@ public class TreeList<E> extends ListAbstract<E>
         subListIndexPosition++;
         
         //
-        traverseToNextElement = elementVisitor.visitSubList( innerElement, indexPosition, elementList, subListIndexPosition );
-        if ( !traverseToNextElement )
+        traversalHint = elementVisitor.visitSubList( innerElement, indexPosition, elementList, subListIndexPosition );
+        if ( TraversalHint.CANCEL_TRAVERSAL.equals( traversalHint ) )
         {
           break outerloop;
         }
       }
     }
-    
   }
   
   /**
@@ -351,10 +395,10 @@ public class TreeList<E> extends ListAbstract<E>
     ElementVisitor<E> elementVisitor = new ElementVisitor<E>()
     {
       @Override
-      public boolean visitKeyElements( E element, int indexPosition, SortedMap<E, List<E>> elementToEqualElementListMap )
+      public TraversalHint visitKeyElements( E element, int indexPosition, SortedMap<E, List<E>> elementToEqualElementListMap )
       {
         //
-        boolean retval = true;
+        TraversalHint retval = null;
         
         //
         if ( indexPosition == index )
@@ -373,7 +417,7 @@ public class TreeList<E> extends ListAbstract<E>
           
           //
           retvalHolder.setElement( element );
-          retval = false;
+          retval = TraversalHint.CANCEL_TRAVERSAL;
         }
         
         //
@@ -381,10 +425,10 @@ public class TreeList<E> extends ListAbstract<E>
       }
       
       @Override
-      public boolean visitSubList( E element, int indexPosition, List<E> elementList, int subListIndexPosition )
+      public TraversalHint visitSubList( E element, int indexPosition, List<E> elementList, int subListIndexPosition )
       {
         //
-        boolean retval = true;
+        TraversalHint retval = null;
         
         //
         if ( indexPosition == index )
@@ -394,7 +438,7 @@ public class TreeList<E> extends ListAbstract<E>
           
           //
           retvalHolder.setElement( element );
-          retval = false;
+          retval = TraversalHint.CANCEL_TRAVERSAL;
         }
         
         //
@@ -421,28 +465,28 @@ public class TreeList<E> extends ListAbstract<E>
     ElementVisitor<E> elementVisitor = new ElementVisitor<E>()
     {
       @Override
-      public boolean visitKeyElements( E element, int indexPosition, SortedMap<E, List<E>> elementToEqualElementListMap )
+      public TraversalHint visitKeyElements( E element, int indexPosition, SortedMap<E, List<E>> elementToEqualElementListMap )
       {
         return this.visitElements( element, indexPosition );
       }
       
       @Override
-      public boolean visitSubList( E element, int indexPosition, List<E> elementList, int subListIndexPosition )
+      public TraversalHint visitSubList( E element, int indexPosition, List<E> elementList, int subListIndexPosition )
       {
         return this.visitElements( element, indexPosition );
       }
       
-      private boolean visitElements( E element, int indexPosition )
+      private TraversalHint visitElements( E element, int indexPosition )
       {
         //
-        boolean retval = true;
+        TraversalHint retval = null;
         
         //
         if ( ObjectUtils.equals( object, element ) )
         {
           //
           retvalHolder.setElement( indexPosition );
-          retval = false;
+          retval = TraversalHint.CANCEL_TRAVERSAL;
         }
         
         //
@@ -468,21 +512,21 @@ public class TreeList<E> extends ListAbstract<E>
       private boolean hasAlreadyFoundEqualElement = false;
       
       @Override
-      public boolean visitKeyElements( E element, int indexPosition, SortedMap<E, List<E>> elementToEqualElementListMap )
+      public TraversalHint visitKeyElements( E element, int indexPosition, SortedMap<E, List<E>> elementToEqualElementListMap )
       {
         return this.visitElements( element, indexPosition );
       }
       
       @Override
-      public boolean visitSubList( E element, int indexPosition, List<E> elementList, int subListIndexPosition )
+      public TraversalHint visitSubList( E element, int indexPosition, List<E> elementList, int subListIndexPosition )
       {
         return this.visitElements( element, indexPosition );
       }
       
-      private boolean visitElements( E element, int indexPosition )
+      private TraversalHint visitElements( E element, int indexPosition )
       {
         //
-        boolean retval = true;
+        TraversalHint retval = null;
         
         //
         if ( ObjectUtils.equals( object, element ) )
@@ -494,7 +538,7 @@ public class TreeList<E> extends ListAbstract<E>
         {
           //
           retvalHolder.setElement( indexPosition - 1 );
-          retval = false;
+          retval = TraversalHint.CANCEL_TRAVERSAL;
         }
         
         //
