@@ -59,8 +59,14 @@ import com.google.common.collect.TreeMultiset;
  * Performance is about 2x-3x slower compared to a {@link TreeSet} and quite similar to the performance of the
  * {@link TreeMultiset}.<br>
  * <br>
- * The following example is based on about 10000 iterations adding a value from 100 random generated {@link String}s, checking
- * further 10000 times for {@link #contains(Object)} and last but not least iterating over all elements : <br>
+ * The following example is based on
+ * <ul>
+ * <li>10000 iterations adding a value from 100 random generated {@link String}s</li>
+ * <li>checking further 10000 times for {@link #contains(Object)}</li>
+ * <li>iterating over all elements</li>
+ * </ul>
+ * for each sample. <br>
+ * <br>
  * ( Of course a {@link TreeList} and a {@link TreeMultiset} will contain about 100 times more elements than the {@link TreeSet}
  * since it allows duplicates )
  * 

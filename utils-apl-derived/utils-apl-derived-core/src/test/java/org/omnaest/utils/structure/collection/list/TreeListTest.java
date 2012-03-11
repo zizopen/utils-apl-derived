@@ -63,16 +63,6 @@ public class TreeListTest
     assertEquals( 0, this.treeList.indexOf( "a" ) );
   }
   
-  @PerfTest(invocations = 50)
-  @Required(average = 2000)
-  //@Test
-  public void testAddEPerformanceTreeMapOriginal()
-  {
-    @SuppressWarnings("deprecation")
-    List<String> treeList = new TreeListOld<String>();
-    runLoad( treeList );
-  }
-  
   private static void runLoad( Collection<String> collection )
   {
     for ( int ii = 0; ii < 100000; ii++ )
@@ -89,7 +79,7 @@ public class TreeListTest
     }
   }
   
-  @PerfTest(invocations = 50)
+  @PerfTest(invocations = 2)
   @Required(average = 2000)
   @Test
   public void testAddEPerformance()
@@ -98,7 +88,7 @@ public class TreeListTest
     runLoad( treeList );
   }
   
-  @PerfTest(invocations = 50)
+  @PerfTest(invocations = 2)
   @Required(average = 2000)
   @Test
   public void testAddEPerformanceSortedSet()
@@ -107,7 +97,7 @@ public class TreeListTest
     runLoad( sortedSet );
   }
   
-  @PerfTest(invocations = 50)
+  @PerfTest(invocations = 2)
   @Required(average = 2000)
   @Test
   public void testAddEPerformanceSortedMultiSet()
