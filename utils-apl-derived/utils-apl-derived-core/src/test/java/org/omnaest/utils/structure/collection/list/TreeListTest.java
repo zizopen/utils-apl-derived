@@ -40,7 +40,7 @@ public class TreeListTest
   public ContiPerfRule         contiPerfRule = new ContiPerfRule();
   
   /* ********************************************** Variables ********************************************** */
-  protected final List<String> sourceList    = Arrays.asList( "e", "c", "d", "e", "b" );
+  protected final List<String> sourceList    = Arrays.asList( "e", "c", "e", "d", "e", "b" );
   protected final List<String> treeList      = new TreeList<String>( this.sourceList );
   
   /* ********************************************** Methods ********************************************** */

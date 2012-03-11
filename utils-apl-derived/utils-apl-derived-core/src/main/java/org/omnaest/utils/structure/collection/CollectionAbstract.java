@@ -17,6 +17,7 @@ package org.omnaest.utils.structure.collection;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -224,4 +225,11 @@ public abstract class CollectionAbstract<E> implements Collection<E>, Serializab
     return false;
   }
   
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( Arrays.toString( this.toArray() ) );
+    return builder.toString();
+  }
 }
