@@ -315,4 +315,13 @@ public class SortedMapDecorator<K, V> implements SortedMap<K, V>
     return this.sortedMap.lastKey();
   }
   
+  /**
+   * @param sortedMap
+   *          the sortedMap to set
+   */
+  public void setSortedMap( SortedMap<K, V> sortedMap )
+  {
+    this.sortedMap = sortedMap;
+  }
+  
 }

@@ -296,4 +296,62 @@ public class IterableUtils
     //
     return retval;
   }
+  
+  /**
+   * Returns the element of the given {@link Iterable} at the given index position. Does never throw an {@link Exception} instead
+   * returns null if no element could be resolved.
+   * 
+   * @param iterable
+   * @param indexPosition
+   * @return
+   */
+  public static <E> E elementAt( final Iterable<E> iterable, final int indexPosition )
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( iterable != null )
+    {
+      //
+      final Iterator<E> iterator = iterable.iterator();
+      if ( iterator != null )
+      {
+        //
+        for ( int ii = 0; ( indexPosition < 0 || ii <= indexPosition ) && iterator.hasNext(); ii++ )
+        {
+          retval = iterator.next();
+        }
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns the first element of the given {@link Iterable}
+   * 
+   * @param iterable
+   * @return
+   */
+  public static <E> E firstElement( Iterable<E> iterable )
+  {
+    //
+    final int indexPosition = 0;
+    return elementAt( iterable, indexPosition );
+  }
+  
+  /**
+   * Returns the last element of the given {@link Iterable}
+   * 
+   * @param iterable
+   * @return
+   */
+  public static <E> E lastElement( Iterable<E> iterable )
+  {
+    //
+    final int indexPosition = -1;
+    return elementAt( iterable, indexPosition );
+  }
 }

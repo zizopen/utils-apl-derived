@@ -30,6 +30,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils.ElementFilter.FilterMode;
@@ -39,6 +40,7 @@ import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.element.converter.MultiElementConverter;
+import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 
 /**
@@ -1076,16 +1078,16 @@ public class ListUtils
   }
   
   /**
-   * Returns a new {@link List} instance with the same elements of the given {@link Collection} but in reversed order.
+   * Returns a new {@link List} instance with the same elements of the given {@link Iterable} but in reversed order.
    * 
    * @see Collections#reverse(List)
-   * @param collection
+   * @param iterable
    * @return
    */
-  public static <E> List<E> reverse( Collection<E> collection )
+  public static <E> List<E> reverse( Iterable<E> iterable )
   {
     //
-    List<E> retlist = new ArrayList<E>( collection );
+    List<E> retlist = valueOf( iterable );
     
     //
     Collections.reverse( retlist );
@@ -1138,4 +1140,26 @@ public class ListUtils
     return retlist;
   }
   
+  /**
+   * Generates a new {@link List} using the given value {@link Factory} to create all the elements the given number of times.
+   * 
+   * @param numberOfElements
+   * @param valueFactory
+   * @return
+   */
+  public static <E> List<E> generateList( int numberOfElements, Factory<E> valueFactory )
+  {
+    //
+    final List<E> retlist = new ArrayList<E>();
+    
+    //
+    Assert.isNotNull( valueFactory );
+    for ( int ii = 0; ii < numberOfElements; ii++ )
+    {
+      retlist.add( valueFactory.newInstance() );
+    }
+    
+    //
+    return retlist;
+  }
 }
