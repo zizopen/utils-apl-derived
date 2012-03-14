@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.container;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -53,15 +55,15 @@ import org.omnaest.utils.streams.StreamConnector;
 public class ByteArrayContainer
 {
   /* ********************************************** Constants ********************************************** */
-  public final static String  ENCODING_UTF8      = "utf-8";
+  public final static String ENCODING_UTF8      = "utf-8";
   
   /** UTF-8 */
-  private final static String DEFAULTENCODING    = ENCODING_UTF8;
-  private final static String DEFAULTZIPFILENAME = "data.dat";
+  public final static String DEFAULTENCODING    = ENCODING_UTF8;
+  public final static String DEFAULTZIPFILENAME = "data.dat";
   
   /* ********************************************** Variables ********************************************** */
-  private byte[]              content            = null;
-  private boolean             isContentInvalid   = false;
+  private byte[]             content            = null;
+  private boolean            isContentInvalid   = false;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -118,7 +120,6 @@ public class ByteArrayContainer
   /**
    * @param sourceInputStream
    * @see #copyFrom(InputStream)
-   * @param charsequence
    */
   public ByteArrayContainer( InputStream sourceInputStream )
   {
@@ -178,7 +179,7 @@ public class ByteArrayContainer
    * Downloads the content from the given url resource.
    * 
    * @see #download(URI)
-   * @see #download(String))
+   * @see #download(String)
    * @param url
    */
   public void download( URL url )
@@ -215,12 +216,21 @@ public class ByteArrayContainer
    */
   public void load( File file ) throws IOException
   {
-    FileInputStream fis = new FileInputStream( file );
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    StreamConnector.connect( fis, baos );
-    fis.close();
-    baos.close();
-    this.content = baos.toByteArray();
+    //
+    final FileInputStream fileInputStream = new FileInputStream( file );
+    final BufferedInputStream bufferedInputStream = new BufferedInputStream( fileInputStream );
+    final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    
+    //
+    StreamConnector.connect( bufferedInputStream, byteArrayOutputStream );
+    
+    //
+    bufferedInputStream.close();
+    fileInputStream.close();
+    byteArrayOutputStream.close();
+    
+    //
+    this.content = byteArrayOutputStream.toByteArray();
   }
   
   /**
@@ -231,9 +241,11 @@ public class ByteArrayContainer
    */
   public void save( File file ) throws IOException
   {
-    FileOutputStream fos = new FileOutputStream( file );
-    fos.write( this.content );
-    fos.close();
+    FileOutputStream fileOutputStream = new FileOutputStream( file );
+    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream( fileOutputStream );
+    bufferedOutputStream.write( this.content );
+    bufferedOutputStream.close();
+    fileOutputStream.close();
   }
   
   /**
@@ -382,7 +394,7 @@ public class ByteArrayContainer
   }
   
   /**
-   * Copies the content of a {@link CharSequence} into the {@link ByteArrayContainer} using the {@link #DEFAULTENCODING}.
+   * Copies the content of a {@link CharSequence} into the {@link ByteArrayContainer} using the {@value #DEFAULTENCODING}.
    * 
    * @param charSequence
    * @return this
