@@ -4,7 +4,9 @@
 = Release preview =
 
 
-
+ * added FractalList as further SortedList implementation
+ * fixed some bugs within ListAbstract
+ * enhanced HttpSessionServiceBean
 
 
 
