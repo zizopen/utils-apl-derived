@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +51,13 @@ import org.omnaest.utils.structure.map.decorator.SortedMapDecorator;
 
 /**
  * An {@link ElementStore} is a simple {@link Collection} for any elements which ensures simple persistence to any provided
- * {@link PersistenceAccessor}.
+ * {@link PersistenceAccessor}.<br>
+ * <br>
+ * The {@link Collection} can only contain one instance out of two equal ones. To detect equality it uses the
+ * {@link Object#equals(Object)} method. This behavior is similar to a {@link HashSet}.
  * 
+ * @see Collection
+ * @see PersistenceAccessor
  * @see PersistenceExecutionControl
  * @author Omnaest
  * @param <E>
@@ -537,6 +543,12 @@ public class ElementStore<E> extends CollectionAbstract<E>
      * @return
      */
     public Map<E, Long> getElementToIdentifierMap();
+    
+    /**
+     * @return {@link ExceptionHandlerRegistration}
+     * @see ExceptionHandlerManager#getExceptionHandlerRegistration()
+     */
+    public ExceptionHandlerRegistration getExceptionHandlerRegistration();
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -551,6 +563,11 @@ public class ElementStore<E> extends CollectionAbstract<E>
     //
     super();
     this.persistenceAccessor = persistenceAccessor;
+    
+    //
+    Assert.isNotNull( persistenceAccessor, "PersistenceAccessor must not be null" );
+    persistenceAccessor.getExceptionHandlerRegistration()
+                       .registerExceptionHandler( this.exceptionHandlerManager.getExceptionHandler() );
     
     //
     this.loadAllElementsFromPersistence( persistenceAccessor, this.elementToIdentifierMap );

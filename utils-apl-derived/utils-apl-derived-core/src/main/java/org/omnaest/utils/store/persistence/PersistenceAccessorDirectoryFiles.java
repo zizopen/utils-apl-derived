@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.omnaest.utils.assertion.Assert;
@@ -51,8 +50,6 @@ public class PersistenceAccessorDirectoryFiles<E> implements PersistenceAccessor
   /* ********************************************** Beans / Services / References ********************************************** */
   protected MarshallerAndUnmarshaller marshallerAndUnmarshaller = new MarshallerAndUnmarshallerUsingObjectStream();
   protected ExceptionHandlerManager   exceptionHandlerManager   = new ExceptionHandlerManager();
-  
-  /* ********************************************** Classes/Interfaces ********************************************** */
   
   /* ********************************************** Methods ********************************************** */
   
@@ -122,7 +119,7 @@ public class PersistenceAccessorDirectoryFiles<E> implements PersistenceAccessor
       final File file = this.getFileForIdentifier( identifier );
       if ( file != null && file.exists() )
       {
-        FileUtils.forceDelete( file );
+        file.delete();
       }
     }
     catch ( Exception e )
@@ -188,10 +185,7 @@ public class PersistenceAccessorDirectoryFiles<E> implements PersistenceAccessor
     return this;
   }
   
-  /**
-   * @return
-   * @see ExceptionHandlerManager#getExceptionHandlerRegistration()
-   */
+  @Override
   public ExceptionHandlerRegistration getExceptionHandlerRegistration()
   {
     return this.exceptionHandlerManager.getExceptionHandlerRegistration();

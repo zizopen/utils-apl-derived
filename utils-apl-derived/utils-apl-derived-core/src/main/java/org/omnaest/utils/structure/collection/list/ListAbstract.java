@@ -41,20 +41,27 @@ public abstract class ListAbstract<E> extends CollectionAbstract<E> implements L
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
-   * Sublist implementation for the {@link ListAbstract} inlcuding the {@link #fromIndex} and excluding the {@link #toIndex}
+   * Sublist implementation for the {@link ListAbstract} including the {@link #fromIndex} and excluding the {@link #toIndex}
    * 
    * @author Omnaest
    */
-  private static class ListAbstractSublist<E> extends ListAbstract<E>
+  protected static class ListAbstractSublist<E> extends ListAbstract<E>
   {
     /* ********************************************** Constants ********************************************** */
     private static final long serialVersionUID = 81960052895916590L;
     /* ********************************************** Variables ********************************************** */
-    private int               fromIndex        = -1;
-    private int               toIndex          = -1;
-    private List<E>           parentList       = null;
+    protected int             fromIndex        = -1;
+    protected int             toIndex          = -1;
+    protected List<E>         parentList       = null;
     
     /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @see ListAbstractSublist
+     * @param parentList
+     * @param fromIndex
+     * @param toIndex
+     */
     public ListAbstractSublist( List<E> parentList, int fromIndex, int toIndex )
     {
       this.fromIndex = fromIndex;
@@ -62,6 +69,9 @@ public abstract class ListAbstract<E> extends CollectionAbstract<E> implements L
       this.parentList = parentList;
     }
     
+    /**
+     * @return
+     */
     private boolean isParentListNotNull()
     {
       if ( this.parentList == null )
@@ -92,7 +102,7 @@ public abstract class ListAbstract<E> extends CollectionAbstract<E> implements L
       //
       if ( this.isParentListNotNull() && this.isValidIndex( index ) )
       {
-        this.parentList.get( this.determineParentListIndexFromCurrentListIndex( index ) );
+        retval = this.parentList.get( this.determineParentListIndexFromCurrentListIndex( index ) );
       }
       
       //
@@ -285,6 +295,18 @@ public abstract class ListAbstract<E> extends CollectionAbstract<E> implements L
   public boolean contains( Object o )
   {
     return this.indexOf( o ) >= 0;
+  }
+  
+  @Override
+  public void clear()
+  {
+    //
+    final Iterator<E> iterator = this.iterator();
+    while ( iterator.hasNext() )
+    {
+      iterator.next();
+      iterator.remove();
+    }
   }
   
 }

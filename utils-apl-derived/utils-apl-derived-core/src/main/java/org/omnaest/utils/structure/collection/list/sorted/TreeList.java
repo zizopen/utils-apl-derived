@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.collection.list;
+package org.omnaest.utils.structure.collection.list.sorted;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,8 +27,9 @@ import java.util.TreeSet;
 
 import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.omnaest.utils.structure.collection.list.TreeList.ElementVisitor.TraversalHint;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.list.decorator.ListDecorator;
+import org.omnaest.utils.structure.collection.list.sorted.TreeList.ElementVisitor.TraversalHint;
 import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.element.ElementHolderUnmodifiable;
 import org.omnaest.utils.structure.element.accessor.Accessor;
@@ -92,10 +93,11 @@ import com.google.common.collect.TreeMultiset;
  * (durations in milliseconds)
  * </pre>
  * 
+ * @see SortedList
  * @author Omnaest
  * @param <E>
  */
-public class TreeList<E> extends ListAbstract<E>
+public class TreeList<E> extends SortedListAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long                                 serialVersionUID = -3181777537000872260L;
@@ -552,32 +554,6 @@ public class TreeList<E> extends ListAbstract<E>
     }
   }
   
-  /**
-   * Removes the element from the given index position an returns it. The newly given element will NOT be inserted at the given
-   * index position, instead it will be inserted at its right sort position.
-   */
-  @Override
-  public E set( int index, E element )
-  {
-    //
-    E retval = this.remove( index );
-    
-    //
-    this.add( element );
-    
-    // 
-    return retval;
-  }
-  
-  /**
-   * The {@link #add(int, Object)} ignores the given index position and acts similar to the {@link #add(Object)} method
-   */
-  @Override
-  public void add( int index, E element )
-  {
-    this.add( element );
-  }
-  
   @Override
   public E remove( final int index )
   {
@@ -600,7 +576,7 @@ public class TreeList<E> extends ListAbstract<E>
           final int subListIndexPosition = index - ( indexPosition + 1 );
           
           //
-          elementList.remove( subListIndexPosition );
+          retvalHolder.setElement( elementList.remove( subListIndexPosition ) );
           
           //
           retval = TraversalHint.CANCEL_TRAVERSAL;
@@ -776,6 +752,13 @@ public class TreeList<E> extends ListAbstract<E>
   public ListIterator<E> listIterator()
   {
     return new ChainedListIterator<E>( this.accessorToElementListMap.values().toArray( new List[] {} ) );
+  }
+  
+  @Override
+  protected SortedList<E> newInstance( Collection<E> collection )
+  {
+    //
+    return new TreeList<E>( collection );
   }
   
 }

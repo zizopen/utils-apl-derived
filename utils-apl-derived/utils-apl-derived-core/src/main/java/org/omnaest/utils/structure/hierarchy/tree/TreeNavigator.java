@@ -969,7 +969,8 @@ public class TreeNavigator<T extends Tree<?, TN>, TN extends TreeNode>
    */
   public boolean hasChildren()
   {
-    return !this.treeNodePathAndCache.getChildrenListOfCurrentTreeNode().isEmpty();
+    final List<TN> childrenListOfCurrentTreeNode = this.treeNodePathAndCache.getChildrenListOfCurrentTreeNode();
+    return childrenListOfCurrentTreeNode != null && !childrenListOfCurrentTreeNode.isEmpty();
   }
   
   /**

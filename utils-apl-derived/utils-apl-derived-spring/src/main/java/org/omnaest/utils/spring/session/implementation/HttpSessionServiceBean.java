@@ -98,6 +98,12 @@ public class HttpSessionServiceBean implements HttpSessionService
     this.resolveHttpSession().setAttribute( attributeName, value );
   }
   
+  @Override
+  public void removeHttpSessionAttribute( String attributeName )
+  {
+    this.resolveHttpSession().removeAttribute( attributeName );
+  }
+  
   public void setHttpSessionFacadeConfiguration( Configuration httpSessionFacadeConfiguration )
   {
     this.httpSessionFacadeConfiguration = httpSessionFacadeConfiguration;
