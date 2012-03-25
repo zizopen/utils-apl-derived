@@ -63,6 +63,17 @@ public class ElementHolderUnmodifiable<E> implements AccessorReadable<E>
   }
   
   /**
+   * Returns true if the current element is not null
+   * 
+   * @return
+   */
+  public boolean hasElement()
+  {
+    // 
+    return this.element != null;
+  }
+  
+  /**
    * Sets the given element to the {@link ElementHolderUnmodifiable}
    * 
    * @param element

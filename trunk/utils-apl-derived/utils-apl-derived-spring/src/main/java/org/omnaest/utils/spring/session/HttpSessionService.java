@@ -64,6 +64,13 @@ public interface HttpSessionService
   public Object getHttpSessionAttribute( String attributeName );
   
   /**
+   * Removes an attribute from the {@link HttpSession}
+   * 
+   * @param attributeName
+   */
+  public void removeHttpSessionAttribute( String attributeName );
+  
+  /**
    * Returns a {@link Map} based view on the current {@link HttpSession}. Changes to the {@link Map} will be reflected by a change
    * of the {@link HttpSession} and vice versa.
    * 

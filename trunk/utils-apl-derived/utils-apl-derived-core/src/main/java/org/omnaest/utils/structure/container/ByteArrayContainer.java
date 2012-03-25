@@ -241,7 +241,7 @@ public class ByteArrayContainer
    */
   public void save( File file ) throws IOException
   {
-    FileOutputStream fileOutputStream = new FileOutputStream( file );
+    OutputStream fileOutputStream = new FileOutputStream( file );
     BufferedOutputStream bufferedOutputStream = new BufferedOutputStream( fileOutputStream );
     bufferedOutputStream.write( this.content );
     bufferedOutputStream.close();

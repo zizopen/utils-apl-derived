@@ -35,6 +35,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.store.ElementStore.KeyExtractor;
 import org.omnaest.utils.store.ElementStore.PersistenceAccessor;
 import org.omnaest.utils.store.ElementStore.PersistenceExecutionControl;
@@ -207,6 +208,14 @@ public class ElementStoreTest
   public void setUp()
   {
     this.elementStore.clear();
+    this.elementStore.getExceptionHandlerRegistration().registerExceptionHandler( new ExceptionHandler()
+    {
+      @Override
+      public void handleExcpetion( Exception e )
+      {
+        e.printStackTrace();
+      }
+    } );
   }
   
   @After
@@ -217,10 +226,12 @@ public class ElementStoreTest
                      .reloadFromPersistence()
                      .clear();
     assertTrue( this.elementStore.isEmpty() );
+    
   }
   
   @Test
-  public void testPersistence()
+  public void testPersistence() throws InterruptedException
+  
   {
     //
     final int numberOfElements = 100;
@@ -232,7 +243,7 @@ public class ElementStoreTest
     
     //
     final ElementStore<TestClass> elementStore2 = new ElementStore<ElementStoreTest.TestClass>( this.persistenceAccessor );
-    assertEquals( new HashSet<TestClass>( elementStore2 ), new HashSet<TestClass>( testClassList ) );
+    assertEquals( new HashSet<TestClass>( testClassList ), new HashSet<TestClass>( elementStore2 ) );
   }
   
   @Test
@@ -262,13 +273,21 @@ public class ElementStoreTest
     assertTrue( this.elementStore.isEmpty() );
   }
   
-  @PerfTest(invocations = 20, threads = 5)
+  @PerfTest(invocations = 60, threads = 5)
   @Test
   public void testMultithreadedAdd() throws InterruptedException
   {
     //
     final int numberOfElements = 20;
     final List<TestClass> testClassList = newTestClassList( numberOfElements );
+    
+    //
+    {
+      //
+      final TestClass testClass = ListUtils.elementAt( testClassList, (int) Math.round( Math.random() * ( numberOfElements - 1 ) ) );
+      this.elementStore.add( testClass );
+      assertTrue( this.elementStore.contains( testClass ) );
+    }
     
     //
     this.elementStore.addAll( testClassList );
