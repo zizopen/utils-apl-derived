@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
@@ -240,9 +241,18 @@ public class ReflectionUtils
   public static <B> Constructor<B> constructorFor( Class<? extends B> type, Object... arguments )
   {
     //
-    Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( arguments ), new ElementConverterObjectToClassOfObject() )
-                                         .toArray( new Class<?>[arguments.length] );
+    final Class<?>[] parameterTypes = determineParameterTypesFromArguments( arguments );
     return constructorFor( type, parameterTypes );
+  }
+  
+  /**
+   * @param arguments
+   * @return
+   */
+  private static Class<?>[] determineParameterTypesFromArguments( Object... arguments )
+  {
+    return ListUtils.convert( Arrays.asList( arguments ), new ElementConverterObjectToClassOfObject() )
+                    .toArray( new Class<?>[arguments.length] );
   }
   
   /**
@@ -422,8 +432,7 @@ public class ReflectionUtils
     if ( type != null )
     {
       //
-      Class<?>[] parameterTypes = ListUtils.convert( Arrays.asList( arguments ), new ElementConverterObjectToClassOfObject() )
-                                           .toArray( new Class<?>[arguments.length] );
+      Class<?>[] parameterTypes = determineParameterTypesFromArguments( arguments );
       
       //
       try
@@ -1285,6 +1294,73 @@ public class ReflectionUtils
     {
       Class<?> forName = Class.forName( className );
       retval = (Class<T>) forName;
+    }
+    catch ( Exception e )
+    {
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Invokes the given method name on the given object. This does not throw any {@link Exception}.
+   * 
+   * @param object
+   * @param methodName
+   * @param arguments
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> E invokeMethod( Object object, String methodName, Object... arguments )
+  {
+    //    
+    E retval = null;
+    
+    //
+    try
+    {
+      //
+      final Class<?>[] parameterTypes = ReflectionUtils.determineParameterTypesFromArguments( arguments );
+      
+      if ( object != null )
+      {
+        //
+        final boolean isClass = object instanceof Class;
+        final Class<? extends Object> type = isClass ? (Class<? extends Object>) object : object.getClass();
+        
+        //
+        Method declaredMethod = null;
+        try
+        {
+          declaredMethod = type.getDeclaredMethod( methodName, parameterTypes );
+        }
+        catch ( Exception e )
+        {
+          for ( Method method : type.getDeclaredMethods() )
+          {
+            //            
+            final String name = method.getName();
+            if ( StringUtils.equals( methodName, name ) )
+            {
+              //
+              final Class<?>[] parameterTypesOfMethod = method.getParameterTypes();
+              final boolean areAssignableFrom = areAssignableFrom( parameterTypesOfMethod, parameterTypes );
+              if ( areAssignableFrom )
+              {
+                declaredMethod = method;
+                break;
+              }
+            }
+          }
+        }
+        
+        //
+        if ( declaredMethod != null )
+        {
+          retval = (E) declaredMethod.invoke( isClass ? null : object, arguments );
+        }
+      }
     }
     catch ( Exception e )
     {
