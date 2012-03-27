@@ -211,7 +211,7 @@ public class ElementStoreTest
     this.elementStore.getExceptionHandlerRegistration().registerExceptionHandler( new ExceptionHandler()
     {
       @Override
-      public void handleExcpetion( Exception e )
+      public void handleException( Exception e )
       {
         e.printStackTrace();
       }

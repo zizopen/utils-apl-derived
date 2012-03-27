@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.omnaest.utils.structure.collection.list.sorted.FractalList.NodeVisitor.TraversalHint;
+import org.omnaest.utils.structure.collection.list.sorted.FractalListOld.NodeVisitor.TraversalHint;
 import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.hierarchy.tree.Tree;
@@ -33,7 +33,7 @@ import org.omnaest.utils.structure.hierarchy.tree.TreeNode;
  * !!!! PLEASE USE {@link TreeList} instead !!!! <br>
  * <br>
  * {@link SortedList} implementation using linked elements which are linked with multiple partners which are in an exponential
- * increasing distance. The ranges between those exponential distances are filled with another {@link FractalList}. This allows
+ * increasing distance. The ranges between those exponential distances are filled with another {@link FractalListOld}. This allows
  * the {@link List} to grow in a fractal manner. <br>
  * <br>
  * Unfortunately this implementation is much worse than its sister implementation {@link TreeList}.
@@ -43,7 +43,7 @@ import org.omnaest.utils.structure.hierarchy.tree.TreeNode;
  * @author Omnaest
  * @param <E>
  */
-public class FractalList<E> extends SortedListAbstract<E>
+public class FractalListOld<E> extends SortedListAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = 1677750838884402008L;
@@ -105,7 +105,7 @@ public class FractalList<E> extends SortedListAbstract<E>
     {
       //
       final SortedList<E> firstList = new TreeList<E>();
-      final SortedList<E> secondList = new FractalList<E>( sortedList );
+      final SortedList<E> secondList = new FractalListOld<E>( sortedList );
       final int exceedThreshold = 16;
       final int dropUnderThreshold = 1;
       return new SortedListDispatcherSizeBased<E>( firstList, secondList, exceedThreshold, dropUnderThreshold );
@@ -122,7 +122,7 @@ public class FractalList<E> extends SortedListAbstract<E>
       
       //
       final double factor = 0.5;
-      final int threshold = (int) Math.round( factor * FractalList.this.size() );
+      final int threshold = (int) Math.round( factor * FractalListOld.this.size() );
       while ( this.size >= 6 && this.size >= threshold )
       {
         //
@@ -375,10 +375,10 @@ public class FractalList<E> extends SortedListAbstract<E>
             {
               final SortedListDispatcherSizeBased<E> sortedListDispatcherSizeBased = (SortedListDispatcherSizeBased<E>) sortedSplitableList;
               SortedSplitableList<E> internalSortedSplitableList = sortedListDispatcherSizeBased.getList();
-              if ( internalSortedSplitableList instanceof FractalList )
+              if ( internalSortedSplitableList instanceof FractalListOld )
               {
-                FractalList<E> fractalList = (FractalList<E>) internalSortedSplitableList;
-                retlist.add( new TreeNodeAdapterSiblings( (Node<E>) fractalList.rootNode ) );
+                FractalListOld<E> FractalListOld = (FractalListOld<E>) internalSortedSplitableList;
+                retlist.add( new TreeNodeAdapterSiblings( (Node<E>) FractalListOld.rootNode ) );
               }
             }
             
@@ -482,7 +482,7 @@ public class FractalList<E> extends SortedListAbstract<E>
   }
   
   /**
-   * @see FractalList#traverseNodes(NodeVisitor)
+   * @see FractalListOld#traverseNodes(NodeVisitor)
    * @author Omnaest
    * @param <E>
    */
@@ -506,43 +506,45 @@ public class FractalList<E> extends SortedListAbstract<E>
      * @return {@link TraversalHint}
      */
     @SuppressWarnings("javadoc")
-    public TraversalHint visit( FractalList<E>.Node<E> node );
+    public TraversalHint visit( FractalListOld<E>.Node<E> node );
   }
   
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @see FractalList
+   * @see FractalListOld
    */
-  public FractalList()
+  public FractalListOld()
   {
     super();
   }
   
   /**
-   * @see FractalList
+   * @see FractalListOld
    * @param collection
    * @param comparator
    */
-  public FractalList( Collection<E> collection, Comparator<E> comparator )
+  public FractalListOld( Collection<E> collection, Comparator<E> comparator )
   {
-    super( collection, comparator );
+    super( comparator );
+    this.addAll( collection );
   }
   
   /**
-   * @see FractalList
+   * @see FractalListOld
    * @param collection
    */
-  public FractalList( Collection<E> collection )
+  public FractalListOld( Collection<E> collection )
   {
-    super( collection );
+    super();
+    this.addAll( collection );
   }
   
   /**
-   * @see FractalList
+   * @see FractalListOld
    * @param comparator
    */
-  public FractalList( Comparator<E> comparator )
+  public FractalListOld( Comparator<E> comparator )
   {
     super( comparator );
   }
@@ -619,7 +621,7 @@ public class FractalList<E> extends SortedListAbstract<E>
             
             //
             final E firstElement = node.getFirstElement();
-            final int compare = compare( element, firstElement );
+            final int compare = FractalListOld.this.comparator.compare( element, firstElement );
             if ( compare < 0 )
             {
               traversalHint = TraversalHint.CANCEL;
@@ -822,14 +824,14 @@ public class FractalList<E> extends SortedListAbstract<E>
         TraversalHint traversalHint = TraversalHint.JUMP_TO_NEXT_NODE;
         
         //
-        final int indexOf = node.indexOf( object );
+        final int indexOf = node.lastIndexOf( object );
         if ( indexOf >= 0 )
         {
           this.lastDeterminedIndexPosition = this.currentIndexPosition + indexOf;
+          retval.setElement( this.lastDeterminedIndexPosition );
         }
         else if ( this.lastDeterminedIndexPosition >= 0 )
         {
-          retval.setElement( this.lastDeterminedIndexPosition );
           traversalHint = TraversalHint.CANCEL;
         }
         else
@@ -852,7 +854,7 @@ public class FractalList<E> extends SortedListAbstract<E>
   protected SortedList<E> newInstance( Collection<E> collection )
   {
     //
-    final SortedList<E> retlist = new FractalList<E>();
+    final SortedList<E> retlist = new FractalListOld<E>();
     retlist.addAll( collection );
     return retlist;
   }

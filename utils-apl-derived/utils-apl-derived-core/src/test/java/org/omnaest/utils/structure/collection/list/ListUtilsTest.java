@@ -181,4 +181,10 @@ public class ListUtilsTest
   {
     assertEquals( Arrays.asList( 0, 1 ), ListUtils.convert( new ElementConverterStringToInteger(), "0", "1" ) );
   }
+  
+  @Test
+  public void testSorted()
+  {
+    assertEquals( Arrays.asList( "a", "b", "b", "c" ), ListUtils.sorted( Arrays.asList( "b", "a", "b", "c" ) ) );
+  }
 }

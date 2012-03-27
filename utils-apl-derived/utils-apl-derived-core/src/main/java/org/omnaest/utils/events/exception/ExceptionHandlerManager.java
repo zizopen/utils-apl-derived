@@ -29,18 +29,28 @@ import org.omnaest.utils.operation.special.OperationIntrinsic;
  */
 public class ExceptionHandlerManager
 {
-  /* ********************************************** Variables ********************************************** */
-  protected final ExceptionHandler             exceptionHandler             = new DispatchingExceptionHandler();
+  /* ********************************************** Constants ********************************************** */
+  protected final ExceptionHandler             dispatchingExceptionHandler                     = new DispatchingExceptionHandler();
+  protected final ExceptionHandler             dispatchingExceptionHandlerRethrowingExceptions = new DispatchingExceptionHandlerRethrowingExceptions();
   
-  protected final Set<ExceptionHandler>        exceptionHandlerSet          = new LinkedHashSet<ExceptionHandler>();
-  protected final ExceptionHandlerRegistration exceptionHandlerRegistration = new ExceptionHandlerRegistration();
+  /* ********************************************** Variables ********************************************** */
+  private volatile ExceptionHandler            exceptionHandler                                = this.dispatchingExceptionHandlerRethrowingExceptions;
+  
+  protected final Set<ExceptionHandler>        exceptionHandlerSet                             = new LinkedHashSet<ExceptionHandler>();
+  protected final ExceptionHandlerRegistration exceptionHandlerRegistration                    = new ExceptionHandlerRegistration();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
+  /**
+   * {@link ExceptionHandler} which dispatches to the {@link ExceptionHandlerManager#exceptionHandlerSet}. Any occurring
+   * {@link Exception} is catched.
+   * 
+   * @author Omnaest
+   */
   protected class DispatchingExceptionHandler implements ExceptionHandler
   {
     @Override
-    public void handleExcpetion( Exception e )
+    public void handleException( Exception e )
     {
       //
       for ( ExceptionHandler exceptionHandler : ExceptionHandlerManager.this.exceptionHandlerSet )
@@ -48,10 +58,41 @@ public class ExceptionHandlerManager
         try
         {
           //
-          exceptionHandler.handleExcpetion( e );
+          exceptionHandler.handleException( e );
         }
         catch ( Exception e2 )
         {
+        }
+      }
+    }
+  }
+  
+  /**
+   * {@link ExceptionHandler} which dispatches to the {@link ExceptionHandlerManager#exceptionHandlerSet} rethrowing any
+   * {@link Exception} as {@link RuntimeException}
+   * 
+   * @author Omnaest
+   */
+  protected class DispatchingExceptionHandlerRethrowingExceptions implements ExceptionHandler
+  {
+    @Override
+    public void handleException( Exception e )
+    {
+      //
+      for ( ExceptionHandler exceptionHandler : ExceptionHandlerManager.this.exceptionHandlerSet )
+      {
+        try
+        {
+          //
+          exceptionHandler.handleException( e );
+        }
+        catch ( RuntimeException e2 )
+        {
+          throw e2;
+        }
+        catch ( Exception e2 )
+        {
+          throw new RuntimeException( e2 );
         }
       }
     }
@@ -126,7 +167,7 @@ public class ExceptionHandlerManager
   }
   
   /**
-   * Invokes {@link OperationIntrinsic#execute(Object)} with the given parameter and handles any occurring {@link Exception}
+   * Invokes {@link OperationIntrinsic#execute()} with the given parameter and handles any occurring {@link Exception}
    * 
    * @param operationIntrinsic
    * @return this
@@ -142,7 +183,7 @@ public class ExceptionHandlerManager
       }
       catch ( Exception e )
       {
-        this.exceptionHandler.handleExcpetion( e );
+        this.getExceptionHandler().handleException( e );
       }
     }
     
@@ -171,11 +212,33 @@ public class ExceptionHandlerManager
       }
       catch ( Exception e )
       {
-        this.exceptionHandler.handleExcpetion( e );
+        this.getExceptionHandler().handleException( e );
       }
     }
     
     //
     return retval;
   }
+  
+  /**
+   * @param isRethrowingExceptionsFromExceptionHandler
+   *          the isRethrowingExceptionsFromExceptionHandler to set
+   * @return this
+   */
+  public ExceptionHandlerManager setRethrowingExceptionsFromExceptionHandler( boolean isRethrowingExceptionsFromExceptionHandler )
+  {
+    //
+    if ( isRethrowingExceptionsFromExceptionHandler )
+    {
+      this.exceptionHandler = this.dispatchingExceptionHandlerRethrowingExceptions;
+    }
+    else
+    {
+      this.exceptionHandler = this.dispatchingExceptionHandler;
+    }
+    
+    //
+    return this;
+  }
+  
 }

@@ -1100,27 +1100,22 @@ public class ListUtils
    * Similar to {@link #sorted(Collection, Comparator)} using the {@link Comparable} interface of the given elements
    * 
    * @param collection
-   * @return
+   * @return new sorted {@link List} instance, null if given {@link Collection} is null
    */
   public static <E extends Comparable<E>> List<E> sorted( Collection<E> collection )
   {
     //
-    final List<E> retlist = collection != null ? new ArrayList<E>( collection ) : null;
-    
-    //
-    if ( retlist != null )
-    {
-      Collections.sort( retlist );
-    }
-    
-    //
-    return retlist;
+    final Comparator<E> comparator = null;
+    return sorted( collection, comparator );
   }
   
   /**
    * Returns a new {@link List} instance which is based on the elements of the given {@link Collection} and which is sorted using
-   * the given {@link Comparator}
+   * the given {@link Comparator}<br>
+   * If the given {@link Comparator} is null the natural order is used. <br>
+   * The given {@link Collection} will kept unmodified, only the returned {@link List} will be sorted.
    * 
+   * @see Collections#sort(List, Comparator)
    * @param collection
    * @param comparator
    * @return a new {@link List} instance
@@ -1131,7 +1126,7 @@ public class ListUtils
     final List<E> retlist = collection != null ? new ArrayList<E>( collection ) : null;
     
     //
-    if ( comparator != null && retlist != null )
+    if ( retlist != null )
     {
       Collections.sort( retlist, comparator );
     }
