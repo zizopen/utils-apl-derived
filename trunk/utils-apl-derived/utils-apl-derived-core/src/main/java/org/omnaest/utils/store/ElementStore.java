@@ -39,6 +39,7 @@ import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.events.EventListener;
 import org.omnaest.utils.events.EventManager;
 import org.omnaest.utils.events.concrete.EventManagerImpl;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.events.exception.ExceptionHandlerManager;
 import org.omnaest.utils.events.exception.ExceptionHandlerManager.ExceptionHandlerRegistration;
 import org.omnaest.utils.operation.special.OperationIntrinsic;
@@ -65,17 +66,18 @@ import org.omnaest.utils.structure.map.decorator.SortedMapDecorator;
 public class ElementStore<E> extends CollectionAbstract<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long                        serialVersionUID            = -4214411010069052346L;
+  private static final long                        serialVersionUID                        = -4214411010069052346L;
   
   /* ********************************************** Variables ********************************************** */
-  protected Map<E, Long>                           elementToIdentifierMap      = newElementToIdentifierMap();
+  protected volatile Map<E, Long>                  elementToIdentifierMap                  = newElementToIdentifierMap();
+  protected volatile boolean                       isThrowingExceptionOnPersistenceFailure = true;
   
   /* ********************************************** Beans / Services / References ********************************************** */
-  protected final IdentifierFactory                identifierFactory           = new IdentifierFactory();
+  protected final IdentifierFactory                identifierFactory                       = new IdentifierFactory();
   protected final PersistenceAccessor<E>           persistenceAccessor;
-  protected EventManager<AccessEventData<E>, Void> eventManager                = new EventManagerImpl<AccessEventData<E>, Void>();
-  protected PersistenceExecutionControl<E>         persistenceExecutionControl = new PersistenceExecutionControlImmediateExecution<E>(); ;
-  protected ExceptionHandlerManager                exceptionHandlerManager     = new ExceptionHandlerManager();
+  protected EventManager<AccessEventData<E>, Void> eventManager                            = new EventManagerImpl<AccessEventData<E>, Void>();
+  protected PersistenceExecutionControl<E>         persistenceExecutionControl             = new PersistenceExecutionControlImmediateExecution<E>(); ;
+  protected ExceptionHandlerManager                exceptionHandlerManager                 = new ExceptionHandlerManager();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -189,97 +191,6 @@ public class ElementStore<E> extends CollectionAbstract<E>
       }
     }
     
-  }
-  
-  /**
-   * @param element
-   */
-  private void fireEventForRemovedElement( final E element )
-  {
-    //
-    if ( this.persistenceAccessor != null && this.persistenceExecutionControl != null )
-    {
-      //
-      final PersistenceOperation persistenceOperation = new PersistenceOperation()
-      {
-        @Override
-        public void execute()
-        {
-          //
-          try
-          {
-            //
-            final Long identifier = ElementStore.this.elementToIdentifierMap.get( element );
-            if ( identifier != null )
-            {
-              ElementStore.this.persistenceAccessor.remove( identifier );
-              ElementStore.this.identifierFactory.release( identifier );
-            }
-          }
-          catch ( Exception e )
-          {
-            ElementStore.this.exceptionHandlerManager.getExceptionHandler().handleExcpetion( e );
-          }
-        }
-      };
-      this.persistenceExecutionControl.execute( persistenceOperation );
-      
-      //      
-      @SuppressWarnings("unchecked")
-      final AccessEventData<E> event = new AccessEventData<E>( AccessEvent.REMOVE, Arrays.asList( element ) );
-      ElementStore.this.eventManager.fireEvent( event );
-    }
-  }
-  
-  /**
-   * @param element
-   */
-  private void fireEventForAddedElement( final E element )
-  {
-    //
-    if ( this.persistenceAccessor != null && this.persistenceExecutionControl != null )
-    {
-      //
-      final PersistenceOperation persistenceOperation = new PersistenceOperation()
-      {
-        
-        @Override
-        public void execute()
-        {
-          //
-          try
-          {
-            final Long identifier = ElementStore.this.elementToIdentifierMap.get( element );
-            if ( identifier != null )
-            {
-              ElementStore.this.persistenceAccessor.add( identifier, element );
-            }
-          }
-          catch ( Exception e )
-          {
-            ElementStore.this.exceptionHandlerManager.getExceptionHandler().handleExcpetion( e );
-          }
-        }
-      };
-      this.persistenceExecutionControl.execute( persistenceOperation );
-      
-      //
-      //
-      @SuppressWarnings("unchecked")
-      final AccessEventData<E> event = new AccessEventData<E>( AccessEvent.ADD, Arrays.asList( element ) );
-      this.eventManager.fireEvent( event );
-    }
-  }
-  
-  /**
-   * @param newElementToIdentifierMap
-   */
-  private void fireEventForReload( final Map<E, Long> newElementToIdentifierMap )
-  {
-    //
-    final List<E> elementList = new ArrayList<E>( newElementToIdentifierMap.keySet() );
-    final AccessEventData<E> event = new AccessEventData<E>( AccessEvent.RELOAD, elementList );
-    this.eventManager.fireEvent( event );
   }
   
   /**
@@ -551,6 +462,27 @@ public class ElementStore<E> extends CollectionAbstract<E>
     public ExceptionHandlerRegistration getExceptionHandlerRegistration();
   }
   
+  /**
+   * @see ElementStore
+   * @author Omnaest
+   */
+  public static class PersistenceFailureException extends RuntimeException
+  {
+    /* ********************************************** Constants ********************************************** */
+    private static final long serialVersionUID = -4755879505078860067L;
+    
+    /* ********************************************** Methods ********************************************** */
+    /**
+     * @see PersistenceFailureException
+     * @param cause
+     */
+    public PersistenceFailureException( Throwable cause )
+    {
+      super( "Failure during persistence operation", cause );
+    }
+    
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**
@@ -568,6 +500,19 @@ public class ElementStore<E> extends CollectionAbstract<E>
     Assert.isNotNull( persistenceAccessor, "PersistenceAccessor must not be null" );
     persistenceAccessor.getExceptionHandlerRegistration()
                        .registerExceptionHandler( this.exceptionHandlerManager.getExceptionHandler() );
+    
+    //
+    this.exceptionHandlerManager.getExceptionHandlerRegistration().registerExceptionHandler( new ExceptionHandler()
+    {
+      @Override
+      public void handleException( Exception e )
+      {
+        if ( ElementStore.this.isThrowingExceptionOnPersistenceFailure )
+        {
+          throw new PersistenceFailureException( e );
+        }
+      }
+    } );
     
     //
     this.loadAllElementsFromPersistence( persistenceAccessor, this.elementToIdentifierMap );
@@ -607,7 +552,7 @@ public class ElementStore<E> extends CollectionAbstract<E>
       }
       catch ( Exception e )
       {
-        this.exceptionHandlerManager.getExceptionHandler().handleExcpetion( e );
+        this.exceptionHandlerManager.getExceptionHandler().handleException( e );
       }
     }
   }
@@ -745,6 +690,97 @@ public class ElementStore<E> extends CollectionAbstract<E>
   }
   
   /**
+   * @param element
+   */
+  private void fireEventForRemovedElement( final E element )
+  {
+    //
+    if ( this.persistenceAccessor != null && this.persistenceExecutionControl != null )
+    {
+      //
+      final PersistenceOperation persistenceOperation = new PersistenceOperation()
+      {
+        @Override
+        public void execute()
+        {
+          //
+          try
+          {
+            //
+            final Long identifier = ElementStore.this.elementToIdentifierMap.get( element );
+            if ( identifier != null )
+            {
+              ElementStore.this.persistenceAccessor.remove( identifier );
+              ElementStore.this.identifierFactory.release( identifier );
+            }
+          }
+          catch ( Exception e )
+          {
+            ElementStore.this.exceptionHandlerManager.getExceptionHandler().handleException( e );
+          }
+        }
+      };
+      this.persistenceExecutionControl.execute( persistenceOperation );
+      
+      //      
+      @SuppressWarnings("unchecked")
+      final AccessEventData<E> event = new AccessEventData<E>( AccessEvent.REMOVE, Arrays.asList( element ) );
+      ElementStore.this.eventManager.fireEvent( event );
+    }
+  }
+  
+  /**
+   * @param element
+   */
+  private void fireEventForAddedElement( final E element )
+  {
+    //
+    if ( this.persistenceAccessor != null && this.persistenceExecutionControl != null )
+    {
+      //
+      final PersistenceOperation persistenceOperation = new PersistenceOperation()
+      {
+        
+        @Override
+        public void execute()
+        {
+          //
+          try
+          {
+            final Long identifier = ElementStore.this.elementToIdentifierMap.get( element );
+            if ( identifier != null )
+            {
+              ElementStore.this.persistenceAccessor.add( identifier, element );
+            }
+          }
+          catch ( Exception e )
+          {
+            ElementStore.this.exceptionHandlerManager.getExceptionHandler().handleException( e );
+          }
+        }
+      };
+      this.persistenceExecutionControl.execute( persistenceOperation );
+      
+      //
+      //
+      @SuppressWarnings("unchecked")
+      final AccessEventData<E> event = new AccessEventData<E>( AccessEvent.ADD, Arrays.asList( element ) );
+      this.eventManager.fireEvent( event );
+    }
+  }
+  
+  /**
+   * @param newElementToIdentifierMap
+   */
+  private void fireEventForReload( final Map<E, Long> newElementToIdentifierMap )
+  {
+    //
+    final List<E> elementList = new ArrayList<E>( newElementToIdentifierMap.keySet() );
+    final AccessEventData<E> event = new AccessEventData<E>( AccessEvent.RELOAD, elementList );
+    this.eventManager.fireEvent( event );
+  }
+  
+  /**
    * @see #newIndex(KeyExtractor)
    * @param keyExtractor
    *          {@link KeyExtractor}
@@ -870,6 +906,23 @@ public class ElementStore<E> extends CollectionAbstract<E>
   public ExceptionHandlerRegistration getExceptionHandlerRegistration()
   {
     return this.exceptionHandlerManager.getExceptionHandlerRegistration();
+  }
+  
+  /**
+   * @return the isThrowingExceptionOnPersistenceFailure
+   */
+  public boolean isThrowingExceptionOnPersistenceFailure()
+  {
+    return this.isThrowingExceptionOnPersistenceFailure;
+  }
+  
+  /**
+   * @param isThrowingExceptionOnPersistenceFailure
+   *          the isThrowingExceptionOnPersistenceFailure to set
+   */
+  public void setThrowingExceptionOnPersistenceFailure( boolean isThrowingExceptionOnPersistenceFailure )
+  {
+    this.isThrowingExceptionOnPersistenceFailure = isThrowingExceptionOnPersistenceFailure;
   }
   
 }

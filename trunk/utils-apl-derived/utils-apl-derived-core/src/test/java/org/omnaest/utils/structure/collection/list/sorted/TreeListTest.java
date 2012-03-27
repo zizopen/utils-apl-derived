@@ -28,8 +28,8 @@ import java.util.TreeSet;
 import org.databene.contiperf.PerfTest;
 import org.databene.contiperf.Required;
 import org.databene.contiperf.junit.ContiPerfRule;
-import org.junit.Rule;
 import org.junit.Test;
+import org.omnaest.utils.structure.collection.SortedListTestAbstract;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 
 import com.google.common.collect.SortedMultiset;
@@ -39,9 +39,9 @@ import com.google.common.collect.TreeMultiset;
  * @see TreeList
  * @author Omnaest
  */
-public class TreeListTest
+public class TreeListTest extends SortedListTestAbstract
 {
-  @Rule
+  // @Rule
   public ContiPerfRule               contiPerfRule = new ContiPerfRule();
   
   /* ********************************************** Variables ********************************************** */
@@ -49,20 +49,6 @@ public class TreeListTest
   protected final SortedList<String> treeList      = new TreeList<String>( this.sourceList );
   
   /* ********************************************** Methods ********************************************** */
-  
-  @Test
-  public void testSize()
-  {
-    assertEquals( this.sourceList.size(), this.treeList.size() );
-  }
-  
-  @Test
-  public void testAddE()
-  {
-    this.treeList.add( "a" );
-    assertEquals( this.sourceList.size() + 1, this.treeList.size() );
-    assertEquals( 0, this.treeList.indexOf( "a" ) );
-  }
   
   private static void runLoad( Collection<String> collection )
   {
@@ -225,12 +211,10 @@ public class TreeListTest
     assertTrue( this.treeList.isEmpty() );
   }
   
-  @Test
-  public void testHeadAndTailList()
+  @Override
+  protected SortedList<String> newSortedList()
   {
-    assertEquals( Arrays.asList( "b", "c", "d" ), this.treeList.headList( "e" ) );
-    assertEquals( Arrays.asList( "e", "e", "e" ), this.treeList.tailList( "e" ) );
-    assertEquals( Arrays.asList( "c", "d" ), this.treeList.subList( "c", "e" ) );
+    return new TreeList<String>();
   }
   
 }

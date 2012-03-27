@@ -48,7 +48,7 @@ public class OperationExceptionHandledTest
     final ExceptionHandler exceptionHandler = new ExceptionHandler()
     {
       @Override
-      public void handleExcpetion( Exception e )
+      public void handleException( Exception e )
       {
         atomicBoolean.set( true );
       }

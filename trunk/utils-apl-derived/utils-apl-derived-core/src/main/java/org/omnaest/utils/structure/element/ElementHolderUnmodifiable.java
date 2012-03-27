@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.omnaest.utils.structure.element.accessor.AccessorReadable;
 
 /**
- * Simple predefined {@link ElementHolderUnmodifiable} around an arbitrary element
+ * Simple predefined {@link ElementHolderUnmodifiable} around an arbitrary element.
  * 
  * @see ElementHolder
  * @author Omnaest
@@ -35,7 +35,7 @@ public class ElementHolderUnmodifiable<E> implements AccessorReadable<E>
 {
   /* ********************************************** Variables ********************************************** */
   @XmlElement
-  protected E element = null;
+  protected volatile E element = null;
   
   /* ********************************************** Methods ********************************************** */
   

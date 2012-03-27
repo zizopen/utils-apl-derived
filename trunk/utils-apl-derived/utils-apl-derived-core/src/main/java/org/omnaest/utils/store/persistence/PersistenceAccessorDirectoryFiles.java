@@ -96,7 +96,7 @@ public class PersistenceAccessorDirectoryFiles<E> implements PersistenceAccessor
     }
     catch ( Exception e )
     {
-      this.exceptionHandlerManager.getExceptionHandler().handleExcpetion( e );
+      this.exceptionHandlerManager.getExceptionHandler().handleException( e );
     }
   }
   
@@ -124,7 +124,7 @@ public class PersistenceAccessorDirectoryFiles<E> implements PersistenceAccessor
     }
     catch ( Exception e )
     {
-      this.exceptionHandlerManager.getExceptionHandler().handleExcpetion( e );
+      this.exceptionHandlerManager.getExceptionHandler().handleException( e );
     }
   }
   
@@ -163,7 +163,7 @@ public class PersistenceAccessorDirectoryFiles<E> implements PersistenceAccessor
     }
     catch ( Exception e )
     {
-      this.exceptionHandlerManager.getExceptionHandler().handleExcpetion( e );
+      this.exceptionHandlerManager.getExceptionHandler().handleException( e );
     }
     
     //

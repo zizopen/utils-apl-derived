@@ -203,14 +203,6 @@ public abstract class ListAbstract<E> extends CollectionAbstract<E> implements L
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @param collection
-   */
-  public ListAbstract( Collection<E> collection )
-  {
-    super( collection );
-  }
-  
-  /**
    * 
    */
   public ListAbstract()

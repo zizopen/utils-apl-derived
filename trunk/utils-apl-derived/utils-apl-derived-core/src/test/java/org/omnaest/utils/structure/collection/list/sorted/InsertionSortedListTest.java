@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2011 Danny Kunz
+ * Copyright 2012 Danny Kunz
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.events.exception;
+package org.omnaest.utils.structure.collection.list.sorted;
+
+import org.omnaest.utils.structure.collection.SortedListTestAbstract;
 
 /**
- * Interface for classes handling {@link Exception}s
- * 
+ * @see InsertionSortedList
  * @author Omnaest
  */
-public interface ExceptionHandler
+public class InsertionSortedListTest extends SortedListTestAbstract
 {
   
-  /**
-   * Handles the given {@link Exception}
-   * 
-   * @param e
-   *          {@link Exception}
-   */
-  public void handleException( Exception e );
+  @Override
+  public SortedList<String> newSortedList()
+  {
+    return new InsertionSortedList<String>();
+  }
+  
 }

@@ -44,15 +44,6 @@ public abstract class CollectionAbstract<E> implements Collection<E>, Serializab
     super();
   }
   
-  /**
-   * @param collection
-   */
-  public CollectionAbstract( Collection<E> collection )
-  {
-    super();
-    this.addAll( collection );
-  }
-  
   @Override
   public void clear()
   {

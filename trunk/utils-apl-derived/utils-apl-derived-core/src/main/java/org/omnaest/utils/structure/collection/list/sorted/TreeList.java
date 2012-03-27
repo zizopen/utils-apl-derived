@@ -402,10 +402,6 @@ public class TreeList<E> extends SortedListAbstract<E>
     return retval;
   }
   
-  /**
-   * This does add the given element at the right order position. This does break the contract of the {@link Collection}
-   * interface, since the new element is not appended to the {@link Collection}.
-   */
   @Override
   public boolean add( E element )
   {
@@ -671,11 +667,11 @@ public class TreeList<E> extends SortedListAbstract<E>
         {
           //
           this.hasAlreadyFoundEqualElement = true;
+          retvalHolder.setElement( indexPosition );
         }
         else if ( this.hasAlreadyFoundEqualElement )
         {
           //
-          retvalHolder.setElement( indexPosition - 1 );
           retval = TraversalHint.CANCEL_TRAVERSAL;
         }
         

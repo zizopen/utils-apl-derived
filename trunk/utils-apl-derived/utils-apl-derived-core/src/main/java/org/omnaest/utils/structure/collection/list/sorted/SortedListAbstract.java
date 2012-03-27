@@ -35,6 +35,7 @@ public abstract class SortedListAbstract<E> extends ListAbstract<E> implements S
   private static final long     serialVersionUID = -5663102837607165996L;
   
   /* ********************************************** Variables ********************************************** */
+  /** The constructor will ensure that the {@link Comparator} will not be null */
   protected final Comparator<E> comparator;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
@@ -105,20 +106,14 @@ public abstract class SortedListAbstract<E> extends ListAbstract<E> implements S
       return SortedListAbstract.last( this );
     }
     
+    public boolean add( E element )
+    {
+      return false;
+    }
+    
   }
   
   /* ********************************************** Methods ********************************************** */
-  
-  /**
-   * @see SortedListAbstract
-   * @param collection
-   * @param comparator
-   */
-  public SortedListAbstract( Collection<E> collection, Comparator<E> comparator )
-  {
-    super( collection );
-    this.comparator = comparator;
-  }
   
   /**
    * @see SortedListAbstract
@@ -127,19 +122,15 @@ public abstract class SortedListAbstract<E> extends ListAbstract<E> implements S
   public SortedListAbstract( Comparator<E> comparator )
   {
     super();
-    this.comparator = comparator;
-  }
-  
-  /**
-   * Using this constructor enforces that all element types implement the {@link Comparable} interface
-   * 
-   * @see SortedListAbstract
-   * @param collection
-   */
-  public SortedListAbstract( Collection<E> collection )
-  {
-    super( collection );
-    this.comparator = null;
+    this.comparator = comparator != null ? comparator : new Comparator<E>()
+    {
+      @SuppressWarnings("unchecked")
+      @Override
+      public int compare( E element1, E element2 )
+      {
+        return ( (Comparable<E>) element1 ).compareTo( element2 );
+      }
+    };
   }
   
   /**
@@ -149,8 +140,7 @@ public abstract class SortedListAbstract<E> extends ListAbstract<E> implements S
    */
   public SortedListAbstract()
   {
-    super();
-    this.comparator = null;
+    this( (Comparator<E>) null );
   }
   
   @Override
@@ -278,20 +268,12 @@ public abstract class SortedListAbstract<E> extends ListAbstract<E> implements S
     return new SortedListAbstractSublist<E>( this, fromIndex, toIndex );
   }
   
-  /**
-   * The {@link #add(int, Object)} ignores the given index position and acts similar to the {@link #add(Object)} method
-   */
   @Override
   public void add( int index, E element )
   {
     this.add( element );
   }
   
-  /**
-   * Uses {@link #remove(int)} to remove the element from the given index position an returns it. The newly given element will NOT
-   * be inserted at the given index position, instead it will be inserted at its right sort position similar to calling the
-   * {@link #add(Object)} method on it.
-   */
   @Override
   public E set( int index, E element )
   {
@@ -300,38 +282,6 @@ public abstract class SortedListAbstract<E> extends ListAbstract<E> implements S
     this.add( element );
     
     // 
-    return retval;
-  }
-  
-  /**
-   * Compares two elemnts using the internal {@link Comparator} if it is not null or casts the first element to {@link Comparable}
-   * and uses it to compare with the other element.
-   * 
-   * @see Comparator#compare(Object, Object)
-   * @see Comparable#compareTo(Object)
-   * @param element1
-   * @param element2
-   * @return
-   */
-  protected int compare( E element1, E element2 )
-  {
-    //
-    int retval = 0;
-    
-    //
-    if ( this.comparator != null )
-    {
-      this.comparator.compare( element1, element2 );
-    }
-    else
-    {
-      //
-      @SuppressWarnings("unchecked")
-      final Comparable<E> comparable = (Comparable<E>) element1;
-      retval = comparable.compareTo( element2 );
-    }
-    
-    //
     return retval;
   }
   

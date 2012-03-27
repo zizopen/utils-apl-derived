@@ -27,15 +27,16 @@ import org.databene.contiperf.PerfTest;
 import org.databene.contiperf.junit.ContiPerfRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.omnaest.utils.structure.collection.SortedListTestAbstract;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 
 /**
  * @see FractalList
  * @author Omnaest
  */
-public class FractalListTest
+public class FractalListTest extends SortedListTestAbstract
 {
-  @Rule
+  //@Rule
   public ContiPerfRule          contiPerfRule = new ContiPerfRule();
   
   /* ********************************************** Variables ********************************************** */
@@ -45,7 +46,7 @@ public class FractalListTest
   
   /* ********************************************** Methods ********************************************** */
   
-  @PerfTest(invocations = 5)
+  @PerfTest(invocations = 10)
   @Test
   public void testPerformanceTreeList()
   {
@@ -54,8 +55,8 @@ public class FractalListTest
     this.doTestPerformanceLoad( sortedList );
   }
   
-  @PerfTest(invocations = 5)
-  @Test
+  @PerfTest(invocations = 10)
+  //@Test
   public void testPerformanceFractalList()
   {
     //
@@ -67,6 +68,11 @@ public class FractalListTest
   {
     //
     sortedList.addAll( this.sourceList );
+    
+    //
+    final List<String> listWithSortedElements = new ArrayList<String>( sortedList );
+    sortedList.clear();
+    sortedList.addAll( listWithSortedElements );
     
     //
     for ( int jj = 1; jj < 10; jj++ )
@@ -89,10 +95,10 @@ public class FractalListTest
   public void testAddE()
   {
     //
-    this.sortedList.add( "a" );
+    this.sortedList.add( "b" );
     assertEquals( 1, this.sortedList.size() );
     
-    this.sortedList.add( "b" );
+    this.sortedList.add( "a" );
     assertEquals( 2, this.sortedList.size() );
     
     //    
@@ -131,6 +137,12 @@ public class FractalListTest
     
     //
     return retlist;
+  }
+  
+  @Override
+  protected SortedList<String> newSortedList()
+  {
+    return new FractalList<String>();
   }
   
 }
