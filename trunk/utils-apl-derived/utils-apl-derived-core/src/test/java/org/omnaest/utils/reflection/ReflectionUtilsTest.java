@@ -263,4 +263,11 @@ public class ReflectionUtilsTest
       assertFalse( hasAnnotation );
     }
   }
+  
+  @Test
+  public void testInvokeMethod()
+  {
+    assertEquals( "10", ReflectionUtils.invokeMethod( String.class, "valueOf", 10 ) );
+    assertEquals( "10", ReflectionUtils.invokeMethod( "", "valueOf", "10" ) );
+  }
 }
