@@ -70,128 +70,119 @@ public class RestClientFactoryJersey extends RestClientFactory
         T retval = null;
         
         //
-        try
+        WebResource webResource = null;
+        
+        //see http://java.net/projects/jersey/sources/svn/content/trunk/jersey/samples/https-clientserver-grizzly/src/test/java/com/sun/jersey/samples/https_grizzly/MainTest.java?rev=5453
+        ClientConfig clientConfig = new DefaultClientConfig();
+        
+        //
+        if ( authentification instanceof HTTPSAuthentification )
         {
           //
-          WebResource webResource = null;
-          
-          //see http://java.net/projects/jersey/sources/svn/content/trunk/jersey/samples/https-clientserver-grizzly/src/test/java/com/sun/jersey/samples/https_grizzly/MainTest.java?rev=5453
-          ClientConfig clientConfig = new DefaultClientConfig();
-          
-          //
-          if ( authentification instanceof HTTPSAuthentification )
-          {
-            //
-            HTTPSAuthentification httpsAuthentification = (HTTPSAuthentification) authentification;
-            HostnameVerifier hostnameVerifier = httpsAuthentification.getHostnameVerifier();
-            SSLContext sslContext = httpsAuthentification.getSslContext();
-            
-            //
-            clientConfig.getProperties().put( HTTPSProperties.PROPERTY_HTTPS_PROPERTIES,
-                                              new HTTPSProperties( hostnameVerifier, sslContext ) );
-            
-          }
+          HTTPSAuthentification httpsAuthentification = (HTTPSAuthentification) authentification;
+          HostnameVerifier hostnameVerifier = httpsAuthentification.getHostnameVerifier();
+          SSLContext sslContext = httpsAuthentification.getSslContext();
           
           //
-          Client client = Client.create( clientConfig );
-          
-          //
-          if ( authentification instanceof BasicAuthentification )
-          {
-            //
-            BasicAuthentification basicAuthentification = (BasicAuthentification) authentification;
-            String username = basicAuthentification.getUsername();
-            String password = basicAuthentification.getPassword();
-            
-            //
-            client.addFilter( new HTTPBasicAuthFilter( username, password ) );
-          }
-          
-          //
-          webResource = client.resource( baseAddress );
-          webResource = webResource.path( pathRelative );
-          
-          //
-          webResource.accept( producesMediaTypes );
-          if ( consumesMediaTypes.length > 0 )
-          {
-            webResource.type( consumesMediaTypes[0] );
-          }
-          
-          //
-          Object entity = null;
-          if ( parameterList != null )
-          {
-            for ( Parameter parameter : parameterList )
-            {
-              if ( parameter instanceof QueryParameter )
-              {
-                //
-                QueryParameter queryParameter = (QueryParameter) parameter;
-                
-                //
-                String key = queryParameter.getKey();
-                String value = queryParameter.getValue();
-                
-                //
-                webResource = webResource.queryParam( key, value );
-              }
-              else if ( parameter instanceof MatrixParameter )
-              {
-                //
-                //MatrixParameter matrixParameter = (MatrixParameter) parameter;
-                
-                //
-                //String key = matrixParameter.getKey();
-                //Collection<Object> valueCollection = matrixParameter.getValueCollection();
-                
-                //FIXME missing matrix parameter
-              }
-              else if ( parameter instanceof BodyParameter )
-              {
-                //
-                BodyParameter bodyParameter = (BodyParameter) parameter;
-                entity = bodyParameter.getValue();
-              }
-            }
-          }
-          
-          //
-          if ( HttpMethod.GET.equals( httpMethod ) )
-          {
-            retval = (T) webResource.get( returnType );
-          }
-          else if ( HttpMethod.PUT.equals( httpMethod ) )
-          {
-            if ( entity == null )
-            {
-              retval = (T) webResource.put( returnType );
-            }
-            else
-            {
-              retval = (T) webResource.put( returnType, entity );
-            }
-          }
-          else if ( HttpMethod.POST.equals( httpMethod ) )
-          {
-            if ( entity == null )
-            {
-              retval = (T) webResource.post( returnType );
-            }
-            else
-            {
-              retval = (T) webResource.post( returnType, entity );
-            }
-          }
-          else if ( HttpMethod.DELETE.equals( httpMethod ) )
-          {
-            retval = (T) webResource.delete( returnType );
-          }
+          clientConfig.getProperties().put( HTTPSProperties.PROPERTY_HTTPS_PROPERTIES,
+                                            new HTTPSProperties( hostnameVerifier, sslContext ) );
           
         }
-        catch ( Exception e )
+        
+        //
+        Client client = Client.create( clientConfig );
+        
+        //
+        if ( authentification instanceof BasicAuthentification )
         {
-          e.printStackTrace();
+          //
+          BasicAuthentification basicAuthentification = (BasicAuthentification) authentification;
+          String username = basicAuthentification.getUsername();
+          String password = basicAuthentification.getPassword();
+          
+          //
+          client.addFilter( new HTTPBasicAuthFilter( username, password ) );
+        }
+        
+        //
+        webResource = client.resource( baseAddress );
+        webResource = webResource.path( pathRelative );
+        
+        //
+        webResource.accept( producesMediaTypes );
+        if ( consumesMediaTypes.length > 0 )
+        {
+          webResource.type( consumesMediaTypes[0] );
+        }
+        
+        //
+        Object entity = null;
+        if ( parameterList != null )
+        {
+          for ( Parameter parameter : parameterList )
+          {
+            if ( parameter instanceof QueryParameter )
+            {
+              //
+              QueryParameter queryParameter = (QueryParameter) parameter;
+              
+              //
+              String key = queryParameter.getKey();
+              String value = queryParameter.getValue();
+              
+              //
+              webResource = webResource.queryParam( key, value );
+            }
+            else if ( parameter instanceof MatrixParameter )
+            {
+              //
+              //MatrixParameter matrixParameter = (MatrixParameter) parameter;
+              
+              //
+              //String key = matrixParameter.getKey();
+              //Collection<Object> valueCollection = matrixParameter.getValueCollection();
+              
+              //FIXME missing matrix parameter
+            }
+            else if ( parameter instanceof BodyParameter )
+            {
+              //
+              BodyParameter bodyParameter = (BodyParameter) parameter;
+              entity = bodyParameter.getValue();
+            }
+          }
+        }
+        
+        //
+        if ( HttpMethod.GET.equals( httpMethod ) )
+        {
+          retval = (T) webResource.get( returnType );
+        }
+        else if ( HttpMethod.PUT.equals( httpMethod ) )
+        {
+          if ( entity == null )
+          {
+            retval = (T) webResource.put( returnType );
+          }
+          else
+          {
+            retval = (T) webResource.put( returnType, entity );
+          }
+        }
+        else if ( HttpMethod.POST.equals( httpMethod ) )
+        {
+          if ( entity == null )
+          {
+            retval = (T) webResource.post( returnType );
+          }
+          else
+          {
+            retval = (T) webResource.post( returnType, entity );
+          }
+        }
+        else if ( HttpMethod.DELETE.equals( httpMethod ) )
+        {
+          retval = (T) webResource.delete( returnType );
         }
         
         // 
