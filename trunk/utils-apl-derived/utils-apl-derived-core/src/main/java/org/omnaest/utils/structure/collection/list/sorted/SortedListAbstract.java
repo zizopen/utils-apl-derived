@@ -326,4 +326,18 @@ public abstract class SortedListAbstract<E> extends ListAbstract<E> implements S
     return retlist;
   }
   
+  @Override
+  public E getFirst()
+  {
+    // 
+    return this.first();
+  }
+  
+  @Override
+  public E getLast()
+  {
+    // 
+    return this.last();
+  }
+  
 }

@@ -17,24 +17,30 @@ package org.omnaest.utils.structure.collection.list;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.omnaest.utils.propertyfile.content.MapAbstract;
 import org.omnaest.utils.structure.collection.CollectionAbstract;
 
 /**
  * This abstract list implementation offers the basic methods like addAll, removeAll, retainAll, etc. which rely only on other
- * list methods and not on any underlying structure. This list offers automatic listiterator, iterator and sublist which are
- * backed to the given list.
+ * list methods and not on any underlying structure. This list offers automatic {@link ListIterator}, {@link Iterator} and sublist
+ * which are backed to the given list. <br>
+ * <br>
+ * Additionally the {@link Deque} interface is completely implemented as well.
  * 
  * @see List
- * @see MapAbstract
+ * @see Deque
  * @see CollectionAbstract
+ * @see MapAbstract
  * @author Omnaest
  */
-public abstract class ListAbstract<E> extends CollectionAbstract<E> implements List<E>, Serializable
+public abstract class ListAbstract<E> extends CollectionAbstract<E> implements List<E>, Deque<E>, Serializable
 {
   /* ********************************************** Constants ********************************************** */
   private static final long serialVersionUID = 3410678520148023549L;
@@ -301,4 +307,288 @@ public abstract class ListAbstract<E> extends CollectionAbstract<E> implements L
     }
   }
   
+  @Override
+  public void addFirst( E element )
+  {
+    //
+    final int index = 0;
+    this.add( index, element );
+  }
+  
+  @Override
+  public void addLast( E e )
+  {
+    //
+    this.add( e );
+  }
+  
+  @Override
+  public boolean offerFirst( E element )
+  {
+    //
+    this.addFirst( element );
+    return true;
+  }
+  
+  @Override
+  public boolean offerLast( E e )
+  {
+    //
+    this.addLast( e );
+    return true;
+  }
+  
+  @Override
+  public E removeFirst()
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( !this.isEmpty() )
+    {
+      final int index = 0;
+      retval = this.remove( index );
+    }
+    else
+    {
+      throw new NoSuchElementException();
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public E removeLast()
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( !this.isEmpty() )
+    {
+      final int index = this.size() - 1;
+      retval = this.remove( index );
+    }
+    else
+    {
+      throw new NoSuchElementException();
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public E pollFirst()
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( !this.isEmpty() )
+    {
+      final int index = 0;
+      retval = this.remove( index );
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public E pollLast()
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( !this.isEmpty() )
+    {
+      final int index = this.size() - 1;
+      retval = this.remove( index );
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public E getFirst()
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( !this.isEmpty() )
+    {
+      final int index = 0;
+      retval = this.get( index );
+    }
+    else
+    {
+      throw new NoSuchElementException();
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public E getLast()
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( !this.isEmpty() )
+    {
+      final int index = this.size() - 1;
+      retval = this.get( index );
+    }
+    else
+    {
+      throw new NoSuchElementException();
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public E peekFirst()
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( !this.isEmpty() )
+    {
+      final int index = 0;
+      retval = this.get( index );
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public E peekLast()
+  {
+    //
+    E retval = null;
+    
+    //
+    if ( !this.isEmpty() )
+    {
+      final int index = this.size() - 1;
+      retval = this.get( index );
+    }
+    else
+    {
+      throw new NoSuchElementException();
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public boolean removeFirstOccurrence( Object o )
+  {
+    //
+    boolean retval = false;
+    
+    //
+    if ( !this.isEmpty() )
+    {
+      final int index = this.indexOf( o );
+      if ( index >= 0 )
+      {
+        this.remove( index );
+        retval = true;
+      }
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public boolean removeLastOccurrence( Object o )
+  {
+    //
+    boolean retval = false;
+    
+    //
+    if ( !this.isEmpty() )
+    {
+      final int index = this.lastIndexOf( o );
+      if ( index >= 0 )
+      {
+        this.remove( index );
+        retval = true;
+      }
+    }
+    
+    // 
+    return retval;
+  }
+  
+  @Override
+  public boolean offer( E e )
+  {
+    // 
+    return this.offerLast( e );
+  }
+  
+  @Override
+  public E remove()
+  {
+    // 
+    return this.removeFirst();
+  }
+  
+  @Override
+  public E poll()
+  {
+    //
+    return this.pollFirst();
+  }
+  
+  @Override
+  public E element()
+  {
+    // 
+    return this.getFirst();
+  }
+  
+  @Override
+  public E peek()
+  {
+    // 
+    return this.peekFirst();
+  }
+  
+  @Override
+  public void push( E element )
+  {
+    this.addFirst( element );
+  }
+  
+  @Override
+  public E pop()
+  {
+    // 
+    return this.removeFirst();
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public Iterator<E> descendingIterator()
+  {
+    //    
+    return IteratorUtils.unmodifiableIterator( ListUtils.reverse( this ).iterator() );
+  }
 }
