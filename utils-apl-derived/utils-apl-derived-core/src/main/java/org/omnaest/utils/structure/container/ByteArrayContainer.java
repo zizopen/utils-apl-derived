@@ -624,17 +624,27 @@ public class ByteArrayContainer
     this.setContent( null );
   }
   
+  /**
+   * @return
+   */
   public byte[] getContent()
   {
     return this.content;
   }
   
+  /**
+   * @param content
+   * @return
+   */
   public ByteArrayContainer setContent( byte[] content )
   {
     this.content = content;
     return this;
   }
   
+  /**
+   * @return
+   */
   public InputStream getInputStream()
   {
     InputStream is = null;

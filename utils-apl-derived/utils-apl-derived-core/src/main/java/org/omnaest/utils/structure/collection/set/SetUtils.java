@@ -17,6 +17,7 @@ package org.omnaest.utils.structure.collection.set;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
@@ -26,6 +27,7 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils.ElementFilter;
 import org.omnaest.utils.structure.collection.set.decorator.LockingSetDecorator;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.iterator.IterableUtils;
 
 /**
  * Helper for {@link Set} types
@@ -34,6 +36,36 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
  */
 public class SetUtils
 {
+  
+  /**
+   * Returns the given {@link Set} of a new instance if the given {@link Set} is null. The returned {@link Set} will have the
+   * given elements added.
+   * 
+   * @param set
+   * @param elements
+   * @return given {@link Set} or new instance if null
+   */
+  public static <E> Set<E> add( Set<E> set, E... elements )
+  {
+    //    
+    Set<E> retset = set;
+    
+    //
+    if ( retset == null )
+    {
+      retset = new LinkedHashSet<E>();
+    }
+    
+    //
+    for ( E element : elements )
+    {
+      retset.add( element );
+    }
+    
+    //
+    return retset;
+  }
+  
   /**
    * Merges all elements of the given {@link Collection} instances into one single {@link Set} instance.
    * 
@@ -91,6 +123,17 @@ public class SetUtils
   public static <E> Set<E> valueOf( E... elements )
   {
     return valueOf( Arrays.asList( elements ) );
+  }
+  
+  /**
+   * Similar to {@link #valueOf(Iterable)}
+   * 
+   * @param iterator
+   * @return
+   */
+  public static <E> Set<E> valueOf( Iterator<E> iterator )
+  {
+    return valueOf( IterableUtils.valueOf( iterator ) );
   }
   
   /**

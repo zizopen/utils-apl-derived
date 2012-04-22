@@ -21,8 +21,14 @@ import java.io.OutputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
+import org.w3c.dom.Node;
 
 /**
  * Helper class for JAXB annotated classes.
@@ -50,6 +56,18 @@ public class JAXBXMLHelper
   }
   
   /**
+   * @see #storeObjectAsXML(Object)
+   * @param object
+   * @param outputStream
+   * @param exceptionHandler
+   */
+  public static void storeObjectAsXML( Object object, OutputStream outputStream, ExceptionHandler exceptionHandler )
+  {
+    String encoding = ENCODING_UTF_8;
+    JAXBXMLHelper.storeObjectAsXML( object, outputStream, encoding, exceptionHandler );
+  }
+  
+  /**
    * Stores a given JAXB annotated object to the given {@link OutputStream} using the given character encoding
    * 
    * @see #storeObjectAsXML(Object, OutputStream)
@@ -58,6 +76,26 @@ public class JAXBXMLHelper
    * @param encoding
    */
   public static void storeObjectAsXML( Object object, OutputStream outputStream, String encoding )
+  {
+    //
+    final ExceptionHandler exceptionHandler = null;
+    storeObjectAsXML( object, outputStream, encoding, exceptionHandler );
+  }
+  
+  /**
+   * Stores a given JAXB annotated object to the given {@link OutputStream} using the given character encoding
+   * 
+   * @see #storeObjectAsXML(Object, OutputStream)
+   * @param object
+   * @param outputStream
+   * @param encoding
+   * @param exceptionHandler
+   *          {@link ExceptionHandler}
+   */
+  public static void storeObjectAsXML( Object object,
+                                       OutputStream outputStream,
+                                       String encoding,
+                                       ExceptionHandler exceptionHandler )
   {
     // 
     try
@@ -75,7 +113,10 @@ public class JAXBXMLHelper
     }
     catch ( Exception e )
     {
-      e.printStackTrace();
+      if ( exceptionHandler != null )
+      {
+        exceptionHandler.handleException( e );
+      }
     }
   }
   
@@ -128,6 +169,20 @@ public class JAXBXMLHelper
   }
   
   /**
+   * Stores the given object as XML {@link String} using the {@link #ENCODING_UTF_8}
+   * 
+   * @see #storeObjectAsXML(Object, String)
+   * @param object
+   * @param exceptionHandler
+   *          {@link ExceptionHandler}
+   * @return
+   */
+  public static String storeObjectAsXML( Object object, ExceptionHandler exceptionHandler )
+  {
+    return JAXBXMLHelper.storeObjectAsXML( object, ENCODING_UTF_8, exceptionHandler );
+  }
+  
+  /**
    * Stores the given object as XML {@link String} using the given encoding.
    * 
    * @see #storeObjectAsXML(Object, OutputStream)
@@ -149,6 +204,25 @@ public class JAXBXMLHelper
   }
   
   /**
+   * @see #storeObjectAsXML(Object, String)
+   * @param object
+   * @param encoding
+   * @param exceptionHandler
+   * @return
+   */
+  public static String storeObjectAsXML( Object object, String encoding, ExceptionHandler exceptionHandler )
+  {
+    //
+    ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+    
+    //
+    JAXBXMLHelper.storeObjectAsXML( object, byteArrayContainer.getOutputStream(), encoding, exceptionHandler );
+    
+    //
+    return byteArrayContainer.toString( encoding );
+  }
+  
+  /**
    * Loads an object from the given class type from an {@link InputStream}. The class has to have JAXB annotations.
    * 
    * @param <E>
@@ -156,8 +230,23 @@ public class JAXBXMLHelper
    * @param typeClazz
    * @return
    */
-  @SuppressWarnings("unchecked")
   public static <E> E loadObjectFromXML( InputStream inputStream, Class<E> typeClazz )
+  {
+    final ExceptionHandler exceptionHandler = null;
+    return loadObjectFromXML( inputStream, typeClazz, exceptionHandler );
+  }
+  
+  /**
+   * Loads an object of the given class type from an {@link InputStream}. The class has to have JAXB annotations.
+   * 
+   * @param <E>
+   * @param inputStream
+   * @param type
+   * @param exceptionHandler
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> E loadObjectFromXML( InputStream inputStream, Class<E> type, ExceptionHandler exceptionHandler )
   {
     //
     E retval = null;
@@ -165,14 +254,121 @@ public class JAXBXMLHelper
     //
     try
     {
-      JAXBContext context = JAXBContext.newInstance( typeClazz );
-      Unmarshaller um = context.createUnmarshaller();
+      //
+      final JAXBContext context = JAXBContext.newInstance( type );
+      final Unmarshaller um = context.createUnmarshaller();
+      
+      //
       retval = (E) um.unmarshal( inputStream );
     }
     catch ( Exception e )
     {
-      e.printStackTrace();
+      if ( exceptionHandler != null )
+      {
+        exceptionHandler.handleException( e );
+      }
     }
+    //
+    return retval;
+  }
+  
+  /**
+   * Similar to {@link #select(String, Node, ExceptionHandler)}
+   * 
+   * @param xPathExpression
+   * @param node
+   * @return
+   */
+  public static Node select( String xPathExpression, Node node )
+  {
+    //
+    final ExceptionHandler exceptionHandler = null;
+    return select( xPathExpression, node, exceptionHandler );
+  }
+  
+  /**
+   * Allows to select sub {@link Node}s by a given {@link XPath} expression
+   * 
+   * @param xPathExpression
+   * @param node
+   *          {@link Node}
+   * @param exceptionHandler
+   *          {@link ExceptionHandler}
+   * @return
+   */
+  public static Node select( String xPathExpression, Node node, ExceptionHandler exceptionHandler )
+  {
+    //
+    Node retval = null;
+    
+    //
+    final XPath xPath = XPathFactory.newInstance().newXPath();
+    try
+    {
+      retval = (Node) xPath.evaluate( xPathExpression, node, XPathConstants.NODE );
+    }
+    catch ( XPathExpressionException e )
+    {
+      if ( exceptionHandler != null )
+      {
+        exceptionHandler.handleException( e );
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Similar to {@link #loadObjectFromNode(Node, Class, ExceptionHandler)} but ignoring {@link Exception}s
+   * 
+   * @param <E>
+   * @param node
+   *          {@link Node}
+   * @param type
+   * @return
+   */
+  public static <E> E loadObjectFromNode( Node node, Class<E> type )
+  {
+    //
+    final ExceptionHandler exceptionHandler = null;
+    return loadObjectFromNode( node, type, exceptionHandler );
+  }
+  
+  /**
+   * Loads an object of the given class type from an {@link Node}. The class has to have JAXB annotations.
+   * 
+   * @param <E>
+   * @param node
+   *          {@link Node}
+   * @param type
+   * @param exceptionHandler
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> E loadObjectFromNode( Node node, Class<E> type, ExceptionHandler exceptionHandler )
+  {
+    //
+    E retval = null;
+    
+    //
+    try
+    {
+      //
+      final JAXBContext context = JAXBContext.newInstance( type );
+      final Unmarshaller um = context.createUnmarshaller();
+      
+      //
+      retval = (E) um.unmarshal( node );
+    }
+    catch ( Exception e )
+    {
+      if ( exceptionHandler != null )
+      {
+        exceptionHandler.handleException( e );
+      }
+    }
+    
     //
     return retval;
   }
@@ -188,21 +384,55 @@ public class JAXBXMLHelper
   public static <E> E loadObjectFromXML( CharSequence charSequence, Class<E> type )
   {
     //
+    final ExceptionHandler exceptionHandler = null;
+    return loadObjectFromXML( charSequence, type, exceptionHandler );
+  }
+  
+  /**
+   * Loads an {@link Object} from a {@link CharSequence} which contains valid xml text content. The given {@link Class} type
+   * specifies the root object type.
+   * 
+   * @param charSequence
+   * @param type
+   * @param exceptionHandler
+   * @return
+   */
+  public static <E> E loadObjectFromXML( CharSequence charSequence, Class<E> type, ExceptionHandler exceptionHandler )
+  {
+    //
     ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
     byteArrayContainer.copyFrom( charSequence );
     
     //
-    return JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), type );
+    return JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), type, exceptionHandler );
   }
   
+  /**
+   * @param xmlContent
+   * @param typeClazz
+   * @return
+   */
   public static <E> E loadObjectFromXML( String xmlContent, Class<E> typeClazz )
+  {
+    //
+    final ExceptionHandler exceptionHandler = null;
+    return loadObjectFromXML( xmlContent, typeClazz, exceptionHandler );
+  }
+  
+  /**
+   * @param xmlContent
+   * @param typeClazz
+   * @param exceptionHandler
+   * @return
+   */
+  public static <E> E loadObjectFromXML( String xmlContent, Class<E> typeClazz, ExceptionHandler exceptionHandler )
   {
     //
     ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
     byteArrayContainer.copyFrom( xmlContent );
     
     //
-    return JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz );
+    return JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz, exceptionHandler );
   }
   
   /**

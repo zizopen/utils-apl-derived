@@ -234,7 +234,7 @@ public class ElementStoreTest
   
   {
     //
-    final int numberOfElements = 100;
+    final int numberOfElements = 10;
     final List<TestClass> testClassList = newTestClassList( numberOfElements );
     
     //
@@ -250,7 +250,7 @@ public class ElementStoreTest
   public void testAdd()
   {
     //
-    final int numberOfElements = 100;
+    final int numberOfElements = 10;
     final List<TestClass> testClassList = newTestClassList( numberOfElements );
     
     //
@@ -273,12 +273,12 @@ public class ElementStoreTest
     assertTrue( this.elementStore.isEmpty() );
   }
   
-  @PerfTest(invocations = 60, threads = 5)
+  @PerfTest(invocations = 10, threads = 2)
   @Test
   public void testMultithreadedAdd() throws InterruptedException
   {
     //
-    final int numberOfElements = 20;
+    final int numberOfElements = 10;
     final List<TestClass> testClassList = newTestClassList( numberOfElements );
     
     //
@@ -301,7 +301,7 @@ public class ElementStoreTest
   public void testNewIndex()
   {
     //
-    final List<TestClass> testClassList = ElementStoreTest.newTestClassList( 100 );
+    final List<TestClass> testClassList = ElementStoreTest.newTestClassList( 10 );
     this.elementStore.addAll( testClassList );
     
     //
@@ -343,7 +343,7 @@ public class ElementStoreTest
   public void testNewIndexWithCalendar()
   {
     //
-    final List<TestClass> testClassList = ElementStoreTest.newTestClassList( 100 );
+    final List<TestClass> testClassList = ElementStoreTest.newTestClassList( 10 );
     this.elementStore.addAll( testClassList );
     
     //
@@ -375,7 +375,7 @@ public class ElementStoreTest
     this.elementStore.setPersistenceExecutionControl( persistenceExecutionControl );
     
     //
-    final List<TestClass> testClassList = ElementStoreTest.newTestClassList( 100 );
+    final List<TestClass> testClassList = ElementStoreTest.newTestClassList( 10 );
     this.elementStore.addAll( testClassList );
     assertTrue( this.elementStore.containsAll( testClassList ) );
     

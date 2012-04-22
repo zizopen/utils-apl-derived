@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.iterator;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.omnaest.utils.structure.collection.list.ListUtils;
 
@@ -64,7 +65,13 @@ public class IteratorDecoratorSwitchable<E> implements Iterator<E>
   {
     //
     final Iterator<E> activeIterator = this.getActiveIterator();
-    return activeIterator != null ? activeIterator.next() : null;
+    if ( activeIterator == null )
+    {
+      throw new NoSuchElementException();
+    }
+    
+    //
+    return activeIterator.next();
   }
   
   @Override

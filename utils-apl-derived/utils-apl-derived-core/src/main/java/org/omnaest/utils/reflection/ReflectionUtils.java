@@ -632,28 +632,122 @@ public class ReflectionUtils
   }
   
   /**
+   * Returns the {@link Annotation} instance for the given type and annotation type. If no matching annotation type is found null
+   * is returned. The matching includes any super interfaces as well.
+   * 
+   * @see #hasAnnotationIncludingInterfaces(Class, Class)
+   * @see #annotation(Class, Class)
+   * @see #declaredAnnotation(Class, Class)
+   * @param type
+   * @param annotationType
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <A extends Annotation> A annotationIncludingInterfaces( Class<?> type, Class<? extends A> annotationType )
+  {
+    //
+    A retval = null;
+    
+    //
+    final List<Annotation> annotationList = annotationList( type );
+    for ( Annotation annotation : annotationList )
+    {
+      if ( annotation.annotationType().equals( annotationType ) )
+      {
+        retval = (A) annotation;
+        break;
+      }
+    }
+    
+    //
+    if ( retval == null )
+    {
+      //
+      final boolean inherited = true;
+      final Set<Class<?>> interfaceSet = interfaceSet( type, inherited );
+      for ( Class<?> interfaceType : interfaceSet )
+      {
+        //
+        final A declaredAnnotation = declaredAnnotation( interfaceType, annotationType );
+        if ( declaredAnnotation != null )
+        {
+          retval = declaredAnnotation;
+          break;
+        }
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
    * Returns true if the given {@link Class} type declares or inherits the given {@link Annotation} class from any supertype, but
    * not from interfaces
    * 
    * @see #hasDeclaredAnnotation(Class, Class)
    * @see #hasAnnotationIncludingInterfaces(Class, Class)
+   * @see #annotation(Class, Class)
    * @param type
    * @param annotationType
    * @return
    */
   public static boolean hasAnnotation( Class<?> type, Class<? extends Annotation> annotationType )
   {
+    return annotation( annotationType, annotationType ) != null;
+  }
+  
+  /**
+   * Returns the {@link Annotation} instance for any {@link Annotation} declared on a {@link Package} with the given type of
+   * {@link Annotation}
+   * 
+   * @param package_
+   * @param annotationType
+   * @return
+   */
+  public static <A extends Annotation> A annotation( Package package_, Class<? extends A> annotationType )
+  {
     //
-    boolean retval = false;
+    A retval = null;
     
     //
-    List<Annotation> annotationList = annotationList( type );
-    for ( Annotation annotation : annotationList )
+    if ( package_ != null )
     {
-      if ( annotation.annotationType().equals( annotationType ) )
+      retval = package_.getAnnotation( annotationType );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns the {@link Annotation} instance for the given type and annotation type. If no matching annotation type is found null
+   * is returned.
+   * 
+   * @see #hasAnnotation(Class, Class)
+   * @see #annotationIncludingInterfaces(Class, Class)
+   * @see #declaredAnnotation(Class, Class)
+   * @param type
+   * @param annotationType
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <A extends Annotation> A annotation( Class<?> type, Class<? extends A> annotationType )
+  {
+    //
+    A retval = null;
+    
+    //
+    if ( type != null && annotationType != null )
+    {
+      List<Annotation> annotationList = annotationList( type );
+      for ( Annotation annotation : annotationList )
       {
-        retval = true;
-        break;
+        if ( annotation.annotationType().equals( annotationType ) )
+        {
+          retval = (A) annotation;
+          break;
+        }
       }
     }
     
@@ -692,44 +786,14 @@ public class ReflectionUtils
    * Returns true if the given {@link Class} type declares or inherits the given {@link Annotation} class from any supertype, but
    * not from interfaces
    * 
+   * @see #annotationIncludingInterfaces(Class, Class)
    * @param type
    * @param annotationType
    * @return
    */
   public static boolean hasAnnotationIncludingInterfaces( Class<?> type, Class<? extends Annotation> annotationType )
   {
-    //
-    boolean retval = false;
-    
-    //
-    final List<Annotation> annotationList = annotationList( type );
-    for ( Annotation annotation : annotationList )
-    {
-      if ( annotation.annotationType().equals( annotationType ) )
-      {
-        retval = true;
-        break;
-      }
-    }
-    
-    //
-    if ( !retval )
-    {
-      //
-      final boolean inherited = true;
-      final Set<Class<?>> interfaceSet = interfaceSet( type, inherited );
-      for ( Class<?> interfaceType : interfaceSet )
-      {
-        if ( hasDeclaredAnnotation( interfaceType, annotationType ) )
-        {
-          retval = true;
-          break;
-        }
-      }
-    }
-    
-    //
-    return retval;
+    return annotationIncludingInterfaces( annotationType, annotationType ) != null;
   }
   
   /**
@@ -741,17 +805,36 @@ public class ReflectionUtils
    */
   public static boolean hasDeclaredAnnotation( Class<?> type, Class<? extends Annotation> annotationType )
   {
+    return declaredAnnotation( annotationType, annotationType ) != null;
+  }
+  
+  /**
+   * Returns the {@link Annotation} if the given {@link Class} type declares the given {@link Annotation} class
+   * 
+   * @see #annotation(Class, Class)
+   * @see #annotationIncludingInterfaces(Class, Class)
+   * @param type
+   * @param annotationType
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <A extends Annotation> A declaredAnnotation( Class<?> type, Class<? extends A> annotationType )
+  {
     //
-    boolean retval = false;
+    A retval = null;
     
     //
-    List<Annotation> declaredAnnotationList = declaredAnnotationList( type );
-    for ( Annotation declaredAnnotation : declaredAnnotationList )
+    if ( type != null && annotationType != null )
     {
-      if ( declaredAnnotation.annotationType().equals( annotationType ) )
+      //
+      final List<Annotation> declaredAnnotationList = declaredAnnotationList( type );
+      for ( Annotation declaredAnnotation : declaredAnnotationList )
       {
-        retval = true;
-        break;
+        if ( declaredAnnotation.annotationType().equals( annotationType ) )
+        {
+          retval = (A) declaredAnnotation;
+          break;
+        }
       }
     }
     

@@ -116,7 +116,7 @@ public class FutureTaskManager
    * for the resulting {@link FutureTask}
    * 
    * @param executorService
-   * @param callable
+   * @param runnable
    */
   @SuppressWarnings({ "unchecked", "rawtypes", "cast" })
   public void submitAndManage( ExecutorService executorService, Runnable runnable )
@@ -211,7 +211,6 @@ public class FutureTaskManager
   /**
    * @see #submitAndManage(ExecutorService, Callable)
    * @see #submitAndManage(Callable)
-   * @param callableTaskSubmitter
    * @param callableCollection
    * @param submitCount
    */
@@ -244,11 +243,12 @@ public class FutureTaskManager
    * 
    * @return {@link ExceptionHandledResult}
    */
-  public ExceptionHandledResult<List<Object>> waitForAllTasksToFinish()
+  @SuppressWarnings("unchecked")
+  public <V> ExceptionHandledResult<List<V>> waitForAllTasksToFinish()
   {
     //
     Collection<Exception> exceptionCollection = new ArrayList<Exception>();
-    List<Object> result = new ArrayList<Object>();
+    List<V> result = new ArrayList<V>();
     
     //
     for ( Future<?> future : this.futureList )
@@ -257,12 +257,12 @@ public class FutureTaskManager
       ExceptionHandledResult<?> exceptionHandledResult = waitForTaskToFinish( future );
       
       //
-      result.add( exceptionHandledResult.getResult() );
+      result.add( (V) exceptionHandledResult.getResult() );
       exceptionCollection.addAll( exceptionHandledResult.getExceptionList() );
     }
     
     //
-    return new ExceptionHandledResult<List<Object>>( result, exceptionCollection );
+    return new ExceptionHandledResult<List<V>>( result, exceptionCollection );
   }
   
   /**
@@ -338,6 +338,16 @@ public class FutureTaskManager
   public List<Future<?>> getFutureList()
   {
     return this.futureList;
+  }
+  
+  /**
+   * Returns true if this {@link FutureTaskManager} has an {@link ExecutorService} available
+   * 
+   * @return
+   */
+  public boolean hasExecutorService()
+  {
+    return this.executorService != null;
   }
   
 }

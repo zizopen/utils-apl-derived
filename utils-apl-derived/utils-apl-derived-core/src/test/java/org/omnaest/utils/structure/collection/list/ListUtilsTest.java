@@ -187,4 +187,10 @@ public class ListUtilsTest
   {
     assertEquals( Arrays.asList( "a", "b", "b", "c" ), ListUtils.sorted( Arrays.asList( "b", "a", "b", "c" ) ) );
   }
+  
+  @Test
+    public void testAddToNewList()
+    {
+      assertEquals( Arrays.asList( "a", "b", "b", "c" ), ListUtils.addToNewList( Arrays.asList( "a", "b" ), "b", "c" ) );
+    }
 }

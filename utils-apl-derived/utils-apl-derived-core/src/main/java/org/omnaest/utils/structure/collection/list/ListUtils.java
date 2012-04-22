@@ -622,9 +622,16 @@ public class ListUtils
     //
     if ( iterable != null )
     {
-      for ( E element : iterable )
+      //
+      final Iterator<E> iterator = iterable.iterator();
+      if ( iterator != null )
       {
-        retlist.add( element );
+        while ( iterator.hasNext() )
+        {
+          //
+          final E element = iterator.next();
+          retlist.add( element );
+        }
       }
     }
     
@@ -859,6 +866,69 @@ public class ListUtils
   public static <E> List<E> mergeAll( Collection<E>... collections )
   {
     return ListUtils.mergeAll( Arrays.asList( collections ) );
+  }
+  
+  /**
+   * Returns a new {@link List} instance which contains all elements of the given {@link List} and additionally all further given
+   * elements. <br>
+   * <br>
+   * This function will return always a new instance, even if the given list is null.
+   * 
+   * @param list
+   * @param elements
+   * @return new {@link List} instance
+   */
+  public static <E> List<E> addToNewList( List<? extends E> list, E... elements )
+  {
+    //
+    List<E> retlist = new ArrayList<E>();
+    
+    //
+    if ( list != null )
+    {
+      retlist.addAll( list );
+    }
+    
+    //
+    for ( E element : elements )
+    {
+      retlist.add( element );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Returns the given {@link List} instance or a new {@link List} instance if the given one is null. The returned instance will
+   * contain all elements of the given {@link List} and additionally all further given elements. <br>
+   * <br>
+   * This function will return always a new instance, even if the given list is null.
+   * 
+   * @param list
+   * @param elements
+   * @return given {@link List} instance or new {@link List} instance if given {@link List} instance is null
+   */
+  public static <E> List<E> add( List<? extends E> list, E... elements )
+  {
+    //
+    @SuppressWarnings("unchecked")
+    List<E> retlist = (List<E>) list;
+    
+    //
+    if ( list == null )
+    {
+      retlist = new ArrayList<E>();
+    }
+    
+    //
+    for ( E element : elements )
+    {
+      retlist.add( element );
+    }
+    
+    //
+    return retlist;
   }
   
   /**
