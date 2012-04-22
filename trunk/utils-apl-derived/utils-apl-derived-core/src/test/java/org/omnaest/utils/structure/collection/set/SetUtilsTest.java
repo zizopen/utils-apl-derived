@@ -18,11 +18,12 @@ package org.omnaest.utils.structure.collection.set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
-import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 
 public class SetUtilsTest
 {
@@ -47,4 +48,10 @@ public class SetUtilsTest
     assertTrue( mergedSets.contains( sets[1].toArray()[1] ) );
   }
   
+  @Test
+  public void testAdd()
+  {
+    assertEquals( Arrays.asList( "a", "b", "c", "d" ),
+                  ListUtils.valueOf( SetUtils.add( SetUtils.valueOf( "a", "b" ), "b", "c", "d" ) ) );
+  }
 }

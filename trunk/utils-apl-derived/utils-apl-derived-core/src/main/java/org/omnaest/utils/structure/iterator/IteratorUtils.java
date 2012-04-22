@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.iterator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -23,6 +24,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.factory.Factory;
@@ -165,6 +167,58 @@ public class IteratorUtils
         }
       }
     };
+  }
+  
+  /**
+   * Merges all elements immediately into a single and new {@link Iterator} instance.<br>
+   * All given {@link Iterator} instances will be traversed after calling this method.
+   * 
+   * @see #chained(Iterator...)
+   * @param iterators
+   * @return
+   */
+  public static <E> Iterator<E> merge( Iterator<E>... iterators )
+  {
+    //
+    final List<E> retlist = new ArrayList<E>();
+    
+    //
+    for ( Iterator<E> iterator : iterators )
+    {
+      retlist.addAll( ListUtils.valueOf( iterator ) );
+    }
+    
+    //
+    return retlist.iterator();
+  }
+  
+  /**
+   * Returns a new {@link Iterator} instance which contains all elements from the given {@link Iterator} and the additional given
+   * elements. <br>
+   * All given {@link Iterator} instances will be traversed after calling this method.
+   * 
+   * @see #chained(Iterator...)
+   * @param iterator
+   * @param elements
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> Iterator<E> addToNewIterator( Iterator<E> iterator, E... elements )
+  {
+    return merge( iterator, Arrays.asList( elements ).iterator() );
+  }
+  
+  /**
+   * Returns an {@link Iterator} wrapper which chains the given {@link Iterator} instances. The single {@link Iterator} instances
+   * will only executed when the returned wrapper iterator points to them.
+   * 
+   * @see #merge(Iterator...)
+   * @param iterators
+   * @return
+   */
+  public static <E> Iterator<E> chained( Iterator<E>... iterators )
+  {
+    return new ChainedIterator<E>( iterators );
   }
   
   /**

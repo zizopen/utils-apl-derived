@@ -18,22 +18,18 @@ package org.omnaest.utils.xml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.omnaest.utils.structure.container.ByteArrayContainer;
 
+/**
+ * @see JAXBXMLHelper
+ * @author Omnaest
+ */
 public class JAXBXMLHelperTest
 {
-  
-  @Before
-  public void setUp() throws Exception
-  {
-  }
-  
+  /* ********************************************** Classes/Interfaces ********************************************** */
   @XmlRootElement
   public static class Mock
   {
@@ -41,6 +37,7 @@ public class JAXBXMLHelperTest
     public boolean fieldBoolean = true;
   }
   
+  /* ********************************************** Methods ********************************************** */
   @Test
   public void testStoreAndLoadObjectAsXML()
   {
@@ -49,14 +46,14 @@ public class JAXBXMLHelperTest
       //
       Mock mock = new Mock();
       
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      JAXBXMLHelper.storeObjectAsXML( mock, bos );
-      bos.close();
+      ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+      JAXBXMLHelper.storeObjectAsXML( mock, byteArrayContainer.getOutputStream() );
       
       //
-      byte[] buffer = bos.toByteArray();
-      ByteArrayInputStream bis = new ByteArrayInputStream( buffer );
-      Mock mockResult = JAXBXMLHelper.loadObjectFromXML( bis, Mock.class );
+      //System.out.println( byteArrayContainer );
+      
+      //
+      Mock mockResult = JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), Mock.class );
       
       //      
       assertEquals( mock.fieldString, mockResult.fieldString );

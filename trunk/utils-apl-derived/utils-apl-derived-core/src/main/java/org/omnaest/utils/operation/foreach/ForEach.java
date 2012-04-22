@@ -16,13 +16,19 @@
 package org.omnaest.utils.operation.foreach;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
 
 import org.omnaest.utils.operation.Operation;
 import org.omnaest.utils.operation.foreach.ForEach.Result;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
 import org.omnaest.utils.structure.collection.list.decorator.ListDecorator;
+import org.omnaest.utils.threads.FutureTaskManager;
 
 /**
  * A {@link ForEach} will iterate over a given {@link Iterable} instance and executes a given {@link List} of {@link Operation}s.
@@ -38,7 +44,12 @@ import org.omnaest.utils.structure.collection.list.decorator.ListDecorator;
 public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
 {
   /* ********************************************** Variables ********************************************** */
-  protected final Iterable<E>[] iterables;
+  private final Iterable<E>[] iterables;
+  
+  /* ********************************************** Beans / Services / References ********************************************** */
+  private ExecutorService     executorServiceForParallelExecution = null;
+  private ExecutorService     executorServiceForParallelIteration = null;
+  private int                 numberOfThreadsForParallelIteration = 1;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -195,8 +206,32 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
    * @param operations
    * @return
    */
-  @SuppressWarnings("unchecked")
   public Result<V> execute( Operation<V, E>... operations )
+  {
+    //
+    Result<V> retval = null;
+    
+    //
+    if ( this.executorServiceForParallelExecution != null || this.executorServiceForParallelIteration != null )
+    {
+      retval = this.executeMultiThreaded( operations );
+    }
+    else
+    {
+      retval = this.executeSingleThreaded( operations );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * @see #execute(Operation...)
+   * @param operations
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  private Result<V> executeSingleThreaded( Operation<V, E>... operations )
   {
     //
     List<V> retlist = new ArrayList<V>();
@@ -221,6 +256,131 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
     
     //
     return new Result<V>( org.apache.commons.collections.ListUtils.unmodifiableList( retlist ) );
+  }
+  
+  /**
+   * @see #execute(Operation...)
+   * @param operations
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  private Result<V> executeMultiThreaded( final Operation<V, E>... operations )
+  {
+    //
+    final List<V> retlist = new CopyOnWriteArrayList<V>();
+    
+    //
+    final FutureTaskManager futureTaskManagerExecution = new FutureTaskManager( this.executorServiceForParallelExecution );
+    final FutureTaskManager futureTaskManagerIteration = new FutureTaskManager( this.executorServiceForParallelIteration );
+    
+    //    
+    for ( Iterable<E> iterable : this.iterables )
+    {
+      if ( iterable != null )
+      {
+        //
+        final Iterator<E> iterator = iterable.iterator();
+        final Runnable runnableForIteration = new Runnable()
+        {
+          @Override
+          public void run()
+          {
+            //
+            try
+            {
+              while ( true )
+              {
+                //
+                final E element = iterator.next();
+                
+                //
+                for ( final Operation<V, E> operation : operations )
+                {
+                  if ( operation != null )
+                  {
+                    if ( futureTaskManagerExecution.hasExecutorService() )
+                    {
+                      futureTaskManagerExecution.submitAndManage( new Callable<V>()
+                      {
+                        @Override
+                        public V call() throws Exception
+                        {
+                          return operation.execute( element );
+                        }
+                      } );
+                    }
+                    else
+                    {
+                      retlist.add( operation.execute( element ) );
+                    }
+                  }
+                }
+              }
+              
+            }
+            catch ( NoSuchElementException e )
+            {
+            }
+            
+            //
+            if ( futureTaskManagerExecution.hasExecutorService() )
+            {
+              retlist.addAll( (List<V>) futureTaskManagerExecution.waitForAllTasksToFinish().getResult() );
+            }
+          }
+        };
+        
+        //
+        if ( futureTaskManagerIteration.hasExecutorService() )
+        {
+          //
+          for ( int ii = 1; ii <= this.numberOfThreadsForParallelIteration; ii++ )
+          {
+            futureTaskManagerIteration.submitAndManage( runnableForIteration );
+          }
+          
+          //
+          futureTaskManagerIteration.waitForAllTasksToFinish();
+        }
+        else
+        {
+          runnableForIteration.run();
+        }
+      }
+    }
+    
+    //
+    return new Result<V>( org.apache.commons.collections.ListUtils.unmodifiableList( retlist ) );
+  }
+  
+  /**
+   * @param executorService
+   *          the executorService to set
+   * @return this
+   */
+  public ForEach<E, V> doExecuteInParallelUsing( ExecutorService executorService )
+  {
+    this.executorServiceForParallelExecution = executorService;
+    return this;
+  }
+  
+  /**
+   * If this option is used, the given {@link Iterable}s have to have threadsafe {@link Iterable#iterator()} instances, since even
+   * the {@link Iterator}s will be called from parallel running threads.<br>
+   * <br>
+   * Be aware that several default implementations like {@link ArrayList} do not provide thread safe iterators, so do only use
+   * this option, if you have special {@link Iterator}s in place.
+   * 
+   * @param executorService
+   *          the executorService to set
+   * @param numberOfThreads
+   * @return this
+   */
+  public ForEach<E, V> doIterateInParallelUsing( ExecutorService executorService, int numberOfThreads )
+  {
+    this.executorServiceForParallelIteration = executorService;
+    this.numberOfThreadsForParallelIteration = numberOfThreads;
+    return this;
   }
   
 }
