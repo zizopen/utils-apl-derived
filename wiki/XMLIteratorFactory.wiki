@@ -1,0 +1,6 @@
+#summary Iterator factory to create chunked xml streams using StAX and JAXB
+#labels xml,chunk,jaxb,stax,iterator,stream
+
+= XMLIteratorFactory =
+
+The XMLIteratorFactory allows to break a given InputStream of xml content into sub chunks of strings or objects generated using JAXB.
