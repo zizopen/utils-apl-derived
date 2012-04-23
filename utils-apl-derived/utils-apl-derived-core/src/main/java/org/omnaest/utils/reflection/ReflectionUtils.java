@@ -137,7 +137,7 @@ public class ReflectionUtils
    * Determines the index position of a declared {@link Field} within a given {@link Class}.
    * 
    * @param clazz
-   * @param field
+   * @param fieldname
    * @return -1 if the {@link Field} could not be determined at all.
    */
   public static int declaredFieldIndexPosition( Class<?> clazz, String fieldname )
@@ -522,7 +522,7 @@ public class ReflectionUtils
    * Methods which will have no matching {@link Annotation}s will be excluded and will not show as keys.
    * 
    * @param type
-   * @param annotation
+   * @param annotationType
    * @return
    */
   public static <A extends Annotation> Map<Method, A> methodToAnnotationMap( final Class<?> type, final Class<A> annotationType )
@@ -694,7 +694,7 @@ public class ReflectionUtils
    */
   public static boolean hasAnnotation( Class<?> type, Class<? extends Annotation> annotationType )
   {
-    return annotation( annotationType, annotationType ) != null;
+    return annotation( type, annotationType ) != null;
   }
   
   /**
@@ -793,7 +793,7 @@ public class ReflectionUtils
    */
   public static boolean hasAnnotationIncludingInterfaces( Class<?> type, Class<? extends Annotation> annotationType )
   {
-    return annotationIncludingInterfaces( annotationType, annotationType ) != null;
+    return annotationIncludingInterfaces( type, annotationType ) != null;
   }
   
   /**
@@ -805,7 +805,7 @@ public class ReflectionUtils
    */
   public static boolean hasDeclaredAnnotation( Class<?> type, Class<? extends Annotation> annotationType )
   {
-    return declaredAnnotation( annotationType, annotationType ) != null;
+    return declaredAnnotation( type, annotationType ) != null;
   }
   
   /**

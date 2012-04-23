@@ -145,7 +145,7 @@ public class ElementStore<E> extends CollectionAbstract<E>
   public static class PersistenceExecutionControlUsingExecutorService<E> implements PersistenceExecutionControl<E>
   {
     /* ********************************************** Constants ********************************************** */
-    private static final int        NUMBER_OF_THREADS = 5;
+    private static final int        NUMBER_OF_THREADS = 8;
     /* ********************************************** Beans / Services / References ********************************************** */
     protected final ExecutorService executorService;
     
@@ -171,7 +171,10 @@ public class ElementStore<E> extends CollectionAbstract<E>
      */
     public PersistenceExecutionControlUsingExecutorService()
     {
+      //
       super();
+      
+      //
       this.executorService = Executors.newFixedThreadPool( PersistenceExecutionControlUsingExecutorService.NUMBER_OF_THREADS );
     }
     

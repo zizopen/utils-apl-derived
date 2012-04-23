@@ -26,6 +26,9 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
@@ -371,17 +374,25 @@ public class ElementStoreTest
   public void testExecutorServiceBasedPersistenceOperation() throws InterruptedException
   {
     //
-    final PersistenceExecutionControl<TestClass> persistenceExecutionControl = new ElementStore.PersistenceExecutionControlUsingExecutorService<TestClass>();
+    final ExecutorService executorService = Executors.newFixedThreadPool( 8 );
+    final PersistenceExecutionControl<TestClass> persistenceExecutionControl = new ElementStore.PersistenceExecutionControlUsingExecutorService<TestClass>(
+                                                                                                                                                            executorService );
     this.elementStore.setPersistenceExecutionControl( persistenceExecutionControl );
     
     //
-    final List<TestClass> testClassList = ElementStoreTest.newTestClassList( 10 );
+    final List<TestClass> testClassList = ElementStoreTest.newTestClassList( 50 );
     this.elementStore.addAll( testClassList );
     assertTrue( this.elementStore.containsAll( testClassList ) );
     
     //
+    Thread.sleep( 100 );
+    
+    //
     this.elementStore.clear();
     
+    //
+    executorService.shutdown();
+    executorService.awaitTermination( 2, TimeUnit.SECONDS );
   }
   
   /**

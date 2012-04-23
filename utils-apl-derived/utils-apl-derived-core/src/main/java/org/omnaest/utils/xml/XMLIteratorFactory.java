@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchema;
@@ -49,6 +50,7 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCast;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.iterator.IteratorUtils;
+import org.omnaest.utils.structure.map.MapUtils;
 
 /**
  * The {@link XMLIteratorFactory} is a wrapper around StAX and JAXB which allows to split a given xml {@link InputStream} content
@@ -59,6 +61,7 @@ import org.omnaest.utils.structure.iterator.IteratorUtils;
 public class XMLIteratorFactory
 {
   /* ********************************************** Variables ********************************************** */
+  private final InputStream         inputStream;
   private final XMLEventReader      xmlEventReader;
   private List<XMLEventTransformer> xmlEventTransformerList = new ArrayList<XMLEventTransformer>();
   
@@ -452,6 +455,7 @@ public class XMLIteratorFactory
     
     //
     this.exceptionHandler = exceptionHandler;
+    this.inputStream = inputStream;
     this.xmlEventReader = createXmlEventReader( inputStream, exceptionHandler );
   }
   
@@ -473,14 +477,16 @@ public class XMLIteratorFactory
    * @param xmlEventReader
    * @param xmlTransformerList
    * @param exceptionHandler
+   * @param inputStream
    */
   private XMLIteratorFactory( XMLEventReader xmlEventReader, List<XMLEventTransformer> xmlTransformerList,
-                              ExceptionHandler exceptionHandler )
+                              ExceptionHandler exceptionHandler, InputStream inputStream )
   {
     super();
     this.xmlEventReader = xmlEventReader;
     this.xmlEventTransformerList = xmlTransformerList;
     this.exceptionHandler = exceptionHandler;
+    this.inputStream = inputStream;
   }
   
   /**
@@ -524,7 +530,8 @@ public class XMLIteratorFactory
     if ( xmlEventTransformer != null )
     {
       retval = new XMLIteratorFactory( this.xmlEventReader, ListUtils.addToNewList( this.xmlEventTransformerList,
-                                                                                    xmlEventTransformer ), this.exceptionHandler );
+                                                                                    xmlEventTransformer ), this.exceptionHandler,
+                                       this.inputStream );
     }
     
     //
@@ -557,20 +564,58 @@ public class XMLIteratorFactory
   }
   
   /**
+   * New {@link Iterator} which returns xml content chunks for all xml tags matching the given {@link QName} <br>
+   * <br>
+   * Performance is fast with about <b>10000 elements per second</b> beeing processed
+   * 
+   * @see #newIterator(QName, ElementConverter)
    * @param qName
    *          {@link QName}
    * @return
    */
-  public <E> Iterator<String> newIterator( final QName qName )
+  public Iterator<String> newIterator( final QName qName )
   {
     //
     return newIterator( qName, new ElementConverterIdentitiyCast<String, String>() );
   }
   
   /**
+   * New {@link Iterator} which returns {@link Map} entities each based on a single content chunk which are produced for all xml
+   * tags matching the given {@link QName} <br>
+   * <br>
+   * Performance is medium to slow with about <b>1000 elements per second</b> beeing processed
+   * 
+   * @see #newIterator(QName, ElementConverter)
+   * @param qName
+   *          {@link QName}
+   * @return
+   */
+  public Iterator<Map<String, Object>> newIteratorMapBased( final QName qName )
+  {
+    //
+    final ElementConverter<String, Map<String, Object>> elementConverter = new ElementConverter<String, Map<String, Object>>()
+    {
+      @SuppressWarnings("unchecked")
+      @Override
+      public Map<String, Object> convert( String element )
+      {
+        final Entry<String, Object> firstEntry = MapUtils.firstEntry( XMLHelper.newMapFromXML( element,
+                                                                                               XMLIteratorFactory.this.exceptionHandler ) );
+        Object value = firstEntry != null ? firstEntry.getValue() : null;
+        return (Map<String, Object>) ( value instanceof Map ? value : null );
+      }
+    };
+    return newIterator( qName, elementConverter );
+  }
+  
+  /**
+   * Similar to {@link #newIterator(QName)} but allows to specify an additional {@link ElementConverter} which post processes the
+   * extracted xml chunks
+   * 
    * @param qName
    *          {@link QName}
    * @param elementConverter
+   *          {@link ElementConverter}
    * @return
    */
   public <E> Iterator<E> newIterator( final QName qName, ElementConverter<String, E> elementConverter )
@@ -581,6 +626,11 @@ public class XMLIteratorFactory
   }
   
   /**
+   * Selects xml parts based on {@link Class}es annotated with JAXB compliant annotations and uses JAXB to create instances of the
+   * given type based on the data of the extracted xml chunks. <br>
+   * <br>
+   * Performance is slow with about <b>500 elements per second</b> beeing processed
+   * 
    * @param type
    * @return
    */
@@ -637,6 +687,8 @@ public class XMLIteratorFactory
   }
   
   /**
+   * Similar to {@link #newIterator(Class)} but allows to specify a {@link XMLElementSelector} to select tags from the xml stream.
+   * 
    * @param xmlElementSelector
    *          {@link XMLElementSelector}
    * @param type
@@ -657,6 +709,9 @@ public class XMLIteratorFactory
   }
   
   /**
+   * Similar to {@link #newIterator(QName, ElementConverter)} but allows to specify a more general {@link XMLElementSelector}
+   * instead of a {@link QName}
+   * 
    * @param xmlElementSelector
    *          {@link XMLElementSelector}
    * @param elementConverter
@@ -672,6 +727,9 @@ public class XMLIteratorFactory
   }
   
   /**
+   * Similar to {@link #newIterator(QName)} but allows to specify a more general {@link XMLElementSelector} instead of a
+   * {@link QName}
+   * 
    * @param xmlElementSelector
    * @return
    */
@@ -753,6 +811,7 @@ public class XMLIteratorFactory
               final OutputStream outputStream = byteArrayContainerOut.getOutputStream();
               final XMLEventConsumer xmlEventConsumer = xmlOutputFactory.createXMLEventWriter( outputStream );
               final List<QName> qNameList = this.qNameList;
+              final InputStream inputStream = XMLIteratorFactory.this.inputStream;
               
               //
               final class SelectionContextImpl implements XMLIteratorFactory.XMLElementSelector.SelectionContext
@@ -857,6 +916,13 @@ public class XMLIteratorFactory
               if ( byteArrayContainerOut.isNotEmpty() )
               {
                 retval = byteArrayContainerOut.toString( ByteArrayContainer.ENCODING_UTF8 );
+              }
+              
+              //
+              if ( !xmlEventReader.hasNext() )
+              {
+                xmlEventReader.close();
+                inputStream.close();
               }
             }
             catch ( Exception e )
