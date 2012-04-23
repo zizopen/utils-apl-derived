@@ -21,10 +21,6 @@ import java.io.OutputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
@@ -33,6 +29,7 @@ import org.w3c.dom.Node;
 /**
  * Helper class for JAXB annotated classes.
  * 
+ * @see XMLHelper
  * @author Omnaest
  */
 public class JAXBXMLHelper
@@ -268,53 +265,6 @@ public class JAXBXMLHelper
         exceptionHandler.handleException( e );
       }
     }
-    //
-    return retval;
-  }
-  
-  /**
-   * Similar to {@link #select(String, Node, ExceptionHandler)}
-   * 
-   * @param xPathExpression
-   * @param node
-   * @return
-   */
-  public static Node select( String xPathExpression, Node node )
-  {
-    //
-    final ExceptionHandler exceptionHandler = null;
-    return select( xPathExpression, node, exceptionHandler );
-  }
-  
-  /**
-   * Allows to select sub {@link Node}s by a given {@link XPath} expression
-   * 
-   * @param xPathExpression
-   * @param node
-   *          {@link Node}
-   * @param exceptionHandler
-   *          {@link ExceptionHandler}
-   * @return
-   */
-  public static Node select( String xPathExpression, Node node, ExceptionHandler exceptionHandler )
-  {
-    //
-    Node retval = null;
-    
-    //
-    final XPath xPath = XPathFactory.newInstance().newXPath();
-    try
-    {
-      retval = (Node) xPath.evaluate( xPathExpression, node, XPathConstants.NODE );
-    }
-    catch ( XPathExpressionException e )
-    {
-      if ( exceptionHandler != null )
-      {
-        exceptionHandler.handleException( e );
-      }
-    }
-    
     //
     return retval;
   }

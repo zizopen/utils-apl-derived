@@ -118,4 +118,19 @@ public class SimpleEntry<K, V> implements Entry<K, V>
     return retval;
   }
   
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "SimpleEntry [key=" );
+    builder.append( this.key );
+    builder.append( ", value=" );
+    builder.append( this.value );
+    builder.append( "]" );
+    return builder.toString();
+  }
+  
 }

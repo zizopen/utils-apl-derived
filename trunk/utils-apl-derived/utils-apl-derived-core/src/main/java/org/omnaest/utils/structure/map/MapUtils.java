@@ -42,6 +42,7 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.element.factory.FactoryParameterized;
+import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.map.decorator.LockingMapDecorator;
 import org.omnaest.utils.structure.map.decorator.MapDecorator;
 import org.omnaest.utils.structure.map.decorator.SortedMapDecorator;
@@ -894,6 +895,28 @@ public class MapUtils
           }
         }
       }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns the first {@link Entry} of a given {@link Map} or null if the {@link Map} reference is null or the {@link Map} is
+   * empty
+   * 
+   * @param map
+   * @return
+   */
+  public static <K, V> Entry<K, V> firstEntry( Map<K, V> map )
+  {
+    //    
+    Entry<K, V> retval = null;
+    
+    //
+    if ( map != null && !map.isEmpty() )
+    {
+      retval = IterableUtils.firstElement( map.entrySet() );
     }
     
     //
