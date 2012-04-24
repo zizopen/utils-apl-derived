@@ -23,16 +23,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchema;
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.Namespace;
@@ -51,22 +52,94 @@ import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCa
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.iterator.IteratorUtils;
 import org.omnaest.utils.structure.map.MapUtils;
+import org.omnaest.utils.xml.XMLIteratorFactory.XMLElementSelector.SelectionContext;
+import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformer;
+import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformerLowerCase;
+import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformerRemoveNamespace;
+import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformerUpperCase;
 
 /**
  * The {@link XMLIteratorFactory} is a wrapper around StAX and JAXB which allows to split a given xml {@link InputStream} content
- * into object or string content chunks.
+ * into {@link Object}, {@link Map} or {@link String} content chunks. <br>
+ * <br>
+ * <h2>Example:</h2><br>
+ * Code using the {@link XMLIteratorFactory} to create an {@link Iterator} instance for all book elements:
+ * 
+ * <pre>
+ * Iterator&lt;Book&gt; iterator = new XMLIteratorFactory( inputStream ).doLowerCaseXMLTagAndAttributeNames().newIterator( Book.class );
+ * </pre>
+ * 
+ * <br>
+ * XML snippet:
+ * 
+ * <pre>
+ *  &lt;Books&gt;
+ *     &lt;Book&gt;
+ *         &lt;Title&gt;Simple title&lt;/Title&gt;
+ *         &lt;author&gt;an author&lt;/author&gt;
+ *     &lt;/Book&gt;
+ *     &lt;Book&gt;
+ *         &lt;Title&gt;Second simple title&lt;/Title&gt;
+ *         &lt;Author&gt;Second author&lt;/Author&gt;
+ *     &lt;/Book&gt;
+ *  &lt;/Books&gt;
+ * </pre>
+ * 
+ * <br>
+ * JAXB annotated class:
+ * 
+ * <pre>
+ * &#064;XmlRootElement(name = &quot;book&quot;)
+ * &#064;XmlType(name = &quot;book&quot;)
+ * &#064;XmlAccessorType(XmlAccessType.FIELD)
+ * protected static class Book
+ * {
+ *   &#064;XmlElement(name = &quot;title&quot;)
+ *   private String title;
+ *   
+ *   &#064;XmlElement(name = &quot;author&quot;)
+ *   private String author;
+ * }
+ * </pre>
+ * 
+ * <br>
+ * There are several {@link Iterator} types offered:<br>
+ * <ul>
+ * <li> {@link String} based: {@link #newIterator(QName)}</li>
+ * <li> {@link Map} based: {@link #newIteratorMapBased(QName)}</li>
+ * <li> {@link Class} type based: {@link #newIterator(Class)}</li>
+ * </ul>
+ * Those types are faster in traversal of the original stream from top to bottom, whereby the slower ones can get some performance
+ * improvement by using parallel processing. The {@link Iterator} instances are thread safe and the {@link Iterator#next()}
+ * function can be called until an {@link NoSuchElementException} is thrown. Do not use the {@link Iterator#hasNext()} method,
+ * since any other thread can clear the {@link Iterator} before the call to {@link Iterator#next()} occurs. <br>
+ * <br>
+ * The {@link XMLIteratorFactory} allows to modify the underlying event stream using e.g.:<br>
+ * <ul>
+ * <li> {@link #doLowerCaseXMLTagAndAttributeNames()}</li>
+ * <li> {@link #doUpperCaseXMLTagAndAttributeNames()}</li>
+ * <li> {@link #doRemoveNamespacesForXMLTagAndAttributeNames()}</li>
+ * <li> {@link #doAddXMLEventTransformer(XMLEventTransformer)}</li>
+ * </ul>
+ * <br>
+ * <br>
+ * If the {@link XMLIteratorFactory} should only operate on a subset of xml tags within a larger stream the concept of sopes is
+ * available, which can be instrumented by calling {@link #doAddXMLTagScope(QName)}.<br>
+ * If no scope's start tag is passed no reading of events will occur and the reading into a single {@link Iterator} will stop
+ * immediately when an end tag of a scope is matched.
  * 
  * @author Omnaest
  */
 public class XMLIteratorFactory
 {
   /* ********************************************** Variables ********************************************** */
-  private final InputStream         inputStream;
-  private final XMLEventReader      xmlEventReader;
-  private List<XMLEventTransformer> xmlEventTransformerList = new ArrayList<XMLEventTransformer>();
+  private final XMLEventReader            xmlEventReader;
+  private final TraversalContextControl   traversalContextControl;
+  private final List<XMLEventTransformer> xmlEventTransformerList;
+  private final List<Scope>               scopeList;
   
   /* ********************************************** Beans / Services / References ********************************************** */
-  private final ExceptionHandler    exceptionHandler;
+  private final ExceptionHandler          exceptionHandler;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
@@ -141,8 +214,8 @@ public class XMLIteratorFactory
       
       //
       final boolean matchesNamespace = StringUtils.isBlank( this.selectingNamespace )
-                                       || ( currentQName != null && StringUtils.equalsIgnoreCase( this.selectingNamespace,
-                                                                                                  currentQName.getNamespaceURI() ) );
+                                       || ( currentQName != null && StringUtils.equals( this.selectingNamespace,
+                                                                                        currentQName.getNamespaceURI() ) );
       
       final boolean matchesTagName = currentQName != null
                                      && StringUtils.equals( this.selectingTagName, currentQName.getLocalPart() );
@@ -191,15 +264,17 @@ public class XMLIteratorFactory
     {
       /**
        * @param tagName
-       * @return
+       *          {@link QName}
+       * @return {@link QName}
        */
-      public String transformTagName( String tagName );
+      public QName transformTagName( QName tagName );
       
       /**
        * @param attributeName
-       * @return
+       *          {@link QName}
+       * @return {@link QName}
        */
-      public String transformAttributeName( String attributeName );
+      public QName transformAttributeName( QName attributeName );
     }
     
     /**
@@ -208,15 +283,15 @@ public class XMLIteratorFactory
     public static class XMLTagAndAttributeNameTransformerUpperCase implements XMLTagAndAttributeNameTransformer
     {
       @Override
-      public String transformTagName( String tagName )
+      public QName transformTagName( QName tagName )
       {
-        return StringUtils.upperCase( tagName );
+        return new QName( tagName.getNamespaceURI(), StringUtils.upperCase( tagName.getLocalPart() ) );
       }
       
       @Override
-      public String transformAttributeName( String attributeName )
+      public QName transformAttributeName( QName attributeName )
       {
-        return StringUtils.upperCase( attributeName );
+        return new QName( attributeName.getNamespaceURI(), StringUtils.upperCase( attributeName.getLocalPart() ) );
       }
     }
     
@@ -226,34 +301,39 @@ public class XMLIteratorFactory
     public static class XMLTagAndAttributeNameTransformerLowerCase implements XMLTagAndAttributeNameTransformer
     {
       @Override
-      public String transformTagName( String tagName )
+      public QName transformTagName( QName tagName )
       {
-        return StringUtils.lowerCase( tagName );
+        return new QName( tagName.getNamespaceURI(), StringUtils.lowerCase( tagName.getLocalPart() ) );
       }
       
       @Override
-      public String transformAttributeName( String attributeName )
+      public QName transformAttributeName( QName attributeName )
       {
-        return StringUtils.lowerCase( attributeName );
+        return new QName( attributeName.getNamespaceURI(), StringUtils.lowerCase( attributeName.getLocalPart() ) );
       }
     }
     
     /**
+     * {@link XMLTagAndAttributeNameTransformer} which removes any {@link Namespace} from xml tag and attributes
+     * 
      * @author Omnaest
      */
-    public static class XMLTagAndAttributeNameTransformerCapitalized implements XMLTagAndAttributeNameTransformer
+    public static class XMLTagAndAttributeNameTransformerRemoveNamespace implements XMLTagAndAttributeNameTransformer
     {
+      
       @Override
-      public String transformTagName( String tagName )
+      public QName transformTagName( QName tagName )
       {
-        return StringUtils.capitalize( StringUtils.lowerCase( tagName ) );
+        // 
+        return new QName( null, tagName.getLocalPart() );
       }
       
       @Override
-      public String transformAttributeName( String attributeName )
+      public QName transformAttributeName( QName attributeName )
       {
-        return StringUtils.capitalize( StringUtils.lowerCase( attributeName ) );
+        return new QName( null, attributeName.getLocalPart() );
       }
+      
     }
     
     /* ********************************************** Methods ********************************************** */
@@ -282,15 +362,12 @@ public class XMLIteratorFactory
         final QName name = startElement.getName();
         
         //
-        final String prefix = name.getPrefix();
-        final String namespaceUri = name.getNamespaceURI();
-        final String localName = this.xmlTagAndAttributeNameTransformer.transformTagName( name.getLocalPart() );
+        final QName qname = this.xmlTagAndAttributeNameTransformer.transformTagName( name );
         final Iterator<?> attributes = startElement.getAttributes();
         final Iterator<?> namespaces = startElement.getNamespaces();
-        final NamespaceContext context = startElement.getNamespaceContext();
         
         //
-        retval = xmlEventFactory.createStartElement( prefix, namespaceUri, localName, attributes, namespaces, context );
+        retval = xmlEventFactory.createStartElement( qname, attributes, namespaces );
       }
       else if ( xmlEvent.isEndElement() )
       {
@@ -298,14 +375,12 @@ public class XMLIteratorFactory
         final EndElement endElement = xmlEvent.asEndElement();
         final QName name = endElement.getName();
         
-        //
-        final String prefix = name.getPrefix();
-        final String namespaceUri = name.getNamespaceURI();
-        final String localName = this.xmlTagAndAttributeNameTransformer.transformTagName( name.getLocalPart() );
+        //        
+        final QName qname = this.xmlTagAndAttributeNameTransformer.transformTagName( name );
         final Iterator<?> namespaces = endElement.getNamespaces();
         
         //
-        retval = xmlEventFactory.createEndElement( prefix, namespaceUri, localName, namespaces );
+        retval = xmlEventFactory.createEndElement( qname, namespaces );
       }
       else if ( xmlEvent.isAttribute() )
       {
@@ -314,13 +389,11 @@ public class XMLIteratorFactory
         final QName name = attribute.getName();
         
         //
-        final String prefix = name.getPrefix();
-        final String namespaceURI = name.getNamespaceURI();
-        final String localName = this.xmlTagAndAttributeNameTransformer.transformAttributeName( name.getLocalPart() );
+        final QName qname = this.xmlTagAndAttributeNameTransformer.transformAttributeName( name );
         final String value = attribute.getValue();
         
         //
-        retval = xmlEventFactory.createAttribute( prefix, namespaceURI, localName, value );
+        retval = xmlEventFactory.createAttribute( qname, value );
       }
       
       //
@@ -439,9 +512,295 @@ public class XMLIteratorFactory
     }
   }
   
+  /**
+   * Controls the traversal context over the {@link XMLStreamReader}
+   * 
+   * @author Omnaest
+   */
+  private static class TraversalContextControl
+  {
+    /* ********************************************** Variables ********************************************** */
+    private final List<QName> qNameList = new ArrayList<QName>();
+    
+    /* ********************************************** Classes/Interfaces ********************************************** */
+    
+    /**
+     * @see SelectionContext
+     * @author Omnaest
+     */
+    private static class SelectionContextImpl implements SelectionContext
+    {
+      /* ********************************************** Variables ********************************************** */
+      private final List<QName> qNameList;
+      
+      /* ********************************************** Methods ********************************************** */
+      
+      /**
+       * @see SelectionContextImpl
+       * @param qNameList
+       */
+      public SelectionContextImpl( List<QName> qNameList )
+      {
+        super();
+        this.qNameList = new ArrayList<QName>( qNameList );
+      }
+      
+      @Override
+      public List<QName> getQNameHierarchy()
+      {
+        return this.qNameList;
+      }
+      
+      @Override
+      public QName getQName()
+      {
+        return ListUtils.lastElement( this.qNameList );
+      }
+      
+    }
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * Returns the current {@link SelectionContext}
+     * 
+     * @return
+     */
+    public SelectionContext getCurrentSelectionContext()
+    {
+      return new SelectionContextImpl( this.qNameList );
+    }
+    
+    /**
+     * Adds a new {@link QName} to the internal {@link List}
+     * 
+     * @param qName
+     */
+    public void addQName( QName qName )
+    {
+      this.qNameList.add( qName );
+    }
+    
+    /**
+     * Deletes the last given {@link QName}
+     */
+    public void reduceLastQName()
+    {
+      ListUtils.removeLast( this.qNameList );
+    }
+  }
+  
+  /**
+   * Internal representation of an {@link Scope} based on a given {@link QName}
+   * 
+   * @author Omnaest
+   */
+  private static class Scope
+  {
+    /* ********************************************** Variables ********************************************** */
+    private final XMLElementSelector elementSelector;
+    
+    private boolean                  isTraversed    = false;
+    private int                      enclosureCount = 0;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @param selectionContext
+     */
+    public void visitStartElement( SelectionContext selectionContext )
+    {
+      if ( this.elementSelector.selectElement( selectionContext ) )
+      {
+        this.enclosureCount++;
+      }
+    }
+    
+    /**
+     * @see Scope
+     * @param qName
+     */
+    public Scope( QName qName )
+    {
+      super();
+      this.elementSelector = new XMLIteratorFactory.XMLElementSelectorQNameBased( qName );
+    }
+    
+    /**
+     * @param selectionContext
+     */
+    public void visitEndElement( SelectionContext selectionContext )
+    {
+      if ( this.elementSelector.selectElement( selectionContext ) )
+      {
+        this.enclosureCount--;
+        if ( this.enclosureCount == 0 )
+        {
+          this.isTraversed = true;
+        }
+      }
+    }
+    
+    /**
+     * @return the isTraversed
+     */
+    public boolean isTraversed()
+    {
+      return this.isTraversed;
+    }
+    
+    /**
+     * Resets the traversed state to false
+     */
+    public void resetTraversedState()
+    {
+      this.isTraversed = false;
+    }
+    
+    /**
+     * Returns true if the current {@link Scope} has actually been entered
+     * 
+     * @return
+     */
+    public boolean hasBeenEntered()
+    {
+      return this.enclosureCount > 0;
+    }
+  }
+  
+  /**
+   * Control structure for a given {@link List} of {@link Scope}s.
+   * 
+   * @author Omnaest
+   */
+  private static class ScopeControl
+  {
+    /* ********************************************** Variables ********************************************** */
+    private final List<Scope> scopeList;
+    
+    /* ********************************************** Methods ********************************************** */
+    /**
+     * Resets any given {@link Scope} initially and begins to manage it
+     * 
+     * @see ScopeControl
+     * @param scopeList
+     */
+    public ScopeControl( List<Scope> scopeList )
+    {
+      super();
+      this.scopeList = scopeList;
+      
+      //
+      if ( scopeList != null )
+      {
+        for ( Scope scope : scopeList )
+        {
+          scope.resetTraversedState();
+        }
+      }
+    }
+    
+    /**
+     * Returns true if the {@link ScopeControl} manages at least {@link Scope} instance
+     * 
+     * @return
+     */
+    public boolean hasScopes()
+    {
+      return this.scopeList != null && !this.scopeList.isEmpty();
+    }
+    
+    /**
+     * Returns true if any internal available {@link Scope} has been traversed
+     * 
+     * @return
+     */
+    public boolean hasTraversedAnyScope()
+    {
+      //
+      boolean retval = false;
+      
+      //
+      if ( this.scopeList != null )
+      {
+        for ( Scope scope : this.scopeList )
+        {
+          if ( scope.isTraversed() )
+          {
+            retval = true;
+            break;
+          }
+        }
+      }
+      
+      //
+      return retval;
+    }
+    
+    /**
+     * @param selectionContext
+     *          {@link SelectionContext}
+     */
+    public void visitStartElement( SelectionContext selectionContext )
+    {
+      if ( this.scopeList != null )
+      {
+        for ( Scope scope : this.scopeList )
+        {
+          scope.visitStartElement( selectionContext );
+        }
+      }
+    }
+    
+    /**
+     * @param selectionContext
+     *          {@link SelectionContext}
+     */
+    public void visitEndElement( SelectionContext selectionContext )
+    {
+      if ( this.scopeList != null )
+      {
+        for ( Scope scope : this.scopeList )
+        {
+          scope.visitEndElement( selectionContext );
+        }
+      }
+    }
+    
+    /**
+     * Returns true if at least one {@link Scope} has been entered currently
+     * 
+     * @return
+     */
+    public boolean hasEnteredAnyScope()
+    {
+      //
+      boolean retval = false;
+      
+      //
+      if ( this.scopeList != null )
+      {
+        for ( Scope scope : this.scopeList )
+        {
+          if ( scope.hasBeenEntered() )
+          {
+            //
+            retval = true;
+            break;
+          }
+        }
+      }
+      
+      // 
+      return retval;
+    }
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**
+   * Note: the {@link XMLIteratorFactory} does not close the underlying {@link InputStream}
+   * 
    * @see XMLIteratorFactory
    * @param inputStream
    *          {@link InputStream}
@@ -454,9 +813,11 @@ public class XMLIteratorFactory
     super();
     
     //
+    this.xmlEventTransformerList = new ArrayList<XMLEventTransformer>();
     this.exceptionHandler = exceptionHandler;
-    this.inputStream = inputStream;
     this.xmlEventReader = createXmlEventReader( inputStream, exceptionHandler );
+    this.scopeList = new ArrayList<Scope>();
+    this.traversalContextControl = new TraversalContextControl();
   }
   
   /**
@@ -477,16 +838,19 @@ public class XMLIteratorFactory
    * @param xmlEventReader
    * @param xmlTransformerList
    * @param exceptionHandler
-   * @param inputStream
+   * @param scopeList
+   * @param traversalControl
    */
   private XMLIteratorFactory( XMLEventReader xmlEventReader, List<XMLEventTransformer> xmlTransformerList,
-                              ExceptionHandler exceptionHandler, InputStream inputStream )
+                              ExceptionHandler exceptionHandler, List<Scope> scopeList,
+                              TraversalContextControl traversalContextControl )
   {
     super();
     this.xmlEventReader = xmlEventReader;
     this.xmlEventTransformerList = xmlTransformerList;
     this.exceptionHandler = exceptionHandler;
-    this.inputStream = inputStream;
+    this.scopeList = scopeList;
+    this.traversalContextControl = traversalContextControl;
   }
   
   /**
@@ -497,7 +861,21 @@ public class XMLIteratorFactory
   public XMLIteratorFactory doLowerCaseXMLTagAndAttributeNames()
   {
     //
-    final XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformer xmlTagAndAttributeNameTransformer = new XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformerLowerCase();
+    final XMLTagAndAttributeNameTransformer xmlTagAndAttributeNameTransformer = new XMLTagAndAttributeNameTransformerLowerCase();
+    final XMLEventTransformer xmlEventTransformer = new XMLEventTransformerForTagAndAttributeName(
+                                                                                                   xmlTagAndAttributeNameTransformer );
+    return this.doAddXMLEventTransformer( xmlEventTransformer );
+  }
+  
+  /**
+   * This adds an {@link XMLEventTransformer} which does remove all {@link Namespace} declarations on any xml tag and attribute
+   * 
+   * @return new {@link XMLIteratorFactory} instance
+   */
+  public XMLIteratorFactory doRemoveNamespacesForXMLTagAndAttributeNames()
+  {
+    //
+    final XMLTagAndAttributeNameTransformer xmlTagAndAttributeNameTransformer = new XMLTagAndAttributeNameTransformerRemoveNamespace();
     final XMLEventTransformer xmlEventTransformer = new XMLEventTransformerForTagAndAttributeName(
                                                                                                    xmlTagAndAttributeNameTransformer );
     return this.doAddXMLEventTransformer( xmlEventTransformer );
@@ -511,7 +889,7 @@ public class XMLIteratorFactory
   public XMLIteratorFactory doUpperCaseXMLTagAndAttributeNames()
   {
     //
-    final XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformer xmlTagAndAttributeNameTransformer = new XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformerUpperCase();
+    final XMLTagAndAttributeNameTransformer xmlTagAndAttributeNameTransformer = new XMLTagAndAttributeNameTransformerUpperCase();
     final XMLEventTransformer xmlEventTransformer = new XMLEventTransformerForTagAndAttributeName(
                                                                                                    xmlTagAndAttributeNameTransformer );
     return this.doAddXMLEventTransformer( xmlEventTransformer );
@@ -531,7 +909,41 @@ public class XMLIteratorFactory
     {
       retval = new XMLIteratorFactory( this.xmlEventReader, ListUtils.addToNewList( this.xmlEventTransformerList,
                                                                                     xmlEventTransformer ), this.exceptionHandler,
-                                       this.inputStream );
+                                       this.scopeList, this.traversalContextControl );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns a new {@link XMLIteratorFactory} instance with the configuration of this one but holding an additional xml tag scope
+   * restriction. A scope restriction means that the internal stream is forwarded until it finds the beginning of a xml tag and
+   * which is stopped when the end of the same xml tag is reached. <br>
+   * <br>
+   * Be aware of the fact that scopes can be nested. To begin reading elements only one of all the scopes have to be entered. To
+   * stop an {@link Iterator} only one of the scopes has to be left. <br>
+   * So it is quite possible that even if one scope is left an enclosing scope is still valid, which means the selection matching
+   * is immediately active again until the enclosing scope is now left. <br>
+   * <br>
+   * After a scope has been passed it is possible to iterate further by creating a new {@link Iterator}.
+   * 
+   * @param tagName
+   *          {@link QName}
+   * @return
+   */
+  public XMLIteratorFactory doAddXMLTagScope( QName tagName )
+  {
+    //
+    XMLIteratorFactory retval = this;
+    
+    //
+    if ( tagName != null )
+    {
+      //
+      final Scope scope = new Scope( tagName );
+      retval = new XMLIteratorFactory( this.xmlEventReader, this.xmlEventTransformerList, this.exceptionHandler,
+                                       ListUtils.addToNewList( this.scopeList, scope ), this.traversalContextControl );
     }
     
     //
@@ -748,6 +1160,8 @@ public class XMLIteratorFactory
         final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
         final XMLEventFactory xmlEventFactory = XMLEventFactory.newInstance();
         final ExceptionHandler exceptionHandler = this.exceptionHandler;
+        final TraversalContextControl traversalContextControl = this.traversalContextControl;
+        final ScopeControl scopeControl = new ScopeControl( this.scopeList );
         
         //
         retval = new Iterator<String>()
@@ -756,7 +1170,6 @@ public class XMLIteratorFactory
           private String               nextElement         = null;
           private boolean              resolvedNextElement = false;
           
-          private final List<QName>    qNameList           = new ArrayList<QName>();
           private final NamespaceStack namespaceStack      = new NamespaceStack();
           
           /* ********************************************** Methods ********************************************** */
@@ -776,7 +1189,13 @@ public class XMLIteratorFactory
             //
             this.resolveNextElementIfUnresolved();
             
-            // 
+            //
+            if ( this.nextElement == null )
+            {
+              throw new NoSuchElementException();
+            }
+            
+            //  
             this.resolvedNextElement = false;
             return this.nextElement;
           }
@@ -810,44 +1229,11 @@ public class XMLIteratorFactory
               ByteArrayContainer byteArrayContainerOut = new ByteArrayContainer();
               final OutputStream outputStream = byteArrayContainerOut.getOutputStream();
               final XMLEventConsumer xmlEventConsumer = xmlOutputFactory.createXMLEventWriter( outputStream );
-              final List<QName> qNameList = this.qNameList;
-              final InputStream inputStream = XMLIteratorFactory.this.inputStream;
-              
-              //
-              final class SelectionContextImpl implements XMLIteratorFactory.XMLElementSelector.SelectionContext
-              {
-                /* ********************************************** Variables ********************************************** */
-                private final QName name;
-                
-                /* ********************************************** Methods ********************************************** */
-                /**
-                 * @see SelectionContextImpl
-                 * @param name
-                 */
-                public SelectionContextImpl( QName name )
-                {
-                  super();
-                  this.name = name;
-                }
-                
-                @Override
-                public List<QName> getQNameHierarchy()
-                {
-                  return qNameList;
-                }
-                
-                @Override
-                public QName getQName()
-                {
-                  return this.name;
-                }
-                
-              }
               
               //
               boolean read = false;
               boolean done = false;
-              while ( xmlEventReader.hasNext() && !done )
+              while ( !done && !scopeControl.hasTraversedAnyScope() && xmlEventReader.hasNext() )
               {
                 //
                 final XMLEvent currentEvent = transformXMLElement( xmlEventReader.nextEvent() );
@@ -859,10 +1245,15 @@ public class XMLIteratorFactory
                   //
                   final StartElement startElement = currentEvent.asStartElement();
                   final QName name = startElement.getName();
-                  qNameList.add( name );
+                  traversalContextControl.addQName( name );
                   
-                  XMLIteratorFactory.XMLElementSelector.SelectionContext selectionContext = new SelectionContextImpl( name );
-                  if ( xmlElementSelector.selectElement( selectionContext ) )
+                  //
+                  final SelectionContext selectionContext = traversalContextControl.getCurrentSelectionContext();
+                  scopeControl.visitStartElement( selectionContext );
+                  
+                  //
+                  if ( xmlElementSelector.selectElement( selectionContext )
+                       && ( !scopeControl.hasScopes() || scopeControl.hasEnteredAnyScope() ) )
                   {
                     //
                     read = true;
@@ -888,26 +1279,24 @@ public class XMLIteratorFactory
                 if ( currentEvent.isEndElement() )
                 {
                   //
-                  final QName name = currentEvent.asEndElement().getName();
-                  if ( name.equals( ListUtils.lastElement( qNameList ) ) )
-                  {
-                    ListUtils.removeLast( qNameList );
-                  }
-                  
-                  //
                   if ( read )
                   {
                     this.namespaceStack.removeStack();
                   }
                   
-                  //
-                  XMLIteratorFactory.XMLElementSelector.SelectionContext selectionContext = new SelectionContextImpl( name );
+                  //                  
+                  final SelectionContext selectionContext = traversalContextControl.getCurrentSelectionContext();
                   if ( xmlElementSelector.selectElement( selectionContext ) )
                   {
                     read = false;
                     done = true;
                   }
                   
+                  //
+                  traversalContextControl.reduceLastQName();
+                  
+                  //
+                  scopeControl.visitEndElement( selectionContext );
                 }
               }
               outputStream.close();
@@ -922,7 +1311,6 @@ public class XMLIteratorFactory
               if ( !xmlEventReader.hasNext() )
               {
                 xmlEventReader.close();
-                inputStream.close();
               }
             }
             catch ( Exception e )
@@ -993,4 +1381,5 @@ public class XMLIteratorFactory
     //
     return retval;
   }
+  
 }

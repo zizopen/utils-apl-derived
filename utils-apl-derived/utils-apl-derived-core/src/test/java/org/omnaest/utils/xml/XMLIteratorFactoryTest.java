@@ -17,12 +17,14 @@ package org.omnaest.utils.xml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -225,6 +227,7 @@ public class XMLIteratorFactoryTest
     assertEquals( 1, anyEntityList.size() );
     
     AnyEntity anyEntity = ListUtils.firstElement( anyEntityList );
+    assertNotNull( anyEntity );
     {
       //System.out.println( anyEntity );
       
@@ -276,7 +279,7 @@ public class XMLIteratorFactoryTest
   }
   
   @Test
-  public void testNewIteratorClassOfQextendsEWithStringContent()
+  public void testNewIteratorStringContent()
   {
     //    
     final int numberOfObjects = 2;
@@ -295,6 +298,66 @@ public class XMLIteratorFactoryTest
     {
       // System.out.println( anyEntity );
       assertNotNull( value );
+    }
+    
+    //
+    try
+    {
+      iterator.next();
+      fail();
+    }
+    catch ( NoSuchElementException e )
+    {
+    }
+  }
+  
+  @Test
+  public void testNewIteratorScopedWithStringContent()
+  {
+    //    
+    final ByteArrayContainer byteArrayContainer = new ByteArrayContainer().copyFrom( this.getClass()
+                                                                                         .getResourceAsStream( "books.xml" ) );
+    
+    //
+    final InputStream inputStream = byteArrayContainer.getInputStream();
+    final XMLIteratorFactory xmlIteratorFactory = new XMLIteratorFactory( inputStream ).doRemoveNamespacesForXMLTagAndAttributeNames()
+                                                                                       .doLowerCaseXMLTagAndAttributeNames()
+                                                                                       .doAddXMLTagScope( new QName( "books" ) );
+    
+    //
+    {
+      //
+      Iterator<Map<String, Object>> iterator = xmlIteratorFactory.doAddXMLTagScope( new QName( "header" ) )
+                                                                 .newIteratorMapBased( new QName( "header" ) );
+      
+      //
+      final List<Map<String, Object>> valueList = ListUtils.valueOf( iterator );
+      assertEquals( 1, valueList.size() );
+      Map<String, Object> firstElement = ListUtils.firstElement( valueList );
+      assertNotNull( firstElement );
+      assertEquals( "Some meta information", firstElement.get( "metainfo" ) );
+    }
+    
+    //
+    for ( int ii = 1; ii <= 2; ii++ )
+    {
+      //
+      Iterator<String> iterator = xmlIteratorFactory.doAddXMLTagScope( new QName( "book" ) ).newIterator( new QName( "title" ) );
+      
+      //
+      final List<String> valueList = ListUtils.valueOf( iterator );
+      assertEquals( 1, valueList.size() );
+      assertNotNull( ListUtils.firstElement( valueList ) );
+    }
+    
+    //
+    {
+      //
+      Iterator<String> iterator = xmlIteratorFactory.doAddXMLTagScope( new QName( "book" ) ).newIterator( new QName( "title" ) );
+      
+      //
+      final List<String> valueList = ListUtils.valueOf( iterator );
+      assertEquals( 0, valueList.size() );
     }
   }
   
@@ -339,7 +402,7 @@ public class XMLIteratorFactoryTest
   
   @Test
   @Ignore("Performance test")
-  public void testNewIteratorClassOfQextendsEWithStringContentPerformance()
+  public void testNewIteratorStringContentPerformance()
   {
     //    
     final int numberOfObjects = 10000;
