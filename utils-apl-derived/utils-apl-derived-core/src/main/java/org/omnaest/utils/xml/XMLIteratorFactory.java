@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.concurrent.locks.Lock;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchema;
@@ -47,8 +48,12 @@ import org.omnaest.utils.events.exception.basic.ExceptionHandlerIgnoring;
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
+import org.omnaest.utils.structure.element.ElementHolder;
+import org.omnaest.utils.structure.element.accessor.Accessor;
+import org.omnaest.utils.structure.element.accessor.adapter.ThreadLocalToAccessorAdapter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCast;
+import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.iterator.IteratorUtils;
 import org.omnaest.utils.structure.map.MapUtils;
@@ -110,9 +115,16 @@ import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttr
  * <li> {@link Class} type based: {@link #newIterator(Class)}</li>
  * </ul>
  * Those types are faster in traversal of the original stream from top to bottom, whereby the slower ones can get some performance
- * improvement by using parallel processing. The {@link Iterator} instances are thread safe and the {@link Iterator#next()}
- * function can be called until an {@link NoSuchElementException} is thrown. Do not use the {@link Iterator#hasNext()} method,
- * since any other thread can clear the {@link Iterator} before the call to {@link Iterator#next()} occurs. <br>
+ * improvement by using parallel processing. The {@link Iterator} instances are thread safe by default and the
+ * {@link Iterator#next()} function can be called until an {@link NoSuchElementException} is thrown. <br>
+ * In normal circumstances an {@link Iterator} is not usable in multithreaded environments, since {@link Iterator#hasNext()} and
+ * {@link Iterator#next()} produce imminent gaps within the {@link Lock} of an element. This gap can be circumvented by calling
+ * <ul>
+ * <li>{@link #doCreateThreadsafeIterators(boolean)}</li>
+ * </ul>
+ * which will force {@link Iterator} instances to use {@link ThreadLocal}s internally. Otherwise do not use the
+ * {@link Iterator#hasNext()} method, since any other {@link Thread} can clear the {@link Iterator} before the call to
+ * {@link Iterator#next()} occurs. <br>
  * <br>
  * The {@link XMLIteratorFactory} allows to modify the underlying event stream using e.g.:<br>
  * <ul>
@@ -132,11 +144,30 @@ import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttr
  */
 public class XMLIteratorFactory
 {
+  /* ********************************************** Constants ********************************************** */
+  private final Factory<Accessor<String>> SIMPLE_ACCESSOR_FACTORY            = new Factory<Accessor<String>>()
+                                                                             {
+                                                                               @Override
+                                                                               public Accessor<String> newInstance()
+                                                                               {
+                                                                                 return new ElementHolder<String>();
+                                                                               }
+                                                                             };
+  private final Factory<Accessor<String>> THREADLOCAL_BASED_ACCESSOR_FACTORY = new Factory<Accessor<String>>()
+                                                                             {
+                                                                               @Override
+                                                                               public Accessor<String> newInstance()
+                                                                               {
+                                                                                 return new ThreadLocalToAccessorAdapter<String>();
+                                                                               }
+                                                                             };
+  
   /* ********************************************** Variables ********************************************** */
   private final XMLEventReader            xmlEventReader;
   private final TraversalContextControl   traversalContextControl;
   private final List<XMLEventTransformer> xmlEventTransformerList;
   private final List<Scope>               scopeList;
+  private Factory<Accessor<String>>       accessorFactory                    = null;
   
   /* ********************************************** Beans / Services / References ********************************************** */
   private final ExceptionHandler          exceptionHandler;
@@ -951,6 +982,35 @@ public class XMLIteratorFactory
   }
   
   /**
+   * If given true as parameter the returned {@link Iterator} instances will use {@link ThreadLocal} states. This results in the
+   * case that if one {@link Thread} resolves true for the {@link Iterator#hasNext()} function, the respective value will be
+   * locked to this {@link Thread}. Another {@link Thread} would e.g. then get false for the {@link Iterator#hasNext()} function
+   * even if the first {@link Thread} did not yet pulled the explicit value by invoking the {@link Iterator#next()} method.<br>
+   * <br>
+   * Even if this circumstance allows to share any created {@link Iterator} instance between threads without loosing the contract
+   * of the {@link Iterator}, it must be ensured that any {@link Thread} which requests {@link Iterator#hasNext()} do actually
+   * pull the value. Otherwise the internally backed value gets lost with the dereferencing of the {@link ThreadLocal}.
+   * 
+   * @param threadsafe
+   * @return this
+   */
+  public XMLIteratorFactory doCreateThreadsafeIterators( boolean threadsafe )
+  {
+    //
+    if ( threadsafe )
+    {
+      this.accessorFactory = this.THREADLOCAL_BASED_ACCESSOR_FACTORY;
+    }
+    else
+    {
+      this.accessorFactory = this.SIMPLE_ACCESSOR_FACTORY;
+    }
+    
+    //
+    return this;
+  }
+  
+  /**
    * @param inputStream
    * @param exceptionHandler
    * @return
@@ -1165,15 +1225,14 @@ public class XMLIteratorFactory
         final ExceptionHandler exceptionHandler = this.exceptionHandler;
         final TraversalContextControl traversalContextControl = this.traversalContextControl;
         final ScopeControl scopeControl = new ScopeControl( this.scopeList );
+        final Accessor<String> accessor = this.newAccessor();
         
         //
         retval = new Iterator<String>()
         {
           /* ********************************************** Variables ********************************************** */
-          private String               nextElement         = null;
-          private boolean              resolvedNextElement = false;
-          
-          private final NamespaceStack namespaceStack      = new NamespaceStack();
+          private final Accessor<String> nextElementAccessor = accessor;
+          private final NamespaceStack   namespaceStack      = new NamespaceStack();
           
           /* ********************************************** Methods ********************************************** */
           @Override
@@ -1183,24 +1242,30 @@ public class XMLIteratorFactory
             this.resolveNextElementIfUnresolved();
             
             // 
-            return this.nextElement != null;
+            return this.nextElementAccessor.getElement() != null;
           }
           
           @Override
           public synchronized String next()
           {
             //
-            this.resolveNextElementIfUnresolved();
+            String retval = null;
             
             //
-            if ( this.nextElement == null )
+            this.resolveNextElementIfUnresolved();
+            
+            //  
+            retval = this.nextElementAccessor.getElement();
+            this.nextElementAccessor.setElement( null );
+            
+            //
+            if ( retval == null )
             {
               throw new NoSuchElementException();
             }
             
-            //  
-            this.resolvedNextElement = false;
-            return this.nextElement;
+            //
+            return retval;
           }
           
           @Override
@@ -1212,10 +1277,9 @@ public class XMLIteratorFactory
           public void resolveNextElementIfUnresolved()
           {
             //
-            if ( !this.resolvedNextElement )
+            if ( this.nextElementAccessor.getElement() == null )
             {
-              this.nextElement = this.resolveNextElement();
-              this.resolvedNextElement = true;
+              this.nextElementAccessor.setElement( this.resolveNextElement() );
             }
           }
           
@@ -1385,4 +1449,21 @@ public class XMLIteratorFactory
     return retval;
   }
   
+  /**
+   * Returns a new instance of an {@link Accessor} using the internal {@link #accessorFactory}. If the {@link #accessorFactory} is
+   * null it will be set to the {@link #SIMPLE_ACCESSOR_FACTORY}.
+   * 
+   * @return
+   */
+  private Accessor<String> newAccessor()
+  {
+    //
+    if ( this.accessorFactory == null )
+    {
+      this.accessorFactory = this.SIMPLE_ACCESSOR_FACTORY;
+    }
+    
+    //
+    return this.accessorFactory.newInstance();
+  }
 }

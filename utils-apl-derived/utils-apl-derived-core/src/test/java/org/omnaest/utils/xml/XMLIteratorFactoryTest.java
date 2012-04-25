@@ -372,7 +372,9 @@ public class XMLIteratorFactoryTest
     
     //
     final InputStream inputStream = byteArrayContainer.getInputStream();
-    Iterator<Book> iterator = new XMLIteratorFactory( inputStream ).doLowerCaseXMLTagAndAttributeNames().newIterator( Book.class );
+    Iterator<Book> iterator = new XMLIteratorFactory( inputStream ).doCreateThreadsafeIterators( true )
+                                                                   .doLowerCaseXMLTagAndAttributeNames()
+                                                                   .newIterator( Book.class );
     
     //    
     final ExecutorService executorService = Executors.newFixedThreadPool( 2 );
