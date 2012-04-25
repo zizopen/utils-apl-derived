@@ -177,7 +177,7 @@ public class XMLHelperTest
     //System.out.println( objectAsXML );
     
     //    
-    Map<String, Object> map = XMLHelper.newMapFromXML( objectAsXML, null );
+    Map<String, Object> map = XMLHelper.newMapFromXML( objectAsXML );
     assertNotNull( map );
     assertEquals( 1, map.size() );
     assertTrue( map.containsKey( "testEntity" ) );
