@@ -995,8 +995,11 @@ public class XMLIteratorFactory
    * New {@link Iterator} which returns {@link Map} entities each based on a single content chunk which are produced for all xml
    * tags matching the given {@link QName} <br>
    * <br>
-   * Performance is medium to slow with about <b>1000 elements per second</b> beeing processed
+   * Performance is medium to slow with about <b>1000 elements per second</b> beeing processed. <br>
+   * <br>
+   * For details how xml content is transformed to a {@link Map} instance see {@link XMLNestedMapConverter}
    * 
+   * @see XMLNestedMapConverter
    * @see #newIterator(QName, ElementConverter)
    * @param qName
    *          {@link QName}
@@ -1011,8 +1014,8 @@ public class XMLIteratorFactory
       @Override
       public Map<String, Object> convert( String element )
       {
-        final Entry<String, Object> firstEntry = MapUtils.firstEntry( XMLHelper.newMapFromXML( element,
-                                                                                               XMLIteratorFactory.this.exceptionHandler ) );
+        final Entry<String, Object> firstEntry = MapUtils.firstEntry( new XMLNestedMapConverter().setExceptionHandler( XMLIteratorFactory.this.exceptionHandler )
+                                                                                                 .newMapFromXML( element ) );
         Object value = firstEntry != null ? firstEntry.getValue() : null;
         return (Map<String, Object>) ( value instanceof Map ? value : null );
       }

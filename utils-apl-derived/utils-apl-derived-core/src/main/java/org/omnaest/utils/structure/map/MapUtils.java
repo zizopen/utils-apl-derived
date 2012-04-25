@@ -38,6 +38,7 @@ import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils.ElementFilter;
 import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.element.factory.Factory;
@@ -303,6 +304,25 @@ public class MapUtils
     
     //
     return retmap;
+  }
+  
+  /**
+   * Similar to {@link #printMapHierarchical(PrintStream, Map)} but returning a {@link String} value
+   * 
+   * @param map
+   * @return
+   */
+  public static <K, V> String toStringUsingHierarchy( Map<K, V> map )
+  {
+    //
+    final ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+    
+    //
+    final PrintStream printStream = byteArrayContainer.getPrintStreamWriter();
+    printMapHierarchical( printStream, map );
+    
+    //
+    return byteArrayContainer.toString();
   }
   
   /**

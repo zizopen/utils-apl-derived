@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
@@ -44,6 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.download.DownloadConnection;
 import org.omnaest.utils.download.URIHelper;
 import org.omnaest.utils.download.URLHelper;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.streams.StreamConnector;
 
 /**
@@ -64,6 +67,9 @@ public class ByteArrayContainer
   /* ********************************************** Variables ********************************************** */
   private byte[]             content            = null;
   private boolean            isContentInvalid   = false;
+  
+  /* ********************************************** Beans / Services / References ********************************************** */
+  private ExceptionHandler   exceptionHandler   = null;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -241,8 +247,9 @@ public class ByteArrayContainer
    */
   public void save( File file ) throws IOException
   {
-    OutputStream fileOutputStream = new FileOutputStream( file );
-    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream( fileOutputStream );
+    //
+    final OutputStream fileOutputStream = new FileOutputStream( file );
+    final BufferedOutputStream bufferedOutputStream = new BufferedOutputStream( fileOutputStream );
     bufferedOutputStream.write( this.content );
     bufferedOutputStream.close();
     fileOutputStream.close();
@@ -285,7 +292,14 @@ public class ByteArrayContainer
     }
     catch ( IOException e )
     {
+      //
       this.isContentInvalid = true;
+      
+      //
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
     }
     
     //
@@ -341,7 +355,14 @@ public class ByteArrayContainer
       }
       catch ( IOException e )
       {
+        //
         this.isContentInvalid = true;
+        
+        //
+        if ( this.exceptionHandler != null )
+        {
+          this.exceptionHandler.handleException( e );
+        }
       }
     }
     
@@ -371,7 +392,14 @@ public class ByteArrayContainer
     }
     catch ( IOException e )
     {
+      //
       this.isContentInvalid = true;
+      
+      //
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
     }
     
     //
@@ -472,6 +500,10 @@ public class ByteArrayContainer
     }
     catch ( IOException e )
     {
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
     }
     
     //
@@ -674,6 +706,10 @@ public class ByteArrayContainer
         }
         catch ( IOException e )
         {
+          if ( ByteArrayContainer.this.exceptionHandler != null )
+          {
+            ByteArrayContainer.this.exceptionHandler.handleException( e );
+          }
         }
         ByteArrayContainer.this.content = this.toByteArray();
       }
@@ -705,7 +741,10 @@ public class ByteArrayContainer
     }
     catch ( Exception e )
     {
-      e.printStackTrace();
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
     }
     
     //
@@ -731,7 +770,8 @@ public class ByteArrayContainer
   {
     if ( StringUtils.isNotBlank( zipFileName ) )
     {
-      Map<String, ByteArrayContainer> byteArrayContainerMap = new HashMap<String, ByteArrayContainer>();
+      //
+      final Map<String, ByteArrayContainer> byteArrayContainerMap = new HashMap<String, ByteArrayContainer>();
       byteArrayContainerMap.put( zipFileName, this );
       ByteArrayContainer tempByteArrayContainer = ByteArrayContainer.zipFilenameByteArrayContainerMap( byteArrayContainerMap );
       if ( tempByteArrayContainer != null )
@@ -756,6 +796,22 @@ public class ByteArrayContainer
    * @param byteArrayContainerMap
    */
   public static ByteArrayContainer zipFilenameByteArrayContainerMap( Map<String, ByteArrayContainer> byteArrayContainerMap )
+  {
+    //
+    final ExceptionHandler exceptionHandler = null;
+    return zipFilenameByteArrayContainerMap( byteArrayContainerMap, exceptionHandler );
+  }
+  
+  /**
+   * Zipps all ByteArrayContainers of a given map, which contains filenames with corresponding unzipped ByteArrayContainer
+   * objects.
+   * 
+   * @param byteArrayContainerMap
+   * @param exceptionHandler
+   *          {@link ExceptionHandler}
+   */
+  public static ByteArrayContainer zipFilenameByteArrayContainerMap( Map<String, ByteArrayContainer> byteArrayContainerMap,
+                                                                     ExceptionHandler exceptionHandler )
   {
     //
     ByteArrayContainer zippedBac = new ByteArrayContainer();
@@ -783,7 +839,10 @@ public class ByteArrayContainer
     }
     catch ( Exception e )
     {
-      e.printStackTrace();
+      if ( exceptionHandler != null )
+      {
+        exceptionHandler.handleException( e );
+      }
     }
     
     //
@@ -840,6 +899,22 @@ public class ByteArrayContainer
    */
   public static Map<String, ByteArrayContainer> unzipIntoFilenameByteArrayContainerMap( ByteArrayContainer byteArrayContainer )
   {
+    final ExceptionHandler exceptionHandler = null;
+    return unzipIntoFilenameByteArrayContainerMap( byteArrayContainer, exceptionHandler );
+  }
+  
+  /**
+   * Unzipps the given ByteArrayContainer object into a map containing the filenames and unzipped ByteArrayContainer objects for
+   * each file.
+   * 
+   * @param byteArrayContainer
+   * @param exceptionHandler
+   *          {@link ExceptionHandler}
+   * @return
+   */
+  public static Map<String, ByteArrayContainer> unzipIntoFilenameByteArrayContainerMap( ByteArrayContainer byteArrayContainer,
+                                                                                        ExceptionHandler exceptionHandler )
+  {
     //
     Map<String, ByteArrayContainer> retmap = new LinkedHashMap<String, ByteArrayContainer>();
     
@@ -859,7 +934,10 @@ public class ByteArrayContainer
     }
     catch ( IOException e )
     {
-      e.printStackTrace();
+      if ( exceptionHandler != null )
+      {
+        exceptionHandler.handleException( e );
+      }
     }
     
     //
@@ -915,6 +993,75 @@ public class ByteArrayContainer
   public void setContentInvalid( boolean isContentInvalid )
   {
     this.isContentInvalid = isContentInvalid;
+  }
+  
+  /**
+   * Returns a new {@link PrintStream} using the {@value #DEFAULTENCODING} encoding
+   * 
+   * @see PrintStream
+   * @return
+   */
+  public PrintStream getPrintStreamWriter()
+  {
+    //
+    return this.getPrintStreamWriter( DEFAULTENCODING );
+  }
+  
+  /**
+   * Returns a new {@link PrintStream}
+   * 
+   * @see PrintStream
+   * @param encoding
+   * @return
+   */
+  public PrintStream getPrintStreamWriter( String encoding )
+  {
+    //
+    boolean autoFlush = true;
+    return this.getPrintStreamWriter( encoding, autoFlush );
+  }
+  
+  /**
+   * Returns a new {@link PrintStream}
+   * 
+   * @see PrintStream
+   * @param encoding
+   * @param autoFlush
+   * @return
+   */
+  public PrintStream getPrintStreamWriter( String encoding, boolean autoFlush )
+  {
+    //
+    PrintStream retval = null;
+    
+    //    
+    final OutputStream outputStream = this.getOutputStream();
+    try
+    {
+      retval = new PrintStream( outputStream, autoFlush, encoding );
+    }
+    catch ( UnsupportedEncodingException e )
+    {
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * @param exceptionHandler
+   *          {@link ExceptionHandler}
+   * @return this
+   */
+  public ByteArrayContainer setExceptionHandler( ExceptionHandler exceptionHandler )
+  {
+    //
+    this.exceptionHandler = exceptionHandler;
+    return this;
   }
   
 }
