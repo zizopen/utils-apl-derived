@@ -30,6 +30,11 @@ import org.w3c.dom.Node;
  * Helper class for JAXB annotated classes.
  * 
  * @see XMLHelper
+ * @see XMLIteratorFactory
+ * @see JAXBMap
+ * @see JAXBList
+ * @see JAXBSet
+ * @see JAXBCollection
  * @author Omnaest
  */
 public class JAXBXMLHelper

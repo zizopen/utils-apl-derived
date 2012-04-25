@@ -30,6 +30,8 @@ import org.w3c.dom.Node;
  * {@link XMLHelper} for {@link XPath} or {@link Document} based helper methods.
  * 
  * @see JAXBXMLHelper
+ * @see XMLIteratorFactory
+ * @see XMLNestedMapConverter
  * @author Omnaest
  */
 public class XMLHelper
