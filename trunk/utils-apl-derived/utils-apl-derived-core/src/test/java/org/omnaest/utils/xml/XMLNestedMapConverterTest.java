@@ -81,17 +81,20 @@ public class XMLNestedMapConverterTest
     Map<String, Object> nestedMap = xmlNestedMapConverter.newMapFromXML( xmlContent );
     
     //System.out.println( MapUtils.toStringUsingHierarchy( nestedMap ) );
-    
     String xmlResult = xmlNestedMapConverter.toXML( nestedMap );
+    String xmlDocumentResult = xmlNestedMapConverter.toXMLDocument( nestedMap );
     //System.out.println( xmlResult );
-    assertNotNull( xmlResult );
-    assertEquals( "<Books><header><metainfo>Some meta information</metainfo></header><Book><Title>Simple title</Title><author>\n            an author\n        </author></Book><Book><Title>Second simple\n            title\n        </Title><Author>Second author</Author></Book></Books>",
-                  xmlResult );
+    
+    //
+    final String expectedResult = "<Books><header><metainfo>Some meta information</metainfo></header><Book><Title>Simple title</Title><author>\n            an author\n        </author></Book><Book><Title>Second simple\n            title\n        </Title><Author>Second author</Author></Book></Books>";
+    final String expectedHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+    assertEquals( expectedResult, xmlResult );
+    assertEquals( expectedHeader + expectedResult, xmlDocumentResult );
     
   }
   
   @Test
-  public void testToNamespaceAwareXML()
+  public void testToNamespaceAwareXMLDocument()
   {
     //    
     final ByteArrayContainer byteArrayContainer = new ByteArrayContainer().copyFrom( this.getClass()
@@ -105,11 +108,14 @@ public class XMLNestedMapConverterTest
     //System.out.println( MapUtils.toStringUsingHierarchy( nestedMap ) );
     
     String xmlResult = xmlNestedMapConverter.toNamespaceAwareXML( nestedMap );
+    String xmlDocumentResult = xmlNestedMapConverter.toNamespaceAwareXMLDocument( nestedMap );
     //System.out.println( xmlResult );
     
-    assertNotNull( xmlResult );
-    assertEquals( "<Books xmlns=\"http://www.example.org\"><header><metainfo>Some meta information</metainfo></header><Book><Title>Simple title</Title><author xmlns=\"http://www.other.example.org\">\n            an author\n        </author></Book><Book><Title>Second simple\n            title\n        </Title><Author xmlns=\"http://www.other.example.org\">Second author</Author></Book></Books>",
-                  xmlResult );
+    final String expectedResult = "<Books xmlns=\"http://www.example.org\"><header><metainfo>Some meta information</metainfo></header><Book><Title>Simple title</Title><author xmlns=\"http://www.other.example.org\">\n            an author\n        </author></Book><Book><Title>Second simple\n            title\n        </Title><Author xmlns=\"http://www.other.example.org\">Second author</Author></Book></Books>";
+    final String expectedHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+    assertEquals( expectedResult, xmlResult );
+    assertEquals( expectedHeader + expectedResult, xmlDocumentResult );
     
   }
+  
 }

@@ -411,10 +411,21 @@ public class XMLNestedMapConverter
     String retval = null;
     
     //
-    final ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
-    final OutputStream outputStream = byteArrayContainer.getOutputStream();
-    this.toXML( nestedMap, outputStream );
-    retval = byteArrayContainer.toString();
+    try
+    {
+      //    
+      final ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+      final OutputStream outputStream = byteArrayContainer.getOutputStream();
+      this.toXML( nestedMap, outputStream );
+      retval = byteArrayContainer.toString();
+    }
+    catch ( Exception e )
+    {
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
+    }
     
     //
     return retval;
@@ -435,13 +446,130 @@ public class XMLNestedMapConverter
     String retval = null;
     
     //
-    final ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
-    final OutputStream outputStream = byteArrayContainer.getOutputStream();
-    this.toNamespaceAwareXML( nestedMap, outputStream );
-    retval = byteArrayContainer.toString();
+    try
+    {
+      //
+      final ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+      final OutputStream outputStream = byteArrayContainer.getOutputStream();
+      this.toNamespaceAwareXML( nestedMap, outputStream );
+      retval = byteArrayContainer.toString();
+    }
+    catch ( Exception e )
+    {
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
+    }
     
     //
     return retval;
+  }
+  
+  /**
+   * Similar to {@link #toXMLDocument(Map, OutputStream)} but returns a {@link String} instance instead of writing into an
+   * {@link OutputStream}
+   * 
+   * @param nestedMap
+   *          {@link Map}
+   * @see XMLNestedMapConverter
+   * @see #toNamespaceAwareXML(Map)
+   * @see #toXML(Map)
+   * @return xml content
+   */
+  public String toXMLDocument( Map<String, Object> nestedMap )
+  {
+    //
+    String retval = null;
+    
+    //
+    try
+    {
+      //
+      final ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+      final OutputStream outputStream = byteArrayContainer.getOutputStream();
+      this.toXMLDocument( nestedMap, outputStream );
+      retval = byteArrayContainer.toString();
+    }
+    catch ( Exception e )
+    {
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Similar to {@link #toXML(Map, OutputStream)} but encloses the given nested {@link Map} into a xml document with a single root
+   * tag
+   * 
+   * @param nestedMap
+   * @param outputStream
+   * @see #toXML(Map, OutputStream)
+   * @see #toNamespaceAwareXMLDocument(Map, OutputStream)
+   */
+  public void toXMLDocument( Map<String, Object> nestedMap, OutputStream outputStream )
+  {
+    //      
+    final boolean includeDocumentHeader = true;
+    this.toXML( nestedMap, outputStream, includeDocumentHeader );
+  }
+  
+  /**
+   * Similar to {@link #toNamespaceAwareXML(Map, OutputStream)} but returns a {@link String} instance instead of writing into an
+   * {@link OutputStream}
+   * 
+   * @param nestedMap
+   *          {@link Map}
+   * @see XMLNestedMapConverter
+   * @see #toNamespaceAwareXML(Map, OutputStream)
+   * @see #toNamespaceAwareXMLDocument(Map, OutputStream)
+   * @return xml content
+   */
+  public String toNamespaceAwareXMLDocument( Map<QName, Object> nestedMap )
+  {
+    //
+    String retval = null;
+    
+    //
+    try
+    {
+      //
+      final ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+      final OutputStream outputStream = byteArrayContainer.getOutputStream();
+      this.toNamespaceAwareXMLDocument( nestedMap, outputStream );
+      outputStream.close();
+      retval = byteArrayContainer.toString();
+    }
+    catch ( Exception e )
+    {
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Similar to {@link #toXMLDocument(Map, OutputStream)} but has full qualified {@link QName}s
+   * 
+   * @param nestedMap
+   * @param outputStream
+   * @see #toXML(Map, OutputStream)
+   * @see #toNamespaceAwareXMLDocument(Map)
+   */
+  public void toNamespaceAwareXMLDocument( Map<QName, Object> nestedMap, OutputStream outputStream )
+  {
+    //
+    final boolean includeDocumentHeader = true;
+    this.toNamespaceAwareXML( nestedMap, outputStream, includeDocumentHeader );
   }
   
   /**
@@ -451,12 +579,35 @@ public class XMLNestedMapConverter
    * The {@link OutputStream} will not be closed by this method call.
    * 
    * @see #toNamespaceAwareXML(Map, OutputStream)
+   * @see #toXMLDocument(Map)
+   * @see #toNamespaceAwareXMLDocument(Map)
    * @param nestedMap
    *          {@link Map}
    * @param outputStream
    *          {@link OutputStream}
    */
   public void toXML( Map<String, Object> nestedMap, OutputStream outputStream )
+  {
+    final boolean includeDocumentHeader = false;
+    this.toXML( nestedMap, outputStream, includeDocumentHeader );
+  }
+  
+  /**
+   * Similar to {@link #toXML(Map)} but writes the result to a given {@link OutputStream} directly instead of creating a
+   * {@link String}. <br>
+   * <br>
+   * The {@link OutputStream} will not be closed by this method call.
+   * 
+   * @see #toNamespaceAwareXML(Map, OutputStream)
+   * @see #toXMLDocument(Map)
+   * @see #toNamespaceAwareXMLDocument(Map)
+   * @param nestedMap
+   *          {@link Map}
+   * @param outputStream
+   *          {@link OutputStream}
+   * @param includeDocumentHeader
+   */
+  private void toXML( Map<String, Object> nestedMap, OutputStream outputStream, boolean includeDocumentHeader )
   {
     //
     final ElementConverter<String, QName> keyElementConverter = new ElementConverter<String, QName>()
@@ -467,13 +618,14 @@ public class XMLNestedMapConverter
         return new QName( element );
       }
     };
-    this.toXML( nestedMap, keyElementConverter, outputStream );
+    this.toXML( nestedMap, outputStream, keyElementConverter, includeDocumentHeader );
   }
   
   /**
    * Similar to {@link #toXML(Map, OutputStream)} but for {@link Map}s having {@link QName}s as key type
    * 
    * @see #toXML(Map, OutputStream)
+   * @see #toNamespaceAwareXMLDocument(Map, OutputStream)
    * @param nestedMap
    *          {@link Map}
    * @param outputStream
@@ -481,9 +633,26 @@ public class XMLNestedMapConverter
    */
   public void toNamespaceAwareXML( Map<QName, Object> nestedMap, OutputStream outputStream )
   {
+    final boolean includeDocumentHeader = false;
+    this.toNamespaceAwareXML( nestedMap, outputStream, includeDocumentHeader );
+  }
+  
+  /**
+   * Similar to {@link #toXML(Map, OutputStream)} but for {@link Map}s having {@link QName}s as key type
+   * 
+   * @see #toXML(Map, OutputStream)
+   * @see #toNamespaceAwareXMLDocument(Map, OutputStream)
+   * @param nestedMap
+   *          {@link Map}
+   * @param outputStream
+   *          {@link OutputStream}
+   * @param includeDocumentHeader
+   */
+  private void toNamespaceAwareXML( Map<QName, Object> nestedMap, OutputStream outputStream, boolean includeDocumentHeader )
+  {
     //
     final ElementConverter<QName, QName> keyElementConverter = new ElementConverterIdentitiyCast<QName, QName>();
-    this.toXML( nestedMap, keyElementConverter, outputStream );
+    this.toXML( nestedMap, outputStream, keyElementConverter, includeDocumentHeader );
   }
   
   /**
@@ -491,197 +660,212 @@ public class XMLNestedMapConverter
    *          {@link Map}
    * @param outputStream
    *          {@link OutputStream}
+   * @param includeDocumentHeader
+   *          if true a xml document header is written out additionally
    */
   private <K> void toXML( Map<K, Object> nestedMap,
+                          OutputStream outputStream,
                           final ElementConverter<K, QName> keyElementConverter,
-                          OutputStream outputStream )
+                          boolean includeDocumentHeader )
   {
     //
-    try
+    if ( nestedMap != null && keyElementConverter != null && outputStream != null )
     {
-      //
-      final XMLEventWriter xmlEventWriter = XMLOutputFactory.newInstance().createXMLEventWriter( outputStream );
-      final XMLEventFactory xmlEventFactory = XMLEventFactory.newInstance();
-      final ExceptionHandler exceptionHandler = this.exceptionHandler;
-      
       //
       try
       {
         //
-        class Helper
+        final XMLEventWriter xmlEventWriter = XMLOutputFactory.newInstance().createXMLEventWriter( outputStream );
+        final XMLEventFactory xmlEventFactory = XMLEventFactory.newInstance();
+        final ExceptionHandler exceptionHandler = this.exceptionHandler;
+        
+        //
+        try
         {
-          /* ********************************************** Variables ********************************************** */
-          private List<String> namespaceStack = new ArrayList<String>();
-          
-          /* ********************************************** Methods ********************************************** */
-          
-          @SuppressWarnings("unchecked")
-          public void write( Map<K, Object> map )
+          //
+          class Helper
           {
-            if ( map != null )
+            /* ********************************************** Variables ********************************************** */
+            private List<String> namespaceStack = new ArrayList<String>();
+            
+            /* ********************************************** Methods ********************************************** */
+            
+            @SuppressWarnings("unchecked")
+            public void write( Map<K, Object> map )
             {
-              for ( K key : map.keySet() )
+              if ( map != null )
               {
-                //
-                final QName tagName = keyElementConverter.convert( key );
-                final Object value = map.get( key );
-                
-                //
-                if ( value instanceof String )
+                for ( K key : map.keySet() )
                 {
                   //
-                  this.writeStartTag( tagName );
+                  final QName tagName = keyElementConverter.convert( key );
+                  final Object value = map.get( key );
                   
                   //
-                  final String text = (String) value;
-                  this.writeText( text );
-                  
-                  //
-                  this.writeEndTag( tagName );
-                }
-                else if ( value instanceof Map )
-                {
-                  //
-                  this.writeStartTag( tagName );
-                  
-                  //
-                  final Map<K, Object> subMap = (Map<K, Object>) value;
-                  this.write( subMap );
-                  
-                  //
-                  this.writeEndTag( tagName );
-                }
-                else if ( value instanceof List )
-                {
-                  //
-                  final List<Object> valueList = (List<Object>) value;
-                  this.write( tagName, valueList );
-                }
-              }
-            }
-          }
-          
-          /**
-           * @param tagName
-           */
-          private void writeStartTag( QName tagName )
-          {
-            //
-            try
-            {
-              //
-              final String namespaceURI = tagName.getNamespaceURI();
-              
-              //            
-              final Iterator<?> attributes = null;
-              final Iterator<?> namespaces = StringUtils.isNotBlank( namespaceURI )
-                                             && !StringUtils.equals( namespaceURI, ListUtils.lastElement( this.namespaceStack ) ) ? IteratorUtils.valueOf( xmlEventFactory.createNamespace( namespaceURI ) )
-                                                                                                                                 : null;
-              StartElement startElement = xmlEventFactory.createStartElement( tagName, attributes, namespaces );
-              xmlEventWriter.add( startElement );
-              
-              //
-              this.namespaceStack.add( namespaceURI );
-            }
-            catch ( Exception e )
-            {
-              exceptionHandler.handleException( e );
-            }
-          }
-          
-          /**
-           * @param tagName
-           */
-          private void writeEndTag( QName tagName )
-          {
-            //
-            try
-            {
-              //            
-              final Iterator<?> namespaces = null;
-              EndElement endElement = xmlEventFactory.createEndElement( tagName, namespaces );
-              xmlEventWriter.add( endElement );
-              
-              //
-              ListUtils.removeLast( this.namespaceStack );
-            }
-            catch ( Exception e )
-            {
-              exceptionHandler.handleException( e );
-            }
-          }
-          
-          /**
-           * @param text
-           */
-          private void writeText( String text )
-          {
-            //
-            try
-            {
-              //            
-              final Characters characters = xmlEventFactory.createCharacters( text );
-              xmlEventWriter.add( characters );
-            }
-            catch ( Exception e )
-            {
-              exceptionHandler.handleException( e );
-            }
-          }
-          
-          /**
-           * @param tagName
-           * @param valueList
-           */
-          @SuppressWarnings("unchecked")
-          private void write( QName tagName, List<Object> valueList )
-          {
-            if ( valueList != null )
-            {
-              for ( Object value : valueList )
-              {
-                //
-                if ( value != null )
-                {
-                  //
-                  this.writeStartTag( tagName );
-                  
-                  //
-                  if ( value instanceof Map )
+                  if ( value instanceof String )
                   {
                     //
-                    final Map<K, Object> map = (Map<K, Object>) value;
-                    this.write( map );
-                  }
-                  else if ( value instanceof String )
-                  {
+                    this.writeStartTag( tagName );
+                    
                     //
                     final String text = (String) value;
                     this.writeText( text );
+                    
+                    //
+                    this.writeEndTag( tagName );
                   }
-                  
+                  else if ( value instanceof Map )
+                  {
+                    //
+                    this.writeStartTag( tagName );
+                    
+                    //
+                    final Map<K, Object> subMap = (Map<K, Object>) value;
+                    this.write( subMap );
+                    
+                    //
+                    this.writeEndTag( tagName );
+                  }
+                  else if ( value instanceof List )
+                  {
+                    //
+                    final List<Object> valueList = (List<Object>) value;
+                    this.write( tagName, valueList );
+                  }
+                }
+              }
+            }
+            
+            /**
+             * @param tagName
+             */
+            private void writeStartTag( QName tagName )
+            {
+              //
+              try
+              {
+                //
+                final String namespaceURI = tagName.getNamespaceURI();
+                
+                //            
+                final Iterator<?> attributes = null;
+                final Iterator<?> namespaces = StringUtils.isNotBlank( namespaceURI )
+                                               && !StringUtils.equals( namespaceURI, ListUtils.lastElement( this.namespaceStack ) ) ? IteratorUtils.valueOf( xmlEventFactory.createNamespace( namespaceURI ) )
+                                                                                                                                   : null;
+                StartElement startElement = xmlEventFactory.createStartElement( tagName, attributes, namespaces );
+                xmlEventWriter.add( startElement );
+                
+                //
+                this.namespaceStack.add( namespaceURI );
+              }
+              catch ( Exception e )
+              {
+                exceptionHandler.handleException( e );
+              }
+            }
+            
+            /**
+             * @param tagName
+             */
+            private void writeEndTag( QName tagName )
+            {
+              //
+              try
+              {
+                //            
+                final Iterator<?> namespaces = null;
+                EndElement endElement = xmlEventFactory.createEndElement( tagName, namespaces );
+                xmlEventWriter.add( endElement );
+                
+                //
+                ListUtils.removeLast( this.namespaceStack );
+              }
+              catch ( Exception e )
+              {
+                exceptionHandler.handleException( e );
+              }
+            }
+            
+            /**
+             * @param text
+             */
+            private void writeText( String text )
+            {
+              //
+              try
+              {
+                //            
+                final Characters characters = xmlEventFactory.createCharacters( text );
+                xmlEventWriter.add( characters );
+              }
+              catch ( Exception e )
+              {
+                exceptionHandler.handleException( e );
+              }
+            }
+            
+            /**
+             * @param tagName
+             * @param valueList
+             */
+            @SuppressWarnings("unchecked")
+            private void write( QName tagName, List<Object> valueList )
+            {
+              if ( valueList != null )
+              {
+                for ( Object value : valueList )
+                {
                   //
-                  this.writeEndTag( tagName );
+                  if ( value != null )
+                  {
+                    //
+                    this.writeStartTag( tagName );
+                    
+                    //
+                    if ( value instanceof Map )
+                    {
+                      //
+                      final Map<K, Object> map = (Map<K, Object>) value;
+                      this.write( map );
+                    }
+                    else if ( value instanceof String )
+                    {
+                      //
+                      final String text = (String) value;
+                      this.writeText( text );
+                    }
+                    
+                    //
+                    this.writeEndTag( tagName );
+                  }
                 }
               }
             }
           }
+          
+          //
+          if ( includeDocumentHeader )
+          {
+            xmlEventWriter.add( xmlEventFactory.createStartDocument() );
+          }
+          
+          //
+          new Helper().write( nestedMap );
         }
-        new Helper().write( nestedMap );
+        finally
+        {
+          xmlEventWriter.close();
+          outputStream.flush();
+        }
       }
-      finally
+      catch ( Exception e )
       {
-        xmlEventWriter.close();
+        if ( this.exceptionHandler != null )
+        {
+          this.exceptionHandler.handleException( e );
+        }
       }
     }
-    catch ( Exception e )
-    {
-      if ( this.exceptionHandler != null )
-      {
-        this.exceptionHandler.handleException( e );
-      }
-    }
-    
   }
   
   /**
