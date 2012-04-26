@@ -145,6 +145,8 @@ import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttr
 public class XMLIteratorFactory
 {
   /* ********************************************** Constants ********************************************** */
+  public static final String              DEFAULT_ENCODING                   = "UTF-8";
+  /* ********************************************** Constants ********************************************** */
   private final Factory<Accessor<String>> SIMPLE_ACCESSOR_FACTORY            = new Factory<Accessor<String>>()
                                                                              {
                                                                                @Override
@@ -171,6 +173,7 @@ public class XMLIteratorFactory
   
   /* ********************************************** Beans / Services / References ********************************************** */
   private final ExceptionHandler          exceptionHandler;
+  private String                          encoding                           = XMLIteratorFactory.DEFAULT_ENCODING;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
@@ -1221,6 +1224,7 @@ public class XMLIteratorFactory
         //
         final XMLEventReader xmlEventReader = this.xmlEventReader;
         final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+        final String encoding = this.encoding;
         final XMLEventFactory xmlEventFactory = XMLEventFactory.newInstance();
         final ExceptionHandler exceptionHandler = this.exceptionHandler;
         final TraversalContextControl traversalContextControl = this.traversalContextControl;
@@ -1295,7 +1299,7 @@ public class XMLIteratorFactory
               //
               ByteArrayContainer byteArrayContainerOut = new ByteArrayContainer();
               final OutputStream outputStream = byteArrayContainerOut.getOutputStream();
-              final XMLEventConsumer xmlEventConsumer = xmlOutputFactory.createXMLEventWriter( outputStream );
+              final XMLEventConsumer xmlEventConsumer = xmlOutputFactory.createXMLEventWriter( outputStream, encoding );
               
               //
               boolean read = false;
@@ -1465,5 +1469,18 @@ public class XMLIteratorFactory
     
     //
     return this.accessorFactory.newInstance();
+  }
+  
+  /**
+   * Sets the encoding. Default is {@value #DEFAULT_ENCODING}
+   * 
+   * @param encoding
+   *          the encoding to set
+   * @return this
+   */
+  public XMLIteratorFactory setEncoding( String encoding )
+  {
+    this.encoding = encoding;
+    return this;
   }
 }
