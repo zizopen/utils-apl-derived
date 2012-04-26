@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.junit.Test;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 
@@ -84,6 +86,29 @@ public class XMLNestedMapConverterTest
     //System.out.println( xmlResult );
     assertNotNull( xmlResult );
     assertEquals( "<Books><header><metainfo>Some meta information</metainfo></header><Book><Title>Simple title</Title><author>\n            an author\n        </author></Book><Book><Title>Second simple\n            title\n        </Title><Author>Second author</Author></Book></Books>",
+                  xmlResult );
+    
+  }
+  
+  @Test
+  public void testToNamespaceAwareXML()
+  {
+    //    
+    final ByteArrayContainer byteArrayContainer = new ByteArrayContainer().copyFrom( this.getClass()
+                                                                                         .getResourceAsStream( "books.xml" ) );
+    
+    //
+    final String xmlContent = byteArrayContainer.toString();
+    final XMLNestedMapConverter xmlNestedMapConverter = new XMLNestedMapConverter();
+    Map<QName, Object> nestedMap = xmlNestedMapConverter.newNamespaceAwareMapFromXML( xmlContent );
+    
+    //System.out.println( MapUtils.toStringUsingHierarchy( nestedMap ) );
+    
+    String xmlResult = xmlNestedMapConverter.toNamespaceAwareXML( nestedMap );
+    //System.out.println( xmlResult );
+    
+    assertNotNull( xmlResult );
+    assertEquals( "<Books xmlns=\"http://www.example.org\"><header><metainfo>Some meta information</metainfo></header><Book><Title>Simple title</Title><author xmlns=\"http://www.other.example.org\">\n            an author\n        </author></Book><Book><Title>Second simple\n            title\n        </Title><Author xmlns=\"http://www.other.example.org\">Second author</Author></Book></Books>",
                   xmlResult );
     
   }

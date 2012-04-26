@@ -304,4 +304,15 @@ public class IteratorUtils
     //
     return retlist.toArray( new ListIterator[retlist.size()] );
   }
+  
+  /**
+   * Returns an {@link Iterator} instance for the given elements
+   * 
+   * @param elements
+   * @return new instance of an {@link Iterator}
+   */
+  public static <E> Iterator<E> valueOf( E... elements )
+  {
+    return Arrays.asList( elements ).iterator();
+  }
 }
