@@ -66,4 +66,25 @@ public class XMLNestedMapConverterTest
     
   }
   
+  @Test
+  public void testToXML()
+  {
+    //    
+    final ByteArrayContainer byteArrayContainer = new ByteArrayContainer().copyFrom( this.getClass()
+                                                                                         .getResourceAsStream( "books.xml" ) );
+    
+    //
+    final String xmlContent = byteArrayContainer.toString();
+    final XMLNestedMapConverter xmlNestedMapConverter = new XMLNestedMapConverter();
+    Map<String, Object> nestedMap = xmlNestedMapConverter.newMapFromXML( xmlContent );
+    
+    //System.out.println( MapUtils.toStringUsingHierarchy( nestedMap ) );
+    
+    String xmlResult = xmlNestedMapConverter.toXML( nestedMap );
+    //System.out.println( xmlResult );
+    assertNotNull( xmlResult );
+    assertEquals( "<Books><header><metainfo>Some meta information</metainfo></header><Book><Title>Simple title</Title><author>\n            an author\n        </author></Book><Book><Title>Second simple\n            title\n        </Title><Author>Second author</Author></Book></Books>",
+                  xmlResult );
+    
+  }
 }

@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.xml;
 
+import java.io.OutputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,11 +25,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.Characters;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.Namespace;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -37,6 +43,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCast;
 import org.omnaest.utils.structure.iterator.IterableUtils;
@@ -112,6 +119,7 @@ public class XMLNestedMapConverter
    * Attributes are mapped to key value pairs as they are. Sub tags containing only text data will be converted to key value pairs
    * using their tag name as key and the textual information as value.
    * 
+   * @see XMLNestedMapConverter
    * @see #newMapFromXML(CharSequence)
    * @param xmlContent
    * @return new (nested) {@link Map} instance
@@ -124,8 +132,8 @@ public class XMLNestedMapConverter
   }
   
   /**
-   * Similar to {@link #newNamespaceAwareMapFromXML(CharSequence)} but with non namespace aware {@link String} values as keys.
-   * Those keys will only contain the tag name without any namespace information.
+   * Similar to {@link #newNamespaceAwareMapFromXML(CharSequence)} but with non {@link Namespace} aware {@link String} values as
+   * keys. Those keys will only contain the tag name without any {@link Namespace} information.
    * 
    * @see #newNamespaceAwareMapFromXML(CharSequence)
    * @param xmlContent
@@ -384,6 +392,223 @@ public class XMLNestedMapConverter
     
     //
     return retmap;
+  }
+  
+  /**
+   * Returns the xml content equivalent to the given nested {@link Map} structure.
+   * 
+   * @see XMLNestedMapConverter
+   * @param nestedMap
+   *          {@link Map}
+   * @return xml content
+   */
+  public String toXML( Map<String, Object> nestedMap )
+  {
+    //
+    String retval = null;
+    
+    //
+    final ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+    final OutputStream outputStream = byteArrayContainer.getOutputStream();
+    this.toXML( nestedMap, outputStream );
+    retval = byteArrayContainer.toString();
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Similar to {@link #toXML(Map)} but writes the result to a given {@link OutputStream} directly instead of creating a
+   * {@link String}. <br>
+   * <br>
+   * The {@link OutputStream} will not be closed by this method call.
+   * 
+   * @param nestedMap
+   *          {@link Map}
+   * @param outputStream
+   *          {@link OutputStream}
+   */
+  public void toXML( Map<String, Object> nestedMap, OutputStream outputStream )
+  {
+    //
+    final ElementConverter<String, QName> keyElementConverter = new ElementConverter<String, QName>()
+    {
+      @Override
+      public QName convert( String element )
+      {
+        return new QName( element );
+      }
+    };
+    this.toXML( nestedMap, keyElementConverter, outputStream );
+  }
+  
+  /**
+   * @param nestedMap
+   *          {@link Map}
+   * @param outputStream
+   *          {@link OutputStream}
+   */
+  private <K> void toXML( Map<K, Object> nestedMap,
+                          final ElementConverter<K, QName> keyElementConverter,
+                          OutputStream outputStream )
+  {
+    //
+    try
+    {
+      //
+      final XMLEventWriter xmlEventWriter = XMLOutputFactory.newInstance().createXMLEventWriter( outputStream );
+      final XMLEventFactory xmlEventFactory = XMLEventFactory.newInstance();
+      final ExceptionHandler exceptionHandler = this.exceptionHandler;
+      
+      //
+      try
+      {
+        //
+        class Helper
+        {
+          @SuppressWarnings("unchecked")
+          public void write( Map<K, Object> map )
+          {
+            if ( map != null )
+            {
+              for ( K key : map.keySet() )
+              {
+                //
+                final QName tagName = keyElementConverter.convert( key );
+                final Object value = map.get( key );
+                
+                //
+                if ( value instanceof String )
+                {
+                  //
+                  this.writeStartTag( tagName );
+                  
+                  //
+                  final String text = (String) value;
+                  this.writeText( text );
+                  
+                  //
+                  this.writeEndTag( tagName );
+                }
+                else if ( value instanceof Map )
+                {
+                  //
+                  this.writeStartTag( tagName );
+                  
+                  //
+                  final Map<K, Object> subMap = (Map<K, Object>) value;
+                  this.write( subMap );
+                  
+                  //
+                  this.writeEndTag( tagName );
+                }
+                else if ( value instanceof List )
+                {
+                  //
+                  final List<Object> valueList = (List<Object>) value;
+                  this.write( tagName, valueList );
+                }
+              }
+            }
+          }
+          
+          private void writeStartTag( QName tagName )
+          {
+            //
+            try
+            {
+              //            
+              final Iterator<?> attributes = null;
+              final Iterator<?> namespaces = null;
+              StartElement startElement = xmlEventFactory.createStartElement( tagName, attributes, namespaces );
+              xmlEventWriter.add( startElement );
+            }
+            catch ( Exception e )
+            {
+              exceptionHandler.handleException( e );
+            }
+          }
+          
+          private void writeEndTag( QName tagName )
+          {
+            //
+            try
+            {
+              //            
+              final Iterator<?> namespaces = null;
+              EndElement endElement = xmlEventFactory.createEndElement( tagName, namespaces );
+              xmlEventWriter.add( endElement );
+            }
+            catch ( Exception e )
+            {
+              exceptionHandler.handleException( e );
+            }
+          }
+          
+          private void writeText( String text )
+          {
+            //
+            try
+            {
+              //            
+              final Characters characters = xmlEventFactory.createCharacters( text );
+              xmlEventWriter.add( characters );
+            }
+            catch ( Exception e )
+            {
+              exceptionHandler.handleException( e );
+            }
+          }
+          
+          @SuppressWarnings("unchecked")
+          private void write( QName tagName, List<Object> valueList )
+          {
+            if ( valueList != null )
+            {
+              for ( Object value : valueList )
+              {
+                //
+                if ( value != null )
+                {
+                  //
+                  this.writeStartTag( tagName );
+                  
+                  //
+                  if ( value instanceof Map )
+                  {
+                    //
+                    final Map<K, Object> map = (Map<K, Object>) value;
+                    this.write( map );
+                  }
+                  else if ( value instanceof String )
+                  {
+                    //
+                    final String text = (String) value;
+                    this.writeText( text );
+                  }
+                  
+                  //
+                  this.writeEndTag( tagName );
+                }
+              }
+            }
+          }
+        }
+        new Helper().write( nestedMap );
+      }
+      finally
+      {
+        xmlEventWriter.close();
+      }
+    }
+    catch ( Exception e )
+    {
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
+    }
+    
   }
   
   /**
