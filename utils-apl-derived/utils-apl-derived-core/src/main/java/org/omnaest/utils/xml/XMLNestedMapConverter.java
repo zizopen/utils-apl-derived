@@ -107,8 +107,11 @@ import org.omnaest.utils.tuple.TupleTwo;
  */
 public class XMLNestedMapConverter
 {
+  /* ********************************************** Constants ********************************************** */
+  public static final String DEFAULT_ENCODING = "UTF-8";
   /* ********************************************** Variables ********************************************** */
-  private ExceptionHandler exceptionHandler = null;
+  private ExceptionHandler   exceptionHandler = null;
+  private String             encoding         = XMLNestedMapConverter.DEFAULT_ENCODING;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -675,7 +678,7 @@ public class XMLNestedMapConverter
       try
       {
         //
-        final XMLEventWriter xmlEventWriter = XMLOutputFactory.newInstance().createXMLEventWriter( outputStream );
+        final XMLEventWriter xmlEventWriter = XMLOutputFactory.newInstance().createXMLEventWriter( outputStream, this.encoding );
         final XMLEventFactory xmlEventFactory = XMLEventFactory.newInstance();
         final ExceptionHandler exceptionHandler = this.exceptionHandler;
         
@@ -876,6 +879,19 @@ public class XMLNestedMapConverter
   public XMLNestedMapConverter setExceptionHandler( ExceptionHandler exceptionHandler )
   {
     this.exceptionHandler = exceptionHandler;
+    return this;
+  }
+  
+  /**
+   * Sets another encoding. Default is {@value #DEFAULT_ENCODING}.
+   * 
+   * @param encoding
+   *          the encoding to set
+   * @return this
+   */
+  public XMLNestedMapConverter setEncoding( String encoding )
+  {
+    this.encoding = encoding;
     return this;
   }
 }

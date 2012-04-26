@@ -53,7 +53,6 @@ import org.w3c.dom.Node;
  * @see XMLIteratorFactory
  * @author Omnaest
  */
-@Ignore("Problems with maven consoles unit test")
 public class XMLIteratorFactoryTest
 {
   //@Rule
