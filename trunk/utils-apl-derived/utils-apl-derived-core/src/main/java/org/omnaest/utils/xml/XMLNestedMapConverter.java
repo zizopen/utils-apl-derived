@@ -40,6 +40,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.io.input.CharSequenceReader;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.collection.list.ListUtils;
@@ -47,6 +48,7 @@ import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCast;
 import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.structure.iterator.IteratorUtils;
 import org.omnaest.utils.tuple.TupleTwo;
 
 /**
@@ -395,9 +397,10 @@ public class XMLNestedMapConverter
   }
   
   /**
-   * Returns the xml content equivalent to the given nested {@link Map} structure.
+   * Returns the xml content equivalent to the given nested {@link Map} structure
    * 
    * @see XMLNestedMapConverter
+   * @see #toNamespaceAwareXML(Map)
    * @param nestedMap
    *          {@link Map}
    * @return xml content
@@ -418,11 +421,36 @@ public class XMLNestedMapConverter
   }
   
   /**
+   * Similar to {@link #toXML(Map)} but for {@link Map} instances having a {@link QName} based key type
+   * 
+   * @see XMLNestedMapConverter
+   * @see #toXML(Map)
+   * @param nestedMap
+   *          {@link Map}
+   * @return xml content
+   */
+  public String toNamespaceAwareXML( Map<QName, Object> nestedMap )
+  {
+    //
+    String retval = null;
+    
+    //
+    final ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+    final OutputStream outputStream = byteArrayContainer.getOutputStream();
+    this.toNamespaceAwareXML( nestedMap, outputStream );
+    retval = byteArrayContainer.toString();
+    
+    //
+    return retval;
+  }
+  
+  /**
    * Similar to {@link #toXML(Map)} but writes the result to a given {@link OutputStream} directly instead of creating a
    * {@link String}. <br>
    * <br>
    * The {@link OutputStream} will not be closed by this method call.
    * 
+   * @see #toNamespaceAwareXML(Map, OutputStream)
    * @param nestedMap
    *          {@link Map}
    * @param outputStream
@@ -439,6 +467,22 @@ public class XMLNestedMapConverter
         return new QName( element );
       }
     };
+    this.toXML( nestedMap, keyElementConverter, outputStream );
+  }
+  
+  /**
+   * Similar to {@link #toXML(Map, OutputStream)} but for {@link Map}s having {@link QName}s as key type
+   * 
+   * @see #toXML(Map, OutputStream)
+   * @param nestedMap
+   *          {@link Map}
+   * @param outputStream
+   *          {@link OutputStream}
+   */
+  public void toNamespaceAwareXML( Map<QName, Object> nestedMap, OutputStream outputStream )
+  {
+    //
+    final ElementConverter<QName, QName> keyElementConverter = new ElementConverterIdentitiyCast<QName, QName>();
     this.toXML( nestedMap, keyElementConverter, outputStream );
   }
   
@@ -466,6 +510,11 @@ public class XMLNestedMapConverter
         //
         class Helper
         {
+          /* ********************************************** Variables ********************************************** */
+          private List<String> namespaceStack = new ArrayList<String>();
+          
+          /* ********************************************** Methods ********************************************** */
+          
           @SuppressWarnings("unchecked")
           public void write( Map<K, Object> map )
           {
@@ -512,16 +561,27 @@ public class XMLNestedMapConverter
             }
           }
           
+          /**
+           * @param tagName
+           */
           private void writeStartTag( QName tagName )
           {
             //
             try
             {
+              //
+              final String namespaceURI = tagName.getNamespaceURI();
+              
               //            
               final Iterator<?> attributes = null;
-              final Iterator<?> namespaces = null;
+              final Iterator<?> namespaces = StringUtils.isNotBlank( namespaceURI )
+                                             && !StringUtils.equals( namespaceURI, ListUtils.lastElement( this.namespaceStack ) ) ? IteratorUtils.valueOf( xmlEventFactory.createNamespace( namespaceURI ) )
+                                                                                                                                 : null;
               StartElement startElement = xmlEventFactory.createStartElement( tagName, attributes, namespaces );
               xmlEventWriter.add( startElement );
+              
+              //
+              this.namespaceStack.add( namespaceURI );
             }
             catch ( Exception e )
             {
@@ -529,6 +589,9 @@ public class XMLNestedMapConverter
             }
           }
           
+          /**
+           * @param tagName
+           */
           private void writeEndTag( QName tagName )
           {
             //
@@ -538,6 +601,9 @@ public class XMLNestedMapConverter
               final Iterator<?> namespaces = null;
               EndElement endElement = xmlEventFactory.createEndElement( tagName, namespaces );
               xmlEventWriter.add( endElement );
+              
+              //
+              ListUtils.removeLast( this.namespaceStack );
             }
             catch ( Exception e )
             {
@@ -545,6 +611,9 @@ public class XMLNestedMapConverter
             }
           }
           
+          /**
+           * @param text
+           */
           private void writeText( String text )
           {
             //
@@ -560,6 +629,10 @@ public class XMLNestedMapConverter
             }
           }
           
+          /**
+           * @param tagName
+           * @param valueList
+           */
           @SuppressWarnings("unchecked")
           private void write( QName tagName, List<Object> valueList )
           {
