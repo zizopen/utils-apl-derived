@@ -21,23 +21,44 @@ import java.util.Iterator;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Collection wrapper which acts as an {@link XmlRootElement} for any {@link Collection}. Since the exact type of the internal
  * {@link Collection} instance is determined at runtime, each of the objects have its own schema definition. This will cause some
- * overhead in comparison to a {@link Collection} which is wrapped not by its interface.
+ * overhead in comparison to a {@link Collection} which is wrapped not by its interface. <br>
+ * <br>
+ * Example output:<br>
+ * 
+ * <pre>
+ * &lt;collection&gt;
+ *     &lt;string&gt;value1&lt;/string&gt;
+ *     &lt;string&gt;value2&lt;/string&gt;
+ *     &lt;string&gt;value3&lt;/string&gt;
+ * &lt;/collection&gt
+ * </pre>
+ * 
+ * See {@link JAXBList} for further details on conversion syntax. <br>
+ * <br>
  * 
  * @see #newInstance(Collection)
+ * @see JAXBList
+ * @see JAXBMap
+ * @see JAXBSet
  * @author Omnaest
  * @param <E>
  */
-@XmlRootElement
+@XmlRootElement(name = "collection")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JAXBCollection<E> implements Collection<E>
 {
   /* ********************************************** Variables ********************************************** */
-  @XmlElement
+  @XmlElements({ @XmlElement(name = "string", type = String.class), @XmlElement(name = "byte", type = Byte.class),
+      @XmlElement(name = "short", type = Short.class), @XmlElement(name = "int", type = Integer.class),
+      @XmlElement(name = "long", type = Long.class), @XmlElement(name = "char", type = Character.class),
+      @XmlElement(name = "float", type = Float.class), @XmlElement(name = "double", type = Double.class),
+      @XmlElement(name = "boolean", type = Boolean.class), @XmlElement(name = "object") })
   protected Collection<E> collection = null;
   
   /* ********************************************** Methods ********************************************** */

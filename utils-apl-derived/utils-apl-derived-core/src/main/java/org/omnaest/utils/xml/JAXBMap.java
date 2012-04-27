@@ -24,7 +24,28 @@ import org.omnaest.utils.structure.map.decorator.MapDecorator;
 
 /**
  * The {@link JAXBMap} is a artificial {@link XmlRootElement} for an arbitrary {@link Map} instance. It just stores an internal
- * map instance and delegates all {@link Map} based methods to it.
+ * map instance and delegates all {@link Map} based methods to it. <br>
+ * <br>
+ * Example output:<br>
+ * 
+ * <pre>
+ * &lt;map&gt;
+ *     &lt;entries&gt;
+ *         &lt;entry&gt;
+ *             &lt;key xsi:type=&quot;xs:string&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;key3&lt;/key&gt;
+ *             &lt;value xsi:type=&quot;xs:string&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;value3&lt;/value&gt;
+ *         &lt;/entry&gt;
+ *         &lt;entry&gt;
+ *             &lt;key xsi:type=&quot;xs:string&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;key2&lt;/key&gt;
+ *             &lt;value xsi:type=&quot;xs:string&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;value2&lt;/value&gt;
+ *         &lt;/entry&gt;
+ *         &lt;entry&gt;
+ *             &lt;key xsi:type=&quot;xs:string&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;key1&lt;/key&gt;
+ *             &lt;value xsi:type=&quot;xs:string&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;value1&lt;/value&gt;
+ *         &lt;/entry&gt;
+ *     &lt;/entries&gt;
+ * &lt;/map&gt;
+ * </pre>
  * 
  * @see #newInstance(Map)
  * @author Omnaest

@@ -22,23 +22,41 @@ import java.util.Set;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * {@link Set} wrapper which acts as an {@link XmlRootElement} for any {@link Set}. Since the exact type of the internal
  * {@link Set} instance is determined at runtime, each of the objects have its own schema definition. This will cause some
- * overhead in comparison to a {@link Set} which is wrapped not by its interface.
+ * overhead in comparison to a {@link Set} which is wrapped not by its interface. <br>
+ * <br>
+ * Example:<br>
+ * 
+ * <pre>
+ * &lt;set&gt;
+ *     &lt;string&gt;value3&lt;/string&gt;
+ *     &lt;string&gt;value1&lt;/string&gt;
+ *     &lt;string&gt;value2&lt;/string&gt;
+ * &lt;/set&gt;
+ * 
+ * </pre>
+ * 
+ * For more details on the xml format see {@link JAXBList}. <br>
  * 
  * @see #newInstance(Set)
  * @author Omnaest
  * @param <E>
  */
-@XmlRootElement
+@XmlRootElement(name = "set")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JAXBSet<E> implements Set<E>
 {
   /* ********************************************** Variables ********************************************** */
-  @XmlElement
+  @XmlElements({ @XmlElement(name = "string", type = String.class), @XmlElement(name = "byte", type = Byte.class),
+      @XmlElement(name = "short", type = Short.class), @XmlElement(name = "int", type = Integer.class),
+      @XmlElement(name = "long", type = Long.class), @XmlElement(name = "char", type = Character.class),
+      @XmlElement(name = "float", type = Float.class), @XmlElement(name = "double", type = Double.class),
+      @XmlElement(name = "boolean", type = Boolean.class), @XmlElement(name = "object") })
   protected Set<E> set = null;
   
   /* ********************************************** Methods ********************************************** */

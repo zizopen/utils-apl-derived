@@ -24,6 +24,10 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * @see JAXBCollection
+ * @author Omnaest
+ */
 public class JAXBCollectionTest
 {
   
@@ -47,7 +51,9 @@ public class JAXBCollectionTest
     //
     String xmlContent = JAXBXMLHelper.storeObjectAsXML( jaxbCollection );
     assertNotNull( xmlContent );
-    //System.out.println( xmlContent );
+    
+    //
+    System.out.println( xmlContent );
     
     //
     assertEquals( list, new ArrayList<String>( JAXBXMLHelper.cloneObject( jaxbCollection ) ) );

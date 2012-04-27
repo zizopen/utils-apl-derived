@@ -24,6 +24,10 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * @see JAXBSet
+ * @author Omnaest
+ */
 public class JAXBSetTest
 {
   
@@ -47,6 +51,9 @@ public class JAXBSetTest
     //
     String xmlContent = JAXBXMLHelper.storeObjectAsXML( jaxbSet );
     assertNotNull( xmlContent );
+    
+    //
+    // System.out.println( xmlContent );
     
     //
     assertEquals( set, new HashSet<String>( JAXBXMLHelper.cloneObject( jaxbSet ) ) );
