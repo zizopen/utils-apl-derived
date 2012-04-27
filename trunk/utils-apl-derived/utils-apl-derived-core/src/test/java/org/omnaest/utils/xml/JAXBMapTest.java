@@ -50,7 +50,7 @@ public class JAXBMapTest
     
     //
     String xmlContent = JAXBXMLHelper.storeObjectAsXML( jaxbMap );
-    //System.out.println( xmlContent );
+    System.out.println( xmlContent );
     
     //
     @SuppressWarnings("unchecked")

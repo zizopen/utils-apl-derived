@@ -23,23 +23,103 @@ import java.util.ListIterator;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * {@link List} wrapper which acts as an {@link XmlRootElement} for any {@link List}. Since the exact type of the internal
  * {@link List} instance is determined at runtime, each of the objects have its own schema definition. This will cause some
- * overhead in comparison to a {@link List} which is wrapped not by its interface.
+ * overhead in comparison to a {@link List} which is wrapped not by its interface. <br>
+ * <h1>Example:</h1> <br>
+ * Code:<br>
+ * 
+ * <pre>
+ * //
+ * List&lt;Object&gt; list = new ArrayList&lt;Object&gt;();
+ * list.add( String.valueOf( &quot;test&quot; ) );
+ * list.add( Character.valueOf( 'c' ) );
+ * list.add( Byte.valueOf( &quot;10&quot; ) );
+ * list.add( Short.valueOf( &quot;1000&quot; ) );
+ * list.add( Integer.valueOf( &quot;100000&quot; ) );
+ * list.add( Long.valueOf( &quot;1000000000&quot; ) );
+ * list.add( Float.valueOf( &quot;100000.111&quot; ) );
+ * list.add( Double.valueOf( &quot;100000.111&quot; ) );
+ * list.add( Boolean.valueOf( &quot;true&quot; ) );
+ * list.add( newTestEntity( 0 ) );
+ * list.add( newTestEntity( 1 ) );
+ * list.add( newTestEntity( 3 ) );
+ * 
+ * //
+ * JAXBList&lt;TestEntity&gt; jaxbList = JAXBList.newInstance( list );
+ * 
+ * //
+ * final MarshallingConfiguration marshallingConfiguration = new MarshallingConfiguration();
+ * marshallingConfiguration.setKnownTypes( TestEntity.class );
+ * 
+ * //
+ * String xmlContent = JAXBXMLHelper.storeObjectAsXML( jaxbList, marshallingConfiguration );
+ * </pre>
+ * 
+ * Entity:<br>
+ * 
+ * <pre>
+ * &#064;XmlType
+ * &#064;XmlAccessorType(XmlAccessType.FIELD)
+ * protected static class TestEntity
+ * {
+ *   
+ *   &#064;XmlElement
+ *   private String fieldString  = null;
+ *   
+ *   &#064;XmlElement
+ *   private int    fieldInteger = -1;
+ *   
+ * }
+ * </pre>
+ * 
+ * Produced XML content:<br>
+ * 
+ * <pre>
+ * &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; standalone=&quot;yes&quot;?&gt;
+ * &lt;list&gt;
+ *     &lt;string&gt;test&lt;/string&gt;
+ *     &lt;char&gt;99&lt;/char&gt;
+ *     &lt;byte&gt;10&lt;/byte&gt;
+ *     &lt;short&gt;1000&lt;/short&gt;
+ *     &lt;int&gt;100000&lt;/int&gt;
+ *     &lt;long&gt;1000000000&lt;/long&gt;
+ *     &lt;float&gt;100000.11&lt;/float&gt;
+ *     &lt;double&gt;100000.111&lt;/double&gt;
+ *     &lt;boolean&gt;true&lt;/boolean&gt;
+ *     &lt;object xsi:type=&quot;testEntity&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+ *         &lt;fieldString&gt;fieldString0&lt;/fieldString&gt;
+ *         &lt;fieldInteger&gt;0&lt;/fieldInteger&gt;
+ *     &lt;/object&gt;
+ *     &lt;object xsi:type=&quot;testEntity&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+ *         &lt;fieldString&gt;fieldString1&lt;/fieldString&gt;
+ *         &lt;fieldInteger&gt;1&lt;/fieldInteger&gt;
+ *     &lt;/object&gt;
+ *     &lt;object xsi:type=&quot;testEntity&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+ *         &lt;fieldString&gt;fieldString3&lt;/fieldString&gt;
+ *         &lt;fieldInteger&gt;3&lt;/fieldInteger&gt;
+ *     &lt;/object&gt;
+ * &lt;/list&gt;
+ * </pre>
  * 
  * @see #newInstance(List)
  * @author Omnaest
  * @param <E>
  */
-@XmlRootElement
+@XmlRootElement(name = "list")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JAXBList<E> implements List<E>
 {
   /* ********************************************** Variables ********************************************** */
-  @XmlElement
+  @XmlElements({ @XmlElement(name = "string", type = String.class), @XmlElement(name = "byte", type = Byte.class),
+      @XmlElement(name = "short", type = Short.class), @XmlElement(name = "int", type = Integer.class),
+      @XmlElement(name = "long", type = Long.class), @XmlElement(name = "char", type = Character.class),
+      @XmlElement(name = "float", type = Float.class), @XmlElement(name = "double", type = Double.class),
+      @XmlElement(name = "boolean", type = Boolean.class), @XmlElement(name = "object") })
   protected List<E> list = null;
   
   /* ********************************************** Methods ********************************************** */
