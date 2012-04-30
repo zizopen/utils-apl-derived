@@ -16,7 +16,6 @@
 package org.omnaest.utils.cache;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -199,13 +198,13 @@ public class ConcurrentWeakReferenceCache<K, V> implements Cache<K, V>
   @Override
   public Set<K> keySet()
   {
-    return Collections.unmodifiableSet( this.getCache().keySet() );
+    return this.getCache().keySet();
   }
   
   @Override
   public Collection<V> values()
   {
-    return Collections.unmodifiableCollection( this.getCache().values() );
+    return this.getCache().values();
   }
   
   @Override
@@ -240,13 +239,19 @@ public class ConcurrentWeakReferenceCache<K, V> implements Cache<K, V>
   }
   
   /**
-   * Returns every time a new one of the segment caches
+   * Returns every time a new one of the segment caches. This does move the internal pointer the opposite ways the
+   * {@link #executeOnAllCacheSegments(Operation)} will move through all the cache segments. This ensures only blocking once and
+   * not getting a race condition between the read and write iteraton.
    * 
    * @return
    */
   private Cache<K, V> getCache()
   {
-    return this.cacheList.get( (int) ( this.currentSegmentCounter.getAndIncrement() % this.numberOfSegments ) );
+    //
+    final int numberOfSegments = this.numberOfSegments;
+    final int index = ( numberOfSegments - 1 )
+                      - ( Math.abs( (int) this.currentSegmentCounter.getAndIncrement() ) % numberOfSegments );
+    return this.cacheList.get( index );
   }
   
 }

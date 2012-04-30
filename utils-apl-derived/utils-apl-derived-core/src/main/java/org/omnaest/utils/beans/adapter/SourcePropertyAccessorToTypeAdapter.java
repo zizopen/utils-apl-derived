@@ -63,7 +63,6 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
   /* ********************************************** Variables ********************************************** */
   
   protected T                                  classAdapter                               = null;
-  protected Class<T>                           type                                       = null;
   protected SourcePropertyAccessor             sourcePropertyAccessor                     = null;
   protected List<Annotation>                   declaredAnnotationListOfType               = null;
   protected Map<Method, Set<Annotation>>       declaredMethodToAnnotationSetMap           = null;
@@ -192,7 +191,7 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
    * <ul>
    * <li>{@link #setPropertyAccessOption(PropertyAccessOption)}</li>
    * <li>{@link #setRegardingAdapterAnnotation(boolean)}</li>
-   * <li>{@link #setRegardingPropertyNameTemplateAnnotation(boolean)}</li>
+   * <li>{@link #setRegardedAnnotationScope(RegardedAnnotationScope)}</li>
    * <li>{@link #setRegardingDefaultValueAnnotation(boolean)}</li>
    * </ul>
    * <br>
@@ -443,13 +442,13 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
     if ( type != null && sourcePropertyAccessor != null )
     {
       //      
-      SourcePropertyAccessorToTypeAdapter<T> propertyAccessorToTypeAdapter = new SourcePropertyAccessorToTypeAdapter<T>(
-                                                                                                                         type,
-                                                                                                                         sourcePropertyAccessor,
-                                                                                                                         configuration );
+      final SourcePropertyAccessorToTypeAdapter<T> propertyAccessorToTypeAdapter = new SourcePropertyAccessorToTypeAdapter<T>(
+                                                                                                                               type,
+                                                                                                                               sourcePropertyAccessor,
+                                                                                                                               configuration );
       
       //
-      retval = propertyAccessorToTypeAdapter.classAdapter;
+      retval = propertyAccessorToTypeAdapter.getClassAdapter();
     }
     
     //
@@ -457,7 +456,7 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
   }
   
   /**
-   * @see #newInstance(Class, SourcePropertyAccessor, Class...)
+   * @see #newInstance(Class, SourcePropertyAccessor, Configuration)
    * @param type
    * @param sourcePropertyAccessor
    * @param configuration
@@ -511,7 +510,6 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
     
     //
     this.sourcePropertyAccessor = sourcePropertyAccessor;
-    this.type = type;
     
     //
     boolean isRegardingAnnotations = RegardedAnnotationScope.DECLARED.equals( configuration.getRegardedAnnotationScope() )
@@ -568,5 +566,13 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
     catch ( Exception e )
     {
     }
+  }
+  
+  /**
+   * @return
+   */
+  protected T getClassAdapter()
+  {
+    return this.classAdapter;
   }
 }
