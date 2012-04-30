@@ -265,10 +265,7 @@ public class PropertynameMapToTypeAdapter<T> implements Serializable
    * @see #newInstance(Map, Class)
    * @param map
    * @param type
-   * @param underlyingMapAware
-   *          : true > returned stub implements {@link UnderlyingMapAware}
-   * @param propertyAccessOption
-   * @return new
+   * @return
    */
   public static <T> T newInstance( Map<String, Object> map, Class<? extends T> type )
   {

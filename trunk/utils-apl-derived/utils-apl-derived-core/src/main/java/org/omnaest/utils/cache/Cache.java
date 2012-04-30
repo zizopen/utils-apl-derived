@@ -39,19 +39,20 @@ import java.util.Set;
 public interface Cache<K, V> extends Map<K, V>
 {
   /**
-   * Returns an unmodifiable {@link Set} of all keys within the {@link Cache}
+   * Returns an unmodifiable {@link Set} of all keys within the {@link Cache} which only represents a snapshot in moment
    */
   @Override
   public Set<K> keySet();
   
   /**
-   * Returns an unmodifiable {@link Collection} of all values within the {@link Cache}
+   * Returns an unmodifiable {@link Collection} of all values within the {@link Cache} which only represents a snapshot in moment
    */
   @Override
   public Collection<V> values();
   
   /**
-   * Returns an unmodifiable {@link Set} of all {@link java.util.Map.Entry}s within the {@link Cache}
+   * Returns an unmodifiable {@link Set} of all {@link java.util.Map.Entry}s within the {@link Cache} which only represents a
+   * snapshot in moment
    */
   @Override
   public Set<Entry<K, V>> entrySet();

@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
+
 /**
  * {@link Cache} implementation using a synchronized {@link WeakHashMap}. It is thread safe but has a bad performance in
  * concurrent access situations. Stored elements can vanish at any time the underlying JVM decides to clear them.
@@ -93,19 +96,28 @@ public class SynchronizedWeakReferenceCache<K, V> implements Cache<K, V>
   @Override
   public Set<K> keySet()
   {
-    return this.map.keySet();
+    synchronized ( this.map )
+    {
+      return Collections.unmodifiableSet( SetUtils.valueOf( this.map.keySet() ) );
+    }
   }
   
   @Override
   public Collection<V> values()
   {
-    return this.map.values();
+    synchronized ( this.map )
+    {
+      return Collections.unmodifiableCollection( ListUtils.valueOf( this.map.values() ) );
+    }
   }
   
   @Override
   public Set<java.util.Map.Entry<K, V>> entrySet()
   {
-    return this.map.entrySet();
+    synchronized ( this.map )
+    {
+      return Collections.unmodifiableSet( SetUtils.valueOf( this.map.entrySet() ) );
+    }
   }
   
   @Override

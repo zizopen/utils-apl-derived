@@ -20,20 +20,72 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.omnaest.utils.proxy.handler.MethodCallCapture;
-import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
-
+import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import org.omnaest.utils.proxy.handler.MethodCallCapture;
+import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
+
 /**
- * Simple stub creator.
+ * Helper to create stubs easily based on CGLIB.<br>
+ * <br>
+ * There are several static creation methods but the {@link StubCreator} can be instantiated also. If instantiated it will cache a
+ * prototype of a generated stub for the given type and its interfaces and creates any new instance based on this prototype
+ * instance which is much more faster.
  * 
  * @author Omnaest
  */
-public class StubCreator
+public class StubCreator<E>
 {
+  /* ********************************************** Variables ********************************************** */
+  private final Factory factory;
+  
+  /* ********************************************** Methods ********************************************** */
+  /**
+   * @see StubCreator
+   * @param type
+   */
+  public StubCreator( Class<? extends E> type )
+  {
+    this( type, null );
+  }
+  
+  /**
+   * @see StubCreator
+   * @param type
+   * @param interfaces
+   */
+  public StubCreator( Class<? extends E> type, Class<?>[] interfaces )
+  {
+    //
+    super();
+    
+    //    
+    MethodInvocationHandler methodInvocationHandler = null;
+    this.factory = (Factory) newStubInstance( type, interfaces, methodInvocationHandler );
+  }
+  
+  /**
+   * @see StubCreator#newStubInstance(Class, Class[], MethodInvocationHandler)
+   * @param methodInvocationHandler
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public E build( final MethodInvocationHandler methodInvocationHandler )
+  {
+    //
+    E retval = null;
+    
+    //
+    final Callback callback = StubCreator.adapter( methodInvocationHandler );
+    retval = (E) this.factory.newInstance( callback );
+    
+    //
+    return retval;
+  }
   
   /**
    * Returns a new proxy stub for the given class or interface.
@@ -48,6 +100,11 @@ public class StubCreator
     return StubCreator.newStubInstance( clazz, null, methodInvocationHandler );
   }
   
+  /**
+   * @param clazz
+   * @param methodInterceptor
+   * @return
+   */
   public static <E> E newStubInstance( final Class<? extends E> clazz, final MethodInterceptor methodInterceptor )
   {
     return StubCreator.newStubInstance( clazz, null, methodInterceptor );
@@ -66,14 +123,25 @@ public class StubCreator
                                        Class<?>[] interfaces,
                                        final MethodInvocationHandler methodInvocationHandler )
   {
-    return StubCreator.newStubInstance( clazz, interfaces, new MethodInterceptor()
+    return StubCreator.newStubInstance( clazz, interfaces, adapter( methodInvocationHandler ) );
+  }
+  
+  /**
+   * Returns a adapter which acts as {@link MethodInterceptor} for a given {@link MethodInvocationHandler}
+   * 
+   * @param methodInvocationHandler
+   * @return
+   */
+  protected static MethodInterceptor adapter( final MethodInvocationHandler methodInvocationHandler )
+  {
+    return new MethodInterceptor()
     {
       @Override
       public Object intercept( Object obj, Method method, Object[] args, MethodProxy proxy ) throws Throwable
       {
         return methodInvocationHandler.handle( new MethodCallCapture( obj, method, args, proxy ) );
       }
-    } );
+    };
   }
   
   /**
@@ -97,7 +165,7 @@ public class StubCreator
       try
       {
         //
-        Set<Class<?>> interfaceSet = new HashSet<Class<?>>();
+        final Set<Class<?>> interfaceSet = new HashSet<Class<?>>();
         {
           if ( interfaces != null )
           {
@@ -110,7 +178,7 @@ public class StubCreator
         }
         
         //      
-        Enhancer enhancer = new Enhancer();
+        final Enhancer enhancer = new Enhancer();
         if ( interfaceSet.size() > 0 )
         {
           enhancer.setInterfaces( interfaceSet.toArray( new Class[0] ) );
