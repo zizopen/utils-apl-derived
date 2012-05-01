@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>utils-apl-derived</artifactId>
+        <groupId>org.omnaest.utils</groupId>
+        <version>0.1.14</version>
+    </parent>
+    <artifactId>utils-apl-derived-table</artifactId>
+    <name>utils-apl-derived-table</name>    
+    <url>http://code.google.com/p/utils-apl-derived/</url>
+    <dependencies>
+        <dependency>
+            <groupId>org.omnaest.utils</groupId>
+            <artifactId>utils-apl-derived-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+        </dependency>
+    </dependencies>
+</project>
