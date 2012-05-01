@@ -16,12 +16,16 @@
 package org.omnaest.utils.cache;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Adapter from {@link Map} to {@link Cache}
+ * Adapter from {@link Map} to {@link Cache}<br>
+ * <br>
+ * Note: {@link #entrySet()}, {@link #values()} and {@link #keySet()} will return an unmodifiable instance
  * 
+ * @see Cache
  * @author Omnaest
  * @param <K>
  * @param <V>
@@ -29,7 +33,7 @@ import java.util.Set;
 public final class MapToCacheAdapter<K, V> implements Cache<K, V>
 {
   /* ********************************************** Variables ********************************************** */
-  private Map<K, V> map;
+  private final Map<K, V> map;
   
   /* ********************************************** Methods ********************************************** */
   /**
@@ -99,19 +103,19 @@ public final class MapToCacheAdapter<K, V> implements Cache<K, V>
   @Override
   public Set<K> keySet()
   {
-    return this.map.keySet();
+    return Collections.unmodifiableSet( this.map.keySet() );
   }
   
   @Override
   public Collection<V> values()
   {
-    return this.map.values();
+    return Collections.unmodifiableCollection( this.map.values() );
   }
   
   @Override
   public Set<java.util.Map.Entry<K, V>> entrySet()
   {
-    return this.map.entrySet();
+    return Collections.unmodifiableSet( this.map.entrySet() );
   }
   
   @Override

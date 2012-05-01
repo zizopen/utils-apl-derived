@@ -34,6 +34,7 @@ import org.omnaest.utils.structure.element.ElementHolder;
  * {@link #clear()} call, as well as it is increasing the memory footprint since every segment will hold all the information
  * within the {@link Cache}.
  * 
+ * @see Cache
  * @author Omnaest
  * @param <K>
  * @param <V>
