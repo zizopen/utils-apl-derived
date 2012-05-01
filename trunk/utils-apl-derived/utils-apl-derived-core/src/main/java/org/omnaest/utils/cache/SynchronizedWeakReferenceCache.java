@@ -29,6 +29,7 @@ import org.omnaest.utils.structure.collection.set.SetUtils;
  * concurrent access situations. Stored elements can vanish at any time the underlying JVM decides to clear them.
  * 
  * @see ConcurrentWeakReferenceCache
+ * @see Cache
  * @author Omnaest
  * @param <K>
  * @param <V>

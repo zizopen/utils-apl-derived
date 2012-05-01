@@ -29,7 +29,10 @@ import java.util.Set;
  * <br>
  * Do to the possibly fast clearing of elements the {@link #keySet()}, {@link #values()} and {@link #entrySet()} returned are
  * unmodifiable and represent only a snapshot of the {@link Cache} state when the function call was made. The returned
- * {@link Collection}s are not updated when the {@link Cache} content changes.
+ * {@link Collection}s are not updated when the {@link Cache} content changes. <br>
+ * <br>
+ * Note: this {@link Cache} represents a lightweight contract which is intended to be <b>easily implementable</b>. If a more
+ * feature rich cache contract is needed take a look at {@link com.google.common.cache.Cache}.
  * 
  * @see CacheUtils
  * @author Omnaest

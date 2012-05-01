@@ -37,7 +37,7 @@ public class ConcurrentWeakReferenceCacheTest
   
   /* ********************************************** Methods ********************************************** */
   
-  @PerfTest(invocations = 1000, threads = 20)
+  @PerfTest(invocations = 200, threads = 5)
   @Test
   public void testPutAndGetMultithreaded()
   {
@@ -47,14 +47,14 @@ public class ConcurrentWeakReferenceCacheTest
     Object value = "value" + id;
     
     //
-    cache.put( key, value );
+    cache.put( key + "", value );
     
     //
     final int numberOfCacheRequests = 1000;
     int cacheHits = 0;
     for ( int ii = 0; ii < numberOfCacheRequests; ii++ )
     {
-      //Resolve elements from cache could actually fail if the jvm does clear the cache exactly at this point of time 
+      //Resolve elements from cache could actually fail if the jvm does clear the cache exactly at this point of time
       Object object = cache.get( key );
       if ( object != null )
       {
