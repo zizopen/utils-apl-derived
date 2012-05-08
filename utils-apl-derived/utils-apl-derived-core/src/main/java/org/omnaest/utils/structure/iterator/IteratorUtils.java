@@ -77,6 +77,20 @@ public class IteratorUtils
   }
   
   /**
+   * Returns a view on the given {@link Iterator} which uses a {@link ThreadLocal} instance to cache resolved elements per
+   * {@link Thread}
+   * 
+   * @see ThreadLocalCachedIterator
+   * @param iterator
+   * @return
+   */
+  public static <E> Iterator<E> threadLocalCachedIterator( Iterator<E> iterator )
+  {
+    Assert.isNotNull( iterator, "Iterator must not be null" );
+    return new ThreadLocalCachedIterator<E>( iterator );
+  }
+  
+  /**
    * Returns a view on the given {@link Iterator} which uses a {@link ReentrantLock} to synchronize all its methods.
    * 
    * @param iterator
@@ -120,6 +134,12 @@ public class IteratorUtils
         }
         
         //
+        while ( this.iterator != null && !this.iterator.hasNext() )
+        {
+          this.iterator = iteratorFactory.newInstance();
+        }
+        
+        //
         return this.iterator;
       }
       
@@ -127,30 +147,15 @@ public class IteratorUtils
       public boolean hasNext()
       {
         //
-        boolean retval = false;
-        
-        //
-        Iterator<E> iterator = this.getOrSwitchIterator();
-        while ( iterator != null && !iterator.hasNext() )
-        {
-          this.iterator = null;
-          iterator = this.getOrSwitchIterator();
-        }
-        
-        //
-        retval = iterator != null;
-        
-        //
-        return retval;
+        final Iterator<E> iterator = this.getOrSwitchIterator();
+        return iterator != null;
       }
       
       @Override
       public E next()
       {
         //
-        Iterator<E> iterator = this.getOrSwitchIterator();
-        
-        //
+        final Iterator<E> iterator = this.getOrSwitchIterator();
         return iterator != null ? iterator.next() : null;
       }
       
@@ -158,9 +163,7 @@ public class IteratorUtils
       public void remove()
       {
         //
-        Iterator<E> iterator = this.getOrSwitchIterator();
-        
-        //
+        final Iterator<E> iterator = this.getOrSwitchIterator();
         if ( iterator != null )
         {
           iterator.remove();

@@ -29,8 +29,8 @@ public class ThreadSafeIterator<E> implements Iterator<E>
 {
   
   /* ********************************************** Variables ********************************************** */
-  protected Iterator<E>   iterator      = null;
-  protected ReentrantLock reentrantLock = new ReentrantLock();
+  private final Iterator<E>   iterator;
+  private final ReentrantLock reentrantLock = new ReentrantLock();
   
   /* ********************************************** Methods ********************************************** */
   

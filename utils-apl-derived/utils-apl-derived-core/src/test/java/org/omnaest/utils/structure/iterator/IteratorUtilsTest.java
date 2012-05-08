@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.iterator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -23,7 +24,12 @@ import java.util.List;
 
 import org.junit.Test;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.element.factory.Factory;
 
+/**
+ * @see IteratorUtils
+ * @author Omnaest
+ */
 public class IteratorUtilsTest
 {
   
@@ -41,5 +47,28 @@ public class IteratorUtilsTest
     assertEquals( 2, iterators.length );
     assertEquals( list0, ListUtils.valueOf( iterators[0] ) );
     assertEquals( list1, ListUtils.valueOf( iterators[1] ) );
+  }
+  
+  @Test
+  public void testFactoryBasedIterator()
+  {
+    //    
+    final Factory<Iterator<String>> iteratorFactory = new Factory<Iterator<String>>()
+    {
+      /* ********************************************** Variables ********************************************** */
+      private int counter = 1;
+      
+      /* ********************************************** Methods ********************************************** */
+      
+      @Override
+      public Iterator<String> newInstance()
+      {
+        // 
+        return this.counter++ <= 3 ? Arrays.asList( "a", "b", "c" ).iterator() : null;
+      }
+    };
+    Iterator<String> iterator = IteratorUtils.factoryBasedIterator( iteratorFactory );
+    assertNotNull( iterator );
+    assertEquals( Arrays.asList( "a", "b", "c", "a", "b", "c", "a", "b", "c" ), ListUtils.valueOf( iterator ) );
   }
 }
