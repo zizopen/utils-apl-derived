@@ -48,6 +48,9 @@ public class ElementHolderUnmodifiable<E> implements AccessorReadable<E>
     this.element = element;
   }
   
+  /**
+   * @see ElementHolderUnmodifiable
+   */
   protected ElementHolderUnmodifiable()
   {
     super();

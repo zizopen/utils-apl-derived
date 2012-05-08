@@ -17,9 +17,9 @@ package org.omnaest.utils.structure.iterator;
 
 import java.util.Iterator;
 
+import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.cached.CachedElement;
 import org.omnaest.utils.structure.element.cached.CachedElement.ValueResolver;
-import org.omnaest.utils.structure.element.ElementStream;
 
 /**
  * Allows to wrap a given {@link ElementStream} as {@link Iterator}.<br>
@@ -32,17 +32,22 @@ import org.omnaest.utils.structure.element.ElementStream;
 public class ElementStreamToIteratorAdapter<E> implements Iterator<E>
 {
   /* ********************************************** Variables ********************************************** */
-  protected ElementStream<E> elementStream = null;
-  protected CachedElement<E> cachedElement = new CachedElement<E>( new ValueResolver<E>()
-                                           {
-                                             @Override
-                                             public E resolveValue()
-                                             {
-                                               return ElementStreamToIteratorAdapter.this.elementStream.next();
-                                             }
-                                           } );
+  private final ElementStream<E> elementStream;
+  private final CachedElement<E> cachedElement = new CachedElement<E>( new ValueResolver<E>()
+                                               {
+                                                 @Override
+                                                 public E resolveValue()
+                                                 {
+                                                   return ElementStreamToIteratorAdapter.this.elementStream.next();
+                                                 }
+                                               } );
   
   /* ********************************************** Methods ********************************************** */
+  
+  /**
+   * @see ElementStreamToIteratorAdapter
+   * @param elementStream
+   */
   public ElementStreamToIteratorAdapter( ElementStream<E> elementStream )
   {
     super();

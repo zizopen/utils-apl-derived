@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2011 Danny Kunz
+ * Copyright 2012 Danny Kunz
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,49 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.xml;
+package org.omnaest.utils.structure.iterator;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 
 /**
- * @see JAXBMap
+ * @see ThreadLocalCachedIterator
  * @author Omnaest
  */
-public class JAXBMapTest
+public class ThreadLocalCachedIteratorTest
 {
+  /* ********************************************** Variables ********************************************** */
+  private final List<String> sourceList = Arrays.asList( "a", "b", "c", "d", "e" );
+  private Iterator<String>   iterator   = new ThreadLocalCachedIterator<String>( this.sourceList.iterator() );
   
-  @Before
-  public void setUp() throws Exception
-  {
-  }
+  /* ********************************************** Methods ********************************************** */
   
   @Test
-  public void testNewInstance()
+  public void testNext()
   {
     //
-    Map<String, String> map = new HashMap<String, String>();
-    map.put( "key1", "value1" );
-    map.put( "key2", "value2" );
-    map.put( "key3", "value3" );
-    
-    //
-    JAXBMap<String, String> jaxbMap = JAXBMap.newInstance( map );
-    assertEquals( map, jaxbMap );
-    
-    //
-    String xmlContent = JAXBXMLHelper.storeObjectAsXML( jaxbMap );
-    //System.out.println( xmlContent );
-    
-    //
-    @SuppressWarnings("unchecked")
-    Map<String, String> jaxbMapLoaded = JAXBXMLHelper.loadObjectFromXML( xmlContent, JAXBMap.class );
-    assertEquals( map, jaxbMapLoaded );
+    assertEquals( this.sourceList, ListUtils.valueOf( this.iterator ) );
   }
-  
 }
