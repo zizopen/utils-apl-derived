@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2011 Danny Kunz
+ * Copyright 2012 Danny Kunz
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.operation;
+package org.omnaest.utils.operation.special;
 
-import org.omnaest.utils.operation.special.OperationIntrinsic;
-import org.omnaest.utils.operation.special.OperationVoid;
+import org.omnaest.utils.operation.Operation;
 
 /**
- * An {@link Operation} offers an {@link #execute(Object)} method. This supports simple strategy pattern.
+ * Operation which executes a void method
  * 
- * @see OperationVoid
+ * @see Operation
  * @see OperationIntrinsic
- * @see OperationFactory
- * @param <RESULT>
- * @param <PARAMETER>
  * @author Omnaest
+ * @param <PARAMETER>
  */
-public interface Operation<RESULT, PARAMETER>
+public interface OperationVoid<PARAMETER>
 {
-  public RESULT execute( PARAMETER parameter );
+  public void execute( PARAMETER parameter );
 }

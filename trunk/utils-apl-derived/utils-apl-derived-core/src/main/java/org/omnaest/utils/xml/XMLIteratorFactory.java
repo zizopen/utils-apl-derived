@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlSchema;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -1297,13 +1298,15 @@ public class XMLIteratorFactory
             try
             {
               //
-              ByteArrayContainer byteArrayContainerOut = new ByteArrayContainer();
+              final ByteArrayContainer byteArrayContainerOut = new ByteArrayContainer();
               final OutputStream outputStream = byteArrayContainerOut.getOutputStream();
-              final XMLEventConsumer xmlEventConsumer = xmlOutputFactory.createXMLEventWriter( outputStream, encoding );
+              final XMLEventWriter xmlEventWriter = xmlOutputFactory.createXMLEventWriter( outputStream, encoding );
+              final XMLEventConsumer xmlEventConsumer = xmlEventWriter;
               
               //
               boolean read = false;
               boolean done = false;
+              boolean hasWrittenAtLeastOneElement = false;
               while ( !done && !scopeControl.hasTraversedAnyScope() && xmlEventReader.hasNext() )
               {
                 //
@@ -1345,6 +1348,7 @@ public class XMLIteratorFactory
                 {
                   //
                   xmlEventConsumer.add( writableEvent );
+                  hasWrittenAtLeastOneElement = true;
                 }
                 
                 if ( currentEvent.isEndElement() )
@@ -1370,12 +1374,19 @@ public class XMLIteratorFactory
                   scopeControl.visitEndElement( selectionContext );
                 }
               }
-              outputStream.close();
               
               //
-              if ( byteArrayContainerOut.isNotEmpty() )
+              if ( hasWrittenAtLeastOneElement )
               {
-                retval = byteArrayContainerOut.toString( ByteArrayContainer.ENCODING_UTF8 );
+                //
+                xmlEventWriter.close();
+                outputStream.close();
+                
+                //
+                if ( byteArrayContainerOut.isNotEmpty() )
+                {
+                  retval = byteArrayContainerOut.toString( ByteArrayContainer.ENCODING_UTF8 );
+                }
               }
               
               //
@@ -1483,4 +1494,5 @@ public class XMLIteratorFactory
     this.encoding = encoding;
     return this;
   }
+  
 }
