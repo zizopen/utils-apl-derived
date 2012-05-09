@@ -27,8 +27,9 @@ import org.omnaest.utils.structure.iterator.IterableUtils;
  * @see MultiElementConverter
  * @see ElementConverterTypeAware
  * @see ListUtils#convert(Collection, ElementConverter)
- * @see SetUtils#convert(Collection, ElementConverter)
+ * @see SetUtils#convert(Iterable, ElementConverter)
  * @see IterableUtils#convert(Iterable, ElementConverter)
+ * @see ElementConverterChain
  */
 public interface ElementConverter<FROM, TO>
 {
