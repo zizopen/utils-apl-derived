@@ -24,6 +24,10 @@ import java.util.List;
 
 import org.junit.Test;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCast;
+import org.omnaest.utils.structure.element.converter.ElementConverterNumberToString;
+import org.omnaest.utils.structure.element.converter.ElementConverterStringToLong;
 import org.omnaest.utils.structure.element.factory.Factory;
 
 /**
@@ -70,5 +74,19 @@ public class IteratorUtilsTest
     Iterator<String> iterator = IteratorUtils.factoryBasedIterator( iteratorFactory );
     assertNotNull( iterator );
     assertEquals( Arrays.asList( "a", "b", "c", "a", "b", "c", "a", "b", "c" ), ListUtils.valueOf( iterator ) );
+  }
+  
+  @Test
+  public void testConvertingIteratorDecorator()
+  {
+    //
+    final List<String> sourceList = Arrays.asList( "100", "101", "102" );
+    final Iterator<String> iterator = sourceList.iterator();
+    final ElementConverter<String, Long> elementConverterFirst = new ElementConverterStringToLong();
+    final ElementConverter<Long, Long> elementConverterSecond = new ElementConverterIdentitiyCast<Long, Long>();
+    final ElementConverter<Number, String> elementConverterThird = new ElementConverterNumberToString();
+    assertEquals( sourceList, ListUtils.valueOf( IteratorUtils.convertingIteratorDecorator( iterator, elementConverterFirst,
+                                                                                            elementConverterSecond,
+                                                                                            elementConverterThird ) ) );
   }
 }

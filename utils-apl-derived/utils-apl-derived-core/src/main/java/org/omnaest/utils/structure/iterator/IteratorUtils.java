@@ -27,6 +27,7 @@ import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterChain;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.decorator.ConverterIteratorDecorator;
 import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
@@ -237,8 +238,57 @@ public class IteratorUtils
   public static <TO, FROM> Iterator<TO> convertingIteratorDecorator( Iterator<FROM> iterator,
                                                                      ElementConverter<FROM, TO> elementConverter )
   {
-    return iterator != null && elementConverter != null ? new ConverterIteratorDecorator<FROM, TO>( iterator, elementConverter )
-                                                       : null;
+    //
+    final boolean referencesAreNotNull = iterator != null && elementConverter != null;
+    return referencesAreNotNull ? new ConverterIteratorDecorator<FROM, TO>( iterator, elementConverter ) : null;
+  }
+  
+  /**
+   * Similar to {@link #convertingIteratorDecorator(Iterator, ElementConverter)}
+   * 
+   * @param iterator
+   * @param elementConverterFirst
+   * @param elementConverterSecond
+   * @return
+   */
+  public static <TO, FROM, T> Iterator<TO> convertingIteratorDecorator( Iterator<FROM> iterator,
+                                                                        ElementConverter<FROM, ? extends T> elementConverterFirst,
+                                                                        ElementConverter<T, ? extends TO> elementConverterSecond )
+  {
+    //
+    final boolean referencesAreNotNull = iterator != null && elementConverterFirst != null && elementConverterSecond != null;
+    return referencesAreNotNull ? new ConverterIteratorDecorator<FROM, TO>(
+                                                                            iterator,
+                                                                            new ElementConverterChain<FROM, TO>(
+                                                                                                                 elementConverterFirst,
+                                                                                                                 elementConverterSecond ) )
+                               : null;
+  }
+  
+  /**
+   * Similar to {@link #convertingIteratorDecorator(Iterator, ElementConverter)}
+   * 
+   * @param iterator
+   * @param elementConverterFirst
+   * @param elementConverterSecond
+   * @param elementConverterThird
+   * @return
+   */
+  public static <TO, FROM, T1, T2> Iterator<TO> convertingIteratorDecorator( Iterator<FROM> iterator,
+                                                                             ElementConverter<FROM, ? extends T1> elementConverterFirst,
+                                                                             ElementConverter<T1, ? extends T2> elementConverterSecond,
+                                                                             ElementConverter<T2, ? extends TO> elementConverterThird )
+  {
+    // 
+    final boolean referencesAreNotNull = iterator != null && elementConverterFirst != null && elementConverterSecond != null
+                                         && elementConverterThird != null;
+    return referencesAreNotNull ? new ConverterIteratorDecorator<FROM, TO>(
+                                                                            iterator,
+                                                                            new ElementConverterChain<FROM, TO>(
+                                                                                                                 elementConverterFirst,
+                                                                                                                 elementConverterSecond,
+                                                                                                                 elementConverterThird ) )
+                               : null;
   }
   
   /**
