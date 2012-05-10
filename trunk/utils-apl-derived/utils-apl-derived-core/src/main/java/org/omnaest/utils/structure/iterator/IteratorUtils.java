@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -31,6 +32,7 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterChain;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.decorator.ConverterIteratorDecorator;
+import org.omnaest.utils.structure.iterator.decorator.IteratorDecorator;
 import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
 
 /**
@@ -411,5 +413,54 @@ public class IteratorUtils
         iterator.remove();
       }
     }
+  }
+  
+  /**
+   * Returns a new decorator instance wrapping the given {@link Iterator} which will limit the elements which can be retrieved to
+   * the given number
+   * 
+   * @param iterator
+   *          {@link Iterator}
+   * @param limit
+   * @return
+   */
+  public static <E> Iterator<E> limitingIteratorDecorator( Iterator<E> iterator, final int limit )
+  {
+    return new IteratorDecorator<E>( iterator )
+    {
+      /* ********************************************** Variables ********************************************** */
+      private int counter = 0;
+      
+      /* ********************************************** Methods ********************************************** */
+      
+      @Override
+      public boolean hasNext()
+      {
+        return isWithinLimit() && super.hasNext();
+      }
+      
+      /**
+       * @param limit
+       * @return
+       */
+      private boolean isWithinLimit()
+      {
+        return this.counter < limit;
+      }
+      
+      @Override
+      public E next()
+      {
+        //
+        if ( !this.isWithinLimit() )
+        {
+          throw new NoSuchElementException();
+        }
+        
+        //
+        this.counter++;
+        return super.next();
+      }
+    };
   }
 }

@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.junit.Test;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 
 /**
  * @see IterableUtils
@@ -122,5 +123,14 @@ public class IterableUtilsTest
   {
     assertEquals( "a", IterableUtils.firstElement( Arrays.asList( "a", "b", "c" ) ) );
     assertEquals( "c", IterableUtils.lastElement( Arrays.asList( "a", "b", "c" ) ) );
+  }
+  
+  @Test
+  public void testLimitingIteratorDecorator()
+  {
+    //
+    final int limit = 2;
+    assertEquals( Arrays.asList( "a", "b" ),
+                  ListUtils.valueOf( IteratorUtils.limitingIteratorDecorator( Arrays.asList( "a", "b", "c" ).iterator(), limit ) ) );
   }
 }

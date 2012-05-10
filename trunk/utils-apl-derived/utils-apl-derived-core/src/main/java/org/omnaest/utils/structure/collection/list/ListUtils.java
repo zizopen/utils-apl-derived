@@ -651,6 +651,52 @@ public class ListUtils
   }
   
   /**
+   * Returns a new {@link List} instance for all the elements up to the given end index position based on the given
+   * {@link Iterator}. The upper boundary is exclusive.
+   * 
+   * @param iterator
+   * @param toIndexPosition
+   * @return new {@link List} instance
+   */
+  public static <E> List<E> valueOf( Iterator<E> iterator, int toIndexPosition )
+  {
+    final int fromIndexPosition = 0;
+    return valueOf( iterator, fromIndexPosition, toIndexPosition );
+  }
+  
+  /**
+   * Returns a new {@link List} instance for all the elements between the two index position boundaries based on the given
+   * {@link Iterator}. The lower boundary is inclusive, the upper boundary is exclusive.
+   * 
+   * @param iterator
+   * @param fromIndexPosition
+   * @param toIndexPosition
+   * @return new {@link List} instance
+   */
+  public static <E> List<E> valueOf( Iterator<E> iterator, int fromIndexPosition, int toIndexPosition )
+  {
+    //
+    final List<E> retlist = new ArrayList<E>();
+    
+    //
+    if ( iterator != null )
+    {
+      for ( int ii = 0; ii < toIndexPosition && iterator.hasNext(); ii++ )
+      {
+        //
+        final E element = iterator.next();
+        if ( ii >= fromIndexPosition )
+        {
+          retlist.add( element );
+        }
+      }
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
    * Returns a new {@link List} instance for a given {@link ElementStream}
    * 
    * @param elementStream

@@ -189,8 +189,16 @@ public class ListUtilsTest
   }
   
   @Test
-    public void testAddToNewList()
-    {
-      assertEquals( Arrays.asList( "a", "b", "b", "c" ), ListUtils.addToNewList( Arrays.asList( "a", "b" ), "b", "c" ) );
-    }
+  public void testAddToNewList()
+  {
+    assertEquals( Arrays.asList( "a", "b", "b", "c" ), ListUtils.addToNewList( Arrays.asList( "a", "b" ), "b", "c" ) );
+  }
+  
+  @Test
+  public void testValueOf()
+  {
+    //
+    final int toIndexPosition = 2;
+    assertEquals( Arrays.asList( "a", "b" ), ListUtils.valueOf( Arrays.asList( "a", "b", "c" ).iterator(), toIndexPosition ) );
+  }
 }
