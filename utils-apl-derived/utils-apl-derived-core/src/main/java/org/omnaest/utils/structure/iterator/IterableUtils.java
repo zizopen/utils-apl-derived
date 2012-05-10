@@ -354,4 +354,5 @@ public class IterableUtils
     final int indexPosition = -1;
     return elementAt( iterable, indexPosition );
   }
+  
 }

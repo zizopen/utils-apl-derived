@@ -30,6 +30,7 @@ import org.omnaest.utils.structure.collection.decorator.LockingCollectionDecorat
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
+import org.omnaest.utils.structure.iterator.IteratorUtils;
 
 public class CollectionUtils
 {
@@ -612,4 +613,111 @@ public class CollectionUtils
     return new LockingCollectionDecorator<E>( collection, lock );
   }
   
+  /**
+   * Drains the elements of the given {@link Iterable} to the given {@link Collection}
+   * 
+   * @param iterable
+   * @param collection
+   */
+  public static <E> void drainTo( Iterable<E> iterable, Collection<E> collection )
+  {
+    //
+    if ( iterable != null && collection != null )
+    {
+      //
+      final Iterator<E> iterator = iterable.iterator();
+      IteratorUtils.drainTo( iterator, collection );
+    }
+  }
+  
+  /**
+   * Drains the elements of the given {@link Iterable} by the given maximum number of elements to the given {@link Collection}.
+   * 
+   * @param iterable
+   * @param collection
+   * @param maxNumberOfElements
+   */
+  public static <E> void drainTo( Iterable<E> iterable, Collection<E> collection, int maxNumberOfElements )
+  {
+    //
+    if ( iterable != null && collection != null )
+    {
+      //
+      final Iterator<E> iterator = iterable.iterator();
+      IteratorUtils.drainTo( iterator, collection, maxNumberOfElements );
+    }
+  }
+  
+  /**
+   * Copies all elements from the given {@link Iterable} into the given {@link Collection}
+   * 
+   * @param collection
+   * @param iterable
+   */
+  public static <E> void copyIntoCollectionFrom( Collection<E> collection, Iterable<E> iterable )
+  {
+    if ( collection != null && iterable != null )
+    {
+      for ( E element : iterable )
+      {
+        collection.add( element );
+      }
+    }
+  }
+  
+  /**
+   * Copies all elements from the given {@link Iterable} into the given {@link Collection}
+   * 
+   * @param collection
+   * @param iterable
+   * @param maxNumberOfElements
+   */
+  public static <E> void copyIntoCollectionFrom( Collection<E> collection, Iterable<E> iterable, int maxNumberOfElements )
+  {
+    if ( collection != null && iterable != null )
+    {
+      //
+      final Iterator<E> iterator = iterable.iterator();
+      copyIntoCollectionFrom( collection, iterator, maxNumberOfElements );
+    }
+  }
+  
+  /**
+   * Copies all elements from the given {@link Iterator} into the given {@link Collection} <br>
+   * This traverses the {@link Iterator}
+   * 
+   * @param collection
+   * @param iterator
+   */
+  public static <E> void copyIntoCollectionFrom( Collection<E> collection, Iterator<E> iterator )
+  {
+    if ( collection != null && iterator != null )
+    {
+      while ( iterator.hasNext() )
+      {
+        final E element = iterator.next();
+        collection.add( element );
+      }
+    }
+  }
+  
+  /**
+   * Copies all elements from the given {@link Iterator} into the given {@link Collection}.This traverses the {@link Iterator}
+   * only as far as necessary.
+   * 
+   * @param collection
+   * @param iterator
+   * @param maxNumberOfElements
+   */
+  public static <E> void copyIntoCollectionFrom( Collection<E> collection, Iterator<E> iterator, int maxNumberOfElements )
+  {
+    if ( collection != null && iterator != null )
+    {
+      for ( int ii = 0; ii < maxNumberOfElements && iterator.hasNext(); ii++ )
+      {
+        final E element = iterator.next();
+        collection.add( element );
+      }
+    }
+  }
 }
