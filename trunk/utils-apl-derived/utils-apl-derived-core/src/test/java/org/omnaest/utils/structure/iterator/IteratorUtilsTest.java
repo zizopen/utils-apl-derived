@@ -18,7 +18,9 @@ package org.omnaest.utils.structure.iterator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -88,5 +90,19 @@ public class IteratorUtilsTest
     assertEquals( sourceList, ListUtils.valueOf( IteratorUtils.convertingIteratorDecorator( iterator, elementConverterFirst,
                                                                                             elementConverterSecond,
                                                                                             elementConverterThird ) ) );
+  }
+  
+  @Test
+  public void testDrainTo()
+  {
+    //    
+    final Collection<String> collection = new ArrayList<String>();
+    final int maxNumberOfElements = 2;
+    final ArrayList<String> sourceList = new ArrayList<String>( Arrays.asList( "a", "b", "c" ) );
+    IteratorUtils.drainTo( sourceList.iterator(), collection, maxNumberOfElements );
+    
+    //
+    assertEquals( Arrays.asList( "a", "b" ), collection );
+    assertEquals( Arrays.asList( "c" ), sourceList );
   }
 }

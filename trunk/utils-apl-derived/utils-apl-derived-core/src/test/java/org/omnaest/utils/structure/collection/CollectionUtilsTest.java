@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
@@ -91,6 +92,19 @@ public class CollectionUtilsTest
     String string = CollectionUtils.toString( Arrays.asList( "element1", "element2", "element3" ) );
     //System.out.println( string );
     assertEquals( "[\n element1,\n element2,\n element3\n]\n", string );
+  }
+  
+  @Test
+  public void testCopyIntoCollectionFrom()
+  {
+    //    
+    final int maxNumberOfElements = 2;
+    final Collection<String> collection = new ArrayList<String>();
+    final Iterable<String> iterable = Arrays.asList( "a", "b", "c" );
+    CollectionUtils.copyIntoCollectionFrom( collection, iterable, maxNumberOfElements );
+    
+    //
+    assertEquals( Arrays.asList( "a", "b" ), collection );
   }
   
 }

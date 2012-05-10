@@ -17,6 +17,7 @@ package org.omnaest.utils.structure.iterator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -367,5 +368,48 @@ public class IteratorUtils
   public static <E> Iterator<E> valueOf( E... elements )
   {
     return Arrays.asList( elements ).iterator();
+  }
+  
+  /**
+   * Drains the given {@link Iterator} to the given {@link Collection} <br>
+   * This invokes the {@link Iterator#remove()} method for every element drained.
+   * 
+   * @param iterator
+   * @param collection
+   */
+  public static <E> void drainTo( Iterator<E> iterator, Collection<E> collection )
+  {
+    //
+    if ( iterator != null && collection != null )
+    {
+      while ( iterator.hasNext() )
+      {
+        final E nextElement = iterator.next();
+        collection.add( nextElement );
+        iterator.remove();
+      }
+    }
+  }
+  
+  /**
+   * Drains the given {@link Iterator} by the given maximum number of elements to the given {@link Collection}. <br>
+   * This invokes the {@link Iterator#remove()} method for every element drained.
+   * 
+   * @param iterator
+   * @param collection
+   * @param maxNumberOfElements
+   */
+  public static <E> void drainTo( Iterator<E> iterator, Collection<E> collection, int maxNumberOfElements )
+  {
+    //
+    if ( iterator != null && collection != null )
+    {
+      for ( int ii = 0; ii < maxNumberOfElements && iterator.hasNext(); ii++ )
+      {
+        final E nextElement = iterator.next();
+        collection.add( nextElement );
+        iterator.remove();
+      }
+    }
   }
 }
