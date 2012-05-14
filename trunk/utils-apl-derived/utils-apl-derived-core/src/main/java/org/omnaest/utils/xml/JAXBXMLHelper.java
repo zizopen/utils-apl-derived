@@ -96,10 +96,12 @@ public class JAXBXMLHelper
     /**
      * @param encoding
      *          the encoding to set
+     * @return this
      */
-    public void setEncoding( String encoding )
+    public MarshallingAndUnmarshallingConfigurationAbstractBase setEncoding( String encoding )
     {
       this.encoding = encoding;
+      return this;
     }
     
     /**
@@ -112,11 +114,13 @@ public class JAXBXMLHelper
     
     /**
      * @param exceptionHandler
-     *          the exceptionHandler to set
+     *          {@link ExceptionHandler}
+     * @return this
      */
-    public void setExceptionHandler( ExceptionHandler exceptionHandler )
+    public MarshallingAndUnmarshallingConfigurationAbstractBase setExceptionHandler( ExceptionHandler exceptionHandler )
     {
       this.exceptionHandler = exceptionHandler;
+      return this;
     }
     
     /**
@@ -130,10 +134,12 @@ public class JAXBXMLHelper
     /**
      * @param knownTypes
      *          the knownTypes to set
+     * @return this
      */
-    public void setKnownTypes( Class<?>... knownTypes )
+    public MarshallingAndUnmarshallingConfigurationAbstractBase setKnownTypes( Class<?>... knownTypes )
     {
       this.knownTypes = knownTypes;
+      return this;
     }
     
   }
@@ -193,6 +199,27 @@ public class JAXBXMLHelper
       return builder.toString();
     }
     
+    @Override
+    public UnmarshallingConfiguration setEncoding( String encoding )
+    {
+      super.setEncoding( encoding );
+      return this;
+    }
+    
+    @Override
+    public UnmarshallingConfiguration setExceptionHandler( ExceptionHandler exceptionHandler )
+    {
+      super.setExceptionHandler( exceptionHandler );
+      return this;
+    }
+    
+    @Override
+    public UnmarshallingConfiguration setKnownTypes( Class<?>... knownTypes )
+    {
+      super.setKnownTypes( knownTypes );
+      return this;
+    }
+    
   }
   
   /**
@@ -214,10 +241,12 @@ public class JAXBXMLHelper
     
     /**
      * @param formattingOutput
+     * @return this
      */
-    public void setFormattingOutput( boolean formattingOutput )
+    public MarshallingConfiguration setFormattingOutput( boolean formattingOutput )
     {
       this.formattingOutput = formattingOutput;
+      return this;
     }
     
     /**
@@ -253,12 +282,34 @@ public class JAXBXMLHelper
     /**
      * Returns an {@link UnmarshallingConfiguration} based on the settings of this {@link MarshallingConfiguration} instance
      * 
-     * @return
+     * @return new {@link UnmarshallingConfiguration}
      */
     public UnmarshallingConfiguration asUnmarshallingConfiguration()
     {
       return new UnmarshallingConfiguration( this.encoding, this.exceptionHandler, this.knownTypes );
     }
+    
+    @Override
+    public MarshallingConfiguration setEncoding( String encoding )
+    {
+      super.setEncoding( encoding );
+      return this;
+    }
+    
+    @Override
+    public MarshallingConfiguration setExceptionHandler( ExceptionHandler exceptionHandler )
+    {
+      super.setExceptionHandler( exceptionHandler );
+      return this;
+    }
+    
+    @Override
+    public MarshallingConfiguration setKnownTypes( Class<?>... knownTypes )
+    {
+      super.setKnownTypes( knownTypes );
+      return this;
+    }
+    
   }
   
   /* ********************************************** Methods ********************************************** */

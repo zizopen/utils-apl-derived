@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.enumeration;
+package org.omnaest.utils.structure.container;
+
+import org.omnaest.utils.xml.JAXBName;
 
 /**
  * Interface which abstracts the {@link Enum#name()} method which is the only method which can be shared across several
@@ -22,12 +24,13 @@ package org.omnaest.utils.structure.enumeration;
  * This allows to use {@link Enum}s as a container for options but keep the code points where it is used open to extension by
  * other {@link Enum}s implementing the same interface. This same interface should be a subtype from this one.
  * 
+ * @see JAXBName
  * @author Omnaest
  */
-public interface Enumeration
+public interface Name
 {
   /**
-   * Returns the name of the {@link Enumeration}
+   * Returns the name of the {@link Name}
    * 
    * @return
    */
