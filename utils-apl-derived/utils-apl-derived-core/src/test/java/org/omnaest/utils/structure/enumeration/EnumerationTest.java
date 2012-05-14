@@ -18,9 +18,10 @@ package org.omnaest.utils.structure.enumeration;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.omnaest.utils.structure.container.Name;
 
 /**
- * @see Enumeration
+ * @see Name
  * @author Omnaest
  */
 public class EnumerationTest
@@ -28,7 +29,7 @@ public class EnumerationTest
   /**
    * @author Omnaest
    */
-  protected static enum TestEnum implements Enumeration
+  protected static enum TestEnum implements Name
   {
     optionA,
     optionB
@@ -37,7 +38,7 @@ public class EnumerationTest
   /**
    * @author Omnaest
    */
-  protected static enum TestEnum2 implements Enumeration
+  protected static enum TestEnum2 implements Name
   {
     optionC,
     optionD
@@ -47,7 +48,7 @@ public class EnumerationTest
   public void testEnumeration()
   {
     //
-    Enumeration enumeration = TestEnum.optionA;
+    Name enumeration = TestEnum.optionA;
     assertEquals( enumeration.name(), TestEnum.optionA.name() );
     
     //
