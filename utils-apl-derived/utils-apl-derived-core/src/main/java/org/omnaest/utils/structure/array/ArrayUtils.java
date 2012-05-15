@@ -17,12 +17,16 @@ package org.omnaest.utils.structure.array;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
+import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.iterator.IterableUtils;
 
 /**
  * Helper methods for arrays.
@@ -32,21 +36,74 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
  */
 public class ArrayUtils
 {
+  
   /**
    * Converts a given array into a new array with a new element type.
+   * 
+   * @param arrayFrom
+   * @param arrayToType
+   * @param elementConverter
+   *          {@link ElementConverter}
+   * @return
+   */
+  public static <TO, FROM> TO[] convertArray( FROM[] arrayFrom,
+                                              Class<TO> arrayToType,
+                                              ElementConverter<FROM, ? extends TO> elementConverter )
+  {
+    // 
+    @SuppressWarnings("unchecked")
+    final TO[] arrayTo = (TO[]) ( arrayFrom != null ? Array.newInstance( arrayToType, arrayFrom.length ) : new Object[0] );
+    return convertArray( arrayFrom, arrayTo, elementConverter );
+  }
+  
+  /**
+   * Similar to {@link #convertArray(Object[], Class, ElementConverter)} but uses the given target array if the size fits
+   * otherwise it will construct a new array with the same component type
    * 
    * @param arrayFrom
    * @param arrayTo
    *          : instance of the array later returned. Use the return value to set this list. The array will not be necessarily
    *          changed only by the call as parameter.
    * @param elementConverter
+   *          {@link ElementConverter}
    * @return
    */
-  
-  public static <TO, FROM> TO[] convertArray( FROM[] arrayFrom, TO[] arrayTo, ElementConverter<FROM, TO> elementConverter )
+  public static <TO, FROM> TO[] convertArray( FROM[] arrayFrom,
+                                              TO[] arrayTo,
+                                              ElementConverter<FROM, ? extends TO> elementConverter )
   {
-    List<TO> listTo = ListUtils.convert( Arrays.asList( arrayFrom ), elementConverter );
-    return listTo == null ? null : listTo.toArray( arrayTo );
+    //
+    TO[] retvals = null;
+    
+    //
+    if ( arrayTo != null && arrayFrom != null && elementConverter != null )
+    {
+      //
+      if ( arrayTo.length == arrayFrom.length )
+      {
+        //
+        retvals = arrayTo;
+        
+        //
+        int index = 0;
+        for ( FROM element : arrayFrom )
+        {
+          //          
+          final TO convertedElement = elementConverter.convert( element );
+          retvals[index++] = convertedElement;
+        }
+      }
+      else
+      {
+        //
+        @SuppressWarnings({ "cast", "unchecked" })
+        final Class<TO> arrayToType = (Class<TO>) componentType( (Class<TO[]>) arrayTo.getClass() );
+        retvals = convertArray( arrayFrom, arrayToType, elementConverter );
+      }
+    }
+    
+    //
+    return retvals;
   }
   
   /**
@@ -186,6 +243,42 @@ public class ArrayUtils
   }
   
   /**
+   * Returns an typed {@link Array} based on the given {@link Collection} and the given array component type<br>
+   * <br>
+   * If null is given as {@link Collection} null is returned, too. If the given type is null, {@link Object} is used as component
+   * type.
+   * 
+   * @see Collection#toArray(Object[])
+   * @param collection
+   *          {@link Collection}
+   * @param type
+   *          {@link Class}
+   * @return new {@link Array} instance
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> E[] valueOf( Collection<? extends E> collection, Class<E> type )
+  {
+    //
+    E[] retvals = null;
+    
+    //
+    if ( collection != null )
+    {
+      retvals = collection.toArray( (E[]) Array.newInstance( type != null ? type : Object.class, collection.size() ) );
+    }
+    
+    //
+    return retvals;
+  }
+  
+  /**
+   * Returns a new {@link Array} instance based on the {@link Class} types of the given elements. The first shared type which can
+   * be cast to the expected return type is used.<br>
+   * <br>
+   * The automatic detection of element types is based on reflection and has a high impact on performance if the given element
+   * types have large inherited type graphs.
+   * 
+   * @see #valueOf(Class, Object...)
    * @param elements
    * @return
    */
@@ -193,11 +286,40 @@ public class ArrayUtils
   public static <E> E[] valueOf( E... elements )
   {
     //
+    final boolean inherited = true;
+    final boolean onlyReturnInterfaces = false;
+    final boolean intersection = true;
+    final Class<?>[] types = ArrayUtils.convertArray( elements, Class.class, new ElementConverter<E, Class>()
+    {
+      @Override
+      public Class convert( E element )
+      {
+        return element != null ? element.getClass() : null;
+      }
+    } );
+    final Set<Class<?>> assignableTypeSet = ReflectionUtils.assignableTypeSet( inherited, onlyReturnInterfaces, intersection,
+                                                                               types );
+    
+    //
+    final Class<E> type = (Class<E>) IterableUtils.firstElement( assignableTypeSet );
+    
+    //
+    return valueOf( type, elements );
+  }
+  
+  /**
+   * @param elements
+   * @return
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public static <E> E[] valueOf( Class<E> type, E... elements )
+  {
+    //
     E[] retvals = null;
     
     //
-    Class componentType = elements.length == 0 ? Object.class : elements[0].getClass();
-    int length = elements.length;
+    final Class componentType = type == null ? Object.class : type;
+    final int length = elements.length;
     retvals = (E[]) Array.newInstance( componentType, length );
     
     //
