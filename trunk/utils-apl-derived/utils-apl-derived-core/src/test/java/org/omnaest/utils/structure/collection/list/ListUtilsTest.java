@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.collection.list;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -200,5 +201,12 @@ public class ListUtilsTest
     //
     final int toIndexPosition = 2;
     assertEquals( Arrays.asList( "a", "b" ), ListUtils.valueOf( Arrays.asList( "a", "b", "c" ).iterator(), toIndexPosition ) );
+  }
+  
+  @Test
+  public void testAsArray()
+  {
+    final String[] values = new String[] { "a", "b", "c" };
+    assertArrayEquals( values, ListUtils.asArray( Arrays.asList( values ), String.class ) );
   }
 }

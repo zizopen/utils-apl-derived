@@ -1148,9 +1148,6 @@ public class ReflectionUtils
         }
       }
       
-      Helper helper = new Helper();
-      helper.addNewInterfaceTypes( type );
-      
       //
       if ( !onlyReturnInterfaces || type.isInterface() )
       {
@@ -1162,6 +1159,10 @@ public class ReflectionUtils
       {
         remainingTypeSet.addAll( supertypeSet( type ) );
       }
+      
+      //
+      Helper helper = new Helper();
+      helper.addNewInterfaceTypes( type );
       
       //
       while ( !remainingTypeSet.isEmpty() )
@@ -1244,8 +1245,12 @@ public class ReflectionUtils
       Set<Set<Class<?>>> assignableTypeSetSet = new LinkedHashSet<Set<Class<?>>>();
       for ( Class<?> type : types )
       {
-        Set<Class<?>> assignableTypeSet = assignableTypeSet( type, inherited, onlyReturnInterfaces );
-        assignableTypeSetSet.add( assignableTypeSet );
+        if ( type != null )
+        {
+          //
+          final Set<Class<?>> assignableTypeSet = assignableTypeSet( type, inherited, onlyReturnInterfaces );
+          assignableTypeSetSet.add( assignableTypeSet );
+        }
       }
       
       //
