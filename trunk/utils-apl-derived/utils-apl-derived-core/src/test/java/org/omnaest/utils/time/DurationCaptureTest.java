@@ -15,10 +15,13 @@
  ******************************************************************************/
 package org.omnaest.utils.time;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -63,6 +66,14 @@ public class DurationCaptureTest
     //
     long duration = durationCapture.getDurationInMilliseconds();
     assertTrue( duration > 0 );
+    
+    //
+    long duration2 = durationCapture.getDuration( TimeUnit.MICROSECONDS );
+    assertEquals( duration, duration2 / 1000 );
+    
+    //
+    Map<Object, Long> intervalKeyToDurationMap = durationCapture.getIntervalKeyToDurationMap( TimeUnit.MICROSECONDS );
+    assertEquals( 4, intervalKeyToDurationMap.keySet().size() );
     
     //
     //System.out.println( durationCapture.calculateIntervalStatisticLogMessage() );

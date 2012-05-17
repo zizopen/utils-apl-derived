@@ -15,10 +15,16 @@
  ******************************************************************************/
 package org.omnaest.utils.assertion;
 
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.Times;
+import org.omnaest.utils.assertion.AssertLogger.MessageFactory;
 import org.slf4j.Logger;
 
 /**
@@ -38,45 +44,95 @@ public class AssertLoggerTest
   public void testAssertLoggerLogger()
   {
     //
-    this.assertLogger.debug.assertThat.isTrue( true );
+    this.assertLogger.debug.assertThat().isTrue( true );
     Mockito.verify( this.logger, new Times( 0 ) ).debug( Matchers.anyString() );
     
     //
-    this.assertLogger.debug.assertThat.isTrue( false );
+    this.assertLogger.debug.assertThat().isTrue( false );
     Mockito.verify( this.logger, new Times( 1 ) ).debug( Matchers.anyString(), Matchers.any( Exception.class ) );
     
     //
-    this.assertLogger.trace.assertThat.isNotNull( new Object() );
+    this.assertLogger.trace.assertThat().isNotNull( new Object() );
     Mockito.verify( this.logger, new Times( 0 ) ).trace( Matchers.anyString() );
     
     //
-    this.assertLogger.trace.assertThat.isNotNull( null );
+    this.assertLogger.trace.assertThat().isNotNull( null );
     Mockito.verify( this.logger, new Times( 1 ) ).trace( Matchers.anyString(), Matchers.any( Exception.class ) );
     
     //
-    this.assertLogger.info.assertThat.fails();
+    this.assertLogger.info.assertThat().fails();
     Mockito.verify( this.logger, new Times( 0 ) ).info( Matchers.anyString() );
     Mockito.verify( this.logger, new Times( 1 ) ).info( Matchers.anyString(), Matchers.any( Exception.class ) );
     
     //
-    this.assertLogger.info.assertThat.fails( "Additional message" );
+    this.assertLogger.info.assertThat().fails( "Additional message" );
     Mockito.verify( this.logger, new Times( 2 ) ).info( Matchers.anyString(), Matchers.any( Exception.class ) );
     
     //
-    this.assertLogger.warn.assertThat.isNotNull( new Object(), "Additional message" );
+    this.assertLogger.warn.assertThat().isNotNull( new Object(), "Additional message" );
     Mockito.verify( this.logger, new Times( 0 ) ).warn( Matchers.anyString() );
     
     //
-    this.assertLogger.warn.assertThat.isNotNull( null, "Additional message" );
+    this.assertLogger.warn.assertThat().isNotNull( null, "Additional message" );
     Mockito.verify( this.logger, new Times( 1 ) ).warn( Matchers.anyString(), Matchers.any( Exception.class ) );
     
     //
-    this.assertLogger.error.assertThat.isTrue( true, "Additional message" );
+    this.assertLogger.error.assertThat().isTrue( true, "Additional message" );
     Mockito.verify( this.logger, new Times( 0 ) ).error( Matchers.anyString() );
     
     //
-    this.assertLogger.error.assertThat.isTrue( false, "Additional message" );
+    this.assertLogger.error.assertThat().isTrue( false, "Additional message" );
     Mockito.verify( this.logger, new Times( 1 ) ).error( Matchers.anyString(), Matchers.any( Exception.class ) );
+    
+  }
+  
+  @Test
+  public void testUseCases()
+  {
+    //    
+    final Collection<String> collection = new ArrayList<String>();
+    if ( this.assertLogger.error.assertThat().isNotEmpty( collection, "This collection must not be empty!" ) )
+    {
+      assertTrue( !collection.isEmpty() );
+    }
+    
+    //
+    this.assertLogger.info.message( "Simple message logged with the INFO log level" );
+    Mockito.verify( this.logger, new Times( 1 ) ).info( Matchers.anyString() );
+    
+    //
+    this.assertLogger.debug.message( new MessageFactory()
+    {
+      @Override
+      public String message()
+      {
+        return "Message which is costly to generate";
+      }
+    } );
+    Mockito.verify( this.logger, new Times( 0 ) ).debug( Matchers.anyString() );
+    
+    //
+    try
+    {
+      throw new Exception( "Some exception" );
+    }
+    catch ( Exception e )
+    {
+      this.assertLogger.warn.message( e );
+    }
+    Mockito.verify( this.logger, new Times( 1 ) ).warn( Matchers.anyString(), (Throwable) Matchers.anyObject() );
+    
+    try
+    {
+      //
+      Assert.isNotEmpty( collection );
+      
+      //...      
+    }
+    catch ( Exception e )
+    {
+      this.logger.error( "Assertion failed", e );
+    }
   }
   
 }

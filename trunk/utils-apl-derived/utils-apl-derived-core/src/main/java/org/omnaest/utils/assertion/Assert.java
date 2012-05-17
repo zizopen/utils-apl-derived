@@ -75,8 +75,8 @@ public class Assert
   }
   
   /**
-   * @throws FailedOperationException
    * @param message
+   * @throws FailedOperationException
    */
   public static void fails( String message )
   {
@@ -84,9 +84,9 @@ public class Assert
   }
   
   /**
-   * @throws FailedOperationException
    * @param message
    * @param cause
+   * @throws FailedOperationException
    */
   public static void fails( String message, Exception cause )
   {
@@ -94,8 +94,8 @@ public class Assert
   }
   
   /**
-   * @throws FailedOperationException
    * @param cause
+   * @throws FailedOperationException
    */
   public static void fails( Exception cause )
   {
@@ -131,10 +131,10 @@ public class Assert
   /**
    * Returns true if the given {@link Object} is not null, otherwise an {@link IllegalArgumentException} is thrown
    * 
-   * @throws IllegalArgumentException
-   * @see {@link #isNotNull(String, Object, Object...)}
+   * @see #isNotNull(String, Object, Object, Object...)
    * @param object
    * @param message
+   * @throws IllegalArgumentException
    */
   public static boolean isNotNull( Object object, String message )
   {
@@ -251,9 +251,9 @@ public class Assert
    * @param object1
    * @param object2
    */
-  public static boolean isEqual( Object object1, Object object2 )
+  public static boolean areEqual( Object object1, Object object2 )
   {
-    return isEqual( object1, object2, "The two given objects must be equal" );
+    return areEqual( object1, object2, "The two given objects must be equal" );
   }
   
   /**
@@ -261,7 +261,7 @@ public class Assert
    * @param object2
    * @param message
    */
-  public static boolean isEqual( Object object1, Object object2, String message )
+  public static boolean areEqual( Object object1, Object object2, String message )
   {
     if ( object1 != object2 && !( object1 != null && object1.equals( object2 ) )
          && !( object2 != null && object2.equals( object1 ) ) )
@@ -277,7 +277,9 @@ public class Assert
    * 
    * @param durationLimit
    * @param timeUnit
+   *          {@link TimeUnit}
    * @param durationCapture
+   *          {@link DurationCapture}
    * @param intervalKeys
    * @return true if the assertion fulfilled the requirement
    */
