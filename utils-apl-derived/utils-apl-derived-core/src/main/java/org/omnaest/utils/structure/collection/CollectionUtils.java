@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -31,6 +30,7 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.iterator.IteratorUtils;
+import org.omnaest.utils.structure.map.MapUtils;
 
 public class CollectionUtils
 {
@@ -567,25 +567,7 @@ public class CollectionUtils
   public static <K, V, E> Map<K, V> toMap( Iterable<E> iterable,
                                            ElementConverterElementToMapEntry<E, K, V> elementToMapEntryTransformer )
   {
-    //
-    Map<K, V> retmap = new LinkedHashMap<K, V>();
-    
-    //
-    if ( iterable != null && elementToMapEntryTransformer != null )
-    {
-      for ( E element : iterable )
-      {
-        //
-        Entry<K, V> entry = elementToMapEntryTransformer.convert( element );
-        if ( entry != null )
-        {
-          retmap.put( entry.getKey(), entry.getValue() );
-        }
-      }
-    }
-    
-    //
-    return retmap;
+    return MapUtils.valueOf( iterable, elementToMapEntryTransformer );
   }
   
   /**

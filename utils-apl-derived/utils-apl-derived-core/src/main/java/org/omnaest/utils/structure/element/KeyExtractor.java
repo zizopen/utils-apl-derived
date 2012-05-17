@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2011 Danny Kunz
+ * Copyright 2012 Danny Kunz
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.element.converter;
-
-import java.util.List;
-import java.util.Map.Entry;
+package org.omnaest.utils.structure.element;
 
 import org.omnaest.utils.structure.map.MapUtils;
 
 /**
- * A transformer from a {@link List} element type to a {@link Entry} type
- * 
- * @see MapUtils#valueOf(Iterable, ElementConverterElementToMapEntry)
+ * @see MapUtils#valueOf(KeyExtractor, Iterable)
  * @author Omnaest
- * @param <E>
  * @param <K>
- * @param <V>
+ * @param <E>
  */
-public interface ElementConverterElementToMapEntry<E, K, V>
+public interface KeyExtractor<K, E>
 {
-  
   /**
-   * Transforms a given {@link List} element instance into an {@link Entry}. Null values must be handled by this method, too.
+   * Extracts a key from the given element
    * 
    * @param element
-   * @return {@link Entry}
+   * @return
    */
-  public Entry<K, V> convert( E element );
+  public K extractKey( E element );
 }

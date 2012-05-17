@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.omnaest.utils.structure.map.MapUtils.KeyExtractor;
+import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.tuple.TupleTwo;
 
 /**

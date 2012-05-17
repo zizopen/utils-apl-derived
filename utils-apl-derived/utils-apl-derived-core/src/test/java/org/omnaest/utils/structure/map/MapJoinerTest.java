@@ -24,9 +24,9 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.map.MapJoiner.Predicate;
-import org.omnaest.utils.structure.map.MapUtils.KeyExtractor;
 import org.omnaest.utils.tuple.TupleTwo;
 
 /**

@@ -38,7 +38,9 @@ import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
+import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.element.factory.FactoryParameterized;
@@ -98,22 +100,7 @@ public class MapUtils
     public TO convert( Entry<K, V> entry );
   }
   
-  /**
-   * @see MapUtils#valueOf(KeyExtractor, Iterable)
-   * @author Omnaest
-   * @param <K>
-   * @param <E>
-   */
-  public static interface KeyExtractor<K, E>
-  {
-    /**
-     * Extracts a key from the given element
-     * 
-     * @param element
-     * @return
-     */
-    public K extractKey( E element );
-  }
+  
   
   /* ********************************************** Methods ********************************************** */
   
@@ -1036,6 +1023,38 @@ public class MapUtils
         //
         K key = keyExtractor.extractKey( element );
         retmap.put( key, element );
+      }
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Returns a new {@link Map} instance for the given {@link Iterable} using the {@link ElementConverterElementToMapEntry}
+   * instance to convert every element to an {@link Entry}
+   * 
+   * @param iterable
+   * @param elementToMapEntryTransformer
+   * @return
+   */
+  public static <K, V, E> Map<K, V> valueOf( Iterable<E> iterable,
+                                             ElementConverterElementToMapEntry<E, K, V> elementToMapEntryTransformer )
+  {
+    //
+    final Map<K, V> retmap = new LinkedHashMap<K, V>();
+    
+    //
+    if ( iterable != null && elementToMapEntryTransformer != null )
+    {
+      for ( E element : iterable )
+      {
+        //
+        Entry<K, V> entry = elementToMapEntryTransformer.convert( element );
+        if ( entry != null )
+        {
+          retmap.put( entry.getKey(), entry.getValue() );
+        }
       }
     }
     
