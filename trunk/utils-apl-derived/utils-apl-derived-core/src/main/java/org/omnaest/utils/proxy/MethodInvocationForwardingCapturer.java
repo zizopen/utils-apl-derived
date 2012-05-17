@@ -25,17 +25,17 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.omnaest.utils.operation.foreach.Range;
 import org.omnaest.utils.proxy.handler.MethodCallCapture;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.ElementStream;
-import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
+import org.omnaest.utils.structure.element.KeyExtractor;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.iterator.ElementStreamToIteratorAdapter;
 import org.omnaest.utils.structure.iterator.RangedIterable;
-import org.omnaest.utils.structure.map.SimpleEntry;
+import org.omnaest.utils.structure.map.MapUtils;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -458,14 +458,14 @@ public class MethodInvocationForwardingCapturer
     //
     if ( type != null )
     {
-      ElementConverterElementToMapEntry<MethodInvocationAndResult, MethodInvocationComparison, Object> elementToMapEntryTransformer = new ElementConverterElementToMapEntry<MethodInvocationForwardingCapturer.MethodInvocationAndResult, MethodInvocationForwardingCapturer.MethodInvocationComparison, Object>()
+      //
+      final KeyExtractor<MethodInvocationComparison, MethodInvocationAndResult> keyExtractor = new KeyExtractor<MethodInvocationForwardingCapturer.MethodInvocationComparison, MethodInvocationForwardingCapturer.MethodInvocationAndResult>()
       {
-        
         @Override
-        public Entry<MethodInvocationComparison, Object> convert( MethodInvocationAndResult methodInvocationAndResult )
+        public MethodInvocationComparison extractKey( MethodInvocationAndResult methodInvocationAndResult )
         {
           //
-          Entry<MethodInvocationComparison, Object> entry = null;
+          MethodInvocationComparison key = null;
           
           //
           if ( methodInvocationAndResult != null )
@@ -473,23 +473,27 @@ public class MethodInvocationForwardingCapturer
             //
             Method method = methodInvocationAndResult.getMethod();
             Object[] arguments = methodInvocationAndResult.getArguments();
-            Object result = methodInvocationAndResult.getResult();
             
             //
-            MethodInvocationComparison key = ignoreArgumentValues ? new MethodOnly( method ) : new MethodAndArguments( method,
-                                                                                                                       arguments );
-            Object value = result;
-            entry = new SimpleEntry<MethodInvocationComparison, Object>( key, value );
+            key = ignoreArgumentValues ? new MethodOnly( method ) : new MethodAndArguments( method, arguments );
           }
           
-          // 
-          return entry;
+          //
+          return key;
         }
       };
-      Iterable<MethodInvocationAndResult> iterable = newMethodInvocationAndResultIterable( inputStream, range );
-      
-      Map<MethodInvocationComparison, Object> methodInvocationComparisonToResultMap = ListUtils.toMap( iterable,
-                                                                                                       elementToMapEntryTransformer );
+      final ElementConverter<MethodInvocationAndResult, Object> valueElementConverter = new ElementConverter<MethodInvocationAndResult, Object>()
+      {
+        @Override
+        public Object convert( MethodInvocationAndResult methodInvocationAndResult )
+        {
+          return methodInvocationAndResult.getResult();
+        }
+      };
+      final Iterable<MethodInvocationAndResult> iterable = newMethodInvocationAndResultIterable( inputStream, range );
+      Map<MethodInvocationComparison, Object> methodInvocationComparisonToResultMap = MapUtils.convertMapValue( ListUtils.toMap( keyExtractor,
+                                                                                                                                 iterable ),
+                                                                                                                valueElementConverter );
       
       //
       MethodInvocationHandler methodInvocationHandler = new ReplayingMethodInvocationHandler(

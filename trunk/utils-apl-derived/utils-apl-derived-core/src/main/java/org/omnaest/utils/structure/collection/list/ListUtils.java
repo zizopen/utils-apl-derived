@@ -32,10 +32,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.array.ArrayUtils;
-import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.list.decorator.LockingListDecorator;
 import org.omnaest.utils.structure.collection.list.decorator.LockingListIteratorDecorator;
 import org.omnaest.utils.structure.element.ElementStream;
+import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.element.converter.MultiElementConverter;
@@ -49,6 +49,7 @@ import org.omnaest.utils.structure.element.filter.ExcludingElementFilterConstant
 import org.omnaest.utils.structure.element.filter.ExcludingElementFilterIndexPositionBased;
 import org.omnaest.utils.structure.element.filter.ExcludingElementFilterNotNull;
 import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.structure.map.MapUtils;
 
 /**
  * Helper class for modifying {@link List} instances.
@@ -811,19 +812,32 @@ public class ListUtils
   }
   
   /**
-   * Same as {@link CollectionUtils#toMap(Iterable, ElementConverterElementToMapEntry)}
+   * Same as {@link MapUtils#valueOf(KeyExtractor, Iterable)}
    * 
-   * @see CollectionUtils#toMap(Iterable, ElementConverterElementToMapEntry)
-   * @see ElementConverterElementToMapEntry
+   * @param keyExtractor
+   *          {@link KeyExtractor}
    * @param iterable
-   * @param elementToMapEntryConverter
+   *          {@link Iterable}
+   * @see MapUtils#valueOf(KeyExtractor, Iterable)
+   * @return
+   */
+  public static <K, V, E> Map<K, V> toMap( KeyExtractor<? extends K, V> keyExtractor, Iterable<? extends V> iterable )
+  {
+    //
+    return MapUtils.valueOf( keyExtractor, iterable );
+  }
+  
+  /**
+   * @see MapUtils#valueOf(Iterable, ElementConverterElementToMapEntry)
+   * @param iterable
+   * @param elementToMapEntryTransformer
    * @return
    */
   public static <K, V, E> Map<K, V> toMap( Iterable<E> iterable,
-                                           ElementConverterElementToMapEntry<E, K, V> elementToMapEntryConverter )
+                                           ElementConverterElementToMapEntry<E, K, V> elementToMapEntryTransformer )
   {
-    //
-    return CollectionUtils.toMap( iterable, elementToMapEntryConverter );
+    // 
+    return MapUtils.valueOf( iterable, elementToMapEntryTransformer );
   }
   
   /**

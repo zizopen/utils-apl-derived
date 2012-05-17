@@ -43,8 +43,8 @@ import org.omnaest.utils.store.ElementStore.PersistenceAccessor;
 import org.omnaest.utils.store.ElementStore.PersistenceExecutionControl;
 import org.omnaest.utils.store.persistence.PersistenceAccessorDirectoryFiles;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.factory.Factory;
-import org.omnaest.utils.structure.map.MapUtils.KeyExtractor;
 
 /**
  * @see ElementStore

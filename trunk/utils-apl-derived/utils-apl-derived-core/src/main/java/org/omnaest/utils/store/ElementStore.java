@@ -47,8 +47,8 @@ import org.omnaest.utils.store.ElementStore.AccessEventData.AccessEvent;
 import org.omnaest.utils.store.ElementStore.PersistenceExecutionControl.PersistenceOperation;
 import org.omnaest.utils.structure.collection.CollectionAbstract;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.factory.Factory;
-import org.omnaest.utils.structure.map.MapUtils.KeyExtractor;
 import org.omnaest.utils.structure.map.decorator.SortedMapDecorator;
 
 /**

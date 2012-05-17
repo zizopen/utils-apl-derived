@@ -18,7 +18,6 @@ package org.omnaest.utils.beans.replicator.adapter.helper;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.omnaest.utils.beans.BeanUtils;
@@ -26,10 +25,9 @@ import org.omnaest.utils.beans.replicator.BeanReplicator.TransitiveBeanReplicati
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.ObjectUtils;
-import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.map.MapUtils;
-import org.omnaest.utils.structure.map.SimpleEntry;
 import org.omnaest.utils.tuple.TupleTwo;
 
 public class BeanPropertiesAutowireHelper
@@ -52,24 +50,22 @@ public class BeanPropertiesAutowireHelper
     if ( beanPropertyAccessorSetSource != null && beanPropertyAccessorSetTarget != null )
     {
       //
-      final ElementConverterElementToMapEntry<BeanPropertyAccessor<Object>, String, BeanPropertyAccessor<Object>> beanPropertyAccessorToPropertyNameAndBeanPropertyAccessorEntryConverter = new ElementConverterElementToMapEntry<BeanPropertyAccessor<Object>, String, BeanPropertyAccessor<Object>>()
+      final KeyExtractor<String, BeanPropertyAccessor<Object>> keyExtractor = new KeyExtractor<String, BeanPropertyAccessor<Object>>()
       {
         @Override
-        public Entry<String, BeanPropertyAccessor<Object>> convert( BeanPropertyAccessor<Object> beanPropertyAccessor )
+        public String extractKey( BeanPropertyAccessor<Object> beanPropertyAccessor )
         {
-          //
-          String key = beanPropertyAccessor.getPropertyName();
-          BeanPropertyAccessor<Object> value = beanPropertyAccessor;
-          return new SimpleEntry<String, BeanPropertyAccessor<Object>>( key, value );
+          // 
+          return beanPropertyAccessor.getPropertyName();
         }
       };
       
       //
-      final Map<String, BeanPropertyAccessor<Object>> propertyNameToBeanPropertyAccessorMapForSource = ListUtils.toMap( beanPropertyAccessorSetSource,
-                                                                                                                        beanPropertyAccessorToPropertyNameAndBeanPropertyAccessorEntryConverter );
+      final Map<String, BeanPropertyAccessor<Object>> propertyNameToBeanPropertyAccessorMapForSource = ListUtils.toMap( keyExtractor,
+                                                                                                                        beanPropertyAccessorSetSource );
       
-      final Map<String, BeanPropertyAccessor<Object>> propertyNameToBeanPropertyAccessorMapForTarget = ListUtils.toMap( beanPropertyAccessorSetTarget,
-                                                                                                                        beanPropertyAccessorToPropertyNameAndBeanPropertyAccessorEntryConverter );
+      final Map<String, BeanPropertyAccessor<Object>> propertyNameToBeanPropertyAccessorMapForTarget = ListUtils.toMap( keyExtractor,
+                                                                                                                        beanPropertyAccessorSetTarget );
       
       retmap.putAll( MapUtils.innerJoinMapByKey( propertyNameToBeanPropertyAccessorMapForSource,
                                                  propertyNameToBeanPropertyAccessorMapForTarget ) );
