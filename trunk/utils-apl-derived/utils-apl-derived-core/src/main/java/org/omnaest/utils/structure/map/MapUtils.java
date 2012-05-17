@@ -98,6 +98,23 @@ public class MapUtils
     public TO convert( Entry<K, V> entry );
   }
   
+  /**
+   * @see MapUtils#valueOf(KeyExtractor, Iterable)
+   * @author Omnaest
+   * @param <K>
+   * @param <E>
+   */
+  public static interface KeyExtractor<K, E>
+  {
+    /**
+     * Extracts a key from the given element
+     * 
+     * @param element
+     * @return
+     */
+    public K extractKey( E element );
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**
@@ -229,6 +246,16 @@ public class MapUtils
     
     //
     return retmap;
+  }
+  
+  /**
+   * Returns a new {@link MapJoiner} instance
+   * 
+   * @return
+   */
+  public static MapJoiner joiner()
+  {
+    return new MapJoiner();
   }
   
   /**
@@ -925,6 +952,8 @@ public class MapUtils
    * Returns the first {@link Entry} of a given {@link Map} or null if the {@link Map} reference is null or the {@link Map} is
    * empty
    * 
+   * @see #lastEntry(Map)
+   * @see #entryAt(Map, int)
    * @param map
    * @return
    */
@@ -941,5 +970,76 @@ public class MapUtils
     
     //
     return retval;
+  }
+  
+  /**
+   * Returns the last {@link Entry} of the given {@link Map}. If the given {@link Map} reference is null or the {@link Map} is
+   * empty, null will be returned.
+   * 
+   * @see #firstEntry(Map)
+   * @see #entryAt(Map, int)
+   * @param map
+   * @return
+   */
+  public static <K, V> Entry<K, V> lastEntry( Map<K, V> map )
+  {
+    //    
+    Entry<K, V> retval = null;
+    
+    //
+    if ( map != null && !map.isEmpty() )
+    {
+      retval = IterableUtils.lastElement( map.entrySet() );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns the {@link Entry} at the given index position of the given {@link Map}. If null is given as {@link Map} null will be
+   * returned. If the index position is invalid null is returned, too.
+   * 
+   * @see #firstEntry(Map)
+   * @see #lastEntry(Map)
+   * @param map
+   * @param indexPosition
+   * @return
+   */
+  public static <K, V> Entry<K, V> entryAt( Map<K, V> map, int indexPosition )
+  {
+    //
+    Entry<K, V> retval = map != null ? IterableUtils.elementAt( map.entrySet(), indexPosition ) : null;
+    return retval;
+  }
+  
+  /**
+   * Returns a new {@link Map} instance for the given {@link Iterable} using the given {@link KeyExtractor} to extract every key
+   * one by one from the {@link Iterable}
+   * 
+   * @param keyExtractor
+   *          {@link KeyExtractor}
+   * @param iterable
+   *          {@link Iterable}
+   * @return new {@link Map}
+   */
+  public static <K, V> Map<K, V> valueOf( KeyExtractor<? extends K, V> keyExtractor, Iterable<? extends V> iterable )
+  {
+    //
+    final Map<K, V> retmap = new LinkedHashMap<K, V>();
+    
+    //
+    if ( keyExtractor != null && iterable != null )
+    {
+      for ( V element : iterable )
+      {
+        //
+        K key = keyExtractor.extractKey( element );
+        retmap.put( key, element );
+      }
+    }
+    
+    //
+    return retmap;
   }
 }
