@@ -33,15 +33,15 @@ import org.omnaest.utils.structure.element.factory.Factory;
 public class ThreadLocalMap<K, V> implements Map<K, V>
 {
   /* ********************************************** Variables ********************************************** */
-  protected ThreadLocal<Map<K, V>> threadLocalMap = new ThreadLocal<Map<K, V>>();
-  protected Factory<Map<K, V>>     mapFactory     = new Factory<Map<K, V>>()
-                                                  {
-                                                    @Override
-                                                    public Map<K, V> newInstance()
-                                                    {
-                                                      return new LinkedHashMap<K, V>();
-                                                    }
-                                                  };
+  protected ThreadLocal<Map<K, V>> threadLocalForMap = new ThreadLocal<Map<K, V>>();
+  protected Factory<Map<K, V>>     mapFactory        = new Factory<Map<K, V>>()
+                                                     {
+                                                       @Override
+                                                       public Map<K, V> newInstance()
+                                                       {
+                                                         return new LinkedHashMap<K, V>();
+                                                       }
+                                                     };
   
   /* ********************************************** Methods ********************************************** */
   
@@ -116,14 +116,14 @@ public class ThreadLocalMap<K, V> implements Map<K, V>
   public Map<K, V> getMap()
   {
     //
-    Map<K, V> retmap = this.threadLocalMap.get();
+    Map<K, V> retmap = this.threadLocalForMap.get();
     
     //
     if ( retmap == null )
     {
       //
       retmap = this.mapFactory.newInstance();
-      this.threadLocalMap.set( retmap );
+      this.threadLocalForMap.set( retmap );
     }
     
     //
@@ -204,7 +204,7 @@ public class ThreadLocalMap<K, V> implements Map<K, V>
     //
     if ( map != null )
     {
-      this.threadLocalMap.set( map );
+      this.threadLocalForMap.set( map );
     }
     
     //
@@ -240,6 +240,17 @@ public class ThreadLocalMap<K, V> implements Map<K, V>
   public Collection<V> values()
   {
     return this.getMap().values();
+  }
+  
+  /**
+   * Clears the {@link Map} reference for the current {@link Thread}. This allows the garbage collector to pickup the map
+   * reference.
+   * 
+   * @see ThreadLocal#remove()
+   */
+  public void remove()
+  {
+    this.threadLocalForMap.remove();
   }
   
 }

@@ -31,7 +31,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 
 /**
- * A special {@link CustomScopeConfigurer} to allow
+ * A special {@link Scope} to allow to address beans which match a given trailing bean name pattern
  * 
  * @see CustomScopeConfigurer
  * @see Scope
