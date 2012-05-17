@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.omnaest.utils.strings.StringUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
@@ -380,6 +381,23 @@ public class DurationCapture
   }
   
   /**
+   * Returns the needed time between measurement start and stop in the given {@link TimeUnit}.
+   * 
+   * @see #getDurationInMilliseconds(Object)
+   * @param timeUnit
+   * @return
+   */
+  public long getDuration( TimeUnit timeUnit )
+  {
+    //
+    if ( timeUnit == null )
+    {
+      timeUnit = TimeUnit.MILLISECONDS;
+    }
+    return timeUnit.convert( getDurationInMilliseconds(), TimeUnit.MILLISECONDS );
+  }
+  
+  /**
    * Returns the needed time between measurement start and stop in milliseconds.
    * 
    * @param intervalKey
@@ -389,6 +407,23 @@ public class DurationCapture
   public long getDurationInMilliseconds( Object intervalKey )
   {
     return this.determineInterval( intervalKey ).getDurationInMilliseconds();
+  }
+  
+  /**
+   * Returns the needed time between measurement start and stop for the given interval key in the given {@link TimeUnit}.
+   * 
+   * @see #getDurationInMilliseconds(Object)
+   * @param timeUnit
+   * @return
+   */
+  public long getDuration( Object intervalKey, TimeUnit timeUnit )
+  {
+    //
+    if ( timeUnit == null )
+    {
+      timeUnit = TimeUnit.MILLISECONDS;
+    }
+    return timeUnit.convert( getDurationInMilliseconds( intervalKey ), TimeUnit.MILLISECONDS );
   }
   
   /**
@@ -424,6 +459,24 @@ public class DurationCapture
   }
   
   /**
+   * Returns the time duration sum between measurement start and stop in the given {@link TimeUnit} for all given interval keys.
+   * If no interval key is specified {@link #getDurationInMilliseconds()} is returned.
+   * 
+   * @param timeUnit
+   * @param intervalKeys
+   * @return
+   */
+  public long getDuration( TimeUnit timeUnit, Object... intervalKeys )
+  {
+    //
+    if ( timeUnit == null )
+    {
+      timeUnit = TimeUnit.MILLISECONDS;
+    }
+    return timeUnit.convert( getDurationInMilliseconds( intervalKeys ), TimeUnit.MILLISECONDS );
+  }
+  
+  /**
    * Returns the time since starting the measurement and now in milliseconds.
    * 
    * @return
@@ -434,13 +487,47 @@ public class DurationCapture
   }
   
   /**
-   * Returns the time since starting the measurement and now in milliseconds.
+   * Returns the time since starting the measurement and now in the given {@link TimeUnit}.
+   * 
+   * @param timeUnit
+   * @return
+   */
+  public long getInterimTime( TimeUnit timeUnit )
+  {
+    //
+    if ( timeUnit == null )
+    {
+      timeUnit = TimeUnit.MILLISECONDS;
+    }
+    return timeUnit.convert( getInterimTimeInMilliseconds(), TimeUnit.MILLISECONDS );
+  }
+  
+  /**
+   * Returns the time since starting the measurement and now in milliseconds for the given interval key
    * 
    * @return
    */
   public long getInterimTimeInMilliseconds( Object intervalKey )
   {
     return this.determineInterval( intervalKey ).getInterimTimeInMilliseconds();
+  }
+  
+  /**
+   * Returns the time since starting the measurement and now in milliseconds for the given interval key in the given
+   * {@link TimeUnit}
+   * 
+   * @param timeUnit
+   *          {@link TimeUnit}
+   * @return
+   */
+  public long getInterimTime( Object intervalKey, TimeUnit timeUnit )
+  {
+    //
+    if ( timeUnit == null )
+    {
+      timeUnit = TimeUnit.MILLISECONDS;
+    }
+    return timeUnit.convert( getInterimTimeInMilliseconds( intervalKey ), TimeUnit.MILLISECONDS );
   }
   
   /**
@@ -472,6 +559,25 @@ public class DurationCapture
     
     //
     return retval;
+  }
+  
+  /**
+   * Returns the time sum since starting the measurement and now in the given {@link TimeUnit} for all given interval keys. If no
+   * interval key is given {@link #getInterimTime(TimeUnit)} is returned instead.
+   * 
+   * @param timeUnit
+   *          {@link TimeUnit}
+   * @param intervalKeys
+   * @return
+   */
+  public long getInterimTime( TimeUnit timeUnit, Object... intervalKeys )
+  {
+    //
+    if ( timeUnit == null )
+    {
+      timeUnit = TimeUnit.MILLISECONDS;
+    }
+    return timeUnit.convert( getInterimTimeInMilliseconds( intervalKeys ), TimeUnit.MILLISECONDS );
   }
   
   /**
@@ -594,12 +700,34 @@ public class DurationCapture
     return retmap;
   }
   
+  /**
+   * Returns a new {@link Map} instance with all {@link Interval} keys and the related {@link #getDuration(TimeUnit)} as value
+   * 
+   * @param timeUnit
+   *          {@link TimeUnit}
+   * @return
+   */
+  public Map<Object, Long> getIntervalKeyToDurationMap( TimeUnit timeUnit )
+  {
+    //    
+    Map<Object, Long> retmap = new LinkedHashMap<Object, Long>();
+    
+    //
+    for ( Object intervalKey : this.getIntervalKeyList() )
+    {
+      retmap.put( intervalKey, this.getDuration( intervalKey, timeUnit ) );
+    }
+    
+    //
+    return retmap;
+  }
+  
   /* ********************************************** STATIC FACTORY METHOD PART ********************************************** */
   
   /**
    * Used by the factory method.
    * 
-   * @see #createNewInstance
+   * @see #newInstance()
    */
   public static Class<? extends DurationCapture> implementationForDurationClass = DurationCapture.class;
   
