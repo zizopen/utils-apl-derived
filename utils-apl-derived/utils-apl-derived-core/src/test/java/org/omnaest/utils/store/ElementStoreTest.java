@@ -39,12 +39,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.omnaest.utils.events.exception.ExceptionHandler;
-import org.omnaest.utils.store.ElementStore.KeyExtractor;
 import org.omnaest.utils.store.ElementStore.PersistenceAccessor;
 import org.omnaest.utils.store.ElementStore.PersistenceExecutionControl;
 import org.omnaest.utils.store.persistence.PersistenceAccessorDirectoryFiles;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.factory.Factory;
+import org.omnaest.utils.structure.map.MapUtils.KeyExtractor;
 
 /**
  * @see ElementStore
@@ -311,7 +311,7 @@ public class ElementStoreTest
     final KeyExtractor<String, TestClass> keyExtractor = new KeyExtractor<String, TestClass>()
     {
       @Override
-      public String getKey( TestClass element )
+      public String extractKey( TestClass element )
       {
         return element.getFieldString();
       }
@@ -353,7 +353,7 @@ public class ElementStoreTest
     final KeyExtractor<Calendar, TestClass> keyExtractor = new KeyExtractor<Calendar, TestClass>()
     {
       @Override
-      public Calendar getKey( TestClass element )
+      public Calendar extractKey( TestClass element )
       {
         return element.getCalendar();
       }

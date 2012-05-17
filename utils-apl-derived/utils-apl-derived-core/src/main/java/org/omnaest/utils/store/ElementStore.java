@@ -48,6 +48,7 @@ import org.omnaest.utils.store.ElementStore.PersistenceExecutionControl.Persiste
 import org.omnaest.utils.structure.collection.CollectionAbstract;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.factory.Factory;
+import org.omnaest.utils.structure.map.MapUtils.KeyExtractor;
 import org.omnaest.utils.structure.map.decorator.SortedMapDecorator;
 
 /**
@@ -194,25 +195,6 @@ public class ElementStore<E> extends CollectionAbstract<E>
       }
     }
     
-  }
-  
-  /**
-   * Extracts a key value from a given element
-   * 
-   * @see ElementStore#newIndex(KeyExtractor)
-   * @author Omnaest
-   * @param <K>
-   * @param <E>
-   */
-  public static interface KeyExtractor<K, E>
-  {
-    /**
-     * Returns a key value for a given element
-     * 
-     * @param element
-     * @return
-     */
-    public K getKey( E element );
   }
   
   /**
@@ -815,7 +797,7 @@ public class ElementStore<E> extends CollectionAbstract<E>
           final AccessEvent accessEvent = accessEventData.getAccessEvent();
           final List<E> elementList = accessEventData.getElementList();
           final E firstElement = ListUtils.firstElement( elementList );
-          final K key = keyExtractor.getKey( firstElement );
+          final K key = keyExtractor.extractKey( firstElement );
           
           //
           if ( key != null )
@@ -865,7 +847,7 @@ public class ElementStore<E> extends CollectionAbstract<E>
     for ( E element : this.elementToIdentifierMap.keySet() )
     {
       //
-      final K key = keyExtractor.getKey( element );
+      final K key = keyExtractor.extractKey( element );
       if ( key != null )
       {
         sortedMap.put( key, element );
