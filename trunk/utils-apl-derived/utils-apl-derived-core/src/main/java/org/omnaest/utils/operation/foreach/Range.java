@@ -24,7 +24,16 @@ import org.omnaest.utils.structure.iterator.ElementStreamToIteratorAdapter;
 
 /**
  * Represents a {@link Range} for {@link Long} values which can be used as {@link Iterable}. The number limits are always
- * included.
+ * included.<br>
+ * <br>
+ * Example:
+ * 
+ * <pre>
+ * for ( long counter : new Range( 1, 1000 ) )
+ * {
+ *   //do something
+ * }
+ * </pre>
  * 
  * @author Omnaest
  */

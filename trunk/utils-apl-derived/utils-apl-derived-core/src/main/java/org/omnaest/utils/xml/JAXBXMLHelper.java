@@ -24,11 +24,16 @@ import java.util.Arrays;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
+import org.omnaest.utils.xml.JAXBXMLHelper.UnmarshallingConfiguration.Configurator;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 /**
  * Helper class for JAXB annotated classes.
@@ -149,6 +154,63 @@ public class JAXBXMLHelper
    */
   public static class UnmarshallingConfiguration extends MarshallingAndUnmarshallingConfigurationAbstractBase
   {
+    /* ********************************************** Variables ********************************************** */
+    private Configurator configurator = null;
+    
+    /* ********************************************** Classes/Interfaces ********************************************** */
+    /**
+     * A {@link Configurator} is able to configure several internal instances like {@link SAXParserFactory}, {@link JAXBContext},
+     * {@link Unmarshaller}.<br>
+     * <br>
+     * To do this <b>override</b> any method available.<br>
+     * <br>
+     * Example:
+     * 
+     * <pre>
+     * new Configurator()
+     * {
+     *   &#064;Override
+     *   public void configure( SAXParserFactory saxParserFactory ) throws Exception
+     *   {
+     *     saxParserFactory.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+     *   }
+     * }
+     * </pre>
+     * 
+     * @author Omnaest
+     */
+    public static abstract class Configurator
+    {
+      /**
+       * Configures the given {@link SAXParserFactory} instance
+       * 
+       * @param saxParserFactory
+       * @throws Exception
+       */
+      public void configure( SAXParserFactory saxParserFactory ) throws Exception
+      {
+      }
+      
+      /**
+       * Configures the {@link Unmarshaller}
+       * 
+       * @param unmarshaller
+       */
+      public void configure( Unmarshaller unmarshaller )
+      {
+      }
+      
+      /**
+       * Configures the {@link JAXBContext}
+       * 
+       * @param jaxbContext
+       */
+      public void configure( JAXBContext jaxbContext )
+      {
+      }
+    }
+    
+    /* ********************************************** Methods ********************************************** */
     
     /**
      * @see UnmarshallingConfiguration
@@ -182,14 +244,13 @@ public class JAXBXMLHelper
       return unmarshallingConfiguration == null ? new UnmarshallingConfiguration() : unmarshallingConfiguration;
     }
     
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString()
     {
       StringBuilder builder = new StringBuilder();
-      builder.append( "UnmarshallingConfiguration [encoding=" );
+      builder.append( "UnmarshallingConfiguration [configurator=" );
+      builder.append( this.configurator );
+      builder.append( ", encoding=" );
       builder.append( this.encoding );
       builder.append( ", exceptionHandler=" );
       builder.append( this.exceptionHandler );
@@ -218,6 +279,25 @@ public class JAXBXMLHelper
     {
       super.setKnownTypes( knownTypes );
       return this;
+    }
+    
+    /**
+     * @param configurator
+     *          {@link Configurator}
+     * @return
+     */
+    public UnmarshallingConfiguration setConfigurator( Configurator configurator )
+    {
+      this.configurator = configurator;
+      return this;
+    }
+    
+    /**
+     * @return
+     */
+    public Configurator getConfigurator()
+    {
+      return this.configurator;
     }
     
   }
@@ -591,7 +671,8 @@ public class JAXBXMLHelper
   public static <E> E loadObjectFromXML( InputStream inputStream, Class<E> type, ExceptionHandler exceptionHandler )
   {
     //
-    final UnmarshallingConfiguration unmarshallingConfiguration = null;
+    final UnmarshallingConfiguration unmarshallingConfiguration = new UnmarshallingConfiguration();
+    unmarshallingConfiguration.setExceptionHandler( exceptionHandler );
     return loadObjectFromXML( inputStream, type, unmarshallingConfiguration );
   }
   
@@ -617,28 +698,54 @@ public class JAXBXMLHelper
     //
     unmarshallingConfiguration = UnmarshallingConfiguration.defaultUnmarshallingConfiguration( unmarshallingConfiguration );
     final ExceptionHandler exceptionHandler = unmarshallingConfiguration.getExceptionHandler();
-    Class<?>[] knownTypes = unmarshallingConfiguration.getKnownTypes();
+    final Class<?>[] knownTypes = unmarshallingConfiguration.getKnownTypes();
     final String encoding = unmarshallingConfiguration.getEncoding();
+    final Configurator configurator = unmarshallingConfiguration.getConfigurator();
     
     //
     try
     {
       //
       final Class<?>[] contextTypes = ArrayUtils.add( knownTypes, type );
-      final JAXBContext context = JAXBContext.newInstance( contextTypes );
-      final Unmarshaller um = context.createUnmarshaller();
+      final JAXBContext jaxbContext = JAXBContext.newInstance( contextTypes );
+      if ( configurator != null )
+      {
+        configurator.configure( jaxbContext );
+      }
+      
+      //
+      final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+      if ( configurator != null )
+      {
+        configurator.configure( unmarshaller );
+      }
       
       //
       if ( encoding != null )
       {
         //
+        final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+        saxParserFactory.setNamespaceAware( true );
+        if ( configurator != null )
+        {
+          configurator.configure( saxParserFactory );
+        }
+        
+        //
+        final XMLReader xmlReader = saxParserFactory.newSAXParser().getXMLReader();
         final Reader reader = new InputStreamReader( inputStream, encoding );
-        retval = (E) um.unmarshal( reader );
+        
+        //
+        final InputSource inputSource = new InputSource( reader );
+        final SAXSource saxSource = new SAXSource( xmlReader, inputSource );
+        
+        //
+        retval = (E) unmarshaller.unmarshal( saxSource );
       }
       else
       {
         //
-        retval = (E) um.unmarshal( inputStream );
+        retval = (E) unmarshaller.unmarshal( inputStream );
       }
     }
     catch ( Exception e )
