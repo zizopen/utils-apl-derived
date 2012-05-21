@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
 
+import javax.sql.rowset.spi.XmlReader;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchema;
 import javax.xml.namespace.QName;
@@ -170,11 +171,12 @@ public class XMLIteratorFactory
   private final TraversalContextControl   traversalContextControl;
   private final List<XMLEventTransformer> xmlEventTransformerList;
   private final List<Scope>               scopeList;
+  private final List<TouchBarrier>        touchBarrierList;
   private Factory<Accessor<String>>       accessorFactory                    = null;
+  private String                          encoding                           = XMLIteratorFactory.DEFAULT_ENCODING;
   
   /* ********************************************** Beans / Services / References ********************************************** */
   private final ExceptionHandler          exceptionHandler;
-  private String                          encoding                           = XMLIteratorFactory.DEFAULT_ENCODING;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
@@ -831,6 +833,149 @@ public class XMLIteratorFactory
     }
   }
   
+  /**
+   * Barrier which
+   * 
+   * @author Omnaest
+   */
+  private static class TouchBarrier
+  {
+    /* ********************************************** Variables / State ********************************************** */
+    private final XMLElementSelector xmlElementSelector;
+    
+    /* ********************************************** Methods ********************************************** */
+    @SuppressWarnings("unused")
+    public TouchBarrier( XMLElementSelector xmlElementSelector )
+    {
+      super();
+      this.xmlElementSelector = xmlElementSelector;
+    }
+    
+    public TouchBarrier( QName qName )
+    {
+      super();
+      this.xmlElementSelector = new XMLElementSelectorQNameBased( qName );
+    }
+    
+    /**
+     * Returns true if the current {@link TouchBarrier} matches a given {@link SelectionContext}
+     * 
+     * @param selectionContext
+     * @return
+     */
+    protected boolean matches( SelectionContext selectionContext )
+    {
+      return this.xmlElementSelector.selectElement( selectionContext );
+    }
+    
+  }
+  
+  /**
+   * Controls structure for any given touch barrier {@link QName}
+   * 
+   * @author Omnaest
+   */
+  private static class TouchBarrierControl
+  {
+    /* ********************************************** Variables / State ********************************************** */
+    private final List<TouchBarrier> touchBarrierList;
+    private final ExceptionHandler   exceptionHandler;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @see TouchBarrierControl
+     * @param touchBarrierList
+     *          {@link List} of {@link TouchBarrier}s
+     * @param exceptionHandler
+     *          {@link ExceptionHandler}
+     */
+    public TouchBarrierControl( List<TouchBarrier> touchBarrierList, ExceptionHandler exceptionHandler )
+    {
+      super();
+      this.touchBarrierList = touchBarrierList;
+      this.exceptionHandler = exceptionHandler;
+    }
+    
+    /**
+     * Checks if any of the internal {@link TouchBarrier}s are matching the next {@link XMLEvent} of the given
+     * {@link XMLEventReader}. To retrieve the next element {@link XMLEventReader#peek()} is used, which does not remove the
+     * {@link XMLEvent} from the {@link XmlReader}s stream.
+     * 
+     * @param xmlEventReader
+     *          {@link XMLEventReader}
+     * @param qNameHierarchy
+     * @return true if the next element will touch any barrier
+     */
+    public boolean isAnyBarrierTouched( XMLEventReader xmlEventReader, final List<QName> qNameHierarchy )
+    {
+      //
+      boolean retval = false;
+      
+      //
+      if ( xmlEventReader != null && this.touchBarrierList != null && !this.touchBarrierList.isEmpty() )
+      {
+        try
+        {
+          //
+          final XMLEvent xmlEvent = xmlEventReader.peek();
+          if ( xmlEvent != null && xmlEvent.isStartElement() )
+          {
+            //
+            final QName qName = xmlEvent.asStartElement().getName();
+            final SelectionContext selectionContext = new SelectionContext()
+            {
+              @Override
+              public List<QName> getQNameHierarchy()
+              {
+                return qNameHierarchy;
+              }
+              
+              @Override
+              public QName getQName()
+              {
+                return qName;
+              }
+            };
+            for ( TouchBarrier touchBarrier : this.touchBarrierList )
+            {
+              if ( touchBarrier != null )
+              {
+                //
+                final boolean matches = touchBarrier.matches( selectionContext );
+                if ( matches )
+                {
+                  retval = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+        catch ( Exception e )
+        {
+          this.exceptionHandler.handleException( e );
+        }
+      }
+      
+      //
+      return retval;
+    }
+  }
+  
+  /**
+   * @author Omnaest
+   */
+  public static class MissingXMLRootElementAnnotationException extends RuntimeException
+  {
+    private static final long serialVersionUID = -1643787702588403199L;
+    
+    public MissingXMLRootElementAnnotationException()
+    {
+      super( "Type has to have a XmlRootElement annotation" );
+    }
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**
@@ -852,7 +997,9 @@ public class XMLIteratorFactory
     this.exceptionHandler = exceptionHandler;
     this.xmlEventReader = createXmlEventReader( inputStream, exceptionHandler );
     this.scopeList = new ArrayList<Scope>();
+    this.touchBarrierList = new ArrayList<TouchBarrier>();
     this.traversalContextControl = new TraversalContextControl();
+    
   }
   
   /**
@@ -874,10 +1021,11 @@ public class XMLIteratorFactory
    * @param xmlTransformerList
    * @param exceptionHandler
    * @param scopeList
+   * @param touchBarrierList
    * @param traversalControl
    */
   private XMLIteratorFactory( XMLEventReader xmlEventReader, List<XMLEventTransformer> xmlTransformerList,
-                              ExceptionHandler exceptionHandler, List<Scope> scopeList,
+                              ExceptionHandler exceptionHandler, List<Scope> scopeList, List<TouchBarrier> touchBarrierList,
                               TraversalContextControl traversalContextControl )
   {
     super();
@@ -885,6 +1033,7 @@ public class XMLIteratorFactory
     this.xmlEventTransformerList = xmlTransformerList;
     this.exceptionHandler = exceptionHandler;
     this.scopeList = scopeList;
+    this.touchBarrierList = touchBarrierList;
     this.traversalContextControl = traversalContextControl;
   }
   
@@ -944,7 +1093,7 @@ public class XMLIteratorFactory
     {
       retval = new XMLIteratorFactory( this.xmlEventReader, ListUtils.addToNewList( this.xmlEventTransformerList,
                                                                                     xmlEventTransformer ), this.exceptionHandler,
-                                       this.scopeList, this.traversalContextControl );
+                                       this.scopeList, this.touchBarrierList, this.traversalContextControl );
     }
     
     //
@@ -978,7 +1127,39 @@ public class XMLIteratorFactory
       //
       final Scope scope = new Scope( tagName );
       retval = new XMLIteratorFactory( this.xmlEventReader, this.xmlEventTransformerList, this.exceptionHandler,
-                                       ListUtils.addToNewList( this.scopeList, scope ), this.traversalContextControl );
+                                       ListUtils.addToNewList( this.scopeList, scope ), this.touchBarrierList,
+                                       this.traversalContextControl );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns a new {@link XMLIteratorFactory} instance with the configuration of this one but holding an additional xml tag touch
+   * barrier restriction. A touch barrier restriction means that the internal stream is validated in advance if the next start
+   * element will match the given xml tag. If this is the case, the traversal is stopped and the next element keeps unread, so
+   * that any further attempt to create a new {@link Iterator} of any kind will use the still remaining element of the touch
+   * barrier. <br>
+   * <br>
+   * 
+   * @param tagName
+   *          {@link QName}
+   * @return new {@link XMLIteratorFactory} instance
+   */
+  public XMLIteratorFactory doAddXMLTagTouchBarrier( QName tagName )
+  {
+    //
+    XMLIteratorFactory retval = this;
+    
+    //
+    if ( tagName != null )
+    {
+      //
+      final TouchBarrier touchBarrier = new TouchBarrier( tagName );
+      retval = new XMLIteratorFactory( this.xmlEventReader, this.xmlEventTransformerList, this.exceptionHandler, this.scopeList,
+                                       ListUtils.addToNewList( this.touchBarrierList, touchBarrier ),
+                                       this.traversalContextControl );
     }
     
     //
@@ -1112,50 +1293,48 @@ public class XMLIteratorFactory
    * 
    * @param type
    * @return
+   * @throws MissingXMLRootElementAnnotationException
    */
   public <E> Iterator<E> newIterator( final Class<? extends E> type )
   {
     //
-    final String selectingTagName;
-    final String selectingNamespace;
+    String selectingTagName = null;
+    String selectingNamespace = null;
     
     //
     final XmlRootElement xmlRootElement = ReflectionUtils.annotation( type, XmlRootElement.class );
-    if ( xmlRootElement != null )
+    if ( xmlRootElement == null )
     {
-      //      
-      String tagName = xmlRootElement.name();
-      if ( tagName != null && !StringUtils.equalsIgnoreCase( tagName, "##default" ) )
-      {
-        selectingTagName = tagName;
-      }
-      else
-      {
-        selectingTagName = StringUtils.lowerCase( type.getSimpleName() );
-      }
-      
       //
-      String namespace = xmlRootElement.namespace();
-      if ( StringUtils.equalsIgnoreCase( namespace, "##default" ) )
-      {
-        //
-        namespace = null;
-        
-        //
-        final XmlSchema xmlSchema = ReflectionUtils.annotation( type.getPackage(), XmlSchema.class );
-        if ( xmlSchema != null )
-        {
-          namespace = xmlSchema.namespace();
-        }
-      }
-      selectingNamespace = namespace;
-      
+      throw new MissingXMLRootElementAnnotationException();
+    }
+    
+    //      
+    String tagName = xmlRootElement.name();
+    if ( tagName != null && !StringUtils.equalsIgnoreCase( tagName, "##default" ) )
+    {
+      selectingTagName = tagName;
     }
     else
     {
-      selectingNamespace = null;
-      selectingTagName = null;
+      selectingTagName = StringUtils.lowerCase( type.getSimpleName() );
     }
+    
+    //
+    String namespace = xmlRootElement.namespace();
+    if ( StringUtils.equalsIgnoreCase( namespace, "##default" ) )
+    {
+      //
+      namespace = null;
+      
+      //
+      final XmlSchema xmlSchema = ReflectionUtils.annotation( type.getPackage(), XmlSchema.class );
+      if ( xmlSchema != null )
+      {
+        namespace = xmlSchema.namespace();
+      }
+    }
+    selectingNamespace = namespace;
     
     //    
     final QName qName = new QName( selectingNamespace, selectingTagName );
@@ -1230,6 +1409,7 @@ public class XMLIteratorFactory
         final ExceptionHandler exceptionHandler = this.exceptionHandler;
         final TraversalContextControl traversalContextControl = this.traversalContextControl;
         final ScopeControl scopeControl = new ScopeControl( this.scopeList );
+        final TouchBarrierControl touchBarrierControl = new TouchBarrierControl( this.touchBarrierList, exceptionHandler );
         final Accessor<String> accessor = this.newAccessor();
         
         //
@@ -1306,8 +1486,14 @@ public class XMLIteratorFactory
               //
               boolean read = false;
               boolean done = false;
+              boolean touchedBarrier = false;
               boolean hasWrittenAtLeastOneElement = false;
-              while ( !done && !scopeControl.hasTraversedAnyScope() && xmlEventReader.hasNext() )
+              while ( !done
+                      && !scopeControl.hasTraversedAnyScope()
+                      && xmlEventReader.hasNext()
+                      && ( read || ( !touchedBarrier && !( touchedBarrier = touchBarrierControl.isAnyBarrierTouched( xmlEventReader,
+                                                                                                                     traversalContextControl.getCurrentSelectionContext()
+                                                                                                                                            .getQNameHierarchy() ) ) ) ) )
               {
                 //
                 final XMLEvent currentEvent = transformXMLElement( xmlEventReader.nextEvent() );
@@ -1493,6 +1679,24 @@ public class XMLIteratorFactory
   {
     this.encoding = encoding;
     return this;
+  }
+  
+  /**
+   * Closes the internal {@link XMLEventReader} which closes all iterators immediately
+   */
+  public void close()
+  {
+    try
+    {
+      this.xmlEventReader.close();
+    }
+    catch ( XMLStreamException e )
+    {
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
+    }
   }
   
 }

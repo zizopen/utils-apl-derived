@@ -60,6 +60,13 @@ public class ConverterIteratorDecorator<FROM, TO> implements Iterator<TO>
   @Override
   public TO next()
   {
-    return this.hasIteratorAndElementConverter ? this.elementConverter.convert( this.iterator.next() ) : null;
+    //
+    TO retval = null;
+    if ( this.hasIteratorAndElementConverter )
+    {
+      final FROM nextElement = this.iterator.next();
+      retval = this.elementConverter.convert( nextElement );
+    }
+    return retval;
   }
 }
