@@ -311,6 +311,28 @@ public class XMLIteratorFactoryTest
   }
   
   @Test
+  public void testNewIteratorStringContentWithTouchBarrier()
+  {
+    //    
+    final int numberOfObjects = 2;
+    final ByteArrayContainer byteArrayContainer = generateTestObjects( numberOfObjects );
+    
+    //
+    final InputStream inputStream = byteArrayContainer.getInputStream();
+    final XMLIteratorFactory xmlIteratorFactory = new XMLIteratorFactory( inputStream ).doLowerCaseXMLTagAndAttributeNames();
+    
+    //
+    {
+      final Iterator<String> iterator = xmlIteratorFactory.doAddXMLTagTouchBarrier( new QName( "http://www.other.example.org",
+                                                                                               "author" ) )
+                                                          .newIterator( new QName( "http://www.example.org", "book" ) );
+      final List<String> valueList = ListUtils.valueOf( iterator );
+      assertEquals( 2, valueList.size() );
+    }
+    
+  }
+  
+  @Test
   public void testNewIteratorScopedWithStringContent()
   {
     //    
