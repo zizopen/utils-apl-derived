@@ -392,6 +392,72 @@ public class JAXBXMLHelper
     
   }
   
+  /**
+   * Holder of a fully instantiated {@link Unmarshaller} instance
+   * 
+   * @author Omnaest
+   */
+  public static class JAXBContextBasedUnmarshaller
+  {
+    /* ********************************************** Variables / State ********************************************** */
+    private final Unmarshaller     unmarshaller;
+    private final XMLReader        xmlReader;
+    private final ExceptionHandler exceptionHandler;
+    private final String           encoding;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @see JAXBContextBasedUnmarshaller
+     * @param unmarshaller
+     * @param xmlReader
+     * @param exceptionHandler
+     * @param encoding
+     */
+    public JAXBContextBasedUnmarshaller( Unmarshaller unmarshaller, XMLReader xmlReader, ExceptionHandler exceptionHandler,
+                                         String encoding )
+    {
+      //
+      super();
+      this.unmarshaller = unmarshaller;
+      this.xmlReader = xmlReader;
+      this.exceptionHandler = exceptionHandler;
+      this.encoding = encoding;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public <E> E unmarshal( InputStream inputStream )
+    {
+      //
+      E retval = null;
+      
+      //
+      try
+      {
+        //
+        final Reader reader = new InputStreamReader( inputStream, this.encoding );
+        
+        //
+        final InputSource inputSource = new InputSource( reader );
+        final SAXSource saxSource = new SAXSource( this.xmlReader, inputSource );
+        
+        //
+        retval = (E) this.unmarshaller.unmarshal( saxSource );
+      }
+      catch ( Exception e )
+      {
+        if ( this.exceptionHandler != null )
+        {
+          this.exceptionHandler.handleException( e );
+        }
+      }
+      
+      //
+      return retval;
+    }
+    
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**
@@ -677,23 +743,18 @@ public class JAXBXMLHelper
   }
   
   /**
-   * Similar to {@link #loadObjectFromXML(InputStream, Class)} allowing to declare a {@link UnmarshallingConfiguration}
+   * Returns a new {@link JAXBContextBasedUnmarshaller} instance. This can be used to marshal multiple {@link InputStream}s
+   * without the costly overhead of constructing a new {@link JAXBContext} each time.
    * 
-   * @param <E>
-   * @param inputStream
-   *          {@link InputStream}
    * @param type
    * @param unmarshallingConfiguration
-   *          {@link UnmarshallingConfiguration}
-   * @return
+   * @return new {@link JAXBContextBasedUnmarshaller}
    */
-  @SuppressWarnings("unchecked")
-  public static <E> E loadObjectFromXML( InputStream inputStream,
-                                         Class<E> type,
-                                         UnmarshallingConfiguration unmarshallingConfiguration )
+  public static <E> JAXBContextBasedUnmarshaller newJAXBContextBasedUnmarshaller( Class<E> type,
+                                                                                  UnmarshallingConfiguration unmarshallingConfiguration )
   {
     //
-    E retval = null;
+    JAXBContextBasedUnmarshaller retval = null;
     
     //
     unmarshallingConfiguration = UnmarshallingConfiguration.defaultUnmarshallingConfiguration( unmarshallingConfiguration );
@@ -721,32 +782,18 @@ public class JAXBXMLHelper
       }
       
       //
-      if ( encoding != null )
+      final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+      saxParserFactory.setNamespaceAware( true );
+      if ( configurator != null )
       {
-        //
-        final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-        saxParserFactory.setNamespaceAware( true );
-        if ( configurator != null )
-        {
-          configurator.configure( saxParserFactory );
-        }
-        
-        //
-        final XMLReader xmlReader = saxParserFactory.newSAXParser().getXMLReader();
-        final Reader reader = new InputStreamReader( inputStream, encoding );
-        
-        //
-        final InputSource inputSource = new InputSource( reader );
-        final SAXSource saxSource = new SAXSource( xmlReader, inputSource );
-        
-        //
-        retval = (E) unmarshaller.unmarshal( saxSource );
+        configurator.configure( saxParserFactory );
       }
-      else
-      {
-        //
-        retval = (E) unmarshaller.unmarshal( inputStream );
-      }
+      
+      //      
+      final XMLReader xmlReader = saxParserFactory.newSAXParser().getXMLReader();
+      
+      //
+      retval = new JAXBContextBasedUnmarshaller( unmarshaller, xmlReader, exceptionHandler, encoding );
     }
     catch ( Exception e )
     {
@@ -755,6 +802,36 @@ public class JAXBXMLHelper
         exceptionHandler.handleException( e );
       }
     }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Similar to {@link #loadObjectFromXML(InputStream, Class)} allowing to declare a {@link UnmarshallingConfiguration}
+   * 
+   * @see #newJAXBContextBasedUnmarshaller(Class, UnmarshallingConfiguration)
+   * @param <E>
+   * @param inputStream
+   *          {@link InputStream}
+   * @param type
+   *          {@link Class}
+   * @param unmarshallingConfiguration
+   *          {@link UnmarshallingConfiguration}
+   * @return new instance of type based on the xml content provided by the given {@link InputStream}
+   */
+  public static <E> E loadObjectFromXML( InputStream inputStream,
+                                         Class<E> type,
+                                         UnmarshallingConfiguration unmarshallingConfiguration )
+  {
+    //
+    E retval = null;
+    
+    //
+    JAXBContextBasedUnmarshaller jaxbContextBasedUnmarshaller = newJAXBContextBasedUnmarshaller( type, unmarshallingConfiguration );
+    
+    retval = jaxbContextBasedUnmarshaller.unmarshal( inputStream );
+    
     //
     return retval;
   }
@@ -887,18 +964,18 @@ public class JAXBXMLHelper
   
   /**
    * @param xmlContent
-   * @param typeClazz
+   * @param type
    * @param exceptionHandler
    * @return
    */
-  public static <E> E loadObjectFromXML( String xmlContent, Class<E> typeClazz, ExceptionHandler exceptionHandler )
+  public static <E> E loadObjectFromXML( String xmlContent, Class<E> type, ExceptionHandler exceptionHandler )
   {
     //
     ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
     byteArrayContainer.copyFrom( xmlContent );
     
     //
-    return JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), typeClazz, exceptionHandler );
+    return JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.getInputStream(), type, exceptionHandler );
   }
   
   /**
