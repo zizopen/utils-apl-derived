@@ -53,12 +53,16 @@ import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.element.accessor.Accessor;
 import org.omnaest.utils.structure.element.accessor.adapter.ThreadLocalToAccessorAdapter;
+import org.omnaest.utils.structure.element.cached.CachedElement.ValueResolver;
+import org.omnaest.utils.structure.element.cached.ThreadLocalCachedElement;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCast;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.iterator.IteratorUtils;
 import org.omnaest.utils.structure.map.MapUtils;
+import org.omnaest.utils.xml.JAXBXMLHelper.JAXBContextBasedUnmarshaller;
+import org.omnaest.utils.xml.JAXBXMLHelper.UnmarshallingConfiguration;
 import org.omnaest.utils.xml.XMLIteratorFactory.XMLElementSelector.SelectionContext;
 import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformer;
 import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformerLowerCase;
@@ -1354,13 +1358,25 @@ public class XMLIteratorFactory
    */
   public <E> Iterator<E> newIterator( final XMLElementSelector xmlElementSelector, final Class<? extends E> type )
   {
+    
     //
+    final ValueResolver<JAXBContextBasedUnmarshaller> valueResolver = new ValueResolver<JAXBContextBasedUnmarshaller>()
+    {
+      @Override
+      public JAXBContextBasedUnmarshaller resolveValue()
+      {
+        return JAXBXMLHelper.newJAXBContextBasedUnmarshaller( type,
+                                                              new UnmarshallingConfiguration().setExceptionHandler( XMLIteratorFactory.this.exceptionHandler ) );
+      }
+    };
+    final ThreadLocalCachedElement<JAXBContextBasedUnmarshaller> cachedElement = new ThreadLocalCachedElement<JAXBXMLHelper.JAXBContextBasedUnmarshaller>(
+                                                                                                                                                           valueResolver );
     final ElementConverter<String, E> elementConverter = new ElementConverter<String, E>()
     {
       @Override
       public E convert( String element )
       {
-        return JAXBXMLHelper.loadObjectFromXML( element, type, XMLIteratorFactory.this.exceptionHandler );
+        return cachedElement.getValue().unmarshal( new ByteArrayContainer( element ).getInputStream() );
       }
     };
     return newIterator( xmlElementSelector, elementConverter );
