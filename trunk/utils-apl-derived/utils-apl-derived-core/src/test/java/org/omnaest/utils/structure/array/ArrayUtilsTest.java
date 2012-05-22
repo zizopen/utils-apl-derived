@@ -40,4 +40,11 @@ public class ArrayUtilsTest
     assertEquals( Number.class, ArrayUtils.componentType( numbers.getClass() ) );
   }
   
+  @Test
+  public void testMerge()
+  {
+    //
+    assertArrayEquals( new String[] { "a", "b", "c", "d" },
+                       ArrayUtils.merge( new String[] { "a", "b" }, new String[] { "c", "d" } ) );
+  }
 }
