@@ -26,8 +26,10 @@ import org.databene.contiperf.PerfTest;
 import org.databene.contiperf.Required;
 import org.databene.contiperf.junit.ContiPerfRule;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Builder;
 import org.omnaest.utils.beans.adapter.PropertynameMapToTypeAdapter.Configuration;
 import org.omnaest.utils.operation.foreach.Range;
 import org.omnaest.utils.structure.element.converter.Converter;
@@ -43,7 +45,15 @@ public class PropertynameMapToTypeAdapterTest
 {
   
   @Rule
-  public ContiPerfRule contiPerfRule = new ContiPerfRule();
+  public ContiPerfRule                       contiPerfRule      = new ContiPerfRule();
+  
+  /* ********************************************** Variables / State ********************************************** */
+  private final boolean                      underlyingMapAware = true;
+  private final boolean                      simulatingToString = true;
+  private final Builder<TestTypeWithAdapter> builder            = PropertynameMapToTypeAdapter.builder( TestTypeWithAdapter.class,
+                                                                                                        new Configuration(
+                                                                                                                           this.underlyingMapAware,
+                                                                                                                           this.simulatingToString ) );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -306,10 +316,12 @@ public class PropertynameMapToTypeAdapterTest
     
   }
   
+  @SuppressWarnings("unused")
   @Test
-  @PerfTest(invocations = 100)
-  @Required(average = 100)
-  public void testPerformance()
+  @PerfTest(invocations = 10)
+  @Required(average = 1000)
+  @Ignore("Long running performance test")
+  public void testPerformanceReadWrite()
   {
     //    
     Map<String, Object> map = new HashMap<String, Object>();
@@ -319,8 +331,7 @@ public class PropertynameMapToTypeAdapterTest
                                                                                         new Configuration( underlyingMapAware,
                                                                                                            simulatingToString ) );
     
-    for ( @SuppressWarnings("unused")
-    long ii : new Range( 1, 100 ) )
+    for ( long ii : new Range( 1, 10000 ) )
     {
       //
       testTypeWithAdapter.setFieldString( "123" );
@@ -328,6 +339,59 @@ public class PropertynameMapToTypeAdapterTest
       
       //
       assertEquals( "123", fieldString );
+    }
+    
+  }
+  
+  @SuppressWarnings("unused")
+  @Test
+  @PerfTest(invocations = 100, threads = 1)
+  @Required(average = 500)
+  @Ignore("Long running performance test")
+  public void testPerformanceNewInstance()
+  {
+    for ( long ii : new Range( 1, 100 ) )
+    {
+      //    
+      Map<String, Object> map = new HashMap<String, Object>();
+      boolean underlyingMapAware = true;
+      boolean simulatingToString = true;
+      TestTypeWithAdapter testTypeWithAdapter = PropertynameMapToTypeAdapter.newInstance( map, TestTypeWithAdapter.class,
+                                                                                          new Configuration( underlyingMapAware,
+                                                                                                             simulatingToString ) );
+      
+      //
+      final String value = "" + Math.random() * 10000;
+      testTypeWithAdapter.setFieldString( value );
+      String fieldString = testTypeWithAdapter.getFieldString();
+      
+      //
+      assertEquals( value, fieldString );
+    }
+  }
+  
+  @SuppressWarnings("unused")
+  @Test
+  @PerfTest(invocations = 1000, threads = 5)
+  @Required(average = 50)
+  @Ignore("Long running performance test")
+  public void testPerformanceOfBuilder()
+  {
+    //    
+    final Map<String, Object> map = new HashMap<String, Object>();
+    
+    for ( long ii : new Range( 1, 100 ) )
+    {
+      //
+      TestTypeWithAdapter testTypeWithAdapter = this.builder.newTypeAdapter( map );
+      
+      //
+      final String value = "" + Math.random() * 10000;
+      testTypeWithAdapter.setFieldString( value );
+      String fieldString = testTypeWithAdapter.getFieldString();
+      
+      //
+      assertEquals( value, fieldString );
     }
     
   }

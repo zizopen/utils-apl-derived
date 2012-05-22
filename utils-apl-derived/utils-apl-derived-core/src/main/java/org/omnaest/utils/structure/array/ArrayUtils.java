@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.array;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +37,43 @@ import org.omnaest.utils.structure.iterator.IterableUtils;
  */
 public class ArrayUtils
 {
+  
+  /**
+   * Returns an {@link Array} containing all elements of each of the given {@link Array}s. If any given {@link Array} is null, it
+   * will be ignored.<br>
+   * <br>
+   * As long as at least one {@link Array} instance is given this function returns an {@link Array} instance itself. If no
+   * {@link Array} instance is available null will be returned.
+   * 
+   * @param elementArrays
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> E[] merge( E[]... elementArrays )
+  {
+    //
+    final List<E> retlist = new ArrayList<E>();
+    
+    //
+    Class<?> componentType = null;
+    for ( E[] elements : elementArrays )
+    {
+      if ( elements != null )
+      {
+        //
+        if ( componentType == null )
+        {
+          componentType = componentType( elements.getClass() );
+        }
+        
+        //
+        retlist.addAll( Arrays.asList( elements ) );
+      }
+    }
+    
+    //
+    return componentType != null ? retlist.toArray( (E[]) Array.newInstance( componentType, retlist.size() ) ) : null;
+  }
   
   /**
    * Converts a given array into a new array with a new element type.

@@ -17,8 +17,11 @@ package org.omnaest.utils.beans.adapter;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.beans.adapter.source.DefaultValue;
 import org.omnaest.utils.beans.adapter.source.DefaultValues;
 import org.omnaest.utils.beans.adapter.source.PropertyNameTemplate;
@@ -88,13 +91,125 @@ import org.omnaest.utils.structure.map.UnderlyingMapAware;
 public class PropertynameMapToTypeAdapter<T> implements Serializable
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long     serialVersionUID = 2245226860618141171L;
+  private static final long          serialVersionUID = 2245226860618141171L;
   /* ********************************************** Variables ********************************************** */
-  
-  protected Map<String, Object> map              = null;
-  protected T                   classAdapter     = null;
+  private final Builder<? extends T> builder;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * {@link Builder} which allows to create multiple instances based on the same {@link Class} type and {@link Configuration}. <br>
+   * This is much faster for creating many instances than a normal instantiation, since the {@link Class} code has only to be
+   * generated once for a prototype. Based on that prototype all further instances can be cloned.
+   * 
+   * @author Omnaest
+   * @param <T>
+   */
+  @SuppressWarnings("javadoc")
+  public static interface Builder<T> extends Serializable
+  {
+    
+    /**
+     * Creates the stub instance based on the given {@link Map}
+     * 
+     * @param map
+     *          {@link Map}
+     */
+    public <M extends Map<String, Object>> T newTypeAdapter( final M map );
+    
+  }
+  
+  /**
+   * @see Builder
+   * @author Omnaest
+   * @param <T>
+   */
+  private static class BuilderImpl<T> implements Builder<T>
+  {
+    /* ********************************************** Constants ********************************************** */
+    private static final long                                              serialVersionUID = -7533427787901201120L;
+    /* ********************************************** Variables / State ********************************************** */
+    private final Configuration                                            configuration;
+    private final SourcePropertyAccessorToTypeAdapter.Builder<? extends T> builder;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @param type
+     *          {@link Class}
+     * @param configuration
+     *          {@link Configuration}
+     * @see BuilderImpl
+     */
+    public BuilderImpl( Class<T> type, Configuration configuration )
+    {
+      super();
+      this.configuration = configuration;
+      this.builder = SourcePropertyAccessorToTypeAdapter.builder( type, configuration );
+    }
+    
+    @Override
+    public <M extends Map<String, Object>> T newTypeAdapter( final M map )
+    {
+      //
+      T retval = null;
+      
+      //
+      Assert.isNotNull( map, "map must not be null" );
+      try
+      {
+        //
+        final SourePropertyAccessorForMap sourcePropertyAccessor = new SourePropertyAccessorForMap( map );
+        
+        //
+        final List<MethodInvocationHandlerDecorator> methodInvocationHandlerDecoratorList = new ArrayList<MethodInvocationHandlerDecorator>();
+        if ( this.configuration.isUnderlyingMapAware() )
+        {
+          //
+          methodInvocationHandlerDecoratorList.add( new MethodInvocationHandlerDecoratorUnderlyingMapAware()
+          {
+            @SuppressWarnings("unchecked")
+            @Override
+            public void setUnderlyingMap( Map<?, ?> underlyingMap )
+            {
+              sourcePropertyAccessor.setMap( (Map<String, Object>) underlyingMap );
+            }
+            
+            @Override
+            public Map<?, ?> getUnderlyingMap()
+            {
+              return sourcePropertyAccessor.getMap();
+            }
+          } );
+        }
+        if ( this.configuration.isSimulatingToString() )
+        {
+          //
+          methodInvocationHandlerDecoratorList.add( new MethodInvocationHandlerDecoratorToString()
+          {
+            @Override
+            public String handleToString()
+            {
+              return MapUtils.toString( sourcePropertyAccessor.getMap() );
+            }
+          } );
+        }
+        
+        //       
+        final SourcePropertyAccessorDecorator[] sourcePropertyAccessorDecorators = null;
+        final MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators = methodInvocationHandlerDecoratorList.toArray( new MethodInvocationHandlerDecorator[methodInvocationHandlerDecoratorList.size()] );
+        retval = this.builder.newTypeAdapter( sourcePropertyAccessor, sourcePropertyAccessorDecorators,
+                                              methodInvocationHandlerDecorators );
+      }
+      catch ( Exception e )
+      {
+      }
+      
+      //
+      return retval;
+    }
+  }
+  
   /**
    * The {@link Configuration} of a {@link PropertynameMapToTypeAdapter} includes following settings:<br>
    * <br>
@@ -225,38 +340,55 @@ public class PropertynameMapToTypeAdapter<T> implements Serializable
    * @see SourcePropertyAccessor
    * @author Omnaest
    */
-  protected class SourePropertyAccessorForMap implements SourcePropertyAccessor
+  protected static class SourePropertyAccessorForMap implements SourcePropertyAccessor
   {
     /* ********************************************** Constants ********************************************** */
-    private static final long serialVersionUID = 5413119292636127784L;
+    private static final long   serialVersionUID = 5413119292636127784L;
+    
+    /* ********************************************** Variables / State ********************************************** */
+    private Map<String, Object> map              = null;
     
     /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @see SourePropertyAccessorForMap
+     * @param map
+     *          {@link Map}
+     */
+    public SourePropertyAccessorForMap( Map<String, Object> map )
+    {
+      super();
+      this.map = map;
+    }
+    
     @Override
     public void setValue( String propertyName,
                           Object value,
                           Class<?> parameterType,
                           PropertyMetaInformation propertyMetaInformation )
     {
-      PropertynameMapToTypeAdapter.this.map.put( propertyName, value );
+      this.map.put( propertyName, value );
     }
     
     @Override
     public Object getValue( String propertyName, Class<?> returnType, PropertyMetaInformation propertyMetaInformation )
     {
-      return PropertynameMapToTypeAdapter.this.map.get( propertyName );
+      return this.map.get( propertyName );
+    }
+    
+    public Map<String, Object> getMap()
+    {
+      return this.map;
+    }
+    
+    public void setMap( Map<String, Object> map )
+    {
+      this.map = map;
     }
     
   }
   
   /* ********************************************** Methods ********************************************** */
-  
-  /**
-   * @see PropertynameMapToTypeAdapter#newInstance(Map, Class)
-   */
-  protected PropertynameMapToTypeAdapter()
-  {
-    super();
-  }
   
   /**
    * Factory methods to create a new {@link PropertynameMapToTypeAdapter} for a given {@link Map} with the given {@link Class} as
@@ -293,10 +425,40 @@ public class PropertynameMapToTypeAdapter<T> implements Serializable
     if ( type != null && map != null )
     {
       //
-      PropertynameMapToTypeAdapter<T> mapToInterfaceAdapter = new PropertynameMapToTypeAdapter<T>( map, type, configuration );
+      retval = builder( type, configuration ).newTypeAdapter( map );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns a {@link Builder} for the given {@link Class} type and {@link Configuration}. A {@link Builder} is much faster in
+   * creating many instances than the {@link #newInstance(Map, Class, Configuration)} method. <br>
+   * <br>
+   * Be aware that all given decorators within the {@link Configuration} have to be stateless since they will be used by all
+   * created instances of this {@link Builder}.
+   * 
+   * @param type
+   *          {@link Class}
+   * @param configuration
+   *          {@link Configuration}
+   * @return new {@link Builder} instance
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> Builder<T> builder( Class<? extends T> type, Configuration configuration )
+  {
+    //
+    Builder<T> retval = null;
+    
+    //
+    if ( type != null )
+    {
+      //
+      final PropertynameMapToTypeAdapter<T> mapToInterfaceAdapter = new PropertynameMapToTypeAdapter<T>( type, configuration );
       
       //
-      retval = mapToInterfaceAdapter.classAdapter;
+      retval = (Builder<T>) mapToInterfaceAdapter.getBuilder();
     }
     
     //
@@ -306,83 +468,33 @@ public class PropertynameMapToTypeAdapter<T> implements Serializable
   /**
    * Internal constructor. See {@link #newInstance(Map, Class)} instead.
    * 
-   * @param map
    * @param type
-   * @param underlyingMapAware
-   * @param simulatingToString
-   * @param propertyAccessOption
+   * @param configuration
    */
   @SuppressWarnings("unchecked")
-  protected <M extends Map<String, Object>> PropertynameMapToTypeAdapter( M map, Class<? extends T> type,
-                                                                          Configuration configuration )
+  private PropertynameMapToTypeAdapter( Class<? extends T> type, Configuration configuration )
   {
     //
     super();
-    this.map = map;
     
     //
     configuration = configuration != null ? configuration : new Configuration();
-    
-    //
     if ( configuration.isUnderlyingMapAware() )
     {
       //
       configuration.addInterface( UnderlyingMapAware.class );
-      
-      //
-      configuration.addMethodInvocationHandlerDecorator( new MethodInvocationHandlerDecoratorUnderlyingMapAware()
-      {
-        
-        @Override
-        public void setUnderlyingMap( Map<?, ?> underlyingMap )
-        {
-          PropertynameMapToTypeAdapter.this.map = (Map<String, Object>) underlyingMap;
-        }
-        
-        @Override
-        public Map<?, ?> getUnderlyingMap()
-        {
-          return PropertynameMapToTypeAdapter.this.map;
-        }
-      } );
-    }
-    if ( configuration.isSimulatingToString() )
-    {
-      //
-      configuration.addMethodInvocationHandlerDecorator( new MethodInvocationHandlerDecoratorToString()
-      {
-        
-        @Override
-        public String handleToString()
-        {
-          return MapUtils.toString( PropertynameMapToTypeAdapter.this.map );
-        }
-      } );
     }
     
-    //
-    this.initializeClassAdapter( type, configuration );
+    //    
+    this.builder = new BuilderImpl<T>( (Class<T>) type, configuration );
   }
   
   /**
-   * Creates the stub
-   * 
-   * @param clazz
-   * @param underlyingMapAware
-   * @param configuration
+   * @return {@link Builder}
    */
-  protected void initializeClassAdapter( Class<? extends T> type, Configuration configuration )
+  private Builder<? extends T> getBuilder()
   {
-    //
-    try
-    {
-      //
-      SourcePropertyAccessor sourcePropertyAccessor = new SourePropertyAccessorForMap();
-      this.classAdapter = SourcePropertyAccessorToTypeAdapter.newInstance( type, sourcePropertyAccessor, configuration );
-    }
-    catch ( Exception e )
-    {
-    }
+    return this.builder;
   }
   
 }

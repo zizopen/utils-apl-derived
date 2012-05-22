@@ -46,8 +46,13 @@ import org.omnaest.utils.proxy.handler.MethodCallCapture;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandlerDecorator;
 import org.omnaest.utils.reflection.ReflectionUtils;
+import org.omnaest.utils.structure.element.cached.CachedElement;
+import org.omnaest.utils.structure.element.cached.CachedElement.ValueResolver;
 import org.omnaest.utils.structure.element.converter.Converter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * The {@link SourcePropertyAccessorToTypeAdapter} will provide an adapter from a {@link SourcePropertyAccessor} to any given
@@ -59,27 +64,239 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
 public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long                    serialVersionUID                           = 5957600557802418027L;
-  /* ********************************************** Variables ********************************************** */
+  private static final long serialVersionUID = 5957600557802418027L;
   
-  protected T                                  classAdapter                               = null;
-  protected SourcePropertyAccessor             sourcePropertyAccessor                     = null;
-  protected List<Annotation>                   declaredAnnotationListOfType               = null;
-  protected Map<Method, Set<Annotation>>       declaredMethodToAnnotationSetMap           = null;
-  protected Map<String, Set<Annotation>>       propertyNameToBeanPropertyAnnotationSetMap = null;
-  protected Map<String, BeanMethodInformation> methodNameToBeanMethodInformationMap       = null;
+  /* ********************************************** Variables ********************************************** */
+  private final Builder<T>  builder;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
+   * {@link Builder} for multiple instances based on the same {@link Class} type and {@link Configuration} instance. <br>
+   * This is much faster for many instances, since the {@link Class} has only to be generated once as prototype and can then be
+   * cloned to generate new instances.<br>
+   * <br>
+   * It has to be ensured that any decorator given within the {@link Configuration} is stateless, since it might encounter
+   * concurrent access through different facade instances.
+   * 
    * @author Omnaest
    */
-  protected class ClassAdapterMethodInvocationHandler implements MethodInvocationHandler, Serializable
+  @SuppressWarnings("javadoc")
+  public static interface Builder<T> extends Serializable
+  {
+    
+    /**
+     * Creates the type adapter stub
+     * 
+     * @param sourcePropertyAccessor
+     *          {@link SourcePropertyAccessor}
+     * @return new instance of type
+     */
+    public T newTypeAdapter( SourcePropertyAccessor sourcePropertyAccessor );
+    
+    /**
+     * Similar to {@link #newTypeAdapter(SourcePropertyAccessor)} but allows to add further
+     * {@link SourcePropertyAccessorDecorator} and {@link MethodInvocationHandlerDecorator} instances.
+     * 
+     * @param sourcePropertyAccessor
+     *          {@link SourcePropertyAccessor}
+     * @param sourcePropertyAccessorDecorators
+     *          {@link SourcePropertyAccessorDecorator}
+     * @param methodInvocationHandlerDecorators
+     *          {@link MethodInvocationHandlerDecorator}
+     * @return new instance of type
+     */
+    public T newTypeAdapter( SourcePropertyAccessor sourcePropertyAccessor,
+                             SourcePropertyAccessorDecorator[] sourcePropertyAccessorDecorators,
+                             MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators );
+    
+  }
+  
+  /**
+   * @see Builder
+   * @author Omnaest
+   * @param <T>
+   */
+  private static class BuilderImpl<T> implements Builder<T>
   {
     /* ********************************************** Constants ********************************************** */
-    private static final long serialVersionUID = 7923602793508877717L;
+    private static final long                        serialVersionUID  = 9056642721076392704L;
+    /* ********************************************** Variables / State ********************************************** */
+    private final List<Annotation>                   declaredAnnotationListOfType;
+    private final Map<Method, Set<Annotation>>       declaredMethodToAnnotationSetMap;
+    private final Map<String, Set<Annotation>>       propertyNameToBeanPropertyAnnotationSetMap;
+    private final Map<String, BeanMethodInformation> methodNameToBeanMethodInformationMap;
+    
+    private final Class<T>                           type;
+    private final Configuration                      configuration;
+    private final CachedElement<StubCreator<T>>      cachedStubFactory = new CachedElement<StubCreator<T>>(
+                                                                                                            new ValueResolver<StubCreator<T>>()
+                                                                                                            {
+                                                                                                              @Override
+                                                                                                              public StubCreator<T> resolveValue()
+                                                                                                              {
+                                                                                                                // 
+                                                                                                                return new StubCreator<T>(
+                                                                                                                                           BuilderImpl.this.type,
+                                                                                                                                           BuilderImpl.this.configuration.getInterfaces() );
+                                                                                                              }
+                                                                                                            } );
     
     /* ********************************************** Methods ********************************************** */
+    /**
+     * @see BuilderImpl
+     * @param declaredAnnotationListOfType
+     * @param declaredMethodToAnnotationSetMap
+     * @param propertyNameToBeanPropertyAnnotationSetMap
+     * @param methodNameToBeanMethodInformationMap
+     * @param type
+     * @param configuration
+     */
+    public BuilderImpl( List<Annotation> declaredAnnotationListOfType,
+                        Map<Method, Set<Annotation>> declaredMethodToAnnotationSetMap,
+                        Map<String, Set<Annotation>> propertyNameToBeanPropertyAnnotationSetMap,
+                        Map<String, BeanMethodInformation> methodNameToBeanMethodInformationMap, Class<T> type,
+                        Configuration configuration )
+    {
+      super();
+      this.declaredAnnotationListOfType = declaredAnnotationListOfType;
+      this.declaredMethodToAnnotationSetMap = declaredMethodToAnnotationSetMap;
+      this.propertyNameToBeanPropertyAnnotationSetMap = propertyNameToBeanPropertyAnnotationSetMap;
+      this.methodNameToBeanMethodInformationMap = methodNameToBeanMethodInformationMap;
+      this.type = type;
+      this.configuration = configuration;
+    }
+    
+    @Override
+    public T newTypeAdapter( SourcePropertyAccessor sourcePropertyAccessor )
+    {
+      //
+      final SourcePropertyAccessorDecorator[] sourcePropertyAccessorDecorators = null;
+      final MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators = null;
+      return this.newTypeAdapter( sourcePropertyAccessor, sourcePropertyAccessorDecorators, methodInvocationHandlerDecorators );
+    }
+    
+    @Override
+    public T newTypeAdapter( SourcePropertyAccessor sourcePropertyAccessor,
+                             SourcePropertyAccessorDecorator[] sourcePropertyAccessorDecorators,
+                             MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators )
+    {
+      //
+      T retval = null;
+      
+      //
+      Assert.isNotNull( sourcePropertyAccessor, "sourcePropertyAccessor must not be null" );
+      try
+      {
+        //
+        if ( this.configuration.isRegardingAdapterAnnotation() )
+        {
+          sourcePropertyAccessor = new SourcePropertyAccessorDecoratorAdapter( sourcePropertyAccessor );
+        }
+        if ( this.configuration.isRegardingPropertyNameTemplateAnnotation() )
+        {
+          sourcePropertyAccessor = new SourcePropertyAccessorDecoratorPropertyNameTemplate( sourcePropertyAccessor );
+        }
+        if ( this.configuration.getPropertyAccessOption() != null
+             && !PropertyAccessOption.PROPERTY.equals( this.configuration.getPropertyAccessOption() ) )
+        {
+          sourcePropertyAccessor = new SourcePropertyAccessorDecoratorPropertyAccessOption(
+                                                                                            sourcePropertyAccessor,
+                                                                                            this.configuration.getPropertyAccessOption() );
+        }
+        if ( this.configuration.isRegardingDefaultValueAnnotation() )
+        {
+          sourcePropertyAccessor = new SourcePropertyAccessorDecoratorDefaultValue( sourcePropertyAccessor );
+        }
+        
+        //
+        if ( this.configuration.getSourcePropertyAccessorDecorators() != null )
+        {
+          //
+          sourcePropertyAccessorDecorators = org.omnaest.utils.structure.array.ArrayUtils.merge( this.configuration.getSourcePropertyAccessorDecorators(),
+                                                                                                 sourcePropertyAccessorDecorators );
+          for ( SourcePropertyAccessorDecorator sourcePropertyAccessorDecorator : sourcePropertyAccessorDecorators )
+          {
+            if ( sourcePropertyAccessorDecorator != null )
+            {
+              sourcePropertyAccessor = sourcePropertyAccessorDecorator.setPropertyAccessorDecorator( sourcePropertyAccessor );
+            }
+          }
+        }
+        
+        //       
+        MethodInvocationHandler methodInvocationHandler = new ClassAdapterMethodInvocationHandler(
+                                                                                                   sourcePropertyAccessor,
+                                                                                                   this.declaredAnnotationListOfType,
+                                                                                                   this.declaredMethodToAnnotationSetMap,
+                                                                                                   this.propertyNameToBeanPropertyAnnotationSetMap,
+                                                                                                   this.methodNameToBeanMethodInformationMap );
+        
+        //
+        methodInvocationHandlerDecorators = org.omnaest.utils.structure.array.ArrayUtils.merge( this.configuration.getMethodInvocationHandlerDecorators(),
+                                                                                                methodInvocationHandlerDecorators );
+        if ( methodInvocationHandlerDecorators != null )
+        {
+          for ( MethodInvocationHandlerDecorator methodInvocationHandlerDecorator : methodInvocationHandlerDecorators )
+          {
+            if ( methodInvocationHandlerDecorator != null )
+            {
+              methodInvocationHandler = methodInvocationHandlerDecorator.setMethodInvocationHandler( methodInvocationHandler );
+            }
+          }
+        }
+        
+        //
+        retval = this.cachedStubFactory.getValue().build( methodInvocationHandler );
+        
+      }
+      catch ( Exception e )
+      {
+      }
+      
+      //
+      return retval;
+    }
+  }
+  
+  /**
+   * @author Omnaest
+   */
+  private static class ClassAdapterMethodInvocationHandler implements MethodInvocationHandler, Serializable
+  {
+    /* ********************************************** Constants ********************************************** */
+    private static final long                        serialVersionUID       = 7923602793508877717L;
+    /* ********************************************** Variables / State ********************************************** */
+    private SourcePropertyAccessor                   sourcePropertyAccessor = null;
+    
+    private final List<Annotation>                   declaredAnnotationListOfType;
+    private final Map<Method, Set<Annotation>>       declaredMethodToAnnotationSetMap;
+    private final Map<String, Set<Annotation>>       propertyNameToBeanPropertyAnnotationSetMap;
+    private final Map<String, BeanMethodInformation> methodNameToBeanMethodInformationMap;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @see ClassAdapterMethodInvocationHandler
+     * @param sourcePropertyAccessor
+     * @param declaredAnnotationListOfType
+     * @param declaredMethodToAnnotationSetMap
+     * @param propertyNameToBeanPropertyAnnotationSetMap
+     * @param methodNameToBeanMethodInformationMap
+     */
+    public ClassAdapterMethodInvocationHandler( SourcePropertyAccessor sourcePropertyAccessor,
+                                                List<Annotation> declaredAnnotationListOfType,
+                                                Map<Method, Set<Annotation>> declaredMethodToAnnotationSetMap,
+                                                Map<String, Set<Annotation>> propertyNameToBeanPropertyAnnotationSetMap,
+                                                Map<String, BeanMethodInformation> methodNameToBeanMethodInformationMap )
+    {
+      super();
+      this.sourcePropertyAccessor = sourcePropertyAccessor;
+      this.declaredAnnotationListOfType = declaredAnnotationListOfType;
+      this.declaredMethodToAnnotationSetMap = declaredMethodToAnnotationSetMap;
+      this.propertyNameToBeanPropertyAnnotationSetMap = propertyNameToBeanPropertyAnnotationSetMap;
+      this.methodNameToBeanMethodInformationMap = methodNameToBeanMethodInformationMap;
+    }
     
     @Override
     public Object handle( MethodCallCapture methodCallCapture ) throws Throwable
@@ -96,7 +313,7 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
       try
       {
         //        
-        BeanMethodInformation beanMethodInformation = SourcePropertyAccessorToTypeAdapter.this.methodNameToBeanMethodInformationMap.get( methodName );
+        BeanMethodInformation beanMethodInformation = this.methodNameToBeanMethodInformationMap.get( methodName );
         if ( beanMethodInformation != null )
         {
           //
@@ -107,7 +324,7 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
           boolean isGetterWithAddtionalArguments = beanMethodInformation.isGetterWithAdditionalArguments() && args.length >= 1;
           boolean isSetter = beanMethodInformation.isSetter() && args.length == 1;
           boolean isSetterWithAdditionalArguments = beanMethodInformation.isSetterWithAdditionalArguments() && args.length >= 2;
-          boolean isPropertyAccessorNotNull = SourcePropertyAccessorToTypeAdapter.this.sourcePropertyAccessor != null;
+          boolean isPropertyAccessorNotNull = this.sourcePropertyAccessor != null;
           
           //          
           if ( isPropertyAccessorNotNull )
@@ -117,9 +334,9 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
             AutowiredContainer<Annotation> classAnnotationAutowiredContainer = ClassMapToAutowiredContainerAdapter.newInstance( new LinkedHashMap<Class<? extends Annotation>, Annotation>() );
             
             //
-            classAnnotationAutowiredContainer.putAll( SourcePropertyAccessorToTypeAdapter.this.declaredAnnotationListOfType );
-            propertyAnnotationAutowiredContainer.putAll( SourcePropertyAccessorToTypeAdapter.this.propertyNameToBeanPropertyAnnotationSetMap.get( referencedFieldName ) );
-            propertyAnnotationAutowiredContainer.putAll( SourcePropertyAccessorToTypeAdapter.this.declaredMethodToAnnotationSetMap.get( method ) );
+            classAnnotationAutowiredContainer.putAll( this.declaredAnnotationListOfType );
+            propertyAnnotationAutowiredContainer.putAll( this.propertyNameToBeanPropertyAnnotationSetMap.get( referencedFieldName ) );
+            propertyAnnotationAutowiredContainer.putAll( this.declaredMethodToAnnotationSetMap.get( method ) );
             
             //
             if ( isGetter || isGetterWithAddtionalArguments )
@@ -139,8 +356,7 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
                                                                                              classAnnotationAutowiredContainer );
               
               //              
-              retval = SourcePropertyAccessorToTypeAdapter.this.sourcePropertyAccessor.getValue( referencedFieldName, returnType,
-                                                                                                 propertyMetaInformation );
+              retval = this.sourcePropertyAccessor.getValue( referencedFieldName, returnType, propertyMetaInformation );
             }
             else if ( isSetter || isSetterWithAdditionalArguments )
             {
@@ -167,8 +383,7 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
                                                                                              propertyAnnotationAutowiredContainer,
                                                                                              classAnnotationAutowiredContainer );
               
-              SourcePropertyAccessorToTypeAdapter.this.sourcePropertyAccessor.setValue( propertyName, value, parameterType,
-                                                                                        propertyMetaInformation );
+              this.sourcePropertyAccessor.setValue( propertyName, value, parameterType, propertyMetaInformation );
               
               //
               retval = Void.TYPE;
@@ -183,6 +398,7 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
       // 
       return retval;
     }
+    
   }
   
   /**
@@ -215,7 +431,7 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
     /* ********************************************** Constants ********************************************** */
     private static final long                  serialVersionUID                          = 1537703849251094863L;
     /* ********************************************** Variables ********************************************** */
-    private Class<?>[]                         interfaces                                = null;
+    private Class<?>[]                         interfaces                                = new Class<?>[0];
     private MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators         = null;
     private SourcePropertyAccessorDecorator[]  sourcePropertyAccessorDecorators          = null;
     private PropertyAccessOption               propertyAccessOption                      = PropertyAccessOption.PROPERTY;
@@ -283,7 +499,7 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
     /**
      * @param interfaces
      */
-    public Configuration( Class<?>[] interfaces )
+    public Configuration( Class<?>... interfaces )
     {
       super();
       this.interfaces = interfaces;
@@ -441,14 +657,39 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
     //
     if ( type != null && sourcePropertyAccessor != null )
     {
+      //
+      retval = builder( type, configuration ).newTypeAdapter( sourcePropertyAccessor );
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Creates a new {@link Builder} instance which allows to create multiple adapter instances much faster.
+   * 
+   * @see #newInstance(Class, SourcePropertyAccessor, Configuration)
+   * @param type
+   *          {@link Class}
+   * @param configuration
+   *          {@link Configuration}
+   * @return {@link Builder}
+   */
+  public static <T> Builder<T> builder( Class<T> type, Configuration configuration )
+  {
+    //
+    Builder<T> retval = null;
+    
+    //
+    if ( type != null )
+    {
       //      
       final SourcePropertyAccessorToTypeAdapter<T> propertyAccessorToTypeAdapter = new SourcePropertyAccessorToTypeAdapter<T>(
                                                                                                                                type,
-                                                                                                                               sourcePropertyAccessor,
                                                                                                                                configuration );
       
       //
-      retval = propertyAccessorToTypeAdapter.getClassAdapter();
+      retval = propertyAccessorToTypeAdapter.getBuilder();
     }
     
     //
@@ -458,121 +699,59 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
   /**
    * @see #newInstance(Class, SourcePropertyAccessor, Configuration)
    * @param type
-   * @param sourcePropertyAccessor
    * @param configuration
    */
-  protected SourcePropertyAccessorToTypeAdapter( Class<T> type, SourcePropertyAccessor sourcePropertyAccessor,
-                                                 Configuration configuration )
+  protected SourcePropertyAccessorToTypeAdapter( Class<T> type, Configuration configuration )
   {
     //
     super();
     
     //
     Assert.isNotNull( type );
-    Assert.isNotNull( sourcePropertyAccessor );
     
     //
     configuration = configuration != null ? configuration : new Configuration();
     
     //
-    if ( configuration.isRegardingAdapterAnnotation() )
-    {
-      sourcePropertyAccessor = new SourcePropertyAccessorDecoratorAdapter( sourcePropertyAccessor );
-    }
-    if ( configuration.isRegardingPropertyNameTemplateAnnotation() )
-    {
-      sourcePropertyAccessor = new SourcePropertyAccessorDecoratorPropertyNameTemplate( sourcePropertyAccessor );
-    }
-    if ( configuration.getPropertyAccessOption() != null
-         && !PropertyAccessOption.PROPERTY.equals( configuration.getPropertyAccessOption() ) )
-    {
-      sourcePropertyAccessor = new SourcePropertyAccessorDecoratorPropertyAccessOption( sourcePropertyAccessor,
-                                                                                        configuration.getPropertyAccessOption() );
-    }
-    if ( configuration.isRegardingDefaultValueAnnotation() )
-    {
-      sourcePropertyAccessor = new SourcePropertyAccessorDecoratorDefaultValue( sourcePropertyAccessor );
-    }
+    List<Annotation> declaredAnnotationListOfType = null;
+    Map<Method, Set<Annotation>> declaredMethodToAnnotationSetMap = null;
+    Map<String, Set<Annotation>> propertyNameToBeanPropertyAnnotationSetMap = null;
+    Map<String, BeanMethodInformation> methodNameToBeanMethodInformationMap = null;
     
     //
-    if ( configuration.getSourcePropertyAccessorDecorators() != null )
-    {
-      //
-      SourcePropertyAccessorDecorator[] sourcePropertyAccessorDecorators = configuration.getSourcePropertyAccessorDecorators();
-      for ( SourcePropertyAccessorDecorator sourcePropertyAccessorDecorator : sourcePropertyAccessorDecorators )
-      {
-        if ( sourcePropertyAccessorDecorator != null )
-        {
-          sourcePropertyAccessor = sourcePropertyAccessorDecorator.setPropertyAccessorDecorator( sourcePropertyAccessor );
-        }
-      }
-    }
+    final boolean isRegardingAnnotations = RegardedAnnotationScope.DECLARED.equals( configuration.getRegardedAnnotationScope() )
+                                           || RegardedAnnotationScope.INHERITED.equals( configuration.getRegardedAnnotationScope() );
+    final boolean isRegardingInheritedAnnotations = RegardedAnnotationScope.INHERITED.equals( configuration.getRegardedAnnotationScope() );
     
-    //
-    this.sourcePropertyAccessor = sourcePropertyAccessor;
-    
-    //
-    boolean isRegardingAnnotations = RegardedAnnotationScope.DECLARED.equals( configuration.getRegardedAnnotationScope() )
-                                     || RegardedAnnotationScope.INHERITED.equals( configuration.getRegardedAnnotationScope() );
-    boolean isRegardingInheritedAnnotations = RegardedAnnotationScope.INHERITED.equals( configuration.getRegardedAnnotationScope() );
     if ( isRegardingAnnotations )
     {
       //
-      this.declaredAnnotationListOfType = isRegardingInheritedAnnotations ? ReflectionUtils.annotationList( type )
-                                                                         : ReflectionUtils.declaredAnnotationList( type );
-      this.declaredMethodToAnnotationSetMap = isRegardingInheritedAnnotations ? ReflectionUtils.methodToAnnotationSetMap( type )
-                                                                             : ReflectionUtils.declaredMethodToAnnotationSetMap( type );
-      this.propertyNameToBeanPropertyAnnotationSetMap = BeanUtils.propertyNameToBeanPropertyAnnotationSetMap( type );
-      this.methodNameToBeanMethodInformationMap = BeanUtils.methodNameToBeanMethodInformationMap( type );
+      declaredAnnotationListOfType = ImmutableList.<Annotation> builder()
+                                                  .addAll( ( isRegardingInheritedAnnotations ? ReflectionUtils.annotationList( type )
+                                                                                            : ReflectionUtils.declaredAnnotationList( type ) ) )
+                                                  .build();
+      declaredMethodToAnnotationSetMap = ImmutableMap.<Method, Set<Annotation>> builder()
+                                                     .putAll( isRegardingInheritedAnnotations ? ReflectionUtils.methodToAnnotationSetMap( type )
+                                                                                             : ReflectionUtils.declaredMethodToAnnotationSetMap( type ) )
+                                                     .build();
+      propertyNameToBeanPropertyAnnotationSetMap = ImmutableMap.<String, Set<Annotation>> builder()
+                                                               .putAll( BeanUtils.propertyNameToBeanPropertyAnnotationSetMap( type ) )
+                                                               .build();
+      methodNameToBeanMethodInformationMap = ImmutableMap.<String, BeanMethodInformation> builder()
+                                                         .putAll( BeanUtils.methodNameToBeanMethodInformationMap( type ) )
+                                                         .build();
     }
     
     //
-    this.initializeClassAdapter( type, configuration );
+    this.builder = new BuilderImpl<T>( declaredAnnotationListOfType, declaredMethodToAnnotationSetMap,
+                                       propertyNameToBeanPropertyAnnotationSetMap, methodNameToBeanMethodInformationMap, type,
+                                       configuration );
+    
   }
   
-  /**
-   * Creates the stub
-   * 
-   * @param type
-   * @param interfaces
-   * @param underlyingMapAware
-   */
-  protected void initializeClassAdapter( Class<? extends T> type, Configuration configuration )
+  private Builder<T> getBuilder()
   {
-    //
-    try
-    {
-      //       
-      MethodInvocationHandler methodInvocationHandler = new ClassAdapterMethodInvocationHandler();
-      Class<?>[] interfaces = configuration.getInterfaces();
-      
-      //
-      MethodInvocationHandlerDecorator[] methodInvocationHandlerDecorators = configuration.getMethodInvocationHandlerDecorators();
-      if ( methodInvocationHandlerDecorators != null )
-      {
-        for ( MethodInvocationHandlerDecorator methodInvocationHandlerDecorator : methodInvocationHandlerDecorators )
-        {
-          if ( methodInvocationHandlerDecorator != null )
-          {
-            methodInvocationHandler = methodInvocationHandlerDecorator.setMethodInvocationHandler( methodInvocationHandler );
-          }
-        }
-      }
-      
-      //
-      this.classAdapter = StubCreator.newStubInstance( type, interfaces, methodInvocationHandler );
-      
-    }
-    catch ( Exception e )
-    {
-    }
+    return this.builder;
   }
   
-  /**
-   * @return
-   */
-  protected T getClassAdapter()
-  {
-    return this.classAdapter;
-  }
 }
