@@ -30,6 +30,7 @@ import javax.xml.transform.sax.SAXSource;
 import org.apache.commons.lang3.ArrayUtils;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
+import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.xml.JAXBXMLHelper.UnmarshallingConfiguration.Configurator;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -195,8 +196,9 @@ public class JAXBXMLHelper
        * Configures the {@link Unmarshaller}
        * 
        * @param unmarshaller
+       * @throws Exception
        */
-      public void configure( Unmarshaller unmarshaller )
+      public void configure( Unmarshaller unmarshaller ) throws Exception
       {
       }
       
@@ -204,8 +206,9 @@ public class JAXBXMLHelper
        * Configures the {@link JAXBContext}
        * 
        * @param jaxbContext
+       * @throws Exception
        */
-      public void configure( JAXBContext jaxbContext )
+      public void configure( JAXBContext jaxbContext ) throws Exception
       {
       }
     }
@@ -308,7 +311,53 @@ public class JAXBXMLHelper
   public static class MarshallingConfiguration extends MarshallingAndUnmarshallingConfigurationAbstractBase
   {
     /* ********************************************** Variables ********************************************** */
-    private boolean formattingOutput = true;
+    private boolean      formattingOutput = true;
+    private Configurator configurator     = null;
+    
+    /* ********************************************** Classes/Interfaces ********************************************** */
+    /**
+     * A {@link Configurator} is able to configure several internal instances like {@link JAXBContext} and {@link Marshaller}.<br>
+     * <br>
+     * To do this <b>override</b> any method available.<br>
+     * <br>
+     * Example:
+     * 
+     * <pre>
+     * new Configurator()
+     * {
+     *   &#064;Override
+     *   public void configure( Marshaller marshaller )
+     *   {
+     *     marshaller.setProperty( &quot;com.sun.xml.bind.xmlHeaders&quot;, &quot;&lt;!DOCTYPE ....&gt;\n&quot; );     *     
+     *   }
+     * }
+     * </pre>
+     * 
+     * @author Omnaest
+     */
+    public static abstract class Configurator
+    {
+      
+      /**
+       * Configures the {@link Marshaller}
+       * 
+       * @param marshaller
+       * @throws Exception
+       */
+      public void configure( Marshaller marshaller ) throws Exception
+      {
+      }
+      
+      /**
+       * Configures the {@link JAXBContext}
+       * 
+       * @param jaxbContext
+       * @throws Exception
+       */
+      public void configure( JAXBContext jaxbContext ) throws Exception
+      {
+      }
+    }
     
     /* ********************************************** Methods ********************************************** */
     /**
@@ -387,6 +436,22 @@ public class JAXBXMLHelper
     public MarshallingConfiguration setKnownTypes( Class<?>... knownTypes )
     {
       super.setKnownTypes( knownTypes );
+      return this;
+    }
+    
+    public Configurator getConfigurator()
+    {
+      return this.configurator;
+    }
+    
+    /**
+     * @param configurator
+     *          {@link Configurator}
+     * @return this
+     */
+    public MarshallingConfiguration setConfigurator( Configurator configurator )
+    {
+      this.configurator = configurator;
       return this;
     }
     
@@ -541,6 +606,10 @@ public class JAXBXMLHelper
     final ExceptionHandler exceptionHandler = marshallingConfiguration.getExceptionHandler();
     final Class<?>[] knownTypes = marshallingConfiguration.getKnownTypes();
     final boolean formattingOutput = marshallingConfiguration.isFormattingOutput();
+    final MarshallingConfiguration.Configurator configurator = ObjectUtils.defaultIfNull( marshallingConfiguration.getConfigurator(),
+                                                                                          new MarshallingConfiguration.Configurator()
+                                                                                          {
+                                                                                          } );
     
     // 
     try
@@ -549,15 +618,25 @@ public class JAXBXMLHelper
       final Class<? extends Object> objectType = object.getClass();
       final Class<?>[] contextTypes = ArrayUtils.add( knownTypes, objectType );
       
-      JAXBContext context = JAXBContext.newInstance( contextTypes );
-      Marshaller marshaller = context.createMarshaller();
-      marshaller.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, formattingOutput );
+      //
+      final JAXBContext jaxbContext = JAXBContext.newInstance( contextTypes );
+      configurator.configure( jaxbContext );
+      
+      final Marshaller marshaller = jaxbContext.createMarshaller();
+      {
+        marshaller.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, formattingOutput );
+        
+        //
+        if ( encoding != null )
+        {
+          marshaller.setProperty( Marshaller.JAXB_ENCODING, encoding );
+        }
+        
+        //
+        configurator.configure( marshaller );
+      }
       
       //
-      if ( encoding != null )
-      {
-        marshaller.setProperty( Marshaller.JAXB_ENCODING, encoding );
-      }
       marshaller.marshal( object, outputStream );
       outputStream.flush();
     }
