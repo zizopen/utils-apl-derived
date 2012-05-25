@@ -38,7 +38,61 @@ public class SetUtils
 {
   
   /**
-   * Returns the given {@link Set} of a new instance if the given {@link Set} is null. The returned {@link Set} will have the
+   * Returns a new {@link SetDelta} instance for the given {@link Set}s
+   * 
+   * @param firstSet
+   * @param secondSet
+   * @return {@link SetDelta} instance
+   */
+  public static <E> SetDelta<E> delta( Set<E> firstSet, Set<E> secondSet )
+  {
+    return new SetDelta<E>( firstSet, secondSet );
+  }
+  
+  /**
+   * Returns the given {@link Set} instance reduced by the elements of the given {@link Iterable}
+   * 
+   * @param set
+   *          {@link Set}
+   * @param removingIterable
+   *          {@link Iterable}
+   * @return same {@link Set} instance or null if null is given
+   */
+  public static <E> Set<E> removeAll( Set<E> set, Iterable<E> removingIterable )
+  {
+    //
+    Set<E> retset = set;
+    
+    //
+    if ( retset != null && removingIterable != null )
+    {
+      for ( E element : removingIterable )
+      {
+        retset.remove( element );
+      }
+    }
+    
+    //
+    return retset;
+  }
+  
+  /**
+   * Returns a new {@link Set} instance containing the elements of the given {@link Set} reduced by the elements of the given
+   * {@link Iterable}
+   * 
+   * @param set
+   *          {@link Set}
+   * @param removingIterable
+   *          {@link Iterable}
+   * @return new {@link Set} instance always
+   */
+  public static <E> Set<E> removeAllAsNewSet( Set<E> set, Iterable<E> removingIterable )
+  {
+    return removeAll( valueOf( set ), removingIterable );
+  }
+  
+  /**
+   * Returns the given {@link Set}, or a new instance if the given {@link Set} is null. The returned {@link Set} will have the
    * given elements added.
    * 
    * @param set
@@ -112,6 +166,19 @@ public class SetUtils
   public static <E> Set<E> intersection( Collection<E>... collections )
   {
     return new LinkedHashSet<E>( ListUtils.intersection( collections ) );
+  }
+  
+  /**
+   * Returns the intersection of the {@link Collection}s of the given container {@link Collection}
+   * 
+   * @param collectionFirst
+   * @param collectionSecond
+   * @return new {@link Set} instance
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> Set<E> intersection( Collection<E> collectionFirst, Collection<E> collectionSecond )
+  {
+    return intersection( Arrays.asList( collectionFirst, collectionSecond ) );
   }
   
   /**

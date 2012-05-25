@@ -874,10 +874,11 @@ public class ObjectUtils
    * </pre>
    * 
    * @param object
+   * @param defaultObject
    * @param defaultObjects
    * @return
    */
-  public static <O extends Object> O defaultIfNull( O object, O... defaultObjects )
+  public static <O extends Object> O defaultIfNull( O object, O defaultObject, O... defaultObjects )
   {
     //
     O retval = null;
@@ -887,10 +888,18 @@ public class ObjectUtils
     {
       retval = object;
     }
-    else if ( defaultObjects.length > 0 )
+    else if ( defaultObject != null )
     {
-      retval = defaultIfNull( defaultObjects[0],
-                              org.apache.commons.lang3.ArrayUtils.subarray( defaultObjects, 1, defaultObjects.length ) );
+      retval = defaultObject;
+    }
+    else if ( defaultObjects.length > 1 )
+    {
+      retval = defaultIfNull( defaultObjects[0], defaultObjects[1],
+                              org.apache.commons.lang3.ArrayUtils.subarray( defaultObjects, 2, defaultObjects.length ) );
+    }
+    else if ( defaultObjects.length == 1 )
+    {
+      retval = defaultObjects[0];
     }
     
     //
