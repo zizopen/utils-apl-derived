@@ -183,6 +183,287 @@ public class XMLIteratorFactory
   private final ExceptionHandler          exceptionHandler;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * @see XMLIteratorFactory
+   * @author Omnaest
+   */
+  protected static final class XMLIterator implements Iterator<String>
+  {
+    
+    /* ********************************************** Variables ********************************************** */
+    private final Accessor<String>          nextElementAccessor;
+    private final NamespaceStack            namespaceStack = new NamespaceStack();
+    
+    /* ********************************************** Beans / Services / References / Delegation ********************************************** */
+    private final Accessor<String>          accessor;
+    private final ScopeControl              scopeControl;
+    private final ExceptionHandler          exceptionHandler;
+    private final XMLEventReader            xmlEventReader;
+    private final XMLEventFactory           xmlEventFactory;
+    private final String                    encoding;
+    private final TraversalContextControl   traversalContextControl;
+    private final XMLElementSelector        xmlElementSelector;
+    private final XMLOutputFactory          xmlOutputFactory;
+    private final TouchBarrierControl       touchBarrierControl;
+    private final List<XMLEventTransformer> xmlEventTransformerList;
+    
+    /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @see XMLIterator
+     * @param accessor
+     * @param scopeControl
+     * @param exceptionHandler
+     * @param xmlEventReader
+     * @param xmlEventFactory
+     * @param encoding
+     * @param traversalContextControl
+     * @param xmlElementSelector
+     * @param xmlOutputFactory
+     * @param touchBarrierControl
+     * @param xmlEventTransformerList
+     */
+    protected XMLIterator( Accessor<String> accessor, ScopeControl scopeControl, ExceptionHandler exceptionHandler,
+                           XMLEventReader xmlEventReader, XMLEventFactory xmlEventFactory, String encoding,
+                           TraversalContextControl traversalContextControl, XMLElementSelector xmlElementSelector,
+                           XMLOutputFactory xmlOutputFactory, TouchBarrierControl touchBarrierControl,
+                           List<XMLEventTransformer> xmlEventTransformerList )
+    {
+      this.accessor = accessor;
+      this.scopeControl = scopeControl;
+      this.exceptionHandler = exceptionHandler;
+      this.xmlEventReader = xmlEventReader;
+      this.xmlEventFactory = xmlEventFactory;
+      this.encoding = encoding;
+      this.traversalContextControl = traversalContextControl;
+      this.xmlElementSelector = xmlElementSelector;
+      this.xmlOutputFactory = xmlOutputFactory;
+      this.touchBarrierControl = touchBarrierControl;
+      this.xmlEventTransformerList = xmlEventTransformerList;
+      this.nextElementAccessor = this.accessor;
+    }
+    
+    /* ********************************************** Methods ********************************************** */
+    @Override
+    public synchronized boolean hasNext()
+    {
+      //
+      this.resolveNextElementIfUnresolved();
+      
+      // 
+      return this.nextElementAccessor.getElement() != null;
+    }
+    
+    @Override
+    public synchronized String next()
+    {
+      //
+      String retval = null;
+      
+      //
+      this.resolveNextElementIfUnresolved();
+      
+      //  
+      retval = this.nextElementAccessor.getElement();
+      this.nextElementAccessor.setElement( null );
+      
+      //
+      if ( retval == null )
+      {
+        throw new NoSuchElementException();
+      }
+      
+      //
+      return retval;
+    }
+    
+    @Override
+    public void remove()
+    {
+      throw new UnsupportedOperationException();
+    }
+    
+    public void resolveNextElementIfUnresolved()
+    {
+      //
+      if ( this.nextElementAccessor.getElement() == null )
+      {
+        this.nextElementAccessor.setElement( this.resolveNextElement() );
+      }
+    }
+    
+    @SuppressWarnings("unchecked")
+    public String resolveNextElement()
+    {
+      //
+      String retval = null;
+      
+      //
+      try
+      {
+        //
+        final ByteArrayContainer byteArrayContainerOut = new ByteArrayContainer();
+        final OutputStream outputStream = byteArrayContainerOut.getOutputStream();
+        final XMLEventWriter xmlEventWriter = this.xmlOutputFactory.createXMLEventWriter( outputStream, this.encoding );
+        final XMLEventConsumer xmlEventConsumer = xmlEventWriter;
+        
+        //
+        boolean read = false;
+        boolean done = false;
+        boolean touchedBarrier = false;
+        boolean hasWrittenAtLeastOneElement = false;
+        while ( !done
+                && !this.scopeControl.hasTraversedAnyScope()
+                && this.xmlEventReader.hasNext()
+                && ( read || ( !touchedBarrier && !( touchedBarrier = this.touchBarrierControl.isAnyBarrierTouched( this.transformXMLElement( this.xmlEventReader.peek() ),
+                                                                                                                    this.traversalContextControl.getCurrentSelectionContext()
+                                                                                                                                                .getQNameHierarchy() ) ) ) ) )
+        {
+          //
+          final XMLEvent currentEvent = this.transformXMLElement( this.xmlEventReader.nextEvent() );
+          XMLEvent writableEvent = currentEvent;
+          
+          //
+          if ( currentEvent.isStartElement() )
+          {
+            //
+            final StartElement startElement = currentEvent.asStartElement();
+            final QName name = startElement.getName();
+            this.traversalContextControl.addQName( name );
+            
+            //
+            final SelectionContext selectionContext = this.traversalContextControl.getCurrentSelectionContext();
+            this.scopeControl.visitStartElement( selectionContext );
+            
+            //
+            if ( this.xmlElementSelector.selectElement( selectionContext )
+                 && ( !this.scopeControl.hasScopes() || this.scopeControl.hasEnteredAnyScope() ) )
+            {
+              //
+              read = true;
+            }
+            
+            //
+            if ( read )
+            {
+              //
+              this.namespaceStack.addStack( startElement.getNamespaces() );
+              writableEvent = transformEventIncludingCurrentNamespaceIfNonDefault( this.xmlEventFactory, startElement, name );
+              
+            }
+          }
+          
+          //
+          if ( read )
+          {
+            //
+            xmlEventConsumer.add( writableEvent );
+            hasWrittenAtLeastOneElement = true;
+          }
+          
+          if ( currentEvent.isEndElement() )
+          {
+            //
+            if ( read )
+            {
+              this.namespaceStack.removeStack();
+            }
+            
+            //                  
+            final SelectionContext selectionContext = this.traversalContextControl.getCurrentSelectionContext();
+            if ( this.xmlElementSelector.selectElement( selectionContext ) )
+            {
+              read = false;
+              done = true;
+            }
+            
+            //
+            this.traversalContextControl.reduceLastQName();
+            
+            //
+            this.scopeControl.visitEndElement( selectionContext );
+          }
+        }
+        
+        //
+        if ( hasWrittenAtLeastOneElement )
+        {
+          //
+          xmlEventWriter.close();
+          outputStream.close();
+          
+          //
+          if ( byteArrayContainerOut.isNotEmpty() )
+          {
+            retval = byteArrayContainerOut.toString( ByteArrayContainer.ENCODING_UTF8 );
+          }
+        }
+        
+        //
+        if ( !this.xmlEventReader.hasNext() )
+        {
+          this.xmlEventReader.close();
+        }
+      }
+      catch ( Exception e )
+      {
+        this.exceptionHandler.handleException( e );
+      }
+      
+      //
+      return retval;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private StartElement transformEventIncludingCurrentNamespaceIfNonDefault( final XMLEventFactory xmlEventFactory,
+                                                                              final StartElement startElement,
+                                                                              final QName name )
+    {
+      //
+      StartElement retval = startElement;
+      
+      //
+      final String prefix = name.getPrefix();
+      final String namespaceUri = name.getNamespaceURI();
+      final String localName = name.getLocalPart();
+      if ( StringUtils.isNotBlank( namespaceUri ) && !StringUtils.equalsIgnoreCase( namespaceUri, "##default" )
+           && !this.namespaceStack.hasDeclaredNamespace( prefix, namespaceUri ) )
+      {
+        //
+        final Namespace namespace = xmlEventFactory.createNamespace( prefix, namespaceUri );
+        final Iterator<?> namespaces = IteratorUtils.addToNewIterator( startElement.getNamespaces(), namespace );
+        final Iterator<?> attributes = startElement.getAttributes();
+        
+        retval = xmlEventFactory.createStartElement( prefix, namespaceUri, localName, attributes, namespaces );
+        this.namespaceStack.addNamespaceToCurrentNamespaceStack( namespace );
+      }
+      
+      //
+      return retval;
+    }
+    
+    /**
+     * @param xmlEvent
+     * @return
+     */
+    private XMLEvent transformXMLElement( final XMLEvent xmlEvent )
+    {
+      //
+      XMLEvent retval = xmlEvent;
+      
+      //
+      for ( XMLEventTransformer xmlEventTransformer : this.xmlEventTransformerList )
+      {
+        retval = xmlEventTransformer.transform( retval, this.xmlEventFactory );
+      }
+      
+      //
+      return retval;
+    }
+  }
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
   /**
    * @author Omnaest
    */
@@ -902,56 +1183,52 @@ public class XMLIteratorFactory
     }
     
     /**
-     * Checks if any of the internal {@link TouchBarrier}s are matching the next {@link XMLEvent} of the given
-     * {@link XMLEventReader}. To retrieve the next element {@link XMLEventReader#peek()} is used, which does not remove the
-     * {@link XMLEvent} from the {@link XmlReader}s stream.
+     * Checks if any of the internal {@link TouchBarrier}s are matching the next {@link XMLEvent} of any {@link XMLEventReader}.
+     * To retrieve the next element use {@link XMLEventReader#peek()}, which does not remove the {@link XMLEvent} from the
+     * {@link XmlReader}s stream.
      * 
-     * @param xmlEventReader
-     *          {@link XMLEventReader}
+     * @param xmlEventPeek
+     *          {@link XMLEvent}
      * @param qNameHierarchy
      * @return true if the next element will touch any barrier
      */
-    public boolean isAnyBarrierTouched( XMLEventReader xmlEventReader, final List<QName> qNameHierarchy )
+    public boolean isAnyBarrierTouched( XMLEvent xmlEventPeek, final List<QName> qNameHierarchy )
     {
       //
       boolean retval = false;
       
       //
-      if ( xmlEventReader != null && this.touchBarrierList != null && !this.touchBarrierList.isEmpty() )
+      if ( xmlEventPeek != null && xmlEventPeek.isStartElement() && this.touchBarrierList != null
+           && !this.touchBarrierList.isEmpty() )
       {
         try
         {
           //
-          final XMLEvent xmlEvent = xmlEventReader.peek();
-          if ( xmlEvent != null && xmlEvent.isStartElement() )
+          final QName qName = xmlEventPeek.asStartElement().getName();
+          final SelectionContext selectionContext = new SelectionContext()
           {
-            //
-            final QName qName = xmlEvent.asStartElement().getName();
-            final SelectionContext selectionContext = new SelectionContext()
+            @Override
+            public List<QName> getQNameHierarchy()
             {
-              @Override
-              public List<QName> getQNameHierarchy()
-              {
-                return qNameHierarchy;
-              }
-              
-              @Override
-              public QName getQName()
-              {
-                return qName;
-              }
-            };
-            for ( TouchBarrier touchBarrier : this.touchBarrierList )
+              return qNameHierarchy;
+            }
+            
+            @Override
+            public QName getQName()
             {
-              if ( touchBarrier != null )
+              return qName;
+            }
+          };
+          for ( TouchBarrier touchBarrier : this.touchBarrierList )
+          {
+            if ( touchBarrier != null )
+            {
+              //
+              final boolean matches = touchBarrier.matches( selectionContext );
+              if ( matches )
               {
-                //
-                final boolean matches = touchBarrier.matches( selectionContext );
-                if ( matches )
-                {
-                  retval = true;
-                  break;
-                }
+                retval = true;
+                break;
               }
             }
           }
@@ -1418,242 +1695,16 @@ public class XMLIteratorFactory
       try
       {
         //
-        final XMLEventReader xmlEventReader = this.xmlEventReader;
         final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-        final String encoding = this.encoding;
         final XMLEventFactory xmlEventFactory = XMLEventFactory.newInstance();
-        final ExceptionHandler exceptionHandler = this.exceptionHandler;
-        final TraversalContextControl traversalContextControl = this.traversalContextControl;
         final ScopeControl scopeControl = new ScopeControl( this.scopeList );
-        final TouchBarrierControl touchBarrierControl = new TouchBarrierControl( this.touchBarrierList, exceptionHandler );
+        final TouchBarrierControl touchBarrierControl = new TouchBarrierControl( this.touchBarrierList, this.exceptionHandler );
         final Accessor<String> accessor = this.newAccessor();
         
         //
-        retval = new Iterator<String>()
-        {
-          /* ********************************************** Variables ********************************************** */
-          private final Accessor<String> nextElementAccessor = accessor;
-          private final NamespaceStack   namespaceStack      = new NamespaceStack();
-          
-          /* ********************************************** Methods ********************************************** */
-          @Override
-          public synchronized boolean hasNext()
-          {
-            //
-            this.resolveNextElementIfUnresolved();
-            
-            // 
-            return this.nextElementAccessor.getElement() != null;
-          }
-          
-          @Override
-          public synchronized String next()
-          {
-            //
-            String retval = null;
-            
-            //
-            this.resolveNextElementIfUnresolved();
-            
-            //  
-            retval = this.nextElementAccessor.getElement();
-            this.nextElementAccessor.setElement( null );
-            
-            //
-            if ( retval == null )
-            {
-              throw new NoSuchElementException();
-            }
-            
-            //
-            return retval;
-          }
-          
-          @Override
-          public void remove()
-          {
-            throw new UnsupportedOperationException();
-          }
-          
-          public void resolveNextElementIfUnresolved()
-          {
-            //
-            if ( this.nextElementAccessor.getElement() == null )
-            {
-              this.nextElementAccessor.setElement( this.resolveNextElement() );
-            }
-          }
-          
-          @SuppressWarnings("unchecked")
-          public String resolveNextElement()
-          {
-            //
-            String retval = null;
-            
-            //
-            try
-            {
-              //
-              final ByteArrayContainer byteArrayContainerOut = new ByteArrayContainer();
-              final OutputStream outputStream = byteArrayContainerOut.getOutputStream();
-              final XMLEventWriter xmlEventWriter = xmlOutputFactory.createXMLEventWriter( outputStream, encoding );
-              final XMLEventConsumer xmlEventConsumer = xmlEventWriter;
-              
-              //
-              boolean read = false;
-              boolean done = false;
-              boolean touchedBarrier = false;
-              boolean hasWrittenAtLeastOneElement = false;
-              while ( !done
-                      && !scopeControl.hasTraversedAnyScope()
-                      && xmlEventReader.hasNext()
-                      && ( read || ( !touchedBarrier && !( touchedBarrier = touchBarrierControl.isAnyBarrierTouched( xmlEventReader,
-                                                                                                                     traversalContextControl.getCurrentSelectionContext()
-                                                                                                                                            .getQNameHierarchy() ) ) ) ) )
-              {
-                //
-                final XMLEvent currentEvent = transformXMLElement( xmlEventReader.nextEvent() );
-                XMLEvent writableEvent = currentEvent;
-                
-                //
-                if ( currentEvent.isStartElement() )
-                {
-                  //
-                  final StartElement startElement = currentEvent.asStartElement();
-                  final QName name = startElement.getName();
-                  traversalContextControl.addQName( name );
-                  
-                  //
-                  final SelectionContext selectionContext = traversalContextControl.getCurrentSelectionContext();
-                  scopeControl.visitStartElement( selectionContext );
-                  
-                  //
-                  if ( xmlElementSelector.selectElement( selectionContext )
-                       && ( !scopeControl.hasScopes() || scopeControl.hasEnteredAnyScope() ) )
-                  {
-                    //
-                    read = true;
-                  }
-                  
-                  //
-                  if ( read )
-                  {
-                    //
-                    this.namespaceStack.addStack( startElement.getNamespaces() );
-                    writableEvent = transformEventIncludingCurrentNamespaceIfNonDefault( xmlEventFactory, startElement, name );
-                    
-                  }
-                }
-                
-                //
-                if ( read )
-                {
-                  //
-                  xmlEventConsumer.add( writableEvent );
-                  hasWrittenAtLeastOneElement = true;
-                }
-                
-                if ( currentEvent.isEndElement() )
-                {
-                  //
-                  if ( read )
-                  {
-                    this.namespaceStack.removeStack();
-                  }
-                  
-                  //                  
-                  final SelectionContext selectionContext = traversalContextControl.getCurrentSelectionContext();
-                  if ( xmlElementSelector.selectElement( selectionContext ) )
-                  {
-                    read = false;
-                    done = true;
-                  }
-                  
-                  //
-                  traversalContextControl.reduceLastQName();
-                  
-                  //
-                  scopeControl.visitEndElement( selectionContext );
-                }
-              }
-              
-              //
-              if ( hasWrittenAtLeastOneElement )
-              {
-                //
-                xmlEventWriter.close();
-                outputStream.close();
-                
-                //
-                if ( byteArrayContainerOut.isNotEmpty() )
-                {
-                  retval = byteArrayContainerOut.toString( ByteArrayContainer.ENCODING_UTF8 );
-                }
-              }
-              
-              //
-              if ( !xmlEventReader.hasNext() )
-              {
-                xmlEventReader.close();
-              }
-            }
-            catch ( Exception e )
-            {
-              exceptionHandler.handleException( e );
-            }
-            
-            //
-            return retval;
-          }
-          
-          @SuppressWarnings("unchecked")
-          private StartElement transformEventIncludingCurrentNamespaceIfNonDefault( final XMLEventFactory xmlEventFactory,
-                                                                                    final StartElement startElement,
-                                                                                    final QName name )
-          {
-            //
-            StartElement retval = startElement;
-            
-            //
-            final String prefix = name.getPrefix();
-            final String namespaceUri = name.getNamespaceURI();
-            final String localName = name.getLocalPart();
-            if ( StringUtils.isNotBlank( namespaceUri ) && !StringUtils.equalsIgnoreCase( namespaceUri, "##default" )
-                 && !this.namespaceStack.hasDeclaredNamespace( prefix, namespaceUri ) )
-            {
-              //
-              final Namespace namespace = xmlEventFactory.createNamespace( prefix, namespaceUri );
-              final Iterator<?> namespaces = IteratorUtils.addToNewIterator( startElement.getNamespaces(), namespace );
-              final Iterator<?> attributes = startElement.getAttributes();
-              
-              retval = xmlEventFactory.createStartElement( prefix, namespaceUri, localName, attributes, namespaces );
-              this.namespaceStack.addNamespaceToCurrentNamespaceStack( namespace );
-            }
-            
-            //
-            return retval;
-          }
-          
-          /**
-           * @param xmlEvent
-           * @return
-           */
-          private XMLEvent transformXMLElement( final XMLEvent xmlEvent )
-          {
-            //
-            XMLEvent retval = xmlEvent;
-            
-            //
-            for ( XMLEventTransformer xmlEventTransformer : XMLIteratorFactory.this.xmlEventTransformerList )
-            {
-              retval = xmlEventTransformer.transform( retval, xmlEventFactory );
-            }
-            
-            //
-            return retval;
-          }
-          
-        };
+        retval = new XMLIterator( accessor, scopeControl, this.exceptionHandler, this.xmlEventReader, xmlEventFactory,
+                                  this.encoding, this.traversalContextControl, xmlElementSelector, xmlOutputFactory,
+                                  touchBarrierControl, this.xmlEventTransformerList );
         
       }
       catch ( Exception e )

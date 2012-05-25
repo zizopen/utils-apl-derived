@@ -54,4 +54,20 @@ public class SetUtilsTest
     assertEquals( Arrays.asList( "a", "b", "c", "d" ),
                   ListUtils.valueOf( SetUtils.add( SetUtils.valueOf( "a", "b" ), "b", "c", "d" ) ) );
   }
+  
+  @Test
+  public void testRemoveAllAsNewSet()
+  {
+    assertEquals( SetUtils.valueOf( "a" ),
+                  SetUtils.removeAllAsNewSet( SetUtils.valueOf( "a", "b", "c" ), ListUtils.valueOf( "c", "b" ) ) );
+  }
+  
+  @Test
+  public void testDelta()
+  {
+    final SetDelta<String> setDelta = SetUtils.delta( SetUtils.valueOf( "a", "b", "c" ), SetUtils.valueOf( "a2", "b", "c2" ) );
+    assertEquals( SetUtils.valueOf( "a", "c" ), setDelta.getRemovedElementSet() );
+    assertEquals( SetUtils.valueOf( "a2", "c2" ), setDelta.getAddedElementSet() );
+    assertEquals( SetUtils.valueOf( "b" ), setDelta.getRetainedElementSet() );
+  }
 }
