@@ -395,8 +395,14 @@
                 <type>jar</type>
                 <scope>provided</scope>
             </dependency>
-            
-            
+
+
+            <dependency>
+                <groupId>de.odysseus.staxon</groupId>
+                <artifactId>staxon</artifactId>
+                <version>1.0</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>

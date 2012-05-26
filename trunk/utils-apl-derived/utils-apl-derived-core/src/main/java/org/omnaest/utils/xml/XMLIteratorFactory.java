@@ -27,8 +27,6 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
 
 import javax.sql.rowset.spi.XmlReader;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchema;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
@@ -44,15 +42,17 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.util.XMLEventConsumer;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerIgnoring;
-import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.element.accessor.Accessor;
 import org.omnaest.utils.structure.element.accessor.adapter.ThreadLocalToAccessorAdapter;
+import org.omnaest.utils.structure.element.cached.CachedElement;
 import org.omnaest.utils.structure.element.cached.CachedElement.ValueResolver;
 import org.omnaest.utils.structure.element.cached.ThreadLocalCachedElement;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
@@ -68,6 +68,9 @@ import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttr
 import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformerLowerCase;
 import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformerRemoveNamespace;
 import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttributeName.XMLTagAndAttributeNameTransformerUpperCase;
+import org.omnaest.utils.xml.context.XMLInstanceContextFactory;
+import org.omnaest.utils.xml.context.XMLInstanceContextFactoryJavaStaxDefaultImpl;
+import org.omnaest.utils.xml.exception.MissingXMLRootElementAnnotationException;
 
 /**
  * The {@link XMLIteratorFactory} is a wrapper around StAX and JAXB which allows to split a given xml {@link InputStream} content
@@ -150,39 +153,109 @@ import org.omnaest.utils.xml.XMLIteratorFactory.XMLEventTransformerForTagAndAttr
  */
 public class XMLIteratorFactory
 {
-  /* ********************************************** Constants ********************************************** */
-  public static final String              DEFAULT_ENCODING                   = "UTF-8";
-  /* ********************************************** Constants ********************************************** */
-  private final Factory<Accessor<String>> SIMPLE_ACCESSOR_FACTORY            = new Factory<Accessor<String>>()
-                                                                             {
-                                                                               @Override
-                                                                               public Accessor<String> newInstance()
-                                                                               {
-                                                                                 return new ElementHolder<String>();
-                                                                               }
-                                                                             };
-  private final Factory<Accessor<String>> THREADLOCAL_BASED_ACCESSOR_FACTORY = new Factory<Accessor<String>>()
-                                                                             {
-                                                                               @Override
-                                                                               public Accessor<String> newInstance()
-                                                                               {
-                                                                                 return new ThreadLocalToAccessorAdapter<String>();
-                                                                               }
-                                                                             };
   
-  /* ********************************************** Variables ********************************************** */
-  private final XMLEventReader            xmlEventReader;
-  private final TraversalContextControl   traversalContextControl;
-  private final List<XMLEventTransformer> xmlEventTransformerList;
-  private final List<Scope>               scopeList;
-  private final List<TouchBarrier>        touchBarrierList;
-  private Factory<Accessor<String>>       accessorFactory                    = null;
-  private String                          encoding                           = XMLIteratorFactory.DEFAULT_ENCODING;
+  /* ************************************************** Constants *************************************************** */
+  public static final String                          DEFAULT_ENCODING                               = "UTF-8";
   
-  /* ********************************************** Beans / Services / References ********************************************** */
-  private final ExceptionHandler          exceptionHandler;
+  private final Factory<Accessor<String>>             SIMPLE_ACCESSOR_FACTORY                        = new Factory<Accessor<String>>()
+                                                                                                     {
+                                                                                                       @Override
+                                                                                                       public Accessor<String> newInstance()
+                                                                                                       {
+                                                                                                         return new ElementHolder<String>();
+                                                                                                       }
+                                                                                                     };
+  private final Factory<Accessor<String>>             THREADLOCAL_BASED_ACCESSOR_FACTORY             = new Factory<Accessor<String>>()
+                                                                                                     {
+                                                                                                       @Override
+                                                                                                       public Accessor<String> newInstance()
+                                                                                                       {
+                                                                                                         return new ThreadLocalToAccessorAdapter<String>();
+                                                                                                       }
+                                                                                                     };
+  public static final XMLInstanceContextFactory       XML_INSTANCE_CONTEXT_FACTORY_JAVA_STAX_DEFAULT = new XMLInstanceContextFactoryJavaStaxDefaultImpl();
+  
+  public static final JAXBTypeContentConverterFactory DEFAULT_JAXB_TYPE_CONTENT_CONVERTER_FACTORY    = new JAXBTypeContentConverterFactory()
+                                                                                                     {
+                                                                                                       @Override
+                                                                                                       public <E> ElementConverter<String, E> newElementConverter( Class<? extends E> type,
+                                                                                                                                                                   ExceptionHandler exceptionHandler )
+                                                                                                       {
+                                                                                                         return new JAXBTypeContentConverter<E>(
+                                                                                                                                                 type,
+                                                                                                                                                 exceptionHandler );
+                                                                                                       }
+                                                                                                     };
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private final CachedElement<XMLEventReader>         xmlEventReaderCache;
+  private final TraversalContextControl               traversalContextControl;
+  private final List<XMLEventTransformer>             xmlEventTransformerList;
+  private final List<Scope>                           scopeList;
+  private final List<TouchBarrier>                    touchBarrierList;
+  private XMLInstanceContextFactory                   xmlInstanceContextFactory;
+  private Factory<Accessor<String>>                   accessorFactory                                = null;
+  private String                                      encoding                                       = XMLIteratorFactory.DEFAULT_ENCODING;
+  private JAXBTypeContentConverterFactory             jaxbTypeContentConverterFactory                = DEFAULT_JAXB_TYPE_CONTENT_CONVERTER_FACTORY;
+  
+  /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
+  private final ExceptionHandler                      exceptionHandler;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
+  /**
+   * @see #newElementConverter(Class, ExceptionHandler)
+   * @author Omnaest
+   */
+  public static interface JAXBTypeContentConverterFactory
+  {
+    /**
+     * Returns an {@link ElementConverter} which converts from a given xml content {@link String} to an {@link Object} of the
+     * given type
+     * 
+     * @param type
+     *          {@link Class}
+     * @param exceptionHandler
+     *          {@link ExceptionHandler}
+     * @return new {@link ElementConverter}
+     */
+    public <E> ElementConverter<String, E> newElementConverter( Class<? extends E> type, ExceptionHandler exceptionHandler );
+  }
+  
+  /**
+   * @author Omnaest
+   * @param <E>
+   */
+  public static class JAXBTypeContentConverter<E> implements ElementConverter<String, E>
+  {
+    /* ************************************** Variables / State (internal/hiding) ************************************* */
+    protected final ThreadLocalCachedElement<JAXBContextBasedUnmarshaller> cachedElement;
+    
+    /* *************************************************** Methods **************************************************** */
+    
+    /**
+     * @see JAXBTypeContentConverter
+     * @param type
+     * @param exceptionHandler
+     */
+    public JAXBTypeContentConverter( final Class<? extends E> type, final ExceptionHandler exceptionHandler )
+    {
+      this.cachedElement = new ThreadLocalCachedElement<JAXBXMLHelper.JAXBContextBasedUnmarshaller>(
+                                                                                                     new ValueResolver<JAXBContextBasedUnmarshaller>()
+                                                                                                     {
+                                                                                                       @Override
+                                                                                                       public JAXBContextBasedUnmarshaller resolveValue()
+                                                                                                       {
+                                                                                                         return JAXBXMLHelper.newJAXBContextBasedUnmarshaller( type,
+                                                                                                                                                               new UnmarshallingConfiguration().setExceptionHandler( exceptionHandler ) );
+                                                                                                       }
+                                                                                                     } );
+    }
+    
+    @Override
+    public E convert( String element )
+    {
+      return this.cachedElement.getValue().unmarshal( new ByteArrayContainer( element ).getInputStream() );
+    }
+  }
   
   /**
    * @see XMLIteratorFactory
@@ -348,9 +421,14 @@ public class XMLIteratorFactory
             if ( read )
             {
               //
+              if ( !hasWrittenAtLeastOneElement )
+              {
+                xmlEventWriter.add( this.xmlEventFactory.createStartDocument() );
+              }
+              
+              //
               this.namespaceStack.addStack( startElement.getNamespaces() );
               writableEvent = transformEventIncludingCurrentNamespaceIfNonDefault( this.xmlEventFactory, startElement, name );
-              
             }
           }
           
@@ -374,8 +452,12 @@ public class XMLIteratorFactory
             final SelectionContext selectionContext = this.traversalContextControl.getCurrentSelectionContext();
             if ( this.xmlElementSelector.selectElement( selectionContext ) )
             {
+              //
               read = false;
               done = true;
+              
+              //
+              xmlEventWriter.add( this.xmlEventFactory.createEndDocument() );
             }
             
             //
@@ -463,7 +545,6 @@ public class XMLIteratorFactory
     }
   }
   
-  /* ********************************************** Classes/Interfaces ********************************************** */
   /**
    * @author Omnaest
    */
@@ -1244,19 +1325,6 @@ public class XMLIteratorFactory
     }
   }
   
-  /**
-   * @author Omnaest
-   */
-  public static class MissingXMLRootElementAnnotationException extends RuntimeException
-  {
-    private static final long serialVersionUID = -1643787702588403199L;
-    
-    public MissingXMLRootElementAnnotationException()
-    {
-      super( "Type has to have a XmlRootElement annotation" );
-    }
-  }
-  
   /* ********************************************** Methods ********************************************** */
   
   /**
@@ -1268,19 +1336,51 @@ public class XMLIteratorFactory
    * @param exceptionHandler
    *          {@link ExceptionHandler}
    */
-  public XMLIteratorFactory( InputStream inputStream, ExceptionHandler exceptionHandler )
+  public XMLIteratorFactory( final InputStream inputStream, final ExceptionHandler exceptionHandler )
   {
     //
     super();
     
     //
     this.xmlEventTransformerList = new ArrayList<XMLEventTransformer>();
-    this.exceptionHandler = exceptionHandler;
-    this.xmlEventReader = createXmlEventReader( inputStream, exceptionHandler );
+    this.exceptionHandler = ObjectUtils.defaultIfNull( exceptionHandler, new ExceptionHandlerIgnoring() );
+    this.xmlInstanceContextFactory = XMLIteratorFactory.XML_INSTANCE_CONTEXT_FACTORY_JAVA_STAX_DEFAULT;
+    this.xmlEventReaderCache = this.newXmlEventReaderCache( inputStream, exceptionHandler );
     this.scopeList = new ArrayList<Scope>();
     this.touchBarrierList = new ArrayList<TouchBarrier>();
     this.traversalContextControl = new TraversalContextControl();
-    
+  }
+  
+  private CachedElement<XMLEventReader> newXmlEventReaderCache( final InputStream inputStream,
+                                                                final ExceptionHandler exceptionHandler )
+  {
+    return new CachedElement<XMLEventReader>( new ValueResolver<XMLEventReader>()
+    {
+      @Override
+      public XMLEventReader resolveValue()
+      {
+        //
+        XMLEventReader retval = null;
+        
+        // 
+        try
+        {
+          //
+          final XMLInputFactory xmlInputFactory = XMLIteratorFactory.this.xmlInstanceContextFactory.newXmlInputFactory();
+          Assert.isNotNull( xmlInputFactory, "xmlInputFactory must not be null" );
+          
+          //
+          retval = xmlInputFactory.createXMLEventReader( inputStream );
+        }
+        catch ( Exception e )
+        {
+          exceptionHandler.handleException( e );
+        }
+        
+        //
+        return retval;
+      }
+    } );
   }
   
   /**
@@ -1298,24 +1398,30 @@ public class XMLIteratorFactory
   
   /**
    * @see XMLIteratorFactory
-   * @param xmlEventReader
+   * @param xmlEventReaderCache
+   * @param xmlInstanceContextFactory
    * @param xmlTransformerList
    * @param exceptionHandler
    * @param scopeList
    * @param touchBarrierList
+   * @param jaxbTypeContentConverterFactory
    * @param traversalControl
    */
-  private XMLIteratorFactory( XMLEventReader xmlEventReader, List<XMLEventTransformer> xmlTransformerList,
+  private XMLIteratorFactory( CachedElement<XMLEventReader> xmlEventReaderCache,
+                              XMLInstanceContextFactory xmlInstanceContextFactory, List<XMLEventTransformer> xmlTransformerList,
                               ExceptionHandler exceptionHandler, List<Scope> scopeList, List<TouchBarrier> touchBarrierList,
-                              TraversalContextControl traversalContextControl )
+                              TraversalContextControl traversalContextControl,
+                              JAXBTypeContentConverterFactory jaxbTypeContentConverterFactory )
   {
     super();
-    this.xmlEventReader = xmlEventReader;
+    this.xmlEventReaderCache = xmlEventReaderCache;
     this.xmlEventTransformerList = xmlTransformerList;
     this.exceptionHandler = exceptionHandler;
     this.scopeList = scopeList;
     this.touchBarrierList = touchBarrierList;
     this.traversalContextControl = traversalContextControl;
+    this.xmlInstanceContextFactory = xmlInstanceContextFactory;
+    this.jaxbTypeContentConverterFactory = jaxbTypeContentConverterFactory;
   }
   
   /**
@@ -1372,9 +1478,10 @@ public class XMLIteratorFactory
     //
     if ( xmlEventTransformer != null )
     {
-      retval = new XMLIteratorFactory( this.xmlEventReader, ListUtils.addToNewList( this.xmlEventTransformerList,
-                                                                                    xmlEventTransformer ), this.exceptionHandler,
-                                       this.scopeList, this.touchBarrierList, this.traversalContextControl );
+      retval = new XMLIteratorFactory( this.xmlEventReaderCache, this.xmlInstanceContextFactory,
+                                       ListUtils.addToNewList( this.xmlEventTransformerList, xmlEventTransformer ),
+                                       this.exceptionHandler, this.scopeList, this.touchBarrierList,
+                                       this.traversalContextControl, this.jaxbTypeContentConverterFactory );
     }
     
     //
@@ -1407,9 +1514,9 @@ public class XMLIteratorFactory
     {
       //
       final Scope scope = new Scope( tagName );
-      retval = new XMLIteratorFactory( this.xmlEventReader, this.xmlEventTransformerList, this.exceptionHandler,
-                                       ListUtils.addToNewList( this.scopeList, scope ), this.touchBarrierList,
-                                       this.traversalContextControl );
+      retval = new XMLIteratorFactory( this.xmlEventReaderCache, this.xmlInstanceContextFactory, this.xmlEventTransformerList,
+                                       this.exceptionHandler, ListUtils.addToNewList( this.scopeList, scope ),
+                                       this.touchBarrierList, this.traversalContextControl, this.jaxbTypeContentConverterFactory );
     }
     
     //
@@ -1438,9 +1545,10 @@ public class XMLIteratorFactory
     {
       //
       final TouchBarrier touchBarrier = new TouchBarrier( tagName );
-      retval = new XMLIteratorFactory( this.xmlEventReader, this.xmlEventTransformerList, this.exceptionHandler, this.scopeList,
-                                       ListUtils.addToNewList( this.touchBarrierList, touchBarrier ),
-                                       this.traversalContextControl );
+      retval = new XMLIteratorFactory( this.xmlEventReaderCache, this.xmlInstanceContextFactory, this.xmlEventTransformerList,
+                                       this.exceptionHandler, this.scopeList, ListUtils.addToNewList( this.touchBarrierList,
+                                                                                                      touchBarrier ),
+                                       this.traversalContextControl, this.jaxbTypeContentConverterFactory );
     }
     
     //
@@ -1474,31 +1582,6 @@ public class XMLIteratorFactory
     
     //
     return this;
-  }
-  
-  /**
-   * @param inputStream
-   * @param exceptionHandler
-   * @return
-   */
-  private static XMLEventReader createXmlEventReader( InputStream inputStream, ExceptionHandler exceptionHandler )
-  {
-    //
-    XMLEventReader retval = null;
-    
-    //
-    try
-    {
-      //
-      retval = XMLInputFactory.newInstance().createXMLEventReader( inputStream );
-    }
-    catch ( XMLStreamException e )
-    {
-      exceptionHandler.handleException( e );
-    }
-    
-    //
-    return retval;
   }
   
   /**
@@ -1540,9 +1623,12 @@ public class XMLIteratorFactory
       @Override
       public Map<String, Object> convert( String element )
       {
-        final Entry<String, Object> firstEntry = MapUtils.firstEntry( new XMLNestedMapConverter().setExceptionHandler( XMLIteratorFactory.this.exceptionHandler )
-                                                                                                 .newMapFromXML( element ) );
-        Object value = firstEntry != null ? firstEntry.getValue() : null;
+        //
+        final Map<String, Object> mapFromXML = new XMLNestedMapConverter().setExceptionHandler( XMLIteratorFactory.this.exceptionHandler )
+                                                                          .setXmlInstanceContextFactory( XMLIteratorFactory.this.xmlInstanceContextFactory )
+                                                                          .newMapFromXML( element );
+        final Entry<String, Object> firstEntry = MapUtils.firstEntry( mapFromXML );
+        final Object value = firstEntry != null ? firstEntry.getValue() : null;
         return (Map<String, Object>) ( value instanceof Map ? value : null );
       }
     };
@@ -1579,46 +1665,7 @@ public class XMLIteratorFactory
   public <E> Iterator<E> newIterator( final Class<? extends E> type )
   {
     //
-    String selectingTagName = null;
-    String selectingNamespace = null;
-    
-    //
-    final XmlRootElement xmlRootElement = ReflectionUtils.annotation( type, XmlRootElement.class );
-    if ( xmlRootElement == null )
-    {
-      //
-      throw new MissingXMLRootElementAnnotationException();
-    }
-    
-    //      
-    String tagName = xmlRootElement.name();
-    if ( tagName != null && !StringUtils.equalsIgnoreCase( tagName, "##default" ) )
-    {
-      selectingTagName = tagName;
-    }
-    else
-    {
-      selectingTagName = StringUtils.lowerCase( type.getSimpleName() );
-    }
-    
-    //
-    String namespace = xmlRootElement.namespace();
-    if ( StringUtils.equalsIgnoreCase( namespace, "##default" ) )
-    {
-      //
-      namespace = null;
-      
-      //
-      final XmlSchema xmlSchema = ReflectionUtils.annotation( type.getPackage(), XmlSchema.class );
-      if ( xmlSchema != null )
-      {
-        namespace = xmlSchema.namespace();
-      }
-    }
-    selectingNamespace = namespace;
-    
-    //    
-    final QName qName = new QName( selectingNamespace, selectingTagName );
+    final QName qName = JAXBXMLHelper.determineRootName( type );
     XMLElementSelector xmlElementSelector = new XMLElementSelectorQNameBased( qName );
     
     //
@@ -1635,27 +1682,9 @@ public class XMLIteratorFactory
    */
   public <E> Iterator<E> newIterator( final XMLElementSelector xmlElementSelector, final Class<? extends E> type )
   {
-    
     //
-    final ValueResolver<JAXBContextBasedUnmarshaller> valueResolver = new ValueResolver<JAXBContextBasedUnmarshaller>()
-    {
-      @Override
-      public JAXBContextBasedUnmarshaller resolveValue()
-      {
-        return JAXBXMLHelper.newJAXBContextBasedUnmarshaller( type,
-                                                              new UnmarshallingConfiguration().setExceptionHandler( XMLIteratorFactory.this.exceptionHandler ) );
-      }
-    };
-    final ThreadLocalCachedElement<JAXBContextBasedUnmarshaller> cachedElement = new ThreadLocalCachedElement<JAXBXMLHelper.JAXBContextBasedUnmarshaller>(
-                                                                                                                                                           valueResolver );
-    final ElementConverter<String, E> elementConverter = new ElementConverter<String, E>()
-    {
-      @Override
-      public E convert( String element )
-      {
-        return cachedElement.getValue().unmarshal( new ByteArrayContainer( element ).getInputStream() );
-      }
-    };
+    final ElementConverter<String, E> elementConverter = this.jaxbTypeContentConverterFactory.newElementConverter( type,
+                                                                                                                   this.exceptionHandler );
     return newIterator( xmlElementSelector, elementConverter );
   }
   
@@ -1690,21 +1719,26 @@ public class XMLIteratorFactory
     Iterator<String> retval = null;
     
     //
-    if ( this.xmlEventReader != null && xmlElementSelector != null )
+    final XMLEventReader xmlEventReader = this.getXmlEventReader();
+    if ( xmlEventReader != null && xmlElementSelector != null )
     {
       try
       {
         //
-        final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-        final XMLEventFactory xmlEventFactory = XMLEventFactory.newInstance();
+        final XMLOutputFactory xmlOutputFactory = this.xmlInstanceContextFactory.newXmlOutputFactory();
+        final XMLEventFactory xmlEventFactory = this.xmlInstanceContextFactory.newXmlEventFactory();
+        Assert.isNotNull( xmlOutputFactory, "xmlOutputFactory must not be null" );
+        Assert.isNotNull( xmlEventFactory, "xmlEventFactory must not be null" );
+        
+        //
         final ScopeControl scopeControl = new ScopeControl( this.scopeList );
         final TouchBarrierControl touchBarrierControl = new TouchBarrierControl( this.touchBarrierList, this.exceptionHandler );
         final Accessor<String> accessor = this.newAccessor();
         
         //
-        retval = new XMLIterator( accessor, scopeControl, this.exceptionHandler, this.xmlEventReader, xmlEventFactory,
-                                  this.encoding, this.traversalContextControl, xmlElementSelector, xmlOutputFactory,
-                                  touchBarrierControl, this.xmlEventTransformerList );
+        retval = new XMLIterator( accessor, scopeControl, this.exceptionHandler, xmlEventReader, xmlEventFactory, this.encoding,
+                                  this.traversalContextControl, xmlElementSelector, xmlOutputFactory, touchBarrierControl,
+                                  this.xmlEventTransformerList );
         
       }
       catch ( Exception e )
@@ -1751,11 +1785,12 @@ public class XMLIteratorFactory
   /**
    * Closes the internal {@link XMLEventReader} which closes all iterators immediately
    */
-  public void close()
+  public XMLIteratorFactory close()
   {
+    //
     try
     {
-      this.xmlEventReader.close();
+      this.getXmlEventReader().close();
     }
     catch ( XMLStreamException e )
     {
@@ -1764,6 +1799,49 @@ public class XMLIteratorFactory
         this.exceptionHandler.handleException( e );
       }
     }
+    
+    //
+    return this;
+  }
+  
+  /**
+   * Returns the {@link XMLEventReader} from the {@link #xmlEventReaderCache}
+   * 
+   * @return
+   */
+  private XMLEventReader getXmlEventReader()
+  {
+    return this.xmlEventReaderCache.getValue();
+  }
+  
+  /**
+   * Allows to set an alternative {@link XMLInstanceContextFactory}, e.g. to replace the current java default stax implementation
+   * by another one like Staxon or Jettison for JSON
+   * 
+   * @see #XML_INSTANCE_CONTEXT_FACTORY_JAVA_STAX_DEFAULT
+   * @param xmlInstanceContextFactory
+   *          {@link XMLInstanceContextFactory}
+   * @return this
+   */
+  public XMLIteratorFactory setXmlInstanceContextFactory( XMLInstanceContextFactory xmlInstanceContextFactory )
+  {
+    this.xmlInstanceContextFactory = xmlInstanceContextFactory;
+    return this;
+  }
+  
+  /**
+   * Allows to set another {@link JAXBTypeContentConverterFactory} which is used to convert xml content to instances of JAXB based
+   * types. See {@link #newIterator(Class)}.
+   * 
+   * @see #DEFAULT_JAXB_TYPE_CONTENT_CONVERTER_FACTORY
+   * @param jaxbTypeContentConverterFactory
+   *          {@link JAXBTypeContentConverterFactory}
+   * @return this
+   */
+  public XMLIteratorFactory setJAXBTypeContentConverterFactory( JAXBTypeContentConverterFactory jaxbTypeContentConverterFactory )
+  {
+    this.jaxbTypeContentConverterFactory = jaxbTypeContentConverterFactory;
+    return this;
   }
   
 }

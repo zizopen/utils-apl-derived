@@ -50,6 +50,8 @@ import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCa
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.iterator.IteratorUtils;
 import org.omnaest.utils.tuple.TupleTwo;
+import org.omnaest.utils.xml.context.XMLInstanceContextFactory;
+import org.omnaest.utils.xml.context.XMLInstanceContextFactoryJavaStaxDefaultImpl;
 
 /**
  * The {@link XMLNestedMapConverter} allows to convert xml content into a nested {@link Map} hierarchy. <br>
@@ -108,10 +110,12 @@ import org.omnaest.utils.tuple.TupleTwo;
 public class XMLNestedMapConverter
 {
   /* ********************************************** Constants ********************************************** */
-  public static final String DEFAULT_ENCODING = "UTF-8";
+  public static final String                    DEFAULT_ENCODING                               = "UTF-8";
+  public static final XMLInstanceContextFactory XML_INSTANCE_CONTEXT_FACTORY_JAVA_STAX_DEFAULT = new XMLInstanceContextFactoryJavaStaxDefaultImpl();
   /* ********************************************** Variables ********************************************** */
-  private ExceptionHandler   exceptionHandler = null;
-  private String             encoding         = XMLNestedMapConverter.DEFAULT_ENCODING;
+  private ExceptionHandler                      exceptionHandler                               = null;
+  private String                                encoding                                       = XMLNestedMapConverter.DEFAULT_ENCODING;
+  private XMLInstanceContextFactory             xmlInstanceContextFactory                      = XML_INSTANCE_CONTEXT_FACTORY_JAVA_STAX_DEFAULT;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -181,8 +185,12 @@ public class XMLNestedMapConverter
     try
     {
       //
+      final XMLInputFactory xmlInputFactory = this.xmlInstanceContextFactory.newXmlInputFactory();
+      Assert.isNotNull( xmlInputFactory, "xmlInputFactory must not be null" );
+      
+      //
       final Reader reader = new CharSequenceReader( xmlContent );
-      final XMLEventReader xmlEventReader = XMLInputFactory.newInstance().createXMLEventReader( reader );
+      final XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader( reader );
       
       //
       final class Helper
@@ -678,8 +686,13 @@ public class XMLNestedMapConverter
       try
       {
         //
-        final XMLEventWriter xmlEventWriter = XMLOutputFactory.newInstance().createXMLEventWriter( outputStream, this.encoding );
-        final XMLEventFactory xmlEventFactory = XMLEventFactory.newInstance();
+        final XMLOutputFactory xmlOutputFactory = this.xmlInstanceContextFactory.newXmlOutputFactory();
+        final XMLEventFactory xmlEventFactory = this.xmlInstanceContextFactory.newXmlEventFactory();
+        Assert.isNotNull( xmlOutputFactory, "xmlOutputFactory must not be null" );
+        Assert.isNotNull( xmlEventFactory, "xmlEventFactory must not be null" );
+        
+        //
+        final XMLEventWriter xmlEventWriter = xmlOutputFactory.createXMLEventWriter( outputStream, this.encoding );
         final ExceptionHandler exceptionHandler = this.exceptionHandler;
         
         //
@@ -854,6 +867,9 @@ public class XMLNestedMapConverter
           
           //
           new Helper().write( nestedMap );
+          
+          //
+          xmlEventWriter.add( xmlEventFactory.createEndDocument() );
         }
         finally
         {
@@ -892,6 +908,20 @@ public class XMLNestedMapConverter
   public XMLNestedMapConverter setEncoding( String encoding )
   {
     this.encoding = encoding;
+    return this;
+  }
+  
+  /**
+   * Allows to set an alternative {@link XMLInstanceContextFactory}
+   * 
+   * @see #XML_INSTANCE_CONTEXT_FACTORY_JAVA_STAX_DEFAULT
+   * @param xmlInstanceContextFactory
+   *          {@link XMLInstanceContextFactory}
+   * @return this
+   */
+  public XMLNestedMapConverter setXmlInstanceContextFactory( XMLInstanceContextFactory xmlInstanceContextFactory )
+  {
+    this.xmlInstanceContextFactory = xmlInstanceContextFactory;
     return this;
   }
 }

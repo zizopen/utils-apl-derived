@@ -24,14 +24,22 @@ import java.util.Arrays;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchema;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLEventReader;
 import javax.xml.transform.sax.SAXSource;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.events.exception.ExceptionHandler;
+import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.xml.JAXBXMLHelper.UnmarshallingConfiguration.Configurator;
+import org.omnaest.utils.xml.exception.MissingXMLRootElementAnnotationException;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -508,6 +516,30 @@ public class JAXBXMLHelper
         
         //
         retval = (E) this.unmarshaller.unmarshal( saxSource );
+      }
+      catch ( Exception e )
+      {
+        if ( this.exceptionHandler != null )
+        {
+          this.exceptionHandler.handleException( e );
+        }
+      }
+      
+      //
+      return retval;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public <E> E unmarshal( XMLEventReader xmlEventReader )
+    {
+      //
+      E retval = null;
+      
+      //
+      try
+      {
+        //
+        retval = (E) this.unmarshaller.unmarshal( xmlEventReader );
       }
       catch ( Exception e )
       {
@@ -1116,5 +1148,61 @@ public class JAXBXMLHelper
     
     //
     return retval;
+  }
+  
+  /**
+   * Returns the {@link QName} defined by the {@link XmlRootElement} of the given {@link Class} type
+   * 
+   * @param type
+   * @return {@link QName}
+   * @throws MissingXMLRootElementAnnotationException
+   */
+  public static QName determineRootName( final Class<?> type )
+  {
+    //
+    String selectingTagName = null;
+    String selectingNamespace = null;
+    
+    //
+    Assert.isNotNull( type, "type must not be null" );
+    
+    //
+    final XmlRootElement xmlRootElement = ReflectionUtils.annotation( type, XmlRootElement.class );
+    if ( xmlRootElement == null )
+    {
+      //
+      throw new MissingXMLRootElementAnnotationException();
+    }
+    
+    //      
+    String tagName = xmlRootElement.name();
+    if ( tagName != null && !StringUtils.equalsIgnoreCase( tagName, "##default" ) )
+    {
+      selectingTagName = tagName;
+    }
+    else
+    {
+      selectingTagName = StringUtils.lowerCase( type.getSimpleName() );
+    }
+    
+    //
+    String namespace = xmlRootElement.namespace();
+    if ( StringUtils.equalsIgnoreCase( namespace, "##default" ) )
+    {
+      //
+      namespace = null;
+      
+      //
+      final XmlSchema xmlSchema = ReflectionUtils.annotation( type.getPackage(), XmlSchema.class );
+      if ( xmlSchema != null )
+      {
+        namespace = xmlSchema.namespace();
+      }
+    }
+    selectingNamespace = namespace;
+    
+    //    
+    final QName qName = new QName( selectingNamespace, selectingTagName );
+    return qName;
   }
 }
