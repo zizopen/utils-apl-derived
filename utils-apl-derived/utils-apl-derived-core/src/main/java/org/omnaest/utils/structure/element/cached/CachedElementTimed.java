@@ -29,7 +29,7 @@ import org.omnaest.utils.time.DurationCapture;
  * <br>
  * If the given duration of validity is exceeded the internal reference of the actually cached element gets removed. This allows
  * the garbage collector to take action. But be aware that this mechanism needs active invocation to the
- * {@link #hasValueResolved()} or {@link #getCachedValue()} or {@link #getValue()} method.
+ * {@link #hasValueResolved()} or {@link #getValueFromCacheOnly()} or {@link #getValue()} method.
  * 
  * @author Omnaest
  * @param <T>

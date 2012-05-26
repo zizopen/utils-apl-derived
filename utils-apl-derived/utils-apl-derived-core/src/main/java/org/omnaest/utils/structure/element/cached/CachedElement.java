@@ -45,7 +45,7 @@ public class CachedElement<T>
   }
   
   /**
-   * Simple {@link ValueResolver} which returns the object initially given to the constructor.
+   * Simple {@link CachedElement.ValueResolver} which returns the object initially given to the constructor.
    * 
    * @author Omnaest
    * @param <T>
@@ -97,7 +97,7 @@ public class CachedElement<T>
    * @see CachedElement
    * @see ValueResolver
    * @see ValueResolverSimple
-   * @param valueResolver
+   * @param value
    */
   public CachedElement( T value )
   {
@@ -105,7 +105,9 @@ public class CachedElement<T>
   }
   
   /**
-   * Returns the value from the cache or resolves it from the underlying factory.
+   * Returns the value from the cache or resolves it from the underlying {@link ValueResolver} if it is null.
+   * 
+   * @see #getValueFromCacheOnly()
    */
   public T getValue()
   {
@@ -121,11 +123,13 @@ public class CachedElement<T>
   }
   
   /**
-   * Returns the cached value and does not resolve the value if the cached value is null.
+   * Returns the cached value and <b>does not resolve</b> the value if the cached value is null.<br>
+   * Use {@link #getValue()} for normal purposes.
    * 
+   * @see #getValue()
    * @return
    */
-  public T getCachedValue()
+  public T getValueFromCacheOnly()
   {
     return this.cachedValue.getValue();
   }
@@ -137,7 +141,7 @@ public class CachedElement<T>
    */
   public boolean hasValueResolved()
   {
-    return this.getCachedValue() != null;
+    return this.getValueFromCacheOnly() != null;
   }
   
   public void setValueResolver( ValueResolver<T> valueResolver )

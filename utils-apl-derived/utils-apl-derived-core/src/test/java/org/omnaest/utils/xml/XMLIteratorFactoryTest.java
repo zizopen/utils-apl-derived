@@ -41,11 +41,15 @@ import org.databene.contiperf.PerfTest;
 import org.databene.contiperf.junit.ContiPerfRule;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.omnaest.utils.events.exception.basic.ExceptionHandlerEPrintStackTrace;
 import org.omnaest.utils.operation.Operation;
 import org.omnaest.utils.operation.foreach.ForEach;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.xml.XMLIteratorFactory.JAXBTypeContentConverterFactory;
+import org.omnaest.utils.xml.context.XMLInstanceContextFactory;
+import org.omnaest.utils.xml.context.XMLInstanceContextFactoryStAXONImpl;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -78,6 +82,64 @@ public class XMLIteratorFactoryTest
     {
       StringBuilder builder = new StringBuilder();
       builder.append( "Book [title=" );
+      builder.append( this.title );
+      builder.append( ", author=" );
+      builder.append( this.author );
+      builder.append( "]" );
+      return builder.toString();
+    }
+    
+    /**
+     * @return the title
+     */
+    public String getTitle()
+    {
+      return this.title;
+    }
+    
+    /**
+     * @return the author
+     */
+    public String getAuthor()
+    {
+      return this.author;
+    }
+    
+    /**
+     * @param title
+     *          the title to set
+     */
+    public void setTitle( String title )
+    {
+      this.title = title;
+    }
+    
+    /**
+     * @param author
+     *          the author to set
+     */
+    public void setAuthor( String author )
+    {
+      this.author = author;
+    }
+    
+  }
+  
+  @XmlRootElement(name = "book")
+  @XmlAccessorType(XmlAccessType.FIELD)
+  protected static class SimpleBook
+  {
+    @XmlElement(name = "title")
+    private String title;
+    
+    @XmlElement(name = "author")
+    private String author;
+    
+    @Override
+    public String toString()
+    {
+      StringBuilder builder = new StringBuilder();
+      builder.append( "SimpleBook [title=" );
       builder.append( this.title );
       builder.append( ", author=" );
       builder.append( this.author );
@@ -278,6 +340,37 @@ public class XMLIteratorFactoryTest
   }
   
   @Test
+  public void testNewIteratorMapBasedStaxonJSON()
+  {
+    //    
+    final int numberOfObjects = 2;
+    final ByteArrayContainer byteArrayContainer = new ByteArrayContainer(
+                                                                          "{\"books\":[ {\"book\": {\"author\" : \"John Doe1\", \"title\":\"Another world1\"}},{\"book\": {\"author\" : \"John Doe2\", \"title\":\"Another world2\"}}]}" );
+    
+    //
+    final InputStream inputStream = byteArrayContainer.getInputStream();
+    XMLInstanceContextFactory xmlInstanceContextFactory = new XMLInstanceContextFactoryStAXONImpl();
+    Iterator<Map<String, Object>> iterator = new XMLIteratorFactory( inputStream, new ExceptionHandlerEPrintStackTrace() ).setXmlInstanceContextFactory( xmlInstanceContextFactory )
+                                                                                                                          .doLowerCaseXMLTagAndAttributeNames()
+                                                                                                                          .newIteratorMapBased( new QName(
+                                                                                                                                                           "book" ) );
+    
+    //
+    final List<Map<String, Object>> bookList = ListUtils.valueOf( iterator );
+    assertEquals( numberOfObjects, bookList.size() );
+    
+    //
+    int counter = 1;
+    for ( Map<String, Object> book : bookList )
+    {
+      //      
+      assertEquals( "John Doe" + counter, book.get( "author" ) );
+      assertEquals( "Another world" + counter, book.get( "title" ) );
+      counter++;
+    }
+  }
+  
+  @Test
   public void testNewIteratorStringContent()
   {
     //    
@@ -291,7 +384,7 @@ public class XMLIteratorFactoryTest
     
     //
     final List<String> valueList = ListUtils.valueOf( iterator );
-    assertEquals( 2, valueList.size() );
+    assertEquals( numberOfObjects, valueList.size() );
     
     for ( String value : valueList )
     {
@@ -308,6 +401,40 @@ public class XMLIteratorFactoryTest
     catch ( NoSuchElementException e )
     {
     }
+  }
+  
+  @Test
+  public void testNewIteratorStringContentJSONUsingStaxonAndJAXB()
+  {
+    //    
+    final int numberOfObjects = 2;
+    final ByteArrayContainer byteArrayContainer = new ByteArrayContainer(
+                                                                          "{\"books\":[ {\"book\": {\"author\" : \"John Doe1\", \"title\":\"Another world1\"}},{\"book\": {\"author\" : \"John Doe2\", \"title\":\"Another world2\"}}]}" );
+    
+    //
+    final InputStream inputStream = byteArrayContainer.getInputStream();
+    JAXBTypeContentConverterFactory elementConverterForJAXBTypeFactory = new JAXBTypeContentConverterFactoryStAXONImpl();
+    Iterator<SimpleBook> iterator = new XMLIteratorFactory( inputStream, new ExceptionHandlerEPrintStackTrace() ).setXmlInstanceContextFactory( new XMLInstanceContextFactoryStAXONImpl() )
+                                                                                                                 .setJAXBTypeContentConverterFactory( elementConverterForJAXBTypeFactory )
+                                                                                                                 .doLowerCaseXMLTagAndAttributeNames()
+                                                                                                                 .newIterator( SimpleBook.class );
+    
+    //
+    final List<SimpleBook> bookList = ListUtils.valueOf( iterator );
+    assertEquals( numberOfObjects, bookList.size() );
+    
+    //
+    int counter = 1;
+    for ( SimpleBook book : bookList )
+    {
+      //System.out.println( book );
+      
+      //
+      assertEquals( "John Doe" + counter, book.getAuthor() );
+      assertEquals( "Another world" + counter, book.getTitle() );
+      counter++;
+    }
+    
   }
   
   @Test
