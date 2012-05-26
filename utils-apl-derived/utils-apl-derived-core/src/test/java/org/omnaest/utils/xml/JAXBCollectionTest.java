@@ -53,7 +53,7 @@ public class JAXBCollectionTest
     assertNotNull( xmlContent );
     
     //
-    System.out.println( xmlContent );
+    //System.out.println( xmlContent );
     
     //
     assertEquals( list, new ArrayList<String>( JAXBXMLHelper.cloneObject( jaxbCollection ) ) );
