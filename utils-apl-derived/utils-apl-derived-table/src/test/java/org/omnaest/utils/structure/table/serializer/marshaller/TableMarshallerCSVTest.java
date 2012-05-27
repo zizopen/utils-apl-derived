@@ -33,7 +33,9 @@ public class TableMarshallerCSVTest
 {
   /* ********************************************** Variables ********************************************** */
   protected Table<String>           table           = new ArrayTable<String>();
-  protected TableMarshaller<String> tableMarshaller = new TableMarshallerCSV<String>();
+  protected TableMarshaller<String> tableMarshaller = new TableMarshallerCSV<String>().setWriteTableName( true )
+                                                                                      .setWriteColumnTitles( true )
+                                                                                      .setWriteRowTitles( true );
   
   /* ********************************************** Methods ********************************************** */
   

@@ -17,16 +17,26 @@ package org.omnaest.utils.structure.table.serializer.marshaller;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.serializer.TableMarshaller;
+import org.omnaest.utils.structure.table.serializer.common.CSVConstants;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerCSV;
 import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer;
 
 /**
+ * {@link TableMarshaller} which returns CSV text.<br>
+ * <br>
+ * This implementation supports any delimiter and simple quotation rules. See {@link TableUnmarshallerCSV} for more information
+ * about the rules.
+ * 
+ * @see CSVConstants
  * @see TableMarshaller
  * @see TableUnmarshallerCSV
  * @author Omnaest
@@ -35,76 +45,25 @@ import org.omnaest.utils.structure.table.subspecification.TableSerializable.Tabl
 public class TableMarshallerCSV<E> implements TableMarshaller<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long  serialVersionUID            = 729579410301748875L;
-  public final static String DEFAULT_DELIMITER_SEMICOLON = ";";
+  private static final long serialVersionUID   = 729579410301748875L;
   
   /* ********************************************** Variables ********************************************** */
-  protected String           encoding                    = TableSerializer.DEFAULT_ENCODING_UTF8;
-  protected String           delimiter                   = DEFAULT_DELIMITER_SEMICOLON;
+  private String            encoding           = TableSerializer.DEFAULT_ENCODING_UTF8;
+  private String            delimiter          = CSVConstants.DEFAULT_DELIMITER;
+  private String            quotationCharacter = CSVConstants.DEFAULT_QUOTATION_CHARACTER;
   
-  protected boolean          writeTableName              = true;
-  protected boolean          writeColumnTitles           = true;
-  protected boolean          writeRowTiles               = true;
+  private boolean           writeTableName     = CSVConstants.DEFAULT_HAS_TABLE_NAME;
+  private boolean           writeColumnTitles  = CSVConstants.DEFAULT_HAS_COLUMN_TITLES;
+  private boolean           writeRowTitles     = CSVConstants.DEFAULT_HAS_ROW_TITLES;
   
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * 
+   * @see TableMarshallerCSV
    */
   public TableMarshallerCSV()
   {
     super();
-  }
-  
-  /**
-   * @param encoding
-   */
-  public TableMarshallerCSV( String encoding )
-  {
-    super();
-    this.encoding = encoding;
-  }
-  
-  /**
-   * @param encoding
-   * @param delimiter
-   */
-  public TableMarshallerCSV( String encoding, String delimiter )
-  {
-    super();
-    this.encoding = encoding;
-    this.delimiter = delimiter;
-  }
-  
-  /**
-   * @param writeTableName
-   * @param writeColumnTitles
-   * @param writeRowTiles
-   */
-  public TableMarshallerCSV( boolean writeTableName, boolean writeColumnTitles, boolean writeRowTiles )
-  {
-    super();
-    this.writeTableName = writeTableName;
-    this.writeColumnTitles = writeColumnTitles;
-    this.writeRowTiles = writeRowTiles;
-  }
-  
-  /**
-   * @param encoding
-   * @param delimiter
-   * @param writeTableName
-   * @param writeColumnTitles
-   * @param writeRowTiles
-   */
-  public TableMarshallerCSV( String encoding, String delimiter, boolean writeTableName, boolean writeColumnTitles,
-                             boolean writeRowTiles )
-  {
-    super();
-    this.encoding = encoding;
-    this.delimiter = delimiter;
-    this.writeTableName = writeTableName;
-    this.writeColumnTitles = writeColumnTitles;
-    this.writeRowTiles = writeRowTiles;
   }
   
   @Override
@@ -140,7 +99,7 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
         
         //
         boolean processColumnTitles = this.writeColumnTitles && hasColumnTitles;
-        boolean processRowTitles = this.writeRowTiles && hasRowTitles;
+        boolean processRowTitles = this.writeRowTitles && hasRowTitles;
         boolean processTableName = this.writeTableName && hasTableName;
         
         //
@@ -191,7 +150,10 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
           {
             //
             appendable.append( !first ? this.delimiter : "" );
-            appendable.append( String.valueOf( cell.getElement() ) );
+            
+            //
+            final E element = cell.getElement();
+            appendable.append( this.encodeIntoCellString( element ) );
             first = false;
           }
           
@@ -205,10 +167,108 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
     }
   }
   
+  /**
+   * Encodes a single cell element into its csv string form
+   * 
+   * @param element
+   * @return
+   */
+  private String encodeIntoCellString( final E element )
+  {
+    //
+    String retval = null;
+    
+    //
+    if ( element != null )
+    {
+      //
+      retval = String.valueOf( element );
+      
+      //
+      final boolean containsDelimiter = retval.contains( this.delimiter );
+      final boolean containsQuotationCharacter = StringUtils.isNotEmpty( this.quotationCharacter )
+                                                 && retval.contains( this.quotationCharacter );
+      if ( containsQuotationCharacter )
+      {
+        retval = retval.replaceAll( Pattern.quote( this.quotationCharacter ),
+                                    Matcher.quoteReplacement( this.quotationCharacter + this.quotationCharacter ) );
+      }
+      if ( containsDelimiter )
+      {
+        retval = this.quotationCharacter + retval + this.quotationCharacter;
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
   @Override
   public void marshal( Table<E> table, InputStream inputStream, OutputStream outputStream )
   {
     throw new UnsupportedOperationException();
+  }
+  
+  /**
+   * Sets the quotation character which is {@link CSVConstants#DEFAULT_QUOTATION_CHARACTER} by default
+   * 
+   * @param quotationCharacter
+   * @return
+   */
+  public TableMarshallerCSV<E> setQuotationCharacter( String quotationCharacter )
+  {
+    this.quotationCharacter = quotationCharacter;
+    return this;
+  }
+  
+  /**
+   * @param encoding
+   * @return this
+   */
+  public TableMarshallerCSV<E> setEncoding( String encoding )
+  {
+    this.encoding = encoding;
+    return this;
+  }
+  
+  /**
+   * @param delimiter
+   * @return this
+   */
+  public TableMarshallerCSV<E> setDelimiter( String delimiter )
+  {
+    this.delimiter = delimiter;
+    return this;
+  }
+  
+  /**
+   * @param writeTableName
+   * @return this
+   */
+  public TableMarshallerCSV<E> setWriteTableName( boolean writeTableName )
+  {
+    this.writeTableName = writeTableName;
+    return this;
+  }
+  
+  /**
+   * @param writeColumnTitles
+   * @return this
+   */
+  public TableMarshallerCSV<E> setWriteColumnTitles( boolean writeColumnTitles )
+  {
+    this.writeColumnTitles = writeColumnTitles;
+    return this;
+  }
+  
+  /**
+   * @param writeRowTitles
+   * @return this
+   */
+  public TableMarshallerCSV<E> setWriteRowTitles( boolean writeRowTitles )
+  {
+    this.writeRowTitles = writeRowTitles;
+    return this;
   }
   
 }

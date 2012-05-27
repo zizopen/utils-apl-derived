@@ -59,7 +59,9 @@ public class TableSerializerImplTest
     List<Object[]> retlist = new ArrayList<Object[]>();
     retlist.add( new Object[] { new TableMarshallerPlainText<Object>(), new TableUnmarshallerPlainText<Object>(), true, true } );
     retlist.add( new Object[] { new TableMarshallerXML<Object>(), new TableUnmarshallerXML<Object>(), true, true } );
-    retlist.add( new Object[] { new TableMarshallerCSV<Object>(), new TableUnmarshallerCSV<Object>(), true, true } );
+    retlist.add( new Object[] {
+        new TableMarshallerCSV<Object>().setWriteTableName( true ).setWriteColumnTitles( true ).setWriteRowTitles( true ),
+        new TableUnmarshallerCSV<Object>().setHasTableName( true ).setHasColumnTitles( true ).setHasRowTitles( true ), true, true } );
     retlist.add( new Object[] { new TableMarshallerXLS<Object>(), new TableUnmarshallerXLS<Object>(), true, false } );
     
     //
@@ -145,8 +147,11 @@ public class TableSerializerImplTest
     if ( this.supportsAppendable )
     {
       //
-      Table<Object> table = this.tableSerializerForUnmarshalling.unmarshal( new TableUnmarshallerCSV<Object>( "utf-8", ",",
-                                                                                                              false, false, false ) )
+      Table<Object> table = this.tableSerializerForUnmarshalling.unmarshal( new TableUnmarshallerCSV<Object>().setEncoding( "utf-8" )
+                                                                                                              .setDelimiter( "," )
+                                                                                                              .setHasTableName( false )
+                                                                                                              .setHasColumnTitles( false )
+                                                                                                              .setHasRowTitles( false ) )
                                                                 .from( new URL(
                                                                                 "http://download.finance.yahoo.com/d/quotes.csv?s=%5EGDAXI&f=sl1d1t1c1ohgv&e=.csv" ) );
       
