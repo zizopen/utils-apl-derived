@@ -17,6 +17,7 @@ package org.omnaest.utils.spring.resource;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
+import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerCSV;
 import org.springframework.core.io.ResourceLoader;
 
 /**
@@ -36,9 +37,11 @@ public interface ResourceLoaderTable
   /**
    * Returns a new {@link Table} instance for the location of a csv file
    * 
+   * @see TableUnmarshallerCSV
    * @param location
    * @param encoding
    * @param delimiter
+   * @param quotationCharacter
    * @param hasTableName
    * @param hasColumnTitles
    * @param hasRowTitles
@@ -47,6 +50,7 @@ public interface ResourceLoaderTable
   public <E> Table<E> getTableFromCSV( String location,
                                        String encoding,
                                        String delimiter,
+                                       String quotationCharacter,
                                        boolean hasTableName,
                                        boolean hasColumnTitles,
                                        boolean hasRowTitles );

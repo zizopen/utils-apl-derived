@@ -62,7 +62,6 @@ public class TableUnmarshallerCSVTest
    * @param hasTableName
    * @param hasColumnTitles
    * @param hasRowTitles
-   * @param tableUnmarshaller
    */
   public TableUnmarshallerCSVTest( boolean hasTableName, boolean hasColumnTitles, boolean hasRowTitles )
   {
@@ -70,8 +69,12 @@ public class TableUnmarshallerCSVTest
     super();
     
     //
-    this.tableUnmarshaller = new TableUnmarshallerCSV<Object>( hasTableName, hasColumnTitles, hasRowTitles );
-    this.tableMarshaller = new TableMarshallerCSV<Object>( hasTableName, hasColumnTitles, hasRowTitles );
+    this.tableUnmarshaller = new TableUnmarshallerCSV<Object>().setHasTableName( hasTableName )
+                                                               .setHasColumnTitles( hasColumnTitles )
+                                                               .setHasRowTitles( hasRowTitles );
+    this.tableMarshaller = new TableMarshallerCSV<Object>().setWriteTableName( hasTableName )
+                                                           .setWriteColumnTitles( hasColumnTitles )
+                                                           .setWriteRowTitles( hasRowTitles );
     
     //
     this.csvContent = this.generateCSVContent( hasTableName, hasColumnTitles, hasRowTitles );
@@ -137,4 +140,5 @@ public class TableUnmarshallerCSVTest
     //
     return retval;
   }
+  
 }

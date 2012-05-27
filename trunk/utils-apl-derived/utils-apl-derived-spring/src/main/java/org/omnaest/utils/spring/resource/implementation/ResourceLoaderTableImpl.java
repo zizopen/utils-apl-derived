@@ -82,13 +82,18 @@ public class ResourceLoaderTableImpl implements ResourceLoaderTable
   public <E> Table<E> getTableFromCSV( String location,
                                        String encoding,
                                        String delimiter,
+                                       String quotationCharacter,
                                        boolean hasTableName,
                                        boolean hasColumnTitles,
                                        boolean hasRowTitles )
   {
     //
-    return this.getTableFrom( location, new TableUnmarshallerCSV<E>( encoding, delimiter, hasTableName, hasColumnTitles,
-                                                                     hasRowTitles ) );
+    return this.getTableFrom( location, new TableUnmarshallerCSV<E>().setEncoding( encoding )
+                                                                     .setDelimiter( delimiter )
+                                                                     .setQuotationCharacter( quotationCharacter )
+                                                                     .setHasTableName( hasTableName )
+                                                                     .setHasColumnTitles( hasColumnTitles )
+                                                                     .setHasRowTitles( hasRowTitles ) );
   }
   
 }

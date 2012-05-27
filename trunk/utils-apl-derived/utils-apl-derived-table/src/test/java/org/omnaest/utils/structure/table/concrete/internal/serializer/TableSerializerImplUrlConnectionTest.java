@@ -42,12 +42,11 @@ public class TableSerializerImplUrlConnectionTest
     final String yahooFinanceSingleStockQuoteUrlString = "http://download.finance.yahoo.com/d/quotes.csv?s=%5EGDAXI&f=sl1d1t1c1ohgv&e=.csv";
     
     //
-    Table<Object> table = new TableSerializerImpl<Object>( new ArrayTable<Object>() ).unmarshal( new TableUnmarshallerCSV<Object>(
-                                                                                                                                   "utf-8",
-                                                                                                                                   ",",
-                                                                                                                                   false,
-                                                                                                                                   false,
-                                                                                                                                   false ) )
+    Table<Object> table = new TableSerializerImpl<Object>( new ArrayTable<Object>() ).unmarshal( new TableUnmarshallerCSV<Object>().setEncoding( "utf-8" )
+                                                                                                                                   .setDelimiter( "," )
+                                                                                                                                   .setHasTableName( false )
+                                                                                                                                   .setHasColumnTitles( false )
+                                                                                                                                   .setHasRowTitles( false ) )
                                                                                      .from( new URL(
                                                                                                      yahooFinanceHistoricalDataUrlString ) );
     
