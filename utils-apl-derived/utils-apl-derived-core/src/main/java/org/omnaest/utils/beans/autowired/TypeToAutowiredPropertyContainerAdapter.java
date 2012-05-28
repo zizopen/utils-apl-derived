@@ -202,9 +202,15 @@ public class TypeToAutowiredPropertyContainerAdapter<B> extends AutowiredContain
   }
   
   @Override
-  public AutowiredContainer<Object> remove( Class<? extends Object> type )
+  public AutowiredContainer<Object> removeAllHavingExactTypeOf( Class<? extends Object> type )
   {
     return this.put( null, type );
+  }
+  
+  @Override
+  public AutowiredContainer<Object> removeAllAssignableTo( Class<? extends Object> type )
+  {
+    return this.removeAllHavingExactTypeOf( type );
   }
   
 }

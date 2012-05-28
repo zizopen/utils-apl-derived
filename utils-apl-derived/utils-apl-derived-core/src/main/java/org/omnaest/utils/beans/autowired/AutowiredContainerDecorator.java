@@ -63,6 +63,7 @@ public class AutowiredContainerDecorator<E> implements AutowiredContainer<E>
    * @return
    * @see java.lang.Iterable#iterator()
    */
+  @Override
   public Iterator<E> iterator()
   {
     return this.autowiredContainer.iterator();
@@ -73,6 +74,7 @@ public class AutowiredContainerDecorator<E> implements AutowiredContainer<E>
    * @return
    * @see org.omnaest.utils.beans.autowired.AutowiredContainer#getValue(java.lang.Class)
    */
+  @Override
   public <O extends E> O getValue( Class<? extends O> type )
   {
     return this.autowiredContainer.getValue( type );
@@ -83,6 +85,7 @@ public class AutowiredContainerDecorator<E> implements AutowiredContainer<E>
    * @return
    * @see org.omnaest.utils.beans.autowired.AutowiredContainer#getValueSet(java.lang.Class)
    */
+  @Override
   public <O extends E> Set<O> getValueSet( Class<? extends O> type )
   {
     return this.autowiredContainer.getValueSet( type );
@@ -93,6 +96,7 @@ public class AutowiredContainerDecorator<E> implements AutowiredContainer<E>
    * @return
    * @see org.omnaest.utils.beans.autowired.AutowiredContainer#containsAssignable(java.lang.Class)
    */
+  @Override
   public <O extends E> boolean containsAssignable( Class<O> type )
   {
     return this.autowiredContainer.containsAssignable( type );
@@ -102,6 +106,7 @@ public class AutowiredContainerDecorator<E> implements AutowiredContainer<E>
    * @return
    * @see org.omnaest.utils.beans.autowired.AutowiredContainer#isEmpty()
    */
+  @Override
   public boolean isEmpty()
   {
     return this.autowiredContainer.isEmpty();
@@ -112,6 +117,7 @@ public class AutowiredContainerDecorator<E> implements AutowiredContainer<E>
    * @return
    * @see org.omnaest.utils.beans.autowired.AutowiredContainer#put(java.lang.Object)
    */
+  @Override
   public AutowiredContainer<E> put( E object )
   {
     return this.autowiredContainer.put( object );
@@ -122,6 +128,7 @@ public class AutowiredContainerDecorator<E> implements AutowiredContainer<E>
    * @return
    * @see org.omnaest.utils.beans.autowired.AutowiredContainer#putAll(java.lang.Iterable)
    */
+  @Override
   public AutowiredContainer<E> putAll( Iterable<E> iterable )
   {
     return this.autowiredContainer.putAll( iterable );
@@ -133,6 +140,7 @@ public class AutowiredContainerDecorator<E> implements AutowiredContainer<E>
    * @return
    * @see org.omnaest.utils.beans.autowired.AutowiredContainer#put(java.lang.Object, java.lang.Class<? extends O>[])
    */
+  @Override
   public <O extends E> AutowiredContainer<E> put( O object, Class<? extends O>... types )
   {
     return this.autowiredContainer.put( object, types );
@@ -143,6 +151,7 @@ public class AutowiredContainerDecorator<E> implements AutowiredContainer<E>
    * @return
    * @see org.omnaest.utils.beans.autowired.AutowiredContainer#remove(java.lang.Object)
    */
+  @Override
   public <O extends E> AutowiredContainer<E> remove( O object )
   {
     return this.autowiredContainer.remove( object );
@@ -151,11 +160,12 @@ public class AutowiredContainerDecorator<E> implements AutowiredContainer<E>
   /**
    * @param type
    * @return
-   * @see org.omnaest.utils.beans.autowired.AutowiredContainer#remove(java.lang.Class)
+   * @see org.omnaest.utils.beans.autowired.AutowiredContainer#removeAllHavingExactTypeOf(java.lang.Class)
    */
-  public AutowiredContainer<E> remove( Class<? extends E> type )
+  @Override
+  public AutowiredContainer<E> removeAllHavingExactTypeOf( Class<? extends E> type )
   {
-    return this.autowiredContainer.remove( type );
+    return this.autowiredContainer.removeAllHavingExactTypeOf( type );
   }
   
   /* (non-Javadoc)
@@ -226,9 +236,16 @@ public class AutowiredContainerDecorator<E> implements AutowiredContainer<E>
    * @return
    * @see org.omnaest.utils.beans.autowired.AutowiredContainer#size()
    */
+  @Override
   public int size()
   {
     return this.autowiredContainer.size();
+  }
+  
+  @Override
+  public AutowiredContainer<E> removeAllAssignableTo( Class<? extends E> type )
+  {
+    return this.autowiredContainer.removeAllAssignableTo( type );
   }
   
 }
