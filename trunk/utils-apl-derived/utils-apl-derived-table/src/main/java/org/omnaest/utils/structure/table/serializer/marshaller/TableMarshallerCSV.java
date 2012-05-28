@@ -26,9 +26,8 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Row;
 import org.omnaest.utils.structure.table.serializer.TableMarshaller;
-import org.omnaest.utils.structure.table.serializer.common.CSVConstants;
+import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerCSV;
-import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer;
 
 /**
  * {@link TableMarshaller} which returns CSV text.<br>
@@ -36,7 +35,7 @@ import org.omnaest.utils.structure.table.subspecification.TableSerializable.Tabl
  * This implementation supports any delimiter and simple quotation rules. See {@link TableUnmarshallerCSV} for more information
  * about the rules.
  * 
- * @see CSVConstants
+ * @see CSVMarshallingConfiguration
  * @see TableMarshaller
  * @see TableUnmarshallerCSV
  * @author Omnaest
@@ -45,16 +44,10 @@ import org.omnaest.utils.structure.table.subspecification.TableSerializable.Tabl
 public class TableMarshallerCSV<E> implements TableMarshaller<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID   = 729579410301748875L;
+  private static final long          serialVersionUID = 729579410301748875L;
   
-  /* ********************************************** Variables ********************************************** */
-  private String            encoding           = TableSerializer.DEFAULT_ENCODING_UTF8;
-  private String            delimiter          = CSVConstants.DEFAULT_DELIMITER;
-  private String            quotationCharacter = CSVConstants.DEFAULT_QUOTATION_CHARACTER;
-  
-  private boolean           writeTableName     = CSVConstants.DEFAULT_HAS_TABLE_NAME;
-  private boolean           writeColumnTitles  = CSVConstants.DEFAULT_HAS_COLUMN_TITLES;
-  private boolean           writeRowTitles     = CSVConstants.DEFAULT_HAS_ROW_TITLES;
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private CSVMarshallingConfiguration configuration    = new CSVMarshallingConfiguration();
   
   /* ********************************************** Methods ********************************************** */
   
@@ -78,7 +71,7 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
       
       //
       ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
-      byteArrayContainer.copyFrom( stringBuffer, this.encoding );
+      byteArrayContainer.copyFrom( stringBuffer, this.configuration.getEncoding() );
       byteArrayContainer.writeTo( outputStream );
     }
   }
@@ -98,9 +91,9 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
         boolean hasTableName = table.hasTableName();
         
         //
-        boolean processColumnTitles = this.writeColumnTitles && hasColumnTitles;
-        boolean processRowTitles = this.writeRowTitles && hasRowTitles;
-        boolean processTableName = this.writeTableName && hasTableName;
+        boolean processColumnTitles = this.configuration.hasEnabledColumnTitles() && hasColumnTitles;
+        boolean processRowTitles = this.configuration.hasEnabledRowTitles() && hasRowTitles;
+        boolean processTableName = this.configuration.hasEnabledTableName() && hasTableName;
         
         //
         if ( processTableName )
@@ -116,7 +109,7 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
           if ( processRowTitles )
           {
             //
-            appendable.append( this.delimiter );
+            appendable.append( this.configuration.getDelimiter() );
           }
           
           //
@@ -124,7 +117,7 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
           for ( Object columnTitleValue : table.getColumnTitleValueList() )
           {
             //
-            appendable.append( !first ? this.delimiter : "" );
+            appendable.append( !first ? this.configuration.getDelimiter() : "" );
             appendable.append( String.valueOf( columnTitleValue ) );
             first = false;
           }
@@ -141,7 +134,7 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
           {
             //
             appendable.append( row.title().getValueAsString() );
-            appendable.append( this.delimiter );
+            appendable.append( this.configuration.getDelimiter() );
           }
           
           //
@@ -149,7 +142,7 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
           for ( Cell<E> cell : row.cells() )
           {
             //
-            appendable.append( !first ? this.delimiter : "" );
+            appendable.append( !first ? this.configuration.getDelimiter() : "" );
             
             //
             final E element = cell.getElement();
@@ -185,17 +178,18 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
       retval = String.valueOf( element );
       
       //
-      final boolean containsDelimiter = retval.contains( this.delimiter );
-      final boolean containsQuotationCharacter = StringUtils.isNotEmpty( this.quotationCharacter )
-                                                 && retval.contains( this.quotationCharacter );
+      final boolean containsDelimiter = retval.contains( this.configuration.getDelimiter() );
+      final boolean containsQuotationCharacter = StringUtils.isNotEmpty( this.configuration.getQuotationCharacter() )
+                                                 && retval.contains( this.configuration.getQuotationCharacter() );
       if ( containsQuotationCharacter )
       {
-        retval = retval.replaceAll( Pattern.quote( this.quotationCharacter ),
-                                    Matcher.quoteReplacement( this.quotationCharacter + this.quotationCharacter ) );
+        retval = retval.replaceAll( Pattern.quote( this.configuration.getQuotationCharacter() ),
+                                    Matcher.quoteReplacement( this.configuration.getQuotationCharacter()
+                                                              + this.configuration.getQuotationCharacter() ) );
       }
       if ( containsDelimiter )
       {
-        retval = this.quotationCharacter + retval + this.quotationCharacter;
+        retval = this.configuration.getQuotationCharacter() + retval + this.configuration.getQuotationCharacter();
       }
     }
     
@@ -210,64 +204,21 @@ public class TableMarshallerCSV<E> implements TableMarshaller<E>
   }
   
   /**
-   * Sets the quotation character which is {@link CSVConstants#DEFAULT_QUOTATION_CHARACTER} by default
-   * 
-   * @param quotationCharacter
-   * @return
+   * @return {@link CSVMarshallingConfiguration}
    */
-  public TableMarshallerCSV<E> setQuotationCharacter( String quotationCharacter )
+  public CSVMarshallingConfiguration getConfiguration()
   {
-    this.quotationCharacter = quotationCharacter;
-    return this;
+    return this.configuration;
   }
   
   /**
-   * @param encoding
+   * @param configuration
+   *          {@link CSVMarshallingConfiguration}
    * @return this
    */
-  public TableMarshallerCSV<E> setEncoding( String encoding )
+  public TableMarshallerCSV<E> setConfiguration( CSVMarshallingConfiguration configuration )
   {
-    this.encoding = encoding;
-    return this;
-  }
-  
-  /**
-   * @param delimiter
-   * @return this
-   */
-  public TableMarshallerCSV<E> setDelimiter( String delimiter )
-  {
-    this.delimiter = delimiter;
-    return this;
-  }
-  
-  /**
-   * @param writeTableName
-   * @return this
-   */
-  public TableMarshallerCSV<E> setWriteTableName( boolean writeTableName )
-  {
-    this.writeTableName = writeTableName;
-    return this;
-  }
-  
-  /**
-   * @param writeColumnTitles
-   * @return this
-   */
-  public TableMarshallerCSV<E> setWriteColumnTitles( boolean writeColumnTitles )
-  {
-    this.writeColumnTitles = writeColumnTitles;
-    return this;
-  }
-  
-  /**
-   * @param writeRowTitles
-   * @return this
-   */
-  public TableMarshallerCSV<E> setWriteRowTitles( boolean writeRowTitles )
-  {
-    this.writeRowTitles = writeRowTitles;
+    this.configuration = configuration;
     return this;
   }
   

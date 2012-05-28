@@ -176,9 +176,9 @@ public class TableUnmarshallerPlainTextTest
   
   /**
    * @param table
-   * @param hasTableName
-   * @param hasRowTitles
-   * @param hasColumnTitles
+   * @param configuration.isHasTableName()
+   * @param configuration.isHasRowTitles()
+   * @param configuration.isHasColumnTitles()
    */
   private static void assertTable( Table<String> table, TableConfiguration tableConfiguration )
   {

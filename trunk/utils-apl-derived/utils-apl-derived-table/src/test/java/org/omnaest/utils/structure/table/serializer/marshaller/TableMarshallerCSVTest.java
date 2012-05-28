@@ -24,6 +24,7 @@ import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.serializer.TableMarshaller;
+import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
 
 /**
  * @see TableMarshallerCSV
@@ -33,9 +34,9 @@ public class TableMarshallerCSVTest
 {
   /* ********************************************** Variables ********************************************** */
   protected Table<String>           table           = new ArrayTable<String>();
-  protected TableMarshaller<String> tableMarshaller = new TableMarshallerCSV<String>().setWriteTableName( true )
-                                                                                      .setWriteColumnTitles( true )
-                                                                                      .setWriteRowTitles( true );
+  protected TableMarshaller<String> tableMarshaller = new TableMarshallerCSV<String>().setConfiguration( new CSVMarshallingConfiguration().setHasEnabledTableName( true )
+                                                                                                                                       .setHasEnabledColumnTitles( true )
+                                                                                                                                       .setHasEnabledRowTitles( true ) );
   
   /* ********************************************** Methods ********************************************** */
   

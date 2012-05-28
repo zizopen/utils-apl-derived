@@ -17,6 +17,7 @@ package org.omnaest.utils.spring.resource;
 
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
+import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerCSV;
 import org.springframework.core.io.ResourceLoader;
 
@@ -37,6 +38,7 @@ public interface ResourceLoaderTable
   /**
    * Returns a new {@link Table} instance for the location of a csv file
    * 
+   * @see #getTableFromCSV(String, CSVMarshallingConfiguration)
    * @see TableUnmarshallerCSV
    * @param location
    * @param encoding
@@ -54,6 +56,17 @@ public interface ResourceLoaderTable
                                        boolean hasTableName,
                                        boolean hasColumnTitles,
                                        boolean hasRowTitles );
+  
+  /**
+   * Similar to {@link #getTableFromCSV(String, String, String, String, boolean, boolean, boolean)} using the given
+   * {@link CSVMarshallingConfiguration} instance
+   * 
+   * @param location
+   * @param configuration
+   *          {@link CSVMarshallingConfiguration}
+   * @return {@link Table}
+   */
+  public <E> Table<E> getTableFromCSV( String location, CSVMarshallingConfiguration configuration );
   
   /**
    * Returns a new {@link Table} instance for the location of an Excel xls file
@@ -77,7 +90,7 @@ public interface ResourceLoaderTable
    * @see TableUnmarshaller
    * @param location
    * @param tableUnmarshaller
-   * @return
+   * @return {@link Table}
    */
   public <E> Table<E> getTableFrom( String location, TableUnmarshaller<E> tableUnmarshaller );
   
