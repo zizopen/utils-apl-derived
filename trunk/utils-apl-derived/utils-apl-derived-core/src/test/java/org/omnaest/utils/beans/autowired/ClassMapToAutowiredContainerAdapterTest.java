@@ -16,8 +16,8 @@
 package org.omnaest.utils.beans.autowired;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -85,6 +85,21 @@ public class ClassMapToAutowiredContainerAdapterTest
   }
   
   @Test
+  public void testGetValue()
+  {
+    //
+    TestClass testClass2 = new TestClass2();
+    TestClass testClass = new TestClass();
+    this.autowiredContainer.put( testClass2 );
+    this.autowiredContainer.put( testClass );
+    
+    //
+    assertNotNull( this.autowiredContainer.getValue( TestClass2.class ) );
+    assertNull( this.autowiredContainer.getValue( TestClass.class ) );
+    assertEquals( testClass2, this.autowiredContainer.getValue( TestClass2.class ) );
+  }
+  
+  @Test
   @PerfTest(invocations = 200)
   @Required(average = 10)
   public void testPerformancePerThousandGetValueInvocations()
@@ -118,7 +133,7 @@ public class ClassMapToAutowiredContainerAdapterTest
   }
   
   @Test
-  public void testRemove()
+  public void testRemoveAllHavingExactTypeOf()
   {
     //
     {
@@ -127,14 +142,10 @@ public class ClassMapToAutowiredContainerAdapterTest
       TestClass testClass = new TestClass();
       this.autowiredContainer.put( testClass2 );
       this.autowiredContainer.put( testClass );
-      assertEquals( 2, this.autowiredContainer.getValueSet( TestClass.class ).size() );
-      assertEquals( 1, this.autowiredContainer.getValueSet( TestClass2.class ).size() );
-      assertNull( this.autowiredContainer.getValue( TestClass.class ) );
-      assertEquals( testClass2, this.autowiredContainer.getValue( TestClass2.class ) );
       
       //
       this.autowiredContainer.remove( testClass );
-      assertTrue( this.autowiredContainer.isEmpty() );
+      assertEquals( 1, this.autowiredContainer.size() );
     }
     {
       //
@@ -142,16 +153,28 @@ public class ClassMapToAutowiredContainerAdapterTest
       TestClass testClass = new TestClass();
       this.autowiredContainer.put( testClass2 );
       this.autowiredContainer.put( testClass );
-      assertEquals( 2, this.autowiredContainer.getValueSet( TestClass.class ).size() );
-      assertEquals( 1, this.autowiredContainer.getValueSet( TestClass2.class ).size() );
-      assertNull( this.autowiredContainer.getValue( TestClass.class ) );
-      assertEquals( testClass2, this.autowiredContainer.getValue( TestClass2.class ) );
       
       //
-      this.autowiredContainer.remove( TestClass2.class );
+      this.autowiredContainer.removeAllHavingExactTypeOf( TestClass2.class );
       assertEquals( 1, this.autowiredContainer.size() );
     }
     
+  }
+  
+  @Test
+  public void testRemoveAllAssignableTo()
+  {
+    {
+      //
+      TestClass testClass2 = new TestClass2();
+      TestClass testClass = new TestClass();
+      this.autowiredContainer.put( testClass2 );
+      this.autowiredContainer.put( testClass );
+      
+      //
+      this.autowiredContainer.removeAllAssignableTo( TestClass.class );
+      assertEquals( 0, this.autowiredContainer.size() );
+    }
   }
   
 }

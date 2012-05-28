@@ -22,7 +22,7 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 
 /**
- * An {@link AutowiredContainer} provides a ordered collection of objects. All objects can be retrieved by {@link Class} types
+ * An {@link AutowiredContainer} represents a high level container of objects which can be retrieved by the {@link Class} types
  * they are assignable to.<br>
  * <br>
  * This results in the use of interfaces or classes as keys when object instances are put into the {@link AutowiredContainer}.<br>
@@ -51,6 +51,13 @@ import org.omnaest.utils.structure.collection.set.SetUtils;
  *   assertEquals( example, autowiredContainer.getValue( ExampleInterface.class ) );
  * }
  * </pre>
+ * 
+ * <br>
+ * Depending on the implementation of the {@link AutowiredContainer} the behavior of how many objects can be put into the
+ * {@link AutowiredContainer} for the same {@link Class} type e.g. can differ.<br>
+ * <br>
+ * This container is not intended to have many objects stored within it, instead it should allow to overcome the common use of
+ * Map&lt;String,Object&gt; for an untyped but very flexible store possibility.
  * 
  * @see AutowiredContainerUtils
  * @see ListUtils#valueOf(Iterable)
@@ -94,7 +101,7 @@ public interface AutowiredContainer<E> extends Iterable<E>, Serializable
   public boolean isEmpty();
   
   /**
-   * Adds an {@link Object} to the {@link AutowiredContainer}.
+   * Adds an {@link Object} to the {@link AutowiredContainer} using its {@link Object#getClass()} as primary type.
    * 
    * @see #put(Object, Class...)
    * @see #putAll(Iterable)
@@ -131,12 +138,22 @@ public interface AutowiredContainer<E> extends Iterable<E>, Serializable
   public <O extends E> AutowiredContainer<E> remove( O object );
   
   /**
-   * Removes all elements within the {@link AutowiredContainer} which are {@link Class#isAssignableFrom(Class)} to the given type.
+   * Removes all elements within the {@link AutowiredContainer} which are put into the container with the given primary type.
    * 
+   * @see #removeAllAssignableTo(Class)
    * @param type
    * @return this
    */
-  public AutowiredContainer<E> remove( Class<? extends E> type );
+  public AutowiredContainer<E> removeAllHavingExactTypeOf( Class<? extends E> type );
+  
+  /**
+   * Removes all elements within the {@link AutowiredContainer} which are {@link Class#isAssignableFrom(Class)} to the given type.
+   * 
+   * @see #removeAllHavingExactTypeOf(Class)
+   * @param type
+   * @return this
+   */
+  public AutowiredContainer<E> removeAllAssignableTo( Class<? extends E> type );
   
   /**
    * Returns the size of the {@link AutowiredContainer}

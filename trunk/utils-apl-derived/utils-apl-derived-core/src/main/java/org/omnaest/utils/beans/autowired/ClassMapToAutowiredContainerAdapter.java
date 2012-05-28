@@ -97,13 +97,13 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
   public <O extends E> Set<O> getValueSet( Class<? extends O> type )
   {
     //    
-    Set<O> retset = new LinkedHashSet<O>();
+    final Set<O> retset = new LinkedHashSet<O>();
     
     //
     if ( type != null )
     {
       //
-      Set<Class<? extends E>> assignableTypeSet = this.determineAssignableTypeSet( type );
+      final Set<Class<? extends E>> assignableTypeSet = this.determineAssignableTypeSet( type );
       for ( Class<? extends E> iType : assignableTypeSet )
       {
         retset.add( (O) this.classToObjectMap.get( iType ) );
@@ -174,9 +174,21 @@ public class ClassMapToAutowiredContainerAdapter<E> extends AutowiredContainerAb
   }
   
   @Override
-  public AutowiredContainer<E> remove( Class<? extends E> type )
+  public AutowiredContainer<E> removeAllHavingExactTypeOf( Class<? extends E> type )
   {
+    //
+    if ( type != null )
+    {
+      this.classToObjectMap.remove( type );
+    }
     
+    // 
+    return this;
+  }
+  
+  @Override
+  public AutowiredContainer<E> removeAllAssignableTo( Class<? extends E> type )
+  {
     //
     Set<Class<? extends E>> assignableTypeSet = this.determineAssignableTypeSet( type );
     if ( !assignableTypeSet.isEmpty() )

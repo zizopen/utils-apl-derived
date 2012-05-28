@@ -83,7 +83,7 @@ public class AutowiredContainerUtils
         }
         
         @Override
-        public AutowiredContainer<E> remove( Class<? extends E> type )
+        public AutowiredContainer<E> removeAllHavingExactTypeOf( Class<? extends E> type )
         {
           throw new UnsupportedOperationException();
         }
@@ -96,13 +96,23 @@ public class AutowiredContainerUtils
   }
   
   /**
-   * Creates a new {@link AutowiredContainer} instance based on a given {@link Iterable}
+   * Creates a new {@link AutowiredContainer} instance based on the elements of a given {@link Iterable}
    * 
    * @param iterable
-   * @return
+   * @return new {@link AutowiredContainer}
    */
   public static <E> AutowiredContainer<E> valueOf( Iterable<E> iterable )
   {
-    return ClassMapToAutowiredContainerAdapter.<E> newInstanceUsingLinkedHashMap().putAll( iterable );
+    return AutowiredContainerUtils.<E> newInstance().putAll( iterable );
+  }
+  
+  /**
+   * Returns a new {@link AutowiredContainer} instance
+   * 
+   * @return
+   */
+  public static <E> AutowiredContainer<E> newInstance()
+  {
+    return ClassMapToAutowiredContainerAdapter.<E> newInstanceUsingLinkedHashMap();
   }
 }

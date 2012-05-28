@@ -101,7 +101,7 @@ public abstract class AutowiredContainerAbstract<E> implements AutowiredContaine
       //
       @SuppressWarnings("unchecked")
       Class<? extends E> type = (Class<? extends E>) object.getClass();
-      this.remove( type );
+      this.removeAllHavingExactTypeOf( type );
     }
     
     //
