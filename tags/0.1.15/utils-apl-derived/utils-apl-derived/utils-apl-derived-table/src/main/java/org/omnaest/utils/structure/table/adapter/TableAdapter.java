@@ -1,0 +1,40 @@
+/*******************************************************************************
+ * Copyright 2011 Danny Kunz
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+package org.omnaest.utils.structure.table.adapter;
+
+import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.subspecification.TableAdaptable.TableAdapterProvider;
+
+/**
+ * Marker interface for {@link TableAdapter} which adapts {@link Table}s to other structures
+ * 
+ * @see TableAdapterProvider
+ * @param <A>
+ *          type of adapter
+ * @param <E>
+ *          Table element type
+ * @author Omnaest
+ */
+public interface TableAdapter<A, E>
+{
+  /**
+   * Returns an adapter for the given {@link Table}
+   * 
+   * @param table
+   * @return
+   */
+  public A initializeAdapter( Table<E> table );
+}
