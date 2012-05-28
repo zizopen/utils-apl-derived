@@ -22,6 +22,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerCSV;
 
 /**
@@ -42,11 +43,11 @@ public class TableSerializerImplUrlConnectionTest
     final String yahooFinanceSingleStockQuoteUrlString = "http://download.finance.yahoo.com/d/quotes.csv?s=%5EGDAXI&f=sl1d1t1c1ohgv&e=.csv";
     
     //
-    Table<Object> table = new TableSerializerImpl<Object>( new ArrayTable<Object>() ).unmarshal( new TableUnmarshallerCSV<Object>().setEncoding( "utf-8" )
-                                                                                                                                   .setDelimiter( "," )
-                                                                                                                                   .setHasTableName( false )
-                                                                                                                                   .setHasColumnTitles( false )
-                                                                                                                                   .setHasRowTitles( false ) )
+    Table<Object> table = new TableSerializerImpl<Object>( new ArrayTable<Object>() ).unmarshal( new TableUnmarshallerCSV<Object>().setConfiguration( new CSVMarshallingConfiguration().setEncoding( "utf-8" )
+                                                                                                                                                                                    .setDelimiter( "," )
+                                                                                                                                                                                    .setHasEnabledTableName( false )
+                                                                                                                                                                                    .setHasEnabledColumnTitles( false )
+                                                                                                                                                                                    .setHasEnabledRowTitles( false ) ) )
                                                                                      .from( new URL(
                                                                                                      yahooFinanceHistoricalDataUrlString ) );
     

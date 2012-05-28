@@ -17,14 +17,11 @@ package org.omnaest.utils.structure.table.concrete.internal.serializer;
 
 import static org.junit.Assert.assertEquals;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -35,6 +32,7 @@ import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.serializer.TableMarshaller;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
+import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerCSV;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerPlainText;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerXLS;
@@ -59,9 +57,11 @@ public class TableSerializerImplTest
     List<Object[]> retlist = new ArrayList<Object[]>();
     retlist.add( new Object[] { new TableMarshallerPlainText<Object>(), new TableUnmarshallerPlainText<Object>(), true, true } );
     retlist.add( new Object[] { new TableMarshallerXML<Object>(), new TableUnmarshallerXML<Object>(), true, true } );
-    retlist.add( new Object[] {
-        new TableMarshallerCSV<Object>().setWriteTableName( true ).setWriteColumnTitles( true ).setWriteRowTitles( true ),
-        new TableUnmarshallerCSV<Object>().setHasTableName( true ).setHasColumnTitles( true ).setHasRowTitles( true ), true, true } );
+    final CSVMarshallingConfiguration marshallingConfiguration = new CSVMarshallingConfiguration().setHasEnabledTableName( true )
+                                                                                            .setHasEnabledColumnTitles( true )
+                                                                                            .setHasEnabledRowTitles( true );
+    retlist.add( new Object[] { new TableMarshallerCSV<Object>().setConfiguration( marshallingConfiguration ),
+        new TableUnmarshallerCSV<Object>().setConfiguration( marshallingConfiguration ), true, true } );
     retlist.add( new Object[] { new TableMarshallerXLS<Object>(), new TableUnmarshallerXLS<Object>(), true, false } );
     
     //
@@ -139,24 +139,4 @@ public class TableSerializerImplTest
     }
   }
   
-  @Test
-  @Ignore("Need internet connection")
-  public void testTableSerializerUrl() throws MalformedURLException
-  {
-    //
-    if ( this.supportsAppendable )
-    {
-      //
-      Table<Object> table = this.tableSerializerForUnmarshalling.unmarshal( new TableUnmarshallerCSV<Object>().setEncoding( "utf-8" )
-                                                                                                              .setDelimiter( "," )
-                                                                                                              .setHasTableName( false )
-                                                                                                              .setHasColumnTitles( false )
-                                                                                                              .setHasRowTitles( false ) )
-                                                                .from( new URL(
-                                                                                "http://download.finance.yahoo.com/d/quotes.csv?s=%5EGDAXI&f=sl1d1t1c1ohgv&e=.csv" ) );
-      
-      //
-      System.out.println( table );
-    }
-  }
 }

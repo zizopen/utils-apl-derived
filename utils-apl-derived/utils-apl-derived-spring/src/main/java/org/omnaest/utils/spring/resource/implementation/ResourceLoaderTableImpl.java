@@ -21,6 +21,7 @@ import org.omnaest.utils.spring.resource.ResourceLoaderTable;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
+import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerCSV;
 import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerXLS;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,12 +89,20 @@ public class ResourceLoaderTableImpl implements ResourceLoaderTable
                                        boolean hasRowTitles )
   {
     //
-    return this.getTableFrom( location, new TableUnmarshallerCSV<E>().setEncoding( encoding )
-                                                                     .setDelimiter( delimiter )
-                                                                     .setQuotationCharacter( quotationCharacter )
-                                                                     .setHasTableName( hasTableName )
-                                                                     .setHasColumnTitles( hasColumnTitles )
-                                                                     .setHasRowTitles( hasRowTitles ) );
+    CSVMarshallingConfiguration configuration = new CSVMarshallingConfiguration().setDelimiter( delimiter )
+                                                                           .setEncoding( encoding )
+                                                                           .setQuotationCharacter( quotationCharacter )
+                                                                           .setHasEnabledColumnTitles( hasColumnTitles )
+                                                                           .setHasEnabledRowTitles( hasRowTitles )
+                                                                           .setHasEnabledTableName( hasTableName );
+    return this.getTableFromCSV( location, configuration );
+  }
+  
+  @Override
+  public <E> Table<E> getTableFromCSV( String location, CSVMarshallingConfiguration configuration )
+  {
+    //
+    return this.getTableFrom( location, new TableUnmarshallerCSV<E>().setConfiguration( configuration ) );
   }
   
 }

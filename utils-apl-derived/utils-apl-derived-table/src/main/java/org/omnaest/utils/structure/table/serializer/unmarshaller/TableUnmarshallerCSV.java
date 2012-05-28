@@ -26,9 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
-import org.omnaest.utils.structure.table.serializer.common.CSVConstants;
+import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerCSV;
-import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer;
 
 /**
  * {@link TableUnmarshaller} for reading in CSV files. <br>
@@ -38,7 +37,7 @@ import org.omnaest.utils.structure.table.subspecification.TableSerializable.Tabl
  * <br>
  * The performance is about 500ms per 1000 lines containing about 10 columns per line with text length < 10.
  * 
- * @see CSVConstants
+ * @see CSVMarshallingConfiguration
  * @see TableMarshallerCSV
  * @see TableUnmarshaller
  * @author Omnaest
@@ -46,17 +45,12 @@ import org.omnaest.utils.structure.table.subspecification.TableSerializable.Tabl
  */
 public class TableUnmarshallerCSV<E> implements TableUnmarshaller<E>
 {
+  
   /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID   = -1183646781295216284L;
+  private static final long           serialVersionUID = -1183646781295216284L;
   
-  /* ********************************************** Variables ********************************************** */
-  private String            encoding           = TableSerializer.DEFAULT_ENCODING_UTF8;
-  private String            delimiter          = CSVConstants.DEFAULT_DELIMITER;
-  private String            quotationCharacter = CSVConstants.DEFAULT_QUOTATION_CHARACTER;
-  
-  private boolean           hasTableName       = CSVConstants.DEFAULT_HAS_TABLE_NAME;
-  private boolean           hasColumnTitles    = CSVConstants.DEFAULT_HAS_COLUMN_TITLES;
-  private boolean           hasRowTitles       = CSVConstants.DEFAULT_HAS_ROW_TITLES;
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private CSVMarshallingConfiguration configuration    = new CSVMarshallingConfiguration();
   
   /* ********************************************** Methods ********************************************** */
   
@@ -79,7 +73,7 @@ public class TableUnmarshallerCSV<E> implements TableUnmarshaller<E>
       byteArrayContainer.copyFrom( inputStream );
       
       //
-      this.unmarshal( table, byteArrayContainer.toString( this.encoding ) );
+      this.unmarshal( table, byteArrayContainer.toString( this.configuration.getEncoding() ) );
     }
   }
   
@@ -97,7 +91,7 @@ public class TableUnmarshallerCSV<E> implements TableUnmarshaller<E>
       final Scanner scanner = new Scanner( String.valueOf( charSequence ) );
       
       //
-      if ( this.hasTableName )
+      if ( this.configuration.hasEnabledTableName() )
       {
         //
         String tableName = scanner.hasNextLine() ? scanner.nextLine() : null;
@@ -109,7 +103,7 @@ public class TableUnmarshallerCSV<E> implements TableUnmarshaller<E>
       }
       
       //
-      if ( this.hasColumnTitles )
+      if ( this.configuration.hasEnabledColumnTitles() )
       {
         //
         String columnLine = scanner.hasNextLine() ? scanner.nextLine() : null;
@@ -117,7 +111,7 @@ public class TableUnmarshallerCSV<E> implements TableUnmarshaller<E>
         {
           //
           String[] columnTokens = extractCellTokensFromLine( columnLine );
-          if ( this.hasRowTitles )
+          if ( this.configuration.hasEnabledRowTitles() )
           {
             //
             columnTokens = ArrayUtils.remove( columnTokens, 0 );
@@ -135,7 +129,7 @@ public class TableUnmarshallerCSV<E> implements TableUnmarshaller<E>
       {
         //
         String[] cellTokens = this.extractCellTokensFromLine( line );
-        if ( this.hasRowTitles && cellTokens.length > 0 )
+        if ( this.configuration.hasEnabledRowTitles() && cellTokens.length > 0 )
         {
           //
           String rowTitleValue = cellTokens[0];
@@ -178,9 +172,7 @@ public class TableUnmarshallerCSV<E> implements TableUnmarshaller<E>
   protected class QuotationTextParser
   {
     /* ************************************** Variables / State (internal/hiding) ************************************* */
-    @SuppressWarnings("hiding")
     private final char[] delimiter;
-    @SuppressWarnings("hiding")
     private final char[] quotationCharacter;
     private int          offset = 0;
     private final char[] characters;
@@ -299,11 +291,12 @@ public class TableUnmarshallerCSV<E> implements TableUnmarshaller<E>
     if ( line != null )
     {
       //
-      if ( StringUtils.isNotEmpty( this.quotationCharacter ) )
+      if ( StringUtils.isNotEmpty( this.configuration.getQuotationCharacter() ) )
       {
         //
         final List<String> retlist = new ArrayList<String>();
-        QuotationTextParser quotationTextParser = new QuotationTextParser( line, this.delimiter, this.quotationCharacter );
+        QuotationTextParser quotationTextParser = new QuotationTextParser( line, this.configuration.getDelimiter(),
+                                                                           this.configuration.getQuotationCharacter() );
         for ( String next = null; ( next = quotationTextParser.next() ) != null; )
         {
           retlist.add( next );
@@ -312,7 +305,7 @@ public class TableUnmarshallerCSV<E> implements TableUnmarshaller<E>
       }
       else
       {
-        retvals = StringUtils.splitPreserveAllTokens( line, this.delimiter );
+        retvals = StringUtils.splitPreserveAllTokens( line, this.configuration.getDelimiter() );
       }
     }
     
@@ -321,64 +314,21 @@ public class TableUnmarshallerCSV<E> implements TableUnmarshaller<E>
   }
   
   /**
-   * @param encoding
-   * @return this
+   * @return {@link CSVMarshallingConfiguration}
    */
-  public TableUnmarshallerCSV<E> setEncoding( String encoding )
+  public CSVMarshallingConfiguration getConfiguration()
   {
-    this.encoding = encoding;
-    return this;
+    return this.configuration;
   }
   
   /**
-   * @see CSVConstants#DEFAULT_DELIMITER
-   * @param delimiter
+   * @param configuration
+   *          {@link CSVMarshallingConfiguration}
    * @return this
    */
-  public TableUnmarshallerCSV<E> setDelimiter( String delimiter )
+  public TableUnmarshallerCSV<E> setConfiguration( CSVMarshallingConfiguration configuration )
   {
-    this.delimiter = delimiter;
-    return this;
-  }
-  
-  /**
-   * @see CSVConstants#DEFAULT_QUOTATION_CHARACTER
-   * @param quotationCharacter
-   * @return this
-   */
-  public TableUnmarshallerCSV<E> setQuotationCharacter( String quotationCharacter )
-  {
-    this.quotationCharacter = quotationCharacter;
-    return this;
-  }
-  
-  /**
-   * @param hasTableName
-   * @return this
-   */
-  public TableUnmarshallerCSV<E> setHasTableName( boolean hasTableName )
-  {
-    this.hasTableName = hasTableName;
-    return this;
-  }
-  
-  /**
-   * @param hasColumnTitles
-   * @return this
-   */
-  public TableUnmarshallerCSV<E> setHasColumnTitles( boolean hasColumnTitles )
-  {
-    this.hasColumnTitles = hasColumnTitles;
-    return this;
-  }
-  
-  /**
-   * @param hasRowTitles
-   * @return this
-   */
-  public TableUnmarshallerCSV<E> setHasRowTitles( boolean hasRowTitles )
-  {
-    this.hasRowTitles = hasRowTitles;
+    this.configuration = configuration;
     return this;
   }
   

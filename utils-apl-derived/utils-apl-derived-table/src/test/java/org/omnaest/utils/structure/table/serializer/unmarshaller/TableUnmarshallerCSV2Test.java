@@ -22,6 +22,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
+import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
 
 /**
  * @see TableUnmarshallerCSV
@@ -29,6 +30,10 @@ import org.omnaest.utils.structure.table.concrete.ArrayTable;
  */
 public class TableUnmarshallerCSV2Test
 {
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private TableUnmarshallerCSV<String> tableUnmarshaller = new TableUnmarshallerCSV<String>().setConfiguration( new CSVMarshallingConfiguration().setHasEnabledTableName( false )
+                                                                                                                                              .setHasEnabledColumnTitles( false )
+                                                                                                                                              .setHasEnabledRowTitles( false ) ); ;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -40,10 +45,7 @@ public class TableUnmarshallerCSV2Test
     
     //
     Table<String> table = new ArrayTable<String>();
-    new TableUnmarshallerCSV<String>().setHasTableName( false )
-                                      .setHasColumnTitles( false )
-                                      .setHasRowTitles( false )
-                                      .unmarshal( table, text );
+    this.tableUnmarshaller.unmarshal( table, text );
     
     //
     String[][] array = table.as().array( String.class );
@@ -62,10 +64,7 @@ public class TableUnmarshallerCSV2Test
     
     //
     Table<String> table = new ArrayTable<String>();
-    new TableUnmarshallerCSV<String>().setHasTableName( false )
-                                      .setHasColumnTitles( false )
-                                      .setHasRowTitles( false )
-                                      .unmarshal( table, csvText );
+    this.tableUnmarshaller.unmarshal( table, csvText );
     
     //
     //System.out.println( table );

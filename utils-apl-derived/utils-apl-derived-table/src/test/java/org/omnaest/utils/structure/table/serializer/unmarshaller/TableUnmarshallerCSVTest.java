@@ -31,6 +31,7 @@ import org.omnaest.utils.structure.table.TableFiller;
 import org.omnaest.utils.structure.table.concrete.ArrayTable;
 import org.omnaest.utils.structure.table.serializer.TableMarshaller;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
+import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
 import org.omnaest.utils.structure.table.serializer.marshaller.TableMarshallerCSV;
 
 /**
@@ -69,12 +70,12 @@ public class TableUnmarshallerCSVTest
     super();
     
     //
-    this.tableUnmarshaller = new TableUnmarshallerCSV<Object>().setHasTableName( hasTableName )
-                                                               .setHasColumnTitles( hasColumnTitles )
-                                                               .setHasRowTitles( hasRowTitles );
-    this.tableMarshaller = new TableMarshallerCSV<Object>().setWriteTableName( hasTableName )
-                                                           .setWriteColumnTitles( hasColumnTitles )
-                                                           .setWriteRowTitles( hasRowTitles );
+    CSVMarshallingConfiguration configuration = new CSVMarshallingConfiguration().setHasEnabledTableName( hasTableName )
+                                                                           .setHasEnabledColumnTitles( hasColumnTitles )
+                                                                           .setHasEnabledRowTitles( hasRowTitles );
+    //
+    this.tableUnmarshaller = new TableUnmarshallerCSV<Object>().setConfiguration( configuration );
+    this.tableMarshaller = new TableMarshallerCSV<Object>().setConfiguration( configuration );
     
     //
     this.csvContent = this.generateCSVContent( hasTableName, hasColumnTitles, hasRowTitles );
