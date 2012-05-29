@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.table.concrete.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -47,9 +48,19 @@ public class CellImpl<E> implements CellInternal<E>
   /* ********************************************** Methods ********************************************** */
   
   /**
+   * @see CellImpl
+   * @param cellData
+   * @param stripeDatas
+   */
+  protected CellImpl( CellData<E> cellData, StripeData<E>... stripeDatas )
+  {
+    this( cellData, Arrays.asList( stripeDatas ) );
+  }
+  
+  /**
    * @param stripeDataCollection
    */
-  protected CellImpl( Collection<StripeData<E>> stripeDataCollection, CellData<E> cellData )
+  protected CellImpl( CellData<E> cellData, Collection<StripeData<E>> stripeDataCollection )
   {
     //
     super();
@@ -168,6 +179,16 @@ public class CellImpl<E> implements CellInternal<E>
   public CellData<E> getCellData()
   {
     return this.cellData;
+  }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "Cell [element=" );
+    builder.append( this.getElement() );
+    builder.append( "]" );
+    return builder.toString();
   }
   
 }

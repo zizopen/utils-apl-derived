@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
@@ -770,6 +771,27 @@ public class ArrayTableTest
     assertEquals( "4:2", this.table.getCell( "r4", "c2" ).getElement() );
     
     assertEquals( null, this.table.getCell( "a", "b" ) );
+    
+  }
+  
+  @Test
+  @Ignore("Long running performance test")
+  public void testGetCellPerformance()
+  {
+    //
+    final int rows = 200000;
+    final int columns = 3;
+    TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
+    
+    //
+    this.table.setColumnTitleValues( Arrays.asList( "c0", "c1", "c2" ) );
+    
+    //
+    for ( Cell<Object> cell : this.table.cells() )
+    {
+      assertNotNull( cell );
+      assertNotNull( cell.getElement() );
+    }
     
   }
   

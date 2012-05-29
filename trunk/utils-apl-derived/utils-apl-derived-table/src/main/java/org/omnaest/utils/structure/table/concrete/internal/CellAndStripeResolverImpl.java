@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.table.concrete.internal;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
@@ -61,17 +62,39 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     //
     Cell<E> retval = null;
     
-    //
+    //    
     if ( stripeData != null && stripeDataOrthogonal != null )
     {
       //
-      for ( CellData<E> cellData : stripeData.getCellDataSet() )
+      final Iterator<CellData<E>> iteratorCellData = stripeData.getCellDataSet().iterator();
+      final Iterator<CellData<E>> iteratorCellDataOrthogonal = stripeDataOrthogonal.getCellDataSet().iterator();
+      
+      //
+      CellData<E> cellData = null;
+      while ( iteratorCellData.hasNext() && iteratorCellDataOrthogonal.hasNext() )
       {
+        //
+        cellData = iteratorCellData.next();
         if ( stripeDataOrthogonal.contains( cellData ) )
         {
-          retval = new CellImpl<E>( Arrays.asList( stripeData, stripeDataOrthogonal ), cellData );
           break;
         }
+        
+        //
+        cellData = iteratorCellDataOrthogonal.next();
+        if ( stripeData.contains( cellData ) )
+        {
+          break;
+        }
+        
+        //
+        cellData = null;
+      }
+      
+      //
+      if ( cellData != null )
+      {
+        retval = new CellImpl<E>( cellData, stripeData, stripeDataOrthogonal );
       }
     }
     
@@ -96,7 +119,7 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
       if ( retval == null )
       {
         //
-        retval = new CellImpl<E>( Arrays.asList( stripeData, stripeDataOrthogonal ), new CellDataImpl<E>() );
+        retval = new CellImpl<E>( new CellDataImpl<E>(), Arrays.asList( stripeData, stripeDataOrthogonal ) );
       }
     }
     

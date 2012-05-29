@@ -135,17 +135,16 @@ public class StripeDataImpl<E> implements StripeData<E>
   public List<E> getCellElementList()
   {
     //
-    Collection<CellData<E>> collection = this.cellDataSet;
-    ElementConverter<CellData<E>, E> elementTransformer = new ElementConverter<CellData<E>, E>()
+    final ElementConverter<CellData<E>, E> elementConverter = new ElementConverter<CellData<E>, E>()
     {
       @Override
-      public E convert( CellData<E> cell )
+      public E convert( CellData<E> cellData )
       {
         // 
-        return cell == null ? null : cell.getElement();
+        return cellData == null ? null : cellData.getElement();
       }
     };
-    return ListUtils.convert( collection, elementTransformer );
+    return ListUtils.convert( this.cellDataSet, elementConverter );
   }
   
   @Override
