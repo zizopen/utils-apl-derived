@@ -24,9 +24,9 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
  * other type. The resulting list will be merged to a ordered list by a transformation process, so the order will be kept.
  * 
  * @see ElementConverter
- * @see ListUtils#convert(Collection, MultiElementConverter, boolean)
+ * @see ListUtils#convert(Collection, ElementConverterOneToMany)
  */
-public interface MultiElementConverter<FROM, TO>
+public interface ElementConverterOneToMany<FROM, TO>
 {
   /**
    * Transforms a single element from one type into an (ordered) list of the other types.

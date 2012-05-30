@@ -70,4 +70,10 @@ public class SetUtilsTest
     assertEquals( SetUtils.valueOf( "a2", "c2" ), setDelta.getAddedElementSet() );
     assertEquals( SetUtils.valueOf( "b" ), setDelta.getRetainedElementSet() );
   }
+  
+  @Test
+  public void testIntersection() throws Exception
+  {
+    assertEquals( SetUtils.valueOf( "b" ), SetUtils.intersection( Arrays.asList( "a", "b" ), Arrays.asList( "b", "c" ) ) );
+  }
 }

@@ -37,10 +37,13 @@ import org.omnaest.utils.structure.table.internal.TableInternal.TableContent;
  */
 public class StripeImpl<E> extends StripeAbstract<E>
 {
-  /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID = 5552519174349074630L;
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID    = 5552519174349074630L;
   
-  /* ********************************************** Methods ********************************************** */
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private int               cachedIndexPosition = 0;
+  
+  /* *************************************************** Methods **************************************************** */
   
   /**
    * @param tableInternal
@@ -264,7 +267,14 @@ public class StripeImpl<E> extends StripeAbstract<E>
                                                          .getStripeDataList( this.stripeData.resolveStripeType() );
     if ( stripeDataList != null )
     {
-      retval = stripeDataList.indexOf( this.stripeData );
+      if ( stripeDataList.getStripeData( this.cachedIndexPosition ) == this.stripeData )
+      {
+        retval = this.cachedIndexPosition;
+      }
+      else
+      {
+        retval = this.cachedIndexPosition = stripeDataList.indexOf( this.stripeData );
+      }
     }
     
     //

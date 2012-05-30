@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2011 Danny Kunz
+ * Copyright 2012 Danny Kunz
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,21 @@
 package org.omnaest.utils.structure.element.converter;
 
 /**
- * Does not change the type of the element and the value of the element being converted.
+ * {@link ElementConverter} which additonally specify a {@link #convertBackwards(Object)} method, so that a two way conversion is
+ * possible
  * 
- * @see ElementBidirectionalConverter
+ * @see ElementConverter
  * @author Omnaest
+ * @param <FROM>
+ * @param <TO>
  */
-public class ElementConverterIdentity<T> implements ElementBidirectionalConverter<T, T>
+public interface ElementBidirectionalConverter<FROM, TO> extends ElementConverter<FROM, TO>
 {
-  @Override
-  public T convert( T from )
-  {
-    return from;
-  }
-  
-  @Override
-  public T convertBackwards( T element )
-  {
-    // 
-    return element;
-  }
-  
+  /**
+   * Converts an element in backwards way
+   * 
+   * @param element
+   * @return
+   */
+  public FROM convertBackwards( TO element );
 }

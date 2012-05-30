@@ -100,8 +100,6 @@ public class MapUtils
     public TO convert( Entry<K, V> entry );
   }
   
-  
-  
   /* ********************************************** Methods ********************************************** */
   
   /**
@@ -1060,5 +1058,27 @@ public class MapUtils
     
     //
     return retmap;
+  }
+  
+  /**
+   * Returns a new {@link MapComposite} instance for the given {@link Map}s
+   * 
+   * @param maps
+   * @return
+   */
+  public static <K, V> Map<K, V> composite( Map<K, V>... maps )
+  {
+    return new MapComposite<K, V>( maps );
+  }
+  
+  /**
+   * Returns a new {@link MapComposite} instance for the given {@link Map}s
+   * 
+   * @param mapList
+   * @return
+   */
+  public static <K, V> Map<K, V> composite( List<Map<K, V>> mapList )
+  {
+    return new MapComposite<K, V>( mapList );
   }
 }

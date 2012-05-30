@@ -749,7 +749,7 @@ public class ArrayTableTest
     
     //
     assertEquals( rows, this.table.getTableSize().getRowSize() );
-    
+    assertEquals( columns, this.table.getTableSize().getColumnSize() );
   }
   
   @Test
@@ -779,7 +779,7 @@ public class ArrayTableTest
   public void testGetCellPerformance()
   {
     //
-    final int rows = 200000;
+    final int rows = 100000;
     final int columns = 3;
     TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
@@ -792,7 +792,6 @@ public class ArrayTableTest
       assertNotNull( cell );
       assertNotNull( cell.getElement() );
     }
-    
   }
   
   @Test

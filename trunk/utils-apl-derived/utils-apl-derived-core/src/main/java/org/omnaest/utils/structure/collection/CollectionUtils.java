@@ -25,8 +25,10 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.omnaest.utils.structure.collection.adapter.CollectionToCollectionAdapter;
 import org.omnaest.utils.structure.collection.decorator.LockingCollectionDecorator;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.iterator.IteratorUtils;
@@ -701,5 +703,42 @@ public class CollectionUtils
         collection.add( element );
       }
     }
+  }
+  
+  /**
+   * Returns a new {@link CollectionToCollectionAdapter} instance
+   * 
+   * @param collection
+   *          {@link Collection}
+   * @param elementBidirectionalConverter
+   *          {@link ElementBidirectionalConverter}
+   * @return new {@link CollectionToCollectionAdapter} instance
+   */
+  public static <FROM, TO> Collection<TO> adapter( Collection<FROM> collection,
+                                                   ElementBidirectionalConverter<FROM, TO> elementBidirectionalConverter )
+  {
+    return new CollectionToCollectionAdapter<FROM, TO>( collection, elementBidirectionalConverter );
+  }
+  
+  /**
+   * Returns a new {@link CollectionComposite} instance for the given {@link Collection}s
+   * 
+   * @param collectionOfCollections
+   * @return
+   */
+  public static <E> Collection<E> composite( Collection<Collection<E>> collectionOfCollections )
+  {
+    return new CollectionComposite<E>( collectionOfCollections );
+  }
+  
+  /**
+   * Returns a new {@link CollectionComposite} instance for the given {@link Collection}s
+   * 
+   * @param collections
+   * @return
+   */
+  public static <E> Collection<E> composite( Collection<E>... collections )
+  {
+    return new CollectionComposite<E>( collections );
   }
 }

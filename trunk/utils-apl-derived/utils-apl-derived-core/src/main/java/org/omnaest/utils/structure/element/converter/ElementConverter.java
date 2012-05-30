@@ -24,7 +24,8 @@ import org.omnaest.utils.structure.iterator.IterableUtils;
 /**
  * The provides a {@link #convert(Object)} method to transform one element instance into another.
  * 
- * @see MultiElementConverter
+ * @see ElementBidirectionalConverter
+ * @see ElementConverterOneToMany
  * @see ElementConverterTypeAware
  * @see ListUtils#convert(Collection, ElementConverter)
  * @see SetUtils#convert(Iterable, ElementConverter)

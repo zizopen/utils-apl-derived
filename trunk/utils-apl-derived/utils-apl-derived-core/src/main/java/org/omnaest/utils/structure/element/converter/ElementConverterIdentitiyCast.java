@@ -16,18 +16,27 @@
 package org.omnaest.utils.structure.element.converter;
 
 /**
- * Simple {@link ElementConverter} implementation which casts the given object and returns it.
+ * Simple {@link ElementBidirectionalConverter} implementation which casts the given object and returns it.
  * 
+ * @see ElementBidirectionalConverter
  * @author Omnaest
  * @param <FROM>
  * @param <TO>
  */
-public class ElementConverterIdentitiyCast<FROM, TO> implements ElementConverter<FROM, TO>
+public class ElementConverterIdentitiyCast<FROM, TO> implements ElementBidirectionalConverter<FROM, TO>
 {
   @SuppressWarnings("unchecked")
   @Override
   public TO convert( FROM element )
   {
     return (TO) element;
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public FROM convertBackwards( TO element )
+  {
+    // 
+    return (FROM) element;
   }
 }

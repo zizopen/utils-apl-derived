@@ -24,7 +24,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.collection.set.adapter.SetToSetAdapter;
 import org.omnaest.utils.structure.collection.set.decorator.LockingSetDecorator;
+import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.filter.ElementFilter;
 import org.omnaest.utils.structure.iterator.IterableUtils;
@@ -154,7 +156,33 @@ public class SetUtils
    */
   public static <E> Set<E> intersection( Collection<? extends Collection<E>> collectionOfCollections )
   {
-    return new LinkedHashSet<E>( ListUtils.intersection( collectionOfCollections ) );
+    //
+    Set<E> retset = new LinkedHashSet<E>();
+    
+    //
+    if ( !collectionOfCollections.isEmpty() )
+    {
+      //
+      final Iterator<? extends Collection<E>> collectionOfCollectionsIterator = collectionOfCollections.iterator();
+      Collection<E> collection = collectionOfCollectionsIterator.next();
+      if ( collection != null )
+      {
+        retset.addAll( collection );
+      }
+      
+      //
+      while ( collectionOfCollectionsIterator.hasNext() )
+      {
+        final Collection<E> collectionOther = collectionOfCollectionsIterator.next();
+        if ( collectionOther != null )
+        {
+          retset.retainAll( collectionOther );
+        }
+      }
+    }
+    
+    //
+    return retset;
   }
   
   /**
@@ -291,4 +319,39 @@ public class SetUtils
     return SetUtils.valueOf( ListUtils.filter( iterable, elementFilter ) );
   }
   
+  /**
+   * Returns a new {@link SetToSetAdapter} for the given {@link Set}
+   * 
+   * @param set
+   *          {@link Set}
+   * @param elementBidirectionalConverter
+   *          {@link ElementBidirectionalConverter}
+   * @return new {@link SetToSetAdapter} instance
+   */
+  public static <FROM, TO> Set<TO> adapter( Set<FROM> set, ElementBidirectionalConverter<FROM, TO> elementBidirectionalConverter )
+  {
+    return new SetToSetAdapter<FROM, TO>( set, elementBidirectionalConverter );
+  }
+  
+  /**
+   * Returns a {@link SetComposite} instance for the given {@link Set}s
+   * 
+   * @param sets
+   * @return
+   */
+  public static <E> Set<E> composite( Set<E>... sets )
+  {
+    return new SetComposite<E>( sets );
+  }
+  
+  /**
+   * Returns a {@link SetComposite} instance for the given {@link Set}s
+   * 
+   * @param setCollection
+   * @return
+   */
+  public static <E> Set<E> composite( Collection<Set<E>> setCollection )
+  {
+    return new SetComposite<E>( setCollection );
+  }
 }

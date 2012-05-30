@@ -38,7 +38,7 @@ import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
-import org.omnaest.utils.structure.element.converter.MultiElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterOneToMany;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.element.filter.ElementFilter;
 import org.omnaest.utils.structure.element.filter.ElementFilter.FilterMode;
@@ -142,13 +142,13 @@ public class ListUtils
   
   /**
    * Transforms a given {@link Collection} instance from one generic type into the other using a given
-   * {@link MultiElementConverter}.
+   * {@link ElementConverterOneToMany}.
    * 
    * @see #convert(Collection, ElementConverter, boolean)
    * @param collection
    * @param multiElementConverter
    */
-  public static <FROM, TO> List<TO> convert( Collection<FROM> collection, MultiElementConverter<FROM, TO> multiElementConverter )
+  public static <FROM, TO> List<TO> convert( Collection<FROM> collection, ElementConverterOneToMany<FROM, TO> multiElementConverter )
   {
     return ListUtils.convert( collection, multiElementConverter, false );
   }
@@ -164,7 +164,7 @@ public class ListUtils
    * @return always new (ordered) list instance containing transformed elements
    */
   public static <FROM, TO> List<TO> convert( Collection<FROM> collection,
-                                             MultiElementConverter<FROM, TO> multiElementConverter,
+                                             ElementConverterOneToMany<FROM, TO> multiElementConverter,
                                              boolean eliminateNullValues )
   {
     //
@@ -220,7 +220,7 @@ public class ListUtils
   
   /**
    * Transforms a given {@link Collection} instance from one generic type into the other using a given
-   * {@link MultiElementConverter}. Every null value returned by the {@link ElementConverter} will be discarded and not put into
+   * {@link ElementConverterOneToMany}. Every null value returned by the {@link ElementConverter} will be discarded and not put into
    * the result list.
    * 
    * @see #convert(Collection, ElementConverter, boolean)
@@ -228,7 +228,7 @@ public class ListUtils
    * @param multiElementConverter
    */
   public static <FROM, TO> List<TO> convertListExcludingNullElements( Collection<FROM> collection,
-                                                                      MultiElementConverter<FROM, TO> multiElementConverter )
+                                                                      ElementConverterOneToMany<FROM, TO> multiElementConverter )
   {
     return ListUtils.convert( collection, multiElementConverter, true );
   }
@@ -601,19 +601,19 @@ public class ListUtils
   /**
    * Returns a new {@link List} with only this elements which are in all of the given {@link Collection}s
    * 
-   * @param listCollection
+   * @param collectionOfCollections
    * @return new {@link List} instance
    */
-  public static <E> List<E> intersection( Collection<? extends Collection<E>> listCollection )
+  public static <E> List<E> intersection( Collection<? extends Collection<E>> collectionOfCollections )
   {
     //
     List<E> retlist = new ArrayList<E>();
     
     //
-    if ( !listCollection.isEmpty() )
+    if ( !collectionOfCollections.isEmpty() )
     {
       //
-      Iterator<? extends Collection<E>> listCollectionIterator = listCollection.iterator();
+      final Iterator<? extends Collection<E>> listCollectionIterator = collectionOfCollections.iterator();
       Collection<E> collection = listCollectionIterator.next();
       if ( collection != null )
       {

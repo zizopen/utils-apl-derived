@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
@@ -29,14 +30,14 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
 /**
  * {@link Map} implementation which is based on a given {@link List} of further {@link Map} instances. <br>
  * <br>
- * The {@link CompositeMap} is thread safe itself, but to be fully thread safe the given further {@link Map} instances have to be
+ * The {@link MapComposite} is thread safe itself, but to be fully thread safe the given further {@link Map} instances have to be
  * ,too.
  * 
  * @author Omnaest
  * @param <K>
  * @param <V>
  */
-public class CompositeMap<K, V> extends MapAbstract<K, V>
+public class MapComposite<K, V> extends MapAbstract<K, V>
 {
   /* ********************************************** Variables ********************************************** */
   private final List<Map<K, V>> mapList;
@@ -44,20 +45,20 @@ public class CompositeMap<K, V> extends MapAbstract<K, V>
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @see CompositeMap
+   * @see MapComposite
    * @param mapList
    */
-  public CompositeMap( List<Map<K, V>> mapList )
+  public MapComposite( List<Map<K, V>> mapList )
   {
     super();
     this.mapList = new CopyOnWriteArrayList<Map<K, V>>( mapList );
   }
   
   /**
-   * @see CompositeMap
+   * @see MapComposite
    * @param maps
    */
-  public CompositeMap( Map<K, V>... maps )
+  public MapComposite( Map<K, V>... maps )
   {
     this( Arrays.asList( maps ) );
   }
@@ -152,7 +153,7 @@ public class CompositeMap<K, V> extends MapAbstract<K, V>
       }
     };
     final List<Set<K>> keySetList = ListUtils.convert( this.mapList, elementConverter );
-    return SetUtils.mergeAll( keySetList );
+    return SetUtils.composite( keySetList );
   }
   
   @Override
@@ -168,7 +169,7 @@ public class CompositeMap<K, V> extends MapAbstract<K, V>
       }
     };
     final List<Collection<V>> keySetList = ListUtils.convert( this.mapList, elementConverter );
-    return ListUtils.mergeAll( keySetList );
+    return CollectionUtils.composite( keySetList );
   }
   
 }

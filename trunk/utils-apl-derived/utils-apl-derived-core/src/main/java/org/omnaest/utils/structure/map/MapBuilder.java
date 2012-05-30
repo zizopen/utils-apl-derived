@@ -45,7 +45,6 @@ import org.omnaest.utils.reflection.ReflectionUtils;
  * @author Omnaest
  * @param <K>
  * @param <V>
- * @param <M>
  */
 public class MapBuilder<K, V>
 {
