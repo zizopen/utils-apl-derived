@@ -32,10 +32,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.collection.list.adapter.ListToListAdapter;
 import org.omnaest.utils.structure.collection.list.decorator.LockingListDecorator;
 import org.omnaest.utils.structure.collection.list.decorator.LockingListIteratorDecorator;
 import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.KeyExtractor;
+import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.element.converter.ElementConverterOneToMany;
@@ -68,7 +70,20 @@ public class ListUtils
    */
   public static <FROM, TO> List<TO> convert( Collection<FROM> collection, ElementConverter<FROM, TO> elementConverter )
   {
-    return ListUtils.convert( collection, elementConverter, false );
+    //
+    final List<TO> retlist = new ArrayList<TO>();
+    if ( elementConverter != null && collection != null )
+    {
+      for ( FROM element : collection )
+      {
+        //          
+        final TO convertedElement = elementConverter.convert( element );
+        retlist.add( convertedElement );
+      }
+    }
+    
+    //
+    return retlist;
   }
   
   /**
@@ -80,7 +95,20 @@ public class ListUtils
    */
   public static <FROM, TO> List<TO> convert( ElementConverter<FROM, TO> elementConverter, FROM... elements )
   {
-    return ListUtils.convert( ListUtils.valueOf( elements ), elementConverter );
+    //
+    final List<TO> retlist = new ArrayList<TO>();
+    if ( elementConverter != null && elements != null )
+    {
+      for ( FROM element : elements )
+      {
+        //          
+        final TO convertedElement = elementConverter.convert( element );
+        retlist.add( convertedElement );
+      }
+    }
+    
+    //
+    return retlist;
   }
   
   /**
@@ -92,7 +120,20 @@ public class ListUtils
    */
   public static <FROM, TO> List<TO> convert( Iterable<FROM> iterable, ElementConverter<FROM, TO> elementConverter )
   {
-    return convert( ListUtils.valueOf( iterable ), elementConverter );
+    //
+    final List<TO> retlist = new ArrayList<TO>();
+    if ( elementConverter != null && iterable != null )
+    {
+      for ( FROM element : iterable )
+      {
+        //          
+        final TO convertedElement = elementConverter.convert( element );
+        retlist.add( convertedElement );
+      }
+    }
+    
+    //
+    return retlist;
   }
   
   /**
@@ -148,7 +189,8 @@ public class ListUtils
    * @param collection
    * @param multiElementConverter
    */
-  public static <FROM, TO> List<TO> convert( Collection<FROM> collection, ElementConverterOneToMany<FROM, TO> multiElementConverter )
+  public static <FROM, TO> List<TO> convert( Collection<FROM> collection,
+                                             ElementConverterOneToMany<FROM, TO> multiElementConverter )
   {
     return ListUtils.convert( collection, multiElementConverter, false );
   }
@@ -220,8 +262,8 @@ public class ListUtils
   
   /**
    * Transforms a given {@link Collection} instance from one generic type into the other using a given
-   * {@link ElementConverterOneToMany}. Every null value returned by the {@link ElementConverter} will be discarded and not put into
-   * the result list.
+   * {@link ElementConverterOneToMany}. Every null value returned by the {@link ElementConverter} will be discarded and not put
+   * into the result list.
    * 
    * @see #convert(Collection, ElementConverter, boolean)
    * @param collection
@@ -595,7 +637,33 @@ public class ListUtils
    */
   public static <E> List<E> intersection( Collection<E>... collections )
   {
-    return intersection( Arrays.asList( collections ) );
+    //
+    final List<E> retlist = new ArrayList<E>();
+    
+    //
+    if ( collections.length > 0 )
+    {
+      //
+      Collection<E> collection = collections[0];
+      if ( collection != null )
+      {
+        retlist.addAll( collection );
+      }
+      
+      //
+      for ( int ii = 1; ii < collections.length && !retlist.isEmpty(); ii++ )
+      {
+        //
+        Collection<E> collectionOther = collections[ii];
+        if ( collectionOther != null )
+        {
+          retlist.retainAll( collectionOther );
+        }
+      }
+    }
+    
+    //
+    return retlist;
   }
   
   /**
@@ -1131,6 +1199,21 @@ public class ListUtils
   public static <E> E[] asArray( List<? extends E> list, Class<E> type )
   {
     return ArrayUtils.valueOf( list, type );
+  }
+  
+  /**
+   * Returns a new {@link ListToListAdapter} instance
+   * 
+   * @param list
+   *          {@link List}
+   * @param elementBidirectionalConverter
+   *          {@link ElementBidirectionalConverter}
+   * @return
+   */
+  public static <FROM, TO> List<TO> adapter( List<FROM> list,
+                                             ElementBidirectionalConverter<FROM, TO> elementBidirectionalConverter )
+  {
+    return new ListToListAdapter<FROM, TO>( list, elementBidirectionalConverter );
   }
   
 }

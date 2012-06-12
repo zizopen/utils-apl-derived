@@ -15,9 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.map;
 
-import java.util.LinkedHashSet;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
+
+import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 
 /**
  * This abstract {@link Map} implementation does implement all methods which rely only on other methods within the {@link Map}
@@ -27,9 +30,12 @@ import java.util.Set;
  * @param <K>
  * @param <V>
  */
-public abstract class MapAbstract<K, V> implements Map<K, V>
+public abstract class MapAbstract<K, V> implements Map<K, V>, Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = -8854027357614884818L;
   
+  /* *************************************************** Methods **************************************************** */
   @Override
   public boolean isEmpty()
   {
@@ -63,51 +69,56 @@ public abstract class MapAbstract<K, V> implements Map<K, V>
   @Override
   public Set<java.util.Map.Entry<K, V>> entrySet()
   {
-    //    
-    Set<Entry<K, V>> retset = new LinkedHashSet<Map.Entry<K, V>>();
-    
     //
-    for ( final K key : this.keySet() )
+    final ElementBidirectionalConverter<K, Entry<K, V>> elementBidirectionalConverter = new ElementBidirectionalConverter<K, Map.Entry<K, V>>()
     {
-      //
-      retset.add( new Entry<K, V>()
+      @Override
+      public java.util.Map.Entry<K, V> convert( final K key )
       {
-        @Override
-        public K getKey()
+        // 
+        return new Entry<K, V>()
         {
-          return key;
-        }
-        
-        @Override
-        public V getValue()
-        {
-          return MapAbstract.this.get( key );
-        }
-        
-        @Override
-        public V setValue( V value )
-        {
-          return MapAbstract.this.put( key, value );
-        }
-        
-        @Override
-        public String toString()
-        {
-          try
+          @Override
+          public K getKey()
           {
-            return "[" + String.valueOf( this.getKey() ) + ":" + String.valueOf( this.getValue() + "]" );
+            return key;
           }
-          catch ( Exception e )
+          
+          @Override
+          public V getValue()
           {
-            return "";
+            return MapAbstract.this.get( key );
           }
-        }
-        
-      } );
-    }
-    
-    //
-    return retset;
+          
+          @Override
+          public V setValue( V value )
+          {
+            return MapAbstract.this.put( key, value );
+          }
+          
+          @Override
+          public String toString()
+          {
+            try
+            {
+              return "[" + String.valueOf( this.getKey() ) + ":" + String.valueOf( this.getValue() + "]" );
+            }
+            catch ( Exception e )
+            {
+              return "";
+            }
+          }
+          
+        };
+      }
+      
+      @Override
+      public K convertBackwards( java.util.Map.Entry<K, V> entry )
+      {
+        return entry.getKey();
+      }
+    };
+    return SetUtils.adapter( this.keySet(), elementBidirectionalConverter );
   }
   
   @Override

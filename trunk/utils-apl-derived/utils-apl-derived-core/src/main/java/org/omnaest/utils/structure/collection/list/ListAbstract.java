@@ -26,6 +26,7 @@ import java.util.NoSuchElementException;
 import org.apache.commons.collections.IteratorUtils;
 import org.omnaest.utils.propertyfile.content.MapAbstract;
 import org.omnaest.utils.structure.collection.CollectionAbstract;
+import org.omnaest.utils.structure.collection.list.adapter.ListToListIteratorAdapter;
 
 /**
  * This abstract list implementation offers the basic methods like addAll, removeAll, retainAll, etc. which rely only on other

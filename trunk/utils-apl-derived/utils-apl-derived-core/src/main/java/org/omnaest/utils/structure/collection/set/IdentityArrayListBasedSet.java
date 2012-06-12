@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.omnaest.utils.structure.collection.list.IdentityArrayList;
-import org.omnaest.utils.structure.collection.list.ListToSetAdapter;
+import org.omnaest.utils.structure.collection.list.adapter.ListToSetAdapter;
 
 /**
  * Ordered {@link Set} implementation using the {@link IdentityArrayList} as backing structure. This results in the identity

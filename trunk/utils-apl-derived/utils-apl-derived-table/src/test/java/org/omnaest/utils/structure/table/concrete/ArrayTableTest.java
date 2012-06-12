@@ -779,8 +779,8 @@ public class ArrayTableTest
   public void testGetCellPerformance()
   {
     //
-    final int rows = 100000;
-    final int columns = 3;
+    final int rows = 50000;
+    final int columns = 10;
     TableFiller.fillTableWithMatrixNumbers( rows, columns, this.table );
     
     //
@@ -788,6 +788,11 @@ public class ArrayTableTest
     
     //
     for ( Cell<Object> cell : this.table.cells() )
+    {
+      assertNotNull( cell );
+      assertNotNull( cell.getElement() );
+    }
+    for ( Cell<Object> cell : this.table.getColumn( 1 ) )
     {
       assertNotNull( cell );
       assertNotNull( cell.getElement() );

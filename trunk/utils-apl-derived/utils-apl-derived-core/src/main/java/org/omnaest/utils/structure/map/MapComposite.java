@@ -39,6 +39,8 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
  */
 public class MapComposite<K, V> extends MapAbstract<K, V>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long     serialVersionUID = -6795020842815751304L;
   /* ********************************************** Variables ********************************************** */
   private final List<Map<K, V>> mapList;
   

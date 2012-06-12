@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.iterator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -132,5 +133,23 @@ public class IterableUtilsTest
     final int limit = 2;
     assertEquals( Arrays.asList( "a", "b" ),
                   ListUtils.valueOf( IteratorUtils.limitingIteratorDecorator( Arrays.asList( "a", "b", "c" ).iterator(), limit ) ) );
+  }
+  
+  @Test
+  public void testElementAt() throws Exception
+  {
+    //
+    final List<String> list = Arrays.asList( "a", "b", "c" );
+    assertEquals( "a", IterableUtils.elementAt( list, 0 ) );
+    assertEquals( "b", IterableUtils.elementAt( list, 1 ) );
+    assertEquals( "c", IterableUtils.elementAt( list, 2 ) );
+    assertNull( IterableUtils.elementAt( list, 3 ) );
+  }
+  
+  @Test
+  public void testLastElement() throws Exception
+  {
+    final List<String> list = Arrays.asList( "a", "b", "c" );
+    assertEquals( "c", IterableUtils.lastElement( list ) );
   }
 }

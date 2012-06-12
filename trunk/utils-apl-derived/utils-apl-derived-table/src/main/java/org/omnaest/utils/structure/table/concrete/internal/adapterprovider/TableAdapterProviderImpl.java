@@ -18,10 +18,14 @@ package org.omnaest.utils.structure.table.concrete.internal.adapterprovider;
 import java.lang.reflect.Array;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.table.Table;
+import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.TableSize;
 import org.omnaest.utils.structure.table.adapter.TableAdapter;
+import org.omnaest.utils.structure.table.adapter.TableToMapAdapter;
 import org.omnaest.utils.structure.table.adapter.TableToResultSetAdapter;
 import org.omnaest.utils.structure.table.adapter.TableToTypeListAdapter;
 import org.omnaest.utils.structure.table.subspecification.TableAdaptable.TableAdapterProvider;
@@ -147,5 +151,20 @@ public class TableAdapterProviderImpl<E> implements TableAdapterProvider<E>
     
     // 
     return retvals;
+  }
+  
+  @Override
+  public Map<E, E> map( Column<E> columnForKeys, Column<E> columnForValues )
+  {
+    return new TableToMapAdapter<E, E, E>( columnForKeys, columnForValues ).initializeAdapter( this.table );
+  }
+  
+  @Override
+  public <K, V> Map<K, V> map( Column<E> columnForKeys,
+                               Column<E> columnForValues,
+                               ElementConverter<E, K> elementConverterForKeys,
+                               ElementConverter<E, V> elementConverterForValues )
+  {
+    return new TableToMapAdapter<E, K, V>( columnForKeys, columnForValues, elementConverterForKeys, elementConverterForValues ).initializeAdapter( this.table );
   }
 }

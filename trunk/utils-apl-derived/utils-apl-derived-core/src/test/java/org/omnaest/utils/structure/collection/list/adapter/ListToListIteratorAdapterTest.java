@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.collection.list;
+package org.omnaest.utils.structure.collection.list.adapter;
 
 import static org.junit.Assert.assertEquals;
 
@@ -23,6 +23,7 @@ import java.util.ListIterator;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.omnaest.utils.structure.collection.list.adapter.ListToListIteratorAdapter;
 
 public class ListToListIteratorAdapterTest
 {

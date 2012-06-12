@@ -298,7 +298,7 @@ public class MapUtils
     Map<KeyTo, ValueTo> retmap = null;
     
     //
-    if ( map != null )
+    if ( map != null && keyElementConverter != null && valueElementConverter != null )
     {
       //
       retmap = new LinkedHashMap<KeyTo, ValueTo>( map.size() );
@@ -309,6 +309,46 @@ public class MapUtils
         KeyTo keyTo = keyElementConverter.convert( keyFrom );
         ValueTo valueTo = valueElementConverter.convert( map.get( keyFrom ) );
         
+        retmap.put( keyTo, valueTo );
+      }
+      
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Similar to {@link #convertMap(Map, ElementConverter, ElementConverter)} using a single {@link ElementConverter} for an
+   * {@link Entry}
+   * 
+   * @param map
+   *          {@link Map}
+   * @param entryElementConverter
+   *          {@link ElementConverter}
+   * @return new {@link Map} instance
+   */
+  @SuppressWarnings("unchecked")
+  public static <KeyFrom, KeyTo, ValueFrom, ValueTo> Map<KeyTo, ValueTo> convertMap( Map<? extends KeyFrom, ? extends ValueFrom> map,
+                                                                                     ElementConverter<Entry<KeyFrom, ValueFrom>, Entry<KeyTo, ValueTo>> entryElementConverter )
+  {
+    //
+    Map<KeyTo, ValueTo> retmap = null;
+    
+    //
+    if ( map != null && entryElementConverter != null )
+    {
+      //
+      retmap = new LinkedHashMap<KeyTo, ValueTo>( map.size() );
+      
+      //
+      for ( Entry<? extends KeyFrom, ? extends ValueFrom> entry : map.entrySet() )
+      {
+        //
+        Entry<KeyTo, ValueTo> convertedEntry = entryElementConverter.convert( (Entry<KeyFrom, ValueFrom>) entry );
+        
+        final KeyTo keyTo = convertedEntry.getKey();
+        final ValueTo valueTo = convertedEntry.getValue();
         retmap.put( keyTo, valueTo );
       }
       

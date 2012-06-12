@@ -366,4 +366,10 @@ public class TableViewImpl<E> implements TableView<E>
     return this.table.clone();
   }
   
+  @Override
+  public Column<E> getColumn( String columnTitleValue )
+  {
+    return this.table.getColumn( columnTitleValue );
+  }
+  
 }

@@ -18,10 +18,10 @@ package org.omnaest.utils.structure.collection;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.collections.IteratorUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.iterator.IteratorUtils;
 
 /**
  * Composite {@link Collection} consisting of multiple given {@link Collection} instances of the same type <br>
@@ -102,15 +102,15 @@ public class CollectionComposite<E> extends CollectionAbstract<E>
   @Override
   public Iterator<E> iterator()
   {
-    return IteratorUtils.chainedIterator( ArrayUtils.convertArray( this.collections, Iterator.class,
-                                                                   new ElementConverter<Collection<E>, Iterator<E>>()
-                                                                   {
-                                                                     @Override
-                                                                     public Iterator<E> convert( Collection<E> collection )
-                                                                     {
-                                                                       return collection != null ? collection.iterator() : null;
-                                                                     }
-                                                                   } ) );
+    return IteratorUtils.chained( ArrayUtils.convertArray( this.collections, Iterator.class,
+                                                           new ElementConverter<Collection<E>, Iterator<E>>()
+                                                           {
+                                                             @Override
+                                                             public Iterator<E> convert( Collection<E> collection )
+                                                             {
+                                                               return collection != null ? collection.iterator() : null;
+                                                             }
+                                                           } ) );
   }
   
   @Override

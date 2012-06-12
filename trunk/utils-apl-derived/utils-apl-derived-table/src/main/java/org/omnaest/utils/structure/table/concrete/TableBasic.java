@@ -35,10 +35,11 @@ import org.omnaest.utils.structure.table.subspecification.TableCoreImmutable;
 import org.omnaest.utils.structure.table.subspecification.TableDataSource;
 
 /**
- * Declares the methods of basic subspecifications like {@link TableSerializer}, {@link TableAdaptable}
+ * Declares the methods of basic subspecifications like
+ * {@link org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer}, {@link TableAdaptable}
  * 
  * @see Table
- * @see TableSerializer
+ * @see org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer
  * @author Omnaest
  * @param <E>
  */
@@ -488,6 +489,12 @@ public abstract class TableBasic<E> extends TableAbstract<E>
   public TableCloner<E> clone() throws CloneNotSupportedException
   {
     return this.tableCloner;
+  }
+  
+  @Override
+  public org.omnaest.utils.structure.table.Table.Column<E> getColumn( String columnTitleValue )
+  {
+    return this.getColumn( (Object) columnTitleValue );
   }
   
 }

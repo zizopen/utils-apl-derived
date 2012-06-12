@@ -88,7 +88,7 @@ public class StripeDataHelper
    * {@link CellData} elements from the given old {@link StripeData}s
    * 
    * @param stripeDataList
-   * @param stripeDataOld
+   * @param stripeDatasOld
    * @return
    */
   public static <E> StripeData<E> createNewStripeDataFromExisting( StripeDataList<E> stripeDataList,
@@ -106,7 +106,7 @@ public class StripeDataHelper
    * 
    * @param stripeDataList
    * @param cellDataSetFilter
-   * @param stripeDataOld
+   * @param stripeDatasOld
    * @return
    */
   public static <E> StripeData<E> createNewStripeDataFromExisting( StripeDataList<E> stripeDataList,

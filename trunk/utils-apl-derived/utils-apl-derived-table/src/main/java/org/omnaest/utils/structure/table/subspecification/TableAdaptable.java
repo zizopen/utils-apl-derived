@@ -17,9 +17,12 @@ package org.omnaest.utils.structure.table.subspecification;
 
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.Table.Cell;
+import org.omnaest.utils.structure.table.Table.Column;
 import org.omnaest.utils.structure.table.Table.TableComponent;
 import org.omnaest.utils.structure.table.adapter.TableAdapter;
 import org.omnaest.utils.structure.table.adapter.TableToResultSetAdapter;
@@ -32,12 +35,12 @@ import org.omnaest.utils.structure.table.adapter.TableToTypeListAdapter;
  * @see TableAdapter
  * @see TableDataSource
  * @author Omnaest
- * @param
  */
 public interface TableAdaptable<E>
 {
   /**
-   * A {@link TableAdapterProvider} offers methods to support the default {@link TableAdapter}
+   * A {@link org.omnaest.utils.structure.table.subspecification.TableAdaptable.TableAdapterProvider} offers methods to support
+   * the default {@link TableAdapter}s
    * 
    * @see TableAdapter
    * @see TableAdaptable
@@ -83,6 +86,35 @@ public interface TableAdaptable<E>
      * @return
      */
     public E[][] array( Class<? extends E> clazz );
+    
+    /**
+     * Returns a {@link Map} view of the {@link Table} using one column for keys and one for values
+     * 
+     * @param columnForKey
+     *          {@link Column}
+     * @param columnForValue
+     *          {@link Column}
+     * @return {@link Map}
+     */
+    public Map<E, E> map( Column<E> columnForKey, Column<E> columnForValue );
+    
+    /**
+     * Similar to {@link #map(Column, Column)} allowing to convert the key and value instances using two {@link ElementConverter}
+     * 
+     * @param columnForKeys
+     *          {@link Column}
+     * @param columnForValues
+     *          {@link Column}
+     * @param elementConverterForKeys
+     *          {@link ElementConverter}
+     * @param elementConverterForValues
+     *          {@link ElementConverter}
+     * @return
+     */
+    public <K, V> Map<K, V> map( Column<E> columnForKeys,
+                                 Column<E> columnForValues,
+                                 ElementConverter<E, K> elementConverterForKeys,
+                                 ElementConverter<E, V> elementConverterForValues );
   }
   
   /**

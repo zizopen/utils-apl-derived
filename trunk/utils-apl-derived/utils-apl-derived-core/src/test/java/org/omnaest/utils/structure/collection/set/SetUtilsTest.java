@@ -75,5 +75,7 @@ public class SetUtilsTest
   public void testIntersection() throws Exception
   {
     assertEquals( SetUtils.valueOf( "b" ), SetUtils.intersection( Arrays.asList( "a", "b" ), Arrays.asList( "b", "c" ) ) );
+    assertEquals( SetUtils.valueOf( "b", "c" ),
+                  SetUtils.intersection( SetUtils.valueOf( "a", "b", "c", "d" ), SetUtils.valueOf( "b", "c", "e" ) ) );
   }
 }

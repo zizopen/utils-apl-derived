@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.collection.set.adapter;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -29,9 +30,9 @@ import org.omnaest.utils.structure.collection.set.SetAbstract;
  */
 public class MapBasedSet<E> extends SetAbstract<E>
 {
-  private static final Object  MARKER_VALUE     = new Object();
   /* ************************************************** Constants *************************************************** */
   private static final long    serialVersionUID = 59020838477262671L;
+  private static final Object  MARKER_VALUE     = new Object();
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final Map<E, Object> map;
   
@@ -76,6 +77,59 @@ public class MapBasedSet<E> extends SetAbstract<E>
   public boolean remove( Object o )
   {
     return this.map.remove( o ) != null;
+  }
+  
+  @Override
+  public void clear()
+  {
+    this.map.clear();
+  }
+  
+  @Override
+  public boolean containsAll( Collection<?> collection )
+  {
+    return this.map.keySet().containsAll( collection );
+  }
+  
+  @Override
+  public boolean isEmpty()
+  {
+    return this.map.isEmpty();
+  }
+  
+  @Override
+  public boolean removeAll( Collection<?> c )
+  {
+    return this.map.keySet().removeAll( c );
+  }
+  
+  @Override
+  public boolean retainAll( Collection<?> c )
+  {
+    return this.map.keySet().retainAll( c );
+  }
+  
+  @Override
+  public Object[] toArray()
+  {
+    return this.map.keySet().toArray();
+  }
+  
+  @Override
+  public <T> T[] toArray( T[] a )
+  {
+    return this.map.keySet().toArray( a );
+  }
+  
+  private Set<E> keySet()
+  {
+    return this.map.keySet();
+  }
+  
+  @Override
+  public String toString()
+  {
+    return String.valueOf( this.keySet() );
   }
   
 }

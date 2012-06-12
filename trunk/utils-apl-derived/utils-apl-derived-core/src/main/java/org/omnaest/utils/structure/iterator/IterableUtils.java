@@ -317,10 +317,14 @@ public class IterableUtils
       final Iterator<E> iterator = iterable.iterator();
       if ( iterator != null )
       {
-        //
-        for ( int ii = 0; ( indexPosition < 0 || ii <= indexPosition ) && iterator.hasNext(); ii++ )
+        for ( int ii = 0; ii <= indexPosition && iterator.hasNext(); ii++ )
         {
-          retval = iterator.next();
+          //
+          final E nextElement = iterator.next();
+          if ( ii == indexPosition )
+          {
+            retval = nextElement;
+          }
         }
       }
     }
@@ -351,8 +355,24 @@ public class IterableUtils
   public static <E> E lastElement( Iterable<E> iterable )
   {
     //
-    final int indexPosition = -1;
-    return elementAt( iterable, indexPosition );
+    E retval = null;
+    
+    //
+    if ( iterable != null )
+    {
+      //
+      final Iterator<E> iterator = iterable.iterator();
+      if ( iterator != null )
+      {
+        while ( iterator.hasNext() )
+        {
+          retval = iterator.next();
+        }
+      }
+    }
+    
+    //
+    return retval;
   }
   
 }

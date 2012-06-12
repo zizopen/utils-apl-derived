@@ -19,11 +19,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.collection.list.adapter.ListToSetAdapter;
 import org.omnaest.utils.structure.collection.set.adapter.SetToSetAdapter;
 import org.omnaest.utils.structure.collection.set.decorator.LockingSetDecorator;
 import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
@@ -186,6 +188,50 @@ public class SetUtils
   }
   
   /**
+   * Returns the intersection of two given {@link Set} instances by iterating over the smaller given {@link Set} and testing on
+   * the {@link Set#contains(Object)} method of the larger {@link Set}.
+   * 
+   * @param set1
+   * @param set2
+   * @return new {@link Set} instance
+   */
+  public static <E> Set<E> intersection( Set<E> set1, Set<E> set2 )
+  {
+    //
+    final Set<E> retset = new LinkedHashSet<E>();
+    
+    //
+    if ( set1 != null && set2 != null )
+    {
+      //
+      Iterable<E> iterable;
+      Collection<E> collection;
+      if ( set1.size() > set2.size() )
+      {
+        collection = set1;
+        iterable = set2;
+      }
+      else
+      {
+        collection = set2;
+        iterable = set1;
+      }
+      
+      //
+      for ( E element : iterable )
+      {
+        if ( collection.contains( element ) )
+        {
+          retset.add( element );
+        }
+      }
+    }
+    
+    //
+    return retset;
+  }
+  
+  /**
    * Returns the intersection of the {@link Collection}s of the given container {@link Collection}
    * 
    * @param collections
@@ -193,7 +239,32 @@ public class SetUtils
    */
   public static <E> Set<E> intersection( Collection<E>... collections )
   {
-    return new LinkedHashSet<E>( ListUtils.intersection( collections ) );
+    //
+    final Set<E> retset = new LinkedHashSet<E>();
+    
+    //
+    if ( collections.length > 0 )
+    {
+      //
+      Collection<E> collection = collections[0];
+      if ( collection != null )
+      {
+        retset.addAll( collection );
+      }
+      
+      //
+      for ( int ii = 1; ii < collections.length && !retset.isEmpty(); ii++ )
+      {
+        //
+        Collection<E> collectionOther = collections[ii];
+        if ( collectionOther != null )
+        {
+          retset.retainAll( collectionOther );
+        }
+      }
+    }
+    
+    return retset;
   }
   
   /**
@@ -217,7 +288,17 @@ public class SetUtils
    */
   public static <E> Set<E> valueOf( E... elements )
   {
-    return valueOf( Arrays.asList( elements ) );
+    //    
+    final Set<E> retset = new LinkedHashSet<E>();
+    
+    //
+    for ( E element : elements )
+    {
+      retset.add( element );
+    }
+    
+    //
+    return retset;
   }
   
   /**
@@ -331,6 +412,18 @@ public class SetUtils
   public static <FROM, TO> Set<TO> adapter( Set<FROM> set, ElementBidirectionalConverter<FROM, TO> elementBidirectionalConverter )
   {
     return new SetToSetAdapter<FROM, TO>( set, elementBidirectionalConverter );
+  }
+  
+  /**
+   * Returns a new {@link ListToSetAdapter} for the given {@link List}
+   * 
+   * @param list
+   *          {@link List}
+   * @return {@link Set} adapter instance
+   */
+  public static <E> Set<E> adapter( List<E> list )
+  {
+    return new ListToSetAdapter<E>( list );
   }
   
   /**

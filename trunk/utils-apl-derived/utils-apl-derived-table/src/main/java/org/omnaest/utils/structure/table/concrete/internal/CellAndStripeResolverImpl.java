@@ -16,8 +16,10 @@
 package org.omnaest.utils.structure.table.concrete.internal;
 
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Set;
 
+import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.table.Table.Cell;
 import org.omnaest.utils.structure.table.Table.Stripe.StripeType;
 import org.omnaest.utils.structure.table.concrete.internal.helper.StripeTypeHelper;
@@ -66,36 +68,17 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
     if ( stripeData != null && stripeDataOrthogonal != null )
     {
       //
-      final Iterator<CellData<E>> iteratorCellData = stripeData.getCellDataSet().iterator();
-      final Iterator<CellData<E>> iteratorCellDataOrthogonal = stripeDataOrthogonal.getCellDataSet().iterator();
+      final Set<CellData<E>> cellDataSet = stripeData.getCellDataSet();
+      final Set<CellData<E>> cellDataSetOrthogonal = stripeDataOrthogonal.getCellDataSet();
       
       //
-      CellData<E> cellData = null;
-      while ( iteratorCellData.hasNext() && iteratorCellDataOrthogonal.hasNext() )
+      Set<CellData<E>> intersection = SetUtils.intersection( cellDataSet, cellDataSetOrthogonal );
+      if ( intersection != null && intersection.size() == 1 )
       {
-        //
-        cellData = iteratorCellData.next();
-        if ( stripeDataOrthogonal.contains( cellData ) )
-        {
-          break;
-        }
-        
-        //
-        cellData = iteratorCellDataOrthogonal.next();
-        if ( stripeData.contains( cellData ) )
-        {
-          break;
-        }
-        
-        //
-        cellData = null;
-      }
-      
-      //
-      if ( cellData != null )
-      {
+        final CellData<E> cellData = IterableUtils.firstElement( intersection );
         retval = new CellImpl<E>( cellData, stripeData, stripeDataOrthogonal );
       }
+      
     }
     
     //
@@ -103,7 +86,6 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
   }
   
   @Override
-  @SuppressWarnings("unchecked")
   public Cell<E> resolveOrCreateCell( StripeData<E> stripeData, StripeData<E> stripeDataOrthogonal )
   {
     //
@@ -119,12 +101,19 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
       if ( retval == null )
       {
         //
-        retval = new CellImpl<E>( new CellDataImpl<E>(), Arrays.asList( stripeData, stripeDataOrthogonal ) );
+        retval = createCell( stripeData, stripeDataOrthogonal );
       }
     }
     
     //
     return retval;
+  }
+  
+  @Override
+  @SuppressWarnings("unchecked")
+  public Cell<E> createCell( StripeData<E> stripeData, StripeData<E> stripeDataOrthogonal )
+  {
+    return new CellImpl<E>( new CellDataImpl<E>(), Arrays.asList( stripeData, stripeDataOrthogonal ) );
   }
   
   @Override
@@ -188,7 +177,6 @@ public class CellAndStripeResolverImpl<E> extends CellAndStripeResolverAbstract<
       StripeDataList<E> stripeList = this.resolveTableContent().getStripeDataList( stripeType );
       if ( stripeList != null )
       {
-        //
         while ( ( stripe = this.resolveStripeData( stripeType, indexPosition ) ) == null )
         {
           stripeList.addNewStripeData();

@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.table.concrete.internal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,13 +37,11 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 public class StripeDataImpl<E> implements StripeData<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long   serialVersionUID = 5552519174349074630L;
+  private static final long       serialVersionUID = 5552519174349074630L;
   /* ********************************************** Variables ********************************************** */
-  protected TitleInternal     title            = new TitleImpl<E>();
-  protected Set<CellData<E>>  cellDataSet      = new HashSet<CellData<E>>( 8 ); //new MapBasedSet<CellData<E>>( new HashIntersectionMap<CellData<E>, Object>() ); 
-                                                                                
-  /* ********************************************** Beans / Services / References ********************************************** */
-  protected StripeDataList<E> stripeDataList   = null;
+  private final TitleInternal     title            = new TitleImpl<E>();
+  private final Set<CellData<E>>  cellDataSet      = new LinkedHashSet<CellData<E>>( 8 );
+  private final StripeDataList<E> stripeDataList;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -177,7 +176,7 @@ public class StripeDataImpl<E> implements StripeData<E>
   public Set<CellData<E>> findCellDataSetHavingCellElement( E element )
   {
     //
-    Set<CellData<E>> retset = new HashSet<CellData<E>>();
+    final Set<CellData<E>> retset = new HashSet<CellData<E>>();
     
     //
     for ( CellData<E> cellData : this.cellDataSet )
@@ -195,7 +194,15 @@ public class StripeDataImpl<E> implements StripeData<E>
   @Override
   public String toString()
   {
-    return "StripeData[title=" + this.title + ", cellDataSet=" + this.cellDataSet + ", type=" + this.resolveStripeType() + "]";
+    StringBuilder builder = new StringBuilder();
+    builder.append( "StripeDataImpl [title=" );
+    builder.append( this.title );
+    builder.append( ", cellDataSet=" );
+    builder.append( this.cellDataSet );
+    builder.append( ", resolveStripeType()=" );
+    builder.append( this.resolveStripeType() );
+    builder.append( "]" );
+    return builder.toString();
   }
   
 }

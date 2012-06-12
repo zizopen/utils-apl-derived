@@ -189,7 +189,7 @@ public interface TableCoreImmutable<E> extends TableCloneable<E>, TableDataSourc
   
   /**
    * Returns a {@link Row} of the {@link Table} identified by the title of a row. Before this can be used, the titles have to be
-   * set by {@link #setRowTitleValues(List)}
+   * set by {@link TableCore#setRowTitleValues(List)}
    * 
    * @see #getRow(int)
    * @param rowTitleValue
@@ -215,13 +215,21 @@ public interface TableCoreImmutable<E> extends TableCloneable<E>, TableDataSourc
   
   /**
    * Returns a {@link Column} for the given {@link Column} title value. The {@link Column} titles have to be set before with
-   * {@link #setColumnTitleValues(List)}
+   * {@link TableCore#setColumnTitleValues(List)}
    * 
    * @see #getColumn(int)
    * @param columnTitleValue
    * @return
    */
   public Column<E> getColumn( Object columnTitleValue );
+  
+  /**
+   * Similar to {@link #getColumn(Object)}
+   * 
+   * @param columnTitleValue
+   * @return
+   */
+  public Column<E> getColumn( String columnTitleValue );
   
   /**
    * Returns the last {@link Row} of the {@link Table}
@@ -263,7 +271,7 @@ public interface TableCoreImmutable<E> extends TableCloneable<E>, TableDataSourc
    * Returns an {@link Iterator} that goes through every {@link Column} for every {@link Row}. Starting from left to right and
    * then downwards all the {@link Row}s.
    * 
-   * @see #iteratorRow()
+   * @see TableCoreImmutable#iterator()
    * @see #iterator()
    * @return
    */
@@ -299,9 +307,9 @@ public interface TableCoreImmutable<E> extends TableCloneable<E>, TableDataSourc
   public Iterator<Column<E>> iteratorColumn();
   
   /**
-   * The same as {@link #iteratorRow()}
+   * {@link Iterator} over the {@link Row}s of the {@link Table}
    * 
-   * @see #iteratorRow()
+   * @see #iterator()
    * @see #iteratorCell()
    * @return
    */

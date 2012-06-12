@@ -44,23 +44,23 @@ import org.omnaest.utils.structure.table.internal.TableInternal.TableContentReso
  */
 public class ArrayTable<E> extends TableBasic<E>
 {
-  /* ********************************************** Constants ********************************************** */
-  private static final long          serialVersionUID      = 1763808639838518679L;
+  /* ************************************************** Constants *************************************************** */
+  private static final long        serialVersionUID      = 1763808639838518679L;
   
-  /* ********************************************** Variables ********************************************** */
-  protected TableInternal<E>         tableInternal         = new ArrayTableInternal();
-  protected TableContentResolver<E>  tableContentResolver  = new TableContentResolver<E>()
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private TableInternal<E>         tableInternal         = new ArrayTableInternal();
+  private TableContentResolver<E>  tableContentResolver  = new TableContentResolver<E>()
+                                                         {
+                                                           @Override
+                                                           public TableContent<E> resolveTableContent()
                                                            {
-                                                             @Override
-                                                             public TableContent<E> resolveTableContent()
-                                                             {
-                                                               return ArrayTable.this.tableContent;
-                                                             }
-                                                           };
-  protected Object                   tableName             = null;
-  protected StripeFactory<E>         stripeFactory         = new StripeFactory<E>( this.tableInternal );
-  protected TableContent<E>          tableContent          = new TableContentImpl<E>();
-  protected CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl<E>( this.tableContentResolver );
+                                                             return ArrayTable.this.tableContent;
+                                                           }
+                                                         };
+  private Object                   tableName             = null;
+  private StripeFactory<E>         stripeFactory         = new StripeFactory<E>( this.tableInternal );
+  private TableContent<E>          tableContent          = new TableContentImpl<E>();
+  private CellAndStripeResolver<E> cellAndStripeResolver = new CellAndStripeResolverImpl<E>( this.tableContentResolver );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -69,7 +69,7 @@ public class ArrayTable<E> extends TableBasic<E>
    * @see TableInternal
    * @author Omnaest
    */
-  public class ArrayTableInternal implements TableInternal<E>
+  protected class ArrayTableInternal implements TableInternal<E>
   {
     
     @Override
@@ -104,7 +104,7 @@ public class ArrayTable<E> extends TableBasic<E>
     
   }
   
-  /* ********************************************** Methods ********************************************** */
+  /* *************************************************** Methods **************************************************** */
   
   /**
    * @see ArrayTable

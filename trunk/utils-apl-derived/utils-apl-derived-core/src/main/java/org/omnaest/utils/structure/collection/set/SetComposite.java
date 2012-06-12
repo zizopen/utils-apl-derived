@@ -19,10 +19,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.commons.collections.IteratorUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.iterator.IteratorUtils;
 
 /**
  * Composite {@link Set} consisting of multiple given {@link Set} instances of the same type <br>
@@ -104,15 +104,14 @@ public class SetComposite<E> extends SetAbstract<E>
   @Override
   public Iterator<E> iterator()
   {
-    return IteratorUtils.chainedIterator( ArrayUtils.convertArray( this.sets, Iterator.class,
-                                                                   new ElementConverter<Set<E>, Iterator<E>>()
-                                                                   {
-                                                                     @Override
-                                                                     public Iterator<E> convert( Set<E> set )
-                                                                     {
-                                                                       return set != null ? set.iterator() : null;
-                                                                     }
-                                                                   } ) );
+    return IteratorUtils.chained( ArrayUtils.convertArray( this.sets, Iterator.class, new ElementConverter<Set<E>, Iterator<E>>()
+    {
+      @Override
+      public Iterator<E> convert( Set<E> set )
+      {
+        return set != null ? set.iterator() : null;
+      }
+    } ) );
   }
   
   @Override

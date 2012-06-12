@@ -412,6 +412,15 @@ public interface TableInternal<E>
      * @return
      */
     public Cell<E> resolveOrCreateCellWithinNewTableArea( StripeData<E> stripeData, Object titleValue );
+    
+    /**
+     * Creates a new {@link Cell} based on the given {@link StripeData} and its orthogonal counterpart
+     * 
+     * @param stripeData
+     * @param stripeDataOrthogonal
+     * @return {@link Cell}
+     */
+    public Cell<E> createCell( StripeData<E> stripeData, StripeData<E> stripeDataOrthogonal );
   }
   
   /**

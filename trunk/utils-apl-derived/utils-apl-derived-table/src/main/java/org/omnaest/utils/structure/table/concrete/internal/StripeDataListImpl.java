@@ -40,13 +40,13 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeDataList;
 public class StripeDataListImpl<E> implements StripeDataList<E>
 {
   /* ********************************************** Constants ********************************************** */
-  private static final long                      serialVersionUID           = -3102496365938486288L;
+  private static final long                    serialVersionUID           = -3102496365938486288L;
   
   /* ********************************************** Variables ********************************************** */
-  protected List<StripeData<E>>                  stripeDataList             = new ArrayList<StripeData<E>>();
-  protected StripeType                           stripeType                 = null;
+  private List<StripeData<E>>                  stripeDataList             = new ArrayList<StripeData<E>>();
+  private StripeType                           stripeType                 = null;
   
-  protected Map<CellData<E>, Set<StripeData<E>>> cellDataToStripeDataSetMap = new HashMap<CellData<E>, Set<StripeData<E>>>();
+  private Map<CellData<E>, Set<StripeData<E>>> cellDataToStripeDataSetMap = new HashMap<CellData<E>, Set<StripeData<E>>>();
   
   /* ********************************************** Methods ********************************************** */
   
@@ -66,6 +66,7 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   public StripeData<E> addNewStripeData()
   {
     //
+    final int cachedIndexPosition = this.stripeDataList.size();
     StripeData<E> retval = new StripeDataImpl<E>( this );
     
     //
@@ -78,7 +79,8 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
   @Override
   public StripeData<E> addNewStripeData( int indexPosition )
   {
-    //
+    //    
+    final int cachedIndexPosition = indexPosition;
     StripeData<E> retval = new StripeDataImpl<E>( this );
     
     //
@@ -346,6 +348,16 @@ public class StripeDataListImpl<E> implements StripeDataList<E>
       }
     }
     
+  }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "StripeDataListImpl [stripeType=" );
+    builder.append( this.stripeType );
+    builder.append( "]" );
+    return builder.toString();
   }
   
 }
