@@ -75,22 +75,14 @@ public class StreamConnectorTest
     directBac.copyFrom( secondBac );
     assertEquals( testString, directBac.toString( encoding ) );
     
-    try
-    {
-      File file = new File( "ByteArrayContainerTest.bin" );
-      directBac.save( file );
-      directBac.clear();
-      assertNull( directBac.getContent() );
-      
-      directBac.load( file );
-      file.delete();
-      assertEquals( testString, directBac.toString( encoding ) );
-    }
-    catch ( IOException e )
-    {
-      fail( e.getMessage() );
-    }
-    //
+    File file = new File( "ByteArrayContainerTest.bin" );
+    directBac.writeTo( file );
+    directBac.clear();
+    assertNull( directBac.getContent() );
+    
+    directBac.copyFrom( file );
+    file.delete();
+    assertEquals( testString, directBac.toString( encoding ) );
   }
   
   @Test

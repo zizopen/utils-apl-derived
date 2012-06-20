@@ -319,7 +319,7 @@ public abstract class SortedListAbstract<E> extends ListAbstract<E> implements S
     Class<? extends SortedList<E>> type = (Class<? extends SortedList<E>>) this.getClass();
     
     //
-    final SortedList<E> retlist = ReflectionUtils.createInstanceOf( type );
+    final SortedList<E> retlist = ReflectionUtils.newInstanceOf( type );
     retlist.addAll( collection );
     
     //

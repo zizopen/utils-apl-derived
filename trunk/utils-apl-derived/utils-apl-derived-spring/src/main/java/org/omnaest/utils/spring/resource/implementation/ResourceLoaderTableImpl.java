@@ -34,6 +34,7 @@ import org.springframework.core.io.ResourceLoader;
  */
 public class ResourceLoaderTableImpl implements ResourceLoaderTable
 {
+  private static final long serialVersionUID = -5636329784509801515L;
   /* ********************************************** Variables ********************************************** */
   @Autowired
   protected ResourceLoader resourceLoader = null;

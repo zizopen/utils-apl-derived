@@ -230,7 +230,7 @@ public class ObjectUtils
           else if ( ReflectionUtils.hasConstructorFor( mapType, Map.class ) )
           {
             Map<Object, Object> map = castArrayToMap( LinkedHashMap.class, keyType, valueType, array );
-            retval = ReflectionUtils.createInstanceOf( mapType, map );
+            retval = ReflectionUtils.newInstanceOf( mapType, map );
           }
         }
         else if ( array != null && array.getClass().isArray() )
@@ -383,12 +383,12 @@ public class ObjectUtils
           }
           else if ( ReflectionUtils.hasConstructorFor( wrapperType, array ) )
           {
-            retval = ReflectionUtils.createInstanceOf( wrapperType, array );
+            retval = ReflectionUtils.newInstanceOf( wrapperType, array );
           }
           else if ( ReflectionUtils.hasConstructorFor( wrapperType, Collection.class ) )
           {
             Collection<Object> collection = castArrayTo( ArrayList.class, elementType, array );
-            retval = ReflectionUtils.createInstanceOf( wrapperType, collection );
+            retval = ReflectionUtils.newInstanceOf( wrapperType, collection );
           }
         }
         else if ( array != null && array.getClass().isArray() )
@@ -576,7 +576,7 @@ public class ObjectUtils
           {
             
             //
-            C createdInstance = ReflectionUtils.createInstanceOf( type, object );
+            C createdInstance = ReflectionUtils.newInstanceOf( type, object );
             if ( createdInstance != null )
             {
               retval = createdInstance;
@@ -584,7 +584,7 @@ public class ObjectUtils
             else
             {
               //
-              createdInstance = ReflectionUtils.createInstanceUsingValueOfMethod( type, object );
+              createdInstance = ReflectionUtils.newInstanceByValueOf( type, object );
               if ( createdInstance != null )
               {
                 retval = createdInstance;

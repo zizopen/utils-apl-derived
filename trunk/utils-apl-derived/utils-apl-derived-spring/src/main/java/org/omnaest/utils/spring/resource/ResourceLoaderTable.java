@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.resource;
 
+import java.io.Serializable;
+
 import org.omnaest.utils.structure.table.Table;
 import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
 import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
@@ -32,7 +34,7 @@ import org.springframework.core.io.ResourceLoader;
  * 
  * @author Omnaest
  */
-public interface ResourceLoaderTable
+public interface ResourceLoaderTable extends Serializable
 {
   
   /**

@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.scope;
 
+import java.io.Serializable;
+
 /**
  * The {@link BeanScopeAwareCallableDecorator} does call the {@link BeanScopeThreadContextManager#addCurrentThreadToBeanScope()}
  * and {@link BeanScopeThreadContextManager#removeCurrentThreadFromBeanScope()} at the appropriate times
@@ -22,8 +24,9 @@ package org.omnaest.utils.spring.scope;
  * @see Runnable
  * @author Omnaest
  */
-public class BeanScopeAwareRunnableDecorator implements Runnable
+public class BeanScopeAwareRunnableDecorator implements Runnable,Serializable
 {
+  private static final long serialVersionUID = 8932328078493593152L;
   /* ********************************************** Variables ********************************************** */
   private Runnable                      runnable                      = null;
   private BeanScopeThreadContextManager beanScopeThreadContextManager = null;

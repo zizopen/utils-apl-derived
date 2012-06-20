@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.converter;
 
+import java.io.Serializable;
+
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
@@ -28,10 +30,12 @@ import org.springframework.util.Assert;
  * @param <S>
  * @param <T>
  */
-public class ElementConverterToSpringConverterAdapter<S, T> implements Converter<S, T>
+public class ElementConverterToSpringConverterAdapter<S, T> implements Converter<S, T>, Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long            serialVersionUID = -6136216057561091189L;
   /* ********************************************** Variables ********************************************** */
-  protected final ElementConverter<S, T> elementConverter;
+  private final ElementConverter<S, T> elementConverter;
   
   /* ********************************************** Methods ********************************************** */
   

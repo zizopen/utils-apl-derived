@@ -20,9 +20,11 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToFloat implements ElementConverterTypeAware<String, Float>
+public class ElementConverterStringToFloat implements ElementConverterTypeAwareSerializable<String, Float>
 {
   
+  private static final long serialVersionUID = 6670623015348901790L;
+
   @Override
   public Float convert( String element )
   {

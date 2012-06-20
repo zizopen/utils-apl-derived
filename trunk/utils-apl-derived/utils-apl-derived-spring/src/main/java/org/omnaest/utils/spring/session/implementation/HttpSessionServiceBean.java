@@ -39,8 +39,11 @@ import org.springframework.stereotype.Service;
 @Scope("session")
 public class HttpSessionServiceBean implements HttpSessionService
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long                             serialVersionUID                            = 8589117096405237458L;
+  
   /* ********************************************** Variables ********************************************** */
-  protected Configuration                               httpSessionFacadeConfiguration              = null;
+  private Configuration                                 httpSessionFacadeConfiguration              = null;
   
   /* ********************************************** Beans / Services / References ********************************************** */
   @Autowired

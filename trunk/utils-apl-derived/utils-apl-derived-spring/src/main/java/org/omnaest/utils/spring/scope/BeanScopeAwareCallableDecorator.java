@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.scope;
 
+import java.io.Serializable;
 import java.util.concurrent.Callable;
 
 /**
@@ -25,8 +26,9 @@ import java.util.concurrent.Callable;
  * @author Omnaest
  * @param <V>
  */
-public class BeanScopeAwareCallableDecorator<V> implements Callable<V>
+public class BeanScopeAwareCallableDecorator<V> implements Callable<V>,Serializable
 {
+  private static final long serialVersionUID = 1884003978722439198L;
   /* ********************************************** Variables ********************************************** */
   private Callable<V>                   callable                      = null;
   private BeanScopeThreadContextManager beanScopeThreadContextManager = null;

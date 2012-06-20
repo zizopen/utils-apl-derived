@@ -133,7 +133,7 @@ public class BeanToNestedMapUnMarshaller<B>
         }
         
         //
-        Object beanNew = ReflectionUtils.createInstanceOf( objectClass );
+        Object beanNew = ReflectionUtils.newInstanceOf( objectClass );
         
         //
         if ( beanNew != null )

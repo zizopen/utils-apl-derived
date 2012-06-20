@@ -30,9 +30,11 @@ import org.omnaest.utils.assertion.Assert;
  * @param <FROM>
  * @param <TO>
  */
-public abstract class ElementConverterTypeAwareGenericsBased<FROM, TO> implements ElementConverterTypeAware<FROM, TO>
+public abstract class ElementConverterTypeAwareGenericsBased<FROM, TO> implements ElementConverterTypeAwareSerializable<FROM, TO>
 {
   
+  private static final long serialVersionUID = 3146184893674440314L;
+
   @SuppressWarnings("unchecked")
   @Override
   public org.omnaest.utils.structure.element.converter.ElementConverterTypeAware.SourceAndTargetType<FROM, TO> getSourceAndTargetType()

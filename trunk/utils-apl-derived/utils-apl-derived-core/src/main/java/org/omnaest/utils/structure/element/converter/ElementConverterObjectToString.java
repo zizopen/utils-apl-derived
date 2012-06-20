@@ -19,8 +19,10 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterTypeAware
  * @author Omnaest
  */
-public class ElementConverterObjectToString implements ElementConverterTypeAware<Object, String>
+public class ElementConverterObjectToString implements ElementConverterTypeAwareSerializable<Object, String>
 {
+  private static final long serialVersionUID = 5530096365933057082L;
+
   @Override
   public String convert( Object element )
   {

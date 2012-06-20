@@ -19,9 +19,11 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverter
  * @author Omnaest
  */
-public class ElementConverterStringToBoolean implements ElementConverter<String, Boolean>
+public class ElementConverterStringToBoolean implements ElementConverterSerializable<String, Boolean>
 {
   
+  private static final long serialVersionUID = 745204011399710174L;
+
   @Override
   public Boolean convert( String element )
   {

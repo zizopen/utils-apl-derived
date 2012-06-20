@@ -21,8 +21,10 @@ package org.omnaest.utils.structure.element.converter;
  * 
  * @author Omnaest
  */
-public class ElementConverterObjectToClassOfObject implements ElementConverter<Object, Class<? extends Object>>
+public class ElementConverterObjectToClassOfObject implements ElementConverterSerializable<Object, Class<? extends Object>>
 {
+  private static final long serialVersionUID = -510983792483348192L;
+
   @Override
   public Class<? extends Object> convert( Object element )
   {

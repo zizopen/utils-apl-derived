@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.threads;
 
+import java.io.Serializable;
+
 import org.omnaest.utils.assertion.Assert;
 
 /**
@@ -22,10 +24,12 @@ import org.omnaest.utils.assertion.Assert;
  * 
  * @author Omnaest
  */
-public abstract class RunnableDecorator implements Runnable
+public abstract class RunnableDecorator implements Runnable, Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = -1445715278932243834L;
   /* ********************************************** Variables ********************************************** */
-  protected final Runnable runnable;
+  protected final Runnable  runnable;
   
   /* ********************************************** Methods ********************************************** */
   

@@ -21,9 +21,11 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToByte implements ElementConverterTypeAware<String, Byte>
+public class ElementConverterStringToByte implements ElementConverterTypeAwareSerializable<String, Byte>
 {
   
+  private static final long serialVersionUID = 5458767710864096736L;
+
   @Override
   public Byte convert( String element )
   {

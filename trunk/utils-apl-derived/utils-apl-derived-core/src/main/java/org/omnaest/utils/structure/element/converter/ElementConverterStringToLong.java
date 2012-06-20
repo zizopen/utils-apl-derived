@@ -20,9 +20,11 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToLong implements ElementConverterTypeAware<String, Long>
+public class ElementConverterStringToLong implements ElementConverterTypeAwareSerializable<String, Long>
 {
   
+  private static final long serialVersionUID = -4105026393418434436L;
+
   @Override
   public Long convert( String element )
   {

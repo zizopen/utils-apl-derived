@@ -22,9 +22,11 @@ import java.math.BigDecimal;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToBigDecimal implements ElementConverterTypeAware<String, BigDecimal>
+public class ElementConverterStringToBigDecimal implements ElementConverterTypeAwareSerializable<String, BigDecimal>
 {
   
+  private static final long serialVersionUID = -1950537155461949661L;
+
   @Override
   public BigDecimal convert( String element )
   {

@@ -118,7 +118,7 @@ public class AdapterTypePatternBased implements AdapterInternal
           @Override
           public Object newInstance()
           {
-            return ReflectionUtils.createInstanceOf( resolvedClass );
+            return ReflectionUtils.newInstanceOf( resolvedClass );
           }
           
           @Override

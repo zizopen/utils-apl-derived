@@ -20,9 +20,11 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToDouble implements ElementConverterTypeAware<String, Double>
+public class ElementConverterStringToDouble implements ElementConverterTypeAwareSerializable<String, Double>
 {
   
+  private static final long serialVersionUID = -9171159572246840573L;
+
   @Override
   public Double convert( String element )
   {

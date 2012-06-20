@@ -21,15 +21,17 @@ import org.omnaest.utils.structure.element.factory.concrete.FactoryTypeAwareRefl
 
 /**
  * {@link ElementConverter} which converts a given {@link Class} type to an {@link FactoryTypeAware} instance which creates
- * instances of the given type using {@link ReflectionUtils#createInstanceOf(Class, Object...)}
+ * instances of the given type using {@link ReflectionUtils#newInstanceOf(Class, Object...)}
  * 
  * @see ElementConverterClassToInstance
  * @author Omnaest
  * @param <T>
  *          type
  */
-public class ElementConverterClassToClassInstanceFactory<T> implements ElementConverter<Class<? extends T>, FactoryTypeAware<T>>
+public class ElementConverterClassToClassInstanceFactory<T> implements ElementConverterSerializable<Class<? extends T>, FactoryTypeAware<T>>
 {
+  private static final long serialVersionUID = -8871423129239225253L;
+
   @Override
   public FactoryTypeAware<T> convert( Class<? extends T> type )
   {

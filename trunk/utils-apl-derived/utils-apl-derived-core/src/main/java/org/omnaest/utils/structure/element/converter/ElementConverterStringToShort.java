@@ -21,9 +21,10 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToShort implements ElementConverterTypeAware<String, Short>
-{
-  
+public class ElementConverterStringToShort implements ElementConverterTypeAwareSerializable<String, Short>
+{  
+  private static final long serialVersionUID = 5336474703429302855L;
+
   @Override
   public Short convert( String element )
   {

@@ -370,12 +370,18 @@ public class ReflectionUtils
   
   /**
    * Creates a new instance of a given {@link Class} using a constructor which has the same parameter signature as the provided
-   * arguments.
+   * arguments. <br>
+   * <br>
+   * Primitive arguments will be matched to their java wrapper types.<br>
+   * <br>
+   * This method never throws an {@link Exception} instead null is returned.
    * 
+   * @see #newInstanceByValueOf(Class, Object...)
    * @param type
+   *          {@link Class}
    * @param arguments
    */
-  public static <B> B createInstanceOf( Class<? extends B> type, Object... arguments )
+  public static <B> B newInstanceOf( Class<? extends B> type, Object... arguments )
   {
     //
     B retval = null;
@@ -388,27 +394,14 @@ public class ReflectionUtils
       {
         //
         Constructor<? extends B> constructor = constructorFor( type, arguments );
+        constructor.setAccessible( true );
         
         //
-        boolean accessible = constructor.isAccessible();
-        
-        //
-        try
-        {
-          constructor.setAccessible( true );
-          retval = constructor.newInstance( arguments );
-        }
-        catch ( Exception e )
-        {
-        }
-        
-        //
-        constructor.setAccessible( accessible );
+        retval = constructor.newInstance( arguments );
       }
       catch ( Exception e )
       {
       }
-      
     }
     
     //
@@ -417,13 +410,19 @@ public class ReflectionUtils
   
   /**
    * Creates a new instance of a given {@link Class} using a possibly present valueOf method which has the same parameter
-   * signature as the provided arguments.
+   * signature as the provided arguments. <br>
+   * <br>
+   * Any primitive arguments will match their java wrapper type signature as well. <br>
+   * <br>
+   * This method does not throw any {@link Exception} instead it will return null, if the invocation fails for any reason.
    * 
+   * @see #newInstanceOf
    * @param type
+   *          {@link Class}
    * @param arguments
    */
   @SuppressWarnings("unchecked")
-  public static <B> B createInstanceUsingValueOfMethod( Class<? extends B> type, Object... arguments )
+  public static <B> B newInstanceByValueOf( Class<? extends B> type, Object... arguments )
   {
     //
     B retval = null;
@@ -432,35 +431,20 @@ public class ReflectionUtils
     if ( type != null )
     {
       //
-      Class<?>[] parameterTypes = determineParameterTypesFromArguments( arguments );
-      
-      //
+      final Class<?>[] parameterTypes = determineParameterTypesFromArguments( arguments );
       try
       {
         //
-        String name = "valueOf";
+        final String name = "valueOf";
         Method valueOfMethod = type.getDeclaredMethod( name, parameterTypes );
+        valueOfMethod.setAccessible( true );
         
-        //
-        boolean accessible = valueOfMethod.isAccessible();
-        
-        //
-        try
-        {
-          valueOfMethod.setAccessible( true );
-          retval = (B) valueOfMethod.invoke( null, arguments );
-        }
-        catch ( Exception e )
-        {
-        }
-        
-        //
-        valueOfMethod.setAccessible( accessible );
+        //        
+        retval = (B) valueOfMethod.invoke( null, arguments );
       }
       catch ( Exception e )
       {
       }
-      
     }
     
     //

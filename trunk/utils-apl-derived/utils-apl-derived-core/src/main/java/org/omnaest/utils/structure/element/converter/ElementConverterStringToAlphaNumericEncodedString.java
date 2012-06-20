@@ -25,9 +25,11 @@ import org.omnaest.utils.codec.Codec;
  * @see ElementConverter
  * @author Omnaest
  */
-public class ElementConverterStringToAlphaNumericEncodedString implements ElementConverter<String, String>
+public class ElementConverterStringToAlphaNumericEncodedString implements ElementConverterSerializable<String, String>
 {
   
+  private static final long serialVersionUID = -4688840461828045728L;
+
   @Override
   public String convert( String element )
   {

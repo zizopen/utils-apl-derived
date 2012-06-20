@@ -31,6 +31,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.download.DownloadConnection;
 import org.omnaest.utils.download.URIHelper;
 import org.omnaest.utils.download.URLHelper;
@@ -218,41 +220,112 @@ public class ByteArrayContainer
    * Loads the content of the given file into the container.
    * 
    * @param file
-   * @throws IOException
+   * @deprecated use {@link #copyFrom(File)} instead
    */
-  public void load( File file ) throws IOException
+  @Deprecated
+  public void load( File file )
+  {
+    this.copyFrom( file );
+  }
+  
+  /**
+   * Copies the content of the given {@link File} into the {@link ByteArrayContainer}. <br>
+   * <br>
+   * If the operation fails the {@link #isContentInvalid()} will return true
+   * 
+   * @see #isContentInvalid()
+   * @param file
+   *          {@link File}
+   * @return this
+   */
+  public ByteArrayContainer copyFrom( File file )
   {
     //
-    final FileInputStream fileInputStream = new FileInputStream( file );
-    final BufferedInputStream bufferedInputStream = new BufferedInputStream( fileInputStream );
-    final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    this.setContentInvalid( true );
+    this.clear();
     
     //
-    StreamConnector.connect( bufferedInputStream, byteArrayOutputStream );
+    try
+    {
+      //
+      final FileInputStream fileInputStream = new FileInputStream( file );
+      final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+      try
+      {
+        //
+        final BufferedInputStream bufferedInputStream = new BufferedInputStream( fileInputStream );
+        StreamConnector.connect( bufferedInputStream, byteArrayOutputStream );
+        bufferedInputStream.close();
+      }
+      finally
+      {
+        fileInputStream.close();
+        byteArrayOutputStream.close();
+      }
+      
+      //
+      this.content = byteArrayOutputStream.toByteArray();
+      
+      //
+      this.setContentInvalid( false );
+    }
+    catch ( Exception e )
+    {
+      handleException( e );
+    }
     
     //
-    bufferedInputStream.close();
-    fileInputStream.close();
-    byteArrayOutputStream.close();
-    
-    //
-    this.content = byteArrayOutputStream.toByteArray();
+    return this;
+  }
+  
+  /**
+   * Handles the given {@link Exception} using the internal {@link #exceptionHandler} if the reference is not null
+   * 
+   * @param e
+   */
+  private void handleException( Exception e )
+  {
+    if ( this.exceptionHandler != null )
+    {
+      this.exceptionHandler.handleException( e );
+    }
   }
   
   /**
    * Saves the content of the {@link ByteArrayContainer} to a given {@link File}
    * 
    * @param file
-   * @throws IOException
+   *          {@link File}
+   * @deprecated use {@link #writeTo(File)} instead
    */
-  public void save( File file ) throws IOException
+  @Deprecated
+  public void save( File file )
+  {
+    this.writeTo( file );
+  }
+  
+  /**
+   * Writes the content of the {@link ByteArrayContainer} to the given {@link File}
+   * 
+   * @param file
+   *          {@link File}
+   */
+  public void writeTo( File file )
   {
     //
-    final OutputStream fileOutputStream = new FileOutputStream( file );
-    final BufferedOutputStream bufferedOutputStream = new BufferedOutputStream( fileOutputStream );
-    bufferedOutputStream.write( this.content );
-    bufferedOutputStream.close();
-    fileOutputStream.close();
+    try
+    {
+      //
+      final OutputStream fileOutputStream = new FileOutputStream( file );
+      final BufferedOutputStream bufferedOutputStream = new BufferedOutputStream( fileOutputStream );
+      bufferedOutputStream.write( this.content );
+      bufferedOutputStream.close();
+      fileOutputStream.close();
+    }
+    catch ( Exception e )
+    {
+      handleException( e );
+    }
   }
   
   /**
@@ -263,10 +336,7 @@ public class ByteArrayContainer
    */
   public ByteArrayContainer copyFrom( ByteArrayContainer sourceByteArrayContainer )
   {
-    //
     this.copyFrom( sourceByteArrayContainer.getInputStream() );
-    
-    //
     return this;
   }
   
@@ -282,23 +352,125 @@ public class ByteArrayContainer
   public ByteArrayContainer copyFrom( InputStream sourceInputStream )
   {
     //
-    this.isContentInvalid = false;
+    this.isContentInvalid = true;
+    this.clear();
+    
+    //
     try
     {
+      //
+      Assert.isNotNull( sourceInputStream, "sourceInputStream must not be null" );
+      
       //
       OutputStream outputStream = this.getOutputStream();
       StreamConnector.connect( sourceInputStream, outputStream );
       outputStream.close();
+      this.isContentInvalid = false;
+    }
+    catch ( Exception e )
+    {
+      this.handleException( e );
+    }
+    
+    //
+    return this;
+  }
+  
+  /**
+   * Uses the given {@link URL#openStream()} to retrieve data which will be available within the {@link ByteArrayContainer} <br>
+   * <br>
+   * If the data cannot be resolved completely the {@link #isContentInvalid()} will return true afterwards.
+   * 
+   * @see #isContentInvalid()
+   * @see #copyFrom(InputStream)
+   * @param url
+   *          {@link URL}
+   * @return this
+   */
+  public ByteArrayContainer copyFrom( URL url )
+  {
+    //
+    this.isContentInvalid = true;
+    this.clear();
+    InputStream sourceInputStream = null;
+    try
+    {
+      //
+      Assert.isNotNull( url, "url must not be null" );
+      
+      //
+      sourceInputStream = url.openStream();
+      BufferedInputStream bufferedInputStream = new BufferedInputStream( sourceInputStream );
+      this.copyFrom( bufferedInputStream );
+      bufferedInputStream.close();
+      
+      //
+      this.isContentInvalid = false;
     }
     catch ( IOException e )
     {
+      this.handleException( e );
+    }
+    finally
+    {
+      try
+      {
+        //
+        sourceInputStream.close();
+      }
+      catch ( Exception e )
+      {
+        this.handleException( e );
+      }
+    }
+    
+    //
+    return this;
+  }
+  
+  /**
+   * Similar to {@link #copyFrom(URL)}
+   * 
+   * @param urlConnection
+   *          {@link URLConnection}
+   * @return this
+   */
+  public ByteArrayContainer copyFrom( URLConnection urlConnection )
+  {
+    //
+    this.isContentInvalid = true;
+    this.clear();
+    
+    //
+    InputStream sourceInputStream = null;
+    try
+    {
       //
-      this.isContentInvalid = true;
+      Assert.isNotNull( urlConnection, "urlConnection must not be null" );
       
       //
-      if ( this.exceptionHandler != null )
+      sourceInputStream = urlConnection.getInputStream();
+      BufferedInputStream bufferedInputStream = new BufferedInputStream( sourceInputStream );
+      this.copyFrom( bufferedInputStream );
+      bufferedInputStream.close();
+      
+      //
+      this.isContentInvalid = true;
+    }
+    catch ( IOException e )
+    {
+      this.handleException( e );
+    }
+    finally
+    {
+      try
       {
-        this.exceptionHandler.handleException( e );
+        //
+        sourceInputStream.close();
+      }
+      catch ( Exception e )
+      {
+        this.handleException( e );
       }
     }
     
@@ -359,10 +531,7 @@ public class ByteArrayContainer
         this.isContentInvalid = true;
         
         //
-        if ( this.exceptionHandler != null )
-        {
-          this.exceptionHandler.handleException( e );
-        }
+        this.handleException( e );
       }
     }
     
@@ -383,23 +552,17 @@ public class ByteArrayContainer
   public ByteArrayContainer copyFrom( String string, String encoding )
   {
     //
-    this.isContentInvalid = false;
+    this.isContentInvalid = true;
     try
     {
       OutputStreamWriter osw = new OutputStreamWriter( this.getOutputStream(), encoding );
       osw.write( string );
       osw.close();
+      this.isContentInvalid = false;
     }
     catch ( IOException e )
     {
-      //
-      this.isContentInvalid = true;
-      
-      //
-      if ( this.exceptionHandler != null )
-      {
-        this.exceptionHandler.handleException( e );
-      }
+      this.handleException( e );
     }
     
     //
@@ -414,10 +577,7 @@ public class ByteArrayContainer
    */
   public ByteArrayContainer copyFrom( String string )
   {
-    //
     this.copyFrom( string, DEFAULTENCODING );
-    
-    //
     return this;
   }
   
@@ -429,10 +589,7 @@ public class ByteArrayContainer
    */
   public ByteArrayContainer copyFrom( CharSequence charSequence )
   {
-    //
     this.copyFrom( charSequence, DEFAULTENCODING );
-    
-    //
     return this;
   }
   
@@ -445,10 +602,7 @@ public class ByteArrayContainer
    */
   public ByteArrayContainer copyFrom( CharSequence charSequence, String encoding )
   {
-    //
     this.copyFrom( charSequence.toString(), DEFAULTENCODING );
-    
-    //
     return this;
   }
   
@@ -500,10 +654,7 @@ public class ByteArrayContainer
     }
     catch ( IOException e )
     {
-      if ( this.exceptionHandler != null )
-      {
-        this.exceptionHandler.handleException( e );
-      }
+      this.handleException( e );
     }
     
     //
@@ -586,6 +737,7 @@ public class ByteArrayContainer
       catch ( IOException e )
       {
         retval = false;
+        this.handleException( e );
       }
     }
     
@@ -630,6 +782,7 @@ public class ByteArrayContainer
     catch ( IOException e )
     {
       retval = false;
+      this.handleException( e );
     }
     
     //
@@ -741,10 +894,7 @@ public class ByteArrayContainer
     }
     catch ( Exception e )
     {
-      if ( this.exceptionHandler != null )
-      {
-        this.exceptionHandler.handleException( e );
-      }
+      handleException( e );
     }
     
     //
@@ -1042,10 +1192,7 @@ public class ByteArrayContainer
     }
     catch ( UnsupportedEncodingException e )
     {
-      if ( this.exceptionHandler != null )
-      {
-        this.exceptionHandler.handleException( e );
-      }
+      this.handleException( e );
     }
     
     //

@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.threads;
 
+import java.io.Serializable;
 import java.util.concurrent.Callable;
 
 import org.omnaest.utils.assertion.Assert;
@@ -25,8 +26,10 @@ import org.omnaest.utils.assertion.Assert;
  * @author Omnaest
  * @param <V>
  */
-public abstract class CallableDecorator<V> implements Callable<V>
+public abstract class CallableDecorator<V> implements Callable<V>, Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long   serialVersionUID = 6691986461223970211L;
   /* ********************************************** Variables ********************************************** */
   protected final Callable<V> callable;
   

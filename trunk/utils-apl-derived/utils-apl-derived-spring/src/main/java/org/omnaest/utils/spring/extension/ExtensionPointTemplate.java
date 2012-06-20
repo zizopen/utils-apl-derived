@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.extension;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.omnaest.utils.events.exception.ExceptionHandler;
@@ -29,11 +30,13 @@ import org.omnaest.utils.operation.special.OperationVoid;
  * @author Omnaest
  */
 @ExtensionPoint
-public abstract class ExtensionPointTemplate<S>
+public abstract class ExtensionPointTemplate<S> implements Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = 6825126831651331418L;
   /* ********************************************** Beans / Services / References ********************************************** */
-  private final List<S>    beanList;
-  private ExceptionHandler exceptionHandler = null;
+  private final List<S>     beanList;
+  private ExceptionHandler  exceptionHandler = null;
   
   /* ********************************************** Methods ********************************************** */
   

@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.scope;
 
+import java.io.Serializable;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
@@ -65,8 +66,11 @@ import org.springframework.util.Assert;
  * @see #LOCALE
  * @author Omnaest
  */
-public class LocaleBeanScope implements Scope, ApplicationContextAware
+public class LocaleBeanScope implements Scope, ApplicationContextAware, Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long                      serialVersionUID                       = 7189211168937785337L;
+  
   /* ********************************************** Constants ********************************************** */
   /** A predefined {@link Scope} type called: "locale" */
   public final static String                     LOCALE                                 = "locale";

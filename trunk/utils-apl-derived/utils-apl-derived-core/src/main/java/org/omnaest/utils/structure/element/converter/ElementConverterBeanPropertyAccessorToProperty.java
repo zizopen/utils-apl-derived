@@ -24,9 +24,11 @@ import org.omnaest.utils.beans.result.BeanPropertyAccessor;
  *          bean type
  * @author Omnaest
  */
-public class ElementConverterBeanPropertyAccessorToProperty<B> implements ElementConverter<BeanPropertyAccessor<B>, String>
+public class ElementConverterBeanPropertyAccessorToProperty<B> implements ElementConverterSerializable<BeanPropertyAccessor<B>, String>
 {
   
+  private static final long serialVersionUID = -1705171833692159068L;
+
   @Override
   public String convert( BeanPropertyAccessor<B> beanPropertyAccessor )
   {

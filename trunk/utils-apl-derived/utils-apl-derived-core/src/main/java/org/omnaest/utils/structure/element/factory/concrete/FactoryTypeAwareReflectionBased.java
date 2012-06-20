@@ -20,7 +20,7 @@ import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.element.factory.FactoryTypeAware;
 
 /**
- * A {@link FactoryTypeAware} which uses {@link ReflectionUtils#createInstanceOf(Class, Object...)} to create new instances.
+ * A {@link FactoryTypeAware} which uses {@link ReflectionUtils#newInstanceOf(Class, Object...)} to create new instances.
  * 
  * @author Omnaest
  * @param <E>
@@ -45,7 +45,7 @@ public class FactoryTypeAwareReflectionBased<E> implements FactoryTypeAware<E>
   @Override
   public E newInstance()
   {
-    return ReflectionUtils.createInstanceOf( this.type );
+    return ReflectionUtils.newInstanceOf( this.type );
   }
   
   @Override

@@ -1120,7 +1120,7 @@ public class BeanUtils
       try
       {
         //
-        retval = ReflectionUtils.<B> createInstanceOf( (Class<B>) bean.getClass() );
+        retval = ReflectionUtils.<B> newInstanceOf( (Class<B>) bean.getClass() );
         
         //
         if ( retval != null )

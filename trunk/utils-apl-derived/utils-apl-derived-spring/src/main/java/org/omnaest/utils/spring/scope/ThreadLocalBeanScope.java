@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.scope;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -57,10 +58,12 @@ import org.springframework.context.annotation.Bean;
  * @see ThreadLocalScopeControl
  * @author Omnaest
  */
-public class ThreadLocalBeanScope implements Scope
+public class ThreadLocalBeanScope implements Scope, Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long              serialVersionUID = -4841913315391563190L;
   /* ********************************************** Variables ********************************************** */
-  private ThreadLocalMap<String, Object> threadLocalMap = new ThreadLocalMap<String, Object>();
+  private ThreadLocalMap<String, Object> threadLocalMap   = new ThreadLocalMap<String, Object>();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -70,9 +73,16 @@ public class ThreadLocalBeanScope implements Scope
    * @see ThreadLocalBeanScope
    * @author Omnaest
    */
-  public class ThreadLocalScopeControl
+  public class ThreadLocalScopeControl implements Serializable
   {
+    /* ************************************************** Constants *************************************************** */
+    private static final long serialVersionUID = -84260617982692085L;
     
+    /* *************************************************** Methods **************************************************** */
+    
+    /**
+     * @see ThreadLocalScopeControl
+     */
     private ThreadLocalScopeControl()
     {
       super();
@@ -91,6 +101,8 @@ public class ThreadLocalBeanScope implements Scope
       final Map<String, Object> beanMap = ThreadLocalBeanScope.this.threadLocalMap.getMap();
       return new CallableDecorator<V>( callable )
       {
+        private static final long serialVersionUID = -2866979571390895488L;
+
         @Override
         public V call() throws Exception
         {
@@ -115,6 +127,8 @@ public class ThreadLocalBeanScope implements Scope
       final Map<String, Object> beanMap = ThreadLocalBeanScope.this.threadLocalMap.getMap();
       return new RunnableDecorator( runnable )
       {
+        private static final long serialVersionUID = 3558820129388652169L;
+
         @Override
         public void run()
         {
@@ -137,6 +151,8 @@ public class ThreadLocalBeanScope implements Scope
     {
       return new CallableDecorator<V>( callable )
       {
+        private static final long serialVersionUID = 4496952491376657549L;
+
         @Override
         public V call() throws Exception
         {
@@ -159,6 +175,8 @@ public class ThreadLocalBeanScope implements Scope
     {
       return new RunnableDecorator( runnable )
       {
+        private static final long serialVersionUID = 4650455259704892066L;
+
         @Override
         public void run()
         {

@@ -15,25 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.converter;
 
-import org.omnaest.utils.structure.element.converter.ElementConverterTypeAware.SourceAndTargetType;
+import java.io.Serializable;
 
 /**
- * @see ElementConverterTypeAware
- * @author Omnaest
+ * {@link ElementConverter} which additionally implements the {@link Serializable} interface
  */
-public class ElementConverterBooleanToString implements ElementConverterTypeAwareSerializable<Boolean, String>
+public interface ElementConverterSerializable<FROM, TO> extends ElementConverter<FROM, TO>, Serializable
 {
-  private static final long serialVersionUID = -7037894105268959005L;
-  
-  @Override
-  public String convert( Boolean element )
-  {
-    return element != null ? String.valueOf( element ) : null;
-  }
-  
-  @Override
-  public SourceAndTargetType<Boolean, String> getSourceAndTargetType()
-  {
-    return new SourceAndTargetType<Boolean, String>( Boolean.class, String.class );
-  }
 }

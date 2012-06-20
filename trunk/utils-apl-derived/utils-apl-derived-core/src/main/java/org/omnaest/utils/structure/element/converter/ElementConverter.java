@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.converter;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.omnaest.utils.structure.collection.list.ListUtils;
@@ -31,8 +32,9 @@ import org.omnaest.utils.structure.iterator.IterableUtils;
  * @see SetUtils#convert(Iterable, ElementConverter)
  * @see IterableUtils#convert(Iterable, ElementConverter)
  * @see ElementConverterChain
+ * @see Serializable
  */
-public interface ElementConverter<FROM, TO>
+public interface ElementConverter<FROM, TO> extends Serializable
 {
   /**
    * Transforms a single element from one type into another.

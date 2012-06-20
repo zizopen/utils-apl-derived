@@ -156,7 +156,7 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourceP
       //
       final Class<? extends ElementConverter<?, String>> elementConverterType = additionalArgumentConverterTypes[additionalArgumentIndexPosition];
       @SuppressWarnings("unchecked")
-      final ElementConverter<Object, String> elementConverter = (ElementConverter<Object, String>) ReflectionUtils.createInstanceOf( elementConverterType );
+      final ElementConverter<Object, String> elementConverter = (ElementConverter<Object, String>) ReflectionUtils.newInstanceOf( elementConverterType );
       if ( elementConverter != null )
       {
         additionalArgument = elementConverter.convert( additionalArgument );

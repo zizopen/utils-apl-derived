@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2011 Danny Kunz
+ * Copyright 2012 Danny Kunz
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,17 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.converter;
 
-import org.omnaest.utils.structure.element.converter.ElementConverterTypeAware.SourceAndTargetType;
+import java.io.Serializable;
 
 /**
- * @see ElementConverterTypeAware
+ * {@link ElementBidirectionalConverter} which additionally extends the {@link Serializable} interface
+ * 
+ * @see ElementConverter
  * @author Omnaest
+ * @param <FROM>
+ * @param <TO>
  */
-public class ElementConverterBooleanToString implements ElementConverterTypeAwareSerializable<Boolean, String>
+public interface ElementBidirectionalConverterSerializable<FROM, TO> extends ElementBidirectionalConverter<FROM, TO>,
+                                                                     Serializable
 {
-  private static final long serialVersionUID = -7037894105268959005L;
-  
-  @Override
-  public String convert( Boolean element )
-  {
-    return element != null ? String.valueOf( element ) : null;
-  }
-  
-  @Override
-  public SourceAndTargetType<Boolean, String> getSourceAndTargetType()
-  {
-    return new SourceAndTargetType<Boolean, String>( Boolean.class, String.class );
-  }
 }

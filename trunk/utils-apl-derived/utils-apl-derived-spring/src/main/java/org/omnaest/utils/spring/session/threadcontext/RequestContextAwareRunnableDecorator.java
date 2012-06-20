@@ -31,6 +31,8 @@ import org.springframework.web.context.request.RequestContextHolder;
  */
 public class RequestContextAwareRunnableDecorator extends RunnableDecorator
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long                                          serialVersionUID = -875522683350855050L;
   /* ********************************************** Variables ********************************************** */
   private final RequestContextManagerForCallableAndRunnableDecorator requestContextManagerForCallableAndRunnableDecorator;
   

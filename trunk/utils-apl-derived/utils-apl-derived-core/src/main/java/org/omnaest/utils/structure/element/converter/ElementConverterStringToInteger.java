@@ -21,9 +21,11 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToInteger implements ElementConverterTypeAware<String, Integer>
+public class ElementConverterStringToInteger implements ElementConverterTypeAwareSerializable<String, Integer>
 {
   
+  private static final long serialVersionUID = -2682605566673347979L;
+
   @Override
   public Integer convert( String element )
   {

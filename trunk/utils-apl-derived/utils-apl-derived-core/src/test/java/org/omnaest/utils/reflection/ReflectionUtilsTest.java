@@ -34,9 +34,11 @@ import java.util.Set;
 import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlElement;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.beans.replicator.adapter.helper.DTOPackage;
 import org.omnaest.utils.structure.element.converter.Converter;
+import org.omnaest.utils.structure.element.converter.ElementConverterNumberToString;
 
 /**
  * @see ReflectionUtils
@@ -95,16 +97,26 @@ public class ReflectionUtilsTest
   
   /* ********************************************** Methods ********************************************** */
   @Test
-  public void testCreateInstanceOf()
+  public void testNewInstanceOf()
   {
-    assertEquals( "test", ReflectionUtils.createInstanceOf( String.class, "test" ) );
-    assertEquals( "test", ReflectionUtils.createInstanceOf( TestClass.class, "test" ).getValue() );
+    assertEquals( "test", ReflectionUtils.newInstanceOf( String.class, "test" ) );
+    assertEquals( "test", ReflectionUtils.newInstanceOf( TestClass.class, "test" ).getValue() );
   }
   
   @Test
-  public void testCreateInstanceUsingValueOfMethod()
+  @Ignore("Performance test")
+  public void testNewInstanceOfPerformance()
   {
-    assertEquals( Integer.valueOf( 1 ), ReflectionUtils.createInstanceUsingValueOfMethod( Integer.class, "1" ) );
+    for ( int ii = 0; ii < 1000000; ii++ )
+    {
+      assertEquals( "12", ReflectionUtils.newInstanceOf( ElementConverterNumberToString.class ).convert( 12 ) );
+    }
+  }
+  
+  @Test
+  public void testNewInstanceByValueOf()
+  {
+    assertEquals( Integer.valueOf( 1 ), ReflectionUtils.newInstanceByValueOf( Integer.class, "1" ) );
   }
   
   @SuppressWarnings("unchecked")

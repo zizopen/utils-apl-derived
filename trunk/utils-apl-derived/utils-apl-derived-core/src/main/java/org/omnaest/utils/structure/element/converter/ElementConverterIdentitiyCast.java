@@ -23,8 +23,10 @@ package org.omnaest.utils.structure.element.converter;
  * @param <FROM>
  * @param <TO>
  */
-public class ElementConverterIdentitiyCast<FROM, TO> implements ElementBidirectionalConverter<FROM, TO>
+public class ElementConverterIdentitiyCast<FROM, TO> implements ElementBidirectionalConverterSerializable<FROM, TO>
 {
+  private static final long serialVersionUID = 3765145127467165719L;
+
   @SuppressWarnings("unchecked")
   @Override
   public TO convert( FROM element )

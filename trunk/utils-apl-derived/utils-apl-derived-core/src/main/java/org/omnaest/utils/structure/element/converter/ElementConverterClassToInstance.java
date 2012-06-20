@@ -25,8 +25,10 @@ import org.omnaest.utils.structure.element.factory.concrete.FactoryTypeAwareRefl
  * @param <T>
  *          type
  */
-public class ElementConverterClassToInstance<T> implements ElementConverter<Class<? extends T>, T>
+public class ElementConverterClassToInstance<T> implements ElementConverterSerializable<Class<? extends T>, T>
 {
+  private static final long serialVersionUID = -8416694245473698768L;
+
   @Override
   public T convert( Class<? extends T> type )
   {

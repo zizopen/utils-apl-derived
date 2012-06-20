@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.threads;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,10 +40,12 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
  * 
  * @author Omnaest
  */
-public class FutureTaskManager
+public class FutureTaskManager implements Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long       serialVersionUID = -8509946186985263573L;
   /* ********************************************** Variables ********************************************** */
-  protected final List<Future<?>> futureList = new ArrayList<Future<?>>();
+  protected final List<Future<?>> futureList       = new ArrayList<Future<?>>();
   protected final ExecutorService executorService;
   
   /* ********************************************** Methods ********************************************** */

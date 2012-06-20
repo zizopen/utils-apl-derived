@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.converter;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -38,8 +39,9 @@ import org.omnaest.utils.structure.element.converter.ElementConverterTypeAware.S
  * @see ElementConverterRegistered
  * @author Omnaest
  */
-public class ElementConverterRegistration
+public class ElementConverterRegistration implements Serializable
 {
+  private static final long serialVersionUID = 4667088490394555133L;
   /* ********************************************** Constants ********************************************** */
   private static final Comparator<SourceAndTargetType<?, ?>>                       comparator                               = ComparatorUtils.comparatorDecoratorUsingWeakHashMapCache( new Comparator<SourceAndTargetType<?, ?>>()
                                                                                                                             {
@@ -186,7 +188,7 @@ public class ElementConverterRegistration
    */
   public static void registerElementConverterTypeAware( Class<? extends ElementConverterTypeAware<?, ?>> elementConverterTypeAwareType )
   {
-    registerElementConverterTypeAware( ReflectionUtils.createInstanceOf( elementConverterTypeAwareType ) );
+    registerElementConverterTypeAware( ReflectionUtils.newInstanceOf( elementConverterTypeAwareType ) );
   }
   
   /**
@@ -216,7 +218,7 @@ public class ElementConverterRegistration
                                                final Class<?> sourceType,
                                                final Class<?> targetType )
   {
-    final ElementConverter<?, ?> elementConverter = ReflectionUtils.createInstanceOf( elementConverterType );
+    final ElementConverter<?, ?> elementConverter = ReflectionUtils.newInstanceOf( elementConverterType );
     registerElementConverter( elementConverter, sourceType, targetType );
   }
   

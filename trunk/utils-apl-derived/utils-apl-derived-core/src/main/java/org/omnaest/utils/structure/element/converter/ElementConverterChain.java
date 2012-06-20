@@ -22,8 +22,10 @@ package org.omnaest.utils.structure.element.converter;
  * @param <FROM>
  * @param <TO>
  */
-public class ElementConverterChain<FROM, TO> implements ElementConverter<FROM, TO>
+public class ElementConverterChain<FROM, TO> implements ElementConverterSerializable<FROM, TO>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long              serialVersionUID = -7026066500749318818L;
   /* ********************************************** Beans / Services / References ********************************************** */
   private final ElementConverter<?, ?>[] elementConverters;
   

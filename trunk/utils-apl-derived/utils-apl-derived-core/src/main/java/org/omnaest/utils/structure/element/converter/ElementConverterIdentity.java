@@ -21,8 +21,10 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementBidirectionalConverter
  * @author Omnaest
  */
-public class ElementConverterIdentity<T> implements ElementBidirectionalConverter<T, T>
+public class ElementConverterIdentity<T> implements ElementBidirectionalConverterSerializable<T, T>
 {
+  private static final long serialVersionUID = -5357320168602695637L;
+
   @Override
   public T convert( T from )
   {

@@ -46,7 +46,7 @@ public class ElementConverterHelper
         for ( Class<? extends ElementConverter<?, ?>> elementConverterType : elementConverterTypes )
         {
           //
-          final ElementConverter<Object, Object> elementConverter = (ElementConverter<Object, Object>) ReflectionUtils.createInstanceOf( elementConverterType );
+          final ElementConverter<Object, Object> elementConverter = (ElementConverter<Object, Object>) ReflectionUtils.newInstanceOf( elementConverterType );
           retval = elementConverter.convert( retval );
         }
       }

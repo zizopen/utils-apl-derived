@@ -20,12 +20,21 @@ package org.omnaest.utils.structure.element.converter;
  * 
  * @author Omnaest
  */
-public class ElementConverterIdentityCast<FROM, TO> implements ElementConverter<FROM, TO>
+public class ElementConverterIdentityCast<FROM, TO> implements ElementBidirectionalConverterSerializable<FROM, TO>
 {
+  private static final long serialVersionUID = -3056531260386214718L;
+  
   @SuppressWarnings("unchecked")
   @Override
   public TO convert( FROM from )
   {
     return (TO) from;
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public FROM convertBackwards( TO element )
+  {
+    return (FROM) element;
   }
 }

@@ -26,7 +26,7 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
  * @see ElementConverter
  * @see ListUtils#convert(Collection, ElementConverterOneToMany)
  */
-public interface ElementConverterOneToMany<FROM, TO>
+public interface ElementConverterOneToMany<FROM, TO> extends ElementConverterSerializable<FROM, Collection<TO>>
 {
   /**
    * Transforms a single element from one type into an (ordered) list of the other types.

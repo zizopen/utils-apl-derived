@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.session;
 
+import java.io.Serializable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -43,7 +45,8 @@ import org.springframework.web.filter.RequestContextFilter;
  * @see HttpServletRequestResolver
  * @author Omnaest
  */
-public interface HttpSessionAndServletRequestResolverService extends HttpSessionResolver, HttpServletRequestResolver
+public interface HttpSessionAndServletRequestResolverService extends HttpSessionResolver, HttpServletRequestResolver,
+                                                            Serializable
 {
   /**
    * Resolves the {@link HttpServletRequest} using the spring {@link RequestContextHolder} from the {@link Thread}s request

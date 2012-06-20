@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.scope;
 
+import java.io.Serializable;
+
 import org.springframework.beans.factory.config.Scope;
 
 /**
@@ -23,7 +25,7 @@ import org.springframework.beans.factory.config.Scope;
  * @see Scope
  * @author Omnaest
  */
-public interface BeanScopeThreadContextManager
+public interface BeanScopeThreadContextManager extends Serializable
 {
   /**
    * Adds the method calling {@link Thread} to the bean scope managed by this {@link BeanScopeThreadContextManager}

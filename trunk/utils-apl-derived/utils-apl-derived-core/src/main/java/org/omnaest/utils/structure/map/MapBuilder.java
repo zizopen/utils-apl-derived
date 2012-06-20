@@ -358,7 +358,7 @@ public class MapBuilder<K, V>
           try
           {
             //
-            retmap = ReflectionUtils.createInstanceOf( mapType, arguments );
+            retmap = ReflectionUtils.newInstanceOf( mapType, arguments );
           }
           catch ( Exception e )
           {

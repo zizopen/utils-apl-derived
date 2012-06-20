@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.scope;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,8 +38,10 @@ import org.springframework.util.Assert;
  * @see Scope
  * @author Omnaest
  */
-public class TrailingBeanIdentifierPatternBeanScope implements Scope, ApplicationContextAware
+public class TrailingBeanIdentifierPatternBeanScope implements Scope, ApplicationContextAware, Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long               serialVersionUID                    = -2992719859814257464L;
   /* ********************************************** Variables ********************************************** */
   private ThreadLocal<String>             threadLocalTrailingPattern          = new ThreadLocal<String>();
   private Map<String, Object>             beanIdentifierToBeanMap             = new ConcurrentHashMap<String, Object>();
@@ -55,7 +58,7 @@ public class TrailingBeanIdentifierPatternBeanScope implements Scope, Applicatio
    * @see TrailingBeanIdentifierPatternBeanScopeThreadContextManager
    * @author Omnaest
    */
-  public static interface TrailingPatternResolver
+  public static interface TrailingPatternResolver extends Serializable
   {
     /**
      * Resolves the trailing pattern
@@ -72,6 +75,7 @@ public class TrailingBeanIdentifierPatternBeanScope implements Scope, Applicatio
    */
   public static class TrailingPatternBySessionAttributeResolver implements TrailingPatternResolver
   {
+    private static final long serialVersionUID = -8239695522667528140L;
     /* ********************************************** Variables ********************************************** */
     private HttpSessionResolver httpSessionResolver  = new HttpSessionAndServletRequestResolverServiceBean();
     private String              sessionAttributeName = null;
@@ -163,7 +167,7 @@ public class TrailingBeanIdentifierPatternBeanScope implements Scope, Applicatio
    * 
    * @author Omnaest
    */
-  public static interface ScopedBeanCreationPostProcessor
+  public static interface ScopedBeanCreationPostProcessor extends Serializable
   {
     /**
      * Process the given spring bean. This is only called when the bean is created or resolved from the {@link ApplicationContext}
@@ -210,6 +214,8 @@ public class TrailingBeanIdentifierPatternBeanScope implements Scope, Applicatio
   {
     return new TrailingBeanIdentifierPatternBeanScopeThreadContextManager( new TrailingPatternResolver()
     {
+      private static final long serialVersionUID = 4530081882607696591L;
+
       @Override
       public String resolveTrailingPattern()
       {

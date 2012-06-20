@@ -19,8 +19,10 @@ package org.omnaest.utils.structure.element.converter;
  * @see ElementConverter
  * @author Omnaest
  */
-public class ElementConverterGenericElementToString<E> implements ElementConverter<E, String>
+public class ElementConverterGenericElementToString<E> implements ElementConverterSerializable<E, String>
 {
+  private static final long serialVersionUID = 8858918740245712774L;
+
   @Override
   public String convert( E element )
   {

@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.session;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
@@ -44,7 +45,7 @@ import org.omnaest.utils.web.HttpSessionResolver;
  * @see HttpSessionAndServletRequestResolverService
  * @author Omnaest
  */
-public interface HttpSessionService
+public interface HttpSessionService extends Serializable
 {
   
   /**

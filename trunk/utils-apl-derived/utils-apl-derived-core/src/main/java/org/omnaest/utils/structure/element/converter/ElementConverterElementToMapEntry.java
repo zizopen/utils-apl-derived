@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.converter;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -29,7 +30,7 @@ import org.omnaest.utils.structure.map.MapUtils;
  * @param <K>
  * @param <V>
  */
-public interface ElementConverterElementToMapEntry<E, K, V>
+public interface ElementConverterElementToMapEntry<E, K, V> extends Serializable
 {
   
   /**

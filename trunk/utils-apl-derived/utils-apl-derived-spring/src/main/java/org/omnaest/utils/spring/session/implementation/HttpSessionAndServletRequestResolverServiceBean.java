@@ -31,6 +31,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Service
 public class HttpSessionAndServletRequestResolverServiceBean implements HttpSessionAndServletRequestResolverService
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = -4576301323288246891L;
+  
+  /* *************************************************** Methods **************************************************** */
   
   @Override
   public HttpSession resolveHttpSession()

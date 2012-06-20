@@ -22,9 +22,11 @@ import java.math.BigInteger;
  * @see ElementConverterNumberToString
  * @author Omnaest
  */
-public class ElementConverterStringToBigInteger implements ElementConverterTypeAware<String, BigInteger>
+public class ElementConverterStringToBigInteger implements ElementConverterTypeAwareSerializable<String, BigInteger>
 {
   
+  private static final long serialVersionUID = 7782391237058220461L;
+
   @Override
   public BigInteger convert( String element )
   {

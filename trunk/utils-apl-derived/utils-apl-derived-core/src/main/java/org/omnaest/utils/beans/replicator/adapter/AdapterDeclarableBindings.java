@@ -296,7 +296,7 @@ public abstract class AdapterDeclarableBindings<FROM, TO> implements AdapterInte
     public Object createNewTargetObjectInstance( Class<?> sourceObjectType, Object sourceObject )
     {
       //
-      final Object retval = ReflectionUtils.createInstanceOf( this.targetType );
+      final Object retval = ReflectionUtils.newInstanceOf( this.targetType );
       
       //
       this.copyProperties( sourceObject, retval );

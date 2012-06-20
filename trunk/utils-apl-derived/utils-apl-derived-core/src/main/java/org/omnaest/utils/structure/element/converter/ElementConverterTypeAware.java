@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.converter;
 
+import java.io.Serializable;
+
 import org.omnaest.utils.assertion.Assert;
 
 /**
@@ -32,8 +34,10 @@ public interface ElementConverterTypeAware<FROM, TO> extends ElementConverter<FR
    * @see ElementConverterTypeAware
    * @author Omnaest
    */
-  public static class SourceAndTargetType<FROM, TO>
+  public static class SourceAndTargetType<FROM, TO> implements Serializable
   {
+    /* ************************************************** Constants *************************************************** */
+    private static final long           serialVersionUID = 7691608527507412541L;
     /* ********************************************** Variables ********************************************** */
     private final Class<? extends FROM> sourceType;
     private final Class<? extends TO>   targetType;
@@ -41,11 +45,11 @@ public interface ElementConverterTypeAware<FROM, TO> extends ElementConverter<FR
     /* ********************************************** Methods ********************************************** */
     
     /**
-     * @throws IllegalArgumentException
-     *           if any parameter is null
      * @see SourceAndTargetType
      * @param sourceType
      * @param targetType
+     * @throws IllegalArgumentException
+     *           if any parameter is null
      */
     public SourceAndTargetType( Class<? extends FROM> sourceType, Class<? extends TO> targetType )
     {

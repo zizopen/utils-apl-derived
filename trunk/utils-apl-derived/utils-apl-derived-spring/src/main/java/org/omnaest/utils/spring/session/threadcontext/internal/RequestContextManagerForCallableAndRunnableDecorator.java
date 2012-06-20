@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.spring.session.threadcontext.internal;
 
+import java.io.Serializable;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.omnaest.utils.spring.session.implementation.HttpSessionAndServletRequestResolverServiceBean;
@@ -29,8 +31,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * @see RequestContextAwareCallableDecorator
  * @author Omnaest
  */
-public class RequestContextManagerForCallableAndRunnableDecorator
+public class RequestContextManagerForCallableAndRunnableDecorator implements Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long                                     serialVersionUID                                = 2050852221752364667L;
   /* ********************************************** Variables ********************************************** */
   private final HttpServletRequest                              httpServletRequest;
   private final boolean                                         inheritable;

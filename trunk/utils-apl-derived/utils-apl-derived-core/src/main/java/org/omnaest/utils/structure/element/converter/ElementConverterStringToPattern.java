@@ -22,8 +22,9 @@ import java.util.regex.Pattern;
  * 
  * @author Omnaest
  */
-public class ElementConverterStringToPattern implements ElementConverter<String, Pattern>
+public class ElementConverterStringToPattern implements ElementConverterSerializable<String, Pattern>
 {
+  private static final long serialVersionUID = -6193990159325329740L;
   
   @Override
   public Pattern convert( String element )
