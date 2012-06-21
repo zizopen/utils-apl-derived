@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.beans.BeanUtils;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.proxy.BeanProperty;
 
 /**
@@ -35,12 +36,12 @@ import org.omnaest.utils.proxy.BeanProperty;
 public class BeanPropertyAccessor<B>
 {
   /* ********************************************** Variables ********************************************** */
-  protected String             propertyName       = null;
-  protected Field              field              = null;
-  protected Method             methodGetter       = null;
-  protected Method             methodSetter       = null;
-  protected Class<B>           beanClass          = null;
-  protected PropertyAccessType propertyAccessType = PropertyAccessType.PROPERTY;
+  private final String       propertyName;
+  private final Field        field;
+  private final Method       methodGetter;
+  private final Method       methodSetter;
+  private final Class<B>     beanType;
+  private PropertyAccessType propertyAccessType = PropertyAccessType.PROPERTY;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -56,7 +57,15 @@ public class BeanPropertyAccessor<B>
   
   /* ********************************************** Methods ********************************************** */
   
-  public BeanPropertyAccessor( Field field, Method methodGetter, Method methodSetter, String propertyName, Class<B> beanClass )
+  /**
+   * @see BeanPropertyAccessor
+   * @param field
+   * @param methodGetter
+   * @param methodSetter
+   * @param propertyName
+   * @param beanType
+   */
+  public BeanPropertyAccessor( Field field, Method methodGetter, Method methodSetter, String propertyName, Class<B> beanType )
   {
     //
     super();
@@ -66,7 +75,7 @@ public class BeanPropertyAccessor<B>
     this.field = field;
     this.methodGetter = methodGetter;
     this.methodSetter = methodSetter;
-    this.beanClass = beanClass;
+    this.beanType = beanType;
   }
   
   /**
@@ -148,6 +157,21 @@ public class BeanPropertyAccessor<B>
    */
   public Object getPropertyValue( B bean, PropertyAccessType propertyAccessType )
   {
+    ExceptionHandler exceptionHandler = null;
+    return this.getPropertyValue( bean, propertyAccessType, exceptionHandler );
+  }
+  
+  /**
+   * Returns the property value for the underlying Java Bean property from the given Java Bean object.
+   * 
+   * @see PropertyAccessType
+   * @param bean
+   * @param propertyAccessType
+   * @param exceptionHandler
+   * @return value or null if no value could be resolved
+   */
+  public Object getPropertyValue( B bean, PropertyAccessType propertyAccessType, ExceptionHandler exceptionHandler )
+  {
     //
     Object retval = null;
     
@@ -189,6 +213,10 @@ public class BeanPropertyAccessor<B>
       }
       catch ( Exception e )
       {
+        if ( exceptionHandler != null )
+        {
+          exceptionHandler.handleException( e );
+        }
       }
     }
     
@@ -230,6 +258,22 @@ public class BeanPropertyAccessor<B>
    * @return true if no error occurs
    */
   public boolean setPropertyValue( B bean, Object value, PropertyAccessType propertyAccessType )
+  {
+    final ExceptionHandler exceptionHandler = null;
+    return this.setPropertyValue( bean, value, propertyAccessType, exceptionHandler );
+  }
+  
+  /**
+   * Sets the property value for the underlying Java Bean property for the given Java Bean object using the given
+   * {@link PropertyAccessType}.
+   * 
+   * @param bean
+   * @param value
+   * @param propertyAccessType
+   * @param exceptionHandler
+   * @return true if no error occurs
+   */
+  public boolean setPropertyValue( B bean, Object value, PropertyAccessType propertyAccessType, ExceptionHandler exceptionHandler )
   {
     //
     boolean retval = false;
@@ -276,6 +320,10 @@ public class BeanPropertyAccessor<B>
       }
       catch ( Exception e )
       {
+        if ( exceptionHandler != null )
+        {
+          exceptionHandler.handleException( e );
+        }
       }
     }
     
@@ -404,13 +452,13 @@ public class BeanPropertyAccessor<B>
     {
       //
       if ( StringUtils.equals( beanPropertyAccessorA.propertyName, beanPropertyAccessorB.propertyName )
-           && beanPropertyAccessorA.beanClass != null && beanPropertyAccessorA.beanClass.equals( beanPropertyAccessorB.beanClass ) )
+           && beanPropertyAccessorA.beanType != null && beanPropertyAccessorA.beanType.equals( beanPropertyAccessorB.beanType ) )
       {
         //
         String propertyname = beanPropertyAccessorA.propertyName != null ? beanPropertyAccessorA.propertyName
                                                                         : beanPropertyAccessorB.propertyName;
-        Class<B> beanClass = beanPropertyAccessorA.beanClass != null ? beanPropertyAccessorA.beanClass
-                                                                    : beanPropertyAccessorB.beanClass;
+        Class<B> beanClass = beanPropertyAccessorA.beanType != null ? beanPropertyAccessorA.beanType
+                                                                   : beanPropertyAccessorB.beanType;
         Field field = beanPropertyAccessorA.field != null ? beanPropertyAccessorA.field : beanPropertyAccessorB.field;
         Method methodGetter = beanPropertyAccessorA.methodGetter != null ? beanPropertyAccessorA.methodGetter
                                                                         : beanPropertyAccessorB.methodGetter;
@@ -431,9 +479,9 @@ public class BeanPropertyAccessor<B>
    * 
    * @return
    */
-  public Class<?> getBeanClass()
+  public Class<B> getBeanClass()
   {
-    return this.beanClass;
+    return this.beanType;
   }
   
   /**
@@ -489,7 +537,7 @@ public class BeanPropertyAccessor<B>
     builder.append( ", methodSetter=" );
     builder.append( this.methodSetter );
     builder.append( ", beanClass=" );
-    builder.append( this.beanClass );
+    builder.append( this.beanType );
     builder.append( ", propertyAccessType=" );
     builder.append( this.propertyAccessType );
     builder.append( "]" );

@@ -29,7 +29,7 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
  *          type of the Java Bean
  * @author Omnaest
  */
-public class BeanPropertyAccessors<B> implements Iterable<BeanPropertyAccessor<B>>
+public class BeanPropertyAccessors<B> implements Collection<BeanPropertyAccessor<B>>
 {
   /* ********************************************** Variables ********************************************** */
   protected List<BeanPropertyAccessor<B>> beanPropertyAccessorList = new ArrayList<BeanPropertyAccessor<B>>();
@@ -80,6 +80,7 @@ public class BeanPropertyAccessors<B> implements Iterable<BeanPropertyAccessor<B
   /**
    * Returns the size of the {@link BeanPropertyAccessors} container
    */
+  @Override
   public int size()
   {
     return this.beanPropertyAccessorList.size();
@@ -90,6 +91,7 @@ public class BeanPropertyAccessors<B> implements Iterable<BeanPropertyAccessor<B
    * 
    * @return
    */
+  @Override
   public boolean isEmpty()
   {
     return this.beanPropertyAccessorList.isEmpty();
@@ -101,6 +103,7 @@ public class BeanPropertyAccessors<B> implements Iterable<BeanPropertyAccessor<B
    * @param e
    * @return
    */
+  @Override
   public boolean add( BeanPropertyAccessor<B> e )
   {
     return this.beanPropertyAccessorList.add( e );
@@ -124,6 +127,7 @@ public class BeanPropertyAccessors<B> implements Iterable<BeanPropertyAccessor<B
    *          {@link Collection}
    * @return
    */
+  @Override
   public boolean addAll( Collection<? extends BeanPropertyAccessor<B>> collection )
   {
     return this.beanPropertyAccessorList.addAll( collection );
@@ -143,6 +147,7 @@ public class BeanPropertyAccessors<B> implements Iterable<BeanPropertyAccessor<B
   /**
    * Clears the {@link BeanPropertyAccessors} container
    */
+  @Override
   public void clear()
   {
     this.beanPropertyAccessorList.clear();
@@ -174,6 +179,48 @@ public class BeanPropertyAccessors<B> implements Iterable<BeanPropertyAccessor<B
   public BeanPropertyAccessor<B> get( int index )
   {
     return this.beanPropertyAccessorList.get( index );
+  }
+  
+  @Override
+  public boolean contains( Object o )
+  {
+    return this.beanPropertyAccessorList.contains( o );
+  }
+  
+  @Override
+  public Object[] toArray()
+  {
+    return this.beanPropertyAccessorList.toArray();
+  }
+  
+  @Override
+  public <T> T[] toArray( T[] a )
+  {
+    return this.beanPropertyAccessorList.toArray( a );
+  }
+  
+  @Override
+  public boolean containsAll( Collection<?> c )
+  {
+    return this.beanPropertyAccessorList.containsAll( c );
+  }
+  
+  @Override
+  public boolean retainAll( Collection<?> c )
+  {
+    return this.beanPropertyAccessorList.retainAll( c );
+  }
+  
+  @Override
+  public boolean remove( Object o )
+  {
+    return this.beanPropertyAccessorList.remove( o );
+  }
+  
+  @Override
+  public boolean removeAll( Collection<?> c )
+  {
+    return this.beanPropertyAccessorList.removeAll( c );
   }
   
 }

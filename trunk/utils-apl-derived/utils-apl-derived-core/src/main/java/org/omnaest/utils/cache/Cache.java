@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.cache;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +40,7 @@ import java.util.Set;
  * @param <K>
  * @param <V>
  */
-public interface Cache<K, V> extends Map<K, V>
+public interface Cache<K, V> extends Map<K, V> , Serializable
 {
   /**
    * Returns an unmodifiable {@link Set} of all keys within the {@link Cache} which only represents a snapshot in moment

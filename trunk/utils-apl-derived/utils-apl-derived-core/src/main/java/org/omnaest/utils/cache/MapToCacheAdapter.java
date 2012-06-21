@@ -32,8 +32,10 @@ import java.util.Set;
  */
 public final class MapToCacheAdapter<K, V> implements Cache<K, V>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = 6347242138203739267L;
   /* ********************************************** Variables ********************************************** */
-  private final Map<K, V> map;
+  private final Map<K, V>   map;
   
   /* ********************************************** Methods ********************************************** */
   /**

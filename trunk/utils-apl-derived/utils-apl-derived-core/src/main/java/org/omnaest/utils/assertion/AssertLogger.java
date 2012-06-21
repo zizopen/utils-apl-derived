@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.assertion;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
@@ -103,15 +104,17 @@ import org.slf4j.LoggerFactory;
  * @see Logger
  * @author Omnaest
  */
-public class AssertLogger
+public class AssertLogger implements Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = 830408918854821772L;
   /* ********************************************** Variables ********************************************** */
-  public final Logger   logger;
-  public final Loglevel trace;
-  public final Loglevel debug;
-  public final Loglevel info;
-  public final Loglevel warn;
-  public final Loglevel error;
+  public final Logger       logger;
+  public final Loglevel     trace;
+  public final Loglevel     debug;
+  public final Loglevel     info;
+  public final Loglevel     warn;
+  public final Loglevel     error;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
@@ -142,7 +145,7 @@ public class AssertLogger
    * 
    * @author Omnaest
    */
-  public static interface Loglevel
+  public static interface Loglevel extends Serializable
   {
     /**
      * Returns a {@link LoglevelAssert} instance
@@ -218,7 +221,7 @@ public class AssertLogger
    * 
    * @author Omnaest
    */
-  public static interface LoglevelAssert
+  public static interface LoglevelAssert extends Serializable
   {
     
     /**
@@ -405,6 +408,8 @@ public class AssertLogger
    */
   protected static class LoglevelImpl implements Loglevel, LoglevelAssert
   {
+    /* ************************************************** Constants *************************************************** */
+    private static final long     serialVersionUID = -1253381257506882164L;
     /* ********************************************** Variables ********************************************** */
     private final LoglevelSupport loglevelSupport;
     
@@ -415,7 +420,7 @@ public class AssertLogger
      * 
      * @author Omnaest
      */
-    public static interface LoglevelSupport
+    public static interface LoglevelSupport extends Serializable
     {
       /**
        * @return
@@ -779,6 +784,8 @@ public class AssertLogger
     this.logger = logger;
     this.trace = new LoglevelImpl( new LoglevelSupport()
     {
+      private static final long serialVersionUID = 7211946266092536103L;
+
       @Override
       public void writeMessage( String message, Throwable e )
       {
@@ -799,6 +806,8 @@ public class AssertLogger
     } );
     this.debug = new LoglevelImpl( new LoglevelSupport()
     {
+      private static final long serialVersionUID = -8205878887500731466L;
+
       @Override
       public void writeMessage( String message, Throwable e )
       {
@@ -819,6 +828,8 @@ public class AssertLogger
     } );
     this.info = new LoglevelImpl( new LoglevelSupport()
     {
+      private static final long serialVersionUID = -763948000020211389L;
+
       @Override
       public void writeMessage( String message, Throwable e )
       {
@@ -839,6 +850,8 @@ public class AssertLogger
     } );
     this.warn = new LoglevelImpl( new LoglevelSupport()
     {
+      private static final long serialVersionUID = -5760294798817317257L;
+
       @Override
       public void writeMessage( String message, Throwable e )
       {
@@ -859,6 +872,8 @@ public class AssertLogger
     } );
     this.error = new LoglevelImpl( new LoglevelSupport()
     {
+      private static final long serialVersionUID = 8052613300931257305L;
+
       @Override
       public void writeMessage( String message, Throwable e )
       {

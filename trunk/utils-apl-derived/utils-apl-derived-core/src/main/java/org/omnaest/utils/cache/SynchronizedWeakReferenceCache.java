@@ -36,8 +36,10 @@ import org.omnaest.utils.structure.collection.set.SetUtils;
  */
 public class SynchronizedWeakReferenceCache<K, V> implements Cache<K, V>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = -3985243797516127152L;
   /* ********************************************** Variables ********************************************** */
-  private final Map<K, V> map = Collections.synchronizedMap( new WeakHashMap<K, V>() );
+  private final Map<K, V>   map              = Collections.synchronizedMap( new WeakHashMap<K, V>() );
   
   /* ********************************************** Methods ********************************************** */
   @Override

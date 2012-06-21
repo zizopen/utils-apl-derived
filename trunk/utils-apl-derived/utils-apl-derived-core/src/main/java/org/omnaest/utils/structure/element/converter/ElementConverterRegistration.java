@@ -41,6 +41,7 @@ import org.omnaest.utils.structure.element.converter.ElementConverterTypeAware.S
  */
 public class ElementConverterRegistration implements Serializable
 {
+  /* ************************************************** Constants *************************************************** */
   private static final long serialVersionUID = 4667088490394555133L;
   /* ********************************************** Constants ********************************************** */
   private static final Comparator<SourceAndTargetType<?, ?>>                       comparator                               = ComparatorUtils.comparatorDecoratorUsingWeakHashMapCache( new Comparator<SourceAndTargetType<?, ?>>()

@@ -60,12 +60,12 @@ public class BeanUtils
    * @see PropertynameMapToTypeAdapter
    * @param <B>
    * @param bean
-   * @return
+   * @return new {@link LinkedHashMap}
    */
   public static <B> Map<String, Object> transformBeanIntoMap( B bean )
   {
     //
-    Map<String, Object> retmap = new HashMap<String, Object>();
+    final Map<String, Object> retmap = new LinkedHashMap<String, Object>();
     
     //
     if ( bean != null )

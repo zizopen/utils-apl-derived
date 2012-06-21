@@ -23,8 +23,8 @@ import java.util.Arrays;
 import org.omnaest.utils.beans.autowired.AutowiredContainer;
 
 /**
- * Simple {@link SourcePropertyAccessor} interface which reduces to a {@link #setValue(String, Object)} and
- * {@link #getValue(String)} method signature.
+ * Simple {@link SourcePropertyAccessor} interface which reduces to a {@link #setValue(String, Object, Class, PropertyMetaInformation)} and
+ * {@link #getValue(String, Class, PropertyMetaInformation)} method signature.
  * 
  * @author Omnaest
  */

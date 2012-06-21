@@ -36,6 +36,8 @@ import org.omnaest.utils.structure.map.MapAbstract;
  */
 public class TypeToPropertynameMapAdapter<B> extends MapAbstract<String, Object>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long                      serialVersionUID                      = -3216760910974740175L;
   /* ********************************************** Variables ********************************************** */
   protected B                                    bean                                  = null;
   protected Map<String, BeanPropertyAccessor<B>> propertynameToBeanPropertyAccessorMap = null;
