@@ -18,16 +18,19 @@ package org.omnaest.utils.beans.copier;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.beans.copier.PreparedBeanCopier.Configuration;
@@ -47,7 +50,9 @@ public class PreparedBeanCopierTest
                                                                                                                                     ITestBeanFrom.class,
                                                                                                                                     TestBeanTo.class,
                                                                                                                                     new Configuration().addTypeToTypeMapping( ITestBeanFrom.class,
-                                                                                                                                                                              TestBeanTo.class ) );
+                                                                                                                                                                              TestBeanTo.class )
+                                                                                                                                                       .addTypeToTypeMapping( TestSubBeanFrom.class,
+                                                                                                                                                                              TestSubBeanTo.class ) );
   private TestBeanFrom                                   testBeanFrom         = new TestBeanFrom();
   {
     this.testBeanFrom.setFieldString( "test" );
@@ -55,11 +60,13 @@ public class PreparedBeanCopierTest
     this.testBeanFrom.setFieldLongIgnored( 12l );
     this.testBeanFrom.setFieldStringCommon( "testCommon" );
     this.testBeanFrom.setList( Arrays.asList( "a", "b", "c" ) );
+    this.testBeanFrom.setCollection( Arrays.asList( "a", "b", "c3" ) );
     this.testBeanFrom.setSet( SetUtils.valueOf( "a", "b", "c2" ) );
     this.testBeanFrom.setMap( new MapBuilder<String, String>().linkedHashMap()
                                                               .put( "key1", "value1" )
                                                               .put( "key2", "value2" )
                                                               .build() );
+    this.testBeanFrom.setTestSubBean( new TestSubBeanFrom().setFieldString( "test" ) );
   }
   
   /* ********************************************** Classes/Interfaces ********************************************** */
@@ -71,11 +78,18 @@ public class PreparedBeanCopierTest
     
     public String getFieldStringCommon();
     
+    public String getFieldNonMatching1();
+    
     public List<String> getList();
     
     public Set<String> getSet();
     
+    public Collection<String> getCollection();
+    
     public Map<String, String> getMap();
+    
+    public TestSubBeanFrom getTestSubBean();
+    
   }
   
   private static interface ITestBeanTo
@@ -86,11 +100,17 @@ public class PreparedBeanCopierTest
     
     public String getFieldStringCommon();
     
+    public String getFieldNonMatching2();
+    
     public List<String> getList();
     
     public Set<String> getSet();
     
+    public Collection<String> getCollection();
+    
     public Map<String, String> getMap();
+    
+    public TestSubBeanTo getTestSubBean();
   }
   
   private static abstract class TestBeanAbstract
@@ -109,6 +129,40 @@ public class PreparedBeanCopierTest
     
   }
   
+  private static class TestSubBeanFrom
+  {
+    private String fieldString         = null;
+    @SuppressWarnings("unused")
+    private String fieldNonMatchingSub = null;
+    
+    public String getFieldString()
+    {
+      return this.fieldString;
+    }
+    
+    public TestSubBeanFrom setFieldString( String fieldString )
+    {
+      this.fieldString = fieldString;
+      return this;
+    }
+  }
+  
+  private static class TestSubBeanTo
+  {
+    private String fieldString = null;
+    
+    public String getFieldString()
+    {
+      return this.fieldString;
+    }
+    
+    public TestSubBeanTo setFieldString( String fieldString )
+    {
+      this.fieldString = fieldString;
+      return this;
+    }
+  }
+  
   private static class TestBeanFrom extends TestBeanAbstract implements ITestBeanFrom
   {
     private String              fieldString      = null;
@@ -116,7 +170,9 @@ public class PreparedBeanCopierTest
     private Long                fieldLongIgnored = null;
     private List<String>        list             = null;
     private Set<String>         set              = null;
+    private Collection<String>  collection       = null;
     private Map<String, String> map              = null;
+    private TestSubBeanFrom     testSubBeanFrom  = null;
     
     public String getFieldString()
     {
@@ -176,6 +232,32 @@ public class PreparedBeanCopierTest
     public void setSet( Set<String> set )
     {
       this.set = set;
+    }
+    
+    public Collection<String> getCollection()
+    {
+      return this.collection;
+    }
+    
+    public void setCollection( Collection<String> collection )
+    {
+      this.collection = collection;
+    }
+    
+    public TestSubBeanFrom getTestSubBean()
+    {
+      return this.testSubBeanFrom;
+    }
+    
+    public void setTestSubBean( TestSubBeanFrom testSubBeanFrom )
+    {
+      this.testSubBeanFrom = testSubBeanFrom;
+    }
+    
+    @Override
+    public String getFieldNonMatching1()
+    {
+      return null;
     }
     
   }
@@ -187,7 +269,9 @@ public class PreparedBeanCopierTest
     private Long                fieldLongIgnored = null;
     private List<String>        list             = null;
     private Set<String>         set              = null;
+    private Collection<String>  collection       = null;
     private Map<String, String> map              = null;
+    private TestSubBeanTo       testSubBeanTo    = null;
     
     public String getFieldString()
     {
@@ -249,9 +333,49 @@ public class PreparedBeanCopierTest
       this.set = set;
     }
     
+    public Collection<String> getCollection()
+    {
+      return this.collection;
+    }
+    
+    public void setCollection( Collection<String> collection )
+    {
+      this.collection = collection;
+    }
+    
+    public TestSubBeanTo getTestSubBean()
+    {
+      return this.testSubBeanTo;
+    }
+    
+    public void setTestSubBean( TestSubBeanTo testSubBeanTo )
+    {
+      this.testSubBeanTo = testSubBeanTo;
+    }
+    
+    @Override
+    public String getFieldNonMatching2()
+    {
+      return null;
+    }
+    
   }
   
   /* *************************************************** Methods **************************************************** */
+  
+  @Before
+  public void setUp()
+  {
+    //
+    assertTrue( this.preparedBeanCopier.hasNonMatchingProperties() );
+    //System.out.println( this.preparedBeanCopier.getNonMatchingPropertyNameList() );
+    
+    final List<String> nonMatchingPropertyNameList = this.preparedBeanCopier.getNonMatchingPropertyNameList();
+    assertEquals( 5, nonMatchingPropertyNameList.size() );
+    assertEquals( SetUtils.valueOf( "fieldNonMatching1", "fieldLongIgnored", "testSubBeanTo", "fieldNonMatching2",
+                                    "fieldNonMatchingSub" ), SetUtils.valueOf( nonMatchingPropertyNameList ) );
+    
+  }
   
   @Test
   public void testDeepCloneProperties()
@@ -266,7 +390,10 @@ public class PreparedBeanCopierTest
     assertEquals( this.testBeanFrom.getFieldStringCommon(), clone.getFieldStringCommon() );
     assertEquals( this.testBeanFrom.getList(), clone.getList() );
     assertEquals( this.testBeanFrom.getSet(), clone.getSet() );
+    assertEquals( this.testBeanFrom.getCollection(), clone.getCollection() );
     assertEquals( this.testBeanFrom.getMap(), clone.getMap() );
+    assertNotNull( clone.getTestSubBean() );
+    assertEquals( this.testBeanFrom.getTestSubBean().getFieldString(), clone.getTestSubBean().getFieldString() );
     assertNull( ( (TestBeanTo) clone ).getFieldLongIgnored() );
   }
   
@@ -296,7 +423,7 @@ public class PreparedBeanCopierTest
   
   @Test
   @Ignore("Long running performance test")
-  public void testPerformance()
+  public void testPerformanceDirectGetterSetter()
   {
     for ( int ii = 0; ii < PreparedBeanCopierTest.COPY_TEST_ITERATIONS; ii++ )
     {
@@ -307,7 +434,9 @@ public class PreparedBeanCopierTest
       clone.setFieldStringCommon( this.testBeanFrom.getFieldStringCommon() );
       clone.setList( new ArrayList<String>( this.testBeanFrom.getList() ) );
       clone.setSet( new LinkedHashSet<String>( this.testBeanFrom.getSet() ) );
+      clone.setCollection( new LinkedHashSet<String>( this.testBeanFrom.getCollection() ) );
       clone.setMap( new MapBuilder<String, String>().linkedHashMap().putAll( this.testBeanFrom.getMap() ).build() );
+      clone.setTestSubBean( new TestSubBeanTo().setFieldString( this.testBeanFrom.getTestSubBean().getFieldString() ) );
     }
   }
   

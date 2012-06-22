@@ -220,12 +220,15 @@ public class MapUtils
       //
       for ( K key : mapA.keySet() )
       {
-        //
-        VA valueA = mapA.get( key );
-        VB valueB = mapB.get( key );
-        
-        //
-        retmap.put( key, new TupleTwo<VA, VB>( valueA, valueB ) );
+        if ( mapB.containsKey( key ) )
+        {
+          //
+          VA valueA = mapA.get( key );
+          VB valueB = mapB.get( key );
+          
+          //
+          retmap.put( key, new TupleTwo<VA, VB>( valueA, valueB ) );
+        }
       }
     }
     

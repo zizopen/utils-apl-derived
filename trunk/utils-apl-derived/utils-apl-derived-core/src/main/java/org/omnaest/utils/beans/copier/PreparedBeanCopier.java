@@ -15,7 +15,9 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.copier;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -31,6 +33,7 @@ import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerIgnoring;
 import org.omnaest.utils.reflection.ReflectionUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.tuple.TupleTwo;
@@ -62,9 +65,11 @@ import org.omnaest.utils.tuple.TupleTwo;
  * 
  * @author Omnaest
  */
-public class PreparedBeanCopier<FROM, TO>
+public class PreparedBeanCopier<FROM, TO> implements Serializable
 {
+  
   /* ************************************************** Constants *************************************************** */
+  private static final long                     serialVersionUID             = -7426881508083859649L;
   private static final ExceptionHandlerIgnoring DEFAULT_EXCEPTION_HANDLER    = new ExceptionHandlerIgnoring();
   private static final PropertyAccessType       DEFAULT_PROPERTY_ACCESS_TYPE = PropertyAccessType.PROPERTY;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
@@ -75,6 +80,7 @@ public class PreparedBeanCopier<FROM, TO>
   private PropertyAccessType                    propertyAccessTypeFrom       = PreparedBeanCopier.DEFAULT_PROPERTY_ACCESS_TYPE;
   private PropertyAccessType                    propertyAccessTypeTo         = PreparedBeanCopier.DEFAULT_PROPERTY_ACCESS_TYPE;
   private final Transformer                     transformer;
+  private final List<String>                    nonMatchingPropertyNameList  = new ArrayList<String>();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -82,8 +88,10 @@ public class PreparedBeanCopier<FROM, TO>
    * @see PreparedBeanCopier
    * @author Omnaest
    */
-  public static class Configuration
+  public static class Configuration implements Serializable
   {
+    /* ************************************************** Constants *************************************************** */
+    private static final long                  serialVersionUID                = 5361292993967280460L;
     /* ************************************** Variables / State (internal/hiding) ************************************* */
     private final List<InstanceFactoryCreator> instanceFactoryCreatorList      = new ArrayList<InstanceFactoryCreator>();
     private final List<CopierFactory>          copierFactoryList               = new ArrayList<CopierFactory>();
@@ -93,6 +101,7 @@ public class PreparedBeanCopier<FROM, TO>
     private boolean                            isHandlingPrimitivesAndWrappers = true;
     private boolean                            isHandlingLists                 = true;
     private boolean                            isHandlingSets                  = true;
+    private boolean                            isHandlingCollections           = true;
     private boolean                            isHandlingMaps                  = true;
     private boolean                            isHandlingArbitraryObjects      = true;
     
@@ -230,6 +239,22 @@ public class PreparedBeanCopier<FROM, TO>
     }
     
     /**
+     * Similar to {@link #addTypeToTypeMapping(Class, Class)} but for both directions
+     * 
+     * @param type1
+     *          {@link Class}
+     * @param type2
+     *          {@link Class}
+     * @return this
+     */
+    public Configuration addBidirectionalTypeToTypeMapping( Class<?> type1, Class<?> type2 )
+    {
+      this.typeFromToTypeToMap.put( type1, type2 );
+      this.typeFromToTypeToMap.put( type2, type1 );
+      return this;
+    }
+    
+    /**
      * @see #addTypeToTypeMapping(Class, Class)
      * @param typeFromToTypeToMap
      * @return this
@@ -237,6 +262,18 @@ public class PreparedBeanCopier<FROM, TO>
     public Configuration addTypeToTypeMapping( Map<? extends Class<?>, ? extends Class<?>> typeFromToTypeToMap )
     {
       this.typeFromToTypeToMap.putAll( typeFromToTypeToMap );
+      return this;
+    }
+    
+    /**
+     * @see #addBidirectionalTypeToTypeMapping(Class, Class)
+     * @param typeFromToTypeToMap
+     * @return
+     */
+    public Configuration addBidirectionalTypeToTypeMapping( Map<? extends Class<?>, ? extends Class<?>> typeFromToTypeToMap )
+    {
+      this.typeFromToTypeToMap.putAll( typeFromToTypeToMap );
+      this.typeFromToTypeToMap.putAll( MapUtils.invertedBidirectionalMap( typeFromToTypeToMap ) );
       return this;
     }
     
@@ -281,6 +318,24 @@ public class PreparedBeanCopier<FROM, TO>
     public Configuration setHandlingMaps( boolean isHandlingMaps )
     {
       this.isHandlingMaps = isHandlingMaps;
+      return this;
+    }
+    
+    /**
+     * @return
+     */
+    public boolean isHandlingCollections()
+    {
+      return this.isHandlingCollections;
+    }
+    
+    /**
+     * @param isHandlingCollections
+     * @return this
+     */
+    public Configuration setHandlingCollections( boolean isHandlingCollections )
+    {
+      this.isHandlingCollections = isHandlingCollections;
       return this;
     }
     
@@ -343,14 +398,14 @@ public class PreparedBeanCopier<FROM, TO>
     
   }
   
-  public static interface InstanceFactoryCreator
+  public static interface InstanceFactoryCreator extends Serializable
   {
     /* ********************************************** Classes/Interfaces ********************************************** */
     
     /**
      * @author Omnaest
      */
-    public static interface InstanceFactory
+    public static interface InstanceFactory extends Serializable
     {
       /**
        * Marker instance which indicates an immutable instance, which should not be cloned. E.g. an {@link InstanceFactory} should
@@ -392,7 +447,7 @@ public class PreparedBeanCopier<FROM, TO>
    * 
    * @author Omnaest
    */
-  public static interface CopierFactory
+  public static interface CopierFactory extends Serializable
   {
     /* ********************************************** Classes/Interfaces ********************************************** */
     
@@ -400,7 +455,7 @@ public class PreparedBeanCopier<FROM, TO>
      * @see #copy(Object, Object, Transformer)
      * @author Omnaest
      */
-    public static interface Copier
+    public static interface Copier extends Serializable
     {
       /**
        * Copies all property values from one given instance to another
@@ -429,9 +484,18 @@ public class PreparedBeanCopier<FROM, TO>
      * @param typeFrom
      * @param typeTo
      * @param configuration
+     *          {@link Configuration}
+     * @param metaDataHandler
+     *          {@link MetaDataHandler}
      * @return
      */
-    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration );
+    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration, MetaDataHandler metaDataHandler );
+  }
+  
+  public static interface MetaDataHandler extends Serializable
+  {
+    
+    public void reportNonMatchingPropertyNames( List<String> list );
   }
   
   /**
@@ -439,7 +503,7 @@ public class PreparedBeanCopier<FROM, TO>
    * 
    * @author Omnaest
    */
-  public static interface Transformer
+  public static interface Transformer extends Serializable
   {
     /**
      * Transforms one instance into another
@@ -452,6 +516,8 @@ public class PreparedBeanCopier<FROM, TO>
   
   private static class InstanceFactoryCreatorForPrimitives implements InstanceFactoryCreator, InstanceFactory
   {
+    private static final long serialVersionUID = -8024424149443680755L;
+    
     @Override
     public boolean isHandling( Class<?> type )
     {
@@ -473,6 +539,8 @@ public class PreparedBeanCopier<FROM, TO>
   
   private static class InstanceFactoryCreatorForMappedTypes implements InstanceFactoryCreator, InstanceFactory
   {
+    /* ************************************************** Constants *************************************************** */
+    private static final long             serialVersionUID = -1621806923021530179L;
     /* ************************************** Variables / State (internal/hiding) ************************************* */
     private final Map<Class<?>, Class<?>> typeFromToTypeToMap;
     
@@ -509,6 +577,8 @@ public class PreparedBeanCopier<FROM, TO>
   
   private static class InstanceFactoryCreatorAndCopierFactoryForArbitraryObjects implements InstanceFactoryCreator, CopierFactory
   {
+    private static final long serialVersionUID = -5948935042135374462L;
+    
     @Override
     public boolean isHandling( Class<?> type )
     {
@@ -520,6 +590,8 @@ public class PreparedBeanCopier<FROM, TO>
     {
       return new InstanceFactory()
       {
+        private static final long serialVersionUID = -6795625336262144894L;
+        
         @Override
         public Object newReplacementInstance( Class<?> type )
         {
@@ -529,12 +601,15 @@ public class PreparedBeanCopier<FROM, TO>
     }
     
     @Override
-    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration )
+    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration, MetaDataHandler metaDataHandler )
     {
       final PreparedBeanCopier<Object, Object> preparedBeanCopier = new PreparedBeanCopier<Object, Object>( typeFrom, typeTo,
                                                                                                             configuration );
+      metaDataHandler.reportNonMatchingPropertyNames( preparedBeanCopier.getNonMatchingPropertyNameList() );
       return new Copier()
       {
+        private static final long serialVersionUID = -6415805520183068114L;
+        
         @Override
         public void copy( Object instanceFrom, Object instanceTo, Transformer transformer )
         {
@@ -546,6 +621,8 @@ public class PreparedBeanCopier<FROM, TO>
   
   private static class InstanceFactoryCreatorAndCopierFactoryForList implements InstanceFactoryCreator, CopierFactory
   {
+    private static final long serialVersionUID = 654229828154669671L;
+    
     @Override
     public boolean isHandling( Class<?> type )
     {
@@ -557,6 +634,8 @@ public class PreparedBeanCopier<FROM, TO>
     {
       return new InstanceFactory()
       {
+        private static final long serialVersionUID = 312554307912581992L;
+        
         @Override
         public Object newReplacementInstance( Class<?> type )
         {
@@ -566,10 +645,12 @@ public class PreparedBeanCopier<FROM, TO>
     }
     
     @Override
-    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration )
+    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration, MetaDataHandler metaDataHandler )
     {
       return new Copier()
       {
+        private static final long serialVersionUID = 7561447633309204450L;
+        
         @SuppressWarnings("unchecked")
         @Override
         public void copy( Object instanceFrom, Object instanceTo, Transformer transformer )
@@ -592,6 +673,8 @@ public class PreparedBeanCopier<FROM, TO>
   
   private static class InstanceFactoryCreatorAndCopierFactoryForSet implements InstanceFactoryCreator, CopierFactory
   {
+    private static final long serialVersionUID = 3615193483888509556L;
+    
     @Override
     public boolean isHandling( Class<?> type )
     {
@@ -603,6 +686,8 @@ public class PreparedBeanCopier<FROM, TO>
     {
       return new InstanceFactory()
       {
+        private static final long serialVersionUID = 5411662705527963151L;
+        
         @Override
         public Object newReplacementInstance( Class<?> type )
         {
@@ -612,10 +697,12 @@ public class PreparedBeanCopier<FROM, TO>
     }
     
     @Override
-    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration )
+    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration, MetaDataHandler metaDataHandler )
     {
       return new Copier()
       {
+        private static final long serialVersionUID = -4647789552559439022L;
+        
         @SuppressWarnings("unchecked")
         @Override
         public void copy( Object instanceFrom, Object instanceTo, Transformer transformer )
@@ -636,8 +723,63 @@ public class PreparedBeanCopier<FROM, TO>
     }
   }
   
+  private static class InstanceFactoryCreatorAndCopierFactoryForCollection implements InstanceFactoryCreator, CopierFactory
+  {
+    
+    private static final long serialVersionUID = 218975866373111663L;
+    
+    @Override
+    public boolean isHandling( Class<?> type )
+    {
+      return Collection.class.isAssignableFrom( type );
+    }
+    
+    @Override
+    public InstanceFactory newInstanceFactory( Class<?> type )
+    {
+      return new InstanceFactory()
+      {
+        private static final long serialVersionUID = 5411662705527963151L;
+        
+        @Override
+        public Object newReplacementInstance( Class<?> type )
+        {
+          return new ArrayList<Object>();
+        }
+      };
+    }
+    
+    @Override
+    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration, MetaDataHandler metaDataHandler )
+    {
+      return new Copier()
+      {
+        private static final long serialVersionUID = -4647789552559439022L;
+        
+        @SuppressWarnings("unchecked")
+        @Override
+        public void copy( Object instanceFrom, Object instanceTo, Transformer transformer )
+        {
+          if ( instanceFrom instanceof Collection && instanceTo instanceof Collection )
+          {
+            //
+            final Collection<? extends Object> collectionFrom = (Collection<Object>) instanceFrom;
+            final Collection<? super Object> collectionTo = (Collection<Object>) instanceTo;
+            
+            for ( Object element : collectionFrom )
+            {
+              collectionTo.add( transformer.transform( element ) );
+            }
+          }
+        }
+      };
+    }
+  }
+  
   private static class InstanceFactoryCreatorAndCopierFactoryForMap implements InstanceFactoryCreator, CopierFactory
   {
+    private static final long serialVersionUID = -5806518949904168961L;
+    
     @Override
     public boolean isHandling( Class<?> type )
     {
@@ -649,6 +791,8 @@ public class PreparedBeanCopier<FROM, TO>
     {
       return new InstanceFactory()
       {
+        private static final long serialVersionUID = -2991059275809191118L;
+        
         @Override
         public Object newReplacementInstance( Class<?> type )
         {
@@ -658,10 +802,12 @@ public class PreparedBeanCopier<FROM, TO>
     }
     
     @Override
-    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration )
+    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration, MetaDataHandler metaDataHandler )
     {
       return new Copier()
       {
+        private static final long serialVersionUID = -122066676367014959L;
+        
         @SuppressWarnings("unchecked")
         @Override
         public void copy( Object instanceFrom, Object instanceTo, Transformer transformer )
@@ -681,6 +827,38 @@ public class PreparedBeanCopier<FROM, TO>
         }
       };
     }
+  }
+  
+  /**
+   * @see PreparedBeanCopier
+   * @author Omnaest
+   */
+  public static class NonMatchingPropertyException extends Exception
+  {
+    private static final long  serialVersionUID = 9045272214549608639L;
+    private final List<String> nonMatchingPropertyNameList;
+    
+    public NonMatchingPropertyException( List<String> nonMatchingPropertyNameList )
+    {
+      super( "Properties are not matching: " + nonMatchingPropertyNameList );
+      this.nonMatchingPropertyNameList = nonMatchingPropertyNameList;
+    }
+    
+    public List<String> getNonMatchingPropertyNameList()
+    {
+      return this.nonMatchingPropertyNameList;
+    }
+    
+    @Override
+    public String toString()
+    {
+      StringBuilder builder = new StringBuilder();
+      builder.append( "NonMatchingPropertyException [nonMatchingPropertyNameList2=" );
+      builder.append( this.nonMatchingPropertyNameList );
+      builder.append( "]" );
+      return builder.toString();
+    }
+    
   }
   
   /* *************************************************** Methods **************************************************** */
@@ -714,10 +892,13 @@ public class PreparedBeanCopier<FROM, TO>
     
     //
     final Configuration configurationOrDefault = ObjectUtils.defaultIfNull( configuration, new Configuration() );
-    this.preparedCopierList = PreparedBeanCopier.newPreparedCopierList( typeFrom, typeTo, configurationOrDefault );
+    this.preparedCopierList = PreparedBeanCopier.newPreparedCopierList( typeFrom, typeTo, configurationOrDefault,
+                                                                        this.nonMatchingPropertyNameList );
     this.instanceFactoryForRoot = PreparedBeanCopier.newInstanceFactory( typeFrom, configurationOrDefault );
     this.transformer = new Transformer()
     {
+      private static final long serialVersionUID = -4846406160190255627L;
+      
       @Override
       public Object transform( Object instanceFrom )
       {
@@ -734,8 +915,9 @@ public class PreparedBeanCopier<FROM, TO>
             {
               if ( retval != InstanceFactory.IMMUTABLE_INSTANCE )
               {
-                Class<?> propertyTypeTo = retval.getClass();
-                Copier copier = newCopier( propertyTypeFrom, propertyTypeTo, configurationOrDefault );
+                final Class<?> propertyTypeTo = retval.getClass();
+                final MetaDataHandler metaDataHandler = newMetaDataHandler( PreparedBeanCopier.this.nonMatchingPropertyNameList );
+                Copier copier = newCopier( propertyTypeFrom, propertyTypeTo, configurationOrDefault, metaDataHandler );
                 if ( copier != null )
                 {
                   copier.copy( instanceFrom, retval, this );
@@ -755,7 +937,8 @@ public class PreparedBeanCopier<FROM, TO>
   
   private static <FROM, TO> List<PreparedCopier> newPreparedCopierList( Class<FROM> typeFrom,
                                                                         Class<TO> typeTo,
-                                                                        Configuration configuration )
+                                                                        Configuration configuration,
+                                                                        final List<String> nonMatchingPropertyNameList )
   {
     //
     final List<PreparedCopier> retlist = new ArrayList<PreparedCopier>();
@@ -765,32 +948,61 @@ public class PreparedBeanCopier<FROM, TO>
     final Map<String, BeanPropertyAccessor<TO>> propertyNameToBeanPropertyAccessorMapTo = BeanUtils.propertyNameToBeanPropertyAccessorMap( typeTo );
     Map<String, TupleTwo<BeanPropertyAccessor<FROM>, BeanPropertyAccessor<TO>>> joinMapByPropertyName = MapUtils.innerJoinMapByKey( propertyNameToBeanPropertyAccessorMapFrom,
                                                                                                                                     propertyNameToBeanPropertyAccessorMapTo );
+    {
+      nonMatchingPropertyNameList.addAll( SetUtils.delta( propertyNameToBeanPropertyAccessorMapFrom.keySet(),
+                                                          joinMapByPropertyName.keySet() ).getRemovedElementSet() );
+      nonMatchingPropertyNameList.addAll( SetUtils.delta( propertyNameToBeanPropertyAccessorMapTo.keySet(),
+                                                          joinMapByPropertyName.keySet() ).getRemovedElementSet() );
+    }
     for ( String propertyName : joinMapByPropertyName.keySet() )
     {
       //
-      TupleTwo<BeanPropertyAccessor<FROM>, BeanPropertyAccessor<TO>> tuple = joinMapByPropertyName.get( propertyName );
-      
-      BeanPropertyAccessor<FROM> beanPropertyAccessorFrom = tuple.getValueFirst();
-      BeanPropertyAccessor<TO> beanPropertyAccessorTo = tuple.getValueSecond();
-      
-      Class<?> propertyTypeFrom = beanPropertyAccessorFrom.getDeclaringPropertyType();
-      Class<?> propertyTypeTo = beanPropertyAccessorTo.getDeclaringPropertyType();
-      
-      if ( propertyTypeTo != null && propertyTypeFrom != null && propertyTypeTo.isAssignableFrom( propertyTypeFrom ) )
+      final TupleTwo<BeanPropertyAccessor<FROM>, BeanPropertyAccessor<TO>> tuple = joinMapByPropertyName.get( propertyName );
+      final BeanPropertyAccessor<FROM> beanPropertyAccessorFrom = tuple.getValueFirst();
+      final BeanPropertyAccessor<TO> beanPropertyAccessorTo = tuple.getValueSecond();
+      if ( beanPropertyAccessorTo != null && beanPropertyAccessorFrom != null )
       {
         //
-        final InstanceFactory instanceFactory = newInstanceFactory( propertyTypeFrom, configuration );
-        final Copier copier = newCopier( propertyTypeFrom, propertyTypeTo, configuration );
-        if ( instanceFactory != null )
+        final Class<?> propertyTypeFrom = beanPropertyAccessorFrom.getDeclaringPropertyType();
+        final Class<?> propertyTypeTo = beanPropertyAccessorTo.getDeclaringPropertyType();
+        if ( propertyTypeTo != null && propertyTypeFrom != null )
         {
-          retlist.add( new PreparedCopier( beanPropertyAccessorFrom, beanPropertyAccessorTo, instanceFactory, propertyTypeFrom,
-                                           copier ) );
+          //
+          final InstanceFactory instanceFactory = newInstanceFactory( propertyTypeFrom, configuration );
+          final MetaDataHandler metaDataHandler = newMetaDataHandler( nonMatchingPropertyNameList );
+          final Copier copier = newCopier( propertyTypeFrom, propertyTypeTo, configuration, metaDataHandler );
+          if ( instanceFactory != null )
+          {
+            retlist.add( new PreparedCopier( beanPropertyAccessorFrom, beanPropertyAccessorTo, instanceFactory, propertyTypeFrom,
+                                             copier ) );
+          }
         }
       }
     }
     
     //
     return retlist;
+  }
+  
+  /**
+   * @param nonMatchingPropertyNameList
+   * @return new {@link MetaDataHandler} instance
+   */
+  private static MetaDataHandler newMetaDataHandler( final List<String> nonMatchingPropertyNameList )
+  {
+    return new MetaDataHandler()
+    {
+      private static final long serialVersionUID = -2755016787172736785L;
+      
+      @Override
+      public void reportNonMatchingPropertyNames( List<String> propertyNameList )
+      {
+        if ( propertyNameList != null )
+        {
+          nonMatchingPropertyNameList.addAll( propertyNameList );
+        }
+      }
+    };
   }
   
   private static InstanceFactory newInstanceFactory( Class<?> propertyTypeFrom, Configuration configuration )
@@ -814,6 +1026,10 @@ public class PreparedBeanCopier<FROM, TO>
         if ( configuration.isHandlingSets() )
         {
           instanceHandlerFactoryList.add( new InstanceFactoryCreatorAndCopierFactoryForSet() );
+        }
+        if ( configuration.isHandlingCollections() )
+        {
+          instanceHandlerFactoryList.add( new InstanceFactoryCreatorAndCopierFactoryForCollection() );
         }
         if ( configuration.isHandlingMaps() )
         {
@@ -845,7 +1061,10 @@ public class PreparedBeanCopier<FROM, TO>
     return instanceHandler;
   }
   
-  private static Copier newCopier( Class<?> propertyTypeFrom, Class<?> propertyTypeTo, Configuration configuration )
+  private static Copier newCopier( Class<?> propertyTypeFrom,
+                                   Class<?> propertyTypeTo,
+                                   Configuration configuration,
+                                   MetaDataHandler metaDataHandler )
   {
     Copier copier = null;
     {
@@ -858,6 +1077,10 @@ public class PreparedBeanCopier<FROM, TO>
         if ( configuration.isHandlingSets() )
         {
           copierFactoryList.add( new InstanceFactoryCreatorAndCopierFactoryForSet() );
+        }
+        if ( configuration.isHandlingCollections() )
+        {
+          copierFactoryList.add( new InstanceFactoryCreatorAndCopierFactoryForCollection() );
         }
         if ( configuration.isHandlingMaps() )
         {
@@ -872,7 +1095,7 @@ public class PreparedBeanCopier<FROM, TO>
       {
         if ( copierFactory != null && copierFactory.isHandling( propertyTypeFrom ) )
         {
-          copier = copierFactory.newCopier( propertyTypeFrom, propertyTypeTo, configuration );
+          copier = copierFactory.newCopier( propertyTypeFrom, propertyTypeTo, configuration, metaDataHandler );
           break;
         }
       }
@@ -968,4 +1191,41 @@ public class PreparedBeanCopier<FROM, TO>
     return this;
   }
   
+  /**
+   * Returns a {@link List} of all non matching property names
+   * 
+   * @see #hasNonMatchingProperties()
+   * @return
+   */
+  public List<String> getNonMatchingPropertyNameList()
+  {
+    return Collections.unmodifiableList( this.nonMatchingPropertyNameList );
+  }
+  
+  /**
+   * Returns true if there are properties which could not be matched
+   * 
+   * @see #getNonMatchingPropertyNameList()
+   * @return
+   */
+  public boolean hasNonMatchingProperties()
+  {
+    return !this.nonMatchingPropertyNameList.isEmpty();
+  }
+  
+  /**
+   * Throws an {@link NonMatchingPropertyException} if {@link #hasNonMatchingProperties()} is true
+   * 
+   * @see #hasNonMatchingProperties()
+   * @return this
+   * @throws NonMatchingPropertyException
+   */
+  public PreparedBeanCopier<FROM, TO> throwExceptionWhenAnyPropertiesAreNotMatching() throws NonMatchingPropertyException
+  {
+    if ( this.hasNonMatchingProperties() )
+    {
+      throw new NonMatchingPropertyException( this.getNonMatchingPropertyNameList() );
+    }
+    return this;
+  }
 }
