@@ -11,11 +11,11 @@ Additionally the PreparedBeanCopier allows to map different types to each other,
 Code example:
 {{{
 PreparedBeanCopier<BeanFrom, BeanTo> preparedBeanCopier   = new PreparedBeanCopier<BeanFrom, BeanTo>(
-																										BeanFrom.class,
-																										BeanTo.class,
-																										new Configuration().addTypeToTypeMapping( BeanFrom.class,
-																																				  BeanTo.class )
-																									);
+	BeanFrom.class,
+	BeanTo.class,
+	new Configuration().addTypeToTypeMapping( BeanFrom.class,
+											  BeanTo.class )
+);
 BeanTo clone1 = this.preparedBeanCopier.deepCloneProperties( beanFrom );
 BeanTo clone2 = this.preparedBeanCopier.deepCloneProperties( beanFrom );
 ...
