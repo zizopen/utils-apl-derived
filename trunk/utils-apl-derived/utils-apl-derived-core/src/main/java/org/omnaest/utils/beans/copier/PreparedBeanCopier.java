@@ -341,8 +341,10 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
     
   }
   
-  private static class PreparedCopier
+  private static class PreparedCopier implements Serializable
   {
+    /* ************************************************** Constants *************************************************** */
+    private static final long                  serialVersionUID = 9014411875272403900L;
     /* ************************************** Variables / State (internal/hiding) ************************************* */
     private final BeanPropertyAccessor<Object> beanPropertyAccessorFrom;
     private final BeanPropertyAccessor<Object> beanPropertyAccessorTo;

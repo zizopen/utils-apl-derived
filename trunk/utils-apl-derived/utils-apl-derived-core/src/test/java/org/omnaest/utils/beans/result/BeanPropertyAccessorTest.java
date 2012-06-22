@@ -16,8 +16,10 @@
 package org.omnaest.utils.beans.result;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
@@ -90,5 +92,16 @@ public class BeanPropertyAccessorTest
     //
     assertEquals( "other value", this.beanPropertyAccessorValue1.getPropertyValue( testBean ) );
     assertEquals( String.class, this.beanPropertyAccessorValue1.getDeclaringPropertyType() );
+  }
+  
+  @Test
+  public void testReadResolve() throws Exception
+  {
+    BeanPropertyAccessor<TestBean> clone = SerializationUtils.clone( this.beanPropertyAccessorValue1 );
+    assertNotNull( clone.getBeanClass() );
+    assertNotNull( clone.getPropertyName() );
+    assertNotNull( clone.getField() );
+    assertNotNull( clone.getMethodGetter() );
+    assertNotNull( clone.getMethodSetter() );
   }
 }

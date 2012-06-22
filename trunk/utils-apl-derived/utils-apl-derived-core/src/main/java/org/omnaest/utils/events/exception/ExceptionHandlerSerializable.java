@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Danny Kunz
+ * Copyright 2011 Danny Kunz
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.events.exception.basic;
+package org.omnaest.utils.events.exception;
 
-import org.omnaest.utils.events.exception.ExceptionHandler;
-import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
+import java.io.Serializable;
 
 /**
- * Simple {@link ExceptionHandler} which does call {@link Exception#printStackTrace()}
+ * {@link ExceptionHandler} which implements the {@link Serializable} interface
  * 
  * @author Omnaest
  */
-public class ExceptionHandlerEPrintStackTrace implements ExceptionHandlerSerializable
+public interface ExceptionHandlerSerializable extends ExceptionHandler, Serializable
 {
-  
-  private static final long serialVersionUID = 8790389129584339056L;
-  
-  @Override
-  public void handleException( Exception e )
-  {
-    if ( e != null )
-    {
-      e.printStackTrace();
-    }
-  }
-  
 }

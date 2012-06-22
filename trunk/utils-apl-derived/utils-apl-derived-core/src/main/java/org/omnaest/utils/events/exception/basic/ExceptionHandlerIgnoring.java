@@ -16,14 +16,17 @@
 package org.omnaest.utils.events.exception.basic;
 
 import org.omnaest.utils.events.exception.ExceptionHandler;
+import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
 
 /**
  * Simple {@link ExceptionHandler} which does nothing
  * 
  * @author Omnaest
  */
-public class ExceptionHandlerIgnoring implements ExceptionHandler
+public class ExceptionHandlerIgnoring implements ExceptionHandlerSerializable
 {
+  
+  private static final long serialVersionUID = 2119649048847495447L;
   
   @Override
   public void handleException( Exception e )

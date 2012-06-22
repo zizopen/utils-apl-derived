@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.result;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -33,15 +35,17 @@ import org.omnaest.utils.proxy.BeanProperty;
  * @param <B>
  *          Java Bean type
  */
-public class BeanPropertyAccessor<B>
+public class BeanPropertyAccessor<B> implements Serializable
 {
-  /* ********************************************** Variables ********************************************** */
-  private final String       propertyName;
-  private final Field        field;
-  private final Method       methodGetter;
-  private final Method       methodSetter;
-  private final Class<B>     beanType;
-  private PropertyAccessType propertyAccessType = PropertyAccessType.PROPERTY;
+  /* ************************************************** Constants *************************************************** */
+  private static final long    serialVersionUID   = 7631705587737553708L;
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  protected String             propertyName;
+  protected transient Field    field;
+  protected transient Method   methodGetter;
+  protected transient Method   methodSetter;
+  protected Class<B>           beanType;
+  protected PropertyAccessType propertyAccessType = PropertyAccessType.PROPERTY;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -76,6 +80,17 @@ public class BeanPropertyAccessor<B>
     this.methodGetter = methodGetter;
     this.methodSetter = methodSetter;
     this.beanType = beanType;
+  }
+  
+  /**
+   * This should only be used in combination of {@link #readResolve()}
+   * 
+   * @see BeanPropertyAccessor
+   */
+  @SuppressWarnings("unused")
+  private BeanPropertyAccessor()
+  {
+    super();
   }
   
   /**
@@ -548,13 +563,21 @@ public class BeanPropertyAccessor<B>
    * Sets the {@link PropertyAccessType}
    * 
    * @param propertyAccessType
+   * @return this
    */
-  public void setPropertyAccessType( PropertyAccessType propertyAccessType )
+  public BeanPropertyAccessor<B> setPropertyAccessType( PropertyAccessType propertyAccessType )
   {
     if ( propertyAccessType != null )
     {
       this.propertyAccessType = propertyAccessType;
     }
+    return this;
+  }
+  
+  public Object readResolve() throws ObjectStreamException
+  {
+    BeanPropertyAccessor<B> beanPropertyAccessor = BeanUtils.beanPropertyAccessor( this.beanType, this.propertyName );
+    return beanPropertyAccessor.setPropertyAccessType( this.propertyAccessType );
   }
   
 }

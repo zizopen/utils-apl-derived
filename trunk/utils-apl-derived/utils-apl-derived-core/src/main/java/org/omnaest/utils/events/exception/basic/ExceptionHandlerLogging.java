@@ -16,6 +16,7 @@
 package org.omnaest.utils.events.exception.basic;
 
 import org.omnaest.utils.events.exception.ExceptionHandler;
+import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
 import org.slf4j.Logger;
 
 /**
@@ -23,10 +24,12 @@ import org.slf4j.Logger;
  * 
  * @author Omnaest
  */
-public class ExceptionHandlerLogging implements ExceptionHandler
+public class ExceptionHandlerLogging implements ExceptionHandlerSerializable
 {
-  /* ********************************************** Beans / Services / References ********************************************** */
-  private final Logger logger;
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = -7990568786881923896L;
+  /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
+  private final Logger      logger;
   
   /* ********************************************** Methods ********************************************** */
   

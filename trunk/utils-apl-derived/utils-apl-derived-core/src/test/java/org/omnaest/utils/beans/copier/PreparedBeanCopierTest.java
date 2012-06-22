@@ -30,11 +30,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.beans.copier.PreparedBeanCopier.Configuration;
 import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.map.MapBuilder;
 
 /**
@@ -384,6 +386,25 @@ public class PreparedBeanCopierTest
     ITestBeanTo clone = this.preparedBeanCopier.deepCloneProperties( this.testBeanFrom );
     
     //
+    assertTestBeanClone( clone );
+  }
+  
+  @Test
+  @SuppressWarnings("unchecked")
+  public void testDeepClonePropertiesSerializable()
+  {
+    //
+    final ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+    SerializationUtils.serialize( this.preparedBeanCopier, byteArrayContainer.getOutputStream() );
+    PreparedBeanCopier<ITestBeanFrom, ITestBeanTo> preparedBeanCopierClone = (PreparedBeanCopier<ITestBeanFrom, ITestBeanTo>) SerializationUtils.deserialize( byteArrayContainer.getInputStream() );
+    
+    //
+    ITestBeanTo clone = preparedBeanCopierClone.deepCloneProperties( this.testBeanFrom );
+    assertTestBeanClone( clone );
+  }
+  
+  private void assertTestBeanClone( ITestBeanTo clone )
+  {
     assertNotNull( clone );
     assertEquals( this.testBeanFrom.getFieldString(), clone.getFieldString() );
     assertEquals( this.testBeanFrom.getFieldLong(), clone.getFieldLong() );
