@@ -30,6 +30,6 @@ The preparedBeanCopier is *thread safe* by default, so its instance can be share
 The PreparedBeanCopier is time costly once when created but very fast in creating clone instances.
 
 It is about *5-10 times* slower than simple *nested getter and setter* calls, but can handle still *about 1000000* clone operations within *10 seconds*.
-This makes it about *5-10 times faster* than its Apache Commons counterpart, the *BeanUtils.copyProperties(...)*.
+This makes it about *5-10 times faster* than its Apache Commons counterpart, the [http://commons.apache.org/beanutils/api/index.html| BeanUtils.copyProperties(...)].
 
 http://utils-apl-derived.googlecode.com/svn-history/wiki/images/PreparedBeanCopierPerformance.jpg
