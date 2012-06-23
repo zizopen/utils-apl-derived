@@ -108,7 +108,7 @@ public class FutureTaskManager implements Serializable
    * @param executorService
    * @param callable
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "unchecked", "rawtypes", "cast" })
   public void submitAndManage( ExecutorService executorService, Callable<?> callable )
   {
     this.submitAndManageCallables( executorService, (Collection) Arrays.asList( callable ), 1 );
@@ -134,8 +134,20 @@ public class FutureTaskManager implements Serializable
    * @see Callable
    * @param callable
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void submitAndManage( Callable<?> callable )
+  {
+    final int submitCount = 1;
+    this.submitAndManage( callable, submitCount );
+  }
+  
+  /**
+   * Similar to {@link #submitAndManage(Callable)} but the {@link Callable} will be submitted the given number times
+   * 
+   * @param callable
+   * @param submitCount
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes", "cast" })
+  public void submitAndManage( Callable<?> callable, int submitCount )
   {
     if ( this.executorService == null )
     {
@@ -144,7 +156,7 @@ public class FutureTaskManager implements Serializable
                                                    + FutureTaskManager.class
                                                    + " must be initialied with an instance of an ExecutorService to support this operation" );
     }
-    this.submitAndManageCallables( this.executorService, (Collection) Arrays.asList( callable ), 1 );
+    this.submitAndManageCallables( this.executorService, (Collection) Arrays.asList( callable ), submitCount );
   }
   
   /**
@@ -158,6 +170,21 @@ public class FutureTaskManager implements Serializable
     if ( runnable != null )
     {
       this.submitAndManage( new RunnableToCallableAdapter( runnable ) );
+    }
+  }
+  
+  /**
+   * Similar to {@link #submitAndManage(Callable, int)} but for {@link Runnable}
+   * 
+   * @param runnable
+   * @param submitCount
+   */
+  public void submitAndManage( Runnable runnable, int submitCount )
+  {
+    //
+    if ( runnable != null )
+    {
+      this.submitAndManage( new RunnableToCallableAdapter( runnable ), submitCount );
     }
   }
   
@@ -180,7 +207,7 @@ public class FutureTaskManager implements Serializable
    * @param callable
    * @param submitCount
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "unchecked", "rawtypes", "cast" })
   public void submitAndManage( ExecutorService executorService, Callable<?> callable, int submitCount )
   {
     //
@@ -218,7 +245,7 @@ public class FutureTaskManager implements Serializable
    * @param submitCount
    */
   public void submitAndManageCallables( ExecutorService executorService,
-                                        Collection<Callable<?>> callableCollection,
+                                        Collection<? extends Callable<?>> callableCollection,
                                         int submitCount )
   {
     //
@@ -290,17 +317,14 @@ public class FutureTaskManager implements Serializable
         boolean waitForTask = true;
         while ( waitForTask )
         {
-          //
-          waitForTask = false;
-          
-          //
+          //          
           try
           {
             result = future.get();
+            waitForTask = false;
           }
           catch ( InterruptedException e )
           {
-            waitForTask = true;
           }
         }
       }
@@ -328,8 +352,6 @@ public class FutureTaskManager implements Serializable
         removeFutureSet.add( future );
       }
     }
-    
-    //
     this.futureList.removeAll( removeFutureSet );
   }
   
@@ -351,6 +373,26 @@ public class FutureTaskManager implements Serializable
   public boolean hasExecutorService()
   {
     return this.executorService != null;
+  }
+  
+  /**
+   * Returns true if all given {@link Future} task return true for {@link Future#isDone()}
+   * 
+   * @return
+   */
+  public boolean areAllTasksFinished()
+  {
+    //
+    boolean retval = true;
+    for ( Future<?> future : this.futureList )
+    {
+      if ( future != null && !future.isDone() )
+      {
+        retval = false;
+        break;
+      }
+    }
+    return retval;
   }
   
 }

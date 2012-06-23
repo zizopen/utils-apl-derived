@@ -28,6 +28,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -35,9 +37,12 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.beans.copier.PreparedBeanCopier.Configuration;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
+import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCast;
 import org.omnaest.utils.structure.map.MapBuilder;
+import org.omnaest.utils.threads.FutureTaskManager;
 
 /**
  * @see PreparedBeanCopier
@@ -384,8 +389,6 @@ public class PreparedBeanCopierTest
   {
     //
     ITestBeanTo clone = this.preparedBeanCopier.deepCloneProperties( this.testBeanFrom );
-    
-    //
     assertTestBeanClone( clone );
   }
   
@@ -401,6 +404,45 @@ public class PreparedBeanCopierTest
     //
     ITestBeanTo clone = preparedBeanCopierClone.deepCloneProperties( this.testBeanFrom );
     assertTestBeanClone( clone );
+  }
+  
+  @Test
+  public void testDeepClonePropertiesMultithreaded()
+  {
+    Callable<Boolean> callable = new Callable<Boolean>()
+    {
+      @Override
+      public Boolean call() throws Exception
+      {
+        //
+        boolean retval = false;
+        try
+        {
+          ITestBeanTo clone = PreparedBeanCopierTest.this.preparedBeanCopier.deepCloneProperties( PreparedBeanCopierTest.this.testBeanFrom );
+          assertTestBeanClone( clone );
+          retval = true;
+        }
+        catch ( Throwable e )
+        {
+          e.printStackTrace();
+        }
+        return retval;
+      }
+    };
+    
+    //
+    final int submitCount = 100;
+    FutureTaskManager futureTaskManager = new FutureTaskManager( Executors.newFixedThreadPool( submitCount / 10 ) );
+    futureTaskManager.submitAndManage( callable, submitCount );
+    
+    //
+    List<Object> resultList = futureTaskManager.waitForAllTasksToFinish().getResult();
+    assertTrue( futureTaskManager.areAllTasksFinished() );
+    assertEquals( submitCount, resultList.size() );
+    for ( Boolean success : ListUtils.convert( resultList, new ElementConverterIdentitiyCast<Object, Boolean>() ) )
+    {
+      assertTrue( success );
+    }
   }
   
   private void assertTestBeanClone( ITestBeanTo clone )

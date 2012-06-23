@@ -208,22 +208,19 @@ public class BeanPropertyAccessor<B> implements Serializable
         
         //
         boolean accessible = accessibleObject.isAccessible();
-        accessibleObject.setAccessible( true );
-        try
+        if ( !accessible )
         {
-          //
-          if ( PropertyAccessType.FIELD.equals( propertyAccessType ) )
-          {
-            retval = this.field.get( bean );
-          }
-          else if ( PropertyAccessType.PROPERTY.equals( propertyAccessType ) )
-          {
-            retval = this.methodGetter.invoke( bean, new Object[] {} );
-          }
+          accessibleObject.setAccessible( true );
         }
-        finally
+        
+        //
+        if ( PropertyAccessType.FIELD.equals( propertyAccessType ) )
         {
-          accessibleObject.setAccessible( accessible );
+          retval = this.field.get( bean );
+        }
+        else if ( PropertyAccessType.PROPERTY.equals( propertyAccessType ) )
+        {
+          retval = this.methodGetter.invoke( bean, new Object[] {} );
         }
       }
       catch ( Exception e )
@@ -311,23 +308,21 @@ public class BeanPropertyAccessor<B> implements Serializable
         
         //
         boolean accessible = accessibleObject.isAccessible();
-        accessibleObject.setAccessible( true );
-        try
+        if ( !accessible )
         {
-          if ( PropertyAccessType.FIELD.equals( propertyAccessType ) )
-          {
-            //
-            this.field.set( bean, value );
-          }
-          else if ( PropertyAccessType.PROPERTY.equals( propertyAccessType ) )
-          {
-            //
-            this.methodSetter.invoke( bean, value );
-          }
+          accessibleObject.setAccessible( true );
         }
-        finally
+        
+        //
+        if ( PropertyAccessType.FIELD.equals( propertyAccessType ) )
         {
-          accessibleObject.setAccessible( accessible );
+          //
+          this.field.set( bean, value );
+        }
+        else if ( PropertyAccessType.PROPERTY.equals( propertyAccessType ) )
+        {
+          //
+          this.methodSetter.invoke( bean, value );
         }
         
         //

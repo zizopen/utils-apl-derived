@@ -15,16 +15,23 @@
  ******************************************************************************/
 package org.omnaest.utils.threads;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.ExceptionHandledResult;
+import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCast;
 
 /**
  * @see FutureTaskManager
@@ -65,6 +72,40 @@ public class FutureTaskManagerTest
     ExceptionHandledResult<?> exceptionHandledResult = this.futureTaskManager.waitForAllTasksToFinish();
     assertTrue( exceptionHandledResult.hasExceptions() );
     assertTrue( exceptionHandledResult.containsAssignableException( RuntimeException.class ) );
+  }
+  
+  @Test
+  public void testWaitForAllTasksToFinish() throws Exception
+  {
+    //
+    final Callable<Boolean> callable = new Callable<Boolean>()
+    {
+      @Override
+      public Boolean call() throws Exception
+      {
+        //
+        Thread.sleep( 10 );
+        return true;
+      }
+    };
+    
+    final int submitCount = 500;
+    FutureTaskManager futureTaskManager = new FutureTaskManager( Executors.newFixedThreadPool( submitCount / 10 ) );
+    futureTaskManager.submitAndManage( callable, submitCount );
+    
+    //
+    List<Object> resultList = futureTaskManager.waitForAllTasksToFinish().getResult();
+    assertTrue( futureTaskManager.areAllTasksFinished() );
+    assertEquals( submitCount, resultList.size() );
+    for ( Boolean success : ListUtils.convert( resultList, new ElementConverterIdentitiyCast<Object, Boolean>() ) )
+    {
+      if ( success == null )
+      {
+        System.out.println( resultList );
+      }
+      assertNotNull( success );
+      assertTrue( success );
+    }
   }
   
 }

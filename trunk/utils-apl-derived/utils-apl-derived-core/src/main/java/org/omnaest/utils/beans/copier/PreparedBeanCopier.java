@@ -38,6 +38,9 @@ import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.tuple.TupleTwo;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
 /**
  * A {@link PreparedBeanCopier} will prepare reflection based property copy actions for two given {@link Class} types in advance.<br>
  * <br>
@@ -62,6 +65,11 @@ import org.omnaest.utils.tuple.TupleTwo;
  * <li>{@link Configuration#setHandlingMaps(boolean)}</li>
  * <li>{@link Configuration#setHandlingArbitraryObjects(boolean)}</li>
  * </ul>
+ * <br>
+ * <br>
+ * The {@link #deepCloneProperties(Object)} and {@link #deepCopyProperties(Object, Object)} instances are thread safe per default,
+ * as long as any at {@link #setExceptionHandler(ExceptionHandler)} or at {@link Configuration#add(CopierFactory)} or
+ * {@link Configuration#add(InstanceFactoryCreator)} provided instances are thread safe.
  * 
  * @author Omnaest
  */
@@ -80,7 +88,7 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
   private PropertyAccessType                    propertyAccessTypeFrom       = PreparedBeanCopier.DEFAULT_PROPERTY_ACCESS_TYPE;
   private PropertyAccessType                    propertyAccessTypeTo         = PreparedBeanCopier.DEFAULT_PROPERTY_ACCESS_TYPE;
   private final Transformer                     transformer;
-  private final List<String>                    nonMatchingPropertyNameList  = new ArrayList<String>();
+  private final List<String>                    nonMatchingPropertyNameList;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -96,7 +104,7 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
     private final List<InstanceFactoryCreator> instanceFactoryCreatorList      = new ArrayList<InstanceFactoryCreator>();
     private final List<CopierFactory>          copierFactoryList               = new ArrayList<CopierFactory>();
     
-    private Map<Class<?>, Class<?>>            typeFromToTypeToMap             = new LinkedHashMap<Class<?>, Class<?>>();
+    private Map<Class<?>, Class<?>>            typeFromToTypeToMap             = ImmutableMap.<Class<?>, Class<?>> of();
     
     private boolean                            isHandlingPrimitivesAndWrappers = true;
     private boolean                            isHandlingLists                 = true;
@@ -234,7 +242,10 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
      */
     public Configuration addTypeToTypeMapping( Class<?> typeFrom, Class<?> typeTo )
     {
-      this.typeFromToTypeToMap.put( typeFrom, typeTo );
+      this.typeFromToTypeToMap = ImmutableMap.<Class<?>, Class<?>> builder()
+                                             .putAll( this.typeFromToTypeToMap )
+                                             .put( typeFrom, typeTo )
+                                             .build();
       return this;
     }
     
@@ -249,8 +260,8 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
      */
     public Configuration addBidirectionalTypeToTypeMapping( Class<?> type1, Class<?> type2 )
     {
-      this.typeFromToTypeToMap.put( type1, type2 );
-      this.typeFromToTypeToMap.put( type2, type1 );
+      this.addTypeToTypeMapping( type1, type2 );
+      this.addTypeToTypeMapping( type2, type1 );
       return this;
     }
     
@@ -261,7 +272,10 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
      */
     public Configuration addTypeToTypeMapping( Map<? extends Class<?>, ? extends Class<?>> typeFromToTypeToMap )
     {
-      this.typeFromToTypeToMap.putAll( typeFromToTypeToMap );
+      this.typeFromToTypeToMap = ImmutableMap.<Class<?>, Class<?>> builder()
+                                             .putAll( this.typeFromToTypeToMap )
+                                             .putAll( typeFromToTypeToMap )
+                                             .build();
       return this;
     }
     
@@ -272,8 +286,8 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
      */
     public Configuration addBidirectionalTypeToTypeMapping( Map<? extends Class<?>, ? extends Class<?>> typeFromToTypeToMap )
     {
-      this.typeFromToTypeToMap.putAll( typeFromToTypeToMap );
-      this.typeFromToTypeToMap.putAll( MapUtils.invertedBidirectionalMap( typeFromToTypeToMap ) );
+      this.addTypeToTypeMapping( typeFromToTypeToMap );
+      this.addTypeToTypeMapping( MapUtils.invertedBidirectionalMap( typeFromToTypeToMap ) );
       return this;
     }
     
@@ -282,7 +296,7 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
      */
     public Map<Class<?>, Class<?>> getTypeFromToTypeToMap()
     {
-      return Collections.unmodifiableMap( this.typeFromToTypeToMap );
+      return this.typeFromToTypeToMap;
     }
     
     /**
@@ -893,10 +907,12 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
     this.typeFrom = (Class<FROM>) typeFrom;
     
     //
+    final List<String> nonMatchingPropertyNameList = new ArrayList<String>();
     final Configuration configurationOrDefault = ObjectUtils.defaultIfNull( configuration, new Configuration() );
     this.preparedCopierList = PreparedBeanCopier.newPreparedCopierList( typeFrom, typeTo, configurationOrDefault,
-                                                                        this.nonMatchingPropertyNameList );
+                                                                        nonMatchingPropertyNameList );
     this.instanceFactoryForRoot = PreparedBeanCopier.newInstanceFactory( typeFrom, configurationOrDefault );
+    this.nonMatchingPropertyNameList = ImmutableList.<String> copyOf( nonMatchingPropertyNameList );
     this.transformer = new Transformer()
     {
       private static final long serialVersionUID = -4846406160190255627L;
@@ -983,7 +999,7 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
     }
     
     //
-    return retlist;
+    return ImmutableList.<PreparedCopier> copyOf( retlist );
   }
   
   /**
