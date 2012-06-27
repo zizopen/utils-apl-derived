@@ -36,8 +36,10 @@ import org.omnaest.utils.structure.table.internal.TableInternal.StripeInternal;
  */
 public class StripeToMapAdapter<E> extends MapAbstract<Object, E>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = 577066475060838640L;
   /* ********************************************** Variables ********************************************** */
-  protected Stripe<E> stripe = null;
+  protected Stripe<E>       stripe           = null;
   
   /* ********************************************** Methods ********************************************** */
   /**

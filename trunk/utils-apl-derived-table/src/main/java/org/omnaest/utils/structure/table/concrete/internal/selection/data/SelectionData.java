@@ -136,5 +136,29 @@ public class SelectionData<E>
   {
     this.topNumberOfRows = topNumberOfRows;
   }
+
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "SelectionData [columnList=" );
+    builder.append( this.columnList );
+    builder.append( ", tableToJoinMap=" );
+    builder.append( this.tableToJoinMap );
+    builder.append( ", predicateFilterList=" );
+    builder.append( this.predicateFilterList );
+    builder.append( ", predicateJoinerList=" );
+    builder.append( this.predicateJoinerList );
+    builder.append( ", columnToOrderMap=" );
+    builder.append( this.columnToOrderMap );
+    builder.append( ", selectAllColumns=" );
+    builder.append( this.selectAllColumns );
+    builder.append( ", distinct=" );
+    builder.append( this.distinct );
+    builder.append( ", topNumberOfRows=" );
+    builder.append( this.topNumberOfRows );
+    builder.append( "]" );
+    return builder.toString();
+  }
   
 }

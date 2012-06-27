@@ -89,12 +89,20 @@ public interface TableSelectable<E>
     public Selection<E> allColumns();
     
     /**
-     * Sets the {@link Table}
+     * Sets the {@link Table}s
      * 
      * @param tables
      * @return this
      */
     public Selection<E> from( Table<E>... tables );
+    
+    /**
+     * Sets the {@link Table}
+     * 
+     * @param table
+     * @return
+     */
+    public Selection<E> from( Table<E> table );
     
     /**
      * {@link Join} clause of a {@link Selection}

@@ -214,7 +214,7 @@ public interface Table<E> extends TableCore<E>, TableSelectable<E>, Iterable<Row
     public Cell<E> getCell( Stripe<E> stripeOrthogonal );
     
     /**
-     * Returns the {@link Cell#getElement()} for the given index position
+     * Returns the {@link Cell#getElement()} for the index position related to the given title value
      * 
      * @param titleValue
      * @return
