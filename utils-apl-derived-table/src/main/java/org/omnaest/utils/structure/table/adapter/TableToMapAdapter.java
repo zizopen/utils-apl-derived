@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
@@ -53,6 +54,7 @@ public class TableToMapAdapter<E, K, V> extends MapAbstract<K, V> implements Tab
   private final Column<E>              columnForValues;
   private final ElementConverter<E, V> elementConverterForValues;
   private final ElementConverter<E, K> elementConverterForKeys;
+  private ExceptionHandler             exceptionHandler = null;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -114,7 +116,10 @@ public class TableToMapAdapter<E, K, V> extends MapAbstract<K, V> implements Tab
     }
     catch ( Exception e )
     {
-      e.printStackTrace();
+      if ( this.exceptionHandler != null )
+      {
+        this.exceptionHandler.handleException( e );
+      }
     }
     
     //
@@ -191,6 +196,17 @@ public class TableToMapAdapter<E, K, V> extends MapAbstract<K, V> implements Tab
   public Map<K, V> initializeAdapter( Table<E> table )
   {
     this.table = table;
+    return this;
+  }
+  
+  /**
+   * @param exceptionHandler
+   *          {@link ExceptionHandler}
+   * @return this
+   */
+  public TableToMapAdapter<E, K, V> setExceptionHandler( ExceptionHandler exceptionHandler )
+  {
+    this.exceptionHandler = exceptionHandler;
     return this;
   }
   

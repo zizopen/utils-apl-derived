@@ -124,6 +124,19 @@ public class SelectionImpl<E> implements SelectionJoin<E>
   }
   
   @Override
+  public Selection<E> from( Table<E> table )
+  {
+    //
+    if ( table != null )
+    {
+      this.innerJoin( table );
+    }
+    
+    // 
+    return this;
+  }
+  
+  @Override
   public Selection<E> distinct()
   {
     //

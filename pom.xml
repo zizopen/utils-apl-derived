@@ -406,6 +406,7 @@
     <modules>
         <module>utils-apl-derived-core</module>
         <module>utils-apl-derived-spring</module>
-        <module>utils-apl-derived-table</module>        
+        <module>utils-apl-derived-table</module>
+        <module>utils-apl-derived-table2</module>
     </modules>
 </project>

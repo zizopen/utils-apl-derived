@@ -68,6 +68,7 @@ public class StripeToMapAdapterTest
     assertEquals( "0:0", this.rowMap.get( "c0" ) );
     assertEquals( "0:1", this.rowMap.get( "c1" ) );
     
+    //
     assertNull( this.rowMap.get( "c" ) );
   }
   
@@ -97,26 +98,16 @@ public class StripeToMapAdapterTest
   }
   
   @Test
-  public void testKeySetRow()
+  public void testKeySet()
   {
     assertEquals( Arrays.asList( "c0", "c1", "c2", "c3" ), new ArrayList<Object>( this.rowMap.keySet() ) );
-  }
-  
-  @Test
-  public void testKeySetColumn()
-  {
     assertEquals( Arrays.asList( "r0", "r1" ), new ArrayList<Object>( this.columnMap.keySet() ) );
   }
   
   @Test
-  public void testValuesRow()
+  public void testValues()
   {
     assertEquals( Arrays.asList( "0:0", "0:1", "0:2", "0:3" ), new ArrayList<Object>( this.rowMap.values() ) );
-  }
-  
-  @Test
-  public void testValuesColumn()
-  {
     assertEquals( Arrays.asList( "0:0", "1:0" ), new ArrayList<Object>( this.columnMap.values() ) );
   }
   
