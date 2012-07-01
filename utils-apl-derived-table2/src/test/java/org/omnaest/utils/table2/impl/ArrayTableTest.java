@@ -32,6 +32,8 @@ import org.junit.Test;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
+import org.omnaest.utils.table2.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
+import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
 import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableIndex;
@@ -180,7 +182,7 @@ public class ArrayTableTest extends TableTest
       assertFalse( tableIndex.containsKey( "0:0" ) );
       assertTrue( tableIndex.containsKey( "0:1" ) );
       
-      table.setCellElement( "xxx", 0, 1 );
+      table.setCellElement( 0, 1, "xxx" );
       assertFalse( tableIndex.containsKey( "0:1" ) );
       assertTrue( tableIndex.containsKey( "xxx" ) );
       
@@ -209,10 +211,11 @@ public class ArrayTableTest extends TableTest
   public void testToString() throws Exception
   {
     Table<String> table = this.filledTable( 3, 4 );
-    String string = table.to().string();
+    String content = table.to().string();
     
     //System.out.println( string );
-    assertEquals( "0:0,0:1,0:2,0:3\n1:0,1:1,1:2,1:3\n2:0,2:1,2:2,2:3\n", string );
+    assertNotNull( content );
+    assertEquals( table.toString(), content );
   }
   
   @Test
@@ -236,163 +239,57 @@ public class ArrayTableTest extends TableTest
   }
   
   @Test
-  public void testSelect() throws Exception
+  public void testSerializingCSV()
   {
-    Table<String> table = this.filledTable( 20, 4 );
-    Table<String> table2 = this.filledTable( 10, 8 );
-    Table<String> table3 = this.filledTable( 3, 3 );
+    Table<String> table = this.filledTableWithTitles( 20, 3 );
     
-    {
-      Table<String> result = table.select().allColumns( table ).as().table();
-      assertTrue( result.equalsInContent( table ) );
-    }
-    {
-      Table<String> result = table.select().allColumns().as().table();
-      assertTrue( result.equalsInContent( table ) );
-    }
-    {
-      Table<String> result = table.select().column( 0 ).allColumns( table ).as().table();
-      assertTrue( result.equalsInContent( table ) );
-    }
-    {
-      Table<String> result = table.select().columns( 0, 1, 2, 3 ).as().table();
-      assertTrue( result.equalsInContent( table ) );
-    }
-    {
-      Table<String> result = table.select()
-                                  .column( 1 )
-                                  .join( table2 )
-                                  .allColumns()
-                                  .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
-                                  .as()
-                                  .table();
-      assertNotNull( result );
-      assertEquals( 10, result.rowSize() );
-      assertEquals( "0:1", result.getCellElement( 0, 0 ) );
-      assertEquals( "0:0", result.getCellElement( 0, 1 ) );
-      assertEquals( "0:1", result.getCellElement( 0, 2 ) );
-      assertEquals( "0:6", result.getCellElement( 0, 7 ) );
-      assertEquals( "0:7", result.getCellElement( 0, 8 ) );
-      assertNull( result.getCellElement( 0, 9 ) );
-      
-      assertEquals( "9:1", result.getCellElement( 9, 0 ) );
-      assertEquals( "9:0", result.getCellElement( 9, 1 ) );
-      assertEquals( "9:1", result.getCellElement( 9, 2 ) );
-      assertEquals( "9:6", result.getCellElement( 9, 7 ) );
-      assertEquals( "9:7", result.getCellElement( 9, 8 ) );
-    }
-    {
-      Table<String> result = table.select()
-                                  .columns( 1, 2 )
-                                  .join( table2 )
-                                  .columns( 6, 7 )
-                                  .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
-                                  .as()
-                                  .table();
-      assertNotNull( result );
-      assertEquals( 10, result.rowSize() );
-      assertEquals( "0:1", result.getCellElement( 0, 0 ) );
-      assertEquals( "0:2", result.getCellElement( 0, 1 ) );
-      assertEquals( "0:6", result.getCellElement( 0, 2 ) );
-      assertEquals( "0:7", result.getCellElement( 0, 3 ) );
-      
-      assertEquals( "9:1", result.getCellElement( 9, 0 ) );
-      assertEquals( "9:2", result.getCellElement( 9, 1 ) );
-      assertEquals( "9:6", result.getCellElement( 9, 2 ) );
-      assertEquals( "9:7", result.getCellElement( 9, 3 ) );
-      
-    }
+    final CSVMarshallingConfiguration configuration = new CSVMarshallingConfiguration().setHasEnabledRowTitles( true )
+                                                                                       .setHasEnabledTableName( true );
+    String content = table.serializer().marshal().asCsv().using( configuration ).toString();
     
-    {
-      /*
-       * Cartesian product with table1, table2 and table3
-       */
-      Table<String> result = table.select()
-                                  .columns( 1, 2 )
-                                  .join( table2 )
-                                  .columns( 6, 7 )
-                                  .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
-                                  .join( table3 )
-                                  .column( 0 )
-                                  .as()
-                                  .table();
-      
-      //System.out.println( result );
-      
-      /*
-          0:1,0:2,0:6,0:7,0:0
-          0:1,0:2,0:6,0:7,1:0
-          0:1,0:2,0:6,0:7,2:0
-          1:1,1:2,1:6,1:7,0:0
-          ...
-          8:1,8:2,8:6,8:7,2:0
-          9:1,9:2,9:6,9:7,0:0
-          9:1,9:2,9:6,9:7,1:0
-          9:1,9:2,9:6,9:7,2:0
-       */
-      
-      assertNotNull( result );
-      assertEquals( 30, result.rowSize() );
-      assertEquals( "0:1", result.getCellElement( 0, 0 ) );
-      assertEquals( "0:2", result.getCellElement( 0, 1 ) );
-      assertEquals( "0:6", result.getCellElement( 0, 2 ) );
-      assertEquals( "0:7", result.getCellElement( 0, 3 ) );
-      assertEquals( "0:0", result.getCellElement( 0, 4 ) );
-      
-      assertEquals( "0:1", result.getCellElement( 2, 0 ) );
-      assertEquals( "0:2", result.getCellElement( 2, 1 ) );
-      assertEquals( "0:6", result.getCellElement( 2, 2 ) );
-      assertEquals( "0:7", result.getCellElement( 2, 3 ) );
-      assertEquals( "2:0", result.getCellElement( 2, 4 ) );
-      
-      assertEquals( "9:1", result.getCellElement( 27, 0 ) );
-      assertEquals( "9:2", result.getCellElement( 27, 1 ) );
-      assertEquals( "9:6", result.getCellElement( 27, 2 ) );
-      assertEquals( "9:7", result.getCellElement( 27, 3 ) );
-      assertEquals( "0:0", result.getCellElement( 27, 4 ) );
-      
-      assertEquals( "9:1", result.getCellElement( 29, 0 ) );
-      assertEquals( "9:2", result.getCellElement( 29, 1 ) );
-      assertEquals( "9:6", result.getCellElement( 29, 2 ) );
-      assertEquals( "9:7", result.getCellElement( 29, 3 ) );
-      assertEquals( "2:0", result.getCellElement( 29, 4 ) );
-      
-    }
-    {
-      Table<String> result = table.select()
-                                  .columns( 1, 2 )
-                                  .join( table2 )
-                                  .columns( 6, 7 )
-                                  .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
-                                  .join( table3 )
-                                  .onEqual( table.getColumn( 0 ), table3.getColumn( 0 ) )
-                                  .column( 0 )
-                                  .as()
-                                  .table();
-      
-      //System.out.println( result );
-      
-      /*
-          0:1,0:2,0:6,0:7,0:0
-          1:1,1:2,1:6,1:7,1:0
-          2:1,2:2,2:6,2:7,2:0
-       */
-      
-      assertNotNull( result );
-      assertEquals( 3, result.rowSize() );
-      assertEquals( "0:1", result.getCellElement( 0, 0 ) );
-      assertEquals( "0:2", result.getCellElement( 0, 1 ) );
-      assertEquals( "0:6", result.getCellElement( 0, 2 ) );
-      assertEquals( "0:7", result.getCellElement( 0, 3 ) );
-      assertEquals( "0:0", result.getCellElement( 0, 4 ) );
-      
-      assertEquals( "2:1", result.getCellElement( 2, 0 ) );
-      assertEquals( "2:2", result.getCellElement( 2, 1 ) );
-      assertEquals( "2:6", result.getCellElement( 2, 2 ) );
-      assertEquals( "2:7", result.getCellElement( 2, 3 ) );
-      assertEquals( "2:0", result.getCellElement( 2, 4 ) );
-      
-    }
+    //System.out.println( content );
+    
+    Table<String> result = new ArrayTable<String>( String.class ).serializer()
+                                                                 .unmarshal()
+                                                                 .asCsv()
+                                                                 .using( configuration )
+                                                                 .from( content );
+    assertTrue( table.equalsInContentAndMetaData( result ) );
+    
+  }
+  
+  @Test
+  public void testSerializingPlainText()
+  {
+    Table<String> table = this.filledTableWithTitles( 20, 3 );
+    
+    final MarshallingConfiguration configuration = new MarshallingConfiguration().setHasEnabledRowTitles( true )
+                                                                                 .setHasEnabledTableName( true );
+    String content = table.serializer().marshal().asPlainText().using( configuration ).toString();
+    
+    //System.out.println( table );
+    
+    Table<String> result = new ArrayTable<String>( String.class ).serializer()
+                                                                 .unmarshal()
+                                                                 .asPlainText()
+                                                                 .using( configuration )
+                                                                 .from( content );
+    assertTrue( table.equalsInContentAndMetaData( result ) );
+    
+  }
+  
+  @Test
+  @Ignore("Performance test")
+  public void testSelectPerformance() throws Exception
+  {
+    Table<String> table = this.filledTableWithTitles( 100000, 4 );
+    Table<String> table2 = this.filledTableWithTitles( 2, 8 );
+    Table<String> table3 = this.filledTableWithTitles( 2, 3 );
+    
+    table.setTableName( "table1" );
+    table2.setTableName( "table2" );
+    table3.setTableName( "table3" );
+    
     {
       Table<String> result = table.select()
                                   .columns( 1, 2 )
@@ -405,56 +302,14 @@ public class ArrayTableTest extends TableTest
                                   .as()
                                   .table();
       
-      // System.out.println( result );
-      
-      /*
-          0:1,0:2,0:6,0:7,0:0
-          1:1,1:2,1:6,1:7,1:0
-          2:1,2:2,2:6,2:7,2:0
-       */
+      //      System.out.println( table );
+      //      System.out.println( table2 );
+      //      System.out.println( table3 );
+      //      System.out.println( result );
       
       assertNotNull( result );
-      assertEquals( 3, result.rowSize() );
-      assertEquals( "0:1", result.getCellElement( 0, 0 ) );
-      assertEquals( "0:2", result.getCellElement( 0, 1 ) );
-      assertEquals( "0:6", result.getCellElement( 0, 2 ) );
-      assertEquals( "0:7", result.getCellElement( 0, 3 ) );
-      assertEquals( "0:0", result.getCellElement( 0, 4 ) );
-      
-      assertEquals( "2:1", result.getCellElement( 2, 0 ) );
-      assertEquals( "2:2", result.getCellElement( 2, 1 ) );
-      assertEquals( "2:6", result.getCellElement( 2, 2 ) );
-      assertEquals( "2:7", result.getCellElement( 2, 3 ) );
-      assertEquals( "2:0", result.getCellElement( 2, 4 ) );
       
     }
     
-    {
-      SortedMap<String, Set<Row<String>>> result = table.select()
-                                                        .columns( 2, 1 )
-                                                        .join( table2 )
-                                                        .columns( 6, 7 )
-                                                        .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
-                                                        .join( table3 )
-                                                        .onEqual( table.getColumn( 1 ), table3.getColumn( 1 ) )
-                                                        .column( 0 )
-                                                        .as()
-                                                        .sortedMap();
-      
-      // System.out.println( result );
-      
-      /*
-               index
-                / 
-          0:1,0:2,0:6,0:7,0:0
-          1:1,1:2,1:6,1:7,1:0
-          2:1,2:2,2:6,2:7,2:0
-       */
-      
-      assertNotNull( result );
-      assertEquals( 3, result.size() );
-      assertArrayEquals( new String[] { "0:2", "0:1", "0:6", "0:7", "0:0" }, result.get( "0:2" ).iterator().next().to().array() );
-      assertArrayEquals( new String[] { "2:2", "2:1", "2:6", "2:7", "2:0" }, result.get( "2:2" ).iterator().next().to().array() );
-    }
   }
 }

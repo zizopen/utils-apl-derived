@@ -17,6 +17,9 @@ package org.omnaest.utils.table2.impl;
 
 import java.util.Iterator;
 
+import org.omnaest.utils.events.exception.ExceptionHandler;
+import org.omnaest.utils.events.exception.basic.ExceptionHandlerIgnoring;
+import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.Column;
@@ -36,6 +39,9 @@ import org.omnaest.utils.table2.impl.transformer.TableTransformerImpl;
  */
 abstract class TableAbstract<E> implements Table<E>
 {
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  protected ExceptionHandler exceptionHandler = new ExceptionHandlerIgnoring();
+  
   /* ********************************************** Classes/Interfaces ********************************************** */
   public static final class RowIterator<E, R extends ImmutableRow<E>> implements Iterator<R>
   {
@@ -168,17 +174,20 @@ abstract class TableAbstract<E> implements Table<E>
   @Override
   public TableSerializer<E> serializer()
   {
-    return new TableSerializerImpl<E>( this );
+    return new TableSerializerImpl<E>( this, this.exceptionHandler );
   }
   
   @Override
   public String toString()
   {
-    StringBuilder builder = new StringBuilder();
-    builder.append( "[\n" );
-    builder.append( this.to().string() );
-    builder.append( "]" );
-    return builder.toString();
+    return this.to().string();
+  }
+  
+  @Override
+  public Table<E> setExceptionHandler( ExceptionHandler exceptionHandler )
+  {
+    this.exceptionHandler = ObjectUtils.defaultIfNull( exceptionHandler, new ExceptionHandlerIgnoring() );
+    return this;
   }
   
 }

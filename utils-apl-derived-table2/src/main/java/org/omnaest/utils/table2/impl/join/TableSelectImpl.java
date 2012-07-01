@@ -32,9 +32,11 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.utils.operation.foreach.Range;
+import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.ImmutableColumn;
@@ -48,6 +50,8 @@ import org.omnaest.utils.table2.TableSelect.Predicate.FilterRow;
 import org.omnaest.utils.table2.TableSelect.TableJoin;
 import org.omnaest.utils.table2.TableSelect.TableSelectExecution;
 import org.omnaest.utils.table2.impl.ArrayTable;
+
+import com.google.common.base.Joiner;
 
 /**
  * @see TableSelect
@@ -723,14 +727,17 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
     return this;
   }
   
+  /* (non-Javadoc)
+   * @see org.omnaest.utils.table2.TableSelect.TableSelectExecution#table()
+   */
   @SuppressWarnings("unchecked")
   @Override
   public Table<E> table()
   {
-    E[][] retvals = null;
+    E[][] elementMatrix = null;
     
     //
-    final Class<E> componentType = ListUtils.firstElement( this.closedBucketList ).getTable().getElementType();
+    final Class<E> componentType = ListUtils.firstElement( this.closedBucketList ).getTable().elementType();
     
     //
     Set<ColumnIdentity<E>> selectedColumnIdentitySet = new LinkedHashSet<ColumnIdentity<E>>();
@@ -799,8 +806,23 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
       }
     }
     
-    retvals = elementArrayList.toArray( (E[][]) Array.newInstance( componentType, elementArrayList.size(), columnSize ) );
-    return new ArrayTable<E>( retvals );
+    elementMatrix = elementArrayList.toArray( (E[][]) Array.newInstance( componentType, elementArrayList.size(), columnSize ) );
+    final ArrayTable<E> arrayTable = new ArrayTable<E>( elementMatrix );
+    {
+      final Set<String> tableNameSet = new LinkedHashSet<String>();
+      int columnIndex = 0;
+      for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentitySet )
+      {
+        final ImmutableColumn<E> column = columnIdentity.getColumn();
+        final String tableName = column.table().getTableName();
+        String columnTitle = tableName + "." + column.getTitle();
+        arrayTable.setColumnTitle( columnIndex++, columnTitle );
+        
+        tableNameSet.add( tableName );
+      }
+      arrayTable.setTableName( CollectionUtils.toString( tableNameSet, new ElementConverterIdentity<String>(), Joiner.on( " " ) ) );
+    }
+    return arrayTable;
   }
   
   @Override

@@ -15,9 +15,13 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.util.BitSet;
+
 interface TableEventHandler<E>
 {
   public void handleAddedRow( int rowIndex, E... elements );
+  
+  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices );
   
   public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement );
   

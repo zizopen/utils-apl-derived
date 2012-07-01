@@ -178,6 +178,40 @@ class TableDataCore<E>
     return retval;
   }
   
+  /**
+   * Sets the given elements as the row at the specific index position
+   * 
+   * @param elements
+   * @return the previously set elements
+   */
+  @SuppressWarnings("unchecked")
+  public E[] setRow( int rowIndex, E... elements )
+  {
+    E[] retval = null;
+    
+    while ( this.rowSize <= rowIndex )
+    {
+      this.addRow();
+    }
+    
+    this.ensureColumnSize( elements.length );
+    this.ensureRowSize( this.rowSize );
+    
+    final int nativeRowIndex = this.determineNativeRowIndex( rowIndex );
+    if ( nativeRowIndex >= 0 )
+    {
+      retval = Arrays.copyOfRange( this.matrix[nativeRowIndex], 0, this.columnSize );
+      
+      this.matrix[nativeRowIndex] = this.newArray( this.nativeColumnIndices.length );
+      for ( int ii = 0; ii < elements.length; ii++ )
+      {
+        this.matrix[nativeRowIndex][ii] = elements[ii];
+      }
+    }
+    
+    return retval;
+  }
+  
   public void removeRow( int rowIndex )
   {
     //

@@ -19,6 +19,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.BitSet;
 
 import org.junit.Test;
 
@@ -55,5 +56,14 @@ public class ArrayUtilsTest
   {
     assertArrayEquals( new String[] { "a", "b", "c", "d" },
                        ArrayUtils.valueOf( (Iterable<String>) Arrays.asList( "a", "b", "c", "d" ), String.class ) );
+  }
+  
+  @Test
+  public void testDifferenceBitSet() throws Exception
+  {
+    final BitSet expected = new BitSet();
+    expected.set( 1 );
+    expected.set( 3 );
+    assertEquals( expected, ArrayUtils.differenceBitSet( new String[] { "a", "b1", "c" }, new String[] { "a", "b2", "c", "d2" } ) );
   }
 }

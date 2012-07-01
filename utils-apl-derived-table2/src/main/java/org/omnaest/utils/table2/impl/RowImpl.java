@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.util.BitSet;
+
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
@@ -53,7 +55,7 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   public Row<E> add( E element )
   {
     int columnIndex = this.size();
-    this.table.setCellElement( element, this.rowIndex, columnIndex );
+    this.table.setCellElement( this.rowIndex, columnIndex, element );
     return this;
   }
   
@@ -88,6 +90,15 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   }
   
   @Override
+  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
+  {
+    if ( this.rowIndex == rowIndex )
+    {
+      this.isModified = true;
+    }
+  }
+  
+  @Override
   public void handleClearTable()
   {
     this.isDeleted = true;
@@ -96,7 +107,20 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   @Override
   public Row<E> setCellElement( int columnIndex, E element )
   {
-    this.table.setCellElement( element, this.rowIndex, columnIndex );
+    this.table.setCellElement( this.rowIndex, columnIndex, element );
+    return this;
+  }
+  
+  @Override
+  public String getTitle()
+  {
+    return this.table.getRowTitle( this.rowIndex );
+  }
+  
+  @Override
+  public Row<E> setTitle( String rowTitle )
+  {
+    this.table.setRowTitle( this.rowIndex, rowTitle );
     return this;
   }
   

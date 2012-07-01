@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import java.util.List;
+
 /**
  * Immutable {@link Table}
  * 
@@ -78,7 +80,7 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    * 
    * @return
    */
-  public Class<E> getElementType();
+  public Class<E> elementType();
   
   /**
    * Returns a {@link TableTransformer} instance
@@ -132,4 +134,72 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    * @return
    */
   public boolean equalsInContent( ImmutableTable<E> table );
+  
+  /**
+   * Returns true if the content of this and the given {@link ImmutableTable} are {@link #equals(Object)}, and if the table name,
+   * the row and column titles are equal
+   * 
+   * @param table
+   *          {@link ImmutableTable}
+   * @return
+   */
+  public boolean equalsInContentAndMetaData( ImmutableTable<E> table );
+  
+  /**
+   * Returns the table name
+   * 
+   * @return
+   */
+  public String getTableName();
+  
+  /**
+   * Returns the title of the row with the given index position
+   * 
+   * @param rowIndex
+   * @return
+   */
+  public String getRowTitle( int rowIndex );
+  
+  /**
+   * Returns the title of the column with the given index position
+   * 
+   * @param columnIndex
+   * @return
+   */
+  public String getColumnTitle( int columnIndex );
+  
+  /**
+   * Returns a {@link List} of all column titles
+   * 
+   * @return
+   */
+  public List<String> getColumnTitleList();
+  
+  /**
+   * Returns a {@link List} of all row titles
+   * 
+   * @return
+   */
+  public List<String> getRowTitleList();
+  
+  /**
+   * Returns true if the {@link ImmutableTable} has column titles
+   * 
+   * @return
+   */
+  public boolean hasColumnTitles();
+  
+  /**
+   * Returns true if the {@link ImmutableTable} has row titles
+   * 
+   * @return
+   */
+  public boolean hasRowTitles();
+  
+  /**
+   * Returns true if the {@link ImmutableTable} has a table name
+   * 
+   * @return
+   */
+  public boolean hasTableName();
 }

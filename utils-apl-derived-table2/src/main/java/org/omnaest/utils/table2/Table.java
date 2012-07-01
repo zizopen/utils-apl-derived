@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import org.omnaest.utils.events.exception.ExceptionHandler;
+
 /**
  * A {@link Table} represents a two dimensional container
  * 
@@ -52,12 +54,12 @@ public interface Table<E> extends ImmutableTable<E>
   /**
    * Sets the element for a given row and column index position
    * 
-   * @param element
    * @param rowIndex
    * @param columnIndex
+   * @param element
    * @return
    */
-  public Table<E> setCellElement( E element, int rowIndex, int columnIndex );
+  public Table<E> setCellElement( int rowIndex, int columnIndex, E element );
   
   /**
    * Adds new elements as {@link Row} to the {@link Table}
@@ -75,6 +77,15 @@ public interface Table<E> extends ImmutableTable<E>
    * @return this
    */
   public Table<E> addRowElements( int rowIndex, E... elements );
+  
+  /**
+   * Sets the elements of the {@link Row} at the given row index position
+   * 
+   * @param rowIndex
+   * @param elements
+   * @return this
+   */
+  public Table<E> setRowElements( int rowIndex, E... elements );
   
   /**
    * Copies the elements from an array
@@ -119,5 +130,55 @@ public interface Table<E> extends ImmutableTable<E>
    * @return
    */
   public Iterable<Column<E>> columns();
+  
+  /**
+   * Sets the name of the {@link Table}
+   * 
+   * @param tableName
+   * @return this
+   */
+  public Table<E> setTableName( String tableName );
+  
+  /**
+   * Clears and sets the names of the {@link Column}s to the given values
+   * 
+   * @param columnTitleIterable
+   * @return this
+   */
+  public Table<E> setColumnTitles( Iterable<String> columnTitleIterable );
+  
+  /**
+   * Sets the title of the {@link Row} with the given row index position
+   * 
+   * @param rowIndex
+   * @param rowTitle
+   * @return this
+   */
+  public Table<E> setRowTitle( int rowIndex, String rowTitle );
+  
+  /**
+   * Clears and sets the names of the {@link Row}s to the given values
+   * 
+   * @param rowTitleIterable
+   * @return this
+   */
+  public Table<E> setRowTitles( Iterable<String> rowTitleIterable );
+  
+  /**
+   * Sets the title of the {@link Column} with the given column index position
+   * 
+   * @param columnIndex
+   * @param columnTitle
+   * @return this
+   */
+  public Table<E> setColumnTitle( int columnIndex, String columnTitle );
+  
+  /**
+   * Sets the {@link ExceptionHandler} instance
+   * 
+   * @param exceptionHandler
+   * @return this
+   */
+  public Table<E> setExceptionHandler( ExceptionHandler exceptionHandler );
   
 }

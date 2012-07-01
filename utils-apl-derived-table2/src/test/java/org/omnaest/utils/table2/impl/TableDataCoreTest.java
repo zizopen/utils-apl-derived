@@ -17,6 +17,7 @@ package org.omnaest.utils.table2.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Ignore;
@@ -63,6 +64,40 @@ public class TableDataCoreTest
     }
     
     //System.out.println( tableDataCore );
+  }
+  
+  @Test
+  public void testSetRow() throws Exception
+  {
+    TableDataCore<String> tableDataCore = new TableDataCore<String>( String.class );
+    
+    {
+      final String[] data = new String[] { "a1", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m" };
+      tableDataCore.setRow( 1, data );
+      
+      assertArrayEquals( data, tableDataCore.getRow( 1 ) );
+      assertEquals( "a1", tableDataCore.getElement( 1, 0 ) );
+      assertEquals( "m", tableDataCore.getElement( 1, 12 ) );
+      assertNull( tableDataCore.getElement( 1, 13 ) );
+      assertEquals( 2, tableDataCore.rowSize() );
+    }
+    {
+      final String[] data = new String[] { "a0", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m" };
+      tableDataCore.setRow( 0, data );
+      
+      assertArrayEquals( data, tableDataCore.getRow( 0 ) );
+      assertEquals( "a0", tableDataCore.getElement( 0, 0 ) );
+      assertEquals( "m", tableDataCore.getElement( 0, 12 ) );
+      assertEquals( 2, tableDataCore.rowSize() );
+    }
+    {
+      final String[] data = new String[] { "a0x", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m" };
+      String[] row = tableDataCore.setRow( 0, data );
+      assertNotNull( row );
+      assertEquals( data.length, row.length );
+      assertEquals( "a0", row[0] );
+      assertEquals( "m", row[12] );
+    }
   }
   
   @Test

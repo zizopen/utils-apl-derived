@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.util.BitSet;
+
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
@@ -159,6 +161,15 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   }
   
   @Override
+  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
+  {
+    if ( this.rowIndex == rowIndex )
+    {
+      this.isModified |= modifiedIndices.get( this.columnIndex );
+    }
+  }
+  
+  @Override
   public void handleClearTable()
   {
     this.isDeleted = true;
@@ -175,7 +186,7 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   {
     if ( !this.isDeleted )
     {
-      this.table.setCellElement( element, this.rowIndex, this.columnIndex );
+      this.table.setCellElement( this.rowIndex, this.columnIndex, element );
     }
     return this;
   }

@@ -111,6 +111,8 @@ public class ListUtilsTest
     ElementConverterElementToMapEntry<String, String, String> elementToMapEntryTransformer = new ElementConverterElementToMapEntry<String, String, String>()
     {
       
+      private static final long serialVersionUID = -8723840880637843080L;
+
       @Override
       public Entry<String, String> convert( String element )
       {
@@ -208,5 +210,14 @@ public class ListUtilsTest
   {
     final String[] values = new String[] { "a", "b", "c" };
     assertArrayEquals( values, ListUtils.asArray( Arrays.asList( values ), String.class ) );
+  }
+  
+  @Test
+  public void testSet() throws Exception
+  {
+    assertEquals( Arrays.asList( "a", "b", "c" ), ListUtils.set( new ArrayList<String>( Arrays.asList( "a", "b", "x" ) ), 2, "c" ) );
+    assertEquals( Arrays.asList( "a", "b", "c" ), ListUtils.set( new ArrayList<String>( Arrays.asList( "a", "b" ) ), 2, "c" ) );
+    assertEquals( Arrays.asList( "a", "b", null, "c" ),
+                  ListUtils.set( new ArrayList<String>( Arrays.asList( "a", "b" ) ), 3, "c" ) );
   }
 }

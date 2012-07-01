@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl.serializer;
 
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableSerializer;
 
@@ -25,45 +26,49 @@ import org.omnaest.utils.table2.TableSerializer;
  */
 public class TableSerializerImpl<E> implements TableSerializer<E>
 {
+  /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
+  private final Table<E>         table;
+  private final ExceptionHandler exceptionHandler;
   
-  private final Table<E> table;
+  /* *************************************************** Methods **************************************************** */
   
-  public TableSerializerImpl( Table<E> table )
+  public TableSerializerImpl( Table<E> table, ExceptionHandler exceptionHandler )
   {
     this.table = table;
+    this.exceptionHandler = exceptionHandler;
   }
   
   @Override
   public UnmarshallerDeclarer<E> unmarshal()
   {
     final Table<E> table = this.table;
+    final ExceptionHandler exceptionHandler = this.exceptionHandler;
     return new UnmarshallerDeclarer<E>()
     {
       @Override
-      public Unmarshaller<E> asCsv()
+      public UnmarshallerCsv<E> asCsv()
       {
-        return new CsvUnmarshallerImpl<E>( table );
+        return new CsvUnmarshallerImpl<E>( table, exceptionHandler );
       }
       
       @Override
       public Unmarshaller<E> asXml()
       {
         // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
       }
       
       @Override
       public Unmarshaller<E> asJson()
       {
         // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
       }
       
       @Override
-      public Unmarshaller<E> asPlainText()
+      public UnmarshallerPlainText<E> asPlainText()
       {
-        // TODO Auto-generated method stub
-        return null;
+        return new PlainTextUnmarshaller<E>( table, exceptionHandler );
       }
     };
   }
@@ -72,33 +77,33 @@ public class TableSerializerImpl<E> implements TableSerializer<E>
   public MarshallerDeclarer<E> marshal()
   {
     final Table<E> table = this.table;
+    final ExceptionHandler exceptionHandler = this.exceptionHandler;
     return new MarshallerDeclarer<E>()
     {
       @Override
       public MarshallerCsv<E> asCsv()
       {
-        return new CsvMarshallerImpl<E>( table );
+        return new CsvMarshallerImpl<E>( table, exceptionHandler );
       }
       
       @Override
       public Marshaller<E> asXml()
       {
         // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
       }
       
       @Override
       public Marshaller<E> asJson()
       {
         // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
       }
       
       @Override
-      public Marshaller<E> asPlainText()
+      public MarshallerPlainText<E> asPlainText()
       {
-        // TODO Auto-generated method stub
-        return null;
+        return new PlainTextMarshaller<E>( table, exceptionHandler );
       }
     };
   }

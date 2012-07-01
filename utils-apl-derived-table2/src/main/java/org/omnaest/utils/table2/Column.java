@@ -40,4 +40,11 @@ public interface Column<E> extends Stripe<E>, Iterable<E>, ImmutableColumn<E>
    */
   public Column<E> setCellElement( int rowIndex, E element );
   
+  /**
+   * Sets the title of the {@link Column}
+   * 
+   * @param columnTitle
+   * @return
+   */
+  public Column<E> setTitle( String columnTitle );
 }

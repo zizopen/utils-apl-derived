@@ -1,59 +1,42 @@
-/*******************************************************************************
- * Copyright 2011 Danny Kunz
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
-package org.omnaest.utils.structure.table.serializer.marshaller;
+package org.omnaest.utils.table2.impl.serializer;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.collection.CollectionUtils;
-import org.omnaest.utils.structure.container.ByteArrayContainer;
-import org.omnaest.utils.structure.table.Table;
-import org.omnaest.utils.structure.table.Table.Cell;
-import org.omnaest.utils.structure.table.Table.Column;
-import org.omnaest.utils.structure.table.Table.Row;
-import org.omnaest.utils.structure.table.serializer.TableMarshaller;
-import org.omnaest.utils.structure.table.subspecification.TableSerializable.TableSerializer;
+import org.omnaest.utils.structure.element.ObjectUtils;
+import org.omnaest.utils.table2.Column;
+import org.omnaest.utils.table2.ImmutableTableSerializer.Marshaller;
+import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerPlainText;
+import org.omnaest.utils.table2.Row;
+import org.omnaest.utils.table2.Table;
 
 /**
- * @see TableMarshaller
+ * {@link Marshaller} for plain text
+ * 
  * @author Omnaest
  * @param <E>
  */
-public class TableMarshallerPlainText<E> implements TableMarshaller<E>
+class PlainTextMarshaller<E> extends MarshallerAbstract<E> implements MarshallerPlainText<E>
 {
-  /* ********************************************** Constants ********************************************** */
-  private static final long serialVersionUID = 729579410301748875L;
-  
-  /* ********************************************** Variables ********************************************** */
-  protected String          encoding         = TableSerializer.DEFAULT_ENCODING_UTF8;
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private MarshallingConfiguration configuration = new MarshallingConfiguration();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
+  
   /**
    * Converter for a table
    * 
    * @author Omnaest
    */
-  protected class TableToStringConverter
+  private class TableToStringConverter
   {
     /* ********************************************** Variables ********************************************** */
-    protected Table<E> table = null;
+    @SuppressWarnings("hiding")
+    private final Table<E> table;
     
     /* ********************************************** Methods ********************************************** */
     
@@ -85,7 +68,7 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
         
         //
         {
-          String content = this.convertObjectContentToString( row.title().getValue() );
+          String content = this.convertObjectContentToString( row.getTitle() );
           if ( content != null )
           {
             lengthMax = content.length();
@@ -121,9 +104,10 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
           int lengthMax = 0;
           
           //
-          if ( column.title() != null )
+          final String columnTitle = column.getTitle();
+          if ( columnTitle != null )
           {
-            String content = this.convertObjectContentToString( column.title().getValue() );
+            String content = this.convertObjectContentToString( columnTitle );
             if ( content != null )
             {
               lengthMax = content.length();
@@ -131,13 +115,13 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
           }
           
           //
-          for ( Cell<E> cell : column )
+          for ( E element : column )
           {
             //
-            if ( cell != null )
+            if ( element != null )
             {
               //
-              String content = this.convertObjectContentToString( cell.getElement() );
+              String content = this.convertObjectContentToString( element );
               if ( content != null )
               {
                 lengthMax = Math.max( lengthMax, content.length() );
@@ -228,7 +212,7 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
             appendable.append( delimiterTitleColumn );
             
             //
-            Object titleValue = column.title().getValue();
+            String titleValue = column.getTitle();
             appendable.append( StringUtils.center( this.convertObjectContentToString( titleValue ),
                                                    iteratorColumnWidthList.next() ) );
           }
@@ -245,8 +229,7 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
           {
             //
             appendable.append( delimiterTitleColumn );
-            appendable.append( StringUtils.center( this.convertObjectContentToString( row.title().getValue() ),
-                                                   rowTitlesCharacterWidth ) );
+            appendable.append( StringUtils.center( this.convertObjectContentToString( row.getTitle() ), rowTitlesCharacterWidth ) );
             appendable.append( delimiterTitleColumn );
           }
           else
@@ -257,14 +240,13 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
           
           //
           Iterator<Integer> iteratorColumnWidthList = columnWidthList.iterator();
-          for ( Cell<E> cell : row.cells() )
+          for ( E element : row )
           {
             //
             if ( iteratorColumnWidthList.hasNext() )
             {
               //            
-              appendable.append( StringUtils.center( this.convertObjectContentToString( cell != null ? cell.getElement() : null ),
-                                                     iteratorColumnWidthList.next() ) );
+              appendable.append( StringUtils.center( this.convertObjectContentToString( element ), iteratorColumnWidthList.next() ) );
               //
               appendable.append( delimiterColumn );
             }
@@ -280,65 +262,47 @@ public class TableMarshallerPlainText<E> implements TableMarshaller<E>
       }
       catch ( Exception e )
       {
+        PlainTextMarshaller.this.exceptionHandler.handleException( e );
       }
     }
   }
   
-  /* ********************************************** Methods ********************************************** */
+  /* *************************************************** Methods **************************************************** */
   
   /**
-   * 
+   * @see PlainTextMarshaller
+   * @param table
+   * @param exceptionHandler
    */
-  public TableMarshallerPlainText()
+  @SuppressWarnings("javadoc")
+  public PlainTextMarshaller( Table<E> table, ExceptionHandler exceptionHandler )
   {
-    super();
-  }
-  
-  /**
-   * @param encoding
-   */
-  public TableMarshallerPlainText( String encoding )
-  {
-    super();
-    this.encoding = encoding;
+    super( table, exceptionHandler );
   }
   
   @Override
-  public void marshal( Table<E> table, OutputStream outputStream )
+  public Table<E> to( Appendable appendable )
   {
     //
-    if ( table != null && outputStream != null )
+    if ( appendable != null )
     {
-      //
-      StringBuffer stringBuffer = new StringBuffer();
-      
-      //
-      this.marshal( table, stringBuffer );
-      
-      //
-      ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
-      byteArrayContainer.copyFrom( stringBuffer );
-      
-      //
-      byteArrayContainer.writeTo( outputStream );
-    }
-  }
-  
-  @Override
-  public void marshal( Table<E> table, Appendable appendable )
-  {
-    //
-    if ( table != null && appendable != null )
-    {
-      //      
-      new TableToStringConverter( table ).appendTableTo( appendable );
+      new TableToStringConverter( this.table ).appendTableTo( appendable );
     }
     
+    return this.table;
   }
   
   @Override
-  public void marshal( Table<E> table, InputStream inputStream, OutputStream outputStream )
+  public MarshallerPlainText<E> using( MarshallingConfiguration configuration )
   {
-    throw new UnsupportedOperationException();
+    this.configuration = ObjectUtils.defaultIfNull( configuration, new MarshallingConfiguration() );
+    return this;
   }
+  
+  @Override
+  protected String getEncoding()
+  {
+    return this.configuration.getEncoding();
+  }
+  
 }

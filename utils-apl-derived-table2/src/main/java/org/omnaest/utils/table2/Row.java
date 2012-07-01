@@ -16,7 +16,10 @@
 package org.omnaest.utils.table2;
 
 /**
+ * @see ImmutableRow
  * @see Table
+ * @see Column
+ * @see Stripe
  * @author Omnaest
  * @param <E>
  */
@@ -38,4 +41,12 @@ public interface Row<E> extends Stripe<E>, ImmutableRow<E>
    * @return this
    */
   public Row<E> setCellElement( int columnIndex, E element );
+  
+  /**
+   * Sets the title of the {@link Row}
+   * 
+   * @param rowTitle
+   * @return
+   */
+  public Row<E> setTitle( String rowTitle );
 }

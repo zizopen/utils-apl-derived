@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.omnaest.utils.table2.ImmutableRow;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableTransformer;
 
@@ -53,24 +52,7 @@ public class TableTransformerImpl<E> implements TableTransformer<E>
   @Override
   public String string()
   {
-    final StringBuilder stringBuilder = new StringBuilder();
-    
-    for ( ImmutableRow<E> row : this.table )
-    {
-      boolean first = true;
-      for ( E element : row )
-      {
-        if ( !first )
-        {
-          stringBuilder.append( "," );
-        }
-        stringBuilder.append( String.valueOf( element ) );
-        first = false;
-      }
-      stringBuilder.append( "\n" );
-    }
-    
-    return stringBuilder.toString();
+    return this.table.serializer().marshal().asPlainText().toString();
   }
   
   @Override
