@@ -897,6 +897,29 @@ public class ListUtils
   }
   
   /**
+   * Adds all the elements from the {@link Iterable} to the given {@link List} instance. If the given {@link List} instance is
+   * null a new {@link ArrayList} is created. <br>
+   * If null is given as {@link Iterable} nothing will be added to the {@link List}.
+   * 
+   * @param list
+   * @param iterable
+   * @return given {@link List} instance or a new {@link ArrayList} if null is given
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> List<E> addAll( List<? extends E> list, Iterable<E> iterable )
+  {
+    final List<E> retlist = (List<E>) ( list != null ? list : new ArrayList<E>() );
+    if ( iterable != null )
+    {
+      for ( E element : iterable )
+      {
+        retlist.add( element );
+      }
+    }
+    return retlist;
+  }
+  
+  /**
    * Returns the given {@link List} instance or a new {@link List} instance if the given one is null. The returned instance will
    * contain all elements of the given {@link List} and additionally all further given elements. <br>
    * <br>
@@ -925,6 +948,35 @@ public class ListUtils
     }
     
     //
+    return retlist;
+  }
+  
+  /**
+   * {@link List#set(int, Object)} the value of the given {@link List} instance at the given index position to the given element. <br>
+   * <br>
+   * If the given index position is negative, nothing will be done.<br>
+   * If the given index position is greater or equal to the size of the {@link List}, the {@link List} will be filled with null
+   * values up to the index position. <br>
+   * <br>
+   * If null is given as {@link List} instance a new {@link ArrayList} is created
+   * 
+   * @param list
+   *          {@link List}
+   * @param index
+   * @param element
+   * @return the {@link List} instance
+   */
+  public static <E> List<E> set( List<E> list, int index, E element )
+  {
+    final List<E> retlist = list != null ? list : new ArrayList<E>();
+    if ( index >= 0 )
+    {
+      while ( index >= list.size() )
+      {
+        list.add( null );
+      }
+      list.set( index, element );
+    }
     return retlist;
   }
   
@@ -1278,6 +1330,28 @@ public class ListUtils
                                              ElementBidirectionalConverter<FROM, TO> elementBidirectionalConverter )
   {
     return new ListToListAdapter<FROM, TO>( list, elementBidirectionalConverter );
+  }
+  
+  /**
+   * Returns the element at the given index position within the given {@link List} instance. <br>
+   * <br>
+   * If the given {@link List} is null, null is returned. <br>
+   * If the index is out of bounds, null is returned.
+   * 
+   * @see #elementAt(List, int)
+   * @param list
+   *          {@link List}
+   * @param index
+   * @return element at the specific index position
+   */
+  public static <E> E get( List<E> list, int index )
+  {
+    E retval = null;
+    if ( list != null && index >= 0 && index < list.size() )
+    {
+      retval = list.get( index );
+    }
+    return retval;
   }
   
 }

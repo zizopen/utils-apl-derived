@@ -28,7 +28,7 @@ class TableToArrayConverter<E> implements ElementConverter<Table<E>, E[][]>
   {
     final int rowSize = table.rowSize();
     final int columnSize = table.columnSize();
-    E[][] retvals = (E[][]) Array.newInstance( table.getElementType(), rowSize, columnSize );
+    E[][] retvals = (E[][]) Array.newInstance( table.elementType(), rowSize, columnSize );
     
     for ( int rowIndex = 0; rowIndex < rowSize; rowIndex++ )
     {

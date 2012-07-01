@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.list.adapter.ListToSetAdapter;
 import org.omnaest.utils.structure.collection.set.adapter.SetToSetAdapter;
@@ -36,6 +37,7 @@ import org.omnaest.utils.structure.iterator.IterableUtils;
 /**
  * Helper for {@link Set} types
  * 
+ * @see CollectionUtils
  * @author Omnaest
  */
 public class SetUtils
@@ -447,4 +449,5 @@ public class SetUtils
   {
     return new SetComposite<E>( setCollection );
   }
+  
 }

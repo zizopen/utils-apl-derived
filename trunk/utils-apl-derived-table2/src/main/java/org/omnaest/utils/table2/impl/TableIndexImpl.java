@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -232,6 +233,19 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   }
   
   @Override
+  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
+  {
+    for ( int ii = 0; ii >= 0; modifiedIndices.nextSetBit( ii + 1 ) )
+    {
+      final E element = elements[ii];
+      final E previousElement = previousElements[ii];
+      
+      final int columnIndex = ii;
+      this.handleUpdatedCell( rowIndex, columnIndex, element, previousElement );
+    }
+  }
+  
+  @Override
   public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement )
   {
     if ( columnIndex == this.column.index() )
@@ -279,4 +293,5 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   {
     return this;
   }
+  
 }

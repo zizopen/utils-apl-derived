@@ -102,4 +102,11 @@ public interface ImmutableStripe<E> extends Iterable<E>
    * @return
    */
   public boolean equalsInContent( ImmutableStripe<E> stripe );
+  
+  /**
+   * Returns the title
+   * 
+   * @return
+   */
+  public String getTitle();
 }

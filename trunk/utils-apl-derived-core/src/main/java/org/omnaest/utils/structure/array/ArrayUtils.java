@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.array;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -420,4 +421,30 @@ public class ArrayUtils
     //
     return retval;
   }
+  
+  /**
+   * Calculates a {@link BitSet} which has its bits set to true at the same index where the related element from one array to the
+   * other array is not {@link #equals(Object)}
+   * 
+   * @param elements1
+   * @param elements2
+   * @return {@link BitSet} with modified index bits set to true
+   */
+  public static <E> BitSet differenceBitSet( E[] elements1, E[] elements2 )
+  {
+    final BitSet retvals = new BitSet();
+    for ( int ii = 0; ii < elements1.length || ii < elements2.length; ii++ )
+    {
+      if ( ii >= elements1.length || ii >= elements2.length )
+      {
+        retvals.set( ii );
+      }
+      else if ( !org.apache.commons.lang3.ObjectUtils.equals( elements1[ii], elements2[ii] ) )
+      {
+        retvals.set( ii );
+      }
+    }
+    return retvals;
+  }
+  
 }

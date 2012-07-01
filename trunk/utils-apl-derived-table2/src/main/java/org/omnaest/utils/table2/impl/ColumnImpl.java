@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.util.BitSet;
+
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.ImmutableColumn;
@@ -95,7 +97,7 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   @Override
   public Column<E> setCellElement( int rowIndex, E element )
   {
-    this.table.setCellElement( element, rowIndex, this.columnIndex );
+    this.table.setCellElement( rowIndex, this.columnIndex, element );
     return this;
   }
   
@@ -110,6 +112,25 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   {
     final Column<E> column = this;
     return new ColumnIdentityImpl<E>( this.columnIndex, column, this.table );
+  }
+  
+  @Override
+  public String getTitle()
+  {
+    return this.table.getColumnTitle( this.columnIndex );
+  }
+  
+  @Override
+  public Column<E> setTitle( String columnTitle )
+  {
+    this.table.setColumnTitle( this.columnIndex, columnTitle );
+    return this;
+  }
+  
+  @Override
+  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
+  {
+    this.isModified |= modifiedIndices.get( this.columnIndex );
   }
   
 }

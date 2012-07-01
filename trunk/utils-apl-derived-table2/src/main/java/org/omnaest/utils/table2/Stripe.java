@@ -46,4 +46,5 @@ public interface Stripe<E> extends ImmutableStripe<E>
    * @return
    */
   public Table<E> table();
+  
 }

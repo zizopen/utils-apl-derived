@@ -34,6 +34,8 @@ import org.omnaest.utils.structure.element.converter.ElementConverterElementToMa
 import org.omnaest.utils.structure.iterator.IteratorUtils;
 import org.omnaest.utils.structure.map.MapUtils;
 
+import com.google.common.base.Joiner;
+
 public class CollectionUtils
 {
   
@@ -447,6 +449,16 @@ public class CollectionUtils
     
     //
     return retval.toString();
+  }
+  
+  public static <E> String toString( Set<E> set, ElementConverter<E, String> elementConverter, Joiner joiner )
+  {
+    if ( joiner == null )
+    {
+      joiner = Joiner.on( "," );
+    }
+    List<String> partList = ListUtils.convert( set, elementConverter );
+    return joiner.join( partList );
   }
   
   /**

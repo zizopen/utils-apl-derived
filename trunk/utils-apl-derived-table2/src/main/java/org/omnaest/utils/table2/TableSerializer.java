@@ -18,6 +18,9 @@ package org.omnaest.utils.table2;
 import java.io.InputStream;
 import java.io.Reader;
 
+import org.omnaest.utils.table2.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
+import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
+
 /**
  * A {@link TableSerializer} is used to marshal and unmarshal a {@link Table} instance into other forms like csv, xml or json
  * 
@@ -36,13 +39,23 @@ public interface TableSerializer<E> extends ImmutableTableSerializer<E>
    */
   public static interface UnmarshallerDeclarer<E>
   {
-    public Unmarshaller<E> asCsv();
+    /**
+     * Returns a {@link TableSerializer.UnmarshallerCsv} instance
+     * 
+     * @return
+     */
+    public UnmarshallerCsv<E> asCsv();
     
     public Unmarshaller<E> asXml();
     
     public Unmarshaller<E> asJson();
     
-    public Unmarshaller<E> asPlainText();
+    /**
+     * Returns a {@link TableSerializer.UnmarshallerPlainText} instance
+     * 
+     * @return
+     */
+    public UnmarshallerPlainText<E> asPlainText();
   }
   
   /**
@@ -68,11 +81,29 @@ public interface TableSerializer<E> extends ImmutableTableSerializer<E>
     public Table<E> from( InputStream inputStream );
     
     /**
-     * @param appendable
-     *          {@link Appendable}
+     * @param charSequence
+     *          {@link CharSequence}
      * @return executing {@link Table} instance
      */
-    public Table<E> from( Appendable appendable );
+    public Table<E> from( CharSequence charSequence );
+  }
+  
+  /**
+   * {@link TableSerializer.Unmarshaller} for plain text
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface UnmarshallerPlainText<E> extends Unmarshaller<E>
+  {
+    
+    /**
+     * Makes the {@link TableSerializer.UnmarshallerPlainText} using the given {@link MarshallingConfiguration}
+     * 
+     * @param configuration
+     * @return this
+     */
+    public UnmarshallerPlainText<E> using( MarshallingConfiguration configuration );
   }
   
   /**
@@ -83,28 +114,22 @@ public interface TableSerializer<E> extends ImmutableTableSerializer<E>
    */
   public static interface UnmarshallerCsv<E> extends Unmarshaller<E>
   {
-    /* ********************************************** Classes/Interfaces ********************************************** */
-    /**
-     * {@link Configuration} for an {@link TableSerializer.UnmarshallerCsv}
-     * 
-     * @author Omnaest
-     */
-    public static class Configuration extends ImmutableTableSerializer.MarshallerCsv.Configuration
-    {
-      //TODO
-    }
     
-    /* *************************************************** Methods **************************************************** */
     /**
-     * Makes the {@link TableSerializer.UnmarshallerCsv} using the given {@link Configuration}
+     * Makes the {@link TableSerializer.UnmarshallerCsv} using the given {@link CSVMarshallingConfiguration}
      * 
      * @param configuration
      * @return this
      */
-    public UnmarshallerCsv<E> using( UnmarshallerCsv.Configuration configuration );
+    public UnmarshallerCsv<E> using( CSVMarshallingConfiguration configuration );
   }
   
   /* *************************************************** Methods **************************************************** */
   
+  /**
+   * Returns a {@link UnmarshallerDeclarer} instance
+   * 
+   * @return
+   */
   public UnmarshallerDeclarer<E> unmarshal();
 }

@@ -157,7 +157,7 @@ public abstract class StripeImpl<E> implements Stripe<E>
       @Override
       public E[] array()
       {
-        return ArrayUtils.valueOf( stripe, table.getElementType() );
+        return ArrayUtils.valueOf( stripe, table.elementType() );
       }
     };
   }

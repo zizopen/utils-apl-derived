@@ -15,11 +15,16 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl.serializer;
 
-import java.io.OutputStream;
-import java.io.Writer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+import org.omnaest.utils.events.exception.ExceptionHandler;
+import org.omnaest.utils.structure.element.ObjectUtils;
+import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.ImmutableTableSerializer.Marshaller;
 import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerCsv;
+import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
 
 /**
@@ -28,44 +33,154 @@ import org.omnaest.utils.table2.Table;
  * @author Omnaest
  * @param <E>
  */
-class CsvMarshallerImpl<E> implements MarshallerCsv<E>
+class CsvMarshallerImpl<E> extends MarshallerAbstract<E> implements MarshallerCsv<E>
 {
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final Table<E> table;
+  private CSVMarshallingConfiguration configuration = new CSVMarshallingConfiguration();
   
   /* *************************************************** Methods **************************************************** */
   
-  public CsvMarshallerImpl( Table<E> table )
+  public CsvMarshallerImpl( Table<E> table, ExceptionHandler exceptionHandler )
   {
-    this.table = table;
-  }
-  
-  @Override
-  public Table<E> to( Writer writer )
-  {
-    // TODO Auto-generated method stub
-    return this.table;
-  }
-  
-  @Override
-  public Table<E> to( OutputStream outputStream )
-  {
-    // TODO Auto-generated method stub
-    return this.table;
+    super( table, exceptionHandler );
   }
   
   @Override
   public Table<E> to( Appendable appendable )
   {
+    //
+    try
+    {
+      //
+      if ( appendable != null )
+      {
+        //
+        boolean hasColumnTitles = this.table.hasColumnTitles();
+        boolean hasRowTitles = this.table.hasRowTitles();
+        boolean hasTableName = this.table.hasTableName();
+        
+        //
+        boolean processColumnTitles = this.configuration.hasEnabledColumnTitles() && hasColumnTitles;
+        boolean processRowTitles = this.configuration.hasEnabledRowTitles() && hasRowTitles;
+        boolean processTableName = this.configuration.hasEnabledTableName() && hasTableName;
+        
+        //
+        if ( processTableName )
+        {
+          //
+          appendable.append( String.valueOf( this.table.getTableName() ) + "\n" );
+        }
+        
+        //
+        if ( processColumnTitles )
+        {
+          //
+          if ( processRowTitles )
+          {
+            //
+            appendable.append( this.configuration.getDelimiter() );
+          }
+          
+          //
+          boolean first = true;
+          for ( Object columnTitleValue : this.table.getColumnTitleList() )
+          {
+            //
+            appendable.append( !first ? this.configuration.getDelimiter() : "" );
+            appendable.append( String.valueOf( columnTitleValue ) );
+            first = false;
+          }
+          
+          //
+          appendable.append( "\n" );
+        }
+        
+        //
+        for ( Row<E> row : this.table.rows() )
+        {
+          //
+          if ( processRowTitles )
+          {
+            //
+            appendable.append( row.getTitle() );
+            appendable.append( this.configuration.getDelimiter() );
+          }
+          
+          //
+          boolean first = true;
+          for ( Cell<E> cell : row.cells() )
+          {
+            //
+            appendable.append( !first ? this.configuration.getDelimiter() : "" );
+            
+            //
+            final E element = cell.getElement();
+            appendable.append( this.encodeIntoCellString( element ) );
+            first = false;
+          }
+          
+          //
+          appendable.append( "\n" );
+        }
+      }
+    }
+    catch ( Exception e )
+    {
+      this.exceptionHandler.handleException( e );
+    }
+    
     // 
     return this.table;
   }
   
-  @Override
-  public MarshallerCsv<E> using( MarshallerCsv.Configuration configuration )
+  /**
+   * Encodes a single cell element into its csv string form
+   * 
+   * @param element
+   * @return
+   */
+  private String encodeIntoCellString( final E element )
   {
-    // TODO Auto-generated method stub
+    //
+    String retval = null;
+    
+    //
+    if ( element != null )
+    {
+      //
+      retval = String.valueOf( element );
+      
+      //
+      final boolean containsDelimiter = retval.contains( this.configuration.getDelimiter() );
+      final boolean containsQuotationCharacter = StringUtils.isNotEmpty( this.configuration.getQuotationCharacter() )
+                                                 && retval.contains( this.configuration.getQuotationCharacter() );
+      if ( containsQuotationCharacter )
+      {
+        retval = retval.replaceAll( Pattern.quote( this.configuration.getQuotationCharacter() ),
+                                    Matcher.quoteReplacement( this.configuration.getQuotationCharacter()
+                                                              + this.configuration.getQuotationCharacter() ) );
+      }
+      if ( containsDelimiter )
+      {
+        retval = this.configuration.getQuotationCharacter() + retval + this.configuration.getQuotationCharacter();
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  @Override
+  public MarshallerCsv<E> using( CSVMarshallingConfiguration configuration )
+  {
+    this.configuration = ObjectUtils.defaultIfNull( configuration, new CSVMarshallingConfiguration() );
     return this;
+  }
+  
+  @Override
+  protected String getEncoding()
+  {
+    return this.configuration.getEncoding();
   }
   
 }

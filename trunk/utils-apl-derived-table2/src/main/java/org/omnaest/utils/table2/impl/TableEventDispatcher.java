@@ -16,6 +16,7 @@
 package org.omnaest.utils.table2.impl;
 
 import java.lang.ref.WeakReference;
+import java.util.BitSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.omnaest.utils.dispatcher.DispatcherAbstract;
@@ -78,6 +79,19 @@ class TableEventDispatcher<E> extends DispatcherAbstract<TableEventHandler<E>> i
       public void execute( TableEventHandler<E> tableEventHandler )
       {
         tableEventHandler.handleClearTable();
+      }
+    } );
+  }
+  
+  @Override
+  public void handleUpdatedRow( final int rowIndex, final E[] elements, final E[] previousElements, final BitSet modifiedIndices )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleUpdatedRow( rowIndex, elements, previousElements, modifiedIndices );
       }
     } );
   }

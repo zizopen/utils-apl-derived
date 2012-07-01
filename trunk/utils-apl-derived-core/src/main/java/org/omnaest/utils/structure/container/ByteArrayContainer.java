@@ -24,9 +24,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URI;
@@ -838,6 +840,36 @@ public class ByteArrayContainer
       is = new ByteArrayInputStream( this.content );
     }
     return is;
+  }
+  
+  /**
+   * Returns a {@link Reader} with the default encoding {@value #DEFAULTENCODING}
+   * 
+   * @return
+   */
+  public Reader getReader()
+  {
+    return this.getReader( DEFAULTENCODING );
+  }
+  
+  /**
+   * Returns a {@link Reader} using the given encoing
+   * 
+   * @param encoding
+   * @return
+   */
+  public Reader getReader( String encoding )
+  {
+    Reader retval = null;
+    try
+    {
+      retval = new InputStreamReader( this.getInputStream(), encoding );
+    }
+    catch ( UnsupportedEncodingException e )
+    {
+      this.handleException( e );
+    }
+    return retval;
   }
   
   /**
