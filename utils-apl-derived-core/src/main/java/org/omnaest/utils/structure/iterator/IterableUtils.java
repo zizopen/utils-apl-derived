@@ -375,4 +375,27 @@ public class IterableUtils
     return retval;
   }
   
+  /**
+   * Returns a new {@link Iterable} instance which uses an {@link Iterator} adapter based on the resolved
+   * {@link Iterable#iterator()} instance. <br>
+   * <br>
+   * The elements will be converted at traversal time not in advance.
+   * 
+   * @param iterable
+   *          {@link Iterable}
+   * @param elementConverter
+   *          {@link ElementConverter}
+   * @return new instance
+   */
+  public static <FROM, TO> Iterable<TO> adapter( final Iterable<FROM> iterable, final ElementConverter<FROM, TO> elementConverter )
+  {
+    return new Iterable<TO>()
+    {
+      @Override
+      public Iterator<TO> iterator()
+      {
+        return IteratorUtils.adapter( iterable.iterator(), elementConverter );
+      }
+    };
+  }
 }

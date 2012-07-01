@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
-import org.omnaest.utils.structure.map.adapter.MapToMapAdapter;
 
 public class MapToMapAdapterTest
 {
@@ -135,7 +134,7 @@ public class MapToMapAdapterTest
     this.map.put( "2", "2.234" );
     
     //
-    assertEquals( new ArrayList<String>( Arrays.asList( "1.234", "2.234" ) ), this.map.values() );
+    assertEquals( Arrays.asList( "1.234", "2.234" ), new ArrayList<String>( this.map.values() ) );
   }
   
 }

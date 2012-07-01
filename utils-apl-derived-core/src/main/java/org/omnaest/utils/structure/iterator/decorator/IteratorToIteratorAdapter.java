@@ -25,7 +25,7 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
  * 
  * @author Omnaest
  */
-public class ConverterIteratorDecorator<FROM, TO> implements Iterator<TO>
+public class IteratorToIteratorAdapter<FROM, TO> implements Iterator<TO>
 {
   /* ********************************************** Variables ********************************************** */
   private final ElementConverter<FROM, TO> elementConverter;
@@ -34,11 +34,11 @@ public class ConverterIteratorDecorator<FROM, TO> implements Iterator<TO>
   
   /* ********************************************** Methods ********************************************** */
   /**
-   * @see ConverterIteratorDecorator
+   * @see IteratorToIteratorAdapter
    * @param iterator
    * @param elementConverter
    */
-  public ConverterIteratorDecorator( Iterator<FROM> iterator, ElementConverter<FROM, TO> elementConverter )
+  public IteratorToIteratorAdapter( Iterator<FROM> iterator, ElementConverter<FROM, TO> elementConverter )
   {
     this.iterator = iterator;
     this.elementConverter = elementConverter;

@@ -20,6 +20,7 @@ package org.omnaest.utils.structure.element.converter;
  * possible
  * 
  * @see ElementConverter
+ * @see ElementConverterToBidirectionalConverterAdapter
  * @author Omnaest
  * @param <FROM>
  * @param <TO>

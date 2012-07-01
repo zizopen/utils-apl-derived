@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.factory.concrete;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,8 +27,10 @@ import org.omnaest.utils.structure.element.factory.FactoryTypeAware;
  * @param <E>
  * @author Omnaest
  */
-public class HashSetFactory<E> implements FactoryTypeAware<Set<E>>
+public class HashSetFactory<E> implements FactoryTypeAware<Set<E>>, Serializable
 {
+  
+  private static final long serialVersionUID = 5539368629663424616L;
   
   @Override
   public Set<E> newInstance()

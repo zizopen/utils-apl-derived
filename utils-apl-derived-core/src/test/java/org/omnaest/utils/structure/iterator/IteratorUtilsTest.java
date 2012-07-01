@@ -79,18 +79,18 @@ public class IteratorUtilsTest
   }
   
   @Test
-  public void testConvertingIteratorDecorator()
-  {
-    //
-    final List<String> sourceList = Arrays.asList( "100", "101", "102" );
-    final Iterator<String> iterator = sourceList.iterator();
-    final ElementConverter<String, Long> elementConverterFirst = new ElementConverterStringToLong();
-    final ElementConverter<Long, Long> elementConverterSecond = new ElementConverterIdentitiyCast<Long, Long>();
-    final ElementConverter<Number, String> elementConverterThird = new ElementConverterNumberToString();
-    assertEquals( sourceList, ListUtils.valueOf( IteratorUtils.convertingIteratorDecorator( iterator, elementConverterFirst,
-                                                                                            elementConverterSecond,
-                                                                                            elementConverterThird ) ) );
-  }
+    public void testAdapter()
+    {
+      //
+      final List<String> sourceList = Arrays.asList( "100", "101", "102" );
+      final Iterator<String> iterator = sourceList.iterator();
+      final ElementConverter<String, Long> elementConverterFirst = new ElementConverterStringToLong();
+      final ElementConverter<Long, Long> elementConverterSecond = new ElementConverterIdentitiyCast<Long, Long>();
+      final ElementConverter<Number, String> elementConverterThird = new ElementConverterNumberToString();
+      assertEquals( sourceList, ListUtils.valueOf( IteratorUtils.adapter( iterator, elementConverterFirst,
+                                                                                              elementConverterSecond,
+                                                                                              elementConverterThird ) ) );
+    }
   
   @Test
   public void testDrainTo()

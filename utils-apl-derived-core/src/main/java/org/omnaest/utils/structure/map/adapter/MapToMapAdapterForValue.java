@@ -29,6 +29,8 @@ public class MapToMapAdapterForValue<KEY, VALUE_FROM, VALUE_TO> extends MapToMap
 
 {
   
+  private static final long serialVersionUID = 726759373835196179L;
+  
   public MapToMapAdapterForValue( Map<KEY, VALUE_FROM> sourceMap,
                                   ElementConverter<VALUE_FROM, VALUE_TO> elementConverterValueSourceToAdapter,
                                   ElementConverter<VALUE_TO, VALUE_FROM> elementConverterValueAdapterToSource )

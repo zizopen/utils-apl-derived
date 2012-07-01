@@ -490,16 +490,15 @@ public class ListUtils
    * @param iterable
    * @return
    */
-  public static <E> List<E> valueOf( Iterable<E> iterable )
+  public static <E> List<E> valueOf( Iterable<? extends E> iterable )
   {
     //
-    List<E> retlist = new ArrayList<E>();
-    
-    //
+    final List<E> retlist = new ArrayList<E>();
     if ( iterable != null )
     {
       //
-      final Iterator<E> iterator = iterable.iterator();
+      @SuppressWarnings("unchecked")
+      final Iterator<E> iterator = (Iterator<E>) iterable.iterator();
       if ( iterator != null )
       {
         while ( iterator.hasNext() )
@@ -510,8 +509,6 @@ public class ListUtils
         }
       }
     }
-    
-    //
     return retlist;
   }
   
@@ -848,10 +845,62 @@ public class ListUtils
   }
   
   /**
+   * Returns a new {@link List} instance which contains all elements of the given {@link List} and additionally the further given
+   * element. <br>
+   * <br>
+   * This function will return always a new instance, even if the given list is null.
+   * 
+   * @param list
+   * @param element
+   * @return new {@link List} instance
+   */
+  public static <E> List<E> addToNewList( List<? extends E> list, E element )
+  {
+    List<E> retlist = new ArrayList<E>();
+    {
+      if ( list != null )
+      {
+        retlist.addAll( list );
+      }
+      retlist.add( element );
+    }
+    return retlist;
+  }
+  
+  /**
+   * Returns the given {@link List} instance or a new {@link List} instance if the given one is null. The returned instance will
+   * contain all elements of the given {@link List} and additionally the further given element. <br>
+   * <br>
+   * This function will return always an instance, even if the given list is null.
+   * 
+   * @param list
+   * @param element
+   * @return given {@link List} instance or new {@link List} instance if given {@link List} instance is null
+   */
+  public static <E> List<E> add( List<? extends E> list, E element )
+  {
+    //
+    @SuppressWarnings("unchecked")
+    List<E> retlist = (List<E>) list;
+    
+    //
+    if ( list == null )
+    {
+      retlist = new ArrayList<E>();
+    }
+    
+    //
+    retlist.add( element );
+    
+    //
+    return retlist;
+  }
+  
+  /**
    * Returns the given {@link List} instance or a new {@link List} instance if the given one is null. The returned instance will
    * contain all elements of the given {@link List} and additionally all further given elements. <br>
    * <br>
-   * This function will return always a new instance, even if the given list is null.
+   * This function will return always a instance, even if the given list is null.
    * 
    * @param list
    * @param elements
@@ -991,6 +1040,21 @@ public class ListUtils
   {
     int index = 0;
     return remove( list, index );
+  }
+  
+  /**
+   * Short for {@link #valueOf(Iterable)} and {@link #removeFirst(List)} applied to the new {@link List} <br>
+   * <br>
+   * The source {@link List} is kept unaffected by this operation.
+   * 
+   * @param list
+   * @return always a new {@link List} instance
+   */
+  public static <E> List<E> removeFirstToNewList( List<? extends E> list )
+  {
+    final List<E> retlist = valueOf( list );
+    removeFirst( retlist );
+    return retlist;
   }
   
   /**

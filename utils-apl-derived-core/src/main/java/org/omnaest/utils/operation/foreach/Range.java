@@ -167,4 +167,35 @@ public class Range implements Iterable<Long>
     return this.step;
   }
   
+  /**
+   * Returns an int array with all number between the given ranges
+   * 
+   * @return
+   */
+  public int[] toIntArray()
+  {
+    int[] retvals = null;
+    
+    int numberFrom = 0;
+    int numberTo = 0;
+    
+    if ( this.numberFrom != null )
+    {
+      numberFrom = this.numberFrom.intValue();
+    }
+    if ( this.numberTo != null )
+    {
+      numberTo = this.numberTo.intValue();
+    }
+    
+    final int step = this.step.intValue();
+    final int delta = ( numberTo - numberFrom ) / step;
+    retvals = new int[delta + 1];
+    for ( int ii = 0; ii <= delta; ii++ )
+    {
+      retvals[ii] = numberFrom + ii * step;
+    }
+    return retvals;
+  }
+  
 }

@@ -28,6 +28,8 @@ import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 public class MapToMapAdapterForKey<KEY_FROM, KEY_TO, VALUE> extends MapToMapAdapter<KEY_FROM, VALUE, KEY_TO, VALUE>
 {
   
+  private static final long serialVersionUID = 7471520105069297143L;
+  
   public MapToMapAdapterForKey( Map<KEY_FROM, VALUE> sourceMap,
                                 ElementConverter<KEY_FROM, KEY_TO> elementConverterKeySourceToAdapter,
                                 ElementConverter<KEY_TO, KEY_FROM> elementConverterKeyAdapterToSource )

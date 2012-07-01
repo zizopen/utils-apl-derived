@@ -16,12 +16,15 @@
 package org.omnaest.utils.structure.map.adapter;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.structure.collection.CollectionUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterToBidirectionalConverterAdapter;
 import org.omnaest.utils.structure.map.MapAbstract;
 
 /**
@@ -39,14 +42,14 @@ import org.omnaest.utils.structure.map.MapAbstract;
  */
 public class MapToMapAdapter<KEY_FROM, VALUE_FROM, KEY_TO, VALUE_TO> extends MapAbstract<KEY_TO, VALUE_TO>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long                                   serialVersionUID = -1538459740184023592L;
   
   /* ********************************************** Variables ********************************************** */
-  protected Map<KEY_FROM, VALUE_FROM>              sourceMap                            = null;
+  private Map<KEY_FROM, VALUE_FROM>                           sourceMap        = null;
   
-  protected ElementConverter<KEY_FROM, KEY_TO>     elementConverterKeySourceToAdapter   = null;
-  protected ElementConverter<KEY_TO, KEY_FROM>     elementConverterKeyAdapterToSource   = null;
-  protected ElementConverter<VALUE_FROM, VALUE_TO> elementConverterValueSourceToAdapter = null;
-  protected ElementConverter<VALUE_TO, VALUE_FROM> elementConverterValueAdapterToSource = null;
+  private ElementBidirectionalConverter<KEY_FROM, KEY_TO>     elementBidirectionalConverterKey;
+  private ElementBidirectionalConverter<VALUE_FROM, VALUE_TO> elementBidirectionalConverterValue;
   
   /* ********************************************** Methods ********************************************** */
   
@@ -57,71 +60,51 @@ public class MapToMapAdapter<KEY_FROM, VALUE_FROM, KEY_TO, VALUE_TO> extends Map
                           ElementConverter<VALUE_TO, VALUE_FROM> elementConverterValueAdapterToSource )
   {
     super();
+    
+    Assert.isNotNull( sourceMap, elementConverterValueAdapterToSource, elementConverterValueSourceToAdapter,
+                      elementConverterKeyAdapterToSource, elementConverterKeySourceToAdapter );
+    
     this.sourceMap = sourceMap;
-    this.elementConverterKeySourceToAdapter = elementConverterKeySourceToAdapter;
-    this.elementConverterKeyAdapterToSource = elementConverterKeyAdapterToSource;
-    this.elementConverterValueSourceToAdapter = elementConverterValueSourceToAdapter;
-    this.elementConverterValueAdapterToSource = elementConverterValueAdapterToSource;
+    this.elementBidirectionalConverterKey = new ElementConverterToBidirectionalConverterAdapter<KEY_FROM, KEY_TO>(
+                                                                                                            elementConverterKeySourceToAdapter,
+                                                                                                            elementConverterKeyAdapterToSource );
+    this.elementBidirectionalConverterValue = new ElementConverterToBidirectionalConverterAdapter<VALUE_FROM, VALUE_TO>(
+                                                                                                                  elementConverterValueSourceToAdapter,
+                                                                                                                  elementConverterValueAdapterToSource );
+    
+  }
+  
+  public MapToMapAdapter( Map<KEY_FROM, VALUE_FROM> sourceMap,
+                          ElementBidirectionalConverter<KEY_FROM, KEY_TO> elementBidirectionalConverterKey,
+                          ElementBidirectionalConverter<VALUE_FROM, VALUE_TO> elementBidirectionalConverterValue )
+  {
+    super();
+    
+    Assert.isNotNull( elementBidirectionalConverterKey, elementBidirectionalConverterValue, sourceMap );
+    
+    this.sourceMap = sourceMap;
+    this.elementBidirectionalConverterKey = elementBidirectionalConverterKey;
+    this.elementBidirectionalConverterValue = elementBidirectionalConverterValue;
   }
   
   protected KEY_TO convertKeyFromToKeyTo( KEY_FROM key_FROM )
   {
-    //    
-    KEY_TO retval = null;
-    
-    //
-    if ( this.elementConverterKeySourceToAdapter != null )
-    {
-      retval = this.elementConverterKeySourceToAdapter.convert( key_FROM );
-    }
-    
-    //
-    return retval;
+    return this.elementBidirectionalConverterKey.convert( key_FROM );
   }
   
   protected KEY_FROM convertKeyToToKeyFrom( KEY_TO key_TO )
   {
-    //    
-    KEY_FROM retval = null;
-    
-    //
-    if ( this.elementConverterKeyAdapterToSource != null )
-    {
-      retval = this.elementConverterKeyAdapterToSource.convert( key_TO );
-    }
-    
-    //
-    return retval;
+    return this.elementBidirectionalConverterKey.convertBackwards( key_TO );
   }
   
   protected VALUE_TO convertValueFromToValueTo( VALUE_FROM value_FROM )
   {
-    //    
-    VALUE_TO retval = null;
-    
-    //
-    if ( this.elementConverterValueSourceToAdapter != null )
-    {
-      retval = this.elementConverterValueSourceToAdapter.convert( value_FROM );
-    }
-    
-    //
-    return retval;
+    return this.elementBidirectionalConverterValue.convert( value_FROM );
   }
   
   protected VALUE_FROM convertValueToToValueFrom( VALUE_TO value_TO )
   {
-    //    
-    VALUE_FROM retval = null;
-    
-    //
-    if ( this.elementConverterValueAdapterToSource != null )
-    {
-      retval = this.elementConverterValueAdapterToSource.convert( value_TO );
-    }
-    
-    //
-    return retval;
+    return this.elementBidirectionalConverterValue.convertBackwards( value_TO );
   }
   
   @SuppressWarnings("unchecked")
@@ -217,13 +200,13 @@ public class MapToMapAdapter<KEY_FROM, VALUE_FROM, KEY_TO, VALUE_TO> extends Map
   @Override
   public Set<KEY_TO> keySet()
   {
-    return new LinkedHashSet<KEY_TO>( ListUtils.convert( this.sourceMap.keySet(), this.elementConverterKeySourceToAdapter ) );
+    return SetUtils.adapter( this.sourceMap.keySet(), this.elementBidirectionalConverterKey );
   }
   
   @Override
   public Collection<VALUE_TO> values()
   {
-    return ListUtils.convert( this.sourceMap.values(), this.elementConverterValueSourceToAdapter );
+    return CollectionUtils.adapter( this.sourceMap.values(), this.elementBidirectionalConverterValue );
   }
   
 }

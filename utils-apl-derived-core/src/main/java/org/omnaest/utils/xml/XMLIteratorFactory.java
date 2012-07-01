@@ -1703,7 +1703,7 @@ public class XMLIteratorFactory
   {
     //
     final Iterator<String> iterator = newIterator( xmlElementSelector );
-    return IteratorUtils.convertingIteratorDecorator( iterator, elementConverter );
+    return IteratorUtils.adapter( iterator, elementConverter );
   }
   
   /**
