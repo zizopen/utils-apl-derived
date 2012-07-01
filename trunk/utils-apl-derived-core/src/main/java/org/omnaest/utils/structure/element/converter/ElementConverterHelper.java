@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.converter;
 
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.reflection.ReflectionUtils;
 
 /**
@@ -57,5 +58,32 @@ public class ElementConverterHelper
     
     //
     return (TO) retval;
+  }
+  
+  /**
+   * Returns a new {@link ElementBidirectionalConverter} instance which inverts the direction of the given instance
+   * 
+   * @param elementBidirectionalConverter
+   * @return
+   */
+  public static <FROM, TO> ElementBidirectionalConverter<TO, FROM> inverse( final ElementBidirectionalConverter<FROM, TO> elementBidirectionalConverter )
+  {
+    Assert.isNotNull( elementBidirectionalConverter, "elementBidirectionalConverter must not be null" );
+    return new ElementBidirectionalConverterSerializable<TO, FROM>()
+    {
+      private static final long serialVersionUID = 6099568517954297832L;
+      
+      @Override
+      public TO convertBackwards( FROM element )
+      {
+        return elementBidirectionalConverter.convert( element );
+      }
+      
+      @Override
+      public FROM convert( TO element )
+      {
+        return elementBidirectionalConverter.convertBackwards( element );
+      }
+    };
   }
 }

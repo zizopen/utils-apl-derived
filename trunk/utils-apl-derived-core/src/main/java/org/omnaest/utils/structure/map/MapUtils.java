@@ -39,6 +39,7 @@ import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.element.KeyExtractor;
+import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
@@ -46,6 +47,8 @@ import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.element.factory.FactoryParameterized;
 import org.omnaest.utils.structure.element.filter.ElementFilter;
 import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.structure.map.adapter.MapToMapAdapter;
+import org.omnaest.utils.structure.map.adapter.SortedMapToSortedMapAdapter;
 import org.omnaest.utils.structure.map.decorator.LockingMapDecorator;
 import org.omnaest.utils.structure.map.decorator.MapDecorator;
 import org.omnaest.utils.structure.map.decorator.SortedMapDecorator;
@@ -1123,5 +1126,39 @@ public class MapUtils
   public static <K, V> Map<K, V> composite( List<Map<K, V>> mapList )
   {
     return new MapComposite<K, V>( mapList );
+  }
+  
+  /**
+   * Returns a {@link MapToMapAdapter} for the given source {@link Map}
+   * 
+   * @param sourceMap
+   *          {@link Map}
+   * @param elementBidirectionalConverterKey
+   *          {@link ElementBidirectionalConverter}
+   * @param elementBidirectionalConverterValue
+   *          {@link ElementBidirectionalConverter}
+   * @return new {@link MapToMapAdapter} instance
+   */
+  public static <KEY_FROM, VALUE_FROM, KEY_TO, VALUE_TO> Map<KEY_TO, VALUE_TO> adapter( Map<KEY_FROM, VALUE_FROM> sourceMap,
+                                                                                        ElementBidirectionalConverter<KEY_FROM, KEY_TO> elementBidirectionalConverterKey,
+                                                                                        ElementBidirectionalConverter<VALUE_FROM, VALUE_TO> elementBidirectionalConverterValue )
+  {
+    return new MapToMapAdapter<KEY_FROM, VALUE_FROM, KEY_TO, VALUE_TO>( sourceMap, elementBidirectionalConverterKey,
+                                                                        elementBidirectionalConverterValue );
+  }
+  
+  /**
+   * Returns a {@link SortedMapToSortedMapAdapter} for the given source {@link SortedMap}
+   * 
+   * @param sourceMap
+   *          {@link SortedMap}
+   * @param elementBidirectionalConverterValue
+   *          {@link ElementBidirectionalConverter}
+   * @return new {@link SortedMapToSortedMapAdapter} instance
+   */
+  public static <KEY, VALUE_FROM, VALUE_TO> SortedMap<KEY, VALUE_TO> adapter( SortedMap<KEY, VALUE_FROM> sourceMap,
+                                                                              ElementBidirectionalConverter<VALUE_FROM, VALUE_TO> elementBidirectionalConverterValue )
+  {
+    return new SortedMapToSortedMapAdapter<KEY, VALUE_FROM, VALUE_TO>( sourceMap, elementBidirectionalConverterValue );
   }
 }

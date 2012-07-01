@@ -51,7 +51,7 @@ public class ConvertingCharacterSequenceTokenizerDecorator<TO> implements Iterab
   {
     // 
     final Iterator<CharSequence> iterator = this.characterSequenceTokenizer.iterator();
-    final Iterator<TO> convertingIteratorDecorator = IteratorUtils.convertingIteratorDecorator( iterator, this.elementConverter );
+    final Iterator<TO> convertingIteratorDecorator = IteratorUtils.adapter( iterator, this.elementConverter );
     
     //
     return convertingIteratorDecorator;

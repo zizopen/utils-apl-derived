@@ -26,8 +26,8 @@ import org.omnaest.utils.structure.map.dualmap.DualMap;
  * {@link Map} adapter which allows to define a mapping for the keys of the underlying {@link Map}
  * 
  * @author Omnaest
- * @param <K>
- * @param <V>
+ * @param <KEY_TO>
+ * @param <KEY_FROM>
  */
 public class MapWithKeyMappingAdapter<KEY_TO, KEY_FROM, V> implements Map<KEY_TO, V>
 {

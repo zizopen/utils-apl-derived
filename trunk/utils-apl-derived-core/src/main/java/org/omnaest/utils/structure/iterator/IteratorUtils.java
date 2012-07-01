@@ -31,7 +31,7 @@ import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterChain;
 import org.omnaest.utils.structure.element.factory.Factory;
-import org.omnaest.utils.structure.iterator.decorator.ConverterIteratorDecorator;
+import org.omnaest.utils.structure.iterator.decorator.IteratorToIteratorAdapter;
 import org.omnaest.utils.structure.iterator.decorator.IteratorDecorator;
 import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
 
@@ -232,44 +232,45 @@ public class IteratorUtils
    * Returns a new decorator instance of the given {@link Iterator} which uses the given {@link ElementConverter} to convert the
    * result of the {@link Iterator#next()} method. <br>
    * <br>
-   * If the given {@link ElementConverter} or {@link Iterator} is null, this method return null.
+   * If the given {@link ElementConverter} or {@link Iterator} is null, this method return null.<br>
+   * <br>
+   * The elements will be converted at traversal time not in advance.
    * 
    * @param iterator
    * @param elementConverter
    * @return
    */
-  public static <TO, FROM> Iterator<TO> convertingIteratorDecorator( Iterator<FROM> iterator,
-                                                                     ElementConverter<FROM, TO> elementConverter )
+  public static <TO, FROM> Iterator<TO> adapter( Iterator<FROM> iterator, ElementConverter<FROM, TO> elementConverter )
   {
     //
     final boolean referencesAreNotNull = iterator != null && elementConverter != null;
-    return referencesAreNotNull ? new ConverterIteratorDecorator<FROM, TO>( iterator, elementConverter ) : null;
+    return referencesAreNotNull ? new IteratorToIteratorAdapter<FROM, TO>( iterator, elementConverter ) : null;
   }
   
   /**
-   * Similar to {@link #convertingIteratorDecorator(Iterator, ElementConverter)}
+   * Similar to {@link #adapter(Iterator, ElementConverter)}
    * 
    * @param iterator
    * @param elementConverterFirst
    * @param elementConverterSecond
    * @return
    */
-  public static <TO, FROM, T> Iterator<TO> convertingIteratorDecorator( Iterator<FROM> iterator,
-                                                                        ElementConverter<FROM, ? extends T> elementConverterFirst,
-                                                                        ElementConverter<T, ? extends TO> elementConverterSecond )
+  public static <TO, FROM, T> Iterator<TO> adapter( Iterator<FROM> iterator,
+                                                    ElementConverter<FROM, ? extends T> elementConverterFirst,
+                                                    ElementConverter<T, ? extends TO> elementConverterSecond )
   {
     //
     final boolean referencesAreNotNull = iterator != null && elementConverterFirst != null && elementConverterSecond != null;
-    return referencesAreNotNull ? new ConverterIteratorDecorator<FROM, TO>(
-                                                                            iterator,
-                                                                            new ElementConverterChain<FROM, TO>(
-                                                                                                                 elementConverterFirst,
-                                                                                                                 elementConverterSecond ) )
+    return referencesAreNotNull ? new IteratorToIteratorAdapter<FROM, TO>(
+                                                                           iterator,
+                                                                           new ElementConverterChain<FROM, TO>(
+                                                                                                                elementConverterFirst,
+                                                                                                                elementConverterSecond ) )
                                : null;
   }
   
   /**
-   * Similar to {@link #convertingIteratorDecorator(Iterator, ElementConverter)}
+   * Similar to {@link #adapter(Iterator, ElementConverter)}
    * 
    * @param iterator
    * @param elementConverterFirst
@@ -277,20 +278,20 @@ public class IteratorUtils
    * @param elementConverterThird
    * @return
    */
-  public static <TO, FROM, T1, T2> Iterator<TO> convertingIteratorDecorator( Iterator<FROM> iterator,
-                                                                             ElementConverter<FROM, ? extends T1> elementConverterFirst,
-                                                                             ElementConverter<T1, ? extends T2> elementConverterSecond,
-                                                                             ElementConverter<T2, ? extends TO> elementConverterThird )
+  public static <TO, FROM, T1, T2> Iterator<TO> adapter( Iterator<FROM> iterator,
+                                                         ElementConverter<FROM, ? extends T1> elementConverterFirst,
+                                                         ElementConverter<T1, ? extends T2> elementConverterSecond,
+                                                         ElementConverter<T2, ? extends TO> elementConverterThird )
   {
     // 
     final boolean referencesAreNotNull = iterator != null && elementConverterFirst != null && elementConverterSecond != null
                                          && elementConverterThird != null;
-    return referencesAreNotNull ? new ConverterIteratorDecorator<FROM, TO>(
-                                                                            iterator,
-                                                                            new ElementConverterChain<FROM, TO>(
-                                                                                                                 elementConverterFirst,
-                                                                                                                 elementConverterSecond,
-                                                                                                                 elementConverterThird ) )
+    return referencesAreNotNull ? new IteratorToIteratorAdapter<FROM, TO>(
+                                                                           iterator,
+                                                                           new ElementConverterChain<FROM, TO>(
+                                                                                                                elementConverterFirst,
+                                                                                                                elementConverterSecond,
+                                                                                                                elementConverterThird ) )
                                : null;
   }
   

@@ -18,6 +18,8 @@ package org.omnaest.utils.structure.array;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 /**
@@ -46,5 +48,12 @@ public class ArrayUtilsTest
     //
     assertArrayEquals( new String[] { "a", "b", "c", "d" },
                        ArrayUtils.merge( new String[] { "a", "b" }, new String[] { "c", "d" } ) );
+  }
+  
+  @Test
+  public void testValueOf() throws Exception
+  {
+    assertArrayEquals( new String[] { "a", "b", "c", "d" },
+                       ArrayUtils.valueOf( (Iterable<String>) Arrays.asList( "a", "b", "c", "d" ), String.class ) );
   }
 }

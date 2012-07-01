@@ -310,6 +310,36 @@ public class ArrayUtils
   }
   
   /**
+   * Returns an typed {@link Array} based on the given {@link Iterable} and the given array component type<br>
+   * <br>
+   * If null is given as {@link Iterable} null is returned, too. If the given type is null, {@link Object} is used as component
+   * type.
+   * 
+   * @see Collection#toArray(Object[])
+   * @param iterable
+   *          {@link Collection}
+   * @param type
+   *          {@link Class}
+   * @return new {@link Array} instance
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> E[] valueOf( Iterable<? extends E> iterable, Class<E> type )
+  {
+    //
+    E[] retvals = null;
+    
+    //
+    if ( iterable != null )
+    {
+      final List<? extends E> list = ListUtils.valueOf( iterable );
+      retvals = list.toArray( (E[]) Array.newInstance( type != null ? type : Object.class, list.size() ) );
+    }
+    
+    //
+    return retvals;
+  }
+  
+  /**
    * Returns a new {@link Array} instance based on the {@link Class} types of the given elements. The first shared type which can
    * be cast to the expected return type is used.<br>
    * <br>

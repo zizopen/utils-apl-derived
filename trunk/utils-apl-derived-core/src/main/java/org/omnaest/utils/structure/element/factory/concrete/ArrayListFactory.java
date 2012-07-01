@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element.factory.concrete;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,8 +27,10 @@ import org.omnaest.utils.structure.element.factory.FactoryTypeAware;
  * @param <E>
  * @author Omnaest
  */
-public class ArrayListFactory<E> implements FactoryTypeAware<List<E>>
+public class ArrayListFactory<E> implements FactoryTypeAware<List<E>>, Serializable
 {
+  
+  private static final long serialVersionUID = 3996968332138441604L;
   
   @Override
   public List<E> newInstance()
