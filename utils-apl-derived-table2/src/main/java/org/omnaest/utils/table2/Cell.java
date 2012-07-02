@@ -30,4 +30,27 @@ public interface Cell<E> extends ImmutableCell<E>
    * @return this
    */
   public Cell<E> setElement( E element );
+  
+  /**
+   * Returns a {@link Row} related to this {@link Cell}
+   * 
+   * @return
+   */
+  @Override
+  public Row<E> row();
+  
+  /**
+   * Returns a {@link Column} related to this {@link Cell}
+   * 
+   * @return
+   */
+  @Override
+  public Column<E> column();
+  
+  /**
+   * Sets the underlying {@link Cell#setElement(Object)} to null
+   * 
+   * @return the previously set element
+   */
+  public E clear();
 }

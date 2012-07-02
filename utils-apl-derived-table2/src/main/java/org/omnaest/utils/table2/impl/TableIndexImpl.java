@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.io.Serializable;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,8 +42,10 @@ import org.omnaest.utils.table2.TableIndex;
  * @author Omnaest
  * @param <E>
  */
-public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, Set<Cell<E>>>, TableEventHandler<E>
+public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, Set<Cell<E>>>, TableEventHandler<E>, Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long                serialVersionUID = 3723253328291423721L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final SortedMap<E, Set<Cell<E>>> elementToCellSetMap;
   private final Column<E>                  column;
@@ -227,7 +230,7 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   @Override
   public void handleAddedRow( int rowIndex, E... elements )
   {
-    Cell<E> cell = this.column.getCell( rowIndex );
+    Cell<E> cell = this.column.cell( rowIndex );
     E element = cell.getElement();
     this.elementToCellSetMap.get( element ).add( cell );
   }
@@ -246,11 +249,34 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   }
   
   @Override
+  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  {
+    final int columnIndex = this.column.index();
+    final E element = previousElements.length > columnIndex ? previousElements[columnIndex] : null;
+    final Set<Cell<E>> cellSet = this.elementToCellSetMap.get( element );
+    if ( cellSet != null )
+    {
+      for ( Cell<E> cell : cellSet )
+      {
+        if ( cell.rowIndex() == rowIndex )
+        {
+          cellSet.remove( cell );
+          break;
+        }
+      }
+      if ( cellSet.isEmpty() )
+      {
+        this.elementToCellSetMap.remove( element );
+      }
+    }
+  }
+  
+  @Override
   public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement )
   {
     if ( columnIndex == this.column.index() )
     {
-      Cell<E> cell = this.column.getCell( rowIndex );
+      Cell<E> cell = this.column.cell( rowIndex );
       {
         final Position position = cell.getPosition();
         final Set<Cell<E>> cellSet = this.elementToCellSetMap.get( previousElement );

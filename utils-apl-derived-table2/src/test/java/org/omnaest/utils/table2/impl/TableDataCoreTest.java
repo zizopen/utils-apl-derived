@@ -165,9 +165,10 @@ public class TableDataCoreTest
     
     //
     assertEquals( 12, tableDataCore.rowSize() );
-    tableDataCore.removeRow( 5 );
+    String[] removedRow = tableDataCore.removeRow( 5 );
     assertEquals( 11, tableDataCore.rowSize() );
     assertEquals( "a6", tableDataCore.getElement( 5, 0 ) );
+    assertArrayEquals( new String[] { "a" + 5, "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m" }, removedRow );
     
     //
     for ( int ii = 0; ii < 10; ii++ )

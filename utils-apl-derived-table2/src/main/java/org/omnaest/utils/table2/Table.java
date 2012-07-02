@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import java.io.Serializable;
+
 import org.omnaest.utils.events.exception.ExceptionHandler;
 
 /**
@@ -24,7 +26,7 @@ import org.omnaest.utils.events.exception.ExceptionHandler;
  * @author Omnaest
  * @param <E>
  */
-public interface Table<E> extends ImmutableTable<E>
+public interface Table<E> extends ImmutableTable<E>, Serializable
 {
   /**
    * Returns a new {@link Row} related to the given row index position
@@ -32,7 +34,7 @@ public interface Table<E> extends ImmutableTable<E>
    * @param rowIndex
    * @return
    */
-  public Row<E> getRow( int rowIndex );
+  public Row<E> row( int rowIndex );
   
   /**
    * Returns a new {@link Column} currently related to the given column index position
@@ -40,7 +42,7 @@ public interface Table<E> extends ImmutableTable<E>
    * @param columnIndex
    * @return new {@link Column} instance
    */
-  public Column<E> getColumn( int columnIndex );
+  public Column<E> column( int columnIndex );
   
   /**
    * Returns an {@link Cell} instance for the given row and column index position
@@ -49,7 +51,7 @@ public interface Table<E> extends ImmutableTable<E>
    * @param columnIndex
    * @return new {@link Cell} instance
    */
-  public Cell<E> getCell( int rowIndex, int columnIndex );
+  public Cell<E> cell( int rowIndex, int columnIndex );
   
   /**
    * Sets the element for a given row and column index position
@@ -180,5 +182,20 @@ public interface Table<E> extends ImmutableTable<E>
    * @return this
    */
   public Table<E> setExceptionHandler( ExceptionHandler exceptionHandler );
+  
+  /**
+   * Returns a {@link TableAdapterManager} instance which allows to craeate adapter instances
+   * 
+   * @return
+   */
+  public TableAdapterManager<E> as();
+  
+  /**
+   * Removes a {@link Row} at the given row index position
+   * 
+   * @param rowIndex
+   * @return this
+   */
+  public Table<E> removeRow( int rowIndex );
   
 }

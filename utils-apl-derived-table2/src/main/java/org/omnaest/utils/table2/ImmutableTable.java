@@ -33,7 +33,7 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    * @param rowIndex
    * @return new {@link ImmutableRow} instance
    */
-  public ImmutableRow<E> getRow( int rowIndex );
+  public ImmutableRow<E> row( int rowIndex );
   
   /**
    * Returns a new {@link ImmutableColumn} currently related to the given column index position
@@ -41,7 +41,7 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    * @param columnIndex
    * @return new {@link ImmutableColumn} instance
    */
-  public ImmutableColumn<E> getColumn( int columnIndex );
+  public ImmutableColumn<E> column( int columnIndex );
   
   /**
    * Returns the element at the given row and column index position
@@ -59,7 +59,7 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    * @param columnIndex
    * @return new {@link ImmutableCell} instance
    */
-  public ImmutableCell<E> getCell( int rowIndex, int columnIndex );
+  public ImmutableCell<E> cell( int rowIndex, int columnIndex );
   
   /**
    * Returns the number of {@link Row}s

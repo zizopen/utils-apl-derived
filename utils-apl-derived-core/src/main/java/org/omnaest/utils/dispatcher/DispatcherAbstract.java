@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.dispatcher;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.omnaest.utils.events.exception.ExceptionHandler;
@@ -28,8 +29,10 @@ import org.omnaest.utils.structure.element.ObjectUtils;
  * @see #executeOnAllInstances(OperationVoid)
  * @author Omnaest
  */
-public abstract class DispatcherAbstract<T>
+public abstract class DispatcherAbstract<T> implements Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long  serialVersionUID = 392437202904888843L;
   /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
   protected final List<T>    instanceList;
   protected ExceptionHandler exceptionHandler = new ExceptionHandlerIgnoring();

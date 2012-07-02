@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -25,28 +26,30 @@ import java.util.BitSet;
  * @author Omnaest
  * @param <E>
  */
-class TableDataCore<E>
+class TableDataCore<E> implements Serializable
 {
   /* ************************************************** Constants *************************************************** */
-  public static final int INITIAL_DEFAULT_ROW_SIZE    = 16;
-  public static final int INITIAL_DEFAULT_COLUMN_SIZE = 4;
+  private static final long serialVersionUID            = 5131972948341159104L;
+  
+  public static final int   INITIAL_DEFAULT_ROW_SIZE    = 16;
+  public static final int   INITIAL_DEFAULT_COLUMN_SIZE = 4;
   
   /* *************************************************** Methods **************************************************** */
   
-  private E[][]           matrix;
+  private E[][]             matrix;
   
-  private int[]           nativeColumnIndices;
-  private int[]           nativeRowIndices;
+  private int[]             nativeColumnIndices;
+  private int[]             nativeRowIndices;
   
-  private BitSet          activeRowBitSet;
-  private BitSet          activeColumnBitSet;
+  private BitSet            activeRowBitSet;
+  private BitSet            activeColumnBitSet;
   
-  private int             rowSize;
-  private int             columnSize;
+  private int               rowSize;
+  private int               columnSize;
   
-  private final Class<E>  type;
-  private final int       initialRowSize;
-  private final int       initialColumnSize;
+  private final Class<E>    type;
+  private final int         initialRowSize;
+  private final int         initialColumnSize;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -212,8 +215,11 @@ class TableDataCore<E>
     return retval;
   }
   
-  public void removeRow( int rowIndex )
+  public E[] removeRow( int rowIndex )
   {
+    //
+    E[] retvals = null;
+    
     //
     final int nativeRowIndex = this.determineNativeRowIndex( rowIndex );
     final int rowMaxSize = this.nativeRowIndices.length;
@@ -222,6 +228,7 @@ class TableDataCore<E>
       boolean activeRow = this.activeRowBitSet.get( nativeRowIndex );
       if ( activeRow )
       {
+        retvals = Arrays.copyOf( this.matrix[nativeRowIndex], this.columnSize );
         Arrays.fill( this.matrix[nativeRowIndex], null );
       }
       
@@ -279,6 +286,8 @@ class TableDataCore<E>
       this.activeRowBitSet.clear( newRowMaxSize, rowMaxSize - 1 );
       this.matrix = Arrays.copyOf( this.matrix, newRowMaxSize );
     }
+    
+    return retvals;
   }
   
   public int addColumn( E... elements )

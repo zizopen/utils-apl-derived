@@ -15,7 +15,9 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -37,14 +39,21 @@ import org.omnaest.utils.table2.Table;
  */
 public abstract class StripeImpl<E> implements Stripe<E>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long  serialVersionUID = 3138389285052519615L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  protected volatile boolean isDeleted  = false;
-  protected volatile boolean isModified = false;
+  protected volatile boolean isDeleted        = false;
+  protected volatile boolean isModified       = false;
   
+  /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
   protected final Table<E>   table;
   
   /* *************************************************** Methods **************************************************** */
   
+  /**
+   * @see StripeImpl
+   * @param table
+   */
   public StripeImpl( Table<E> table )
   {
     super();
@@ -97,7 +106,7 @@ public abstract class StripeImpl<E> implements Stripe<E>
     final int size = this.size();
     for ( int ii = 0; ii < size; ii++ )
     {
-      retlist.add( this.getCell( ii ) );
+      retlist.add( this.cell( ii ) );
     }
     return retlist;
   }
@@ -160,6 +169,32 @@ public abstract class StripeImpl<E> implements Stripe<E>
         return ArrayUtils.valueOf( stripe, table.elementType() );
       }
     };
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public E[] getCellElements()
+  {
+    final E[] retvals = (E[]) Array.newInstance( this.table.elementType(), this.size() );
+    for ( int ii = 0; ii < retvals.length; ii++ )
+    {
+      retvals[ii] = this.getCellElement( ii );
+    }
+    return retvals;
+  }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "StripeImpl [isDeleted=" );
+    builder.append( this.isDeleted );
+    builder.append( ", isModified=" );
+    builder.append( this.isModified );
+    builder.append( ", elements=" );
+    builder.append( Arrays.deepToString( this.getCellElements() ) );
+    builder.append( "]" );
+    return builder.toString();
   }
   
 }

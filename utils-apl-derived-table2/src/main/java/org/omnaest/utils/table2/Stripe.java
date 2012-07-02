@@ -31,7 +31,7 @@ public interface Stripe<E> extends ImmutableStripe<E>
    * @param index
    * @return new {@link Cell} instance
    */
-  public Cell<E> getCell( int index );
+  public Cell<E> cell( int index );
   
   /**
    * Returns a new {@link Iterable} instance over the {@link Cell}s

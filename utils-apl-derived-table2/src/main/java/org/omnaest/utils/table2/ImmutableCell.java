@@ -85,4 +85,18 @@ public interface ImmutableCell<E>
    * @return
    */
   public boolean isModified();
+  
+  /**
+   * Returns an {@link ImmutableRow} related to this {@link ImmutableCell}
+   * 
+   * @return
+   */
+  public ImmutableRow<E> row();
+  
+  /**
+   * Returns an {@link ImmutableColumn} related to this {@link ImmutableCell}
+   * 
+   * @return
+   */
+  public ImmutableColumn<E> column();
 }

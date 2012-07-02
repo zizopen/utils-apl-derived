@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -27,7 +28,7 @@ import java.util.Set;
  * @author Omnaest
  * @param <E>
  */
-public interface ImmutableStripe<E> extends Iterable<E>
+public interface ImmutableStripe<E> extends Iterable<E>, Serializable
 {
   /**
    * Returns the number of contained elements
@@ -45,12 +46,19 @@ public interface ImmutableStripe<E> extends Iterable<E>
   public E getCellElement( int index );
   
   /**
+   * Returns an array of all elements
+   * 
+   * @return
+   */
+  public E[] getCellElements();
+  
+  /**
    * Returns the {@link ImmutableCell} for the given orthogonal index position
    * 
    * @param index
    * @return new {@link ImmutableCell} instance
    */
-  public ImmutableCell<E> getCell( int index );
+  public ImmutableCell<E> cell( int index );
   
   /**
    * Returns the index position

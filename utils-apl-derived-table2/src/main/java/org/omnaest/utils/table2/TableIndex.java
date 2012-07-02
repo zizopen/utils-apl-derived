@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import java.io.Serializable;
 import java.util.Set;
 import java.util.SortedMap;
 
@@ -25,7 +26,7 @@ import java.util.SortedMap;
  * @param <E>
  * @param <C>
  */
-public interface TableIndex<E, C extends ImmutableCell<E>>
+public interface TableIndex<E, C extends ImmutableCell<E>> extends Serializable
 {
   
   public Set<E> keySet();

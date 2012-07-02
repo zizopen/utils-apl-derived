@@ -39,6 +39,8 @@ import org.omnaest.utils.table2.impl.transformer.TableTransformerImpl;
  */
 abstract class TableAbstract<E> implements Table<E>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long  serialVersionUID = 6651647383929942697L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   protected ExceptionHandler exceptionHandler = new ExceptionHandlerIgnoring();
   
@@ -70,7 +72,7 @@ abstract class TableAbstract<E> implements Table<E>
     @Override
     public R next()
     {
-      return (R) this.table.getRow( ++this.index );
+      return (R) this.table.row( ++this.index );
     }
     
     @Override
@@ -107,7 +109,7 @@ abstract class TableAbstract<E> implements Table<E>
     @Override
     public C next()
     {
-      return (C) this.table.getColumn( ++this.index );
+      return (C) this.table.column( ++this.index );
     }
     
     @Override
