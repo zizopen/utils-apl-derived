@@ -24,12 +24,16 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
@@ -45,10 +49,20 @@ import org.omnaest.utils.table2.TableTest;
  */
 public class ArrayTableTest extends TableTest
 {
+  @Test
+  public void testSerialization()
+  {
+    Table<String> table = this.filledTableWithTitles( 4, 5 );
+    Table<String> clone = SerializationUtils.clone( table );
+    assertTrue( table.equalsInContent( clone ) );
+    assertTrue( table.equalsInContentAndMetaData( clone ) );
+    
+    //System.out.println( clone );
+  }
   
   @SuppressWarnings("cast")
   @Test
-  public void testGetRow()
+  public void testRow()
   {
     Table<String> table = this.newTable( new String[][] { { "a", "b", "c" }, { "d", "e", "f" } }, String.class );
     
@@ -56,24 +70,24 @@ public class ArrayTableTest extends TableTest
     table.addRowElements( values );
     
     {
-      Row<String> row = table.getRow( 0 );
+      Row<String> row = table.row( 0 );
       assertEquals( Arrays.asList( values ), ListUtils.valueOf( (Iterable<String>) row ) );
     }
     {
-      Row<String> row = table.getRow( 1 );
+      Row<String> row = table.row( 1 );
       assertEquals( Arrays.asList( "d", "e", "f" ), ListUtils.valueOf( (Iterable<String>) row ) );
     }
     {
-      Row<String> row = table.getRow( 2 );
+      Row<String> row = table.row( 2 );
       assertEquals( Arrays.asList( "a", "b", "c" ), ListUtils.valueOf( (Iterable<String>) row ) );
     }
     {
-      Row<String> row = table.getRow( 0 );
+      Row<String> row = table.row( 0 );
       row.setCellElement( 1, "b2" );
       assertEquals( "b2", row.getCellElement( 1 ) );
     }
     {
-      assertNull( table.getRow( -1 ) );
+      assertNull( table.row( -1 ) );
     }
   }
   
@@ -102,7 +116,7 @@ public class ArrayTableTest extends TableTest
     Table<String> table = this.newTable( new String[][] { { "a", "b", "c" }, { "d", "e", "f" } }, String.class );
     
     {
-      Cell<String> cell = table.getCell( 0, 0 );
+      Cell<String> cell = table.cell( 0, 0 );
       assertNotNull( cell );
       assertEquals( "a", cell.getElement() );
       assertEquals( 0, cell.columnIndex() );
@@ -115,7 +129,7 @@ public class ArrayTableTest extends TableTest
     }
     
     {
-      Cell<String> cell = table.getCell( 0, 2 );
+      Cell<String> cell = table.cell( 0, 2 );
       assertNotNull( cell );
       assertEquals( "i", cell.getElement() );
       assertEquals( 2, cell.columnIndex() );
@@ -123,7 +137,7 @@ public class ArrayTableTest extends TableTest
     }
     
     {
-      Cell<String> cell = table.getCell( 0, 3 );
+      Cell<String> cell = table.cell( 0, 3 );
       assertNotNull( cell );
       assertEquals( null, cell.getElement() );
       assertEquals( 3, cell.columnIndex() );
@@ -131,18 +145,18 @@ public class ArrayTableTest extends TableTest
     }
     
     {
-      assertNull( table.getCell( -1, 0 ) );
-      assertNull( table.getCell( 0, -1 ) );
+      assertNull( table.cell( -1, 0 ) );
+      assertNull( table.cell( 0, -1 ) );
     }
   }
   
   @Test
-  public void testGetColumn() throws Exception
+  public void testColumn() throws Exception
   {
     Table<String> table = this.newTable( new String[][] { { "a", "b", "c" }, { "d", "e", "f" } }, String.class );
     
     {
-      Column<String> column = table.getColumn( 0 );
+      Column<String> column = table.column( 0 );
       assertNotNull( column );
       assertEquals( "a", column.getCellElement( 0 ) );
       assertEquals( "d", column.getCellElement( 1 ) );
@@ -153,19 +167,19 @@ public class ArrayTableTest extends TableTest
       assertEquals( "a2", column.getCellElement( 0 ) );
     }
     {
-      Column<String> column = table.getColumn( 2 );
+      Column<String> column = table.column( 2 );
       assertNotNull( column );
       assertEquals( "c", column.getCellElement( 0 ) );
       assertEquals( "f", column.getCellElement( 1 ) );
       assertEquals( null, column.getCellElement( 2 ) );
     }
     {
-      Column<String> column = table.getColumn( 3 );
+      Column<String> column = table.column( 3 );
       assertNotNull( column );
       assertEquals( null, column.getCellElement( 0 ) );
     }
     {
-      assertNull( table.getColumn( -1 ) );
+      assertNull( table.column( -1 ) );
     }
     
   }
@@ -191,7 +205,7 @@ public class ArrayTableTest extends TableTest
     }
     {
       assertSame( tableIndex, table.index().of( 1 ) );
-      assertSame( tableIndex, table.index().of( table.getColumn( 1 ) ) );
+      assertSame( tableIndex, table.index().of( table.column( 1 ) ) );
     }
     {
       SortedMap<String, Set<Cell<String>>> sortedMap = tableIndex.asMap();
@@ -295,9 +309,9 @@ public class ArrayTableTest extends TableTest
                                   .columns( 1, 2 )
                                   .join( table2 )
                                   .columns( 6, 7 )
-                                  .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
+                                  .onEqual( table.column( 0 ), table2.column( 0 ) )
                                   .join( table3 )
-                                  .onEqual( table.getColumn( 1 ), table3.getColumn( 1 ) )
+                                  .onEqual( table.column( 1 ), table3.column( 1 ) )
                                   .column( 0 )
                                   .as()
                                   .table();
@@ -311,5 +325,67 @@ public class ArrayTableTest extends TableTest
       
     }
     
+  }
+  
+  @Test
+  public void testAdapterTwoColumnMap()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 4 );
+    
+    final int columnIndexKey = 1;
+    final int columnIndexValue = 3;
+    Map<String, Set<String>> map = table.as().map( columnIndexKey, columnIndexValue );
+    assertNotNull( map );
+    
+    {
+      assertEquals( 10, map.size() );
+      assertEquals( SetUtils.valueOf( "0:3" ), map.get( "0:1" ) );
+      assertEquals( SetUtils.valueOf( "9:3" ), map.get( "9:1" ) );
+      assertEquals( SetUtils.emptySet(), map.get( "10:1" ) );
+      assertEquals( SetUtils.emptySet(), map.get( "0:2" ) );
+      assertTrue( map.containsKey( "0:1" ) );
+      assertEquals( table.column( 1 ).to().set(), map.keySet() );
+    }
+    {
+      Set<String> previous = map.put( "0:1", SetUtils.valueOf( "xxx" ) );
+      assertEquals( SetUtils.valueOf( "0:3" ), previous );
+      assertEquals( SetUtils.valueOf( "xxx" ), map.get( "0:1" ) );
+      assertEquals( "xxx", table.cell( 0, 3 ).getElement() );
+    }
+    {
+      Cell<String> cell = table.cell( 0, 3 );
+      Set<String> remove = map.remove( "0:1" );
+      assertEquals( SetUtils.valueOf( "xxx" ), remove );
+      assertEquals( SetUtils.valueOf( (String) null ), map.get( "0:1" ) );
+      assertTrue( cell.isModified() );
+    }
+  }
+  
+  @SuppressWarnings({ "unchecked", "cast" })
+  @Test
+  public void testAdapterOneColumnMap()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 4 );
+    
+    final int columnIndexKey = 1;
+    Map<String, Set<Row<String>>> map = table.as().map( columnIndexKey );
+    assertNotNull( map );
+    assertEquals( 10, map.size() );
+    
+    {
+      final Set<Row<String>> rowSet = map.get( "0:1" );
+      assertEquals( 1, rowSet.size() );
+      assertArrayEquals( table.row( 0 ).getCellElements(), rowSet.iterator().next().getCellElements() );
+    }
+    {
+      Set<Row<String>> previous = map.put( "0:1", SetUtils.<Row<String>> valueOf( (Row<String>) table.row( 9 ) ) );
+      assertArrayEquals( table.row( 0 ).getCellElements(), previous.iterator().next().getCellElements() );
+    }
+    {
+      Set<Row<String>> remove = map.remove( "9:1" );
+      final Row<String> row = IterableUtils.firstElement( remove );
+      assertTrue( row.isDeleted() );
+      assertEquals( 9, table.rowSize() );
+    }
   }
 }

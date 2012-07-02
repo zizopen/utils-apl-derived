@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.io.Serializable;
 import java.util.BitSet;
 import java.util.ConcurrentModificationException;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.operation.OperationUtils;
 import org.omnaest.utils.operation.special.OperationIntrinsic;
 import org.omnaest.utils.operation.special.OperationWithResult;
@@ -34,8 +36,10 @@ import org.omnaest.utils.structure.array.ArrayUtils;
  * @author Omnaest
  * @param <E>
  */
-class TableDataAccessor<E>
+class TableDataAccessor<E> implements Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long             serialVersionUID    = -9123078800733926152L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final AtomicLong              modificationCounter = new AtomicLong();
   private final ReadWriteLock           tableLock           = new ReentrantReadWriteLock( true );
@@ -139,6 +143,21 @@ class TableDataAccessor<E>
         TableDataAccessor.this.tableEventDispatcher.handleAddedRow( rowIndex, elements );
       }
     }, this.tableLock.writeLock() );
+  }
+  
+  public void removeRow( final int rowIndex )
+  {
+    OperationUtils.executeWithLocks( new OperationIntrinsic()
+    {
+      @Override
+      public void execute()
+      {
+        final E[] previousElements = TableDataAccessor.this.tableDataCore.removeRow( rowIndex );
+        TableDataAccessor.this.modificationCounter.incrementAndGet();
+        TableDataAccessor.this.tableEventDispatcher.handleRemovedRow( rowIndex, previousElements );
+      }
+    }, this.tableLock.writeLock() );
+    
   }
   
   public void setRow( final int rowIndex, final E... elements )
@@ -296,6 +315,12 @@ class TableDataAccessor<E>
   public boolean hasTableName()
   {
     return this.tableMetaData.hasTableName();
+  }
+  
+  public TableDataAccessor<E> setExceptionHandler( ExceptionHandler exceptionHandler )
+  {
+    this.tableEventDispatcher.setExceptionHandler( exceptionHandler );
+    return this;
   }
   
 }

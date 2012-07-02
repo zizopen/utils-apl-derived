@@ -28,8 +28,10 @@ import org.omnaest.utils.table2.Table;
  */
 class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = -1519020631976249637L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private volatile int rowIndex;
+  private volatile int      rowIndex;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -66,9 +68,9 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   }
   
   @Override
-  public Cell<E> getCell( int columnIndex )
+  public Cell<E> cell( int columnIndex )
   {
-    return this.table.getCell( this.rowIndex, columnIndex );
+    return this.table.cell( this.rowIndex, columnIndex );
   }
   
   @Override
@@ -101,7 +103,7 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   @Override
   public void handleClearTable()
   {
-    this.isDeleted = true;
+    this.markAsDeleted();
   }
   
   @Override
@@ -121,6 +123,50 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   public Row<E> setTitle( String rowTitle )
   {
     this.table.setRowTitle( this.rowIndex, rowTitle );
+    return this;
+  }
+  
+  @Override
+  public Row<E> remove()
+  {
+    this.table.removeRow( this.rowIndex );
+    return this;
+  }
+  
+  @Override
+  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  {
+    if ( rowIndex == this.rowIndex )
+    {
+      this.markAsDeleted();
+    }
+  }
+  
+  private void markAsDeleted()
+  {
+    this.isDeleted = true;
+    this.rowIndex = -1;
+  }
+  
+  @Override
+  public Row<E> setCellElements( E... elements )
+  {
+    this.clear();
+    for ( int ii = 0; ii < elements.length; ii++ )
+    {
+      this.setCellElement( ii, elements[ii] );
+    }
+    return this;
+  }
+  
+  @Override
+  public Row<E> clear()
+  {
+    final int size = this.size();
+    for ( int ii = 0; ii < size; ii++ )
+    {
+      this.cell( ii ).clear();
+    }
     return this;
   }
   

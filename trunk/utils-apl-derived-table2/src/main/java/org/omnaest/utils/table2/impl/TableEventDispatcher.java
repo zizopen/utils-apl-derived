@@ -15,25 +15,41 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.BitSet;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.omnaest.utils.dispatcher.DispatcherAbstract;
+import org.omnaest.utils.events.exception.ExceptionHandler;
+import org.omnaest.utils.events.exception.basic.ExceptionHandlerIgnoring;
 import org.omnaest.utils.operation.special.OperationVoid;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverterWeakReference;
 
 /**
  * @author Omnaest
  * @param <E>
  */
-class TableEventDispatcher<E> extends DispatcherAbstract<TableEventHandler<E>> implements TableEventHandler<E>
+class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long                          serialVersionUID = -8336460926560156773L;
+  
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private final transient List<TableEventHandler<E>> instanceList;
+  private ExceptionHandler                           exceptionHandler = new ExceptionHandlerIgnoring();
+  
+  /* *************************************************** Methods **************************************************** */
+  
   public TableEventDispatcher()
   {
-    super( ListUtils.adapter( new CopyOnWriteArrayList<WeakReference<TableEventHandler<E>>>(),
-                              new ElementBidirectionalConverterWeakReference<TableEventHandler<E>>() ) );
+    super();
+    
+    this.instanceList = ListUtils.adapter( new CopyOnWriteArrayList<WeakReference<TableEventHandler<E>>>(),
+                                           new ElementBidirectionalConverterWeakReference<TableEventHandler<E>>() );
   }
   
   public void add( TableEventHandler<E> tableEventHandler )
@@ -94,6 +110,59 @@ class TableEventDispatcher<E> extends DispatcherAbstract<TableEventHandler<E>> i
         tableEventHandler.handleUpdatedRow( rowIndex, elements, previousElements, modifiedIndices );
       }
     } );
+  }
+  
+  @Override
+  public void handleRemovedRow( final int rowIndex, final E[] previousElements )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleRemovedRow( rowIndex, previousElements );
+      }
+    } );
+  }
+  
+  /**
+   * Executes a given {@link OperationVoid} on all dispatch instances
+   * 
+   * @param operation
+   */
+  private void executeOnAllInstances( OperationVoid<TableEventHandler<E>> operation )
+  {
+    if ( operation != null )
+    {
+      for ( TableEventHandler<E> instance : this.instanceList )
+      {
+        try
+        {
+          operation.execute( instance );
+        }
+        catch ( Exception e )
+        {
+          this.exceptionHandler.handleException( e );
+        }
+      }
+    }
+  }
+  
+  /**
+   * @param exceptionHandler
+   *          {@link ExceptionHandler}
+   * @return this
+   */
+  public TableEventDispatcher<E> setExceptionHandler( ExceptionHandler exceptionHandler )
+  {
+    this.exceptionHandler = ObjectUtils.defaultIfNull( exceptionHandler, new ExceptionHandlerIgnoring() );
+    return this;
+  }
+  
+  @SuppressWarnings("static-method")
+  private Object readResolve() throws ObjectStreamException
+  {
+    return new TableEventDispatcher<E>();
   }
   
 }

@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import java.io.Serializable;
+
 /**
  * Manager for the index structures of a particular {@link Table} instance
  * 
@@ -22,7 +24,7 @@ package org.omnaest.utils.table2;
  * @param <E>
  * @param <C>
  */
-public interface TableIndexManager<E, C extends ImmutableCell<E>>
+public interface TableIndexManager<E, C extends ImmutableCell<E>> extends Serializable
 {
   /**
    * Returns the {@link TableIndex} for the given column index position

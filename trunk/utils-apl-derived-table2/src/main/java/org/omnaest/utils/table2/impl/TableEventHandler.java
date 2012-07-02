@@ -15,13 +15,22 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.io.Serializable;
 import java.util.BitSet;
 
-interface TableEventHandler<E>
+/**
+ * Handler for table events
+ * 
+ * @author Omnaest
+ * @param <E>
+ */
+interface TableEventHandler<E> extends Serializable
 {
   public void handleAddedRow( int rowIndex, E... elements );
   
   public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices );
+  
+  public void handleRemovedRow( int rowIndex, E[] previousElements );
   
   public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement );
   

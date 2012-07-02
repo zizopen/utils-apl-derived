@@ -124,7 +124,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
       E retval = null;
       if ( table != null )
       {
-        ImmutableColumn<E> immutableColumn = table.getColumn( columnIndex );
+        ImmutableColumn<E> immutableColumn = table.column( columnIndex );
         if ( immutableColumn != null )
         {
           ColumnIdentity<E> columnIdentity = immutableColumn.id();
@@ -420,7 +420,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
             E retval = null;
             if ( table != null )
             {
-              ImmutableColumn<E> immutableColumn = table.getColumn( columnIndex );
+              ImmutableColumn<E> immutableColumn = table.column( columnIndex );
               if ( immutableColumn != null )
               {
                 ColumnIdentity<E> columnIdentity = immutableColumn.id();
@@ -459,7 +459,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
     
     public void addColumnByIndex( int columnIndex )
     {
-      final ImmutableColumn<E> column = this.table.getColumn( columnIndex );
+      final ImmutableColumn<E> column = this.table.column( columnIndex );
       if ( column != null )
       {
         this.columnList.add( column );
@@ -509,7 +509,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
               if ( this.hasNext() )
               {
                 this.resolved = false;
-                return table.getRow( this.index );
+                return table.row( this.index );
               }
               throw new NoSuchElementException();
             }

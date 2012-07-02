@@ -18,6 +18,7 @@ package org.omnaest.utils.table2.impl;
 import java.util.BitSet;
 
 import org.omnaest.utils.table2.Cell;
+import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
 
@@ -29,14 +30,15 @@ import org.omnaest.utils.table2.Table;
 class CellImpl<E> implements Cell<E>, TableEventHandler<E>
 {
   
+  private static final long serialVersionUID = 6804665993728136898L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private volatile int     rowIndex;
-  private volatile int     columnIndex;
-  private volatile boolean isDeleted  = false;
-  private volatile boolean isModified = false;
+  private volatile int      rowIndex;
+  private volatile int      columnIndex;
+  private volatile boolean  isDeleted        = false;
+  private volatile boolean  isModified       = false;
   
   /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
-  private final Table<E>   table;
+  private final Table<E>    table;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -127,7 +129,7 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   
   public Row<E> getRow()
   {
-    return !this.isDeleted ? this.table.getRow( this.rowIndex ) : null;
+    return !this.isDeleted ? this.table.row( this.rowIndex ) : null;
   }
   
   @Override
@@ -170,9 +172,25 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   }
   
   @Override
-  public void handleClearTable()
+  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  {
+    if ( this.rowIndex == rowIndex )
+    {
+      this.markAsDeleted();
+    }
+  }
+  
+  private void markAsDeleted()
   {
     this.isDeleted = true;
+    this.columnIndex = -1;
+    this.rowIndex = -1;
+  }
+  
+  @Override
+  public void handleClearTable()
+  {
+    this.markAsDeleted();
   }
   
   @Override
@@ -213,6 +231,26 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
     builder.append( this.getElement() );
     builder.append( "]" );
     return builder.toString();
+  }
+  
+  @Override
+  public Row<E> row()
+  {
+    return this.table.row( this.rowIndex );
+  }
+  
+  @Override
+  public Column<E> column()
+  {
+    return this.table.column( this.columnIndex );
+  }
+  
+  @Override
+  public E clear()
+  {
+    final E element = this.getElement();
+    this.setElement( null );
+    return element;
   }
   
 }

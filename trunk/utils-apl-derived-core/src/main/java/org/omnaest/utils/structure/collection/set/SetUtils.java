@@ -304,6 +304,15 @@ public class SetUtils
   }
   
   /**
+   * Returns a new {@link LinkedHashSet} instance
+   * @return
+   */
+  public static <E> Set<E> emptySet()
+  {
+    return new LinkedHashSet<E>();
+  }
+  
+  /**
    * Similar to {@link #valueOf(Iterable)}
    * 
    * @param iterator

@@ -136,7 +136,7 @@ public abstract class TableTest
                                   .column( 1 )
                                   .join( table2 )
                                   .allColumns()
-                                  .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
+                                  .onEqual( table.column( 0 ), table2.column( 0 ) )
                                   .as()
                                   .table();
       assertNotNull( result );
@@ -159,7 +159,7 @@ public abstract class TableTest
                                   .columns( 1, 2 )
                                   .join( table2 )
                                   .columns( 6, 7 )
-                                  .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
+                                  .onEqual( table.column( 0 ), table2.column( 0 ) )
                                   .as()
                                   .table();
       assertNotNull( result );
@@ -184,7 +184,7 @@ public abstract class TableTest
                                   .columns( 1, 2 )
                                   .join( table2 )
                                   .columns( 6, 7 )
-                                  .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
+                                  .onEqual( table.column( 0 ), table2.column( 0 ) )
                                   .join( table3 )
                                   .column( 0 )
                                   .as()
@@ -236,9 +236,9 @@ public abstract class TableTest
                                   .columns( 1, 2 )
                                   .join( table2 )
                                   .columns( 6, 7 )
-                                  .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
+                                  .onEqual( table.column( 0 ), table2.column( 0 ) )
                                   .join( table3 )
-                                  .onEqual( table.getColumn( 0 ), table3.getColumn( 0 ) )
+                                  .onEqual( table.column( 0 ), table3.column( 0 ) )
                                   .column( 0 )
                                   .as()
                                   .table();
@@ -271,9 +271,9 @@ public abstract class TableTest
                                   .columns( 1, 2 )
                                   .join( table2 )
                                   .columns( 6, 7 )
-                                  .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
+                                  .onEqual( table.column( 0 ), table2.column( 0 ) )
                                   .join( table3 )
-                                  .onEqual( table.getColumn( 1 ), table3.getColumn( 1 ) )
+                                  .onEqual( table.column( 1 ), table3.column( 1 ) )
                                   .column( 0 )
                                   .as()
                                   .table();
@@ -310,9 +310,9 @@ public abstract class TableTest
                                                         .columns( 2, 1 )
                                                         .join( table2 )
                                                         .columns( 6, 7 )
-                                                        .onEqual( table.getColumn( 0 ), table2.getColumn( 0 ) )
+                                                        .onEqual( table.column( 0 ), table2.column( 0 ) )
                                                         .join( table3 )
-                                                        .onEqual( table.getColumn( 1 ), table3.getColumn( 1 ) )
+                                                        .onEqual( table.column( 1 ), table3.column( 1 ) )
                                                         .column( 0 )
                                                         .as()
                                                         .sortedMap();

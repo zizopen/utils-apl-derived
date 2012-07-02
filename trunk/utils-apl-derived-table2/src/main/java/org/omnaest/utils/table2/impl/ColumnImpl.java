@@ -29,8 +29,9 @@ import org.omnaest.utils.table2.Table;
  */
 class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandler<E>
 {
+  private static final long serialVersionUID = -2490537330526784385L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private volatile int columnIndex;
+  private volatile int      columnIndex;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -56,7 +57,7 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   public Column<E> add( E element )
   {
     final int rowIndex = this.size();
-    Cell<E> cell = this.table.getCell( rowIndex, this.columnIndex );
+    Cell<E> cell = this.table.cell( rowIndex, this.columnIndex );
     cell.setElement( element );
     return this;
   }
@@ -68,9 +69,9 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   }
   
   @Override
-  public Cell<E> getCell( int rowIndex )
+  public Cell<E> cell( int rowIndex )
   {
-    return this.table.getCell( rowIndex, this.columnIndex );
+    return this.table.cell( rowIndex, this.columnIndex );
   }
   
   @Override
@@ -131,6 +132,12 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
   {
     this.isModified |= modifiedIndices.get( this.columnIndex );
+  }
+  
+  @Override
+  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  {
+    this.isModified = true;
   }
   
 }

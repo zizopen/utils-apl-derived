@@ -32,8 +32,11 @@ import org.omnaest.utils.table2.TableIndexManager;
  */
 final class TableIndexManagerImpl<E> implements TableIndexManager<E, Cell<E>>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long                  serialVersionUID = 902507185120046828L;
+  
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final List<TableIndex<E, Cell<E>>> tableIndexList = new CopyOnWriteArrayList<TableIndex<E, Cell<E>>>();
+  private final List<TableIndex<E, Cell<E>>> tableIndexList   = new CopyOnWriteArrayList<TableIndex<E, Cell<E>>>();
   
   /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
   private final TableDataAccessor<E>         tableDataAccessor;
@@ -80,7 +83,7 @@ final class TableIndexManagerImpl<E> implements TableIndexManager<E, Cell<E>>
     
     if ( retval == null )
     {
-      Column<E> column = this.table.getColumn( columnIndex );
+      Column<E> column = this.table.column( columnIndex );
       retval = this.tableDataAccessor.register( new TableIndexImpl<E>( column ) );
       this.tableIndexList.add( retval );
     }

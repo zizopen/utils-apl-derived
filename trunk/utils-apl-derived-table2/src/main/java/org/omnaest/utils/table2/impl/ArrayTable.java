@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
@@ -28,8 +29,10 @@ import org.omnaest.utils.table2.ImmutableRow;
 import org.omnaest.utils.table2.ImmutableTable;
 import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
+import org.omnaest.utils.table2.TableAdapterManager;
 import org.omnaest.utils.table2.TableIndexManager;
 import org.omnaest.utils.table2.TableSelect;
+import org.omnaest.utils.table2.impl.adapter.TableAdapterManagerImpl;
 import org.omnaest.utils.table2.impl.join.TableSelectImpl;
 
 /**
@@ -40,10 +43,13 @@ import org.omnaest.utils.table2.impl.join.TableSelectImpl;
  */
 public class ArrayTable<E> extends TableAbstract<E>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long                   serialVersionUID = 6360131663629436319L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final TableDataAccessor<E>    tableDataAccessor;
-  private final Class<E>                elementType;
-  private TableIndexManager<E, Cell<E>> tableIndexManager;
+  private final TableDataAccessor<E>          tableDataAccessor;
+  private final Class<E>                      elementType;
+  private final TableIndexManager<E, Cell<E>> tableIndexManager;
+  private final TableAdapterManager<E>        tableAdapterManager;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -59,8 +65,9 @@ public class ArrayTable<E> extends TableAbstract<E>
     final TableMetaData<E> tableMetaData = new TableMetaData<E>();
     final TableDataCore<E> tableDataCore = new TableDataCore<E>( elementType );
     final TableEventDispatcher<E> tableEventDispatcher = new TableEventDispatcher<E>();
-    this.tableDataAccessor = new TableDataAccessor<E>( tableDataCore, tableEventDispatcher, tableMetaData );
+    this.tableDataAccessor = new TableDataAccessor<E>( tableDataCore, tableEventDispatcher, tableMetaData ).setExceptionHandler( this.exceptionHandler );
     this.tableIndexManager = new TableIndexManagerImpl<E>( this.tableDataAccessor, this );
+    this.tableAdapterManager = new TableAdapterManagerImpl<E>( this );
   }
   
   @SuppressWarnings("unchecked")
@@ -71,20 +78,20 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Row<E> getRow( int rowIndex )
+  public Row<E> row( int rowIndex )
   {
     return rowIndex >= 0 ? this.tableDataAccessor.register( new RowImpl<E>( rowIndex, this ) ) : null;
   }
   
   @Override
-  public Cell<E> getCell( int rowIndex, int columnIndex )
+  public Cell<E> cell( int rowIndex, int columnIndex )
   {
     return rowIndex >= 0 && columnIndex >= 0 ? this.tableDataAccessor.register( new CellImpl<E>( rowIndex, columnIndex, this ) )
                                             : null;
   }
   
   @Override
-  public Column<E> getColumn( int columnIndex )
+  public Column<E> column( int columnIndex )
   {
     return columnIndex >= 0 ? this.tableDataAccessor.register( new ColumnImpl<E>( columnIndex, this ) ) : null;
   }
@@ -312,6 +319,26 @@ public class ArrayTable<E> extends TableAbstract<E>
   public boolean hasTableName()
   {
     return this.tableDataAccessor.hasTableName();
+  }
+  
+  @Override
+  public Table<E> setExceptionHandler( ExceptionHandler exceptionHandler )
+  {
+    this.tableDataAccessor.setExceptionHandler( exceptionHandler );
+    return super.setExceptionHandler( exceptionHandler );
+  }
+  
+  @Override
+  public TableAdapterManager<E> as()
+  {
+    return this.tableAdapterManager;
+  }
+  
+  @Override
+  public Table<E> removeRow( int rowIndex )
+  {
+    this.tableDataAccessor.removeRow( rowIndex );
+    return this;
   }
   
 }

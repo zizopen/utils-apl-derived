@@ -49,4 +49,26 @@ public interface Row<E> extends Stripe<E>, ImmutableRow<E>
    * @return
    */
   public Row<E> setTitle( String rowTitle );
+  
+  /**
+   * Removes the current {@link Row} from its {@link Table}. The {@link Row} will return true for {@link #isDeleted()} afterwards.
+   * 
+   * @return this
+   */
+  public Row<E> remove();
+  
+  /**
+   * Clears and sets all elements of the {@link Row}
+   * 
+   * @param elements
+   * @return this
+   */
+  public Row<E> setCellElements( E... elements );
+  
+  /**
+   * Sets all cell elements to null
+   * 
+   * @return this
+   */
+  public Row<E> clear();
 }

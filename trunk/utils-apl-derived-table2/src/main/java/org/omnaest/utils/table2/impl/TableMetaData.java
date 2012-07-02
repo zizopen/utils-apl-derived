@@ -1,5 +1,21 @@
+/*******************************************************************************
+ * Copyright 2012 Danny Kunz
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
@@ -14,12 +30,14 @@ import org.omnaest.utils.table2.Table;
  * @author Omnaest
  * @param <E>
  */
-public class TableMetaData<E> implements TableEventHandler<E>
+public class TableMetaData<E> implements TableEventHandler<E>, Serializable
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = -7072099446189045388L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private String       tableName       = null;
-  private List<String> columnTitleList = new ArrayList<String>();
-  private List<String> rowTitleList    = new ArrayList<String>();
+  private String            tableName        = null;
+  private List<String>      columnTitleList  = new ArrayList<String>();
+  private List<String>      rowTitleList     = new ArrayList<String>();
   
   /* *************************************************** Methods **************************************************** */
   
@@ -113,5 +131,12 @@ public class TableMetaData<E> implements TableEventHandler<E>
   @Override
   public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
   {
+  }
+  
+  @Override
+  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  {
+    this.rowTitleList.remove( rowIndex );
+    
   }
 }

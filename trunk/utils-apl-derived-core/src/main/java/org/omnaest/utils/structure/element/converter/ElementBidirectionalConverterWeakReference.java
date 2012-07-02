@@ -17,9 +17,17 @@ package org.omnaest.utils.structure.element.converter;
 
 import java.lang.ref.WeakReference;
 
-
-public class ElementBidirectionalConverterWeakReference<E> implements ElementBidirectionalConverter<WeakReference<E>, E>
+/**
+ * {@link ElementBidirectionalConverter} which encloses a given element into a {@link WeakReference}
+ * 
+ * @author Omnaest
+ * @param <E>
+ */
+public class ElementBidirectionalConverterWeakReference<E> implements
+                                                           ElementBidirectionalConverterSerializable<WeakReference<E>, E>
 {
+  private static final long serialVersionUID = -6091596646556830894L;
+  
   @Override
   public E convert( WeakReference<E> element )
   {
