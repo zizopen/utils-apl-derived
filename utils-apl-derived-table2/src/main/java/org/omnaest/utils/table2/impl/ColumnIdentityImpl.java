@@ -15,22 +15,31 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
-import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.ImmutableColumn;
 import org.omnaest.utils.table2.ImmutableColumn.ColumnIdentity;
 import org.omnaest.utils.table2.ImmutableTable;
 import org.omnaest.utils.table2.Table;
 
+/**
+ * @author Omnaest
+ * @param <E>
+ */
 class ColumnIdentityImpl<E> implements ColumnIdentity<E>
 {
-  private final int       columnIndex;
-  private final Column<E> column;
-  private final Table<E>  table;
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private final int      columnIndex;
+  private final Table<E> table;
   
-  ColumnIdentityImpl( int columnIndex, Column<E> column, Table<E> table )
+  /* *************************************************** Methods **************************************************** */
+  
+  /**
+   * @see ColumnIdentityImpl
+   * @param columnIndex
+   * @param table
+   */
+  ColumnIdentityImpl( int columnIndex, Table<E> table )
   {
     this.columnIndex = columnIndex;
-    this.column = column;
     this.table = table;
   }
   
@@ -41,9 +50,9 @@ class ColumnIdentityImpl<E> implements ColumnIdentity<E>
   }
   
   @Override
-  public ImmutableColumn<E> getColumn()
+  public ImmutableColumn<E> column()
   {
-    return this.column;
+    return this.table.column( this.columnIndex );
   }
   
   @Override

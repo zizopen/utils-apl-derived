@@ -24,6 +24,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -88,6 +89,15 @@ public class ArrayTableTest extends TableTest
     }
     {
       assertNull( table.row( -1 ) );
+    }
+    {
+      BitSet indexFilter = new BitSet();
+      indexFilter.set( 1 );
+      indexFilter.set( 2 );
+      Iterable<Row<String>> rows = table.rows( indexFilter );
+      assertEquals( 2, IterableUtils.size( rows ) );
+      assertEquals( table.row( 1 ).id(), IterableUtils.elementAt( rows, 0 ).id() );
+      assertEquals( table.row( 2 ).id(), IterableUtils.elementAt( rows, 1 ).id() );
     }
   }
   
