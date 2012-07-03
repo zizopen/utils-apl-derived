@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.ImmutableRow;
@@ -339,6 +341,12 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     this.tableDataAccessor.removeRow( rowIndex );
     return this;
+  }
+  
+  @Override
+  public Iterable<Row<E>> rows( BitSet filter )
+  {
+    return IterableUtils.filtered( this.rows(), filter );
   }
   
 }

@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -151,5 +152,17 @@ public class IterableUtilsTest
   {
     final List<String> list = Arrays.asList( "a", "b", "c" );
     assertEquals( "c", IterableUtils.lastElement( list ) );
+  }
+  
+  @Test
+  public void testFiltered() throws Exception
+  {
+    BitSet filter = new BitSet();
+    filter.set( 1 );
+    filter.set( 3 );
+    
+    assertEquals( Arrays.asList( "a", "c" ),
+                  ListUtils.valueOf( IterableUtils.filtered( Arrays.asList( "a", "b", "c", "d" ), filter ) ) );
+    
   }
 }

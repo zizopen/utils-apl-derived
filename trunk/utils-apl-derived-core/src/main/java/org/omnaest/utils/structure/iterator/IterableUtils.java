@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.iterator;
 
+import java.util.BitSet;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -395,6 +396,30 @@ public class IterableUtils
       public Iterator<TO> iterator()
       {
         return IteratorUtils.adapter( iterable.iterator(), elementConverter );
+      }
+    };
+  }
+  
+  /**
+   * Returns an {@link Iterable} where the {@link Iterable#iterator()} instance returns only those elements where the respective
+   * bit within the filter {@link BitSet} is set to true
+   * 
+   * @param iterable
+   * @param filter
+   * @return new {@link Iterable}
+   */
+  public static <E> Iterable<E> filtered( final Iterable<E> iterable, final BitSet filter )
+  {
+    return new Iterable<E>()
+    {
+      @Override
+      public Iterator<E> iterator()
+      {
+        if ( iterable != null )
+        {
+          return IteratorUtils.filtered( iterable.iterator(), filter );
+        }
+        return IteratorUtils.empty();
       }
     };
   }

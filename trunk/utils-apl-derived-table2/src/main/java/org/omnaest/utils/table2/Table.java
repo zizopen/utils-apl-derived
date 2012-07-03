@@ -16,6 +16,7 @@
 package org.omnaest.utils.table2;
 
 import java.io.Serializable;
+import java.util.BitSet;
 
 import org.omnaest.utils.events.exception.ExceptionHandler;
 
@@ -125,6 +126,15 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @return
    */
   public Iterable<Row<E>> rows();
+  
+  /**
+   * Returns an {@link Iterable} over all {@link Row}s where the row index position has an enabled bit within the filter
+   * {@link BitSet}
+   * 
+   * @param indexFilter
+   * @return new {@link Iterable}
+   */
+  public Iterable<Row<E>> rows( BitSet indexFilter );
   
   /**
    * Returns an {@link Iterable} over all {@link Column}s

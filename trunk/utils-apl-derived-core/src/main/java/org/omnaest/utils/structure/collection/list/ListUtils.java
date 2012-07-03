@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.collection.list;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -482,6 +483,26 @@ public class ListUtils
   public static <E> List<E> filterIncludingIndexPositions( List<E> list, Integer... indexPositions )
   {
     return filterIncludingIndexPositions( list, Arrays.asList( indexPositions ) );
+  }
+  
+  /**
+   * Returns a new {@link List} instance which contains all elements from the given {@link List} which have a related bit within
+   * the {@link BitSet} set to true
+   * 
+   * @param list
+   *          {@link List}
+   * @param bitSet
+   *          {@link BitSet}
+   * @return new {@link List} instance
+   */
+  public static <E> List<E> filter( List<E> list, BitSet bitSet )
+  {
+    final List<E> retlist = new ArrayList<E>();
+    for ( int ii = bitSet.nextSetBit( 0 ); ii >= 0; ii = bitSet.nextSetBit( ii + 1 ) )
+    {
+      retlist.add( list.get( ii ) );
+    }
+    return retlist;
   }
   
   /**

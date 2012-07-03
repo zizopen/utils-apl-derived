@@ -17,6 +17,7 @@ package org.omnaest.utils.structure.iterator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -31,8 +32,8 @@ import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterChain;
 import org.omnaest.utils.structure.element.factory.Factory;
-import org.omnaest.utils.structure.iterator.decorator.IteratorToIteratorAdapter;
 import org.omnaest.utils.structure.iterator.decorator.IteratorDecorator;
+import org.omnaest.utils.structure.iterator.decorator.IteratorToIteratorAdapter;
 import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
 
 /**
@@ -461,6 +462,89 @@ public class IteratorUtils
         //
         this.counter++;
         return super.next();
+      }
+    };
+  }
+  
+  /**
+   * Returns an {@link Iterator} which returns a filtered subset of the given {@link Iterator} based on the given filter
+   * {@link BitSet}
+   * 
+   * @param iterator
+   * @param filter
+   * @return new {@link Iterator} instance
+   */
+  public static <E> Iterator<E> filtered( final Iterator<E> iterator, final BitSet filter )
+  {
+    if ( iterator == null )
+    {
+      return empty();
+    }
+    
+    return new Iterator<E>()
+    {
+      int index = -1;
+      
+      @Override
+      public boolean hasNext()
+      {
+        forwardToNextFilterBit( iterator, filter );
+        return iterator.hasNext();
+      }
+      
+      private void forwardToNextFilterBit( final Iterator<E> iterator, final BitSet filter )
+      {
+        while ( this.index >= 0 && this.index < filter.nextSetBit( this.index ) && iterator.hasNext() )
+        {
+          this.fetchElement();
+        }
+      }
+      
+      @Override
+      public E next()
+      {
+        return fetchElement();
+      }
+      
+      private E fetchElement()
+      {
+        this.index++;
+        return iterator.next();
+      }
+      
+      @Override
+      public void remove()
+      {
+        iterator.remove();
+      }
+    };
+  }
+  
+  /**
+   * Returns an empty {@link Iterator}
+   * 
+   * @return
+   */
+  public static <E> Iterator<E> empty()
+  {
+    return new Iterator<E>()
+    {
+      @Override
+      public boolean hasNext()
+      {
+        return false;
+      }
+      
+      @Override
+      public E next()
+      {
+        throw new NoSuchElementException();
+      }
+      
+      @Override
+      public void remove()
+      {
+        throw new UnsupportedOperationException();
       }
     };
   }
