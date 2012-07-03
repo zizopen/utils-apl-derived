@@ -161,7 +161,7 @@ public class IterableUtilsTest
     filter.set( 1 );
     filter.set( 3 );
     
-    assertEquals( Arrays.asList( "a", "c" ),
+    assertEquals( Arrays.asList( "b", "d" ),
                   ListUtils.valueOf( IterableUtils.filtered( Arrays.asList( "a", "b", "c", "d" ), filter ) ) );
     
   }
