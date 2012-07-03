@@ -19,6 +19,7 @@ package org.omnaest.utils.table2;
  * Immutable {@link Column}
  * 
  * @see ImmutableStripe
+ * @see ImmutableRow
  * @author Omnaest
  * @param <E>
  */
@@ -34,7 +35,7 @@ public interface ImmutableColumn<E> extends ImmutableStripe<E>
   {
     public ImmutableTable<E> getTable();
     
-    public ImmutableColumn<E> getColumn();
+    public ImmutableColumn<E> column();
     
     public int getColumnIndex();
   }

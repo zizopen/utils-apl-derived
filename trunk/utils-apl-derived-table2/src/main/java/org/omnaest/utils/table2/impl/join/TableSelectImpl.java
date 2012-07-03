@@ -329,7 +329,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
           @Override
           public Set<E> convert( ColumnIdentity<E> columnIdentity )
           {
-            return columnIdentity.getColumn().to().set();
+            return columnIdentity.column().to().set();
           }
         } );
         Set<E> intersection = SetUtils.intersection( setOfElementSet );
@@ -813,7 +813,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
       int columnIndex = 0;
       for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentitySet )
       {
-        final ImmutableColumn<E> column = columnIdentity.getColumn();
+        final ImmutableColumn<E> column = columnIdentity.column();
         final String tableName = column.table().getTableName();
         String columnTitle = tableName + "." + column.getTitle();
         arrayTable.setColumnTitle( columnIndex++, columnTitle );

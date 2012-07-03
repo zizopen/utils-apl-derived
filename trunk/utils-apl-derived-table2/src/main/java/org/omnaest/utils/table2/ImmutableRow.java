@@ -19,10 +19,31 @@ package org.omnaest.utils.table2;
  * Immutable {@link Row}
  * 
  * @see ImmutableStripe
+ * @see ImmutableColumn
  * @author Omnaest
  * @param <E>
  */
 public interface ImmutableRow<E> extends ImmutableStripe<E>
 {
+  /**
+   * An {@link ImmutableColumn.ColumnIdentity} implements {@link #hashCode()} and {@link #equals(Object)} in the way, that for the
+   * same {@link ImmutableTable} and index position two {@link ImmutableColumn.ColumnIdentity}s are considered equal
+   * 
+   * @author Omnaest
+   */
+  public static interface RowIdentity<E>
+  {
+    public ImmutableTable<E> getTable();
+    
+    public ImmutableRow<E> row();
+    
+    public int getRowIndex();
+  }
   
+  /**
+   * Returns a new {@link RowIdentity} instance which implements {@link #hashCode()} and {@link #equals(Object)}
+   * 
+   * @return
+   */
+  public RowIdentity<E> id();
 }

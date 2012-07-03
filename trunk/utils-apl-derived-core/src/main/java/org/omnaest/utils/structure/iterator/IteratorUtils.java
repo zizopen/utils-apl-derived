@@ -483,7 +483,7 @@ public class IteratorUtils
     
     return new Iterator<E>()
     {
-      int index = -1;
+      int index = 0;
       
       @Override
       public boolean hasNext()
@@ -503,7 +503,11 @@ public class IteratorUtils
       @Override
       public E next()
       {
-        return fetchElement();
+        if ( this.hasNext() )
+        {
+          return fetchElement();
+        }
+        throw new NoSuchElementException();
       }
       
       private E fetchElement()
