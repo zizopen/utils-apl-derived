@@ -17,6 +17,9 @@ package org.omnaest.utils.table2;
 
 import java.io.Serializable;
 import java.util.BitSet;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.regex.Pattern;
 
 import org.omnaest.utils.events.exception.ExceptionHandler;
 
@@ -29,40 +32,6 @@ import org.omnaest.utils.events.exception.ExceptionHandler;
  */
 public interface Table<E> extends ImmutableTable<E>, Serializable
 {
-  /**
-   * Returns a new {@link Row} related to the given row index position
-   * 
-   * @param rowIndex
-   * @return
-   */
-  public Row<E> row( int rowIndex );
-  
-  /**
-   * Returns a new {@link Column} currently related to the given column index position
-   * 
-   * @param columnIndex
-   * @return new {@link Column} instance
-   */
-  public Column<E> column( int columnIndex );
-  
-  /**
-   * Returns an {@link Cell} instance for the given row and column index position
-   * 
-   * @param rowIndex
-   * @param columnIndex
-   * @return new {@link Cell} instance
-   */
-  public Cell<E> cell( int rowIndex, int columnIndex );
-  
-  /**
-   * Sets the element for a given row and column index position
-   * 
-   * @param rowIndex
-   * @param columnIndex
-   * @param element
-   * @return
-   */
-  public Table<E> setCellElement( int rowIndex, int columnIndex, E element );
   
   /**
    * Adds new elements as {@link Row} to the {@link Table}
@@ -82,13 +51,79 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Table<E> addRowElements( int rowIndex, E... elements );
   
   /**
-   * Sets the elements of the {@link Row} at the given row index position
+   * Returns a {@link TableAdapterManager} instance which allows to craeate adapter instances
+   * 
+   * @return
+   */
+  public TableAdapterManager<E> as();
+  
+  /**
+   * Returns an {@link Cell} instance for the given row and column index position
    * 
    * @param rowIndex
-   * @param elements
-   * @return this
+   * @param columnIndex
+   * @return new {@link Cell} instance
    */
-  public Table<E> setRowElements( int rowIndex, E... elements );
+  @Override
+  public Cell<E> cell( int rowIndex, int columnIndex );
+  
+  /**
+   * Clears the {@link Table}
+   * 
+   * @return
+   */
+  public Table<E> clear();
+  
+  /**
+   * Returns a new {@link Column} currently related to the given column index position
+   * 
+   * @param columnIndex
+   * @return new {@link Column} instance
+   */
+  @Override
+  public Column<E> column( int columnIndex );
+  
+  /**
+   * Similar to {@link #column(int)} based on the first matching column title
+   * 
+   * @param columnTitle
+   * @return
+   */
+  @Override
+  public Column<E> column( String columnTitle );
+  
+  /**
+   * Returns an {@link Iterable} over all {@link Column}s
+   * 
+   * @return
+   */
+  @Override
+  public Iterable<Column<E>> columns();
+  
+  /**
+   * Returns an {@link Iterable} over all {@link Column}s which have a column title matched by the given {@link Pattern}
+   * 
+   * @return
+   */
+  @Override
+  public Iterable<Column<E>> columns( Pattern columnTitlePattern );
+  
+  /**
+   * Returns an {@link Iterable} over all {@link Column}s which have a column title included in the given {@link Set} of titles
+   * 
+   * @return
+   */
+  @Override
+  public Iterable<Column<E>> columns( Set<String> columnTitleSet );
+  
+  /**
+   * Returns all {@link Column}s which have a column title included in the given titles
+   * 
+   * @param columnTitles
+   * @return
+   */
+  @Override
+  public Iterable<Column<E>> columns( String... columnTitles );
   
   /**
    * Copies the elements from an array
@@ -99,18 +134,13 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Table<E> copyFrom( E[][] elementMatrix );
   
   /**
-   * Clears the {@link Table}
+   * Executes a {@link TableExecution} with a table wide {@link WriteLock}
    * 
-   * @return
+   * @param tableExecution
+   *          {@link TableExecution}
+   * @return this
    */
-  public Table<E> clear();
-  
-  /**
-   * Returns a {@link TableSerializer} instance
-   * 
-   * @return
-   */
-  public TableSerializer<E> serializer();
+  public Table<E> executeWithWriteLock( TableExecution<Table<E>, E> tableExecution );
   
   /**
    * Returns the {@link TableIndexManager} instance which allows to create {@link TableIndex} instances based on {@link Column}s
@@ -118,13 +148,41 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * 
    * @return
    */
+  @Override
   public TableIndexManager<E, Cell<E>> index();
+  
+  /**
+   * Removes a {@link Row} at the given row index position
+   * 
+   * @param rowIndex
+   * @return this
+   */
+  public Table<E> removeRow( int rowIndex );
+  
+  /**
+   * Returns a new {@link Row} related to the given row index position
+   * 
+   * @param rowIndex
+   * @return
+   */
+  @Override
+  public Row<E> row( int rowIndex );
+  
+  /**
+   * Similar to {@link #row(int)} based on the first matching row title
+   * 
+   * @param rowTitle
+   * @return
+   */
+  @Override
+  public Row<E> row( String rowTitle );
   
   /**
    * Returns an {@link Iterable} instance over all {@link Row}s of the {@link Table}
    * 
    * @return
    */
+  @Override
   public Iterable<Row<E>> rows();
   
   /**
@@ -134,22 +192,35 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @param indexFilter
    * @return new {@link Iterable}
    */
+  @Override
   public Iterable<Row<E>> rows( BitSet indexFilter );
   
   /**
-   * Returns an {@link Iterable} over all {@link Column}s
+   * Returns a {@link TableSerializer} instance
    * 
    * @return
    */
-  public Iterable<Column<E>> columns();
+  @Override
+  public TableSerializer<E> serializer();
   
   /**
-   * Sets the name of the {@link Table}
+   * Sets the element for a given row and column index position
    * 
-   * @param tableName
+   * @param rowIndex
+   * @param columnIndex
+   * @param element
+   * @return
+   */
+  public Table<E> setCellElement( int rowIndex, int columnIndex, E element );
+  
+  /**
+   * Sets the title of the {@link Column} with the given column index position
+   * 
+   * @param columnIndex
+   * @param columnTitle
    * @return this
    */
-  public Table<E> setTableName( String tableName );
+  public Table<E> setColumnTitle( int columnIndex, String columnTitle );
   
   /**
    * Clears and sets the names of the {@link Column}s to the given values
@@ -158,6 +229,23 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @return this
    */
   public Table<E> setColumnTitles( Iterable<String> columnTitleIterable );
+  
+  /**
+   * Sets the {@link ExceptionHandler} instance
+   * 
+   * @param exceptionHandler
+   * @return this
+   */
+  public Table<E> setExceptionHandler( ExceptionHandler exceptionHandler );
+  
+  /**
+   * Sets the elements of the {@link Row} at the given row index position
+   * 
+   * @param rowIndex
+   * @param elements
+   * @return this
+   */
+  public Table<E> setRowElements( int rowIndex, E... elements );
   
   /**
    * Sets the title of the {@link Row} with the given row index position
@@ -177,35 +265,11 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Table<E> setRowTitles( Iterable<String> rowTitleIterable );
   
   /**
-   * Sets the title of the {@link Column} with the given column index position
+   * Sets the name of the {@link Table}
    * 
-   * @param columnIndex
-   * @param columnTitle
+   * @param tableName
    * @return this
    */
-  public Table<E> setColumnTitle( int columnIndex, String columnTitle );
-  
-  /**
-   * Sets the {@link ExceptionHandler} instance
-   * 
-   * @param exceptionHandler
-   * @return this
-   */
-  public Table<E> setExceptionHandler( ExceptionHandler exceptionHandler );
-  
-  /**
-   * Returns a {@link TableAdapterManager} instance which allows to craeate adapter instances
-   * 
-   * @return
-   */
-  public TableAdapterManager<E> as();
-  
-  /**
-   * Removes a {@link Row} at the given row index position
-   * 
-   * @param rowIndex
-   * @return this
-   */
-  public Table<E> removeRow( int rowIndex );
+  public Table<E> setTableName( String tableName );
   
 }

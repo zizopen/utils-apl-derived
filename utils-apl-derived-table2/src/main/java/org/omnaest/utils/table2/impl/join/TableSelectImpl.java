@@ -32,9 +32,11 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.utils.operation.foreach.Range;
+import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.element.factory.Factory;
@@ -45,6 +47,7 @@ import org.omnaest.utils.table2.ImmutableRow;
 import org.omnaest.utils.table2.ImmutableTable;
 import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
+import org.omnaest.utils.table2.TableExecution;
 import org.omnaest.utils.table2.TableSelect;
 import org.omnaest.utils.table2.TableSelect.Predicate.FilterRow;
 import org.omnaest.utils.table2.TableSelect.TableJoin;
@@ -61,12 +64,122 @@ import com.google.common.base.Joiner;
 public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSelectExecution<E>
 {
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private List<Predicate<E>>  predicateList    = new ArrayList<Predicate<E>>();
-  private List<ColumnJoin<E>> columnJoinList   = new ArrayList<TableSelectImpl.ColumnJoin<E>>();
-  private List<Bucket<E>>     closedBucketList = new ArrayList<Bucket<E>>();
-  private Bucket<E>           bucket;
+  private List<Predicate<E>>     predicateList      = new ArrayList<Predicate<E>>();
+  private List<ColumnJoin<E>>    columnJoinList     = new ArrayList<TableSelectImpl.ColumnJoin<E>>();
+  private List<Bucket<E>>        closedBucketList   = new ArrayList<Bucket<E>>();
+  private Bucket<E>              bucket;
+  private Set<ImmutableTable<E>> tableForLockingSet = new LinkedHashSet<ImmutableTable<E>>();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  private static final class SelectExecution<E> implements TableExecution<ImmutableTable<E>, E>
+  {
+    private final ElementHolder<Table<E>> rettableElementHolder;
+    private final List<Bucket<E>>         closedBucketList;
+    private final Class<E>                componentType;
+    private final List<ColumnJoin<E>>     columnJoinList;
+    
+    private SelectExecution( ElementHolder<Table<E>> rettableElementHolder, List<Bucket<E>> closedBucketList,
+                             Class<E> componentType, List<ColumnJoin<E>> columnJoinList )
+    {
+      this.rettableElementHolder = rettableElementHolder;
+      this.closedBucketList = closedBucketList;
+      this.componentType = componentType;
+      this.columnJoinList = columnJoinList;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public void execute( ImmutableTable<E> table )
+    {
+      //
+      Set<ColumnIdentity<E>> selectedColumnIdentitySet = new LinkedHashSet<ColumnIdentity<E>>();
+      List<Iterable<? extends FilterRow<E>>> filteredFilterRowIterableList = new ArrayList<Iterable<? extends FilterRow<E>>>();
+      {
+        final PreparedColumnJoin<E> preparedColumnJoin = new PreparedColumnJoin<E>( this.columnJoinList );
+        for ( Bucket<E> bucket : this.closedBucketList )
+        {
+          final Iterable<FilterRowIdentifiable<E>> filterRowIterable = bucket.newUnfilteredFilterRowIterable();
+          final Predicate<E> predicate = preparedColumnJoin.newIntersectionPredicate( bucket.getTable() );
+          FilterRowFilterer<E> filterRowFilterer = new FilterRowFilterer<E>( filterRowIterable,
+                                                                             ListUtils.add( bucket.getPredicateList(), predicate ) );
+          BitSet filterResult = filterRowFilterer.calculateFilterResult();
+          
+          Iterable<FilterRowIdentifiable<E>> filteredFilterRowIterable = bucket.newFilteredFilterRowIterable( filterResult );
+          filteredFilterRowIterableList.add( filteredFilterRowIterable );
+          
+          //
+          selectedColumnIdentitySet.addAll( bucket.getSelectedColumnIdentitySet() );
+        }
+      }
+      
+      CrossProductFilterRowGenerator<E> crossProductFilterRowGenerator = new CrossProductFilterRowGenerator<E>(
+                                                                                                                filteredFilterRowIterableList );
+      
+      final List<E[]> elementArrayList = new ArrayList<E[]>();
+      int columnSize = 0;
+      for ( FilterRow<E> filterRow : crossProductFilterRowGenerator )
+      {
+        //
+        boolean include = true;
+        joinPredicateLoop: for ( ColumnJoin<E> columnJoin : this.columnJoinList )
+        {
+          Set<ColumnIdentity<E>> columnIdentitySet = columnJoin.getColumnIdentitySet();
+          if ( columnIdentitySet.size() > 1 )
+          {
+            //
+            final Iterator<ColumnIdentity<E>> iterator = columnIdentitySet.iterator();
+            final ColumnIdentity<E> columnIdentityFirst = iterator.next();
+            
+            final E compareElement = filterRow.getElement( columnIdentityFirst );
+            while ( iterator.hasNext() )
+            {
+              final ColumnIdentity<E> columnIdentity = iterator.next();
+              final E element = filterRow.getElement( columnIdentity );
+              if ( !ObjectUtils.equals( compareElement, element ) )
+              {
+                include = false;
+                break joinPredicateLoop;
+              }
+            }
+          }
+        }
+        
+        //
+        if ( include )
+        {
+          final List<E> elementList = new ArrayList<E>();
+          for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentitySet )
+          {
+            E element = filterRow.getElement( columnIdentity );
+            elementList.add( element );
+          }
+          elementArrayList.add( elementList.toArray( (E[]) Array.newInstance( this.componentType, elementList.size() ) ) );
+          columnSize = elementArrayList.size();
+        }
+      }
+      
+      final E[][] elementMatrix = elementArrayList.toArray( (E[][]) Array.newInstance( this.componentType,
+                                                                                       elementArrayList.size(), columnSize ) );
+      final ArrayTable<E> rettable = new ArrayTable<E>( elementMatrix );
+      {
+        final Set<String> tableNameSet = new LinkedHashSet<String>();
+        int columnIndex = 0;
+        for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentitySet )
+        {
+          final ImmutableColumn<E> column = columnIdentity.column();
+          final String tableName = column.table().getTableName();
+          String columnTitle = tableName + "." + column.getTitle();
+          rettable.setColumnTitle( columnIndex++, columnTitle );
+          
+          tableNameSet.add( tableName );
+        }
+        rettable.setTableName( CollectionUtils.toString( tableNameSet, new ElementConverterIdentity<String>(), Joiner.on( " " ) ) );
+      }
+      
+      this.rettableElementHolder.setElement( rettable );
+    }
+  }
   
   private static interface FilterRowIdentifiable<E> extends FilterRow<E>
   {
@@ -199,8 +312,8 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
       }
       
       //
-      final Iterator<FilterRow<E>> iteratorLeft = this.filterRowIterableLeft.iterator();
-      final Factory<Iterator<FilterRow<E>>> iteratorRightFactory = new Factory<Iterator<FilterRow<E>>>()
+      final Iterator<FilterRow<E>> filterRowLeftIterator = this.filterRowIterableLeft.iterator();
+      final Factory<Iterator<FilterRow<E>>> filterRowRightIteratorFactory = new Factory<Iterator<FilterRow<E>>>()
       {
         @Override
         public Iterator<FilterRow<E>> newInstance()
@@ -211,11 +324,11 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
       
       return new Iterator<FilterRow<E>>()
       {
-        private FilterRow<E>           filterRowRight = null;
-        private boolean                resolved       = false;
+        private FilterRow<E>           filterRowRight         = null;
+        private boolean                resolved               = false;
         
-        private FilterRow<E>           filterRowLeft  = null;
-        private Iterator<FilterRow<E>> iteratorRight  = null;
+        private FilterRow<E>           filterRowLeft          = null;
+        private Iterator<FilterRow<E>> filterRowRightIterator = null;
         
         @Override
         public boolean hasNext()
@@ -230,25 +343,25 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
           {
             this.filterRowRight = null;
             
-            if ( this.iteratorRight != null && !this.iteratorRight.hasNext() )
+            if ( this.filterRowRightIterator != null && !this.filterRowRightIterator.hasNext() )
             {
               this.filterRowLeft = null;
-              this.iteratorRight = null;
+              this.filterRowRightIterator = null;
             }
             
-            if ( this.iteratorRight == null )
+            if ( this.filterRowRightIterator == null )
             {
-              this.iteratorRight = iteratorRightFactory.newInstance();
+              this.filterRowRightIterator = filterRowRightIteratorFactory.newInstance();
             }
-            if ( this.iteratorRight != null && this.iteratorRight.hasNext() )
+            if ( this.filterRowRightIterator != null && this.filterRowRightIterator.hasNext() )
             {
-              this.filterRowRight = this.iteratorRight.next();
+              this.filterRowRight = this.filterRowRightIterator.next();
             }
             if ( this.filterRowLeft == null )
             {
-              if ( iteratorLeft.hasNext() )
+              if ( filterRowLeftIterator.hasNext() )
               {
-                this.filterRowLeft = iteratorLeft.next();
+                this.filterRowLeft = filterRowLeftIterator.next();
               }
             }
             
@@ -565,6 +678,13 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
   }
   
   @Override
+  public TableJoin<E> withTableLock( boolean lockEnabled )
+  {
+    this.tableForLockingSet.add( this.bucket.getTable() );
+    return this;
+  }
+  
+  @Override
   public TableJoin<E> allColumns()
   {
     return this.columns( 0, new Range( 1, this.bucket.columnSize() - 1 ).toIntArray() );
@@ -668,7 +788,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
   }
   
   @Override
-  public org.omnaest.utils.table2.TableSelect.TableSelectExecution<E> as()
+  public TableSelect.TableSelectExecution<E> as()
   {
     this.closeAndRolloverBucket( null );
     return this;
@@ -734,95 +854,32 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
   @Override
   public Table<E> table()
   {
-    E[][] elementMatrix = null;
-    
     //
     final Class<E> componentType = ListUtils.firstElement( this.closedBucketList ).getTable().elementType();
     
-    //
-    Set<ColumnIdentity<E>> selectedColumnIdentitySet = new LinkedHashSet<ColumnIdentity<E>>();
-    List<Iterable<? extends FilterRow<E>>> filteredFilterRowIterableList = new ArrayList<Iterable<? extends FilterRow<E>>>();
+    final ElementHolder<Table<E>> rettableElementHolder = new ElementHolder<Table<E>>();
+    final List<Bucket<E>> closedBucketList = this.closedBucketList;
+    final List<ColumnJoin<E>> columnJoinList = this.columnJoinList;
+    final SelectExecution<E> tableExecution = new SelectExecution<E>( rettableElementHolder, closedBucketList, componentType,
+                                                                      columnJoinList );
+    
+    Set<ImmutableTable<E>> tableForLockingSet = this.tableForLockingSet;
+    if ( tableForLockingSet.isEmpty() )
     {
-      final PreparedColumnJoin<E> preparedColumnJoin = new PreparedColumnJoin<E>( this.columnJoinList );
-      for ( Bucket<E> bucket : this.closedBucketList )
-      {
-        final Iterable<FilterRowIdentifiable<E>> filterRowIterable = bucket.newUnfilteredFilterRowIterable();
-        final Predicate<E> predicate = preparedColumnJoin.newIntersectionPredicate( bucket.getTable() );
-        FilterRowFilterer<E> filterRowFilterer = new FilterRowFilterer<E>( filterRowIterable,
-                                                                           ListUtils.add( bucket.getPredicateList(), predicate ) );
-        BitSet filterResult = filterRowFilterer.calculateFilterResult();
-        
-        Iterable<FilterRowIdentifiable<E>> filteredFilterRowIterable = bucket.newFilteredFilterRowIterable( filterResult );
-        filteredFilterRowIterableList.add( filteredFilterRowIterable );
-        
-        //
-        selectedColumnIdentitySet.addAll( bucket.getSelectedColumnIdentitySet() );
-      }
+      tableExecution.execute( null );
+    }
+    else
+    {
+      final ImmutableTable<E> table = IterableUtils.firstElement( tableForLockingSet );
+      final ImmutableTable<E>[] furtherLockedTables = tableForLockingSet.size() > 1 ? Arrays.copyOfRange( ArrayUtils.valueOf( tableForLockingSet,
+                                                                                                                              ImmutableTable.class ),
+                                                                                                          1,
+                                                                                                          tableForLockingSet.size() )
+                                                                                   : new ImmutableTable[0];
+      table.executeWithReadLock( tableExecution, furtherLockedTables );
     }
     
-    CrossProductFilterRowGenerator<E> crossProductFilterRowGenerator = new CrossProductFilterRowGenerator<E>(
-                                                                                                              filteredFilterRowIterableList );
-    
-    final List<E[]> elementArrayList = new ArrayList<E[]>();
-    int columnSize = 0;
-    for ( FilterRow<E> filterRow : crossProductFilterRowGenerator )
-    {
-      //
-      boolean include = true;
-      joinPredicateLoop: for ( ColumnJoin<E> columnJoin : this.columnJoinList )
-      {
-        Set<ColumnIdentity<E>> columnIdentitySet = columnJoin.getColumnIdentitySet();
-        if ( columnIdentitySet.size() > 1 )
-        {
-          //
-          final Iterator<ColumnIdentity<E>> iterator = columnIdentitySet.iterator();
-          final ColumnIdentity<E> columnIdentityFirst = iterator.next();
-          
-          final E compareElement = filterRow.getElement( columnIdentityFirst );
-          while ( iterator.hasNext() )
-          {
-            final ColumnIdentity<E> columnIdentity = iterator.next();
-            final E element = filterRow.getElement( columnIdentity );
-            if ( !ObjectUtils.equals( compareElement, element ) )
-            {
-              include = false;
-              break joinPredicateLoop;
-            }
-          }
-        }
-      }
-      
-      //
-      if ( include )
-      {
-        final List<E> elementList = new ArrayList<E>();
-        for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentitySet )
-        {
-          E element = filterRow.getElement( columnIdentity );
-          elementList.add( element );
-        }
-        elementArrayList.add( elementList.toArray( (E[]) Array.newInstance( componentType, elementList.size() ) ) );
-        columnSize = elementArrayList.size();
-      }
-    }
-    
-    elementMatrix = elementArrayList.toArray( (E[][]) Array.newInstance( componentType, elementArrayList.size(), columnSize ) );
-    final ArrayTable<E> arrayTable = new ArrayTable<E>( elementMatrix );
-    {
-      final Set<String> tableNameSet = new LinkedHashSet<String>();
-      int columnIndex = 0;
-      for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentitySet )
-      {
-        final ImmutableColumn<E> column = columnIdentity.column();
-        final String tableName = column.table().getTableName();
-        String columnTitle = tableName + "." + column.getTitle();
-        arrayTable.setColumnTitle( columnIndex++, columnTitle );
-        
-        tableNameSet.add( tableName );
-      }
-      arrayTable.setTableName( CollectionUtils.toString( tableNameSet, new ElementConverterIdentity<String>(), Joiner.on( " " ) ) );
-    }
-    return arrayTable;
+    return rettableElementHolder.getElement();
   }
   
   @Override

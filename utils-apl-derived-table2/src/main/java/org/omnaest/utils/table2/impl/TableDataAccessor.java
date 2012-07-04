@@ -19,9 +19,11 @@ import java.io.Serializable;
 import java.util.BitSet;
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.utils.events.exception.ExceptionHandler;
@@ -247,80 +249,236 @@ class TableDataAccessor<E> implements Serializable
     return tableEventHandler;
   }
   
-  public String getTableTitle()
+  public String getTableName()
   {
-    return this.tableMetaData.getTableName();
+    return OperationUtils.executeWithLocks( new OperationWithResult<String>()
+    {
+      @Override
+      public String execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getTableName();
+      }
+    }, this.tableLock.readLock() );
   }
   
-  public void setTableName( String tableTitle )
+  public int getColumnIndex( final String columnTitle )
   {
-    this.tableMetaData.setTableName( tableTitle );
+    return OperationUtils.executeWithLocks( new OperationWithResult<Integer>()
+    {
+      @Override
+      public Integer execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getColumnIndex( columnTitle );
+      }
+    }, this.tableLock.readLock() );
+  }
+  
+  public int getColumnIndex( final Pattern columnTitlePattern )
+  {
+    return OperationUtils.executeWithLocks( new OperationWithResult<Integer>()
+    {
+      @Override
+      public Integer execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getColumnIndex( columnTitlePattern );
+      }
+    }, this.tableLock.readLock() );
+  }
+  
+  public BitSet getColumnIndexFilter( final Pattern columnTitlePattern )
+  {
+    return OperationUtils.executeWithLocks( new OperationWithResult<BitSet>()
+    {
+      @Override
+      public BitSet execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getColumnIndexFilter( columnTitlePattern );
+      }
+    }, this.tableLock.readLock() );
+  }
+  
+  public BitSet getColumnIndexFilter( final Set<String> columnTitleSet )
+  {
+    return OperationUtils.executeWithLocks( new OperationWithResult<BitSet>()
+    {
+      @Override
+      public BitSet execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getColumnIndexFilter( columnTitleSet );
+      }
+    }, this.tableLock.readLock() );
+  }
+  
+  public int getRowIndex( final String rowTitle )
+  {
+    return OperationUtils.executeWithLocks( new OperationWithResult<Integer>()
+    {
+      @Override
+      public Integer execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getRowIndex( rowTitle );
+      }
+    }, this.tableLock.readLock() );
+  }
+  
+  public void setTableName( final String tableTitle )
+  {
+    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
+    {
+      @Override
+      public Void execute()
+      {
+        TableDataAccessor.this.tableMetaData.setTableName( tableTitle );
+        return null;
+      }
+    }, this.tableLock.writeLock() );
   }
   
   public List<String> getColumnTitleList()
   {
-    return this.tableMetaData.getColumnTitleList();
+    return OperationUtils.executeWithLocks( new OperationWithResult<List<String>>()
+    {
+      @Override
+      public List<String> execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getColumnTitleList();
+      }
+    }, this.tableLock.readLock() );
   }
   
-  public void setColumnTitles( Iterable<String> columnTitleIterable )
+  public void setColumnTitles( final Iterable<String> columnTitleIterable )
   {
-    this.tableMetaData.setColumnTitles( columnTitleIterable );
+    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
+    {
+      @Override
+      public Void execute()
+      {
+        TableDataAccessor.this.tableMetaData.setColumnTitles( columnTitleIterable );
+        return null;
+      }
+    }, this.tableLock.writeLock() );
   }
   
   public List<String> getRowTitleList()
   {
-    return this.tableMetaData.getRowTitleList();
+    return OperationUtils.executeWithLocks( new OperationWithResult<List<String>>()
+    {
+      @Override
+      public List<String> execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getRowTitleList();
+      }
+    }, this.tableLock.readLock() );
   }
   
-  public void setRowTitles( Iterable<String> rowTitleIterable )
+  public void setRowTitles( final Iterable<String> rowTitleIterable )
   {
-    this.tableMetaData.setRowTitles( rowTitleIterable );
+    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
+    {
+      @Override
+      public Void execute()
+      {
+        TableDataAccessor.this.tableMetaData.setRowTitles( rowTitleIterable );
+        return null;
+      }
+    }, this.tableLock.writeLock() );
   }
   
-  public void setRowTitle( int rowIndex, String rowTitle )
+  public void setRowTitle( final int rowIndex, final String rowTitle )
   {
-    this.tableMetaData.setRowTitle( rowIndex, rowTitle );
+    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
+    {
+      @Override
+      public Void execute()
+      {
+        TableDataAccessor.this.tableMetaData.setRowTitle( rowIndex, rowTitle );
+        return null;
+      }
+    }, this.tableLock.writeLock() );
   }
   
-  public void setColumnTitle( int columnIndex, String columnTitle )
+  public void setColumnTitle( final int columnIndex, final String columnTitle )
   {
-    this.tableMetaData.setColumnTitle( columnIndex, columnTitle );
+    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
+    {
+      @Override
+      public Void execute()
+      {
+        TableDataAccessor.this.tableMetaData.setColumnTitle( columnIndex, columnTitle );
+        return null;
+      }
+    }, this.tableLock.writeLock() );
   }
   
-  public String getTableName()
+  public String getColumnTitle( final int columnIndex )
   {
-    return this.tableMetaData.getTableName();
+    return OperationUtils.executeWithLocks( new OperationWithResult<String>()
+    {
+      @Override
+      public String execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getColumnTitle( columnIndex );
+      }
+    }, this.tableLock.readLock() );
   }
   
-  public String getColumnTitle( int columnIndex )
+  public String getRowTitle( final int rowIndex )
   {
-    return this.tableMetaData.getColumnTitle( columnIndex );
-  }
-  
-  public String getRowTitle( int rowIndex )
-  {
-    return this.tableMetaData.getRowTitle( rowIndex );
+    return OperationUtils.executeWithLocks( new OperationWithResult<String>()
+    {
+      @Override
+      public String execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getRowTitle( rowIndex );
+      }
+    }, this.tableLock.readLock() );
   }
   
   public boolean hasColumnTitles()
   {
-    return this.tableMetaData.hasColumnTitles();
+    return OperationUtils.executeWithLocks( new OperationWithResult<Boolean>()
+    {
+      @Override
+      public Boolean execute()
+      {
+        return TableDataAccessor.this.tableMetaData.hasColumnTitles();
+      }
+    }, this.tableLock.readLock() );
   }
   
   public boolean hasRowTitles()
   {
-    return this.tableMetaData.hasRowTitles();
+    return OperationUtils.executeWithLocks( new OperationWithResult<Boolean>()
+    {
+      @Override
+      public Boolean execute()
+      {
+        return TableDataAccessor.this.tableMetaData.hasRowTitles();
+      }
+    }, this.tableLock.readLock() );
   }
   
   public boolean hasTableName()
   {
-    return this.tableMetaData.hasTableName();
+    return OperationUtils.executeWithLocks( new OperationWithResult<Boolean>()
+    {
+      @Override
+      public Boolean execute()
+      {
+        return TableDataAccessor.this.tableMetaData.hasTableName();
+      }
+    }, this.tableLock.readLock() );
   }
   
   public TableDataAccessor<E> setExceptionHandler( ExceptionHandler exceptionHandler )
   {
     this.tableEventDispatcher.setExceptionHandler( exceptionHandler );
     return this;
+  }
+  
+  public ReadWriteLock getTableLock()
+  {
+    return this.tableLock;
   }
   
 }

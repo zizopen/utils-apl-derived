@@ -483,20 +483,26 @@ public class IteratorUtils
     
     return new Iterator<E>()
     {
-      int index = 0;
+      private int     index                     = 0;
+      private boolean hasNoMoreFilteredElements = false;
       
       @Override
       public boolean hasNext()
       {
         forwardToNextFilterBit( iterator, filter );
-        return iterator.hasNext();
+        return !this.hasNoMoreFilteredElements && iterator.hasNext();
       }
       
       private void forwardToNextFilterBit( final Iterator<E> iterator, final BitSet filter )
       {
-        while ( this.index >= 0 && this.index < filter.nextSetBit( this.index ) && iterator.hasNext() )
+        if ( !this.hasNoMoreFilteredElements )
         {
-          this.fetchElement();
+          int nextSetBit = -1;
+          while ( this.index >= 0 && this.index < ( nextSetBit = filter.nextSetBit( this.index ) ) && iterator.hasNext() )
+          {
+            this.fetchElement();
+          }
+          this.hasNoMoreFilteredElements = nextSetBit < 0;
         }
       }
       

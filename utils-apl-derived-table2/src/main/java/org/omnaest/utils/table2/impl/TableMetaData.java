@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.table2.Table;
@@ -49,6 +51,60 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
   public void setTableName( String tableName )
   {
     this.tableName = tableName;
+  }
+  
+  public int getColumnIndex( String columnTitle )
+  {
+    return this.columnTitleList.indexOf( columnTitle );
+  }
+  
+  public int getColumnIndex( Pattern columnTitlePattern )
+  {
+    for ( int ii = 0; ii < this.columnTitleList.size(); ii++ )
+    {
+      final String columnTitle = this.columnTitleList.get( ii );
+      if ( columnTitlePattern.matcher( columnTitle ).matches() )
+      {
+        return ii;
+      }
+    }
+    return -1;
+  }
+  
+  public BitSet getColumnIndexFilter( Pattern columnTitlePattern )
+  {
+    BitSet retval = new BitSet();
+    for ( int ii = 0; ii < this.columnTitleList.size(); ii++ )
+    {
+      final String columnTitle = this.columnTitleList.get( ii );
+      if ( columnTitlePattern.matcher( columnTitle ).matches() )
+      {
+        retval.set( ii );
+      }
+    }
+    return retval;
+  }
+  
+  public BitSet getColumnIndexFilter( Set<String> columnTitleSet )
+  {
+    BitSet retval = new BitSet();
+    if ( columnTitleSet != null )
+    {
+      for ( int ii = 0; ii < this.columnTitleList.size(); ii++ )
+      {
+        final String columnTitle = this.columnTitleList.get( ii );
+        if ( columnTitleSet.contains( columnTitle ) )
+        {
+          retval.set( ii );
+        }
+      }
+    }
+    return retval;
+  }
+  
+  public int getRowIndex( String rowTitle )
+  {
+    return this.rowTitleList.indexOf( rowTitle );
   }
   
   public List<String> getColumnTitleList()

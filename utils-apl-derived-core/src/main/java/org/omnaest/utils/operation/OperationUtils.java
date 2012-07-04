@@ -18,6 +18,7 @@ package org.omnaest.utils.operation;
 import java.util.concurrent.locks.Lock;
 
 import org.omnaest.utils.operation.special.OperationIntrinsic;
+import org.omnaest.utils.operation.special.OperationVoid;
 import org.omnaest.utils.operation.special.OperationWithResult;
 
 /**
@@ -66,9 +67,9 @@ public class OperationUtils
    *          {@link Lock}
    * @return result
    */
-  public static <P> P executeWithLocks( OperationWithResult<P> operation, Lock... locks )
+  public static <R> R executeWithLocks( OperationWithResult<R> operation, Lock... locks )
   {
-    P retval = null;
+    R retval = null;
     
     for ( Lock lock : locks )
     {
@@ -87,6 +88,34 @@ public class OperationUtils
     }
     
     return retval;
+  }
+  
+  /**
+   * Similar to {@link #executeWithLocks(OperationIntrinsic, Lock...)}
+   * 
+   * @param operation
+   *          {@link OperationVoid}
+   * @param parameter
+   * @param locks
+   *          {@link Lock}
+   */
+  public static <P> void executeWithLocks( OperationVoid<P> operation, P parameter, Lock... locks )
+  {
+    for ( Lock lock : locks )
+    {
+      lock.lock();
+    }
+    try
+    {
+      operation.execute( parameter );
+    }
+    finally
+    {
+      for ( Lock lock : locks )
+      {
+        lock.unlock();
+      }
+    }
   }
   
   /**

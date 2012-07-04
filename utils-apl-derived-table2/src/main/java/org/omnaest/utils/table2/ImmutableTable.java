@@ -15,7 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import java.util.BitSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Immutable {@link Table}
@@ -28,12 +33,13 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
 {
   
   /**
-   * Returns a new {@link ImmutableRow} currently related to the given row index position
+   * Returns an {@link ImmutableCell} instance for the given row and column index position
    * 
    * @param rowIndex
-   * @return new {@link ImmutableRow} instance
+   * @param columnIndex
+   * @return new {@link ImmutableCell} instance
    */
-  public ImmutableRow<E> row( int rowIndex );
+  public ImmutableCell<E> cell( int rowIndex, int columnIndex );
   
   /**
    * Returns a new {@link ImmutableColumn} currently related to the given column index position
@@ -44,29 +50,42 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
   public ImmutableColumn<E> column( int columnIndex );
   
   /**
-   * Returns the element at the given row and column index position
+   * Similar to {@link #column(int)} based on the first matching column title
    * 
-   * @param rowIndex
-   * @param columnIndex
+   * @param columnTitle
    * @return
    */
-  public E getCellElement( int rowIndex, int columnIndex );
+  public ImmutableColumn<E> column( String columnTitle );
   
   /**
-   * Returns an {@link ImmutableCell} instance for the given row and column index position
-   * 
-   * @param rowIndex
-   * @param columnIndex
-   * @return new {@link ImmutableCell} instance
-   */
-  public ImmutableCell<E> cell( int rowIndex, int columnIndex );
-  
-  /**
-   * Returns the number of {@link Row}s
+   * Returns an {@link Iterable} over all {@link ImmutableColumn}s
    * 
    * @return
    */
-  public int rowSize();
+  public Iterable<? extends ImmutableColumn<E>> columns();
+  
+  /**
+   * Returns an {@link Iterable} over all {@link ImmutableColumn}s which have a column title matched by the given {@link Matcher}
+   * 
+   * @return
+   */
+  public Iterable<? extends ImmutableColumn<E>> columns( Pattern columnTitlePattern );
+  
+  /**
+   * Returns an {@link Iterable} over all {@link ImmutableColumn}s which have a column title included in the given {@link Set} of
+   * titles
+   * 
+   * @return
+   */
+  public Iterable<? extends ImmutableColumn<E>> columns( Set<String> columnTitleSet );
+  
+  /**
+   * Returns all {@link ImmutableColumn}s which have a column title included in the given titles
+   * 
+   * @param columnTitles
+   * @return
+   */
+  public Iterable<? extends ImmutableColumn<E>> columns( String... columnTitles );
   
   /**
    * Returns the number of {@link Column}s
@@ -81,50 +100,6 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    * @return
    */
   public Class<E> elementType();
-  
-  /**
-   * Returns a {@link TableTransformer} instance
-   * 
-   * @return
-   */
-  public TableTransformer<E> to();
-  
-  /**
-   * Returns a {@link ImmutableTableSerializer} instance
-   * 
-   * @return
-   */
-  public ImmutableTableSerializer<E> serializer();
-  
-  /**
-   * Returns the {@link TableIndexManager} instance which allows to create {@link TableIndex} instances based on
-   * {@link ImmutableColumn}s of the {@link ImmutableTable}
-   * 
-   * @return
-   */
-  public TableIndexManager<E, ? extends ImmutableCell<E>> index();
-  
-  /**
-   * Returns a new {@link TableSelect} instance which allows to select areas or joining with other {@link ImmutableTable}
-   * instances
-   * 
-   * @return
-   */
-  public TableSelect<E> select();
-  
-  /**
-   * Returns an {@link Iterable} instance over all {@link ImmutableRow}s of the {@link Table}
-   * 
-   * @return
-   */
-  public Iterable<? extends ImmutableRow<E>> rows();
-  
-  /**
-   * Returns an {@link Iterable} over all {@link ImmutableColumn}s
-   * 
-   * @return
-   */
-  public Iterable<? extends ImmutableColumn<E>> columns();
   
   /**
    * Returns true if the content of this and the given {@link ImmutableTable} are {@link #equals(Object)}
@@ -146,19 +121,37 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
   public boolean equalsInContentAndMetaData( ImmutableTable<E> table );
   
   /**
-   * Returns the table name
+   * Executes a {@link TableExecution} with a table wide {@link ReadLock}
    * 
-   * @return
+   * @see #executeWithReadLock(TableExecution, ImmutableTable...)
+   * @param tableExecution
+   *          {@link TableExecution}
+   * @return this
    */
-  public String getTableName();
+  public ImmutableTable<E> executeWithReadLock( TableExecution<ImmutableTable<E>, E> tableExecution );
   
   /**
-   * Returns the title of the row with the given index position
+   * Executes a {@link TableExecution} with a table wide {@link ReadLock} on the current and all further given
+   * {@link ImmutableTable}s
+   * 
+   * @see #executeWithReadLock(TableExecution)
+   * @param tableExecution
+   *          {@link TableExecution}
+   * @param furtherLockedTables
+   *          {@link Table}
+   * @return this
+   */
+  public ImmutableTable<E> executeWithReadLock( TableExecution<ImmutableTable<E>, E> tableExecution,
+                                                ImmutableTable<E>... furtherLockedTables );
+  
+  /**
+   * Returns the element at the given row and column index position
    * 
    * @param rowIndex
+   * @param columnIndex
    * @return
    */
-  public String getRowTitle( int rowIndex );
+  public E getCellElement( int rowIndex, int columnIndex );
   
   /**
    * Returns the title of the column with the given index position
@@ -176,11 +169,26 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
   public List<String> getColumnTitleList();
   
   /**
+   * Returns the title of the row with the given index position
+   * 
+   * @param rowIndex
+   * @return
+   */
+  public String getRowTitle( int rowIndex );
+  
+  /**
    * Returns a {@link List} of all row titles
    * 
    * @return
    */
   public List<String> getRowTitleList();
+  
+  /**
+   * Returns the table name
+   * 
+   * @return
+   */
+  public String getTableName();
   
   /**
    * Returns true if the {@link ImmutableTable} has column titles
@@ -202,4 +210,74 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    * @return
    */
   public boolean hasTableName();
+  
+  /**
+   * Returns the {@link TableIndexManager} instance which allows to create {@link TableIndex} instances based on
+   * {@link ImmutableColumn}s of the {@link ImmutableTable}
+   * 
+   * @return
+   */
+  public TableIndexManager<E, ? extends ImmutableCell<E>> index();
+  
+  /**
+   * Returns a new {@link ImmutableRow} currently related to the given row index position
+   * 
+   * @param rowIndex
+   * @return new {@link ImmutableRow} instance
+   */
+  public ImmutableRow<E> row( int rowIndex );
+  
+  /**
+   * Similar to {@link #row(int)} based on the first matching row title
+   * 
+   * @param rowTitle
+   * @return
+   */
+  public ImmutableRow<E> row( String rowTitle );
+  
+  /**
+   * Returns an {@link Iterable} instance over all {@link ImmutableRow}s of the {@link Table}
+   * 
+   * @return
+   */
+  public Iterable<? extends ImmutableRow<E>> rows();
+  
+  /**
+   * Returns an {@link Iterable} over all {@link ImmutableRow}s where the row index position has an enabled bit within the filter
+   * {@link BitSet}
+   * 
+   * @param indexFilter
+   * @return new {@link Iterable}
+   */
+  public Iterable<? extends ImmutableRow<E>> rows( BitSet indexFilter );
+  
+  /**
+   * Returns the number of {@link Row}s
+   * 
+   * @return
+   */
+  public int rowSize();
+  
+  /**
+   * Returns a new {@link TableSelect} instance which allows to select areas or joining with other {@link ImmutableTable}
+   * instances
+   * 
+   * @return
+   */
+  public TableSelect<E> select();
+  
+  /**
+   * Returns a {@link ImmutableTableSerializer} instance
+   * 
+   * @return
+   */
+  public ImmutableTableSerializer<E> serializer();
+  
+  /**
+   * Returns a {@link TableTransformer} instance
+   * 
+   * @return
+   */
+  public TableTransformer<E> to();
+  
 }
