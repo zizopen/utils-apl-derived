@@ -17,6 +17,7 @@ package org.omnaest.utils.table2;
 
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 import org.omnaest.utils.table2.ImmutableColumn.ColumnIdentity;
 
@@ -97,6 +98,9 @@ public interface TableSelect<E>
      * @return this
      */
     public TableJoin<E> on( Predicate<E> predicate );
+    
+    @Override
+    public TableJoin<E> withTableLock( boolean lockEnabled );
   }
   
   /**
@@ -190,4 +194,13 @@ public interface TableSelect<E>
    * @return
    */
   public TableSelect.TableSelectExecution<E> as();
+  
+  /**
+   * If set to true, the select will set the {@link ReadLock} on the last declared {@link ImmutableTable}<br>
+   * This means for a join only the last {@link ImmutableTable} will be locked during the select.
+   * 
+   * @param lockEnabled
+   * @return this
+   */
+  public TableSelect<E> withTableLock( boolean lockEnabled );
 }

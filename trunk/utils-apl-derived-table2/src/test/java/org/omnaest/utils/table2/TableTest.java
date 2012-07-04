@@ -20,16 +20,33 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
 import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.table2.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
+import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
+import org.omnaest.utils.table2.impl.ArrayTable;
 
 /**
  * @see Table
@@ -331,6 +348,382 @@ public abstract class TableTest
       assertEquals( 3, result.size() );
       assertArrayEquals( new String[] { "0:2", "0:1", "0:6", "0:7", "0:0" }, result.get( "0:2" ).iterator().next().to().array() );
       assertArrayEquals( new String[] { "2:2", "2:1", "2:6", "2:7", "2:0" }, result.get( "2:2" ).iterator().next().to().array() );
+    }
+  }
+  
+  @SuppressWarnings({ "unchecked", "cast" })
+  @Test
+  public void testAdapterOneColumnMap()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 4 );
+    
+    final int columnIndexKey = 1;
+    Map<String, Set<Row<String>>> map = table.as().map( columnIndexKey );
+    assertNotNull( map );
+    assertEquals( 10, map.size() );
+    
+    {
+      final Set<Row<String>> rowSet = map.get( "0:1" );
+      assertEquals( 1, rowSet.size() );
+      assertArrayEquals( table.row( 0 ).getCellElements(), rowSet.iterator().next().getCellElements() );
+    }
+    {
+      Set<Row<String>> previous = map.put( "0:1", SetUtils.<Row<String>> valueOf( (Row<String>) table.row( 9 ) ) );
+      assertArrayEquals( table.row( 0 ).getCellElements(), previous.iterator().next().getCellElements() );
+    }
+    {
+      Set<Row<String>> remove = map.remove( "9:1" );
+      final Row<String> row = IterableUtils.firstElement( remove );
+      assertTrue( row.isDeleted() );
+      assertEquals( 9, table.rowSize() );
+    }
+  }
+  
+  @Test
+  public void testAdapterTwoColumnMap()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 4 );
+    
+    final int columnIndexKey = 1;
+    final int columnIndexValue = 3;
+    Map<String, Set<String>> map = table.as().map( columnIndexKey, columnIndexValue );
+    assertNotNull( map );
+    
+    {
+      assertEquals( 10, map.size() );
+      assertEquals( SetUtils.valueOf( "0:3" ), map.get( "0:1" ) );
+      assertEquals( SetUtils.valueOf( "9:3" ), map.get( "9:1" ) );
+      assertEquals( SetUtils.emptySet(), map.get( "10:1" ) );
+      assertEquals( SetUtils.emptySet(), map.get( "0:2" ) );
+      assertTrue( map.containsKey( "0:1" ) );
+      assertEquals( table.column( 1 ).to().set(), map.keySet() );
+    }
+    {
+      Set<String> previous = map.put( "0:1", SetUtils.valueOf( "xxx" ) );
+      assertEquals( SetUtils.valueOf( "0:3" ), previous );
+      assertEquals( SetUtils.valueOf( "xxx" ), map.get( "0:1" ) );
+      assertEquals( "xxx", table.cell( 0, 3 ).getElement() );
+    }
+    {
+      Cell<String> cell = table.cell( 0, 3 );
+      Set<String> remove = map.remove( "0:1" );
+      assertEquals( SetUtils.valueOf( "xxx" ), remove );
+      assertEquals( SetUtils.valueOf( (String) null ), map.get( "0:1" ) );
+      assertTrue( cell.isModified() );
+    }
+  }
+  
+  @Test
+  public void testSerializingPlainText()
+  {
+    Table<String> table = this.filledTableWithTitles( 20, 3 );
+    
+    final MarshallingConfiguration configuration = new MarshallingConfiguration().setHasEnabledRowTitles( true )
+                                                                                 .setHasEnabledTableName( true );
+    String content = table.serializer().marshal().asPlainText().using( configuration ).toString();
+    
+    //System.out.println( table );
+    
+    Table<String> result = new ArrayTable<String>( String.class ).serializer()
+                                                                 .unmarshal()
+                                                                 .asPlainText()
+                                                                 .using( configuration )
+                                                                 .from( content );
+    assertTrue( table.equalsInContentAndMetaData( result ) );
+    
+  }
+
+  @Test
+  public void testSerializingCSV()
+  {
+    Table<String> table = this.filledTableWithTitles( 20, 3 );
+    
+    final CSVMarshallingConfiguration configuration = new CSVMarshallingConfiguration().setHasEnabledRowTitles( true )
+                                                                                       .setHasEnabledTableName( true );
+    String content = table.serializer().marshal().asCsv().using( configuration ).toString();
+    
+    //System.out.println( content );
+    
+    Table<String> result = new ArrayTable<String>( String.class ).serializer()
+                                                                 .unmarshal()
+                                                                 .asCsv()
+                                                                 .using( configuration )
+                                                                 .from( content );
+    assertTrue( table.equalsInContentAndMetaData( result ) );
+    
+  }
+
+  @Test
+  public void testToMap() throws Exception
+  {
+    Table<String> table = this.filledTable( 3, 4 );
+    {
+      final SortedMap<String, String[]> sortedMap = table.to().sortedMap( 1 );
+      assertNotNull( sortedMap );
+      assertEquals( 3, sortedMap.size() );
+      assertEquals( Arrays.asList( "0:1", "1:1", "2:1" ), ListUtils.valueOf( sortedMap.keySet() ) );
+      assertArrayEquals( new String[] { "1:0", "1:1", "1:2", "1:3" }, sortedMap.get( "1:1" ) );
+    }
+    {
+      final SortedMap<String, String> sortedMap = table.to().sortedMap( 1, 3 );
+      assertNotNull( sortedMap );
+      assertEquals( 3, sortedMap.size() );
+      assertEquals( Arrays.asList( "0:1", "1:1", "2:1" ), ListUtils.valueOf( sortedMap.keySet() ) );
+      assertEquals( "1:3", sortedMap.get( "1:1" ) );
+    }
+  }
+
+  @Test
+  public void testToString() throws Exception
+  {
+    Table<String> table = this.filledTable( 3, 4 );
+    String content = table.to().string();
+    
+    //System.out.println( string );
+    assertNotNull( content );
+    assertEquals( table.toString(), content );
+  }
+
+  @Test
+  public void testColumn() throws Exception
+  {
+    Table<String> table = this.newTable( new String[][] { { "a", "b", "c" }, { "d", "e", "f" } }, String.class );
+    
+    {
+      Column<String> column = table.column( 0 );
+      assertNotNull( column );
+      assertEquals( "a", column.getCellElement( 0 ) );
+      assertEquals( "d", column.getCellElement( 1 ) );
+      assertEquals( null, column.getCellElement( 2 ) );
+      assertEquals( null, column.getCellElement( -1 ) );
+      
+      column.setCellElement( 0, "a2" );
+      assertEquals( "a2", column.getCellElement( 0 ) );
+    }
+    {
+      Column<String> column = table.column( 2 );
+      assertNotNull( column );
+      assertEquals( "c", column.getCellElement( 0 ) );
+      assertEquals( "f", column.getCellElement( 1 ) );
+      assertEquals( null, column.getCellElement( 2 ) );
+    }
+    {
+      Column<String> column = table.column( 3 );
+      assertNotNull( column );
+      assertEquals( null, column.getCellElement( 0 ) );
+    }
+    {
+      assertNull( table.column( -1 ) );
+    }
+    
+  }
+
+  @Test
+  public void testGetAndSetCellElement() throws Exception
+  {
+    Table<String> table = this.newTable( new String[][] { { "a", "b", "c" }, { "d", "e", "f" } }, String.class );
+    
+    {
+      Cell<String> cell = table.cell( 0, 0 );
+      assertNotNull( cell );
+      assertEquals( "a", cell.getElement() );
+      assertEquals( 0, cell.columnIndex() );
+      assertEquals( 0, cell.rowIndex() );
+      
+      table.addRowElements( 0, new String[] { "g", "h", "i" } );
+      assertEquals( "a", cell.getElement() );
+      assertEquals( 0, cell.columnIndex() );
+      assertEquals( 1, cell.rowIndex() );
+    }
+    
+    {
+      Cell<String> cell = table.cell( 0, 2 );
+      assertNotNull( cell );
+      assertEquals( "i", cell.getElement() );
+      assertEquals( 2, cell.columnIndex() );
+      assertEquals( 0, cell.rowIndex() );
+    }
+    
+    {
+      Cell<String> cell = table.cell( 0, 3 );
+      assertNotNull( cell );
+      assertEquals( null, cell.getElement() );
+      assertEquals( 3, cell.columnIndex() );
+      assertEquals( 0, cell.rowIndex() );
+    }
+    
+    {
+      assertNull( table.cell( -1, 0 ) );
+      assertNull( table.cell( 0, -1 ) );
+    }
+  }
+
+  @SuppressWarnings("cast")
+  @Test
+  public void testRow()
+  {
+    Table<String> table = this.newTable( new String[][] { { "a", "b", "c" }, { "d", "e", "f" } }, String.class );
+    
+    String[] values = new String[] { "a", "b", "c" };
+    table.addRowElements( values );
+    
+    {
+      Row<String> row = table.row( 0 );
+      assertEquals( Arrays.asList( values ), ListUtils.valueOf( (Iterable<String>) row ) );
+    }
+    {
+      Row<String> row = table.row( 1 );
+      assertEquals( Arrays.asList( "d", "e", "f" ), ListUtils.valueOf( (Iterable<String>) row ) );
+    }
+    {
+      Row<String> row = table.row( 2 );
+      assertEquals( Arrays.asList( "a", "b", "c" ), ListUtils.valueOf( (Iterable<String>) row ) );
+    }
+    {
+      Row<String> row = table.row( 0 );
+      row.setCellElement( 1, "b2" );
+      assertEquals( "b2", row.getCellElement( 1 ) );
+    }
+    {
+      assertNull( table.row( -1 ) );
+    }
+    {
+      BitSet indexFilter = new BitSet();
+      indexFilter.set( 1 );
+      indexFilter.set( 2 );
+      Iterable<Row<String>> rows = table.rows( indexFilter );
+      assertEquals( 2, IterableUtils.size( rows ) );
+      assertEquals( table.row( 1 ).id(), IterableUtils.elementAt( rows, 0 ).id() );
+      assertEquals( table.row( 2 ).id(), IterableUtils.elementAt( rows, 1 ).id() );
+    }
+  }
+
+  @Test
+  public void testSerialization()
+  {
+    Table<String> table = this.filledTableWithTitles( 4, 5 );
+    Table<String> clone = SerializationUtils.clone( table );
+    assertTrue( table.equalsInContent( clone ) );
+    assertTrue( table.equalsInContentAndMetaData( clone ) );
+    
+    //System.out.println( clone );
+  }
+
+  @Test
+  public void testIndex() throws Exception
+  {
+    Table<String> table = this.filledTable( 100, 5 );
+    
+    TableIndex<String, Cell<String>> tableIndex = table.index().of( 1 );
+    assertNotNull( tableIndex );
+    
+    {
+      assertFalse( tableIndex.containsKey( "0:0" ) );
+      assertTrue( tableIndex.containsKey( "0:1" ) );
+      
+      table.setCellElement( 0, 1, "xxx" );
+      assertFalse( tableIndex.containsKey( "0:1" ) );
+      assertTrue( tableIndex.containsKey( "xxx" ) );
+      
+      Set<Cell<String>> cellSet = tableIndex.get( "10:1" );
+      assertEquals( 1, cellSet.size() );
+    }
+    {
+      assertSame( tableIndex, table.index().of( 1 ) );
+      assertSame( tableIndex, table.index().of( table.column( 1 ) ) );
+    }
+    {
+      SortedMap<String, Set<Cell<String>>> sortedMap = tableIndex.asMap();
+      Set<Cell<String>> set = sortedMap.get( "10:1" );
+      assertNotNull( set );
+      assertEquals( 1, set.size() );
+      Cell<String> cell = set.iterator().next();
+      assertEquals( "10:1", cell.getElement() );
+    }
+    {
+      table.clear();
+      assertTrue( tableIndex.isEmpty() );
+    }
+  }
+
+  @Test
+  public void testExecuteWithLocks() throws InterruptedException,
+                                       ExecutionException
+  {
+    final Table<String> table = this.filledTableWithTitles( 100, 3 );
+    
+    ExecutorService executorService = Executors.newFixedThreadPool( 10 );
+    final List<Future<Boolean>> futureList = new ArrayList<Future<Boolean>>();
+    for ( int ii = 0; ii < 10; ii++ )
+    {
+      futureList.add( executorService.submit( new Callable<Boolean>()
+      {
+        @Override
+        public Boolean call() throws Exception
+        {
+          final AtomicBoolean retval = new AtomicBoolean();
+          
+          table.executeWithReadLock( new TableExecution<ImmutableTable<String>, String>()
+          {
+            @Override
+            public void execute( ImmutableTable<String> table )
+            {
+              ImmutableRow<String> row = table.row( 10 );
+              final List<String> elementList = row.to().list();
+              
+              try
+              {
+                Thread.sleep( 5 );
+              }
+              catch ( InterruptedException e )
+              {
+              }
+              
+              retval.set( elementList.equals( table.row( 10 ).to().list() ) );
+            }
+          } );
+          
+          return retval.get();
+        }
+      } ) );
+      futureList.add( executorService.submit( new Callable<Boolean>()
+      {
+        @Override
+        public Boolean call() throws Exception
+        {
+          final AtomicBoolean retval = new AtomicBoolean();
+          
+          table.executeWithWriteLock( new TableExecution<Table<String>, String>()
+          {
+            @Override
+            public void execute( Table<String> table )
+            {
+              Row<String> row = table.row( 10 );
+              row.cell( 1 ).setElement( "xxx" + Math.random() );
+              final List<String> elementList = row.to().list();
+              
+              try
+              {
+                Thread.sleep( 5 );
+              }
+              catch ( InterruptedException e )
+              {
+              }
+              
+              retval.set( elementList.equals( table.row( 10 ).to().list() ) );
+            }
+          } );
+          
+          return retval.get();
+        }
+      } ) );
+    }
+    
+    executorService.shutdown();
+    
+    for ( Future<Boolean> future : futureList )
+    {
+      assertTrue( future.get() );
     }
   }
 }

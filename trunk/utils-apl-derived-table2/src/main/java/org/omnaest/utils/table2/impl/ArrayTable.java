@@ -15,15 +15,21 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.events.exception.ExceptionHandler;
+import org.omnaest.utils.operation.OperationUtils;
+import org.omnaest.utils.operation.special.OperationIntrinsic;
 import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
@@ -32,6 +38,7 @@ import org.omnaest.utils.table2.ImmutableTable;
 import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableAdapterManager;
+import org.omnaest.utils.table2.TableExecution;
 import org.omnaest.utils.table2.TableIndexManager;
 import org.omnaest.utils.table2.TableSelect;
 import org.omnaest.utils.table2.impl.adapter.TableAdapterManagerImpl;
@@ -347,6 +354,81 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Iterable<Row<E>> rows( BitSet filter )
   {
     return IterableUtils.filtered( this.rows(), filter );
+  }
+  
+  @Override
+  public Column<E> column( String columnTitle )
+  {
+    final int columnIndex = this.tableDataAccessor.getColumnIndex( columnTitle );
+    return this.column( columnIndex );
+  }
+  
+  @Override
+  public Row<E> row( String rowTitle )
+  {
+    final int rowIndex = this.tableDataAccessor.getRowIndex( rowTitle );
+    return this.row( rowIndex );
+  }
+  
+  @Override
+  public Iterable<Column<E>> columns( Set<String> columnTitleSet )
+  {
+    final BitSet columnIndexFilter = this.tableDataAccessor.getColumnIndexFilter( columnTitleSet );
+    return IterableUtils.filtered( this.columns(), columnIndexFilter );
+  }
+  
+  @Override
+  public Iterable<Column<E>> columns( Pattern columnTitlePattern )
+  {
+    final BitSet columnIndexFilter = this.tableDataAccessor.getColumnIndexFilter( columnTitlePattern );
+    return IterableUtils.filtered( this.columns(), columnIndexFilter );
+  }
+  
+  @Override
+  public Iterable<Column<E>> columns( String... columnTitles )
+  {
+    return this.columns( SetUtils.valueOf( columnTitles ) );
+  }
+  
+  @Override
+  public Table<E> executeWithWriteLock( TableExecution<Table<E>, E> tableExecution )
+  {
+    OperationUtils.executeWithLocks( tableExecution, this, this.tableDataAccessor.getTableLock().writeLock() );
+    return this;
+  }
+  
+  @Override
+  public ImmutableTable<E> executeWithReadLock( TableExecution<ImmutableTable<E>, E> tableExecution )
+  {
+    OperationUtils.executeWithLocks( tableExecution, this, this.tableDataAccessor.getTableLock().readLock() );
+    return this;
+  }
+  
+  @Override
+  public Table<E> executeWithReadLock( final TableExecution<ImmutableTable<E>, E> tableExecution,
+                                       final ImmutableTable<E>... furtherLockedTables )
+  {
+    final int furtherLockedTablesLength = furtherLockedTables.length;
+    if ( furtherLockedTablesLength > 0 )
+    {
+      OperationUtils.executeWithLocks( new OperationIntrinsic()
+      {
+        @Override
+        public void execute()
+        {
+          OperationUtils.executeWithLocks( tableExecution, ArrayTable.this, ArrayTable.this.tableDataAccessor.getTableLock()
+                                                                                                             .readLock() );
+          final ImmutableTable<E> furtherTable = furtherLockedTables[0];
+          furtherTable.executeWithReadLock( tableExecution,
+                                            Arrays.copyOfRange( furtherLockedTables, 1, furtherLockedTablesLength ) );
+        }
+      }, this.tableDataAccessor.getTableLock().readLock() );
+    }
+    else
+    {
+      OperationUtils.executeWithLocks( tableExecution, this, this.tableDataAccessor.getTableLock().readLock() );
+    }
+    return this;
   }
   
 }
