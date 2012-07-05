@@ -162,6 +162,20 @@ class TableDataAccessor<E> implements Serializable
     
   }
   
+  public void removeColumn( final int columnIndex )
+  {
+    OperationUtils.executeWithLocks( new OperationIntrinsic()
+    {
+      @Override
+      public void execute()
+      {
+        final E[] previousElements = TableDataAccessor.this.tableDataCore.removeColumn( columnIndex );
+        TableDataAccessor.this.modificationCounter.incrementAndGet();
+        TableDataAccessor.this.tableEventDispatcher.handleRemovedColumn( columnIndex, previousElements );
+      }
+    }, this.tableLock.writeLock() );
+  }
+  
   public void setRow( final int rowIndex, final E... elements )
   {
     OperationUtils.executeWithLocks( new OperationIntrinsic()

@@ -18,12 +18,8 @@ package org.omnaest.utils.table2.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.regex.Pattern;
-
 import org.junit.Ignore;
 import org.junit.Test;
-import org.omnaest.utils.structure.iterator.IterableUtils;
-import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableTest;
 
@@ -37,25 +33,6 @@ public class ArrayTableTest extends TableTest
   public <E> Table<E> newTable( E[][] elementMatrix, Class<E> type )
   {
     return new ArrayTable<E>( type ).copyFrom( elementMatrix );
-  }
-  
-  @Test
-  public void testColumns()
-  {
-    Table<String> table = this.filledTableWithTitles( 10, 8 );
-    
-    {
-      Iterable<Column<String>> columns = table.columns( "c1", "c3" );
-      assertEquals( 2, IterableUtils.size( columns ) );
-      assertEquals( table.column( 1 ).id(), IterableUtils.elementAt( columns, 0 ).id() );
-      assertEquals( table.column( 3 ).id(), IterableUtils.elementAt( columns, 1 ).id() );
-    }
-    {
-      Iterable<Column<String>> columns = table.columns( Pattern.compile( "c1|c3" ) );
-      assertEquals( 2, IterableUtils.size( columns ) );
-      assertEquals( table.column( 1 ).id(), IterableUtils.elementAt( columns, 0 ).id() );
-      assertEquals( table.column( 3 ).id(), IterableUtils.elementAt( columns, 1 ).id() );
-    }
   }
   
   @Test

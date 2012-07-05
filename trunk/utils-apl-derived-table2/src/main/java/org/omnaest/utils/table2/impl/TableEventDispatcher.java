@@ -38,9 +38,9 @@ class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
   /* ************************************************** Constants *************************************************** */
   private static final long                          serialVersionUID = -8336460926560156773L;
   
+  private ExceptionHandler                           exceptionHandler = new ExceptionHandlerIgnoring();
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final transient List<TableEventHandler<E>> instanceList;
-  private ExceptionHandler                           exceptionHandler = new ExceptionHandlerIgnoring();
   
   /* *************************************************** Methods **************************************************** */
   
@@ -58,71 +58,6 @@ class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
     {
       this.instanceList.add( tableEventHandler );
     }
-  }
-  
-  @Override
-  public void handleAddedRow( final int rowIndex, final E... elements )
-  {
-    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
-    {
-      @Override
-      public void execute( TableEventHandler<E> tableEventHandler )
-      {
-        tableEventHandler.handleAddedRow( rowIndex, elements );
-      }
-    } );
-  }
-  
-  @Override
-  public void handleUpdatedCell( final int rowIndex, final int columnIndex, final E element, final E previousElement )
-  {
-    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
-    {
-      @Override
-      public void execute( TableEventHandler<E> tableEventHandler )
-      {
-        tableEventHandler.handleUpdatedCell( rowIndex, columnIndex, element, previousElement );
-      }
-    } );
-  }
-  
-  @Override
-  public void handleClearTable()
-  {
-    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
-    {
-      @Override
-      public void execute( TableEventHandler<E> tableEventHandler )
-      {
-        tableEventHandler.handleClearTable();
-      }
-    } );
-  }
-  
-  @Override
-  public void handleUpdatedRow( final int rowIndex, final E[] elements, final E[] previousElements, final BitSet modifiedIndices )
-  {
-    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
-    {
-      @Override
-      public void execute( TableEventHandler<E> tableEventHandler )
-      {
-        tableEventHandler.handleUpdatedRow( rowIndex, elements, previousElements, modifiedIndices );
-      }
-    } );
-  }
-  
-  @Override
-  public void handleRemovedRow( final int rowIndex, final E[] previousElements )
-  {
-    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
-    {
-      @Override
-      public void execute( TableEventHandler<E> tableEventHandler )
-      {
-        tableEventHandler.handleRemovedRow( rowIndex, previousElements );
-      }
-    } );
   }
   
   /**
@@ -148,6 +83,90 @@ class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
     }
   }
   
+  @Override
+  public void handleAddedRow( final int rowIndex, final E... elements )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleAddedRow( rowIndex, elements );
+      }
+    } );
+  }
+  
+  @Override
+  public void handleClearTable()
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleClearTable();
+      }
+    } );
+  }
+  
+  @Override
+  public void handleRemovedColumn( final int columnIndex, final E[] previousElements )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleRemovedColumn( columnIndex, previousElements );
+      }
+    } );
+  }
+  
+  @Override
+  public void handleRemovedRow( final int rowIndex, final E[] previousElements )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleRemovedRow( rowIndex, previousElements );
+      }
+    } );
+  }
+  
+  @Override
+  public void handleUpdatedCell( final int rowIndex, final int columnIndex, final E element, final E previousElement )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleUpdatedCell( rowIndex, columnIndex, element, previousElement );
+      }
+    } );
+  }
+  
+  @Override
+  public void handleUpdatedRow( final int rowIndex, final E[] elements, final E[] previousElements, final BitSet modifiedIndices )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleUpdatedRow( rowIndex, elements, previousElements, modifiedIndices );
+      }
+    } );
+  }
+  
+  @SuppressWarnings("static-method")
+  private Object readResolve() throws ObjectStreamException
+  {
+    return new TableEventDispatcher<E>();
+  }
+  
   /**
    * @param exceptionHandler
    *          {@link ExceptionHandler}
@@ -157,12 +176,6 @@ class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
   {
     this.exceptionHandler = ObjectUtils.defaultIfNull( exceptionHandler, new ExceptionHandlerIgnoring() );
     return this;
-  }
-  
-  @SuppressWarnings("static-method")
-  private Object readResolve() throws ObjectStreamException
-  {
-    return new TableEventDispatcher<E>();
   }
   
 }

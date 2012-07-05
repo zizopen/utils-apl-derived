@@ -36,27 +36,12 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
 {
   /* ************************************************** Constants *************************************************** */
   private static final long serialVersionUID = -7072099446189045388L;
-  /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private String            tableName        = null;
   private List<String>      columnTitleList  = new ArrayList<String>();
   private List<String>      rowTitleList     = new ArrayList<String>();
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private String            tableName        = null;
   
   /* *************************************************** Methods **************************************************** */
-  
-  public String getTableName()
-  {
-    return this.tableName;
-  }
-  
-  public void setTableName( String tableName )
-  {
-    this.tableName = tableName;
-  }
-  
-  public int getColumnIndex( String columnTitle )
-  {
-    return this.columnTitleList.indexOf( columnTitle );
-  }
   
   public int getColumnIndex( Pattern columnTitlePattern )
   {
@@ -69,6 +54,11 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
       }
     }
     return -1;
+  }
+  
+  public int getColumnIndex( String columnTitle )
+  {
+    return this.columnTitleList.indexOf( columnTitle );
   }
   
   public BitSet getColumnIndexFilter( Pattern columnTitlePattern )
@@ -102,9 +92,9 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
     return retval;
   }
   
-  public int getRowIndex( String rowTitle )
+  public String getColumnTitle( int columnIndex )
   {
-    return this.rowTitleList.indexOf( rowTitle );
+    return ListUtils.get( this.columnTitleList, columnIndex );
   }
   
   public List<String> getColumnTitleList()
@@ -112,9 +102,9 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
     return Collections.unmodifiableList( this.columnTitleList );
   }
   
-  public String getColumnTitle( int columnIndex )
+  public int getRowIndex( String rowTitle )
   {
-    return ListUtils.get( this.columnTitleList, columnIndex );
+    return this.rowTitleList.indexOf( rowTitle );
   }
   
   public String getRowTitle( int rowIndex )
@@ -122,31 +112,14 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
     return ListUtils.get( this.rowTitleList, rowIndex );
   }
   
-  public void setColumnTitles( Iterable<String> columnTitleIterable )
-  {
-    this.columnTitleList.clear();
-    ListUtils.addAll( this.columnTitleList, columnTitleIterable );
-  }
-  
   public List<String> getRowTitleList()
   {
     return Collections.unmodifiableList( this.rowTitleList );
   }
   
-  public void setRowTitles( Iterable<String> rowTitleIterable )
+  public String getTableName()
   {
-    this.rowTitleList.clear();
-    ListUtils.addAll( this.rowTitleList, rowTitleIterable );
-  }
-  
-  public void setRowTitle( int rowIndex, String rowTitle )
-  {
-    ListUtils.set( this.rowTitleList, rowIndex, rowTitle );
-  }
-  
-  public void setColumnTitle( int columnIndex, String columnTitle )
-  {
-    ListUtils.set( this.columnTitleList, columnIndex, columnTitle );
+    return this.tableName;
   }
   
   @Override
@@ -156,15 +129,32 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
   }
   
   @Override
+  public void handleClearTable()
+  {
+    this.columnTitleList.clear();
+    this.rowTitleList.clear();
+  }
+  
+  @Override
+  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  {
+    this.columnTitleList.remove( columnIndex );
+  }
+  
+  @Override
+  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  {
+    this.rowTitleList.remove( rowIndex );
+  }
+  
+  @Override
   public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement )
   {
   }
   
   @Override
-  public void handleClearTable()
+  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
   {
-    this.columnTitleList.clear();
-    this.rowTitleList.clear();
   }
   
   public boolean hasColumnTitles()
@@ -184,15 +174,30 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
     return this.tableName != null;
   }
   
-  @Override
-  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
+  public void setColumnTitle( int columnIndex, String columnTitle )
   {
+    ListUtils.set( this.columnTitleList, columnIndex, columnTitle );
   }
   
-  @Override
-  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  public void setColumnTitles( Iterable<String> columnTitleIterable )
   {
-    this.rowTitleList.remove( rowIndex );
-    
+    this.columnTitleList.clear();
+    ListUtils.addAll( this.columnTitleList, columnTitleIterable );
+  }
+  
+  public void setRowTitle( int rowIndex, String rowTitle )
+  {
+    ListUtils.set( this.rowTitleList, rowIndex, rowTitle );
+  }
+  
+  public void setRowTitles( Iterable<String> rowTitleIterable )
+  {
+    this.rowTitleList.clear();
+    ListUtils.addAll( this.rowTitleList, rowTitleIterable );
+  }
+  
+  public void setTableName( String tableName )
+  {
+    this.tableName = tableName;
   }
 }

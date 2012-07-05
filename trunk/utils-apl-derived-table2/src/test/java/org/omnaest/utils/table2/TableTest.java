@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
@@ -725,5 +726,43 @@ public abstract class TableTest
     {
       assertTrue( future.get() );
     }
+  }
+
+  @Test
+  public void testColumns()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 8 );
+    
+    {
+      Iterable<Column<String>> columns = table.columns( "c1", "c3" );
+      assertEquals( 2, IterableUtils.size( columns ) );
+      assertEquals( table.column( 1 ).id(), IterableUtils.elementAt( columns, 0 ).id() );
+      assertEquals( table.column( 3 ).id(), IterableUtils.elementAt( columns, 1 ).id() );
+    }
+    {
+      Iterable<Column<String>> columns = table.columns( Pattern.compile( "c1|c3" ) );
+      assertEquals( 2, IterableUtils.size( columns ) );
+      assertEquals( table.column( 1 ).id(), IterableUtils.elementAt( columns, 0 ).id() );
+      assertEquals( table.column( 3 ).id(), IterableUtils.elementAt( columns, 1 ).id() );
+    }
+  }
+
+  @Test
+  public void testRemoveColumn() throws Exception
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 );
+    Column<String> column4 = table.column( 4 );
+    Column<String> column2 = table.column( 2 );
+    assertFalse( column4.isDeleted() );
+    assertFalse( column2.isDeleted() );
+    
+    table.removeColumn( 2 );
+    assertEquals( 4, table.columnSize() );
+    assertFalse( column4.isDeleted() );
+    assertTrue( column2.isDeleted() );
+    
+    column4.remove();
+    assertTrue( column4.isDeleted() );
+    assertEquals( 3, table.columnSize() );
   }
 }

@@ -47,4 +47,12 @@ public interface Column<E> extends Stripe<E>, Iterable<E>, ImmutableColumn<E>
    * @return
    */
   public Column<E> setTitle( String columnTitle );
+  
+  /**
+   * Removes the current {@link Column} from its {@link Table}. The {@link Column} will return true for {@link #isDeleted()}
+   * afterwards.
+   * 
+   * @return this
+   */
+  public Column<E> remove();
 }

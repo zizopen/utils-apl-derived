@@ -54,11 +54,11 @@ public class ArrayTable<E> extends TableAbstract<E>
 {
   /* ************************************************** Constants *************************************************** */
   private static final long                   serialVersionUID = 6360131663629436319L;
+  private final Class<E>                      elementType;
+  private final TableAdapterManager<E>        tableAdapterManager;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final TableDataAccessor<E>          tableDataAccessor;
-  private final Class<E>                      elementType;
   private final TableIndexManager<E, Cell<E>> tableIndexManager;
-  private final TableAdapterManager<E>        tableAdapterManager;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -87,31 +87,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Row<E> row( int rowIndex )
-  {
-    return rowIndex >= 0 ? this.tableDataAccessor.register( new RowImpl<E>( rowIndex, this ) ) : null;
-  }
-  
-  @Override
-  public Cell<E> cell( int rowIndex, int columnIndex )
-  {
-    return rowIndex >= 0 && columnIndex >= 0 ? this.tableDataAccessor.register( new CellImpl<E>( rowIndex, columnIndex, this ) )
-                                            : null;
-  }
-  
-  @Override
-  public Column<E> column( int columnIndex )
-  {
-    return columnIndex >= 0 ? this.tableDataAccessor.register( new ColumnImpl<E>( columnIndex, this ) ) : null;
-  }
-  
-  @Override
-  public E getCellElement( int rowIndex, int columnIndex )
-  {
-    return this.tableDataAccessor.getElement( rowIndex, columnIndex );
-  }
-  
-  @Override
   public Table<E> addRowElements( E[] elements )
   {
     //
@@ -128,10 +103,62 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> setRowElements( int rowIndex, E... elements )
+  public TableAdapterManager<E> as()
   {
-    this.tableDataAccessor.setRow( rowIndex, elements );
+    return this.tableAdapterManager;
+  }
+  
+  @Override
+  public Cell<E> cell( int rowIndex, int columnIndex )
+  {
+    return rowIndex >= 0 && columnIndex >= 0 ? this.tableDataAccessor.register( new CellImpl<E>( rowIndex, columnIndex, this ) )
+                                            : null;
+  }
+  
+  @Override
+  public Table<E> clear()
+  {
+    this.tableDataAccessor.clear();
     return this;
+  }
+  
+  @Override
+  public Column<E> column( int columnIndex )
+  {
+    return columnIndex >= 0 ? this.tableDataAccessor.register( new ColumnImpl<E>( columnIndex, this ) ) : null;
+  }
+  
+  @Override
+  public Column<E> column( String columnTitle )
+  {
+    final int columnIndex = this.tableDataAccessor.getColumnIndex( columnTitle );
+    return this.column( columnIndex );
+  }
+  
+  @Override
+  public Iterable<Column<E>> columns( Pattern columnTitlePattern )
+  {
+    final BitSet columnIndexFilter = this.tableDataAccessor.getColumnIndexFilter( columnTitlePattern );
+    return IterableUtils.filtered( this.columns(), columnIndexFilter );
+  }
+  
+  @Override
+  public Iterable<Column<E>> columns( Set<String> columnTitleSet )
+  {
+    final BitSet columnIndexFilter = this.tableDataAccessor.getColumnIndexFilter( columnTitleSet );
+    return IterableUtils.filtered( this.columns(), columnIndexFilter );
+  }
+  
+  @Override
+  public Iterable<Column<E>> columns( String... columnTitles )
+  {
+    return this.columns( SetUtils.valueOf( columnTitles ) );
+  }
+  
+  @Override
+  public int columnSize()
+  {
+    return this.tableDataAccessor.columnSize();
   }
   
   @Override
@@ -154,47 +181,9 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> clear()
-  {
-    this.tableDataAccessor.clear();
-    return this;
-  }
-  
-  @Override
-  public int rowSize()
-  {
-    return this.tableDataAccessor.rowSize();
-  }
-  
-  @Override
-  public int columnSize()
-  {
-    return this.tableDataAccessor.columnSize();
-  }
-  
-  @Override
   public Class<E> elementType()
   {
     return this.elementType;
-  }
-  
-  @Override
-  public TableIndexManager<E, Cell<E>> index()
-  {
-    return this.tableIndexManager;
-  }
-  
-  @Override
-  public Table<E> setCellElement( int rowIndex, int columnIndex, E element )
-  {
-    this.tableDataAccessor.set( element, rowIndex, columnIndex );
-    return this;
-  }
-  
-  @Override
-  public TableSelect<E> select()
-  {
-    return new TableSelectImpl<E>( this );
   }
   
   @SuppressWarnings("unchecked")
@@ -236,71 +225,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> setTableName( String tableName )
-  {
-    this.tableDataAccessor.setTableName( tableName );
-    return this;
-  }
-  
-  @Override
-  public Table<E> setColumnTitles( Iterable<String> columnTitleIterable )
-  {
-    this.tableDataAccessor.setColumnTitles( columnTitleIterable );
-    return this;
-  }
-  
-  @Override
-  public Table<E> setRowTitle( int rowIndex, String rowTitle )
-  {
-    this.tableDataAccessor.setRowTitle( rowIndex, rowTitle );
-    return this;
-  }
-  
-  @Override
-  public String getTableName()
-  {
-    return this.tableDataAccessor.getTableName();
-  }
-  
-  @Override
-  public String getRowTitle( int rowIndex )
-  {
-    return this.tableDataAccessor.getRowTitle( rowIndex );
-  }
-  
-  @Override
-  public String getColumnTitle( int columnIndex )
-  {
-    return this.tableDataAccessor.getColumnTitle( columnIndex );
-  }
-  
-  @Override
-  public List<String> getColumnTitleList()
-  {
-    return this.tableDataAccessor.getColumnTitleList();
-  }
-  
-  @Override
-  public List<String> getRowTitleList()
-  {
-    return this.tableDataAccessor.getRowTitleList();
-  }
-  
-  @Override
-  public Table<E> setColumnTitle( int columnIndex, String columnTitle )
-  {
-    this.tableDataAccessor.setColumnTitle( columnIndex, columnTitle );
-    return this;
-  }
-  
-  @Override
-  public Table<E> setRowTitles( Iterable<String> rowTitleIterable )
-  {
-    this.tableDataAccessor.setRowTitles( rowTitleIterable );
-    return this;
-  }
-  
-  @Override
   public boolean equalsInContentAndMetaData( ImmutableTable<E> table )
   {
     final boolean equalsInContent = this.equalsInContent( table );
@@ -310,91 +234,6 @@ public class ArrayTable<E> extends TableAbstract<E>
                                      && ObjectUtils.equals( this.getColumnTitleList(), table.getColumnTitleList() );
     
     return equalsInContent && equalsInMetaData;
-  }
-  
-  @Override
-  public boolean hasColumnTitles()
-  {
-    return this.tableDataAccessor.hasColumnTitles();
-  }
-  
-  @Override
-  public boolean hasRowTitles()
-  {
-    return this.tableDataAccessor.hasRowTitles();
-  }
-  
-  @Override
-  public boolean hasTableName()
-  {
-    return this.tableDataAccessor.hasTableName();
-  }
-  
-  @Override
-  public Table<E> setExceptionHandler( ExceptionHandler exceptionHandler )
-  {
-    this.tableDataAccessor.setExceptionHandler( exceptionHandler );
-    return super.setExceptionHandler( exceptionHandler );
-  }
-  
-  @Override
-  public TableAdapterManager<E> as()
-  {
-    return this.tableAdapterManager;
-  }
-  
-  @Override
-  public Table<E> removeRow( int rowIndex )
-  {
-    this.tableDataAccessor.removeRow( rowIndex );
-    return this;
-  }
-  
-  @Override
-  public Iterable<Row<E>> rows( BitSet filter )
-  {
-    return IterableUtils.filtered( this.rows(), filter );
-  }
-  
-  @Override
-  public Column<E> column( String columnTitle )
-  {
-    final int columnIndex = this.tableDataAccessor.getColumnIndex( columnTitle );
-    return this.column( columnIndex );
-  }
-  
-  @Override
-  public Row<E> row( String rowTitle )
-  {
-    final int rowIndex = this.tableDataAccessor.getRowIndex( rowTitle );
-    return this.row( rowIndex );
-  }
-  
-  @Override
-  public Iterable<Column<E>> columns( Set<String> columnTitleSet )
-  {
-    final BitSet columnIndexFilter = this.tableDataAccessor.getColumnIndexFilter( columnTitleSet );
-    return IterableUtils.filtered( this.columns(), columnIndexFilter );
-  }
-  
-  @Override
-  public Iterable<Column<E>> columns( Pattern columnTitlePattern )
-  {
-    final BitSet columnIndexFilter = this.tableDataAccessor.getColumnIndexFilter( columnTitlePattern );
-    return IterableUtils.filtered( this.columns(), columnIndexFilter );
-  }
-  
-  @Override
-  public Iterable<Column<E>> columns( String... columnTitles )
-  {
-    return this.columns( SetUtils.valueOf( columnTitles ) );
-  }
-  
-  @Override
-  public Table<E> executeWithWriteLock( TableExecution<Table<E>, E> tableExecution )
-  {
-    OperationUtils.executeWithLocks( tableExecution, this, this.tableDataAccessor.getTableLock().writeLock() );
-    return this;
   }
   
   @Override
@@ -428,6 +267,174 @@ public class ArrayTable<E> extends TableAbstract<E>
     {
       OperationUtils.executeWithLocks( tableExecution, this, this.tableDataAccessor.getTableLock().readLock() );
     }
+    return this;
+  }
+  
+  @Override
+  public Table<E> executeWithWriteLock( TableExecution<Table<E>, E> tableExecution )
+  {
+    OperationUtils.executeWithLocks( tableExecution, this, this.tableDataAccessor.getTableLock().writeLock() );
+    return this;
+  }
+  
+  @Override
+  public E getCellElement( int rowIndex, int columnIndex )
+  {
+    return this.tableDataAccessor.getElement( rowIndex, columnIndex );
+  }
+  
+  @Override
+  public String getColumnTitle( int columnIndex )
+  {
+    return this.tableDataAccessor.getColumnTitle( columnIndex );
+  }
+  
+  @Override
+  public List<String> getColumnTitleList()
+  {
+    return this.tableDataAccessor.getColumnTitleList();
+  }
+  
+  @Override
+  public String getRowTitle( int rowIndex )
+  {
+    return this.tableDataAccessor.getRowTitle( rowIndex );
+  }
+  
+  @Override
+  public List<String> getRowTitleList()
+  {
+    return this.tableDataAccessor.getRowTitleList();
+  }
+  
+  @Override
+  public String getTableName()
+  {
+    return this.tableDataAccessor.getTableName();
+  }
+  
+  @Override
+  public boolean hasColumnTitles()
+  {
+    return this.tableDataAccessor.hasColumnTitles();
+  }
+  
+  @Override
+  public boolean hasRowTitles()
+  {
+    return this.tableDataAccessor.hasRowTitles();
+  }
+  
+  @Override
+  public boolean hasTableName()
+  {
+    return this.tableDataAccessor.hasTableName();
+  }
+  
+  @Override
+  public TableIndexManager<E, Cell<E>> index()
+  {
+    return this.tableIndexManager;
+  }
+  
+  @Override
+  public Table<E> removeColumn( int columnIndex )
+  {
+    this.tableDataAccessor.removeColumn( columnIndex );
+    return this;
+  }
+  
+  @Override
+  public Table<E> removeRow( int rowIndex )
+  {
+    this.tableDataAccessor.removeRow( rowIndex );
+    return this;
+  }
+  
+  @Override
+  public Row<E> row( int rowIndex )
+  {
+    return rowIndex >= 0 ? this.tableDataAccessor.register( new RowImpl<E>( rowIndex, this ) ) : null;
+  }
+  
+  @Override
+  public Row<E> row( String rowTitle )
+  {
+    final int rowIndex = this.tableDataAccessor.getRowIndex( rowTitle );
+    return this.row( rowIndex );
+  }
+  
+  @Override
+  public Iterable<Row<E>> rows( BitSet filter )
+  {
+    return IterableUtils.filtered( this.rows(), filter );
+  }
+  
+  @Override
+  public int rowSize()
+  {
+    return this.tableDataAccessor.rowSize();
+  }
+  
+  @Override
+  public TableSelect<E> select()
+  {
+    return new TableSelectImpl<E>( this );
+  }
+  
+  @Override
+  public Table<E> setCellElement( int rowIndex, int columnIndex, E element )
+  {
+    this.tableDataAccessor.set( element, rowIndex, columnIndex );
+    return this;
+  }
+  
+  @Override
+  public Table<E> setColumnTitle( int columnIndex, String columnTitle )
+  {
+    this.tableDataAccessor.setColumnTitle( columnIndex, columnTitle );
+    return this;
+  }
+  
+  @Override
+  public Table<E> setColumnTitles( Iterable<String> columnTitleIterable )
+  {
+    this.tableDataAccessor.setColumnTitles( columnTitleIterable );
+    return this;
+  }
+  
+  @Override
+  public Table<E> setExceptionHandler( ExceptionHandler exceptionHandler )
+  {
+    this.tableDataAccessor.setExceptionHandler( exceptionHandler );
+    return super.setExceptionHandler( exceptionHandler );
+  }
+  
+  @Override
+  public Table<E> setRowElements( int rowIndex, E... elements )
+  {
+    this.tableDataAccessor.setRow( rowIndex, elements );
+    return this;
+  }
+  
+  @Override
+  public Table<E> setRowTitle( int rowIndex, String rowTitle )
+  {
+    this.tableDataAccessor.setRowTitle( rowIndex, rowTitle );
+    return this;
+  }
+  
+  @Override
+  public Table<E> setRowTitles( Iterable<String> rowTitleIterable )
+  {
+    this.tableDataAccessor.setRowTitles( rowTitleIterable );
+    return this;
+  }
+  
+  @Override
+  public Table<E> setTableName( String tableName )
+  {
+    this.tableDataAccessor.setTableName( tableName );
     return this;
   }
   

@@ -42,29 +42,11 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   }
   
   @Override
-  public E getCellElement( int columnIndex )
-  {
-    return this.table.getCellElement( this.rowIndex, columnIndex );
-  }
-  
-  @Override
-  public int size()
-  {
-    return this.table.columnSize();
-  }
-  
-  @Override
   public Row<E> add( E element )
   {
     int columnIndex = this.size();
     this.table.setCellElement( this.rowIndex, columnIndex, element );
     return this;
-  }
-  
-  @Override
-  public int index()
-  {
-    return this.rowIndex;
   }
   
   @Override
@@ -74,11 +56,55 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   }
   
   @Override
+  public Row<E> clear()
+  {
+    final int size = this.size();
+    for ( int ii = 0; ii < size; ii++ )
+    {
+      this.cell( ii ).clear();
+    }
+    return this;
+  }
+  
+  @Override
+  public E getCellElement( int columnIndex )
+  {
+    return this.table.getCellElement( this.rowIndex, columnIndex );
+  }
+  
+  @Override
+  public String getTitle()
+  {
+    return this.table.getRowTitle( this.rowIndex );
+  }
+  
+  @Override
   public void handleAddedRow( int rowIndex, E... elements )
   {
     if ( this.rowIndex <= rowIndex )
     {
       this.rowIndex++;
+    }
+  }
+  
+  @Override
+  public void handleClearTable()
+  {
+    this.markAsDeleted();
+  }
+  
+  @Override
+  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  {
+    this.isModified = true;
+  }
+  
+  @Override
+  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  {
+    if ( rowIndex == this.rowIndex )
+    {
+      this.markAsDeleted();
     }
   }
   
@@ -101,29 +127,21 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   }
   
   @Override
-  public void handleClearTable()
+  public RowIdentity<E> id()
   {
-    this.markAsDeleted();
+    return new RowIdentityImpl<E>( this.table, this );
   }
   
   @Override
-  public Row<E> setCellElement( int columnIndex, E element )
+  public int index()
   {
-    this.table.setCellElement( this.rowIndex, columnIndex, element );
-    return this;
+    return this.rowIndex;
   }
   
-  @Override
-  public String getTitle()
+  private void markAsDeleted()
   {
-    return this.table.getRowTitle( this.rowIndex );
-  }
-  
-  @Override
-  public Row<E> setTitle( String rowTitle )
-  {
-    this.table.setRowTitle( this.rowIndex, rowTitle );
-    return this;
+    this.isDeleted = true;
+    this.rowIndex = -1;
   }
   
   @Override
@@ -134,18 +152,10 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   }
   
   @Override
-  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  public Row<E> setCellElement( int columnIndex, E element )
   {
-    if ( rowIndex == this.rowIndex )
-    {
-      this.markAsDeleted();
-    }
-  }
-  
-  private void markAsDeleted()
-  {
-    this.isDeleted = true;
-    this.rowIndex = -1;
+    this.table.setCellElement( this.rowIndex, columnIndex, element );
+    return this;
   }
   
   @Override
@@ -160,20 +170,16 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   }
   
   @Override
-  public Row<E> clear()
+  public Row<E> setTitle( String rowTitle )
   {
-    final int size = this.size();
-    for ( int ii = 0; ii < size; ii++ )
-    {
-      this.cell( ii ).clear();
-    }
+    this.table.setRowTitle( this.rowIndex, rowTitle );
     return this;
   }
   
   @Override
-  public RowIdentity<E> id()
+  public int size()
   {
-    return new RowIdentityImpl<E>( this.table, this );
+    return this.table.columnSize();
   }
   
 }
