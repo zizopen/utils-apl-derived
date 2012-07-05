@@ -152,6 +152,14 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public TableIndexManager<E, Cell<E>> index();
   
   /**
+   * Removes the {@link Column} for the given column index position
+   * 
+   * @param columnIndex
+   * @return this
+   */
+  public Table<E> removeColumn( int columnIndex );
+  
+  /**
    * Removes a {@link Row} at the given row index position
    * 
    * @param rowIndex

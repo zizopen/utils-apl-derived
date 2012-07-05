@@ -30,18 +30,6 @@ import org.omnaest.utils.table2.Table;
 class CellImpl<E> implements Cell<E>, TableEventHandler<E>
 {
   
-  private static final long serialVersionUID = 6804665993728136898L;
-  /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private volatile int      rowIndex;
-  private volatile int      columnIndex;
-  private volatile boolean  isDeleted        = false;
-  private volatile boolean  isModified       = false;
-  
-  /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
-  private final Table<E>    table;
-  
-  /* ********************************************** Classes/Interfaces ********************************************** */
-  
   private final static class PositionImplementation implements Position
   {
     private final int columnIndex;
@@ -55,25 +43,9 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
     }
     
     @Override
-    public int rowIndex()
-    {
-      return this.rowIndex;
-    }
-    
-    @Override
     public int columnIndex()
     {
       return this.columnIndex;
-    }
-    
-    @Override
-    public int hashCode()
-    {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + this.columnIndex;
-      result = prime * result + this.rowIndex;
-      return result;
     }
     
     @Override
@@ -103,7 +75,36 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
       return true;
     }
     
+    @Override
+    public int hashCode()
+    {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + this.columnIndex;
+      result = prime * result + this.rowIndex;
+      return result;
+    }
+    
+    @Override
+    public int rowIndex()
+    {
+      return this.rowIndex;
+    }
+    
   }
+  
+  private static final long serialVersionUID = 6804665993728136898L;
+  private volatile int      columnIndex;
+  private volatile boolean  isDeleted        = false;
+  private volatile boolean  isModified       = false;
+  
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private volatile int      rowIndex;
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
+  private final Table<E>    table;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -116,9 +117,17 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   }
   
   @Override
-  public int rowIndex()
+  public E clear()
   {
-    return !this.isDeleted ? this.rowIndex : -1;
+    final E element = this.getElement();
+    this.setElement( null );
+    return element;
+  }
+  
+  @Override
+  public Column<E> column()
+  {
+    return this.table.column( this.columnIndex );
   }
   
   @Override
@@ -127,21 +136,21 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
     return !this.isDeleted ? this.columnIndex : -1;
   }
   
+  @Override
+  public E getElement()
+  {
+    return this.isDeleted ? null : this.table.getCellElement( this.rowIndex, this.columnIndex );
+  }
+  
+  @Override
+  public org.omnaest.utils.table2.ImmutableCell.Position getPosition()
+  {
+    return !this.isDeleted ? new PositionImplementation( this.columnIndex, this.rowIndex ) : new PositionImplementation( -1, -1 );
+  }
+  
   public Row<E> getRow()
   {
     return !this.isDeleted ? this.table.row( this.rowIndex ) : null;
-  }
-  
-  @Override
-  public boolean isDeleted()
-  {
-    return this.isDeleted;
-  }
-  
-  @Override
-  public boolean isModified()
-  {
-    return this.isModified;
   }
   
   @Override
@@ -150,6 +159,30 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
     if ( !this.isDeleted && this.rowIndex <= rowIndex )
     {
       this.rowIndex++;
+    }
+  }
+  
+  @Override
+  public void handleClearTable()
+  {
+    this.markAsDeleted();
+  }
+  
+  @Override
+  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  {
+    if ( this.columnIndex == columnIndex )
+    {
+      this.markAsDeleted();
+    }
+  }
+  
+  @Override
+  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  {
+    if ( this.rowIndex == rowIndex )
+    {
+      this.markAsDeleted();
     }
   }
   
@@ -172,12 +205,15 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   }
   
   @Override
-  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  public boolean isDeleted()
   {
-    if ( this.rowIndex == rowIndex )
-    {
-      this.markAsDeleted();
-    }
+    return this.isDeleted;
+  }
+  
+  @Override
+  public boolean isModified()
+  {
+    return this.isModified;
   }
   
   private void markAsDeleted()
@@ -188,15 +224,15 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   }
   
   @Override
-  public void handleClearTable()
+  public Row<E> row()
   {
-    this.markAsDeleted();
+    return this.table.row( this.rowIndex );
   }
   
   @Override
-  public E getElement()
+  public int rowIndex()
   {
-    return this.isDeleted ? null : this.table.getCellElement( this.rowIndex, this.columnIndex );
+    return !this.isDeleted ? this.rowIndex : -1;
   }
   
   @Override
@@ -207,12 +243,6 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
       this.table.setCellElement( this.rowIndex, this.columnIndex, element );
     }
     return this;
-  }
-  
-  @Override
-  public org.omnaest.utils.table2.ImmutableCell.Position getPosition()
-  {
-    return !this.isDeleted ? new PositionImplementation( this.columnIndex, this.rowIndex ) : new PositionImplementation( -1, -1 );
   }
   
   @Override
@@ -231,26 +261,6 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
     builder.append( this.getElement() );
     builder.append( "]" );
     return builder.toString();
-  }
-  
-  @Override
-  public Row<E> row()
-  {
-    return this.table.row( this.rowIndex );
-  }
-  
-  @Override
-  public Column<E> column()
-  {
-    return this.table.column( this.columnIndex );
-  }
-  
-  @Override
-  public E clear()
-  {
-    final E element = this.getElement();
-    this.setElement( null );
-    return element;
   }
   
 }

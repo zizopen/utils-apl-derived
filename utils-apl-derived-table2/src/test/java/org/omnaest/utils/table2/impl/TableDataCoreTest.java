@@ -222,4 +222,29 @@ public class TableDataCoreTest
     assertArrayEquals( new String[0], tableDataCore.getRow( 0 ) );
   }
   
+  @Test
+  public void testRemoveColumn() throws Exception
+  {
+    TableDataCore<String> tableDataCore = new TableDataCore<String>( String.class );
+    for ( int ii = 0; ii < 12; ii++ )
+    {
+      final String[] data = new String[] { "a" + ii, "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m" };
+      tableDataCore.addRow( data );
+      assertArrayEquals( data, tableDataCore.getRow( ii ) );
+    }
+    
+    final String[] removedColumn = tableDataCore.removeColumn( 1 );
+    assertArrayEquals( new String[] { "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b", "b" }, removedColumn );
+    assertArrayEquals( new String[] { "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c" }, tableDataCore.getColumn( 1 ) );
+    
+    for ( int ii = 0; ii < 11; ii++ )
+    {
+      tableDataCore.removeColumn( 1 );
+    }
+    assertArrayEquals( new String[] { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11" },
+                       tableDataCore.getColumn( 0 ) );
+    assertEquals( 1, tableDataCore.columnSize() );
+    assertEquals( 12, tableDataCore.rowSize() );
+  }
+  
 }

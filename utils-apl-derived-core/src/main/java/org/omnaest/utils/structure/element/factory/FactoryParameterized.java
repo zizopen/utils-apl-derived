@@ -13,28 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.table2.impl;
-
-import java.io.Serializable;
-import java.util.BitSet;
+package org.omnaest.utils.structure.element.factory;
 
 /**
- * Handler for table events
+ * Parameterized alternative to {@link Factory}
  * 
+ * @see Factory
  * @author Omnaest
- * @param <E>
+ * @param <R>
+ * @param <P>
  */
-interface TableEventHandler<E> extends Serializable
+public interface FactoryParameterized<R, P>
 {
-  public void handleAddedRow( int rowIndex, E... elements );
-  
-  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices );
-  
-  public void handleRemovedRow( int rowIndex, E[] previousElements );
-  
-  public void handleRemovedColumn( int columnIndex, E[] previousElements );
-  
-  public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement );
-  
-  public void handleClearTable();
+  /**
+   * Returns a new instance for the given parameter
+   * 
+   * @param parameter
+   * @return new instance
+   */
+  public abstract R newInstance( P parameter );
 }

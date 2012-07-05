@@ -139,4 +139,24 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
     this.isModified = true;
   }
   
+  @Override
+  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  {
+    if ( columnIndex == this.columnIndex )
+    {
+      this.markAsDeleted();
+    }
+    else if ( this.columnIndex > columnIndex )
+    {
+      this.columnIndex--;
+    }
+  }
+  
+  @Override
+  public Column<E> remove()
+  {
+    this.table.removeColumn( this.columnIndex );
+    return this;
+  }
+  
 }

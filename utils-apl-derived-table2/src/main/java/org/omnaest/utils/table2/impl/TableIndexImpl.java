@@ -46,9 +46,9 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
 {
   /* ************************************************** Constants *************************************************** */
   private static final long                serialVersionUID = 3723253328291423721L;
+  private final Column<E>                  column;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final SortedMap<E, Set<Cell<E>>> elementToCellSetMap;
-  private final Column<E>                  column;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -67,28 +67,15 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   }
   
   @Override
-  public SortedMap<E, Set<Cell<E>>> subMap( E fromKey, E toKey )
+  public SortedMap<E, Set<Cell<E>>> asMap()
   {
-    return Collections.unmodifiableSortedMap( MapUtils.adapter( this.elementToCellSetMap.subMap( fromKey, toKey ),
-                                                                new ElementBidirectionalConverterSetToUnmodifiableSet<Cell<E>>() ) );
+    return this;
   }
   
   @Override
-  public int size()
+  public void clear()
   {
-    return this.elementToCellSetMap.size();
-  }
-  
-  @Override
-  public boolean isEmpty()
-  {
-    return this.elementToCellSetMap.isEmpty();
-  }
-  
-  @Override
-  public boolean containsKey( Object key )
-  {
-    return this.elementToCellSetMap.containsKey( key );
+    throw new UnsupportedOperationException();
   }
   
   @Override
@@ -98,72 +85,15 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   }
   
   @Override
+  public boolean containsKey( Object key )
+  {
+    return this.elementToCellSetMap.containsKey( key );
+  }
+  
+  @Override
   public boolean containsValue( Object value )
   {
     return this.elementToCellSetMap.containsValue( value );
-  }
-  
-  @Override
-  public SortedMap<E, Set<Cell<E>>> headMap( E toKey )
-  {
-    return Collections.unmodifiableSortedMap( MapUtils.adapter( this.elementToCellSetMap.headMap( toKey ),
-                                                                new ElementBidirectionalConverterSetToUnmodifiableSet<Cell<E>>() ) );
-  }
-  
-  @Override
-  public Set<Cell<E>> get( Object key )
-  {
-    return this.containsKey( key ) ? Collections.unmodifiableSet( this.elementToCellSetMap.get( key ) ) : null;
-  }
-  
-  @Override
-  public SortedMap<E, Set<Cell<E>>> tailMap( E fromKey )
-  {
-    return Collections.unmodifiableSortedMap( MapUtils.adapter( this.elementToCellSetMap.tailMap( fromKey ),
-                                                                new ElementBidirectionalConverterSetToUnmodifiableSet<Cell<E>>() ) );
-  }
-  
-  @Override
-  public Set<Cell<E>> put( E key, Set<Cell<E>> value )
-  {
-    throw new UnsupportedOperationException();
-  }
-  
-  @Override
-  public E firstKey()
-  {
-    return this.elementToCellSetMap.firstKey();
-  }
-  
-  @Override
-  public E lastKey()
-  {
-    return this.elementToCellSetMap.lastKey();
-  }
-  
-  @Override
-  public Set<E> keySet()
-  {
-    return Collections.unmodifiableSet( this.elementToCellSetMap.keySet() );
-  }
-  
-  @Override
-  public Set<Cell<E>> remove( Object key )
-  {
-    throw new UnsupportedOperationException();
-  }
-  
-  @Override
-  public Collection<Set<Cell<E>>> values()
-  {
-    return Collections.unmodifiableCollection( CollectionUtils.adapter( this.elementToCellSetMap.values(),
-                                                                        new ElementBidirectionalConverterSetToUnmodifiableSet<Cell<E>>() ) );
-  }
-  
-  @Override
-  public void putAll( Map<? extends E, ? extends Set<Cell<E>>> m )
-  {
-    throw new UnsupportedOperationException();
   }
   
   @Override
@@ -174,12 +104,6 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
                                                           {
                                                             
                                                             private static final long serialVersionUID = 1170906776959603812L;
-                                                            
-                                                            @Override
-                                                            public java.util.Map.Entry<E, Set<Cell<E>>> convertBackwards( java.util.Map.Entry<E, Set<Cell<E>>> element )
-                                                            {
-                                                              throw new UnsupportedOperationException();
-                                                            }
                                                             
                                                             @Override
                                                             public java.util.Map.Entry<E, Set<Cell<E>>> convert( final java.util.Map.Entry<E, Set<Cell<E>>> entry )
@@ -206,13 +130,13 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
                                                                 }
                                                               };
                                                             }
+                                                            
+                                                            @Override
+                                                            public java.util.Map.Entry<E, Set<Cell<E>>> convertBackwards( java.util.Map.Entry<E, Set<Cell<E>>> element )
+                                                            {
+                                                              throw new UnsupportedOperationException();
+                                                            }
                                                           } ) );
-  }
-  
-  @Override
-  public void clear()
-  {
-    throw new UnsupportedOperationException();
   }
   
   @Override
@@ -222,9 +146,15 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   }
   
   @Override
-  public int hashCode()
+  public E firstKey()
   {
-    return this.elementToCellSetMap.hashCode();
+    return this.elementToCellSetMap.firstKey();
+  }
+  
+  @Override
+  public Set<Cell<E>> get( Object key )
+  {
+    return this.containsKey( key ) ? Collections.unmodifiableSet( this.elementToCellSetMap.get( key ) ) : null;
   }
   
   @Override
@@ -236,15 +166,17 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   }
   
   @Override
-  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
+  public void handleClearTable()
   {
-    for ( int ii = 0; ii >= 0; modifiedIndices.nextSetBit( ii + 1 ) )
+    this.elementToCellSetMap.clear();
+  }
+  
+  @Override
+  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  {
+    if ( this.column.index() == columnIndex )
     {
-      final E element = elements[ii];
-      final E previousElement = previousElements[ii];
-      
-      final int columnIndex = ii;
-      this.handleUpdatedCell( rowIndex, columnIndex, element, previousElement );
+      this.handleClearTable();
     }
   }
   
@@ -303,9 +235,29 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   }
   
   @Override
-  public void handleClearTable()
+  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
   {
-    this.elementToCellSetMap.clear();
+    for ( int ii = 0; ii >= 0; modifiedIndices.nextSetBit( ii + 1 ) )
+    {
+      final E element = elements[ii];
+      final E previousElement = previousElements[ii];
+      
+      final int columnIndex = ii;
+      this.handleUpdatedCell( rowIndex, columnIndex, element, previousElement );
+    }
+  }
+  
+  @Override
+  public int hashCode()
+  {
+    return this.elementToCellSetMap.hashCode();
+  }
+  
+  @Override
+  public SortedMap<E, Set<Cell<E>>> headMap( E toKey )
+  {
+    return Collections.unmodifiableSortedMap( MapUtils.adapter( this.elementToCellSetMap.headMap( toKey ),
+                                                                new ElementBidirectionalConverterSetToUnmodifiableSet<Cell<E>>() ) );
   }
   
   @Override
@@ -315,9 +267,66 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   }
   
   @Override
-  public SortedMap<E, Set<Cell<E>>> asMap()
+  public boolean isEmpty()
   {
-    return this;
+    return this.elementToCellSetMap.isEmpty();
+  }
+  
+  @Override
+  public Set<E> keySet()
+  {
+    return Collections.unmodifiableSet( this.elementToCellSetMap.keySet() );
+  }
+  
+  @Override
+  public E lastKey()
+  {
+    return this.elementToCellSetMap.lastKey();
+  }
+  
+  @Override
+  public Set<Cell<E>> put( E key, Set<Cell<E>> value )
+  {
+    throw new UnsupportedOperationException();
+  }
+  
+  @Override
+  public void putAll( Map<? extends E, ? extends Set<Cell<E>>> m )
+  {
+    throw new UnsupportedOperationException();
+  }
+  
+  @Override
+  public Set<Cell<E>> remove( Object key )
+  {
+    throw new UnsupportedOperationException();
+  }
+  
+  @Override
+  public int size()
+  {
+    return this.elementToCellSetMap.size();
+  }
+  
+  @Override
+  public SortedMap<E, Set<Cell<E>>> subMap( E fromKey, E toKey )
+  {
+    return Collections.unmodifiableSortedMap( MapUtils.adapter( this.elementToCellSetMap.subMap( fromKey, toKey ),
+                                                                new ElementBidirectionalConverterSetToUnmodifiableSet<Cell<E>>() ) );
+  }
+  
+  @Override
+  public SortedMap<E, Set<Cell<E>>> tailMap( E fromKey )
+  {
+    return Collections.unmodifiableSortedMap( MapUtils.adapter( this.elementToCellSetMap.tailMap( fromKey ),
+                                                                new ElementBidirectionalConverterSetToUnmodifiableSet<Cell<E>>() ) );
+  }
+  
+  @Override
+  public Collection<Set<Cell<E>>> values()
+  {
+    return Collections.unmodifiableCollection( CollectionUtils.adapter( this.elementToCellSetMap.values(),
+                                                                        new ElementBidirectionalConverterSetToUnmodifiableSet<Cell<E>>() ) );
   }
   
 }

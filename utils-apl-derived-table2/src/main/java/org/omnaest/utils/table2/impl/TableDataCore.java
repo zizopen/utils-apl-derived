@@ -215,6 +215,101 @@ class TableDataCore<E> implements Serializable
     return retval;
   }
   
+  public E[] removeColumn( int columnIndex )
+  {
+    //
+    E[] retvals = null;
+    
+    //
+    final int nativeColumnIndex = this.determineNativeColumnIndex( columnIndex );
+    final int columnMaxSize = this.nativeColumnIndices.length;
+    if ( nativeColumnIndex >= 0 )
+    {
+      boolean isActiveColumn = this.activeColumnBitSet.get( nativeColumnIndex );
+      if ( isActiveColumn )
+      {
+        retvals = this.newArray( this.rowSize );
+        for ( int ii = 0; ii < retvals.length; ii++ )
+        {
+          final int nativeRowIndex = this.determineNativeRowIndex( ii );
+          retvals[ii] = this.matrix[nativeRowIndex][nativeColumnIndex];
+        }
+        
+        for ( int ii = 0; ii < this.nativeRowIndices.length; ii++ )
+        {
+          this.matrix[ii][nativeColumnIndex] = null;
+        }
+      }
+      
+      this.activeColumnBitSet.clear( nativeColumnIndex );
+      for ( int iColumnIndex = columnIndex; iColumnIndex < columnMaxSize - 1; iColumnIndex++ )
+      {
+        this.nativeColumnIndices[iColumnIndex] = this.nativeColumnIndices[iColumnIndex + 1];
+      }
+      this.nativeColumnIndices[columnMaxSize - 1] = 0;
+      this.columnSize--;
+    }
+    
+    //
+    this.compactColumnsIfNecessary( columnMaxSize );
+    
+    return retvals;
+  }
+  
+  private void compactColumnsIfNecessary( int columnMaxSize )
+  {
+    if ( this.columnSize < columnMaxSize / 4 )
+    {
+      //
+      if ( this.columnSize > 0 )
+      {
+        int lowerNativeColumnIndex = -1;
+        int upperNativeColumnIndex = this.nativeColumnIndices.length - 1;
+        while ( ( lowerNativeColumnIndex = this.activeColumnBitSet.nextClearBit( lowerNativeColumnIndex + 1 ) ) < upperNativeColumnIndex )
+        {
+          while ( upperNativeColumnIndex > lowerNativeColumnIndex && !this.activeColumnBitSet.get( upperNativeColumnIndex ) )
+          {
+            upperNativeColumnIndex--;
+          }
+          
+          if ( lowerNativeColumnIndex < upperNativeColumnIndex )
+          {
+            //
+            for ( int ii = 0; ii < this.nativeColumnIndices.length; ii++ )
+            {
+              if ( this.nativeColumnIndices[ii] == upperNativeColumnIndex )
+              {
+                this.nativeColumnIndices[ii] = lowerNativeColumnIndex;
+                break;
+              }
+            }
+            
+            //
+            this.activeColumnBitSet.clear( upperNativeColumnIndex );
+            this.activeColumnBitSet.set( lowerNativeColumnIndex );
+            
+            //
+            for ( int ii = 0; ii < this.nativeRowIndices.length; ii++ )
+            {
+              E element = this.matrix[ii][upperNativeColumnIndex];
+              this.matrix[ii][upperNativeColumnIndex] = this.matrix[ii][lowerNativeColumnIndex];
+              this.matrix[ii][lowerNativeColumnIndex] = element;
+            }
+          }
+        }
+      }
+      
+      //
+      final int newColumnMaxSize = columnMaxSize / 2;
+      this.nativeColumnIndices = Arrays.copyOf( this.nativeColumnIndices, newColumnMaxSize );
+      this.activeColumnBitSet.clear( newColumnMaxSize, columnMaxSize - 1 );
+      for ( int ii = 0; ii < this.nativeRowIndices.length; ii++ )
+      {
+        this.matrix[ii] = Arrays.copyOf( this.matrix[ii], newColumnMaxSize );
+      }
+    }
+  }
+  
   public E[] removeRow( int rowIndex )
   {
     //
@@ -228,7 +323,12 @@ class TableDataCore<E> implements Serializable
       boolean activeRow = this.activeRowBitSet.get( nativeRowIndex );
       if ( activeRow )
       {
-        retvals = Arrays.copyOf( this.matrix[nativeRowIndex], this.columnSize );
+        retvals = this.newArray( this.columnSize );
+        for ( int ii = 0; ii < retvals.length; ii++ )
+        {
+          final int nativeColumnIndex = this.determineNativeColumnIndex( ii );
+          retvals[ii] = this.matrix[nativeRowIndex][nativeColumnIndex];
+        }
         Arrays.fill( this.matrix[nativeRowIndex], null );
       }
       
@@ -241,10 +341,17 @@ class TableDataCore<E> implements Serializable
       this.rowSize--;
     }
     
-    //
+    //    
+    this.compactRowsIfNecessary( rowMaxSize );
+    
+    return retvals;
+  }
+  
+  private void compactRowsIfNecessary( final int rowMaxSize )
+  {
     if ( this.rowSize < rowMaxSize / 4 )
     {
-      //compact
+      //
       if ( this.rowSize > 0 )
       {
         int lowerNativeRowIndex = -1;
@@ -286,8 +393,6 @@ class TableDataCore<E> implements Serializable
       this.activeRowBitSet.clear( newRowMaxSize, rowMaxSize - 1 );
       this.matrix = Arrays.copyOf( this.matrix, newRowMaxSize );
     }
-    
-    return retvals;
   }
   
   public int addColumn( E... elements )
