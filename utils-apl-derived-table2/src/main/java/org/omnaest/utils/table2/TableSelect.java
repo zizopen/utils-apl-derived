@@ -50,6 +50,15 @@ public interface TableSelect<E>
       public E getElement( ColumnIdentity<E> columnIdentity );
       
       public E getElement( ImmutableTable<E> table, int columnIndex );
+      
+      /**
+       * Returns true, if the current {@link TableSelect.Predicate.FilterRow} contains information for the given
+       * {@link ColumnIdentity}
+       * 
+       * @param columnIdentity
+       * @return
+       */
+      public boolean hasColumn( ColumnIdentity<E> columnIdentity );
     }
     
     /**
@@ -59,6 +68,7 @@ public interface TableSelect<E>
      * @return true if the {@link TableSelect.Predicate.FilterRow} instance should be included
      */
     public boolean isIncluding( FilterRow<E> row );
+    
   }
   
   /**

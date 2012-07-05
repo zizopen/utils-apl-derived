@@ -111,7 +111,7 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   @Override
   public ImmutableColumn.ColumnIdentity<E> id()
   {
-    return new ColumnIdentityImpl<E>( this.columnIndex, this.table );
+    return new ColumnIdentityImpl<E>( this.table, this );
   }
   
   @Override

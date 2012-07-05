@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.ImmutableColumn;
 import org.omnaest.utils.table2.ImmutableColumn.ColumnIdentity;
 import org.omnaest.utils.table2.ImmutableTable;
@@ -27,19 +28,19 @@ import org.omnaest.utils.table2.Table;
 class ColumnIdentityImpl<E> implements ColumnIdentity<E>
 {
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final int      columnIndex;
-  private final Table<E> table;
+  private final Table<E>  table;
+  private final Column<E> column;
   
   /* *************************************************** Methods **************************************************** */
   
   /**
-   * @see ColumnIdentityImpl
-   * @param columnIndex
    * @param table
+   * @param column
+   * @see ColumnIdentityImpl
    */
-  ColumnIdentityImpl( int columnIndex, Table<E> table )
+  ColumnIdentityImpl( Table<E> table, Column<E> column )
   {
-    this.columnIndex = columnIndex;
+    this.column = column;
     this.table = table;
   }
   
@@ -52,13 +53,13 @@ class ColumnIdentityImpl<E> implements ColumnIdentity<E>
   @Override
   public ImmutableColumn<E> column()
   {
-    return this.table.column( this.columnIndex );
+    return this.column;
   }
   
   @Override
   public int getColumnIndex()
   {
-    return this.columnIndex;
+    return this.column.index();
   }
   
   @Override
@@ -66,7 +67,7 @@ class ColumnIdentityImpl<E> implements ColumnIdentity<E>
   {
     final int prime = 31;
     int result = 1;
-    result = prime * result + this.columnIndex;
+    result = prime * result + this.getColumnIndex();
     result = prime * result + ( ( this.table == null ) ? 0 : this.table.hashCode() );
     return result;
   }
@@ -88,7 +89,7 @@ class ColumnIdentityImpl<E> implements ColumnIdentity<E>
     }
     @SuppressWarnings("rawtypes")
     ColumnIdentityImpl other = (ColumnIdentityImpl) obj;
-    if ( this.columnIndex != other.columnIndex )
+    if ( this.getColumnIndex() != other.getColumnIndex() )
     {
       return false;
     }
@@ -111,7 +112,7 @@ class ColumnIdentityImpl<E> implements ColumnIdentity<E>
   {
     StringBuilder builder = new StringBuilder();
     builder.append( "ColumnIdentityImpl [columnIndex=" );
-    builder.append( this.columnIndex );
+    builder.append( this.getColumnIndex() );
     builder.append( ", table=" );
     builder.append( this.table );
     builder.append( "]" );

@@ -239,16 +239,16 @@ public class AdapterTypePatternBased implements AdapterInternal
                                                                                                               new FactoryParameterized<FactoryTypeAware<Object>, Class<?>>()
                                                                                                               {
                                                                                                                 @Override
-                                                                                                                public FactoryTypeAware<Object> newInstance( Class<?>... arguments )
+                                                                                                                public FactoryTypeAware<Object> newInstance( Class<?> argument )
                                                                                                                 {
                                                                                                                   //
                                                                                                                   FactoryTypeAware<Object> retval = null;
                                                                                                                   
                                                                                                                   //
-                                                                                                                  if ( arguments.length == 1 )
+                                                                                                                  if ( argument != null )
                                                                                                                   {
                                                                                                                     //
-                                                                                                                    final Class<?> type = arguments[0];
+                                                                                                                    final Class<?> type = argument;
                                                                                                                     for ( AdapterTypePatternBased.PackageAndPatternBasedTargetTypeFactory packageAndPatternBasedTargetTypeFactory : patternBasedTargetTypeFactorySet )
                                                                                                                     {
                                                                                                                       //
@@ -263,6 +263,7 @@ public class AdapterTypePatternBased implements AdapterInternal
                                                                                                                   //
                                                                                                                   return retval;
                                                                                                                 }
+                                                                                                                
                                                                                                               } );
       
       /* ********************************************** Methods ********************************************** */

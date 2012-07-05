@@ -173,7 +173,7 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   @Override
   public RowIdentity<E> id()
   {
-    return new RowIdentityImpl<E>( this.table, this.rowIndex );
+    return new RowIdentityImpl<E>( this.table, this );
   }
   
 }
