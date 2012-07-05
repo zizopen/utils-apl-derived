@@ -44,6 +44,7 @@ import org.junit.Test;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
 import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
@@ -55,6 +56,21 @@ import org.omnaest.utils.table2.impl.ArrayTable;
  */
 public abstract class TableTest
 {
+  private static void assertSameColumnOrRowValue( String[] cellElements, final int index )
+  {
+    List<String> elementList = ListUtils.valueOf( cellElements );
+    elementList = ListUtils.convert( elementList, new ElementConverter<String, String>()
+    {
+      @Override
+      public String convert( String element )
+      {
+        return element.split( ":" )[index];
+      }
+    } );
+    Set<String> elementRowSet = SetUtils.valueOf( elementList );
+    assertEquals( 1, elementRowSet.size() );
+  }
+  
   public abstract <E> Table<E> newTable( E[][] elementMatrix, Class<E> type );
   
   @Test
@@ -433,7 +449,7 @@ public abstract class TableTest
     assertTrue( table.equalsInContentAndMetaData( result ) );
     
   }
-
+  
   @Test
   public void testSerializingCSV()
   {
@@ -453,7 +469,7 @@ public abstract class TableTest
     assertTrue( table.equalsInContentAndMetaData( result ) );
     
   }
-
+  
   @Test
   public void testToMap() throws Exception
   {
@@ -473,7 +489,7 @@ public abstract class TableTest
       assertEquals( "1:3", sortedMap.get( "1:1" ) );
     }
   }
-
+  
   @Test
   public void testToString() throws Exception
   {
@@ -484,7 +500,7 @@ public abstract class TableTest
     assertNotNull( content );
     assertEquals( table.toString(), content );
   }
-
+  
   @Test
   public void testColumn() throws Exception
   {
@@ -518,7 +534,7 @@ public abstract class TableTest
     }
     
   }
-
+  
   @Test
   public void testGetAndSetCellElement() throws Exception
   {
@@ -558,7 +574,7 @@ public abstract class TableTest
       assertNull( table.cell( 0, -1 ) );
     }
   }
-
+  
   @SuppressWarnings("cast")
   @Test
   public void testRow()
@@ -598,7 +614,7 @@ public abstract class TableTest
       assertEquals( table.row( 2 ).id(), IterableUtils.elementAt( rows, 1 ).id() );
     }
   }
-
+  
   @Test
   public void testSerialization()
   {
@@ -609,7 +625,7 @@ public abstract class TableTest
     
     //System.out.println( clone );
   }
-
+  
   @Test
   public void testIndex() throws Exception
   {
@@ -646,10 +662,10 @@ public abstract class TableTest
       assertTrue( tableIndex.isEmpty() );
     }
   }
-
+  
   @Test
   public void testExecuteWithLocks() throws InterruptedException,
-                                       ExecutionException
+                                    ExecutionException
   {
     final Table<String> table = this.filledTableWithTitles( 100, 3 );
     
@@ -727,7 +743,7 @@ public abstract class TableTest
       assertTrue( future.get() );
     }
   }
-
+  
   @Test
   public void testColumns()
   {
@@ -746,7 +762,78 @@ public abstract class TableTest
       assertEquals( table.column( 3 ).id(), IterableUtils.elementAt( columns, 1 ).id() );
     }
   }
-
+  
+  @Test
+  public void testLargeRemoveAddCycles()
+  {
+    final int rowSizeMax = 20;
+    final int columnSizeMax = 10;
+    final int cycles = 16 + 4;
+    Table<String> table = this.filledTableWithTitles( rowSizeMax, columnSizeMax );
+    //System.out.println( table );
+    
+    final int rowSize = table.rowSize();
+    for ( int ii = 0; ii < cycles; ii++ )
+    {
+      {
+        final int rowIndex = (int) ( rowSizeMax * Math.random() );
+        Row<String> row = table.row( rowIndex );
+        String[] cellElements = row.getCellElements();
+        String title = row.getTitle();
+        
+        row.remove();
+        
+        table.addRowElements( cellElements );
+        final Row<String> lastRow = table.row( table.rowSize() - 1 );
+        lastRow.setTitle( title );
+        assertArrayEquals( cellElements, lastRow.getCellElements() );
+      }
+      
+      for ( int jj = 0; jj < cycles; jj++ )
+      {
+        final int columnIndex = (int) ( columnSizeMax * Math.random() );
+        Column<String> column = table.column( columnIndex );
+        final String[] cellElements = column.getCellElements();
+        final String title = column.getTitle();
+        
+        column.remove();
+        
+        final Column<String> column19 = table.column( columnSizeMax - 1 );
+        for ( int rowIndex = 0; rowIndex < rowSize; rowIndex++ )
+        {
+          column19.setCellElement( rowIndex, cellElements[rowIndex] );
+        }
+        column19.setTitle( title );
+        assertArrayEquals( cellElements, column19.getCellElements() );
+      }
+    }
+    
+    assertEquals( rowSizeMax, rowSize );
+    assertEquals( columnSizeMax, table.columnSize() );
+    
+    int counter = 0;
+    for ( Cell<String> cell : table.cells() )
+    {
+      assertNotNull( cell.getElement() );
+      counter++;
+    }
+    assertEquals( rowSizeMax * columnSizeMax, counter );
+    
+    for ( Row<String> row : table.rows() )
+    {
+      String[] cellElements = row.getCellElements();
+      assertSameColumnOrRowValue( cellElements, 0 );
+    }
+    
+    for ( Column<String> column : table.columns() )
+    {
+      String[] cellElements = column.getCellElements();
+      assertSameColumnOrRowValue( cellElements, 1 );
+    }
+    
+    //System.out.println( table );
+  }
+  
   @Test
   public void testRemoveColumn() throws Exception
   {

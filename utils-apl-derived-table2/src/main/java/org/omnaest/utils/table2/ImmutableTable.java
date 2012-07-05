@@ -42,6 +42,14 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
   public ImmutableCell<E> cell( int rowIndex, int columnIndex );
   
   /**
+   * Returns an {@link Iterable} over all {@link ImmutableCell}s which traverses through the {@link ImmutableRow}s traversing
+   * through their {@link ImmutableRow#cells()}
+   * 
+   * @return
+   */
+  public Iterable<? extends ImmutableCell<E>> cells();
+  
+  /**
    * Returns a new {@link ImmutableColumn} currently related to the given column index position
    * 
    * @param columnIndex

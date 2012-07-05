@@ -172,7 +172,8 @@ class TableDataCore<E> implements Serializable
     {
       for ( int ii = 0; ii < elements.length; ii++ )
       {
-        this.matrix[nativeRowIndex][ii] = elements[ii];
+        final int nativeColumnIndex = this.determineNativeColumnIndex( ii );
+        this.matrix[nativeRowIndex][nativeColumnIndex] = elements[ii];
       }
       
       retval = rowIndex;
@@ -408,7 +409,8 @@ class TableDataCore<E> implements Serializable
     {
       for ( int ii = 0; ii < elements.length; ii++ )
       {
-        this.matrix[ii][nativeColumnIndex] = elements[ii];
+        final int nativeRowIndex = this.determineNativeRowIndex( ii );
+        this.matrix[nativeRowIndex][nativeColumnIndex] = elements[ii];
       }
       
       retval = columnIndex;

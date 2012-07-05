@@ -30,7 +30,9 @@ import org.omnaest.utils.operation.OperationUtils;
 import org.omnaest.utils.operation.special.OperationIntrinsic;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.structure.iterator.IteratorUtils;
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.ImmutableRow;
@@ -438,4 +440,24 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this;
   }
   
+  @Override
+  public Iterable<Cell<E>> cells()
+  {
+    return new Iterable<Cell<E>>()
+    {
+      @Override
+      public Iterator<Cell<E>> iterator()
+      {
+        final Iterator<Row<E>> rowIterator = rows().iterator();
+        return IteratorUtils.factoryBasedIterator( new Factory<Iterator<Cell<E>>>()
+        {
+          @Override
+          public Iterator<Cell<E>> newInstance()
+          {
+            return rowIterator.hasNext() ? rowIterator.next().cells().iterator() : null;
+          }
+        } );
+      }
+    };
+  }
 }

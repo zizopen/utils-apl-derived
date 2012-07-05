@@ -68,6 +68,15 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Cell<E> cell( int rowIndex, int columnIndex );
   
   /**
+   * Returns an {@link Iterable} over all {@link Cell}s which traverses through the {@link Row}s traversing through their
+   * {@link Row#cells()}
+   * 
+   * @return
+   */
+  @Override
+  public Iterable<Cell<E>> cells();
+  
+  /**
    * Clears the {@link Table}
    * 
    * @return
