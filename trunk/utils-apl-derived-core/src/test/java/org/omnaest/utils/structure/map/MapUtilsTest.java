@@ -183,10 +183,11 @@ public class MapUtilsTest
     FactoryParameterized<Boolean, String> valueFactory = new FactoryParameterized<Boolean, String>()
     {
       @Override
-      public Boolean newInstance( String... arguments )
+      public Boolean newInstance( String parameter )
       {
         return true;
       }
+      
     };
     final Map<String, Boolean> initializedMap = MapUtils.initializedMap( valueFactory );
     assertTrue( initializedMap.get( "test" ) );
@@ -235,6 +236,15 @@ public class MapUtilsTest
     //
     assertEquals( null, MapUtils.getValueByRegex( null, "" ) );
     assertEquals( null, MapUtils.getValueByRegex( new HashMap<String, String>(), null ) );
+  }
+  
+  @Test
+  public void testParseString() throws Exception
+  {
+    final Map<String, String> map = MapUtils.parseString( "key1=value1;key2=value2" );
+    assertEquals( 2, map.size() );
+    assertEquals( "value1", map.get( "key1" ) );
+    assertEquals( "value2", map.get( "key2" ) );
   }
   
 }

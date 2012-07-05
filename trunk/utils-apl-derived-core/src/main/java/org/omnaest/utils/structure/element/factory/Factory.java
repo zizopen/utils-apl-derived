@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.element.factory;
 /**
  * Arbitrary {@link Factory} interface.
  * 
+ * @see FactoryParameterized
  * @author Omnaest
  * @param <E>
  */

@@ -18,6 +18,7 @@ package org.omnaest.utils.table2.impl;
 import org.omnaest.utils.table2.ImmutableRow;
 import org.omnaest.utils.table2.ImmutableRow.RowIdentity;
 import org.omnaest.utils.table2.ImmutableTable;
+import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
 
 /**
@@ -30,19 +31,19 @@ class RowIdentityImpl<E> implements RowIdentity<E>
 {
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final Table<E> table;
-  private final int      rowIndex;
+  private final Row<E>   row;
   
   /* *************************************************** Methods **************************************************** */
   /**
    * @see RowIdentityImpl
    * @param table
-   * @param rowIndex
+   * @param row
    */
-  RowIdentityImpl( Table<E> table, int rowIndex )
+  RowIdentityImpl( Table<E> table, Row<E> row )
   {
     super();
     this.table = table;
-    this.rowIndex = rowIndex;
+    this.row = row;
   }
   
   @Override
@@ -54,13 +55,13 @@ class RowIdentityImpl<E> implements RowIdentity<E>
   @Override
   public ImmutableRow<E> row()
   {
-    return this.table.row( this.rowIndex );
+    return this.row;
   }
   
   @Override
   public int getRowIndex()
   {
-    return this.rowIndex;
+    return this.row.index();
   }
   
   @Override
@@ -68,7 +69,7 @@ class RowIdentityImpl<E> implements RowIdentity<E>
   {
     StringBuilder builder = new StringBuilder();
     builder.append( "RowIdentityImpl [rowIndex=" );
-    builder.append( this.rowIndex );
+    builder.append( this.getRowIndex() );
     builder.append( ", table=" );
     builder.append( this.table );
     builder.append( "]" );
@@ -80,7 +81,7 @@ class RowIdentityImpl<E> implements RowIdentity<E>
   {
     final int prime = 31;
     int result = 1;
-    result = prime * result + this.rowIndex;
+    result = prime * result + this.getRowIndex();
     result = prime * result + ( ( this.table == null ) ? 0 : this.table.hashCode() );
     return result;
   }
@@ -102,7 +103,7 @@ class RowIdentityImpl<E> implements RowIdentity<E>
     }
     @SuppressWarnings("rawtypes")
     RowIdentityImpl other = (RowIdentityImpl) obj;
-    if ( this.rowIndex != other.rowIndex )
+    if ( this.getRowIndex() != other.getRowIndex() )
     {
       return false;
     }

@@ -35,94 +35,27 @@ public class IterableUtils
 {
   
   /**
-   * Resolves the size of an {@link Iterable} by iterating over it and counting the elements.
+   * Returns a new {@link Iterable} instance which uses an {@link Iterator} adapter based on the resolved
+   * {@link Iterable#iterator()} instance. <br>
+   * <br>
+   * The elements will be converted at traversal time not in advance.
    * 
    * @param iterable
-   * @return
+   *          {@link Iterable}
+   * @param elementConverter
+   *          {@link ElementConverter}
+   * @return new instance
    */
-  public static int size( Iterable<?> iterable )
+  public static <FROM, TO> Iterable<TO> adapter( final Iterable<FROM> iterable, final ElementConverter<FROM, TO> elementConverter )
   {
-    //
-    int retval = 0;
-    
-    //
-    if ( iterable != null )
+    return new Iterable<TO>()
     {
-      //
-      final Iterator<?> iterator = iterable.iterator();
-      retval = IteratorUtils.size( iterator );
-    }
-    
-    //
-    return retval;
-  }
-  
-  /**
-   * Generates a {@link Object#hashCode()} for a given {@link Iterable} and its elements. The hash code respects the hash codes of
-   * the element instances and their order.
-   * 
-   * @param iterable
-   * @return
-   */
-  public static int hashCode( Iterable<?> iterable )
-  {
-    final int prime = 31;
-    int result = 1;
-    if ( iterable != null )
-    {
-      for ( Object object : iterable )
+      @Override
+      public Iterator<TO> iterator()
       {
-        result = prime * result + ( ( object == null ) ? 0 : object.hashCode() );
+        return IteratorUtils.adapter( iterable.iterator(), elementConverter );
       }
-    }
-    return result;
-  }
-  
-  /**
-   * Returns true if...<br>
-   * <ul>
-   * <li>iterable1 == iterable2</li>
-   * <li>same number of elements of both iterables and each element pair is equal</li>
-   * </ul>
-   * 
-   * @param iterable1
-   * @param iterable2
-   * @return
-   */
-  public static boolean equals( Iterable<?> iterable1, Iterable<?> iterable2 )
-  {
-    //
-    boolean retval = false;
-    
-    //
-    retval |= iterable1 == iterable2;
-    if ( !retval && iterable1 != null && iterable2 != null )
-    {
-      //
-      Iterator<?> iterator1 = iterable1.iterator();
-      Iterator<?> iterator2 = iterable2.iterator();
-      
-      //
-      if ( iterator1 != null && iterator2 != null )
-      {
-        //
-        retval = true;
-        while ( iterator1.hasNext() && iterator2.hasNext() )
-        {
-          retval &= ObjectUtils.equals( iterator1.next(), iterator2.next() );
-          if ( !retval )
-          {
-            break;
-          }
-        }
-        
-        //
-        retval &= !iterator1.hasNext() && !iterator2.hasNext();
-      }
-    }
-    
-    //
-    return retval;
+    };
   }
   
   /**
@@ -183,33 +116,6 @@ public class IterableUtils
   }
   
   /**
-   * <pre>
-   * isEmpty( null ) = true
-   * isEmpty( Arrays.asList()) = true
-   * isEmpty( Arrays.asList("") ) = false
-   * </pre>
-   * 
-   * @param iterable
-   * @return
-   */
-  public static boolean isEmpty( Iterable<?> iterable )
-  {
-    //
-    boolean retval = true;
-    
-    //
-    if ( iterable != null )
-    {
-      //
-      Iterator<?> iterator = iterable.iterator();
-      retval = iterator == null || !iterator.hasNext();
-    }
-    
-    //
-    return retval;
-  }
-  
-  /**
    * Converts a given {@link Iterable} to a new {@link Iterable} type using the given {@link ElementConverter}
    * 
    * @param iterable
@@ -219,55 +125,6 @@ public class IterableUtils
   public static <FROM, TO> Iterable<TO> convert( Iterable<FROM> iterable, ElementConverter<FROM, TO> elementConverter )
   {
     return ListUtils.convert( ListUtils.valueOf( iterable ), elementConverter );
-  }
-  
-  /**
-   * Returns an {@link Iterable} on an {@link ElementStream}
-   * 
-   * @param elementStream
-   * @return
-   */
-  public static <E> Iterable<E> valueOf( final ElementStream<E> elementStream )
-  {
-    //
-    final Iterator<E> iterator = IteratorUtils.adapter( elementStream );
-    return valueOf( iterator );
-  }
-  
-  /**
-   * Returns a new {@link Iterable} based on a given {@link Factory} for {@link Iterator}s
-   * 
-   * @param iteratorFactory
-   * @return
-   */
-  public static <E> Iterable<E> valueOf( final Factory<Iterator<E>> iteratorFactory )
-  {
-    return new Iterable<E>()
-    {
-      @Override
-      public Iterator<E> iterator()
-      {
-        return iteratorFactory != null ? iteratorFactory.newInstance() : null;
-      }
-    };
-  }
-  
-  /**
-   * Returns a new instance of an {@link Iterable} which returns the given {@link Iterator} instance
-   * 
-   * @param iterator
-   * @return
-   */
-  public static <E> Iterable<E> valueOf( final Iterator<E> iterator )
-  {
-    return new Iterable<E>()
-    {
-      @Override
-      public Iterator<E> iterator()
-      {
-        return iterator;
-      }
-    };
   }
   
   /**
@@ -335,6 +192,95 @@ public class IterableUtils
   }
   
   /**
+   * Returns an {@link Iterable} which returns always a new empty {@link Iterator}
+   * 
+   * @see IteratorUtils#empty()
+   * @return
+   */
+  public static <E> Iterable<E> empty()
+  {
+    return new Iterable<E>()
+    {
+      @Override
+      public Iterator<E> iterator()
+      {
+        return IteratorUtils.empty();
+      }
+    };
+  }
+  
+  /**
+   * Returns true if...<br>
+   * <ul>
+   * <li>iterable1 == iterable2</li>
+   * <li>same number of elements of both iterables and each element pair is equal</li>
+   * </ul>
+   * 
+   * @param iterable1
+   * @param iterable2
+   * @return
+   */
+  public static boolean equals( Iterable<?> iterable1, Iterable<?> iterable2 )
+  {
+    //
+    boolean retval = false;
+    
+    //
+    retval |= iterable1 == iterable2;
+    if ( !retval && iterable1 != null && iterable2 != null )
+    {
+      //
+      Iterator<?> iterator1 = iterable1.iterator();
+      Iterator<?> iterator2 = iterable2.iterator();
+      
+      //
+      if ( iterator1 != null && iterator2 != null )
+      {
+        //
+        retval = true;
+        while ( iterator1.hasNext() && iterator2.hasNext() )
+        {
+          retval &= ObjectUtils.equals( iterator1.next(), iterator2.next() );
+          if ( !retval )
+          {
+            break;
+          }
+        }
+        
+        //
+        retval &= !iterator1.hasNext() && !iterator2.hasNext();
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
+   * Returns an {@link Iterable} where the {@link Iterable#iterator()} instance returns only those elements where the respective
+   * bit within the filter {@link BitSet} is set to true
+   * 
+   * @param iterable
+   * @param filter
+   * @return new {@link Iterable}
+   */
+  public static <E> Iterable<E> filtered( final Iterable<E> iterable, final BitSet filter )
+  {
+    return new Iterable<E>()
+    {
+      @Override
+      public Iterator<E> iterator()
+      {
+        if ( iterable != null )
+        {
+          return IteratorUtils.filtered( iterable.iterator(), filter );
+        }
+        return IteratorUtils.empty();
+      }
+    };
+  }
+  
+  /**
    * Returns the first element of the given {@link Iterable}
    * 
    * @param iterable
@@ -345,6 +291,54 @@ public class IterableUtils
     //
     final int indexPosition = 0;
     return elementAt( iterable, indexPosition );
+  }
+  
+  /**
+   * Generates a {@link Object#hashCode()} for a given {@link Iterable} and its elements. The hash code respects the hash codes of
+   * the element instances and their order.
+   * 
+   * @param iterable
+   * @return
+   */
+  public static int hashCode( Iterable<?> iterable )
+  {
+    final int prime = 31;
+    int result = 1;
+    if ( iterable != null )
+    {
+      for ( Object object : iterable )
+      {
+        result = prime * result + ( ( object == null ) ? 0 : object.hashCode() );
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * <pre>
+   * isEmpty( null ) = true
+   * isEmpty( Arrays.asList()) = true
+   * isEmpty( Arrays.asList("") ) = false
+   * </pre>
+   * 
+   * @param iterable
+   * @return
+   */
+  public static boolean isEmpty( Iterable<?> iterable )
+  {
+    //
+    boolean retval = true;
+    
+    //
+    if ( iterable != null )
+    {
+      //
+      Iterator<?> iterator = iterable.iterator();
+      retval = iterator == null || !iterator.hasNext();
+    }
+    
+    //
+    return retval;
   }
   
   /**
@@ -377,49 +371,73 @@ public class IterableUtils
   }
   
   /**
-   * Returns a new {@link Iterable} instance which uses an {@link Iterator} adapter based on the resolved
-   * {@link Iterable#iterator()} instance. <br>
-   * <br>
-   * The elements will be converted at traversal time not in advance.
+   * Resolves the size of an {@link Iterable} by iterating over it and counting the elements.
    * 
    * @param iterable
-   *          {@link Iterable}
-   * @param elementConverter
-   *          {@link ElementConverter}
-   * @return new instance
+   * @return
    */
-  public static <FROM, TO> Iterable<TO> adapter( final Iterable<FROM> iterable, final ElementConverter<FROM, TO> elementConverter )
+  public static int size( Iterable<?> iterable )
   {
-    return new Iterable<TO>()
+    //
+    int retval = 0;
+    
+    //
+    if ( iterable != null )
     {
-      @Override
-      public Iterator<TO> iterator()
-      {
-        return IteratorUtils.adapter( iterable.iterator(), elementConverter );
-      }
-    };
+      //
+      final Iterator<?> iterator = iterable.iterator();
+      retval = IteratorUtils.size( iterator );
+    }
+    
+    //
+    return retval;
   }
   
   /**
-   * Returns an {@link Iterable} where the {@link Iterable#iterator()} instance returns only those elements where the respective
-   * bit within the filter {@link BitSet} is set to true
+   * Returns an {@link Iterable} on an {@link ElementStream}
    * 
-   * @param iterable
-   * @param filter
-   * @return new {@link Iterable}
+   * @param elementStream
+   * @return
    */
-  public static <E> Iterable<E> filtered( final Iterable<E> iterable, final BitSet filter )
+  public static <E> Iterable<E> valueOf( final ElementStream<E> elementStream )
+  {
+    //
+    final Iterator<E> iterator = IteratorUtils.adapter( elementStream );
+    return valueOf( iterator );
+  }
+  
+  /**
+   * Returns a new {@link Iterable} based on a given {@link Factory} for {@link Iterator}s
+   * 
+   * @param iteratorFactory
+   * @return
+   */
+  public static <E> Iterable<E> valueOf( final Factory<Iterator<E>> iteratorFactory )
   {
     return new Iterable<E>()
     {
       @Override
       public Iterator<E> iterator()
       {
-        if ( iterable != null )
-        {
-          return IteratorUtils.filtered( iterable.iterator(), filter );
-        }
-        return IteratorUtils.empty();
+        return iteratorFactory != null ? iteratorFactory.newInstance() : null;
+      }
+    };
+  }
+  
+  /**
+   * Returns a new instance of an {@link Iterable} which returns the given {@link Iterator} instance
+   * 
+   * @param iterator
+   * @return
+   */
+  public static <E> Iterable<E> valueOf( final Iterator<E> iterator )
+  {
+    return new Iterable<E>()
+    {
+      @Override
+      public Iterator<E> iterator()
+      {
+        return iterator;
       }
     };
   }

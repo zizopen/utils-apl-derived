@@ -75,9 +75,9 @@ public class ArrayTableTest extends TableTest
   @Ignore("Performance test")
   public void testPerformanceSelect() throws Exception
   {
-    Table<String> table = this.filledTableWithTitles( 1000, 4 );
+    Table<String> table = this.filledTableWithTitles( 10000, 4 );
     Table<String> table2 = this.filledTableWithTitles( 200, 8 );
-    Table<String> table3 = this.filledTableWithTitles( 10, 3 );
+    Table<String> table3 = this.filledTableWithTitles( 50, 3 );
     
     table.setTableName( "table1" );
     table2.setTableName( "table2" );
@@ -104,7 +104,8 @@ public class ArrayTableTest extends TableTest
       //      System.out.println( result );
       
       assertNotNull( result );
-      
+      assertEquals( 50, result.rowSize() );
+      assertEquals( 5, result.columnSize() );
     }
     
   }

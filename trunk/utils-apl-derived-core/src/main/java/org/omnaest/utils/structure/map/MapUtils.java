@@ -35,7 +35,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
-import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.element.KeyExtractor;
@@ -837,7 +836,7 @@ public class MapUtils
   
   /**
    * Returns a {@link MapDecorator} which ensures that all {@link Map#get(Object)} invocations with a valid key type will return a
-   * value. If the underlying {@link Map} would return a null value the value {@link FactoryParameterized#newInstance(Object...)}
+   * value. If the underlying {@link Map} would return a null value the value {@link FactoryParameterized#newInstance(Object)}
    * with the key as argument is invoked and the new value is stored within the {@link Map}.<br>
    * <br>
    * This is e.g. useful for scenarios where a {@link Map} contains a {@link Collection} as value and the {@link Collection}
@@ -870,8 +869,7 @@ public class MapUtils
         {
           //
           final K key = (K) keyObject;
-          K[] newInstance = ArrayUtils.valueOf( key );
-          value = valueFactory.newInstance( newInstance );
+          value = valueFactory.newInstance( key );
           this.put( key, value );
         }
         
@@ -1160,5 +1158,72 @@ public class MapUtils
                                                                               ElementBidirectionalConverter<VALUE_FROM, VALUE_TO> elementBidirectionalConverterValue )
   {
     return new SortedMapToSortedMapAdapter<KEY, VALUE_FROM, VALUE_TO>( sourceMap, elementBidirectionalConverterValue );
+  }
+  
+  /**
+   * Similar to {@link #parseString(String, String, String)}
+   * 
+   * @param content
+   * @return
+   */
+  public static Map<String, String> parseString( String content )
+  {
+    final String entityDelimiterRegEx = null;
+    final String keyValueDelimiterRegEx = null;
+    return parseString( content, entityDelimiterRegEx, keyValueDelimiterRegEx );
+  }
+  
+  /**
+   * Parses a given text into a {@link LinkedHashMap} instance. <br>
+   * <br>
+   * Example:<br>
+   * 
+   * <pre>
+   * key1=value1;key2=value2
+   * </pre>
+   * 
+   * would be parsed into a {@link Map} with the keys "key1" and "key2" and "key1" would have the value "value1" and similar for
+   * "key2". <br>
+   * <br>
+   * 
+   * @param content
+   * @param entityDelimiterRegEx
+   *          defaults to ";" or "|"
+   * @param keyValueDelimiterRegEx
+   *          defaults to "=" or ":"
+   * @return
+   */
+  public static Map<String, String> parseString( String content, String entityDelimiterRegEx, String keyValueDelimiterRegEx )
+  {
+    final Map<String, String> retmap = new LinkedHashMap<String, String>();
+    
+    if ( content != null )
+    {
+      entityDelimiterRegEx = StringUtils.defaultString( entityDelimiterRegEx, "[;\\|]" );
+      keyValueDelimiterRegEx = StringUtils.defaultString( keyValueDelimiterRegEx, "[=:]" );
+      
+      final String[] entityTokens = content.split( entityDelimiterRegEx );
+      for ( String entityToken : entityTokens )
+      {
+        if ( StringUtils.isNotEmpty( entityToken ) )
+        {
+          final String[] keyAndValueTokens = entityToken.split( keyValueDelimiterRegEx );
+          if ( keyAndValueTokens.length == 1 )
+          {
+            final String key = keyAndValueTokens[0];
+            final String value = null;
+            retmap.put( key, value );
+          }
+          else if ( keyAndValueTokens.length == 2 )
+          {
+            final String key = keyAndValueTokens[0];
+            final String value = keyAndValueTokens[1];
+            retmap.put( key, value );
+          }
+        }
+      }
+    }
+    
+    return retmap;
   }
 }

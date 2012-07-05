@@ -39,8 +39,10 @@ import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.ElementHolder;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
-import org.omnaest.utils.structure.element.factory.Factory;
+import org.omnaest.utils.structure.element.factory.FactoryParameterized;
+import org.omnaest.utils.structure.element.factory.concrete.LinkedHashSetFactory;
 import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.table2.ImmutableColumn;
 import org.omnaest.utils.table2.ImmutableColumn.ColumnIdentity;
 import org.omnaest.utils.table2.ImmutableRow;
@@ -71,6 +73,210 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
   private Set<ImmutableTable<E>> tableForLockingSet = new LinkedHashSet<ImmutableTable<E>>();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  private static class MatchElement<E>
+  {
+    private final E       element;
+    private final boolean hasElement;
+    private final boolean hasMatchingColumn;
+    
+    public MatchElement( E element, boolean hasElement, boolean hasMatchingColumn )
+    {
+      super();
+      this.element = element;
+      this.hasElement = hasElement;
+      this.hasMatchingColumn = hasMatchingColumn;
+    }
+    
+    public boolean hasElement()
+    {
+      return this.hasElement;
+    }
+    
+    public E getElement()
+    {
+      return this.element;
+    }
+    
+    public boolean hasMatchingColumn()
+    {
+      return this.hasMatchingColumn;
+    }
+  }
+  
+  private static class IndexElementCalculator<E>
+  {
+    /* ************************************** Variables / State (internal/hiding) ************************************* */
+    private final ColumnJoin<E> columnJoin;
+    
+    /* *************************************************** Methods **************************************************** */
+    
+    public IndexElementCalculator( ColumnJoin<E> columnJoin )
+    {
+      super();
+      this.columnJoin = columnJoin;
+    }
+    
+    public MatchElement<E> calculate( FilterRow<E> filterRow )
+    {
+      MatchElement<E> retval = null;
+      
+      final Set<E> elementSet = new HashSet<E>();
+      if ( filterRow != null )
+      {
+        final Set<ColumnIdentity<E>> columnIdentitySet = this.columnJoin.getColumnIdentitySet();
+        for ( ColumnIdentity<E> columnIdentity : columnIdentitySet )
+        {
+          if ( filterRow.hasColumn( columnIdentity ) )
+          {
+            final E element = filterRow.getElement( columnIdentity );
+            elementSet.add( element );
+          }
+        }
+      }
+      
+      if ( elementSet.size() == 1 )
+      {
+        final E element = IterableUtils.firstElement( elementSet );
+        final boolean hasElement = true;
+        final boolean hasMatchingColumn = true;
+        retval = new MatchElement<E>( element, hasElement, hasMatchingColumn );
+      }
+      else if ( elementSet.size() == 0 )
+      {
+        final boolean hasMatchingColumn = false;
+        final boolean hasElement = false;
+        final E element = null;
+        retval = new MatchElement<E>( element, hasElement, hasMatchingColumn );
+      }
+      else
+      {
+        final boolean hasMatchingColumn = true;
+        final boolean hasElement = false;
+        final E element = null;
+        retval = new MatchElement<E>( element, hasElement, hasMatchingColumn );
+      }
+      
+      return retval;
+    }
+    
+  }
+  
+  private static class ColumnJoinIndex<E>
+  {
+    private final ColumnJoin<E>             columnJoin;
+    private final Map<E, Set<FilterRow<E>>> elementToFilterRowSetMap = new HashMap<E, Set<FilterRow<E>>>();
+    private final IndexElementCalculator<E> indexElementCalculator;
+    private final Set<FilterRow<E>>         filterRowSet;
+    private final boolean                   noIndexAvailable;
+    
+    public ColumnJoinIndex( ColumnJoin<E> columnJoin, Set<FilterRow<E>> filterRowSet )
+    {
+      super();
+      this.columnJoin = columnJoin;
+      this.filterRowSet = filterRowSet;
+      this.indexElementCalculator = new IndexElementCalculator<E>( this.columnJoin );
+      
+      this.noIndexAvailable = this.prepareIndex( filterRowSet );
+    }
+    
+    private boolean prepareIndex( Iterable<FilterRow<E>> filterRowIterable )
+    {
+      final Map<E, Set<FilterRow<E>>> elementToFilterRowSetMapInitialized = MapUtils.initializedMap( this.elementToFilterRowSetMap,
+                                                                                                     new LinkedHashSetFactory<FilterRow<E>>() );
+      for ( FilterRow<E> filterRow : filterRowIterable )
+      {
+        final MatchElement<E> matchElement = this.indexElementCalculator.calculate( filterRow );
+        
+        final boolean hasMatchingColumn = matchElement.hasMatchingColumn();
+        if ( !hasMatchingColumn )
+        {
+          return true;
+        }
+        
+        final boolean hasElement = matchElement.hasElement();
+        if ( hasElement )
+        {
+          final E element = matchElement.getElement();
+          elementToFilterRowSetMapInitialized.get( element ).add( filterRow );
+        }
+      }
+      
+      return false;
+    }
+    
+    public Set<FilterRow<E>> indexFilteredFilterRowSet( FilterRow<E> filterRow )
+    {
+      Set<FilterRow<E>> retval = null;
+      
+      if ( this.noIndexAvailable )
+      {
+        retval = this.filterRowSet;
+      }
+      else
+      {
+        final MatchElement<E> matchElement = this.indexElementCalculator.calculate( filterRow );
+        if ( !matchElement.hasMatchingColumn() )
+        {
+          retval = this.filterRowSet;
+        }
+        else
+        {
+          if ( !matchElement.hasElement() )
+          {
+            retval = SetUtils.emptySet();
+          }
+          else
+          {
+            final Set<FilterRow<E>> filterRowSet = this.elementToFilterRowSetMap.get( matchElement.getElement() );
+            retval = filterRowSet;
+          }
+        }
+      }
+      
+      return retval;
+    }
+  }
+  
+  private static class IndexBasedFilterRowIterableFactory<E> implements
+                                                             FactoryParameterized<Iterable<FilterRow<E>>, FilterRow<E>>
+  {
+    private final List<ColumnJoinIndex<E>> columnJoinIndexList = new ArrayList<ColumnJoinIndex<E>>();
+    private final Set<FilterRow<E>>        filterRowSet;
+    
+    public IndexBasedFilterRowIterableFactory( Iterable<ColumnJoin<E>> columnJoinIterable,
+                                               Iterable<FilterRow<E>> filterRowIterable )
+    {
+      super();
+      
+      this.filterRowSet = SetUtils.valueOf( filterRowIterable );
+      
+      for ( ColumnJoin<E> columnJoin : columnJoinIterable )
+      {
+        this.columnJoinIndexList.add( new ColumnJoinIndex<E>( columnJoin, this.filterRowSet ) );
+      }
+    }
+    
+    @Override
+    public Iterable<FilterRow<E>> newInstance( final FilterRow<E> filterRow )
+    {
+      if ( !this.columnJoinIndexList.isEmpty() )
+      {
+        final List<Set<FilterRow<E>>> filterRowSetList = ListUtils.convert( this.columnJoinIndexList,
+                                                                            new ElementConverter<ColumnJoinIndex<E>, Set<FilterRow<E>>>()
+                                                                            {
+                                                                              @Override
+                                                                              public Set<FilterRow<E>> convert( ColumnJoinIndex<E> columnJoinIndex )
+                                                                              {
+                                                                                return columnJoinIndex.indexFilteredFilterRowSet( filterRow );
+                                                                              }
+                                                                            } );
+        Set<FilterRow<E>> intersection = SetUtils.intersection( filterRowSetList );
+        return intersection;
+      }
+      return this.filterRowSet;
+    }
+  }
   
   private static final class SelectExecution<E> implements TableExecution<ImmutableTable<E>, E>
   {
@@ -114,7 +320,8 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
       }
       
       CrossProductFilterRowGenerator<E> crossProductFilterRowGenerator = new CrossProductFilterRowGenerator<E>(
-                                                                                                                filteredFilterRowIterableList );
+                                                                                                                filteredFilterRowIterableList,
+                                                                                                                this.columnJoinList );
       
       final List<E[]> elementArrayList = new ArrayList<E[]>();
       int columnSize = 0;
@@ -273,23 +480,40 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
       }
       return retval;
     }
+    
+    @Override
+    public boolean hasColumn( ColumnIdentity<E> columnIdentity )
+    {
+      for ( FilterRow<E> filterRow : this.filterRowList )
+      {
+        final boolean hasColumn = filterRow.hasColumn( columnIdentity );
+        if ( hasColumn )
+        {
+          return true;
+        }
+      }
+      return false;
+    }
   }
   
   private static class CrossProductFilterRowGenerator<E> implements Iterable<FilterRow<E>>
   {
-    private Iterable<FilterRow<E>> filterRowIterableLeft;
-    private Iterable<FilterRow<E>> filterRowIterableRight;
+    private final Iterable<FilterRow<E>>  filterRowIterableLeft;
+    private final Iterable<FilterRow<E>>  filterRowIterableRight;
+    private final Iterable<ColumnJoin<E>> columnJoinIterable;
     
     @SuppressWarnings("unchecked")
-    public CrossProductFilterRowGenerator( List<Iterable<? extends FilterRow<E>>> filterRowIterableList )
+    public CrossProductFilterRowGenerator( List<Iterable<? extends FilterRow<E>>> filterRowIterableList,
+                                           Iterable<ColumnJoin<E>> columnJoinIterable )
     {
       super();
+      this.columnJoinIterable = columnJoinIterable;
       
       this.filterRowIterableLeft = (Iterable<FilterRow<E>>) ListUtils.firstElement( filterRowIterableList );
       final List<Iterable<? extends FilterRow<E>>> reducedFilterRowIteratorList = ListUtils.removeFirstToNewList( filterRowIterableList );
       if ( reducedFilterRowIteratorList.size() > 1 )
       {
-        this.filterRowIterableRight = new CrossProductFilterRowGenerator<E>( reducedFilterRowIteratorList );
+        this.filterRowIterableRight = new CrossProductFilterRowGenerator<E>( reducedFilterRowIteratorList, columnJoinIterable );
       }
       else if ( reducedFilterRowIteratorList.size() == 1 )
       {
@@ -313,12 +537,15 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
       
       //
       final Iterator<FilterRow<E>> filterRowLeftIterator = this.filterRowIterableLeft.iterator();
-      final Factory<Iterator<FilterRow<E>>> filterRowRightIteratorFactory = new Factory<Iterator<FilterRow<E>>>()
+      final IndexBasedFilterRowIterableFactory<E> indexBasedFilterRowIterableFactory = new IndexBasedFilterRowIterableFactory<E>(
+                                                                                                                                  this.columnJoinIterable,
+                                                                                                                                  this.filterRowIterableRight );
+      final FactoryParameterized<Iterator<FilterRow<E>>, FilterRow<E>> filterRowRightIteratorFactory = new FactoryParameterized<Iterator<FilterRow<E>>, FilterRow<E>>()
       {
         @Override
-        public Iterator<FilterRow<E>> newInstance()
+        public Iterator<FilterRow<E>> newInstance( FilterRow<E> filterRow )
         {
-          return CrossProductFilterRowGenerator.this.filterRowIterableRight.iterator();
+          return indexBasedFilterRowIterableFactory.newInstance( filterRow ).iterator();
         }
       };
       
@@ -349,20 +576,21 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
               this.filterRowRightIterator = null;
             }
             
-            if ( this.filterRowRightIterator == null )
-            {
-              this.filterRowRightIterator = filterRowRightIteratorFactory.newInstance();
-            }
-            if ( this.filterRowRightIterator != null && this.filterRowRightIterator.hasNext() )
-            {
-              this.filterRowRight = this.filterRowRightIterator.next();
-            }
             if ( this.filterRowLeft == null )
             {
               if ( filterRowLeftIterator.hasNext() )
               {
                 this.filterRowLeft = filterRowLeftIterator.next();
               }
+            }
+            
+            if ( this.filterRowRightIterator == null )
+            {
+              this.filterRowRightIterator = filterRowRightIteratorFactory.newInstance( this.filterRowLeft );
+            }
+            if ( this.filterRowRightIterator != null && this.filterRowRightIterator.hasNext() )
+            {
+              this.filterRowRight = this.filterRowRightIterator.next();
             }
             
             this.resolved = true;
@@ -547,6 +775,12 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
           public int rowIndex()
           {
             return immutableRow.index();
+          }
+          
+          @Override
+          public boolean hasColumn( ColumnIdentity<E> columnIdentity )
+          {
+            return columnIdentitySet.contains( columnIdentity );
           }
         };
       }

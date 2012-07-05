@@ -305,6 +305,7 @@ public class SetUtils
   
   /**
    * Returns a new {@link LinkedHashSet} instance
+   * 
    * @return
    */
   public static <E> Set<E> emptySet()
@@ -324,7 +325,8 @@ public class SetUtils
   }
   
   /**
-   * Returns a new ordered {@link Set} instance with the element of the given {@link Iterable}
+   * Returns a new {@link LinkedHashSet} instance with the element of the given {@link Iterable} which keeps the order of the
+   * elements
    * 
    * @param iterable
    * @return
