@@ -34,6 +34,23 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
 {
   
   /**
+   * Appends new elements as {@link Column} to the {@link Table}
+   * 
+   * @param elements
+   * @return this
+   */
+  public Table<E> addColumnElements( E... elements );
+  
+  /**
+   * Adds new elements as {@link Column} to the {@link Table} at the specific column index position
+   * 
+   * @param columnIndex
+   * @param elements
+   * @return this
+   */
+  public Table<E> addColumnElements( int columnIndex, E... elements );
+  
+  /**
    * Adds new elements as {@link Row} to the {@link Table}
    * 
    * @param elements

@@ -262,6 +262,7 @@ public class ArrayUtils
    * Returns the component type of a given array type. Returns null if the given type is no array type or there can no component
    * type be detected.
    * 
+   * @see #arrayType(Class)
    * @param arrayType
    * @return
    */
@@ -447,4 +448,16 @@ public class ArrayUtils
     return retvals;
   }
   
+  /**
+   * Returns an array type based on the element type
+   * 
+   * @see #componentType(Class)
+   * @param componentType
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> Class<E[]> arrayType( Class<E> componentType )
+  {
+    return (Class<E[]>) Array.newInstance( componentType, 0 ).getClass();
+  }
 }

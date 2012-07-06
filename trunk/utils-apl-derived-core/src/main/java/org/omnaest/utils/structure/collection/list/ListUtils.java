@@ -918,6 +918,39 @@ public class ListUtils
   }
   
   /**
+   * Similar to {@link #add(List, Object)} allowing to specify an index position
+   * 
+   * @param list
+   * @param index
+   * @param element
+   * @return the given {@link List} instance or a new one
+   */
+  public static <E> List<E> add( List<? extends E> list, int index, E element )
+  {
+    //
+    @SuppressWarnings("unchecked")
+    List<E> retlist = (List<E>) list;
+    
+    //
+    if ( list == null )
+    {
+      retlist = new ArrayList<E>();
+    }
+    
+    //
+    while ( list.size() < index )
+    {
+      list.add( null );
+    }
+    
+    //
+    retlist.add( index, element );
+    
+    //
+    return retlist;
+  }
+  
+  /**
    * Adds all the elements from the {@link Iterable} to the given {@link List} instance. If the given {@link List} instance is
    * null a new {@link ArrayList} is created. <br>
    * If null is given as {@link Iterable} nothing will be added to the {@link List}.
@@ -966,6 +999,44 @@ public class ListUtils
     for ( E element : elements )
     {
       retlist.add( element );
+    }
+    
+    //
+    return retlist;
+  }
+  
+  /**
+   * Similar to {@link #add(List, Object...)} allowing to specify an index position
+   * 
+   * @param list
+   * @param index
+   * @param elements
+   * @return the given {@link List} instance or a new one
+   */
+  public static <E> List<E> add( List<? extends E> list, int index, E... elements )
+  {
+    //
+    @SuppressWarnings("unchecked")
+    List<E> retlist = (List<E>) list;
+    
+    //
+    if ( list == null )
+    {
+      retlist = new ArrayList<E>();
+    }
+    
+    //
+    while ( list.size() < index )
+    {
+      list.add( null );
+    }
+    
+    //
+    int relative = 0;
+    for ( E element : elements )
+    {
+      retlist.add( index + relative, element );
+      relative++;
     }
     
     //

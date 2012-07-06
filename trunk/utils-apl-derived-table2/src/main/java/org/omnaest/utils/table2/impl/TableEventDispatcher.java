@@ -84,6 +84,19 @@ class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
   }
   
   @Override
+  public void handleAddedColumn( final int columnIndex, final E... elements )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleAddedColumn( columnIndex, elements );
+      }
+    } );
+  }
+  
+  @Override
   public void handleAddedRow( final int rowIndex, final E... elements )
   {
     this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()

@@ -158,6 +158,11 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   }
   
   @Override
+  public void handleAddedColumn( int columnIndex, E... elements )
+  {
+  }
+  
+  @Override
   public void handleAddedRow( int rowIndex, E... elements )
   {
     Cell<E> cell = this.column.cell( rowIndex );

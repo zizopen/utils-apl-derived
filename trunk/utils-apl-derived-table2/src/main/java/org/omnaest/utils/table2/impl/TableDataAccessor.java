@@ -40,19 +40,6 @@ import org.omnaest.utils.structure.array.ArrayUtils;
  */
 class TableDataAccessor<E> implements Serializable
 {
-  /* ************************************************** Constants *************************************************** */
-  private static final long             serialVersionUID    = -9123078800733926152L;
-  /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final AtomicLong              modificationCounter = new AtomicLong();
-  private final ReadWriteLock           tableLock           = new ReentrantReadWriteLock( true );
-  
-  /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
-  private final TableDataCore<E>        tableDataCore;
-  private final TableEventDispatcher<E> tableEventDispatcher;
-  private final TableMetaData<E>        tableMetaData;
-  
-  /* ********************************************** Classes/Interfaces ********************************************** */
-  
   /**
    * The {@link ModificationValidator} returns true for {@link #hasBeenModified()} if there was any write operation to the table
    * data since the {@link ModificationValidator} was created
@@ -82,6 +69,20 @@ class TableDataAccessor<E> implements Serializable
     }
   }
   
+  /* ************************************************** Constants *************************************************** */
+  private static final long             serialVersionUID    = -9123078800733926152L;
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  private final AtomicLong              modificationCounter = new AtomicLong();
+  
+  /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
+  private final TableDataCore<E>        tableDataCore;
+  private final TableEventDispatcher<E> tableEventDispatcher;
+  private final ReadWriteLock           tableLock           = new ReentrantReadWriteLock( true );
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  private final TableMetaData<E>        tableMetaData;
+  
   /* *************************************************** Methods **************************************************** */
   
   public TableDataAccessor( TableDataCore<E> tableDataCore, TableEventDispatcher<E> tableEventDispatcher,
@@ -95,28 +96,32 @@ class TableDataAccessor<E> implements Serializable
     this.register( tableMetaData );
   }
   
-  public int columnSize()
+  public void addColumn( final E... elements )
   {
-    return OperationUtils.executeWithLocks( new OperationWithResult<Integer>()
+    OperationUtils.executeWithLocks( new OperationIntrinsic()
     {
       @Override
-      public Integer execute()
+      public void execute()
       {
-        return TableDataAccessor.this.tableDataCore.columnSize();
+        int rowIndex = TableDataAccessor.this.tableDataCore.addRow( elements );
+        TableDataAccessor.this.modificationCounter.incrementAndGet();
+        TableDataAccessor.this.tableEventDispatcher.handleAddedRow( rowIndex, elements );
       }
-    }, this.tableLock.readLock() );
+    }, this.tableLock.writeLock() );
   }
   
-  public E getElement( final int rowIndex, final int columnIndex )
+  public void addColumn( final int columnIndex, final E... elements )
   {
-    return OperationUtils.executeWithLocks( new OperationWithResult<E>()
+    OperationUtils.executeWithLocks( new OperationIntrinsic()
     {
       @Override
-      public E execute()
+      public void execute()
       {
-        return TableDataAccessor.this.tableDataCore.getElement( rowIndex, columnIndex );
+        TableDataAccessor.this.tableDataCore.addColumn( columnIndex, elements );
+        TableDataAccessor.this.modificationCounter.incrementAndGet();
+        TableDataAccessor.this.tableEventDispatcher.handleAddedColumn( columnIndex, elements );
       }
-    }, this.tableLock.readLock() );
+    }, this.tableLock.writeLock() );
   }
   
   public void addRow( final E[] elements )
@@ -147,72 +152,6 @@ class TableDataAccessor<E> implements Serializable
     }, this.tableLock.writeLock() );
   }
   
-  public void removeRow( final int rowIndex )
-  {
-    OperationUtils.executeWithLocks( new OperationIntrinsic()
-    {
-      @Override
-      public void execute()
-      {
-        final E[] previousElements = TableDataAccessor.this.tableDataCore.removeRow( rowIndex );
-        TableDataAccessor.this.modificationCounter.incrementAndGet();
-        TableDataAccessor.this.tableEventDispatcher.handleRemovedRow( rowIndex, previousElements );
-      }
-    }, this.tableLock.writeLock() );
-    
-  }
-  
-  public void removeColumn( final int columnIndex )
-  {
-    OperationUtils.executeWithLocks( new OperationIntrinsic()
-    {
-      @Override
-      public void execute()
-      {
-        final E[] previousElements = TableDataAccessor.this.tableDataCore.removeColumn( columnIndex );
-        TableDataAccessor.this.modificationCounter.incrementAndGet();
-        TableDataAccessor.this.tableEventDispatcher.handleRemovedColumn( columnIndex, previousElements );
-      }
-    }, this.tableLock.writeLock() );
-  }
-  
-  public void setRow( final int rowIndex, final E... elements )
-  {
-    OperationUtils.executeWithLocks( new OperationIntrinsic()
-    {
-      @Override
-      public void execute()
-      {
-        E[] previousElements = TableDataAccessor.this.tableDataCore.setRow( rowIndex, elements );
-        TableDataAccessor.this.modificationCounter.incrementAndGet();
-        
-        final BitSet modifiedIndices = ArrayUtils.differenceBitSet( elements, previousElements );
-        if ( modifiedIndices.cardinality() > 0 )
-        {
-          TableDataAccessor.this.tableEventDispatcher.handleUpdatedRow( rowIndex, elements, previousElements, modifiedIndices );
-        }
-      }
-    }, this.tableLock.writeLock() );
-  }
-  
-  public void set( final E element, final int rowIndex, final int columnIndex )
-  {
-    OperationUtils.executeWithLocks( new OperationIntrinsic()
-    {
-      @Override
-      public void execute()
-      {
-        E previousElement = TableDataAccessor.this.tableDataCore.set( element, rowIndex, columnIndex );
-        TableDataAccessor.this.modificationCounter.incrementAndGet();
-        
-        if ( !ObjectUtils.equals( element, previousElement ) )
-        {
-          TableDataAccessor.this.tableEventDispatcher.handleUpdatedCell( rowIndex, columnIndex, element, previousElement );
-        }
-      }
-    }, this.tableLock.writeLock() );
-  }
-  
   public void clear()
   {
     OperationUtils.executeWithLocks( new OperationIntrinsic()
@@ -227,62 +166,14 @@ class TableDataAccessor<E> implements Serializable
     }, this.tableLock.writeLock() );
   }
   
-  public int rowSize()
+  public int columnSize()
   {
     return OperationUtils.executeWithLocks( new OperationWithResult<Integer>()
     {
       @Override
       public Integer execute()
       {
-        return TableDataAccessor.this.tableDataCore.rowSize();
-      }
-    }, this.tableLock.readLock() );
-  }
-  
-  /**
-   * Returns a new {@link ModificationValidator} instance
-   * 
-   * @return
-   */
-  public ModificationValidator newModificationValidator()
-  {
-    return new ModificationValidator();
-  }
-  
-  /**
-   * Registers a given {@link TableEventHandler} instance. The registration uses weak references, so for any given instance at
-   * least one reference must be kept externally
-   * 
-   * @param tableEventHandler
-   * @return the given instance
-   */
-  @SuppressWarnings("javadoc")
-  public <T extends TableEventHandler<E>> T register( T tableEventHandler )
-  {
-    this.tableEventDispatcher.add( tableEventHandler );
-    return tableEventHandler;
-  }
-  
-  public String getTableName()
-  {
-    return OperationUtils.executeWithLocks( new OperationWithResult<String>()
-    {
-      @Override
-      public String execute()
-      {
-        return TableDataAccessor.this.tableMetaData.getTableName();
-      }
-    }, this.tableLock.readLock() );
-  }
-  
-  public int getColumnIndex( final String columnTitle )
-  {
-    return OperationUtils.executeWithLocks( new OperationWithResult<Integer>()
-    {
-      @Override
-      public Integer execute()
-      {
-        return TableDataAccessor.this.tableMetaData.getColumnIndex( columnTitle );
+        return TableDataAccessor.this.tableDataCore.columnSize();
       }
     }, this.tableLock.readLock() );
   }
@@ -295,6 +186,18 @@ class TableDataAccessor<E> implements Serializable
       public Integer execute()
       {
         return TableDataAccessor.this.tableMetaData.getColumnIndex( columnTitlePattern );
+      }
+    }, this.tableLock.readLock() );
+  }
+  
+  public int getColumnIndex( final String columnTitle )
+  {
+    return OperationUtils.executeWithLocks( new OperationWithResult<Integer>()
+    {
+      @Override
+      public Integer execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getColumnIndex( columnTitle );
       }
     }, this.tableLock.readLock() );
   }
@@ -323,29 +226,16 @@ class TableDataAccessor<E> implements Serializable
     }, this.tableLock.readLock() );
   }
   
-  public int getRowIndex( final String rowTitle )
+  public String getColumnTitle( final int columnIndex )
   {
-    return OperationUtils.executeWithLocks( new OperationWithResult<Integer>()
+    return OperationUtils.executeWithLocks( new OperationWithResult<String>()
     {
       @Override
-      public Integer execute()
+      public String execute()
       {
-        return TableDataAccessor.this.tableMetaData.getRowIndex( rowTitle );
+        return TableDataAccessor.this.tableMetaData.getColumnTitle( columnIndex );
       }
     }, this.tableLock.readLock() );
-  }
-  
-  public void setTableName( final String tableTitle )
-  {
-    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
-    {
-      @Override
-      public Void execute()
-      {
-        TableDataAccessor.this.tableMetaData.setTableName( tableTitle );
-        return null;
-      }
-    }, this.tableLock.writeLock() );
   }
   
   public List<String> getColumnTitleList()
@@ -360,17 +250,40 @@ class TableDataAccessor<E> implements Serializable
     }, this.tableLock.readLock() );
   }
   
-  public void setColumnTitles( final Iterable<String> columnTitleIterable )
+  public E getElement( final int rowIndex, final int columnIndex )
   {
-    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
+    return OperationUtils.executeWithLocks( new OperationWithResult<E>()
     {
       @Override
-      public Void execute()
+      public E execute()
       {
-        TableDataAccessor.this.tableMetaData.setColumnTitles( columnTitleIterable );
-        return null;
+        return TableDataAccessor.this.tableDataCore.getElement( rowIndex, columnIndex );
       }
-    }, this.tableLock.writeLock() );
+    }, this.tableLock.readLock() );
+  }
+  
+  public int getRowIndex( final String rowTitle )
+  {
+    return OperationUtils.executeWithLocks( new OperationWithResult<Integer>()
+    {
+      @Override
+      public Integer execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getRowIndex( rowTitle );
+      }
+    }, this.tableLock.readLock() );
+  }
+  
+  public String getRowTitle( final int rowIndex )
+  {
+    return OperationUtils.executeWithLocks( new OperationWithResult<String>()
+    {
+      @Override
+      public String execute()
+      {
+        return TableDataAccessor.this.tableMetaData.getRowTitle( rowIndex );
+      }
+    }, this.tableLock.readLock() );
   }
   
   public List<String> getRowTitleList()
@@ -385,65 +298,19 @@ class TableDataAccessor<E> implements Serializable
     }, this.tableLock.readLock() );
   }
   
-  public void setRowTitles( final Iterable<String> rowTitleIterable )
+  public ReadWriteLock getTableLock()
   {
-    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
-    {
-      @Override
-      public Void execute()
-      {
-        TableDataAccessor.this.tableMetaData.setRowTitles( rowTitleIterable );
-        return null;
-      }
-    }, this.tableLock.writeLock() );
+    return this.tableLock;
   }
   
-  public void setRowTitle( final int rowIndex, final String rowTitle )
-  {
-    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
-    {
-      @Override
-      public Void execute()
-      {
-        TableDataAccessor.this.tableMetaData.setRowTitle( rowIndex, rowTitle );
-        return null;
-      }
-    }, this.tableLock.writeLock() );
-  }
-  
-  public void setColumnTitle( final int columnIndex, final String columnTitle )
-  {
-    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
-    {
-      @Override
-      public Void execute()
-      {
-        TableDataAccessor.this.tableMetaData.setColumnTitle( columnIndex, columnTitle );
-        return null;
-      }
-    }, this.tableLock.writeLock() );
-  }
-  
-  public String getColumnTitle( final int columnIndex )
+  public String getTableName()
   {
     return OperationUtils.executeWithLocks( new OperationWithResult<String>()
     {
       @Override
       public String execute()
       {
-        return TableDataAccessor.this.tableMetaData.getColumnTitle( columnIndex );
-      }
-    }, this.tableLock.readLock() );
-  }
-  
-  public String getRowTitle( final int rowIndex )
-  {
-    return OperationUtils.executeWithLocks( new OperationWithResult<String>()
-    {
-      @Override
-      public String execute()
-      {
-        return TableDataAccessor.this.tableMetaData.getRowTitle( rowIndex );
+        return TableDataAccessor.this.tableMetaData.getTableName();
       }
     }, this.tableLock.readLock() );
   }
@@ -484,15 +351,177 @@ class TableDataAccessor<E> implements Serializable
     }, this.tableLock.readLock() );
   }
   
+  /**
+   * Returns a new {@link ModificationValidator} instance
+   * 
+   * @return
+   */
+  public ModificationValidator newModificationValidator()
+  {
+    return new ModificationValidator();
+  }
+  
+  /**
+   * Registers a given {@link TableEventHandler} instance. The registration uses weak references, so for any given instance at
+   * least one reference must be kept externally
+   * 
+   * @param tableEventHandler
+   * @return the given instance
+   */
+  @SuppressWarnings("javadoc")
+  public <T extends TableEventHandler<E>> T register( T tableEventHandler )
+  {
+    this.tableEventDispatcher.add( tableEventHandler );
+    return tableEventHandler;
+  }
+  
+  public void removeColumn( final int columnIndex )
+  {
+    OperationUtils.executeWithLocks( new OperationIntrinsic()
+    {
+      @Override
+      public void execute()
+      {
+        final E[] previousElements = TableDataAccessor.this.tableDataCore.removeColumn( columnIndex );
+        TableDataAccessor.this.modificationCounter.incrementAndGet();
+        TableDataAccessor.this.tableEventDispatcher.handleRemovedColumn( columnIndex, previousElements );
+      }
+    }, this.tableLock.writeLock() );
+  }
+  
+  public void removeRow( final int rowIndex )
+  {
+    OperationUtils.executeWithLocks( new OperationIntrinsic()
+    {
+      @Override
+      public void execute()
+      {
+        final E[] previousElements = TableDataAccessor.this.tableDataCore.removeRow( rowIndex );
+        TableDataAccessor.this.modificationCounter.incrementAndGet();
+        TableDataAccessor.this.tableEventDispatcher.handleRemovedRow( rowIndex, previousElements );
+      }
+    }, this.tableLock.writeLock() );
+    
+  }
+  
+  public int rowSize()
+  {
+    return OperationUtils.executeWithLocks( new OperationWithResult<Integer>()
+    {
+      @Override
+      public Integer execute()
+      {
+        return TableDataAccessor.this.tableDataCore.rowSize();
+      }
+    }, this.tableLock.readLock() );
+  }
+  
+  public void set( final E element, final int rowIndex, final int columnIndex )
+  {
+    OperationUtils.executeWithLocks( new OperationIntrinsic()
+    {
+      @Override
+      public void execute()
+      {
+        E previousElement = TableDataAccessor.this.tableDataCore.set( element, rowIndex, columnIndex );
+        TableDataAccessor.this.modificationCounter.incrementAndGet();
+        
+        if ( !ObjectUtils.equals( element, previousElement ) )
+        {
+          TableDataAccessor.this.tableEventDispatcher.handleUpdatedCell( rowIndex, columnIndex, element, previousElement );
+        }
+      }
+    }, this.tableLock.writeLock() );
+  }
+  
+  public void setColumnTitle( final int columnIndex, final String columnTitle )
+  {
+    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
+    {
+      @Override
+      public Void execute()
+      {
+        TableDataAccessor.this.tableMetaData.setColumnTitle( columnIndex, columnTitle );
+        return null;
+      }
+    }, this.tableLock.writeLock() );
+  }
+  
+  public void setColumnTitles( final Iterable<String> columnTitleIterable )
+  {
+    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
+    {
+      @Override
+      public Void execute()
+      {
+        TableDataAccessor.this.tableMetaData.setColumnTitles( columnTitleIterable );
+        return null;
+      }
+    }, this.tableLock.writeLock() );
+  }
+  
   public TableDataAccessor<E> setExceptionHandler( ExceptionHandler exceptionHandler )
   {
     this.tableEventDispatcher.setExceptionHandler( exceptionHandler );
     return this;
   }
   
-  public ReadWriteLock getTableLock()
+  public void setRow( final int rowIndex, final E... elements )
   {
-    return this.tableLock;
+    OperationUtils.executeWithLocks( new OperationIntrinsic()
+    {
+      @Override
+      public void execute()
+      {
+        E[] previousElements = TableDataAccessor.this.tableDataCore.setRow( rowIndex, elements );
+        TableDataAccessor.this.modificationCounter.incrementAndGet();
+        
+        final BitSet modifiedIndices = ArrayUtils.differenceBitSet( elements, previousElements );
+        if ( modifiedIndices.cardinality() > 0 )
+        {
+          TableDataAccessor.this.tableEventDispatcher.handleUpdatedRow( rowIndex, elements, previousElements, modifiedIndices );
+        }
+      }
+    }, this.tableLock.writeLock() );
+  }
+  
+  public void setRowTitle( final int rowIndex, final String rowTitle )
+  {
+    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
+    {
+      @Override
+      public Void execute()
+      {
+        TableDataAccessor.this.tableMetaData.setRowTitle( rowIndex, rowTitle );
+        return null;
+      }
+    }, this.tableLock.writeLock() );
+  }
+  
+  public void setRowTitles( final Iterable<String> rowTitleIterable )
+  {
+    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
+    {
+      @Override
+      public Void execute()
+      {
+        TableDataAccessor.this.tableMetaData.setRowTitles( rowTitleIterable );
+        return null;
+      }
+    }, this.tableLock.writeLock() );
+  }
+  
+  public void setTableName( final String tableTitle )
+  {
+    OperationUtils.executeWithLocks( new OperationWithResult<Void>()
+    {
+      @Override
+      public Void execute()
+      {
+        TableDataAccessor.this.tableMetaData.setTableName( tableTitle );
+        return null;
+      }
+    }, this.tableLock.writeLock() );
   }
   
 }
