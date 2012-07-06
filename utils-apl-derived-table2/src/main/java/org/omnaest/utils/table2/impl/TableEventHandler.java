@@ -26,15 +26,17 @@ import java.util.BitSet;
  */
 interface TableEventHandler<E> extends Serializable
 {
+  public void handleAddedColumn( int columnIndex, E... elements );
+  
   public void handleAddedRow( int rowIndex, E... elements );
   
-  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices );
-  
-  public void handleRemovedRow( int rowIndex, E[] previousElements );
+  public void handleClearTable();
   
   public void handleRemovedColumn( int columnIndex, E[] previousElements );
   
+  public void handleRemovedRow( int rowIndex, E[] previousElements );
+  
   public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement );
   
-  public void handleClearTable();
+  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices );
 }

@@ -460,4 +460,18 @@ public class ArrayTable<E> extends TableAbstract<E>
       }
     };
   }
+  
+  @Override
+  public Table<E> addColumnElements( E... elements )
+  {
+    final int columnIndex = this.columnSize();
+    return this.addColumnElements( columnIndex, elements );
+  }
+  
+  @Override
+  public Table<E> addColumnElements( int columnIndex, E... elements )
+  {
+    this.tableDataAccessor.addColumn( columnIndex, elements );
+    return this;
+  }
 }

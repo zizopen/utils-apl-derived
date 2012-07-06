@@ -46,9 +46,19 @@ public interface TableSerializer<E> extends ImmutableTableSerializer<E>
      */
     public UnmarshallerCsv<E> asCsv();
     
-    public Unmarshaller<E> asXml();
+    /**
+     * Returns an {@link TableSerializer.UnmarshallerXml} instance
+     * 
+     * @return
+     */
+    public UnmarshallerXml<E> asXml();
     
-    public Unmarshaller<E> asJson();
+    /**
+     * Returns an {@link TableSerializer.UnmarshallerJson} instance
+     * 
+     * @return
+     */
+    public UnmarshallerJson<E> asJson();
     
     /**
      * Returns a {@link TableSerializer.UnmarshallerPlainText} instance
@@ -104,6 +114,42 @@ public interface TableSerializer<E> extends ImmutableTableSerializer<E>
      * @return this
      */
     public UnmarshallerPlainText<E> using( MarshallingConfiguration configuration );
+  }
+  
+  /**
+   * {@link TableSerializer.Unmarshaller} for xml
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface UnmarshallerXml<E> extends Unmarshaller<E>
+  {
+    
+    /**
+     * Makes the {@link TableSerializer.UnmarshallerPlainText} using the given {@link MarshallingConfiguration}
+     * 
+     * @param configuration
+     * @return this
+     */
+    public UnmarshallerXml<E> using( MarshallingConfiguration configuration );
+  }
+  
+  /**
+   * {@link TableSerializer.Unmarshaller} for json
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface UnmarshallerJson<E> extends Unmarshaller<E>
+  {
+    
+    /**
+     * Makes the {@link TableSerializer.UnmarshallerPlainText} using the given {@link MarshallingConfiguration}
+     * 
+     * @param configuration
+     * @return this
+     */
+    public UnmarshallerJson<E> using( MarshallingConfiguration configuration );
   }
   
   /**

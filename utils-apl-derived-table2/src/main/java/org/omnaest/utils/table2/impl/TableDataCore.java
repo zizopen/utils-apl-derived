@@ -28,28 +28,28 @@ import java.util.BitSet;
  */
 class TableDataCore<E> implements Serializable
 {
+  public static final int   INITIAL_DEFAULT_COLUMN_SIZE = 4;
+  
+  public static final int   INITIAL_DEFAULT_ROW_SIZE    = 16;
   /* ************************************************** Constants *************************************************** */
   private static final long serialVersionUID            = 5131972948341159104L;
   
-  public static final int   INITIAL_DEFAULT_ROW_SIZE    = 16;
-  public static final int   INITIAL_DEFAULT_COLUMN_SIZE = 4;
-  
   /* *************************************************** Methods **************************************************** */
   
-  private E[][]             matrix;
-  
-  private int[]             nativeColumnIndices;
-  private int[]             nativeRowIndices;
-  
-  private BitSet            activeRowBitSet;
   private BitSet            activeColumnBitSet;
   
-  private int               rowSize;
+  private BitSet            activeRowBitSet;
   private int               columnSize;
   
-  private final Class<E>    type;
-  private final int         initialRowSize;
   private final int         initialColumnSize;
+  private final int         initialRowSize;
+  
+  private E[][]             matrix;
+  private int[]             nativeColumnIndices;
+  
+  private int[]             nativeRowIndices;
+  private int               rowSize;
+  private final Class<E>    type;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -88,42 +88,41 @@ class TableDataCore<E> implements Serializable
     this.initialize( type, initialRowSize, initialColumnSize );
   }
   
-  @SuppressWarnings("unchecked")
-  private void initialize( Class<? extends E> type, int initialRowSize, int initialColumnSize )
+  public int addColumn( E... elements )
   {
-    this.matrix = (E[][]) Array.newInstance( type, initialRowSize, initialColumnSize );
-    
-    this.nativeColumnIndices = new int[initialColumnSize];
-    this.nativeRowIndices = new int[initialRowSize];
-    
-    this.activeColumnBitSet = new BitSet( initialColumnSize );
-    this.activeRowBitSet = new BitSet( initialRowSize );
-    
-    this.rowSize = 0;
-    this.columnSize = 0;
+    final int columnIndex = this.columnSize;
+    return this.addColumn( columnIndex, elements );
   }
   
-  /**
-   * Sets the given element to the given row and column index position
-   * 
-   * @param element
-   * @param rowIndex
-   * @param columnIndex
-   * @return previous element at the same location
-   */
-  public E set( E element, int rowIndex, int columnIndex )
+  public int addColumn( int columnIndex, E... elements )
   {
-    E retval = null;
+    int retval = -1;
     
-    this.ensureColumnSize( columnIndex + 1 );
-    this.ensureRowSize( rowIndex + 1 );
+    final int lastColumnIndex = this.columnSize;
+    final boolean isLastRow = ( columnIndex == lastColumnIndex );
+    this.ensureColumnSize( lastColumnIndex + 1 );
+    this.ensureRowSize( elements.length );
     
-    final int nativeColumnIndex = this.determineNativeColumnIndex( columnIndex );
-    final int nativeRowIndex = this.determineNativeRowIndex( rowIndex );
-    if ( nativeColumnIndex >= 0 && nativeRowIndex >= 0 )
+    if ( !isLastRow )
     {
-      retval = this.matrix[nativeRowIndex][nativeColumnIndex];
-      this.matrix[nativeRowIndex][nativeColumnIndex] = element;
+      int nativeLastColumnIndex = this.determineNativeColumnIndex( lastColumnIndex );
+      for ( int ii = this.nativeColumnIndices.length - 1; ii > columnIndex && ii > 0; ii-- )
+      {
+        this.nativeColumnIndices[ii] = this.nativeColumnIndices[ii - 1];
+      }
+      this.nativeColumnIndices[columnIndex] = nativeLastColumnIndex;
+    }
+    
+    final int nativeColumnIndex = this.determineNativeColumnIndex( lastColumnIndex );
+    if ( nativeColumnIndex >= 0 )
+    {
+      for ( int ii = 0; ii < elements.length; ii++ )
+      {
+        final int nativeRowIndex = this.determineNativeRowIndex( ii );
+        this.matrix[nativeRowIndex][nativeColumnIndex] = elements[ii];
+      }
+      
+      retval = lastColumnIndex;
     }
     
     return retval;
@@ -182,79 +181,14 @@ class TableDataCore<E> implements Serializable
     return retval;
   }
   
-  /**
-   * Sets the given elements as the row at the specific index position
-   * 
-   * @param elements
-   * @return the previously set elements
-   */
-  @SuppressWarnings("unchecked")
-  public E[] setRow( int rowIndex, E... elements )
+  public void clear()
   {
-    E[] retval = null;
-    
-    while ( this.rowSize <= rowIndex )
-    {
-      this.addRow();
-    }
-    
-    this.ensureColumnSize( elements.length );
-    this.ensureRowSize( this.rowSize );
-    
-    final int nativeRowIndex = this.determineNativeRowIndex( rowIndex );
-    if ( nativeRowIndex >= 0 )
-    {
-      retval = Arrays.copyOfRange( this.matrix[nativeRowIndex], 0, this.columnSize );
-      
-      this.matrix[nativeRowIndex] = this.newArray( this.nativeColumnIndices.length );
-      for ( int ii = 0; ii < elements.length; ii++ )
-      {
-        this.matrix[nativeRowIndex][ii] = elements[ii];
-      }
-    }
-    
-    return retval;
+    this.initialize( this.type, this.initialRowSize, this.initialColumnSize );
   }
   
-  public E[] removeColumn( int columnIndex )
+  public int columnSize()
   {
-    //
-    E[] retvals = null;
-    
-    //
-    final int nativeColumnIndex = this.determineNativeColumnIndex( columnIndex );
-    final int columnMaxSize = this.nativeColumnIndices.length;
-    if ( nativeColumnIndex >= 0 )
-    {
-      boolean isActiveColumn = this.activeColumnBitSet.get( nativeColumnIndex );
-      if ( isActiveColumn )
-      {
-        retvals = this.newArray( this.rowSize );
-        for ( int ii = 0; ii < retvals.length; ii++ )
-        {
-          final int nativeRowIndex = this.determineNativeRowIndex( ii );
-          retvals[ii] = this.matrix[nativeRowIndex][nativeColumnIndex];
-        }
-        
-        for ( int ii = 0; ii < this.nativeRowIndices.length; ii++ )
-        {
-          this.matrix[ii][nativeColumnIndex] = null;
-        }
-      }
-      
-      this.activeColumnBitSet.clear( nativeColumnIndex );
-      for ( int iColumnIndex = columnIndex; iColumnIndex < columnMaxSize - 1; iColumnIndex++ )
-      {
-        this.nativeColumnIndices[iColumnIndex] = this.nativeColumnIndices[iColumnIndex + 1];
-      }
-      this.nativeColumnIndices[columnMaxSize - 1] = 0;
-      this.columnSize--;
-    }
-    
-    //
-    this.compactColumnsIfNecessary( columnMaxSize );
-    
-    return retvals;
+    return this.columnSize;
   }
   
   private void compactColumnsIfNecessary( int columnMaxSize )
@@ -311,43 +245,6 @@ class TableDataCore<E> implements Serializable
     }
   }
   
-  public E[] removeRow( int rowIndex )
-  {
-    //
-    E[] retvals = null;
-    
-    //
-    final int nativeRowIndex = this.determineNativeRowIndex( rowIndex );
-    final int rowMaxSize = this.nativeRowIndices.length;
-    if ( nativeRowIndex >= 0 )
-    {
-      boolean activeRow = this.activeRowBitSet.get( nativeRowIndex );
-      if ( activeRow )
-      {
-        retvals = this.newArray( this.columnSize );
-        for ( int ii = 0; ii < retvals.length; ii++ )
-        {
-          final int nativeColumnIndex = this.determineNativeColumnIndex( ii );
-          retvals[ii] = this.matrix[nativeRowIndex][nativeColumnIndex];
-        }
-        Arrays.fill( this.matrix[nativeRowIndex], null );
-      }
-      
-      this.activeRowBitSet.clear( nativeRowIndex );
-      for ( int iRowIndex = rowIndex; iRowIndex < rowMaxSize - 1; iRowIndex++ )
-      {
-        this.nativeRowIndices[iRowIndex] = this.nativeRowIndices[iRowIndex + 1];
-      }
-      this.nativeRowIndices[rowMaxSize - 1] = 0;
-      this.rowSize--;
-    }
-    
-    //    
-    this.compactRowsIfNecessary( rowMaxSize );
-    
-    return retvals;
-  }
-  
   private void compactRowsIfNecessary( final int rowMaxSize )
   {
     if ( this.rowSize < rowMaxSize / 4 )
@@ -396,77 +293,6 @@ class TableDataCore<E> implements Serializable
     }
   }
   
-  public int addColumn( E... elements )
-  {
-    int retval = -1;
-    
-    final int columnIndex = this.columnSize;
-    this.ensureColumnSize( columnIndex + 1 );
-    this.ensureRowSize( elements.length );
-    
-    final int nativeColumnIndex = this.determineNativeColumnIndex( columnIndex );
-    if ( nativeColumnIndex >= 0 )
-    {
-      for ( int ii = 0; ii < elements.length; ii++ )
-      {
-        final int nativeRowIndex = this.determineNativeRowIndex( ii );
-        this.matrix[nativeRowIndex][nativeColumnIndex] = elements[ii];
-      }
-      
-      retval = columnIndex;
-    }
-    
-    return retval;
-  }
-  
-  public E[] getRow( int rowIndex )
-  {
-    //
-    final E[] retval = newArray( this.columnSize );
-    for ( int iColumnIndex = 0; iColumnIndex < this.columnSize; iColumnIndex++ )
-    {
-      retval[iColumnIndex] = this.getElement( rowIndex, iColumnIndex );
-    }
-    return retval;
-  }
-  
-  public E[] getColumn( int columnIndex )
-  {
-    //
-    final E[] retval = newArray( this.rowSize );
-    for ( int iRowIndex = 0; iRowIndex < this.rowSize; iRowIndex++ )
-    {
-      retval[iRowIndex] = this.getElement( iRowIndex, columnIndex );
-    }
-    return retval;
-  }
-  
-  @SuppressWarnings("unchecked")
-  private E[] newArray( int size )
-  {
-    return (E[]) Array.newInstance( this.type, size );
-  }
-  
-  public E getElement( int rowIndex, int columnIndex )
-  {
-    E retval = null;
-    
-    final int nativeRowIndex = determineNativeRowIndex( rowIndex );
-    final int nativeColumnIndex = determineNativeColumnIndex( columnIndex );
-    if ( nativeRowIndex >= 0 && nativeColumnIndex >= 0 )
-    {
-      boolean activeRow = this.activeRowBitSet.get( nativeRowIndex );
-      boolean activeColumn = this.activeColumnBitSet.get( nativeColumnIndex );
-      
-      if ( activeRow && activeColumn )
-      {
-        retval = this.matrix[nativeRowIndex][nativeColumnIndex];
-      }
-    }
-    
-    return retval;
-  }
-  
   private int determineNativeColumnIndex( int columnIndex )
   {
     return columnIndex < 0 || columnIndex >= this.columnSize ? -1 : this.nativeColumnIndices[columnIndex];
@@ -475,6 +301,31 @@ class TableDataCore<E> implements Serializable
   private int determineNativeRowIndex( int rowIndex )
   {
     return rowIndex < 0 || rowIndex >= this.rowSize ? -1 : this.nativeRowIndices[rowIndex];
+  }
+  
+  private void ensureColumnSize( int columnSize )
+  {
+    //
+    int columnMaxSize;
+    while ( columnSize > ( columnMaxSize = this.nativeColumnIndices.length ) )
+    {
+      final int newColumnMaxSize = columnMaxSize * 2;
+      this.nativeColumnIndices = Arrays.copyOf( this.nativeColumnIndices, newColumnMaxSize );
+      for ( int iRowIndex = 0; iRowIndex < this.matrix.length; iRowIndex++ )
+      {
+        this.matrix[iRowIndex] = Arrays.copyOf( this.matrix[iRowIndex], newColumnMaxSize );
+      }
+    }
+    
+    //
+    for ( int iColumnIndex = this.columnSize; iColumnIndex < columnSize; iColumnIndex++ )
+    {
+      //
+      final int nativeColumnIndex = this.activeColumnBitSet.nextClearBit( 0 );
+      this.nativeColumnIndices[iColumnIndex] = nativeColumnIndex;
+      this.activeColumnBitSet.set( nativeColumnIndex );
+      this.columnSize++;
+    }
   }
   
   private void ensureRowSize( int rowSize )
@@ -503,34 +354,145 @@ class TableDataCore<E> implements Serializable
     }
   }
   
-  private void ensureColumnSize( int columnSize )
+  public E[] getColumn( int columnIndex )
   {
     //
-    int columnMaxSize;
-    while ( columnSize > ( columnMaxSize = this.nativeColumnIndices.length ) )
+    final E[] retval = newArray( this.rowSize );
+    for ( int iRowIndex = 0; iRowIndex < this.rowSize; iRowIndex++ )
     {
-      final int newColumnMaxSize = columnMaxSize * 2;
-      this.nativeColumnIndices = Arrays.copyOf( this.nativeColumnIndices, newColumnMaxSize );
-      for ( int iRowIndex = 0; iRowIndex < this.matrix.length; iRowIndex++ )
+      retval[iRowIndex] = this.getElement( iRowIndex, columnIndex );
+    }
+    return retval;
+  }
+  
+  public E getElement( int rowIndex, int columnIndex )
+  {
+    E retval = null;
+    
+    final int nativeRowIndex = determineNativeRowIndex( rowIndex );
+    final int nativeColumnIndex = determineNativeColumnIndex( columnIndex );
+    if ( nativeRowIndex >= 0 && nativeColumnIndex >= 0 )
+    {
+      boolean activeRow = this.activeRowBitSet.get( nativeRowIndex );
+      boolean activeColumn = this.activeColumnBitSet.get( nativeColumnIndex );
+      
+      if ( activeRow && activeColumn )
       {
-        this.matrix[iRowIndex] = Arrays.copyOf( this.matrix[iRowIndex], newColumnMaxSize );
+        retval = this.matrix[nativeRowIndex][nativeColumnIndex];
       }
     }
     
-    //
-    for ( int iColumnIndex = this.columnSize; iColumnIndex < columnSize; iColumnIndex++ )
-    {
-      //
-      final int nativeColumnIndex = this.activeColumnBitSet.nextClearBit( 0 );
-      this.nativeColumnIndices[iColumnIndex] = nativeColumnIndex;
-      this.activeColumnBitSet.set( nativeColumnIndex );
-      this.columnSize++;
-    }
+    return retval;
   }
   
-  public void clear()
+  public E[] getRow( int rowIndex )
   {
-    this.initialize( this.type, this.initialRowSize, this.initialColumnSize );
+    //
+    final E[] retval = newArray( this.columnSize );
+    for ( int iColumnIndex = 0; iColumnIndex < this.columnSize; iColumnIndex++ )
+    {
+      retval[iColumnIndex] = this.getElement( rowIndex, iColumnIndex );
+    }
+    return retval;
+  }
+  
+  @SuppressWarnings("unchecked")
+  private void initialize( Class<? extends E> type, int initialRowSize, int initialColumnSize )
+  {
+    this.matrix = (E[][]) Array.newInstance( type, initialRowSize, initialColumnSize );
+    
+    this.nativeColumnIndices = new int[initialColumnSize];
+    this.nativeRowIndices = new int[initialRowSize];
+    
+    this.activeColumnBitSet = new BitSet( initialColumnSize );
+    this.activeRowBitSet = new BitSet( initialRowSize );
+    
+    this.rowSize = 0;
+    this.columnSize = 0;
+  }
+  
+  @SuppressWarnings("unchecked")
+  private E[] newArray( int size )
+  {
+    return (E[]) Array.newInstance( this.type, size );
+  }
+  
+  public E[] removeColumn( int columnIndex )
+  {
+    //
+    E[] retvals = null;
+    
+    //
+    final int nativeColumnIndex = this.determineNativeColumnIndex( columnIndex );
+    final int columnMaxSize = this.nativeColumnIndices.length;
+    if ( nativeColumnIndex >= 0 )
+    {
+      boolean isActiveColumn = this.activeColumnBitSet.get( nativeColumnIndex );
+      if ( isActiveColumn )
+      {
+        retvals = this.newArray( this.rowSize );
+        for ( int ii = 0; ii < retvals.length; ii++ )
+        {
+          final int nativeRowIndex = this.determineNativeRowIndex( ii );
+          retvals[ii] = this.matrix[nativeRowIndex][nativeColumnIndex];
+        }
+        
+        for ( int ii = 0; ii < this.nativeRowIndices.length; ii++ )
+        {
+          this.matrix[ii][nativeColumnIndex] = null;
+        }
+      }
+      
+      this.activeColumnBitSet.clear( nativeColumnIndex );
+      for ( int iColumnIndex = columnIndex; iColumnIndex < columnMaxSize - 1; iColumnIndex++ )
+      {
+        this.nativeColumnIndices[iColumnIndex] = this.nativeColumnIndices[iColumnIndex + 1];
+      }
+      this.nativeColumnIndices[columnMaxSize - 1] = 0;
+      this.columnSize--;
+    }
+    
+    //
+    this.compactColumnsIfNecessary( columnMaxSize );
+    
+    return retvals;
+  }
+  
+  public E[] removeRow( int rowIndex )
+  {
+    //
+    E[] retvals = null;
+    
+    //
+    final int nativeRowIndex = this.determineNativeRowIndex( rowIndex );
+    final int rowMaxSize = this.nativeRowIndices.length;
+    if ( nativeRowIndex >= 0 )
+    {
+      boolean activeRow = this.activeRowBitSet.get( nativeRowIndex );
+      if ( activeRow )
+      {
+        retvals = this.newArray( this.columnSize );
+        for ( int ii = 0; ii < retvals.length; ii++ )
+        {
+          final int nativeColumnIndex = this.determineNativeColumnIndex( ii );
+          retvals[ii] = this.matrix[nativeRowIndex][nativeColumnIndex];
+        }
+        Arrays.fill( this.matrix[nativeRowIndex], null );
+      }
+      
+      this.activeRowBitSet.clear( nativeRowIndex );
+      for ( int iRowIndex = rowIndex; iRowIndex < rowMaxSize - 1; iRowIndex++ )
+      {
+        this.nativeRowIndices[iRowIndex] = this.nativeRowIndices[iRowIndex + 1];
+      }
+      this.nativeRowIndices[rowMaxSize - 1] = 0;
+      this.rowSize--;
+    }
+    
+    //    
+    this.compactRowsIfNecessary( rowMaxSize );
+    
+    return retvals;
   }
   
   public int rowSize()
@@ -538,9 +500,64 @@ class TableDataCore<E> implements Serializable
     return this.rowSize;
   }
   
-  public int columnSize()
+  /**
+   * Sets the given element to the given row and column index position
+   * 
+   * @param element
+   * @param rowIndex
+   * @param columnIndex
+   * @return previous element at the same location
+   */
+  public E set( E element, int rowIndex, int columnIndex )
   {
-    return this.columnSize;
+    E retval = null;
+    
+    this.ensureColumnSize( columnIndex + 1 );
+    this.ensureRowSize( rowIndex + 1 );
+    
+    final int nativeColumnIndex = this.determineNativeColumnIndex( columnIndex );
+    final int nativeRowIndex = this.determineNativeRowIndex( rowIndex );
+    if ( nativeColumnIndex >= 0 && nativeRowIndex >= 0 )
+    {
+      retval = this.matrix[nativeRowIndex][nativeColumnIndex];
+      this.matrix[nativeRowIndex][nativeColumnIndex] = element;
+    }
+    
+    return retval;
+  }
+  
+  /**
+   * Sets the given elements as the row at the specific index position
+   * 
+   * @param elements
+   * @return the previously set elements
+   */
+  @SuppressWarnings("unchecked")
+  public E[] setRow( int rowIndex, E... elements )
+  {
+    E[] retval = null;
+    
+    while ( this.rowSize <= rowIndex )
+    {
+      this.addRow();
+    }
+    
+    this.ensureColumnSize( elements.length );
+    this.ensureRowSize( this.rowSize );
+    
+    final int nativeRowIndex = this.determineNativeRowIndex( rowIndex );
+    if ( nativeRowIndex >= 0 )
+    {
+      retval = Arrays.copyOfRange( this.matrix[nativeRowIndex], 0, this.columnSize );
+      
+      this.matrix[nativeRowIndex] = this.newArray( this.nativeColumnIndices.length );
+      for ( int ii = 0; ii < elements.length; ii++ )
+      {
+        this.matrix[nativeRowIndex][ii] = elements[ii];
+      }
+    }
+    
+    return retval;
   }
   
   public int size()

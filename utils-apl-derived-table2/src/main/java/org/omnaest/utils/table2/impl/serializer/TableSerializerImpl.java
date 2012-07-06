@@ -52,17 +52,15 @@ public class TableSerializerImpl<E> implements TableSerializer<E>
       }
       
       @Override
-      public Unmarshaller<E> asXml()
+      public UnmarshallerXml<E> asXml()
       {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException();
+        return new XmlUnmarshallerImpl<E>( table, exceptionHandler );
       }
       
       @Override
-      public Unmarshaller<E> asJson()
+      public UnmarshallerJson<E> asJson()
       {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException();
+        return new JsonUnmarshallerImpl<E>( table, exceptionHandler );
       }
       
       @Override
@@ -87,17 +85,15 @@ public class TableSerializerImpl<E> implements TableSerializer<E>
       }
       
       @Override
-      public Marshaller<E> asXml()
+      public MarshallerXml<E> asXml()
       {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException();
+        return new XmlMarshallerImpl<E>( table, exceptionHandler );
       }
       
       @Override
-      public Marshaller<E> asJson()
+      public MarshallerJson<E> asJson()
       {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException();
+        return new JsonMarshallerImpl<E>( table, exceptionHandler );
       }
       
       @Override

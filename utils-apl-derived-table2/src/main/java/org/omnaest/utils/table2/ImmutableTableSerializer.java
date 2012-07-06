@@ -37,22 +37,22 @@ public interface ImmutableTableSerializer<E>
   public static interface MarshallerDeclarer<E>
   {
     /**
-     * @return {@link ImmutableTableSerializer.Marshaller}
+     * @return {@link ImmutableTableSerializer.MarshallerCsv}
      */
     public MarshallerCsv<E> asCsv();
     
     /**
-     * @return {@link ImmutableTableSerializer.Marshaller}
+     * @return {@link ImmutableTableSerializer.MarshallerXml}
      */
-    public Marshaller<E> asXml();
+    public MarshallerXml<E> asXml();
     
     /**
-     * @return {@link ImmutableTableSerializer.Marshaller}
+     * @return {@link ImmutableTableSerializer.MarshallerJson}
      */
-    public Marshaller<E> asJson();
+    public MarshallerJson<E> asJson();
     
     /**
-     * @return {@link ImmutableTableSerializer.Marshaller}
+     * @return {@link ImmutableTableSerializer.MarshallerPlainText}
      */
     public MarshallerPlainText<E> asPlainText();
   }
@@ -218,6 +218,44 @@ public interface ImmutableTableSerializer<E>
      * @return this
      */
     public MarshallerPlainText<E> using( MarshallingConfiguration configuration );
+  }
+  
+  /**
+   * {@link ImmutableTableSerializer.Marshaller} for xml
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface MarshallerXml<E> extends Marshaller<E>
+  {
+    /**
+     * Makes the {@link ImmutableTableSerializer.Marshaller} using the given
+     * {@link ImmutableTableSerializer.Marshaller.MarshallingConfiguration}
+     * 
+     * @param configuration
+     *          {@link ImmutableTableSerializer.Marshaller.MarshallingConfiguration}
+     * @return this
+     */
+    public MarshallerXml<E> using( MarshallingConfiguration configuration );
+  }
+  
+  /**
+   * {@link ImmutableTableSerializer.Marshaller} for xml
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface MarshallerJson<E> extends Marshaller<E>
+  {
+    /**
+     * Makes the {@link ImmutableTableSerializer.Marshaller} using the given
+     * {@link ImmutableTableSerializer.Marshaller.MarshallingConfiguration}
+     * 
+     * @param configuration
+     *          {@link ImmutableTableSerializer.Marshaller.MarshallingConfiguration}
+     * @return this
+     */
+    public MarshallerJson<E> using( MarshallingConfiguration configuration );
   }
   
   public static interface MarshallerCsv<E> extends Marshaller<E>

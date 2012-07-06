@@ -42,18 +42,6 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   }
   
   @Override
-  public int size()
-  {
-    return this.table.rowSize();
-  }
-  
-  @Override
-  public E getCellElement( int rowIndex )
-  {
-    return this.table.getCellElement( rowIndex, this.columnIndex );
-  }
-  
-  @Override
   public Column<E> add( E element )
   {
     final int rowIndex = this.size();
@@ -63,55 +51,15 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   }
   
   @Override
-  public int index()
-  {
-    return this.columnIndex;
-  }
-  
-  @Override
   public Cell<E> cell( int rowIndex )
   {
     return this.table.cell( rowIndex, this.columnIndex );
   }
   
   @Override
-  public void handleAddedRow( int rowIndex, E... elements )
+  public E getCellElement( int rowIndex )
   {
-    this.isModified = true;
-  }
-  
-  @Override
-  public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement )
-  {
-    if ( this.columnIndex == columnIndex )
-    {
-      this.isModified = true;
-    }
-  }
-  
-  @Override
-  public void handleClearTable()
-  {
-    this.markAsDeleted();
-  }
-  
-  @Override
-  public Column<E> setCellElement( int rowIndex, E element )
-  {
-    this.table.setCellElement( rowIndex, this.columnIndex, element );
-    return this;
-  }
-  
-  private void markAsDeleted()
-  {
-    this.isDeleted = true;
-    this.columnIndex = -1;
-  }
-  
-  @Override
-  public ImmutableColumn.ColumnIdentity<E> id()
-  {
-    return new ColumnIdentityImpl<E>( this.table, this );
+    return this.table.getCellElement( rowIndex, this.columnIndex );
   }
   
   @Override
@@ -121,22 +69,24 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   }
   
   @Override
-  public Column<E> setTitle( String columnTitle )
+  public void handleAddedColumn( int columnIndex, E... elements )
   {
-    this.table.setColumnTitle( this.columnIndex, columnTitle );
-    return this;
+    if ( !this.isDeleted && this.columnIndex >= columnIndex )
+    {
+      this.columnIndex++;
+    }
   }
   
   @Override
-  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
-  {
-    this.isModified |= modifiedIndices.get( this.columnIndex );
-  }
-  
-  @Override
-  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  public void handleAddedRow( int rowIndex, E... elements )
   {
     this.isModified = true;
+  }
+  
+  @Override
+  public void handleClearTable()
+  {
+    this.markAsDeleted();
   }
   
   @Override
@@ -153,10 +103,69 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   }
   
   @Override
+  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  {
+    this.isModified = true;
+  }
+  
+  @Override
+  public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement )
+  {
+    if ( this.columnIndex == columnIndex )
+    {
+      this.isModified = true;
+    }
+  }
+  
+  @Override
+  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
+  {
+    this.isModified |= modifiedIndices.get( this.columnIndex );
+  }
+  
+  @Override
+  public ImmutableColumn.ColumnIdentity<E> id()
+  {
+    return new ColumnIdentityImpl<E>( this.table, this );
+  }
+  
+  @Override
+  public int index()
+  {
+    return this.columnIndex;
+  }
+  
+  private void markAsDeleted()
+  {
+    this.isDeleted = true;
+    this.columnIndex = -1;
+  }
+  
+  @Override
   public Column<E> remove()
   {
     this.table.removeColumn( this.columnIndex );
     return this;
+  }
+  
+  @Override
+  public Column<E> setCellElement( int rowIndex, E element )
+  {
+    this.table.setCellElement( rowIndex, this.columnIndex, element );
+    return this;
+  }
+  
+  @Override
+  public Column<E> setTitle( String columnTitle )
+  {
+    this.table.setColumnTitle( this.columnIndex, columnTitle );
+    return this;
+  }
+  
+  @Override
+  public int size()
+  {
+    return this.table.rowSize();
   }
   
 }

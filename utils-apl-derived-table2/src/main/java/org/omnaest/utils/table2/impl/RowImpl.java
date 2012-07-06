@@ -79,6 +79,12 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   }
   
   @Override
+  public void handleAddedColumn( int columnIndex, E... elements )
+  {
+    this.isModified = true;
+  }
+  
+  @Override
   public void handleAddedRow( int rowIndex, E... elements )
   {
     if ( this.rowIndex <= rowIndex )

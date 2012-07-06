@@ -123,9 +123,15 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
   }
   
   @Override
+  public void handleAddedColumn( int columnIndex, E... elements )
+  {
+    ListUtils.add( this.columnTitleList, columnIndex, (E) null );
+  }
+  
+  @Override
   public void handleAddedRow( int rowIndex, E... elements )
   {
-    this.rowTitleList.add( rowIndex, null );
+    ListUtils.add( this.rowTitleList, rowIndex, (E) null );
   }
   
   @Override
@@ -138,13 +144,13 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
   @Override
   public void handleRemovedColumn( int columnIndex, E[] previousElements )
   {
-    this.columnTitleList.remove( columnIndex );
+    ListUtils.remove( this.columnTitleList, columnIndex );
   }
   
   @Override
   public void handleRemovedRow( int rowIndex, E[] previousElements )
   {
-    this.rowTitleList.remove( rowIndex );
+    ListUtils.remove( this.rowTitleList, rowIndex );
   }
   
   @Override
