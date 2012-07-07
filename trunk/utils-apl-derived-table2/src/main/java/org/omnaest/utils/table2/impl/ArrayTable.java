@@ -42,6 +42,7 @@ import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableAdapterManager;
 import org.omnaest.utils.table2.TableExecution;
 import org.omnaest.utils.table2.TableIndexManager;
+import org.omnaest.utils.table2.TablePersistenceRegistration;
 import org.omnaest.utils.table2.TableSelect;
 import org.omnaest.utils.table2.TableSorter;
 import org.omnaest.utils.table2.impl.adapter.TableAdapterManagerImpl;
@@ -56,12 +57,14 @@ import org.omnaest.utils.table2.impl.join.TableSelectImpl;
 public class ArrayTable<E> extends TableAbstract<E>
 {
   /* ************************************************** Constants *************************************************** */
-  private static final long                   serialVersionUID = 6360131663629436319L;
-  private final Class<E>                      elementType;
-  private final TableAdapterManager<E>        tableAdapterManager;
+  private static final long                     serialVersionUID = 6360131663629436319L;
+  
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final TableDataAccessor<E>          tableDataAccessor;
-  private final TableIndexManager<E, Cell<E>> tableIndexManager;
+  private final Class<E>                        elementType;
+  private final TableAdapterManager<E>          tableAdapterManager;
+  private final TableDataAccessor<E>            tableDataAccessor;
+  private final TableIndexManager<E, Cell<E>>   tableIndexManager;
+  private final TablePersistenceRegistration<E> tablePersistenceRegistration;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -80,6 +83,9 @@ public class ArrayTable<E> extends TableAbstract<E>
     this.tableDataAccessor = new TableDataAccessor<E>( tableDataCore, tableEventDispatcher, tableMetaData ).setExceptionHandler( this.exceptionHandler );
     this.tableIndexManager = new TableIndexManagerImpl<E>( this.tableDataAccessor, this );
     this.tableAdapterManager = new TableAdapterManagerImpl<E>( this );
+    this.tablePersistenceRegistration = this.tableDataAccessor.register( new TablePersistenceRegistrationImpl<E>(
+                                                                                                                  this,
+                                                                                                                  this.tableDataAccessor.getTableLock() ) );
   }
   
   @SuppressWarnings("unchecked")
@@ -490,5 +496,11 @@ public class ArrayTable<E> extends TableAbstract<E>
   public TableSorter<E> sort()
   {
     return new TableSorterImpl<E>( this );
+  }
+  
+  @Override
+  public TablePersistenceRegistration<E> persistence()
+  {
+    return this.tablePersistenceRegistration;
   }
 }

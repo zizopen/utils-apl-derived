@@ -50,7 +50,7 @@ public interface ImmutableStripe<E> extends Iterable<E>, Serializable
    * 
    * @return
    */
-  public E[] getCellElements();
+  public E[] getElements();
   
   /**
    * Returns the {@link ImmutableCell} for the given orthogonal index position

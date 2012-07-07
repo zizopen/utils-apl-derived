@@ -196,7 +196,7 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   @Override
   public Row<E> moveTo( int newRowIndex )
   {
-    final E[] elements = this.getCellElements();
+    final E[] elements = this.getElements();
     final String title = this.getTitle();
     
     this.table.addRowElements( newRowIndex, elements );
@@ -243,7 +243,7 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
     builder.append( ", isModified=" );
     builder.append( this.isModified );
     builder.append( ", getCellElements()=" );
-    builder.append( Arrays.toString( this.getCellElements() ) );
+    builder.append( Arrays.toString( this.getElements() ) );
     builder.append( "]" );
     return builder.toString();
   }
