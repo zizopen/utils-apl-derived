@@ -30,11 +30,15 @@ import javax.xml.bind.annotation.XmlType;
  * @see Tuple
  * @see TupleThree
  * @author Omnaest
+ * @deprecated use {@link Tuple2} instead
  */
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
+@Deprecated
 public class TupleTwo<T1, T2> implements Tuple
 {
+  private static final long serialVersionUID = 2691942705049921808L;
+
   /* ********************************************** Variables ********************************************** */
   @XmlElement
   protected T1 valueFirst  = null;

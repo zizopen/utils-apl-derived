@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.util.Arrays;
 import java.util.BitSet;
 
 import org.omnaest.utils.table2.Cell;
@@ -87,7 +88,7 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   @Override
   public void handleAddedRow( int rowIndex, E... elements )
   {
-    if ( this.rowIndex <= rowIndex )
+    if ( this.rowIndex >= rowIndex )
     {
       this.rowIndex++;
     }
@@ -111,6 +112,10 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
     if ( rowIndex == this.rowIndex )
     {
       this.markAsDeleted();
+    }
+    else if ( rowIndex < this.rowIndex )
+    {
+      this.rowIndex--;
     }
   }
   
@@ -186,6 +191,61 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   public int size()
   {
     return this.table.columnSize();
+  }
+  
+  @Override
+  public Row<E> moveTo( int newRowIndex )
+  {
+    final E[] elements = this.getCellElements();
+    final String title = this.getTitle();
+    
+    this.table.addRowElements( newRowIndex, elements );
+    this.table.setRowTitle( newRowIndex, title );
+    
+    final int oldRowIndex = this.rowIndex;
+    this.rowIndex = newRowIndex;
+    
+    this.table.removeRow( oldRowIndex );
+    
+    return this;
+  }
+  
+  @Override
+  public Row<E> switchWith( int otherRowIndex )
+  {
+    return this.switchWith( this.table.row( otherRowIndex ) );
+  }
+  
+  @Override
+  public Row<E> switchWith( Row<E> otherRow )
+  {
+    if ( otherRow != null )
+    {
+      final int rowIndexOther = otherRow.index();
+      final int rowIndexOld = this.rowIndex;
+      final int rowSize = this.table.rowSize();
+      
+      this.moveTo( rowSize );
+      otherRow.moveTo( rowIndexOld );
+      this.moveTo( rowIndexOther );
+    }
+    return this;
+  }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "RowImpl [rowIndex=" );
+    builder.append( this.rowIndex );
+    builder.append( ", isDeleted=" );
+    builder.append( this.isDeleted );
+    builder.append( ", isModified=" );
+    builder.append( this.isModified );
+    builder.append( ", getCellElements()=" );
+    builder.append( Arrays.toString( this.getCellElements() ) );
+    builder.append( "]" );
+    return builder.toString();
   }
   
 }

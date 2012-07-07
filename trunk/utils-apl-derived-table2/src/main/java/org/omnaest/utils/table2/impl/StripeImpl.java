@@ -29,6 +29,7 @@ import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.ImmutableStripe;
 import org.omnaest.utils.table2.Stripe;
+import org.omnaest.utils.table2.StripeEntity;
 import org.omnaest.utils.table2.StripeTransformer;
 import org.omnaest.utils.table2.Table;
 
@@ -167,6 +168,14 @@ public abstract class StripeImpl<E> implements Stripe<E>
       public E[] array()
       {
         return ArrayUtils.valueOf( stripe, table.elementType() );
+      }
+      
+      @Override
+      public StripeEntity<E> entity()
+      {
+        final String title = getTitle();
+        final E[] elements = getCellElements();
+        return new StripeEntity<E>( title, elements );
       }
     };
   }

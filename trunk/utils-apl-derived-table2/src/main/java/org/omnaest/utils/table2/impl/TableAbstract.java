@@ -39,17 +39,48 @@ import org.omnaest.utils.table2.impl.transformer.TableTransformerImpl;
  */
 abstract class TableAbstract<E> implements Table<E>
 {
-  /* ************************************************** Constants *************************************************** */
-  private static final long  serialVersionUID = 6651647383929942697L;
-  /* ************************************** Variables / State (internal/hiding) ************************************* */
-  protected ExceptionHandler exceptionHandler = new ExceptionHandlerIgnoring();
-  
+  public static final class ColumnIterator<E, C extends ImmutableColumn<E>> implements Iterator<C>
+  {
+    private int            index = -1;
+    /* ************************************** Variables / State (internal/hiding) ************************************* */
+    private final int      indexMax;
+    
+    /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
+    private final Table<E> table;
+    
+    /* *************************************************** Methods **************************************************** */
+    
+    public ColumnIterator( Table<E> table )
+    {
+      this.table = table;
+      this.indexMax = table.columnSize() - 1;
+    }
+    
+    @Override
+    public boolean hasNext()
+    {
+      return this.index + 1 <= this.indexMax;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public C next()
+    {
+      return (C) this.table.column( ++this.index );
+    }
+    
+    @Override
+    public void remove()
+    {
+      throw new UnsupportedOperationException();
+    }
+  }
   /* ********************************************** Classes/Interfaces ********************************************** */
   public static final class RowIterator<E, R extends ImmutableRow<E>> implements Iterator<R>
   {
+    private int            index = -1;
     /* ************************************** Variables / State (internal/hiding) ************************************* */
     private final int      indexMax;
-    private int            index = -1;
     
     /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
     private final Table<E> table;
@@ -82,42 +113,11 @@ abstract class TableAbstract<E> implements Table<E>
     }
   }
   
-  public static final class ColumnIterator<E, C extends ImmutableColumn<E>> implements Iterator<C>
-  {
-    /* ************************************** Variables / State (internal/hiding) ************************************* */
-    private final int      indexMax;
-    private int            index = -1;
-    
-    /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
-    private final Table<E> table;
-    
-    /* *************************************************** Methods **************************************************** */
-    
-    public ColumnIterator( Table<E> table )
-    {
-      this.table = table;
-      this.indexMax = table.columnSize() - 1;
-    }
-    
-    @Override
-    public boolean hasNext()
-    {
-      return this.index + 1 <= this.indexMax;
-    }
-    
-    @SuppressWarnings("unchecked")
-    @Override
-    public C next()
-    {
-      return (C) this.table.column( ++this.index );
-    }
-    
-    @Override
-    public void remove()
-    {
-      throw new UnsupportedOperationException();
-    }
-  }
+  /* ************************************************** Constants *************************************************** */
+  private static final long  serialVersionUID = 6651647383929942697L;
+  
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  protected ExceptionHandler exceptionHandler = new ExceptionHandlerIgnoring();
   
   /* *************************************************** Methods **************************************************** */
   public TableAbstract()
@@ -133,9 +133,20 @@ abstract class TableAbstract<E> implements Table<E>
   }
   
   @Override
-  public TableTransformer<E> to()
+  public abstract Table<E> clone();
+  
+  @Override
+  public Iterable<Column<E>> columns()
   {
-    return new TableTransformerImpl<E>( this );
+    final Table<E> table = this;
+    return IterableUtils.valueOf( new Factory<Iterator<Column<E>>>()
+    {
+      @Override
+      public Iterator<Column<E>> newInstance()
+      {
+        return new ColumnIterator<E, Column<E>>( table );
+      }
+    } );
   }
   
   @Override
@@ -160,29 +171,9 @@ abstract class TableAbstract<E> implements Table<E>
   }
   
   @Override
-  public Iterable<Column<E>> columns()
-  {
-    final Table<E> table = this;
-    return IterableUtils.valueOf( new Factory<Iterator<Column<E>>>()
-    {
-      @Override
-      public Iterator<Column<E>> newInstance()
-      {
-        return new ColumnIterator<E, Column<E>>( table );
-      }
-    } );
-  }
-  
-  @Override
   public TableSerializer<E> serializer()
   {
     return new TableSerializerImpl<E>( this, this.exceptionHandler );
-  }
-  
-  @Override
-  public String toString()
-  {
-    return this.to().string();
   }
   
   @Override
@@ -190,6 +181,18 @@ abstract class TableAbstract<E> implements Table<E>
   {
     this.exceptionHandler = ObjectUtils.defaultIfNull( exceptionHandler, new ExceptionHandlerIgnoring() );
     return this;
+  }
+  
+  @Override
+  public TableTransformer<E> to()
+  {
+    return new TableTransformerImpl<E>( this );
+  }
+  
+  @Override
+  public String toString()
+  {
+    return this.to().string();
   }
   
 }

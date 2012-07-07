@@ -15,17 +15,19 @@
  ******************************************************************************/
 package org.omnaest.utils.tuple;
 
+import java.io.Serializable;
+
 /**
  * A {@link Tuple} is the marker interface for generic wrapper classes holding arbitrary elements of different numbers.<br>
  * <br>
  * A {@link Tuple} derived type should support {@link #hashCode()} and {@link #equals(Object)} as well as {@link #toString()}. Two
  * {@link Tuple} are taken as equal, if their elements are equal and in the same number and order.
  * 
- * @see TupleTwo
- * @see TupleThree
+ * @see Tuple2
+ * @see Tuple3
  * @author Omnaest
  */
-public interface Tuple
+public interface Tuple extends Serializable
 {
   
 }

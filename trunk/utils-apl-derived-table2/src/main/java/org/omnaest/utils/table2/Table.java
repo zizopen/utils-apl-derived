@@ -101,6 +101,13 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Table<E> clear();
   
   /**
+   * Clones the current {@link Table} structure into a new instance
+   * 
+   * @return new instance
+   */
+  public Table<E> clone();
+  
+  /**
    * Returns a new {@link Column} currently related to the given column index position
    * 
    * @param columnIndex
@@ -305,5 +312,12 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @return this
    */
   public Table<E> setTableName( String tableName );
+  
+  /**
+   * Returns a new {@link TableSorter} instance
+   * 
+   * @return {@link TableSorter} instance
+   */
+  public TableSorter<E> sort();
   
 }

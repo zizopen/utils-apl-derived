@@ -24,19 +24,17 @@ import javax.xml.bind.annotation.XmlType;
  * Container {@link Tuple} holding three data instances.
  * 
  * @see Tuple
- * @see TupleTwo
+ * @see Tuple2
  * @author Omnaest
  * @param <T1>
  * @param <T2>
  * @param <T3>
- * @deprecated use {@link Tuple3} instead
  */
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
-@Deprecated
-public class TupleThree<T1, T2, T3> implements Tuple
+public class Tuple3<T1, T2, T3> implements Tuple
 {
-  private static final long serialVersionUID = -5561006980478608055L;
+  private static final long serialVersionUID = 4566232391708319632L;
   /* ********************************************** Variables ********************************************** */
   @XmlElement
   protected T1              valueFirst       = null;
@@ -47,11 +45,11 @@ public class TupleThree<T1, T2, T3> implements Tuple
   
   /* ********************************************** Methods ********************************************** */
   
-  public TupleThree()
+  public Tuple3()
   {
   }
   
-  public TupleThree( T1 valueFirst, T2 valueSecond, T3 valueThird )
+  public Tuple3( T1 valueFirst, T2 valueSecond, T3 valueThird )
   {
     super();
     this.valueFirst = valueFirst;
@@ -93,11 +91,11 @@ public class TupleThree<T1, T2, T3> implements Tuple
   public String toString()
   {
     StringBuilder builder = new StringBuilder();
-    builder.append( "TupleThree [valueFirst=" );
+    builder.append( "[" );
     builder.append( this.valueFirst );
-    builder.append( ", valueSecond=" );
+    builder.append( "," );
     builder.append( this.valueSecond );
-    builder.append( ", valueThird=" );
+    builder.append( "," );
     builder.append( this.valueThird );
     builder.append( "]" );
     return builder.toString();
@@ -125,12 +123,12 @@ public class TupleThree<T1, T2, T3> implements Tuple
     {
       return false;
     }
-    if ( !( obj instanceof TupleThree ) )
+    if ( !( obj instanceof Tuple3 ) )
     {
       return false;
     }
     @SuppressWarnings("rawtypes")
-    TupleThree other = (TupleThree) obj;
+    Tuple3 other = (Tuple3) obj;
     if ( this.valueFirst == null )
     {
       if ( other.valueFirst != null )

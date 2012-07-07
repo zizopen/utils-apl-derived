@@ -368,7 +368,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
       
       final E[][] elementMatrix = elementArrayList.toArray( (E[][]) Array.newInstance( this.componentType,
                                                                                        elementArrayList.size(), columnSize ) );
-      final ArrayTable<E> rettable = new ArrayTable<E>( elementMatrix );
+      final Table<E> rettable = new ArrayTable<E>( elementMatrix );
       {
         final Set<String> tableNameSet = new LinkedHashSet<String>();
         int columnIndex = 0;

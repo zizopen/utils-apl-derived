@@ -39,6 +39,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerEPrintStackTrace;
@@ -272,6 +273,7 @@ public abstract class TableTest
               
               retval.set( elementList.equals( table.row( 10 ).to().list() ) );
             }
+            
           } );
           
           return retval.get();
@@ -914,5 +916,49 @@ public abstract class TableTest
     //System.out.println( string );
     assertNotNull( content );
     assertEquals( table.toString(), content );
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testSortBy()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 4 );
+    //System.out.println( table );
+    
+    {
+      Table<String> tableSorted = table.clone();
+      tableSorted.row( 4 ).switchWith( 0 );
+      tableSorted.row( 1 ).switchWith( 9 );
+      tableSorted.row( 8 ).switchWith( 2 );
+      tableSorted.row( 3 ).switchWith( 7 );
+      assertEquals( "0:0", tableSorted.row( 4 ).getCellElement( 0 ) );
+      assertEquals( "4:0", tableSorted.row( 0 ).getCellElement( 0 ) );
+      assertEquals( "1:0", tableSorted.row( 9 ).getCellElement( 0 ) );
+      assertEquals( "9:0", tableSorted.row( 1 ).getCellElement( 0 ) );
+      //System.out.println( tableSorted );
+      
+      tableSorted.sort().by( 1 );
+      
+      //System.out.println( tableSorted );
+      assertEquals( table.rowSize(), tableSorted.rowSize() );
+      assertTrue( table.equalsInContent( tableSorted ) );
+      assertTrue( table.equalsInContentAndMetaData( tableSorted ) );
+    }
+    
+    {
+      Table<String> tableSorted = table.clone();
+      tableSorted.row( 4 ).switchWith( 0 );
+      tableSorted.row( 1 ).switchWith( 9 );
+      tableSorted.row( 8 ).switchWith( 2 );
+      tableSorted.row( 3 ).switchWith( 7 );
+      tableSorted.sort()
+                 .withTableLock()
+                 .using( ComparatorUtils.reversedComparator( ComparatorUtils.naturalComparator() ) )
+                 .by( 1 );
+      //System.out.println( tableSorted );
+      assertEquals( table.rowSize(), tableSorted.rowSize() );
+      assertEquals( "0:0", tableSorted.row( 9 ).getCellElement( 0 ) );
+      assertEquals( "9:0", tableSorted.row( 0 ).getCellElement( 0 ) );
+    }
   }
 }

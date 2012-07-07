@@ -43,6 +43,7 @@ import org.omnaest.utils.table2.TableAdapterManager;
 import org.omnaest.utils.table2.TableExecution;
 import org.omnaest.utils.table2.TableIndexManager;
 import org.omnaest.utils.table2.TableSelect;
+import org.omnaest.utils.table2.TableSorter;
 import org.omnaest.utils.table2.impl.adapter.TableAdapterManagerImpl;
 import org.omnaest.utils.table2.impl.join.TableSelectImpl;
 
@@ -473,5 +474,21 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     this.tableDataAccessor.addColumn( columnIndex, elements );
     return this;
+  }
+  
+  @Override
+  public Table<E> clone()
+  {
+    Table<E> table = new ArrayTable<E>( this.to().array() );
+    table.setTableName( this.getTableName() );
+    table.setRowTitles( this.getRowTitleList() );
+    table.setColumnTitles( this.getColumnTitleList() );
+    return table;
+  }
+  
+  @Override
+  public TableSorter<E> sort()
+  {
+    return new TableSorterImpl<E>( this );
   }
 }

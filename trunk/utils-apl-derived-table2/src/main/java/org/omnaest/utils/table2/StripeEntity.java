@@ -15,36 +15,46 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import java.util.Arrays;
+
 /**
- * Immutable {@link Row}
+ * Immutable entity which contains the elements and the title of a stripe
  * 
- * @see ImmutableStripe
- * @see ImmutableColumn
  * @author Omnaest
  * @param <E>
  */
-public interface ImmutableRow<E> extends ImmutableStripe<E>
+public class StripeEntity<E>
 {
+  private final String title;
+  private final E[]    elements;
   
-  /**
-   * An {@link ImmutableColumn.ColumnIdentity} implements {@link #hashCode()} and {@link #equals(Object)} in the way, that for the
-   * same {@link ImmutableTable} and index position two {@link ImmutableColumn.ColumnIdentity}s are considered equal
-   * 
-   * @author Omnaest
-   */
-  public static interface RowIdentity<E>
+  public StripeEntity( String title, E[] elements )
   {
-    public ImmutableTable<E> getTable();
-    
-    public ImmutableRow<E> row();
-    
-    public int getRowIndex();
+    super();
+    this.title = title;
+    this.elements = elements;
   }
   
-  /**
-   * Returns a new {@link RowIdentity} instance which implements {@link #hashCode()} and {@link #equals(Object)}
-   * 
-   * @return
-   */
-  public RowIdentity<E> id();
+  public String getTitle()
+  {
+    return this.title;
+  }
+  
+  public E[] getElements()
+  {
+    return this.elements;
+  }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "StripeEntity [title=" );
+    builder.append( this.title );
+    builder.append( ", elements=" );
+    builder.append( Arrays.toString( this.elements ) );
+    builder.append( "]" );
+    return builder.toString();
+  }
+  
 }

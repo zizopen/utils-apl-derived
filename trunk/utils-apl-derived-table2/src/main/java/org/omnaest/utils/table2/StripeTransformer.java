@@ -47,4 +47,11 @@ public interface StripeTransformer<E>
    * @return
    */
   public List<E> list();
+  
+  /**
+   * Returns a new {@link StripeEntity} instance
+   * 
+   * @return
+   */
+  public StripeEntity<E> entity();
 }

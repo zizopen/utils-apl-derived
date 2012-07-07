@@ -17,6 +17,14 @@ package org.omnaest.utils.table2;
 
 import org.omnaest.utils.operation.special.OperationVoid;
 
+/**
+ * A {@link TableExecution} prepares an execution which operates on the {@link ImmutableTable} passed to the
+ * {@link #execute(ImmutableTable)} method
+ * 
+ * @author Omnaest
+ * @param <T>
+ * @param <E>
+ */
 public interface TableExecution<T extends ImmutableTable<E>, E> extends OperationVoid<T>
 {
   /**
