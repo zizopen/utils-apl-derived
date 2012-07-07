@@ -16,14 +16,11 @@
 package org.omnaest.utils.table2.impl.persistence;
 
 import java.io.File;
-import java.util.List;
 
 import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
 import org.omnaest.utils.store.DirectoryBasedObjectStore;
-import org.omnaest.utils.structure.collection.list.ListUtils;
-import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.store.DirectoryBasedObjectStoreUsingSerializable;
 import org.omnaest.utils.table2.TablePersistence;
-import org.omnaest.utils.tuple.KeyValue;
 
 /**
  * Simple {@link TablePersistence} which writes the complete data to {@link File}s using a {@link DirectoryBasedObjectStore}. The
@@ -32,69 +29,25 @@ import org.omnaest.utils.tuple.KeyValue;
  * @author Omnaest
  * @param <E>
  */
-public class SimpleDirectoryBasedTablePersistence<E> implements TablePersistence<E>
+public class SimpleDirectoryBasedTablePersistenceUsingSerializable<E> extends
+    SimpleDirectoryBasedTablePersistenceAbstract<E>
 {
   /* ************************************************** Constants *************************************************** */
   private static final long serialVersionUID = 1166090223383046706L;
   
-  /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final List<E[]>   elementsList;
-  
   /* *************************************************** Methods **************************************************** */
   
   /**
-   * @see SimpleDirectoryBasedTablePersistence
+   * @see SimpleDirectoryBasedTablePersistenceUsingSerializable
    * @param baseDirectory
    *          {@link File}
    * @param exceptionHandler
    *          {@link ExceptionHandlerSerializable}
    */
-  public SimpleDirectoryBasedTablePersistence( File baseDirectory, ExceptionHandlerSerializable exceptionHandler )
+  public SimpleDirectoryBasedTablePersistenceUsingSerializable( File baseDirectory,
+                                                                      ExceptionHandlerSerializable exceptionHandler )
   {
-    super();
-    
-    this.elementsList = new DirectoryBasedObjectStore<E[]>( baseDirectory, exceptionHandler );
-  }
-  
-  @Override
-  public void add( int id, E[] elements )
-  {
-    this.elementsList.add( id, elements );
-  }
-  
-  @Override
-  public Iterable<KeyValue<Integer, E[]>> allElements()
-  {
-    return ListUtils.convert( this.elementsList, new ElementConverter<E[], KeyValue<Integer, E[]>>()
-    {
-      private int index = 0;
-      
-      @Override
-      public KeyValue<Integer, E[]> convert( E[] elements )
-      {
-        final Integer key = this.index++;
-        final E[] value = elements;
-        return new KeyValue<Integer, E[]>( key, value );
-      }
-    } );
-  }
-  
-  @Override
-  public void remove( int id )
-  {
-    this.elementsList.remove( id );
-  }
-  
-  @Override
-  public void removeAll()
-  {
-    this.elementsList.clear();
-  }
-  
-  @Override
-  public void update( int id, E[] elements )
-  {
-    this.elementsList.set( id, elements );
+    super( new DirectoryBasedObjectStoreUsingSerializable<E[]>( baseDirectory, exceptionHandler ) );
   }
   
 }

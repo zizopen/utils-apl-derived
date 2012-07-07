@@ -26,49 +26,34 @@ import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
-import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverterSerializable;
 
 /**
- * A simple {@link Object} store based on a nested directory structure using Java serialization. All elements have to subclass the
- * {@link Serializable} interface.
- * 
  * @author Omnaest
  * @param <E>
  */
-public class DirectoryBasedObjectStore<E extends Serializable> implements List<E>, Serializable
+abstract class DirectoryBasedObjectStoreAbstract<E> implements List<E>, Serializable, DirectoryBasedObjectStore<E>
 {
-  private static final long serialVersionUID = 6969251214756015290L;
-  private final List<E>     elementList;
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = 3437464263177930309L;
+  
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  protected final List<E>   elementList;
+  
+  /* *************************************************** Methods **************************************************** */
   
   /**
-   * @see DirectoryBasedObjectStore
+   * @param elementBidirectionalConverter
    * @param baseDirectory
-   *          {@link File}
    * @param exceptionHandler
-   *          {@link ExceptionHandlerSerializable}
+   * @see DirectoryBasedObjectStoreAbstract
    */
-  public DirectoryBasedObjectStore( File baseDirectory, ExceptionHandlerSerializable exceptionHandler )
+  DirectoryBasedObjectStoreAbstract( ElementBidirectionalConverter<ByteArrayContainer, E> elementBidirectionalConverter,
+                                     File baseDirectory, ExceptionHandlerSerializable exceptionHandler )
   {
     super();
-    final List<ByteArrayContainer> byteArrayContainerList = new NestedDirectoryToByteArrayContainerListAdapter( baseDirectory,
-                                                                                                                exceptionHandler );
-    final ElementBidirectionalConverter<ByteArrayContainer, E> elementBidirectionalConverter = new ElementBidirectionalConverterSerializable<ByteArrayContainer, E>()
-    {
-      private static final long serialVersionUID = -7311719190343731231L;
-      
-      @Override
-      public E convert( ByteArrayContainer byteArrayContainer )
-      {
-        return byteArrayContainer.toDeserializedElement();
-      }
-      
-      @Override
-      public ByteArrayContainer convertBackwards( E element )
-      {
-        return new ByteArrayContainer().copyFromSerialized( element );
-      }
-    };
-    this.elementList = ListUtils.adapter( byteArrayContainerList, elementBidirectionalConverter );
+    
+    this.elementList = ListUtils.adapter( new NestedDirectoryToByteArrayContainerListAdapter( baseDirectory, exceptionHandler ),
+                                          elementBidirectionalConverter );
   }
   
   @Override
@@ -114,21 +99,9 @@ public class DirectoryBasedObjectStore<E extends Serializable> implements List<E
   }
   
   @Override
-  public boolean equals( Object o )
-  {
-    return this.elementList.equals( o );
-  }
-  
-  @Override
   public E get( int index )
   {
     return this.elementList.get( index );
-  }
-  
-  @Override
-  public int hashCode()
-  {
-    return this.elementList.hashCode();
   }
   
   @Override
@@ -219,6 +192,18 @@ public class DirectoryBasedObjectStore<E extends Serializable> implements List<E
   public <T> T[] toArray( T[] a )
   {
     return this.elementList.toArray( a );
+  }
+  
+  @Override
+  public boolean equals( Object o )
+  {
+    return this.elementList.equals( o );
+  }
+  
+  @Override
+  public int hashCode()
+  {
+    return this.elementList.hashCode();
   }
   
 }
