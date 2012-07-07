@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.table2;
-
-import java.io.Serializable;
-import java.util.Set;
-import java.util.SortedMap;
+package org.omnaest.utils.structure.element;
 
 /**
- * Index representation of a {@link Column} of a {@link Table}
- * 
+ * @see KeyExtractor
  * @author Omnaest
+ * @param <K>
  * @param <E>
- * @param <C>
  */
-public interface TableIndex<E, C extends ImmutableCell<E>> extends Serializable, SortedMap<E, Set<C>>
+public interface ValueExtractor<K, E>
 {
-  
   /**
-   * Returns the actual column index position this {@link TableIndex} is based on
+   * Extracts a value from the given element
    * 
+   * @param element
    * @return
    */
-  public int index();
-  
+  public K extractValue( E element );
 }

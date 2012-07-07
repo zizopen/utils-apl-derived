@@ -43,7 +43,7 @@ public interface ImmutableStripe<E> extends Iterable<E>, Serializable
    * @param index
    * @return
    */
-  public E getCellElement( int index );
+  public E getElement( int index );
   
   /**
    * Returns an array of all elements

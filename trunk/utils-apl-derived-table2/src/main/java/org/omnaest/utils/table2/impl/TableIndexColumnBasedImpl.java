@@ -42,7 +42,7 @@ import org.omnaest.utils.table2.TableIndex;
  * @author Omnaest
  * @param <E>
  */
-public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, Set<Cell<E>>>, TableEventHandler<E>, Serializable
+class TableIndexColumnBasedImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, Set<Cell<E>>>, TableEventHandler<E>, Serializable
 {
   /* ************************************************** Constants *************************************************** */
   private static final long                serialVersionUID = 3723253328291423721L;
@@ -52,7 +52,11 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
   
   /* *************************************************** Methods **************************************************** */
   
-  public TableIndexImpl( Column<E> column )
+  /**
+   * @see TableIndexColumnBasedImpl
+   * @param column
+   */
+  TableIndexColumnBasedImpl( Column<E> column )
   {
     super();
     this.column = column;
@@ -64,12 +68,6 @@ public class TableIndexImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, S
       E element = cell.getElement();
       this.elementToCellSetMap.get( element ).add( cell );
     }
-  }
-  
-  @Override
-  public SortedMap<E, Set<Cell<E>>> asMap()
-  {
-    return this;
   }
   
   @Override

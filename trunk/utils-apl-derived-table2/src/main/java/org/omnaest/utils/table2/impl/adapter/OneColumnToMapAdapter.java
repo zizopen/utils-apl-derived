@@ -41,7 +41,12 @@ class OneColumnToMapAdapter<E> extends MapAbstract<E, Set<Row<E>>>
   
   /* *************************************************** Methods **************************************************** */
   
-  public OneColumnToMapAdapter( Table<E> table, int columnIndexKey )
+  /**
+   * @see OneColumnToMapAdapter
+   * @param table
+   * @param columnIndexKey
+   */
+  OneColumnToMapAdapter( Table<E> table, int columnIndexKey )
   {
     super();
     this.table = table;

@@ -16,14 +16,22 @@
 package org.omnaest.utils.table2.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.SortedMap;
 
+import org.apache.commons.collections.ComparatorUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerEPrintStackTrace;
+import org.omnaest.utils.structure.element.KeyExtractor;
+import org.omnaest.utils.structure.element.ValueExtractor;
+import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableTest;
 
@@ -37,6 +45,57 @@ public class ArrayTableTest extends TableTest
   public <E> Table<E> newTable( E[][] elementMatrix, Class<E> type )
   {
     return new ArrayTable<E>( type ).copyFrom( elementMatrix );
+  }
+  
+  @SuppressWarnings({ "unchecked", "cast" })
+  @Test
+  public void testIndexOfArbitraryKeyExtractor()
+  {
+    Table<String> table = this.filledTable( 100, 5 );
+    
+    KeyExtractor<Integer, String[]> keyExtractor = new KeyExtractor<Integer, String[]>()
+    {
+      @Override
+      public Integer extractKey( String[] elements )
+      {
+        String[] tokens = elements[1].split( ":" );
+        return Integer.valueOf( tokens[0] );
+      }
+    };
+    ValueExtractor<Integer, Set<String[]>> valueExtractor = new ValueExtractor<Integer, Set<String[]>>()
+    {
+      @Override
+      public Integer extractValue( Set<String[]> elementsSet )
+      {
+        final String[] elements = IterableUtils.firstElement( elementsSet );
+        final String[] tokens = elements[1].split( ":" );
+        return Integer.valueOf( tokens[1] );
+      }
+    };
+    
+    SortedMap<Integer, Integer> sortedMap = table.index()
+                                                 .of( keyExtractor,
+                                                      valueExtractor,
+                                                      (Comparator<Integer>) ComparatorUtils.reversedComparator( ComparatorUtils.NATURAL_COMPARATOR ) );
+    {
+      assertNotNull( sortedMap );
+      assertEquals( table.rowSize(), sortedMap.size() );
+      assertTrue( sortedMap.containsKey( 0 ) );
+    }
+    
+    table.removeRow( 0 );
+    {
+      assertFalse( sortedMap.containsKey( 0 ) );
+      assertTrue( sortedMap.containsKey( 1 ) );
+      assertFalse( sortedMap.containsKey( 101 ) );
+      
+      table.setCellElement( 0, 1, "101:88" );
+      assertTrue( sortedMap.containsKey( 101 ) );
+      
+      Integer columnIndex = sortedMap.get( 101 );
+      assertEquals( 88, columnIndex.intValue() );
+    }
+    
   }
   
   @Test

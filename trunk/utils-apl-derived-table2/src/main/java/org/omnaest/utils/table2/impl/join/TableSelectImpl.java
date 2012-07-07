@@ -750,7 +750,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
             E retval = null;
             if ( columnIdentitySet.contains( columnIdentity ) )
             {
-              retval = immutableRow.getCellElement( columnIdentity.getColumnIndex() );
+              retval = immutableRow.getElement( columnIdentity.getColumnIndex() );
             }
             return retval;
           }
@@ -1126,7 +1126,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
     for ( Row<E> row : table.rows() )
     {
       //
-      final E key = row.getCellElement( 0 );
+      final E key = row.getElement( 0 );
       
       Set<Row<E>> set = retmap.get( key );
       if ( set == null )

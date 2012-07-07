@@ -31,7 +31,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.io.FileUtils;
 import org.databene.contiperf.PerfTest;
 import org.databene.contiperf.junit.ContiPerfRule;
 import org.junit.After;
@@ -59,7 +58,7 @@ public class ElementStoreTest
   private static final AtomicInteger           counter             = new AtomicInteger();
   
   /* ********************************************** Variables ********************************************** */
-  private final File                           directory           = new File( FileUtils.getTempDirectory(), "data" );
+  private final File                           directory           = new File( "target/elementStoreTestDir" );
   private final PersistenceAccessor<TestClass> persistenceAccessor = new PersistenceAccessorDirectoryFiles<TestClass>(
                                                                                                                        this.directory );
   private ElementStore<TestClass>              elementStore        = new ElementStore<ElementStoreTest.TestClass>(
