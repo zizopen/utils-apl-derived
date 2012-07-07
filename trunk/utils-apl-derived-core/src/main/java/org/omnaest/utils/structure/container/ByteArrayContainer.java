@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URI;
@@ -45,6 +46,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.download.DownloadConnection;
@@ -319,10 +321,24 @@ public class ByteArrayContainer
     {
       //
       final OutputStream fileOutputStream = new FileOutputStream( file );
-      final BufferedOutputStream bufferedOutputStream = new BufferedOutputStream( fileOutputStream );
-      bufferedOutputStream.write( this.content );
-      bufferedOutputStream.close();
-      fileOutputStream.close();
+      try
+      {
+        final BufferedOutputStream bufferedOutputStream = new BufferedOutputStream( fileOutputStream );
+        try
+        {
+          bufferedOutputStream.write( this.content );
+          bufferedOutputStream.flush();
+        }
+        finally
+        {
+          bufferedOutputStream.close();
+        }
+        fileOutputStream.flush();
+      }
+      finally
+      {
+        fileOutputStream.close();
+      }
     }
     catch ( Exception e )
     {
@@ -622,6 +638,33 @@ public class ByteArrayContainer
     
     //
     return this;
+  }
+  
+  /**
+   * Serializes any given {@link Serializable} element and stores it
+   * 
+   * @see #toDeserializedElement()
+   * @param element
+   * @return this
+   */
+  public <S extends Serializable> ByteArrayContainer copyFromSerialized( S element )
+  {
+    final byte[] content = element != null ? SerializationUtils.serialize( element ) : null;
+    this.setContent( content );
+    
+    return this;
+  }
+  
+  /**
+   * Deserializes the content into an element
+   * 
+   * @see #copyFromSerialized(Serializable)
+   * @return new element instance
+   */
+  @SuppressWarnings("unchecked")
+  public <S extends Serializable> S toDeserializedElement()
+  {
+    return this.content != null ? (S) SerializationUtils.deserialize( this.content ) : null;
   }
   
   /**
@@ -1241,6 +1284,22 @@ public class ByteArrayContainer
     //
     this.exceptionHandler = exceptionHandler;
     return this;
+  }
+  
+  /**
+   * Returns a new {@link ByteArrayContainer} instance mapping the same byte[] array as the given {@link ByteArrayContainer}
+   * 
+   * @param byteArrayContainer
+   * @return new instance
+   */
+  public static ByteArrayContainer valueOf( ByteArrayContainer byteArrayContainer )
+  {
+    final ByteArrayContainer retval = new ByteArrayContainer();
+    if ( byteArrayContainer != null )
+    {
+      retval.setContent( byteArrayContainer.getContent() );
+    }
+    return retval;
   }
   
 }

@@ -56,7 +56,6 @@ public class ListToListAdapter<FROM, TO> extends ListAbstract<TO>
   @Override
   public int size()
   {
-    // 
     return this.list.size();
   }
   
@@ -126,6 +125,12 @@ public class ListToListAdapter<FROM, TO> extends ListAbstract<TO>
     {
       return -1;
     }
+  }
+  
+  @Override
+  public void clear()
+  {
+    this.list.clear();
   }
   
 }

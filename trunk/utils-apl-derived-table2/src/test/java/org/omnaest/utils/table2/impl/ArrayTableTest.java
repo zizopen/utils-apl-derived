@@ -17,9 +17,13 @@ package org.omnaest.utils.table2.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.omnaest.utils.events.exception.basic.ExceptionHandlerEPrintStackTrace;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableTest;
 
@@ -33,6 +37,46 @@ public class ArrayTableTest extends TableTest
   public <E> Table<E> newTable( E[][] elementMatrix, Class<E> type )
   {
     return new ArrayTable<E>( type ).copyFrom( elementMatrix );
+  }
+  
+  @Test
+  @Ignore("Persistence test")
+  public void testPersistenceWithDirectory()
+  {
+    final File directory = new File( "target/persistenceStoreTest" );
+    final ExceptionHandlerEPrintStackTrace exceptionHandler = new ExceptionHandlerEPrintStackTrace();
+    
+    Table<String> table = new ArrayTable<String>( String.class ).setExceptionHandler( exceptionHandler )
+                                                                .persistence()
+                                                                .attachToDirectory( directory );
+    table.clear();
+    if ( table.rowSize() == 0 )
+    {
+      table = this.filledTable( 50, 5 ).setExceptionHandler( exceptionHandler ).persistence().attachToDirectory( directory );
+    }
+    
+    assertEquals( 50, table.rowSize() );
+    
+    {
+      Table<String> tableOther = new ArrayTable<String>( String.class ).persistence().attachToDirectory( directory );
+      //System.out.println( tableOther );
+      assertEquals( table.rowSize(), tableOther.rowSize() );
+      assertTrue( table.equalsInContent( tableOther ) );
+    }
+    
+    table.row( 16 ).switchWith( 4 );
+    table.row( 5 ).switchWith( 15 );
+    table.row( 14 ).switchWith( 6 );
+    table.row( 7 ).switchWith( 14 );
+    //System.out.println( table );
+    
+    {
+      Table<String> tableOther = new ArrayTable<String>( String.class ).persistence().attachToDirectory( directory );
+      //System.out.println( tableOther );
+      assertTrue( table.equalsInContent( tableOther ) );
+    }
+    
+    table.clear();
   }
   
   @Test

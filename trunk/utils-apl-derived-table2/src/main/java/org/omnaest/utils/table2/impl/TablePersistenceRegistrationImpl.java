@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.io.File;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -22,11 +23,15 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
+import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
 import org.omnaest.utils.operation.special.OperationVoid;
 import org.omnaest.utils.table2.ImmutableRow;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TablePersistence;
 import org.omnaest.utils.table2.TablePersistenceRegistration;
+import org.omnaest.utils.table2.impl.persistence.SimpleDirectoryBasedTablePersistence;
+import org.omnaest.utils.table2.impl.persistence.SimpleFileBasedTablePersistence;
 import org.omnaest.utils.tuple.KeyValue;
 
 /**
@@ -42,11 +47,24 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
   private final Table<E>                 table;
   private final ReadWriteLock            tableLock;
   private final Set<TablePersistence<E>> tablePersistenceSet = new LinkedHashSet<TablePersistence<E>>();
+  private ExceptionHandlerSerializable   exceptionHandler;
   
-  TablePersistenceRegistrationImpl( Table<E> table, ReadWriteLock tableLock )
+  TablePersistenceRegistrationImpl( Table<E> table, ReadWriteLock tableLock, ExceptionHandlerSerializable exceptionHandler )
   {
     this.table = table;
     this.tableLock = tableLock;
+  }
+  
+  @Override
+  public Table<E> attachToFile( File file )
+  {
+    return this.attach( new SimpleFileBasedTablePersistence<E>( file, this.exceptionHandler ) );
+  }
+  
+  @Override
+  public Table<E> attachToDirectory( File directory )
+  {
+    return this.attach( new SimpleDirectoryBasedTablePersistence<E>( directory, this.exceptionHandler ) );
   }
   
   @Override
@@ -162,16 +180,10 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
       {
         final Integer rowIndex = keyValue.getKey();
         final E[] elements = keyValue.getValue();
-        if ( rowIndex == null )
-        {
-          rowIndexSet.add( this.table.rowSize() );
-          this.table.addRowElements( elements );
-        }
-        else
-        {
-          rowIndexSet.add( rowIndex );
-          this.table.addRowElements( rowIndex, elements );
-        }
+        Assert.isNotNull( rowIndex, "row index position must not be null" );
+        
+        rowIndexSet.add( rowIndex );
+        this.table.setRowElements( rowIndex, elements );
       }
     }
     

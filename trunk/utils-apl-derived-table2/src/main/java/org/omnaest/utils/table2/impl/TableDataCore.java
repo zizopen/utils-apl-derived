@@ -153,6 +153,11 @@ class TableDataCore<E> implements Serializable
     final int lastRowIndex = this.rowSize;
     final boolean isLastRow = ( rowIndex == lastRowIndex );
     
+    if ( elements == null )
+    {
+      elements = this.newArray( 0 );
+    }
+    
     this.ensureColumnSize( elements.length );
     this.ensureRowSize( this.rowSize + 1 );
     

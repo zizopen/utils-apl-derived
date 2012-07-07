@@ -15,7 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import java.io.File;
 import java.io.Serializable;
+
+import org.omnaest.utils.table2.impl.persistence.SimpleDirectoryBasedTablePersistence;
+import org.omnaest.utils.table2.impl.persistence.SimpleFileBasedTablePersistence;
 
 /**
  * Registration for {@link TablePersistence} instances
@@ -40,4 +44,20 @@ public interface TablePersistenceRegistration<E> extends Serializable
    * @return underlying {@link Table}
    */
   public Table<E> detach( TablePersistence<E> tablePersistence );
+  
+  /**
+   * Attaches the {@link Table} to a {@link SimpleFileBasedTablePersistence}
+   * 
+   * @param file
+   * @return underlying {@link Table}
+   */
+  public Table<E> attachToFile( File file );
+  
+  /**
+   * Attaches the {@link Table} to a {@link SimpleDirectoryBasedTablePersistence}
+   * 
+   * @param directory
+   * @return underlying {@link Table}
+   */
+  public Table<E> attachToDirectory( File directory );
 }
