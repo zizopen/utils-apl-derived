@@ -17,7 +17,8 @@ package org.omnaest.utils.table2.impl;
 
 import java.util.Iterator;
 
-import org.omnaest.utils.events.exception.ExceptionHandler;
+import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
+import org.omnaest.utils.events.exception.basic.ExceptionHandlerDelegate;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerIgnoring;
 import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.element.factory.Factory;
@@ -39,11 +40,19 @@ import org.omnaest.utils.table2.impl.transformer.TableTransformerImpl;
  */
 abstract class TableAbstract<E> implements Table<E>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long          serialVersionUID = 6651647383929942697L;
+  
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  protected ExceptionHandlerDelegate exceptionHandler = new ExceptionHandlerDelegate( new ExceptionHandlerIgnoring() );
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
   public static final class ColumnIterator<E, C extends ImmutableColumn<E>> implements Iterator<C>
   {
-    private int            index = -1;
     /* ************************************** Variables / State (internal/hiding) ************************************* */
     private final int      indexMax;
+    private int            index = -1;
     
     /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
     private final Table<E> table;
@@ -75,11 +84,11 @@ abstract class TableAbstract<E> implements Table<E>
       throw new UnsupportedOperationException();
     }
   }
-  /* ********************************************** Classes/Interfaces ********************************************** */
+  
   public static final class RowIterator<E, R extends ImmutableRow<E>> implements Iterator<R>
   {
-    private int            index = -1;
     /* ************************************** Variables / State (internal/hiding) ************************************* */
+    private int            index = -1;
     private final int      indexMax;
     
     /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
@@ -112,12 +121,6 @@ abstract class TableAbstract<E> implements Table<E>
       throw new UnsupportedOperationException();
     }
   }
-  
-  /* ************************************************** Constants *************************************************** */
-  private static final long  serialVersionUID = 6651647383929942697L;
-  
-  /* ************************************** Variables / State (internal/hiding) ************************************* */
-  protected ExceptionHandler exceptionHandler = new ExceptionHandlerIgnoring();
   
   /* *************************************************** Methods **************************************************** */
   public TableAbstract()
@@ -177,9 +180,9 @@ abstract class TableAbstract<E> implements Table<E>
   }
   
   @Override
-  public Table<E> setExceptionHandler( ExceptionHandler exceptionHandler )
+  public Table<E> setExceptionHandler( ExceptionHandlerSerializable exceptionHandler )
   {
-    this.exceptionHandler = ObjectUtils.defaultIfNull( exceptionHandler, new ExceptionHandlerIgnoring() );
+    this.exceptionHandler.setExceptionHandler( ObjectUtils.defaultIfNull( exceptionHandler, new ExceptionHandlerIgnoring() ) );
     return this;
   }
   

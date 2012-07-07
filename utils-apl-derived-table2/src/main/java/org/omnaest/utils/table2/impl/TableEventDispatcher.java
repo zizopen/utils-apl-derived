@@ -71,13 +71,16 @@ class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
     {
       for ( TableEventHandler<E> instance : this.instanceList )
       {
-        try
+        if ( instance != null )
         {
-          operation.execute( instance );
-        }
-        catch ( Exception e )
-        {
-          this.exceptionHandler.handleException( e );
+          try
+          {
+            operation.execute( instance );
+          }
+          catch ( Exception e )
+          {
+            this.exceptionHandler.handleException( e );
+          }
         }
       }
     }

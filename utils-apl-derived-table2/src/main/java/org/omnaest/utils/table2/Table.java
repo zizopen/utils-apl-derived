@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.regex.Pattern;
 
-import org.omnaest.utils.events.exception.ExceptionHandler;
+import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
 
 /**
  * A {@link Table} represents a two dimensional container
@@ -272,12 +272,12 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Table<E> setColumnTitles( Iterable<String> columnTitleIterable );
   
   /**
-   * Sets the {@link ExceptionHandler} instance
+   * Sets the {@link ExceptionHandlerSerializable} instance
    * 
    * @param exceptionHandler
    * @return this
    */
-  public Table<E> setExceptionHandler( ExceptionHandler exceptionHandler );
+  public Table<E> setExceptionHandler( ExceptionHandlerSerializable exceptionHandler );
   
   /**
    * Sets the elements of the {@link Row} at the given row index position

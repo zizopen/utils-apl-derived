@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -51,7 +52,7 @@ import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
 import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
 import org.omnaest.utils.table2.impl.ArrayTable;
-import org.omnaest.utils.tuple.KeyValue;
+import org.omnaest.utils.table2.impl.persistence.SimpleFileBasedTablePersistence;
 
 /**
  * @see Table
@@ -918,7 +919,7 @@ public abstract class TableTest
     assertNotNull( content );
     assertEquals( table.toString(), content );
   }
-
+  
   @SuppressWarnings("unchecked")
   @Test
   public void testSortBy()
@@ -962,61 +963,18 @@ public abstract class TableTest
       assertEquals( "9:0", tableSorted.row( 0 ).getCellElement( 0 ) );
     }
   }
-
+  
   @Test
   public void testPersistence()
   {
-    class SimpleTablePersistence implements TablePersistence<String>
-    {
-      private static final long serialVersionUID = 4587018898135825772L;
-      private List<String[]>    elementsList     = new ArrayList<String[]>();
-      
-      @Override
-      public void update( int id, String[] elements )
-      {
-        this.elementsList.set( id, elements );
-      }
-      
-      @Override
-      public void add( int id, String[] elements )
-      {
-        this.elementsList.add( id, elements );
-      }
-      
-      @Override
-      public void remove( int id )
-      {
-        this.elementsList.remove( id );
-      }
-      
-      @Override
-      public void removeAll()
-      {
-        this.elementsList.clear();
-      }
-      
-      @Override
-      public Iterable<KeyValue<Integer, String[]>> allElements()
-      {
-        return ListUtils.convert( this.elementsList, new ElementConverter<String[], KeyValue<Integer, String[]>>()
-        {
-          private int index = 0;
-          
-          @Override
-          public KeyValue<Integer, String[]> convert( String[] elements )
-          {
-            Integer key = this.index++;
-            String[] value = elements;
-            return new KeyValue<Integer, String[]>( key, value );
-          }
-        } );
-      }
-      
-    }
-    final TablePersistence<String> tablePersistence = new SimpleTablePersistence();
+    final File file = null;// new File( "target/persistence.data" );
+    final TablePersistence<String> tablePersistence = new SimpleFileBasedTablePersistence<String>(
+                                                                                              file,
+                                                                                              new ExceptionHandlerEPrintStackTrace() );
     
     Table<String> table = this.filledTable( 20, 5 );
     table.persistence().attach( tablePersistence );
+    assertEquals( 20, table.rowSize() );
     
     {
       Table<String> tableOther = new ArrayTable<String>( String.class ).persistence().attach( tablePersistence );

@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
-import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.operation.OperationUtils;
 import org.omnaest.utils.operation.special.OperationIntrinsic;
 import org.omnaest.utils.structure.array.ArrayUtils;
@@ -85,7 +84,8 @@ public class ArrayTable<E> extends TableAbstract<E>
     this.tableAdapterManager = new TableAdapterManagerImpl<E>( this );
     this.tablePersistenceRegistration = this.tableDataAccessor.register( new TablePersistenceRegistrationImpl<E>(
                                                                                                                   this,
-                                                                                                                  this.tableDataAccessor.getTableLock() ) );
+                                                                                                                  this.tableDataAccessor.getTableLock(),
+                                                                                                                  this.exceptionHandler ) );
   }
   
   @SuppressWarnings("unchecked")
@@ -410,13 +410,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     this.tableDataAccessor.setColumnTitles( columnTitleIterable );
     return this;
-  }
-  
-  @Override
-  public Table<E> setExceptionHandler( ExceptionHandler exceptionHandler )
-  {
-    this.tableDataAccessor.setExceptionHandler( exceptionHandler );
-    return super.setExceptionHandler( exceptionHandler );
   }
   
   @Override
