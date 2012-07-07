@@ -18,7 +18,8 @@ package org.omnaest.utils.table2;
 import java.io.File;
 import java.io.Serializable;
 
-import org.omnaest.utils.table2.impl.persistence.SimpleDirectoryBasedTablePersistence;
+import org.omnaest.utils.table2.impl.persistence.SimpleDirectoryBasedTablePersistenceUsingSerializable;
+import org.omnaest.utils.table2.impl.persistence.SimpleDirectoryBasedTablePersistenceUsingXStream;
 import org.omnaest.utils.table2.impl.persistence.SimpleFileBasedTablePersistence;
 
 /**
@@ -54,10 +55,18 @@ public interface TablePersistenceRegistration<E> extends Serializable
   public Table<E> attachToFile( File file );
   
   /**
-   * Attaches the {@link Table} to a {@link SimpleDirectoryBasedTablePersistence}
+   * Attaches the {@link Table} to a {@link SimpleDirectoryBasedTablePersistenceUsingSerializable}
    * 
    * @param directory
    * @return underlying {@link Table}
    */
-  public Table<E> attachToDirectory( File directory );
+  public Table<E> attachToDirectoryUsingSerializable( File directory );
+  
+  /**
+   * Attaches the {@link Table} to a {@link SimpleDirectoryBasedTablePersistenceUsingXStream}
+   * 
+   * @param directory
+   * @return underlying {@link Table}
+   */
+  public Table<E> attachToDirectoryUsingXStream( File directory );
 }

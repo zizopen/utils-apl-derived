@@ -48,19 +48,22 @@ public class ArrayTableTest extends TableTest
     
     Table<String> table = new ArrayTable<String>( String.class ).setExceptionHandler( exceptionHandler )
                                                                 .persistence()
-                                                                .attachToDirectory( directory );
+                                                                .attachToDirectoryUsingXStream( directory );
     table.clear();
     
     final int rowSize = 500;
     if ( table.rowSize() == 0 )
     {
-      table = this.filledTable( rowSize, 5 ).setExceptionHandler( exceptionHandler ).persistence().attachToDirectory( directory );
+      table = this.filledTable( rowSize, 5 )
+                  .setExceptionHandler( exceptionHandler )
+                  .persistence()
+                  .attachToDirectoryUsingXStream( directory );
     }
     
     assertEquals( rowSize, table.rowSize() );
     
     {
-      Table<String> tableOther = new ArrayTable<String>( String.class ).persistence().attachToDirectory( directory );
+      Table<String> tableOther = new ArrayTable<String>( String.class ).persistence().attachToDirectoryUsingXStream( directory );
       //System.out.println( tableOther );
       assertEquals( table.rowSize(), tableOther.rowSize() );
       assertTrue( table.equalsInContent( tableOther ) );
@@ -73,7 +76,7 @@ public class ArrayTableTest extends TableTest
     //System.out.println( table );
     
     {
-      Table<String> tableOther = new ArrayTable<String>( String.class ).persistence().attachToDirectory( directory );
+      Table<String> tableOther = new ArrayTable<String>( String.class ).persistence().attachToDirectoryUsingXStream( directory );
       //System.out.println( tableOther );
       assertTrue( table.equalsInContent( tableOther ) );
     }

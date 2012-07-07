@@ -30,7 +30,8 @@ import org.omnaest.utils.table2.ImmutableRow;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TablePersistence;
 import org.omnaest.utils.table2.TablePersistenceRegistration;
-import org.omnaest.utils.table2.impl.persistence.SimpleDirectoryBasedTablePersistence;
+import org.omnaest.utils.table2.impl.persistence.SimpleDirectoryBasedTablePersistenceUsingSerializable;
+import org.omnaest.utils.table2.impl.persistence.SimpleDirectoryBasedTablePersistenceUsingXStream;
 import org.omnaest.utils.table2.impl.persistence.SimpleFileBasedTablePersistence;
 import org.omnaest.utils.tuple.KeyValue;
 
@@ -62,9 +63,15 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
   }
   
   @Override
-  public Table<E> attachToDirectory( File directory )
+  public Table<E> attachToDirectoryUsingXStream( File directory )
   {
-    return this.attach( new SimpleDirectoryBasedTablePersistence<E>( directory, this.exceptionHandler ) );
+    return this.attach( new SimpleDirectoryBasedTablePersistenceUsingXStream<E>( directory, this.exceptionHandler ) );
+  }
+  
+  @Override
+  public Table<E> attachToDirectoryUsingSerializable( File directory )
+  {
+    return this.attach( new SimpleDirectoryBasedTablePersistenceUsingSerializable<E>( directory, this.exceptionHandler ) );
   }
   
   @Override
