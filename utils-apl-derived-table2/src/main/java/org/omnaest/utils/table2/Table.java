@@ -320,4 +320,10 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    */
   public TableSorter<E> sort();
   
+  /**
+   * Returns the {@link TablePersistenceRegistration} instance
+   * 
+   * @return
+   */
+  public TablePersistenceRegistration<E> persistence();
 }

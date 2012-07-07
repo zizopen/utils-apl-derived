@@ -51,6 +51,7 @@ import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
 import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
 import org.omnaest.utils.table2.impl.ArrayTable;
+import org.omnaest.utils.tuple.KeyValue;
 
 /**
  * @see Table
@@ -125,11 +126,11 @@ public abstract class TableTest
     {
       final Set<Row<String>> rowSet = map.get( "0:1" );
       assertEquals( 1, rowSet.size() );
-      assertArrayEquals( table.row( 0 ).getCellElements(), rowSet.iterator().next().getCellElements() );
+      assertArrayEquals( table.row( 0 ).getElements(), rowSet.iterator().next().getElements() );
     }
     {
       Set<Row<String>> previous = map.put( "0:1", SetUtils.<Row<String>> valueOf( (Row<String>) table.row( 9 ) ) );
-      assertArrayEquals( table.row( 0 ).getCellElements(), previous.iterator().next().getCellElements() );
+      assertArrayEquals( table.row( 0 ).getElements(), previous.iterator().next().getElements() );
     }
     {
       Set<Row<String>> remove = map.remove( "9:1" );
@@ -431,7 +432,7 @@ public abstract class TableTest
       {
         final int rowIndex = (int) ( rowSizeMax * Math.random() );
         Row<String> row = table.row( rowIndex );
-        String[] cellElements = row.getCellElements();
+        String[] cellElements = row.getElements();
         String title = row.getTitle();
         
         row.remove();
@@ -439,14 +440,14 @@ public abstract class TableTest
         table.addRowElements( cellElements );
         final Row<String> lastRow = table.row( table.rowSize() - 1 );
         lastRow.setTitle( title );
-        assertArrayEquals( cellElements, lastRow.getCellElements() );
+        assertArrayEquals( cellElements, lastRow.getElements() );
       }
       
       for ( int jj = 0; jj < cycles; jj++ )
       {
         final int columnIndex = (int) ( columnSizeMax * Math.random() );
         Column<String> column = table.column( columnIndex );
-        final String[] cellElements = column.getCellElements();
+        final String[] cellElements = column.getElements();
         final String title = column.getTitle();
         
         column.remove();
@@ -457,7 +458,7 @@ public abstract class TableTest
           column19.setCellElement( rowIndex, cellElements[rowIndex] );
         }
         column19.setTitle( title );
-        assertArrayEquals( cellElements, column19.getCellElements() );
+        assertArrayEquals( cellElements, column19.getElements() );
       }
     }
     
@@ -474,13 +475,13 @@ public abstract class TableTest
     
     for ( Row<String> row : table.rows() )
     {
-      String[] cellElements = row.getCellElements();
+      String[] cellElements = row.getElements();
       assertSameColumnOrRowValue( cellElements, 0 );
     }
     
     for ( Column<String> column : table.columns() )
     {
-      String[] cellElements = column.getCellElements();
+      String[] cellElements = column.getElements();
       assertSameColumnOrRowValue( cellElements, 1 );
     }
     
@@ -959,6 +960,81 @@ public abstract class TableTest
       assertEquals( table.rowSize(), tableSorted.rowSize() );
       assertEquals( "0:0", tableSorted.row( 9 ).getCellElement( 0 ) );
       assertEquals( "9:0", tableSorted.row( 0 ).getCellElement( 0 ) );
+    }
+  }
+
+  @Test
+  public void testPersistence()
+  {
+    class SimpleTablePersistence implements TablePersistence<String>
+    {
+      private static final long serialVersionUID = 4587018898135825772L;
+      private List<String[]>    elementsList     = new ArrayList<String[]>();
+      
+      @Override
+      public void update( int id, String[] elements )
+      {
+        this.elementsList.set( id, elements );
+      }
+      
+      @Override
+      public void add( int id, String[] elements )
+      {
+        this.elementsList.add( id, elements );
+      }
+      
+      @Override
+      public void remove( int id )
+      {
+        this.elementsList.remove( id );
+      }
+      
+      @Override
+      public void removeAll()
+      {
+        this.elementsList.clear();
+      }
+      
+      @Override
+      public Iterable<KeyValue<Integer, String[]>> allElements()
+      {
+        return ListUtils.convert( this.elementsList, new ElementConverter<String[], KeyValue<Integer, String[]>>()
+        {
+          private int index = 0;
+          
+          @Override
+          public KeyValue<Integer, String[]> convert( String[] elements )
+          {
+            Integer key = this.index++;
+            String[] value = elements;
+            return new KeyValue<Integer, String[]>( key, value );
+          }
+        } );
+      }
+      
+    }
+    final TablePersistence<String> tablePersistence = new SimpleTablePersistence();
+    
+    Table<String> table = this.filledTable( 20, 5 );
+    table.persistence().attach( tablePersistence );
+    
+    {
+      Table<String> tableOther = new ArrayTable<String>( String.class ).persistence().attach( tablePersistence );
+      //System.out.println( tableOther );
+      assertEquals( table.rowSize(), tableOther.rowSize() );
+      assertTrue( table.equalsInContent( tableOther ) );
+    }
+    
+    table.row( 16 ).switchWith( 4 );
+    table.row( 5 ).switchWith( 15 );
+    table.row( 14 ).switchWith( 6 );
+    table.row( 7 ).switchWith( 14 );
+    //System.out.println( table );
+    
+    {
+      Table<String> tableOther = new ArrayTable<String>( String.class ).persistence().attach( tablePersistence );
+      //System.out.println( tableOther );
+      assertTrue( table.equalsInContent( tableOther ) );
     }
   }
 }

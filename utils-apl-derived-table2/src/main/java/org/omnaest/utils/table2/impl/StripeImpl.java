@@ -174,7 +174,7 @@ public abstract class StripeImpl<E> implements Stripe<E>
       public StripeEntity<E> entity()
       {
         final String title = getTitle();
-        final E[] elements = getCellElements();
+        final E[] elements = getElements();
         return new StripeEntity<E>( title, elements );
       }
     };
@@ -182,7 +182,7 @@ public abstract class StripeImpl<E> implements Stripe<E>
   
   @SuppressWarnings("unchecked")
   @Override
-  public E[] getCellElements()
+  public E[] getElements()
   {
     final E[] retvals = (E[]) Array.newInstance( this.table.elementType(), this.size() );
     for ( int ii = 0; ii < retvals.length; ii++ )
@@ -201,7 +201,7 @@ public abstract class StripeImpl<E> implements Stripe<E>
     builder.append( ", isModified=" );
     builder.append( this.isModified );
     builder.append( ", elements=" );
-    builder.append( Arrays.deepToString( this.getCellElements() ) );
+    builder.append( Arrays.deepToString( this.getElements() ) );
     builder.append( "]" );
     return builder.toString();
   }
