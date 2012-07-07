@@ -13,27 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.table2;
+package org.omnaest.utils.store;
 
 import java.io.Serializable;
-import java.util.Set;
-import java.util.SortedMap;
+import java.util.List;
 
 /**
- * Index representation of a {@link Column} of a {@link Table}
+ * A {@link DirectoryBasedObjectStore} acts as {@link List} facade on a given directory structure. Every index position will be
+ * encoded into a file path. <br>
+ * <br>
+ * E.g. the index position 1234 will be encoded into "1/2/3/4.dat". <br>
+ * <br>
+ * Any element will then have a related file on the file system. The encoding depends on the implementation.
  * 
  * @author Omnaest
  * @param <E>
- * @param <C>
  */
-public interface TableIndex<E, C extends ImmutableCell<E>> extends Serializable, SortedMap<E, Set<C>>
+public interface DirectoryBasedObjectStore<E> extends List<E>, Serializable
 {
-  
-  /**
-   * Returns the actual column index position this {@link TableIndex} is based on
-   * 
-   * @return
-   */
-  public int index();
-  
 }

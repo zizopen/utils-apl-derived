@@ -16,6 +16,12 @@
 package org.omnaest.utils.table2;
 
 import java.io.Serializable;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.SortedMap;
+
+import org.omnaest.utils.structure.element.KeyExtractor;
+import org.omnaest.utils.structure.element.ValueExtractor;
 
 /**
  * Manager for the index structures of a particular {@link Table} instance
@@ -42,4 +48,51 @@ public interface TableIndexManager<E, C extends ImmutableCell<E>> extends Serial
    * @return
    */
   public TableIndex<E, C> of( ImmutableColumn<E> column );
+  
+  /**
+   * Returns a {@link SortedMap} over the key extracted from the given {@link KeyExtractor} from the {@link Row}s
+   * 
+   * @param keyExtractor
+   *          {@link KeyExtractor}
+   * @return {@link SortedMap} backed by the {@link Table}
+   */
+  public <K> SortedMap<K, Set<Row<E>>> of( KeyExtractor<K, E[]> keyExtractor );
+  
+  /**
+   * Similar to {@link #of(KeyExtractor)} allowing to specify a {@link Comparator}
+   * 
+   * @param keyExtractor
+   *          {@link KeyExtractor}
+   * @param comparator
+   *          {@link Comparator}
+   * @return {@link SortedMap} backed by the {@link Table}
+   */
+  public <K> SortedMap<K, Set<Row<E>>> of( KeyExtractor<K, E[]> keyExtractor, Comparator<K> comparator );
+  
+  /**
+   * Similar to {@link #of(KeyExtractor, Comparator)} additionally allowing to transform the elements to a specific
+   * {@link SortedMap} value
+   * 
+   * @param keyExtractor
+   *          {@link KeyExtractor}
+   * @param valueExtractor
+   *          {@link ValueExtractor}
+   * @param comparator
+   *          {@link Comparator}
+   * @return {@link SortedMap} backed by the {@link Table}
+   */
+  public <K, V> SortedMap<K, V> of( KeyExtractor<K, E[]> keyExtractor,
+                                    ValueExtractor<V, Set<E[]>> valueExtractor,
+                                    Comparator<K> comparator );
+  
+  /**
+   * Similar to {@link #of(KeyExtractor)} and #of(KeyExtractor, ValueExtractor, Comparator)
+   * 
+   * @param keyExtractor
+   *          {@link KeyExtractor}
+   * @param valueExtractor
+   *          {@link ValueExtractor}
+   * @return {@link SortedMap} backed by the {@link Table}
+   */
+  public <K, V> SortedMap<K, V> of( KeyExtractor<K, E[]> keyExtractor, final ValueExtractor<V, Set<E[]>> valueExtractor );
 }

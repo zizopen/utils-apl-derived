@@ -57,7 +57,7 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   }
   
   @Override
-  public E getCellElement( int rowIndex )
+  public E getElement( int rowIndex )
   {
     return this.table.getCellElement( rowIndex, this.columnIndex );
   }

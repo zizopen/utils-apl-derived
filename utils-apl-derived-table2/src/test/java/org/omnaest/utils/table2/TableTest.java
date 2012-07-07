@@ -47,6 +47,7 @@ import org.omnaest.utils.events.exception.basic.ExceptionHandlerEPrintStackTrace
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
@@ -195,25 +196,25 @@ public abstract class TableTest
     {
       Column<String> column = table.column( 0 );
       assertNotNull( column );
-      assertEquals( "a", column.getCellElement( 0 ) );
-      assertEquals( "d", column.getCellElement( 1 ) );
-      assertEquals( null, column.getCellElement( 2 ) );
-      assertEquals( null, column.getCellElement( -1 ) );
+      assertEquals( "a", column.getElement( 0 ) );
+      assertEquals( "d", column.getElement( 1 ) );
+      assertEquals( null, column.getElement( 2 ) );
+      assertEquals( null, column.getElement( -1 ) );
       
       column.setCellElement( 0, "a2" );
-      assertEquals( "a2", column.getCellElement( 0 ) );
+      assertEquals( "a2", column.getElement( 0 ) );
     }
     {
       Column<String> column = table.column( 2 );
       assertNotNull( column );
-      assertEquals( "c", column.getCellElement( 0 ) );
-      assertEquals( "f", column.getCellElement( 1 ) );
-      assertEquals( null, column.getCellElement( 2 ) );
+      assertEquals( "c", column.getElement( 0 ) );
+      assertEquals( "f", column.getElement( 1 ) );
+      assertEquals( null, column.getElement( 2 ) );
     }
     {
       Column<String> column = table.column( 3 );
       assertNotNull( column );
-      assertEquals( null, column.getCellElement( 0 ) );
+      assertEquals( null, column.getElement( 0 ) );
     }
     {
       assertNull( table.column( -1 ) );
@@ -386,7 +387,7 @@ public abstract class TableTest
       assertSame( tableIndex, table.index().of( table.column( 1 ) ) );
     }
     {
-      SortedMap<String, Set<Cell<String>>> sortedMap = tableIndex.asMap();
+      SortedMap<String, Set<Cell<String>>> sortedMap = tableIndex;
       Set<Cell<String>> set = sortedMap.get( "10:1" );
       assertNotNull( set );
       assertEquals( 1, set.size() );
@@ -532,7 +533,7 @@ public abstract class TableTest
     {
       Row<String> row = table.row( 0 );
       row.setCellElement( 1, "b2" );
-      assertEquals( "b2", row.getCellElement( 1 ) );
+      assertEquals( "b2", row.getElement( 1 ) );
     }
     {
       assertNull( table.row( -1 ) );
@@ -933,10 +934,10 @@ public abstract class TableTest
       tableSorted.row( 1 ).switchWith( 9 );
       tableSorted.row( 8 ).switchWith( 2 );
       tableSorted.row( 3 ).switchWith( 7 );
-      assertEquals( "0:0", tableSorted.row( 4 ).getCellElement( 0 ) );
-      assertEquals( "4:0", tableSorted.row( 0 ).getCellElement( 0 ) );
-      assertEquals( "1:0", tableSorted.row( 9 ).getCellElement( 0 ) );
-      assertEquals( "9:0", tableSorted.row( 1 ).getCellElement( 0 ) );
+      assertEquals( "0:0", tableSorted.row( 4 ).getElement( 0 ) );
+      assertEquals( "4:0", tableSorted.row( 0 ).getElement( 0 ) );
+      assertEquals( "1:0", tableSorted.row( 9 ).getElement( 0 ) );
+      assertEquals( "9:0", tableSorted.row( 1 ).getElement( 0 ) );
       //System.out.println( tableSorted );
       
       tableSorted.sort().by( 1 );
@@ -959,8 +960,8 @@ public abstract class TableTest
                  .by( 1 );
       //System.out.println( tableSorted );
       assertEquals( table.rowSize(), tableSorted.rowSize() );
-      assertEquals( "0:0", tableSorted.row( 9 ).getCellElement( 0 ) );
-      assertEquals( "9:0", tableSorted.row( 0 ).getCellElement( 0 ) );
+      assertEquals( "0:0", tableSorted.row( 9 ).getElement( 0 ) );
+      assertEquals( "9:0", tableSorted.row( 0 ).getElement( 0 ) );
     }
   }
   
@@ -969,8 +970,8 @@ public abstract class TableTest
   {
     final File file = null;// new File( "target/persistence.data" );
     final TablePersistence<String> tablePersistence = new SimpleFileBasedTablePersistence<String>(
-                                                                                              file,
-                                                                                              new ExceptionHandlerEPrintStackTrace() );
+                                                                                                   file,
+                                                                                                   new ExceptionHandlerEPrintStackTrace() );
     
     Table<String> table = this.filledTable( 20, 5 );
     table.persistence().attach( tablePersistence );
@@ -993,6 +994,65 @@ public abstract class TableTest
       Table<String> tableOther = new ArrayTable<String>( String.class ).persistence().attach( tablePersistence );
       //System.out.println( tableOther );
       assertTrue( table.equalsInContent( tableOther ) );
+    }
+  }
+
+  @Test
+  public void testIndexOfArbitraryKeyExtractor()
+  {
+    Table<String> table = this.filledTable( 100, 5 );
+    
+    KeyExtractor<Integer, String[]> keyExtractor = new KeyExtractor<Integer, String[]>()
+    {
+      @Override
+      public Integer extractKey( String[] elements )
+      {
+        String[] tokens = elements[1].split( ":" );
+        return Integer.valueOf( tokens[0] );
+      }
+    };
+    SortedMap<Integer, Set<Row<String>>> sortedMap = table.index().of( keyExtractor );
+    {
+      assertNotNull( sortedMap );
+      assertEquals( table.rowSize(), sortedMap.size() );
+      assertTrue( sortedMap.containsKey( 0 ) );
+    }
+    
+    table.removeRow( 0 );
+    {
+      assertFalse( sortedMap.containsKey( 0 ) );
+      assertTrue( sortedMap.containsKey( 1 ) );
+      assertFalse( sortedMap.containsKey( 101 ) );
+      
+      table.setCellElement( 0, 1, "101:88" );
+      assertTrue( sortedMap.containsKey( 101 ) );
+      
+      Set<Row<String>> rowSet = sortedMap.get( 101 );
+      assertEquals( 1, rowSet.size() );
+    }
+    {
+      assertSame( sortedMap, table.index().of( keyExtractor ) );
+    }
+    
+    table.setRowElements( 1, "0:0", "200:0" );
+    {
+      assertTrue( sortedMap.containsKey( 200 ) );
+    }
+    {
+      SortedMap<Integer, Set<Row<String>>> tailMap = sortedMap.tailMap( 90 );
+      assertEquals( 100 - 90 + 2, tailMap.size() );
+      assertEquals( 90, tailMap.firstKey().intValue() );
+      assertEquals( 200, tailMap.lastKey().intValue() );
+    }
+    {
+      SortedMap<Integer, Set<Row<String>>> headMap = sortedMap.headMap( 10 );
+      assertEquals( 9 - 2, headMap.size() );
+      assertEquals( 3, headMap.firstKey().intValue() );
+      assertEquals( 9, headMap.lastKey().intValue() );
+    }
+    {
+      table.clear();
+      assertTrue( sortedMap.isEmpty() );
     }
   }
 }

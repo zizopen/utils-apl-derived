@@ -59,4 +59,5 @@ public interface TableAdapterManager<E> extends Serializable
    * @return
    */
   public Map<E, BitSet> rowIndexMap( int columnIndexKey );
+  
 }

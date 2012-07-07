@@ -77,7 +77,7 @@ public abstract class StripeImpl<E> implements Stripe<E>
       @Override
       public E next()
       {
-        return getCellElement( ++this.index );
+        return getElement( ++this.index );
       }
       
       @Override
@@ -131,8 +131,8 @@ public abstract class StripeImpl<E> implements Stripe<E>
       {
         for ( int ii = 0; ii < sizeOther; ii++ )
         {
-          final E cellElementOther = stripe.getCellElement( ii );
-          final E cellElementThis = this.getCellElement( ii );
+          final E cellElementOther = stripe.getElement( ii );
+          final E cellElementThis = this.getElement( ii );
           if ( !ObjectUtils.equals( cellElementThis, cellElementOther ) )
           {
             retval = false;
@@ -187,7 +187,7 @@ public abstract class StripeImpl<E> implements Stripe<E>
     final E[] retvals = (E[]) Array.newInstance( this.table.elementType(), this.size() );
     for ( int ii = 0; ii < retvals.length; ii++ )
     {
-      retvals[ii] = this.getCellElement( ii );
+      retvals[ii] = this.getElement( ii );
     }
     return retvals;
   }

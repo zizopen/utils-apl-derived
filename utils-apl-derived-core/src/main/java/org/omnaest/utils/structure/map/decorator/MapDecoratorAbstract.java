@@ -20,45 +20,20 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 /**
  * A decorator for any {@link Map} implementation
  * 
- * @see SortedMapDecorator
+ * @see MapDecorator
  * @author Omnaest
  */
-@XmlRootElement(name = "map")
-@XmlType
-@XmlAccessorType(XmlAccessType.FIELD)
-public class MapDecorator<K, V> implements Map<K, V>, Serializable
+public abstract class MapDecoratorAbstract<K, V> implements Map<K, V>, Serializable
 {
-  /* ************************************************** Constants *************************************************** */
-  private static final long serialVersionUID = 8863056857982073309L;
-  /* ********************************************** Variables ********************************************** */
-  @XmlElementWrapper(name = "entries")
-  protected Map<K, V>       map              = null;
-  
-  /* ********************************************** Methods ********************************************** */
+  private static final long serialVersionUID = -2062958271682639706L;
   
   /**
-   * @see MapDecorator
-   * @param map
+   * @see MapDecoratorAbstract
    */
-  public MapDecorator( Map<K, V> map )
-  {
-    super();
-    this.map = map;
-  }
-  
-  /**
-   * @see MapDecorator
-   */
-  protected MapDecorator()
+  protected MapDecoratorAbstract()
   {
     super();
   }
@@ -70,7 +45,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public int size()
   {
-    return this.map.size();
+    return this.getMap().size();
   }
   
   /**
@@ -80,7 +55,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public boolean isEmpty()
   {
-    return this.map.isEmpty();
+    return this.getMap().isEmpty();
   }
   
   /**
@@ -91,7 +66,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public boolean containsKey( Object key )
   {
-    return this.map.containsKey( key );
+    return this.getMap().containsKey( key );
   }
   
   /**
@@ -102,7 +77,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public boolean containsValue( Object value )
   {
-    return this.map.containsValue( value );
+    return this.getMap().containsValue( value );
   }
   
   /**
@@ -113,7 +88,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public V get( Object key )
   {
-    return this.map.get( key );
+    return this.getMap().get( key );
   }
   
   /**
@@ -125,7 +100,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public V put( K key, V value )
   {
-    return this.map.put( key, value );
+    return this.getMap().put( key, value );
   }
   
   /**
@@ -136,7 +111,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public V remove( Object key )
   {
-    return this.map.remove( key );
+    return this.getMap().remove( key );
   }
   
   /**
@@ -146,7 +121,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public void putAll( Map<? extends K, ? extends V> m )
   {
-    this.map.putAll( m );
+    this.getMap().putAll( m );
   }
   
   /**
@@ -155,7 +130,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public void clear()
   {
-    this.map.clear();
+    this.getMap().clear();
   }
   
   /**
@@ -165,7 +140,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public Set<K> keySet()
   {
-    return this.map.keySet();
+    return this.getMap().keySet();
   }
   
   /**
@@ -175,7 +150,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public Collection<V> values()
   {
-    return this.map.values();
+    return this.getMap().values();
   }
   
   /**
@@ -185,7 +160,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   @Override
   public Set<java.util.Map.Entry<K, V>> entrySet()
   {
-    return this.map.entrySet();
+    return this.getMap().entrySet();
   }
   
   /* (non-Javadoc)
@@ -207,11 +182,11 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
       return false;
     }
     Map<?, ?> other = (Map<?, ?>) obj;
-    if ( this.map == null )
+    if ( this.getMap() == null )
     {
       return false;
     }
-    else if ( !this.map.equals( other ) )
+    else if ( !this.getMap().equals( other ) )
     {
       return false;
     }
@@ -226,7 +201,7 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ( ( this.map == null ) ? 0 : this.map.hashCode() );
+    result = prime * result + ( ( this.getMap() == null ) ? 0 : this.getMap().hashCode() );
     return result;
   }
   
@@ -237,25 +212,13 @@ public class MapDecorator<K, V> implements Map<K, V>, Serializable
   public String toString()
   {
     StringBuilder builder = new StringBuilder();
-    builder.append( this.map );
+    builder.append( this.getMap() );
     return builder.toString();
   }
   
   /**
    * @return the map
    */
-  protected Map<K, V> getMap()
-  {
-    return this.map;
-  }
-  
-  /**
-   * @param map
-   *          the map to set
-   */
-  protected void setMap( Map<K, V> map )
-  {
-    this.map = map;
-  }
+  protected abstract Map<K, V> getMap();
   
 }

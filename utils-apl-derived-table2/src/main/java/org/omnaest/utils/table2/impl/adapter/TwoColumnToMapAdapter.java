@@ -42,7 +42,13 @@ class TwoColumnToMapAdapter<E> extends MapAbstract<E, Set<E>>
   
   /* *************************************************** Methods **************************************************** */
   
-  public TwoColumnToMapAdapter( Table<E> table, int columnIndexKey, int columnIndexValue )
+  /**
+   * @see TwoColumnToMapAdapter
+   * @param table
+   * @param columnIndexKey
+   * @param columnIndexValue
+   */
+  TwoColumnToMapAdapter( Table<E> table, int columnIndexKey, int columnIndexValue )
   {
     super();
     this.table = table;
@@ -60,7 +66,7 @@ class TwoColumnToMapAdapter<E> extends MapAbstract<E, Set<E>>
       @Override
       public E execute( Row<E> row )
       {
-        final E element = row.getCellElement( TwoColumnToMapAdapter.this.columnIndexValue );
+        final E element = row.getElement( TwoColumnToMapAdapter.this.columnIndexValue );
         return element;
       }
     };
@@ -100,7 +106,7 @@ class TwoColumnToMapAdapter<E> extends MapAbstract<E, Set<E>>
       @Override
       public E execute( Row<E> row )
       {
-        final E elementPrevious = row.getCellElement( TwoColumnToMapAdapter.this.columnIndexValue );
+        final E elementPrevious = row.getElement( TwoColumnToMapAdapter.this.columnIndexValue );
         
         final E newElement = iterator != null && iterator.hasNext() ? iterator.next() : null;
         row.setCellElement( TwoColumnToMapAdapter.this.columnIndexValue, newElement );
