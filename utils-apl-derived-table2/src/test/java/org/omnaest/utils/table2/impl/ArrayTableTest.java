@@ -50,12 +50,14 @@ public class ArrayTableTest extends TableTest
                                                                 .persistence()
                                                                 .attachToDirectory( directory );
     table.clear();
+    
+    final int rowSize = 500;
     if ( table.rowSize() == 0 )
     {
-      table = this.filledTable( 50, 5 ).setExceptionHandler( exceptionHandler ).persistence().attachToDirectory( directory );
+      table = this.filledTable( rowSize, 5 ).setExceptionHandler( exceptionHandler ).persistence().attachToDirectory( directory );
     }
     
-    assertEquals( 50, table.rowSize() );
+    assertEquals( rowSize, table.rowSize() );
     
     {
       Table<String> tableOther = new ArrayTable<String>( String.class ).persistence().attachToDirectory( directory );

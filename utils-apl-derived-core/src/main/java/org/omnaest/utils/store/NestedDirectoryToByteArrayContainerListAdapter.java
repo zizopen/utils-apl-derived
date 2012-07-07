@@ -31,6 +31,8 @@ import org.omnaest.utils.events.exception.basic.ExceptionHandlerBooleanState;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerIgnoring;
 import org.omnaest.utils.structure.collection.list.ListAbstract;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
+import org.omnaest.utils.structure.element.cached.CachedElement.ValueResolver;
+import org.omnaest.utils.structure.element.cached.CachedElementTimed;
 
 /**
  * Adapter which takes a nested directory structure and allows to access it as a {@link List} of {@link ByteArrayContainer}s
@@ -44,6 +46,15 @@ public class NestedDirectoryToByteArrayContainerListAdapter extends ListAbstract
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final File                         baseDirectory;
   private final ExceptionHandlerSerializable exceptionHandler;
+  
+  private CachedElementTimed<Integer>        cachedSize       = new CachedElementTimed<Integer>( new ValueResolver<Integer>()
+                                                              {
+                                                                @Override
+                                                                public Integer resolveValue()
+                                                                {
+                                                                  return determineSize();
+                                                                }
+                                                              }, (long) 30000 );
   
   /* *************************************************** Methods **************************************************** */
   
@@ -79,6 +90,9 @@ public class NestedDirectoryToByteArrayContainerListAdapter extends ListAbstract
       container.setExceptionHandler( exceptionHandler );
       container.writeTo( file );
     }
+    
+    this.cachedSize.clearCache();
+    
     return exceptionHandler.hasNoErrors();
   }
   
@@ -92,6 +106,8 @@ public class NestedDirectoryToByteArrayContainerListAdapter extends ListAbstract
     
     final File file = this.determineFileForIndex( index );
     byteArrayContainer.writeTo( file );
+    
+    this.cachedSize.clearCache();
   }
   
   private Collection<File> determineFileCollection()
@@ -165,6 +181,8 @@ public class NestedDirectoryToByteArrayContainerListAdapter extends ListAbstract
       this.exceptionHandler.handleException( e );
     }
     
+    this.cachedSize.clearCache();
+    
     return retval;
   }
   
@@ -202,6 +220,11 @@ public class NestedDirectoryToByteArrayContainerListAdapter extends ListAbstract
   @Override
   public int size()
   {
+    return this.cachedSize.getValue();
+  }
+  
+  private int determineSize()
+  {
     int size = 0;
     try
     {
@@ -222,6 +245,7 @@ public class NestedDirectoryToByteArrayContainerListAdapter extends ListAbstract
     try
     {
       deleteFileOrDirectory( this.getBaseDirectory() );
+      this.cachedSize.clearCache();
     }
     catch ( Exception e )
     {
