@@ -50,6 +50,13 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
   public Iterable<? extends ImmutableCell<E>> cells();
   
   /**
+   * Clones the current {@link ImmutableTable} structure into a new instance
+   * 
+   * @return new instance
+   */
+  public ImmutableTable<E> clone();
+  
+  /**
    * Returns a new {@link ImmutableColumn} currently related to the given column index position
    * 
    * @param columnIndex
@@ -287,5 +294,4 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    * @return
    */
   public TableTransformer<E> to();
-  
 }

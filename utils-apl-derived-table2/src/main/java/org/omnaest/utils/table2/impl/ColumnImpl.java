@@ -96,7 +96,7 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
     {
       this.markAsDeleted();
     }
-    else if ( this.columnIndex > columnIndex )
+    else if ( columnIndex < this.columnIndex )
     {
       this.columnIndex--;
     }

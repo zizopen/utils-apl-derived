@@ -165,7 +165,7 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   @Override
   public void handleAddedRow( int rowIndex, E... elements )
   {
-    if ( !this.isDeleted && this.rowIndex <= rowIndex )
+    if ( !this.isDeleted && this.rowIndex >= rowIndex )
     {
       this.rowIndex++;
     }

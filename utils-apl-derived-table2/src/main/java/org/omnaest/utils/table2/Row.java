@@ -71,4 +71,29 @@ public interface Row<E> extends Stripe<E>, ImmutableRow<E>
    * @return this
    */
   public Row<E> clear();
+  
+  /**
+   * Moves this {@link Row} to the given row index position. This is like an {@link #remove()} and
+   * {@link Table#addRowElements(int, Object...)} operation
+   * 
+   * @param newRowIndex
+   * @return this
+   */
+  public Row<E> moveTo( int newRowIndex );
+  
+  /**
+   * Switches the current {@link Row} with the row at the given index position
+   * 
+   * @param otherRowIndex
+   * @return this
+   */
+  public Row<E> switchWith( int otherRowIndex );
+  
+  /**
+   * Switches the current {@link Row} with the other {@link Row} within the {@link Table}
+   * 
+   * @param otherRow
+   * @return this
+   */
+  public Row<E> switchWith( Row<E> otherRow );
 }
