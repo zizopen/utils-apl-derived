@@ -175,7 +175,7 @@ class TableIndexColumnBasedImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<
   }
   
   @Override
-  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  public void handleRemovedColumn( int columnIndex, E[] previousElements, String columnTitle )
   {
     if ( this.column.index() == columnIndex )
     {
@@ -184,7 +184,7 @@ class TableIndexColumnBasedImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<
   }
   
   @Override
-  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  public void handleRemovedRow( int rowIndex, E[] previousElements, String rowTitle )
   {
     final int columnIndex = this.column.index();
     final E element = previousElements.length > columnIndex ? previousElements[columnIndex] : null;

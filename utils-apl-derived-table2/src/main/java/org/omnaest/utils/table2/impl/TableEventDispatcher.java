@@ -126,27 +126,27 @@ class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
   }
   
   @Override
-  public void handleRemovedColumn( final int columnIndex, final E[] previousElements )
+  public void handleRemovedColumn( final int columnIndex, final E[] previousElements, final String columnTitle )
   {
     this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
     {
       @Override
       public void execute( TableEventHandler<E> tableEventHandler )
       {
-        tableEventHandler.handleRemovedColumn( columnIndex, previousElements );
+        tableEventHandler.handleRemovedColumn( columnIndex, previousElements, columnTitle );
       }
     } );
   }
   
   @Override
-  public void handleRemovedRow( final int rowIndex, final E[] previousElements )
+  public void handleRemovedRow( final int rowIndex, final E[] previousElements, final String rowTitle )
   {
     this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
     {
       @Override
       public void execute( TableEventHandler<E> tableEventHandler )
       {
-        tableEventHandler.handleRemovedRow( rowIndex, previousElements );
+        tableEventHandler.handleRemovedRow( rowIndex, previousElements, rowTitle );
       }
     } );
   }

@@ -813,6 +813,8 @@ public class MapUtils
     Assert.isNotNull( map, "Map must be not null" );
     return new MapDecorator<K, V>( map )
     {
+      private static final long serialVersionUID = -2028575193912665021L;
+
       @SuppressWarnings("unchecked")
       @Override
       public V get( Object key )
@@ -857,6 +859,8 @@ public class MapUtils
     Assert.isNotNull( map, "Map must be not null" );
     return new MapDecorator<K, V>( map )
     {
+      private static final long serialVersionUID = -9085868697374650245L;
+
       @SuppressWarnings("unchecked")
       @Override
       public V get( Object keyObject )

@@ -375,7 +375,7 @@ public class MethodCallCapturer
           if ( beanMethodInformation != null )
           {
             //
-            String referencedFieldName = beanMethodInformation.getReferencedFieldName();
+            String referencedFieldName = beanMethodInformation.getPropertyName();
             
             //
             retval = retval == null ? referencedFieldName : retval + "." + referencedFieldName;

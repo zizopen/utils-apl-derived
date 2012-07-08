@@ -106,7 +106,7 @@ class OneColumnToMapAdapter<E> extends MapAbstract<E, Set<Row<E>>>
         Row<E> rowPrevious = row;
         
         final Row<E> newRow = iterator != null && iterator.hasNext() ? iterator.next() : null;
-        row.setCellElements( newRow.getElements() );
+        row.setElements( newRow.getElements() );
         
         return rowPrevious;
       }

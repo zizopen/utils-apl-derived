@@ -272,6 +272,13 @@ public class SortedMapToSortedMapAdapter<KEY, VALUE_FROM, VALUE_TO> implements S
             VALUE_FROM setValue = entry.setValue( value_FROM );
             return convertValueFromToValueTo( setValue );
           }
+          
+          @Override
+          public String toString()
+          {
+            return String.valueOf( this.getKey() ) + "=" + String.valueOf( this.getValue() );
+          }
+          
         };
       }
       
@@ -283,4 +290,11 @@ public class SortedMapToSortedMapAdapter<KEY, VALUE_FROM, VALUE_TO> implements S
     };
     return SetUtils.adapter( this.sourceMap.entrySet(), elementBidirectionalConverter );
   }
+  
+  @Override
+  public String toString()
+  {
+    return MapUtils.toString( this );
+  }
+  
 }

@@ -51,6 +51,14 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Table<E> addColumnElements( int columnIndex, E... elements );
   
   /**
+   * Adds a new {@link Column} title to the end of the columns
+   * 
+   * @param columnTitle
+   * @return this
+   */
+  public Table<E> addColumnTitle( String columnTitle );
+  
+  /**
    * Adds new elements as {@link Row} to the {@link Table}
    * 
    * @param elements
@@ -105,6 +113,7 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * 
    * @return new instance
    */
+  @Override
   public Table<E> clone();
   
   /**
@@ -185,6 +194,28 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public TableIndexManager<E, Cell<E>> index();
   
   /**
+   * Returns the last {@link Row}
+   * 
+   * @return
+   */
+  @Override
+  public Row<E> lastRow();
+  
+  /**
+   * Returns a new {@link Row} which points to the next unused row index position
+   * 
+   * @return new {@link Row} at the end of the {@link Table}
+   */
+  public Row<E> newRow();
+  
+  /**
+   * Returns the {@link TablePersistenceRegistration} instance
+   * 
+   * @return
+   */
+  public TablePersistenceRegistration<E> persistence();
+  
+  /**
    * Removes the {@link Column} for the given column index position
    * 
    * @param columnIndex
@@ -245,16 +276,6 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public TableSerializer<E> serializer();
   
   /**
-   * Sets the element for a given row and column index position
-   * 
-   * @param rowIndex
-   * @param columnIndex
-   * @param element
-   * @return
-   */
-  public Table<E> setCellElement( int rowIndex, int columnIndex, E element );
-  
-  /**
    * Sets the title of the {@link Column} with the given column index position
    * 
    * @param columnIndex
@@ -270,6 +291,46 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @return this
    */
   public Table<E> setColumnTitles( Iterable<String> columnTitleIterable );
+  
+  /**
+   * Sets the element for a given row and column index position
+   * 
+   * @param rowIndex
+   * @param columnIndex
+   * @param element
+   * @return
+   */
+  public Table<E> setElement( int rowIndex, int columnIndex, E element );
+  
+  /**
+   * Similar to {@link #setElement(int, int, Object)}
+   * 
+   * @param rowIndex
+   * @param columnTitle
+   * @param element
+   * @return this
+   */
+  public Table<E> setElement( int rowIndex, String columnTitle, E element );
+  
+  /**
+   * Similar to {@link #setElement(int, int, Object)}
+   * 
+   * @param rowTitle
+   * @param columnIndex
+   * @param element
+   * @return this
+   */
+  public Table<E> setElement( String rowTitle, int columnIndex, E element );
+  
+  /**
+   * Similar to {@link #setElement(int, int, Object)}
+   * 
+   * @param rowTitle
+   * @param columnTitle
+   * @param element
+   * @return this
+   */
+  public Table<E> setElement( String rowTitle, String columnTitle, E element );
   
   /**
    * Sets the {@link ExceptionHandlerSerializable} instance
@@ -320,10 +381,4 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    */
   public TableSorter<E> sort();
   
-  /**
-   * Returns the {@link TablePersistenceRegistration} instance
-   * 
-   * @return
-   */
-  public TablePersistenceRegistration<E> persistence();
 }

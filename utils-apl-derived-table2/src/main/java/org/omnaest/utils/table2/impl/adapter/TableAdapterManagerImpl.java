@@ -16,9 +16,11 @@
 package org.omnaest.utils.table2.impl.adapter;
 
 import java.util.BitSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.map.MapUtils;
@@ -33,16 +35,23 @@ import org.omnaest.utils.table2.TableAdapterManager;
 public class TableAdapterManagerImpl<E> implements TableAdapterManager<E>
 {
   /* ************************************************** Constants *************************************************** */
-  private static final long serialVersionUID = -4405457601074880665L;
+  private static final long      serialVersionUID = -4405457601074880665L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final Table<E>    table;
+  private final Table<E>         table;
+  private final ExceptionHandler exceptionHandler;
   
   /* *************************************************** Methods **************************************************** */
   
-  public TableAdapterManagerImpl( Table<E> table )
+  /**
+   * @see TableAdapterManagerImpl
+   * @param table
+   * @param exceptionHandler
+   */
+  public TableAdapterManagerImpl( Table<E> table, ExceptionHandler exceptionHandler )
   {
     super();
     this.table = table;
+    this.exceptionHandler = exceptionHandler;
   }
   
   @Override
@@ -85,4 +94,9 @@ public class TableAdapterManagerImpl<E> implements TableAdapterManager<E>
     return MapUtils.adapter( this.map( columnIndexKey ), new ElementConverterIdentity<E>(), elementBidirectionalConverterValue );
   }
   
+  @Override
+  public <B> List<B> beanList( Class<? extends B> type )
+  {
+    return new TableToListAdapter<E, B>( this.table, type, this.exceptionHandler );
+  }
 }

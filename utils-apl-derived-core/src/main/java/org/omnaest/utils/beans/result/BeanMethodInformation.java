@@ -89,7 +89,7 @@ public class BeanMethodInformation
    * 
    * @return
    */
-  public String getReferencedFieldName()
+  public String getPropertyName()
   {
     return this.referencedFieldName;
   }

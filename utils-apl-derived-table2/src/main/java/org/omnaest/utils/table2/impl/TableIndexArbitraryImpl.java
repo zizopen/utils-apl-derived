@@ -36,8 +36,11 @@ import org.omnaest.utils.structure.element.converter.ElementBidirectionalConvert
 import org.omnaest.utils.structure.element.factory.concrete.LinkedHashSetFactory;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.table2.Row;
+import org.omnaest.utils.table2.RowDataReader;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableIndex;
+import org.omnaest.utils.table2.impl.rowdata.ElementsToRowDataReaderAdapter;
+import org.omnaest.utils.table2.impl.rowdata.RowToRowDataAccessorAdapter;
 
 /**
  * @see TableIndex
@@ -47,11 +50,11 @@ import org.omnaest.utils.table2.TableIndex;
 class TableIndexArbitraryImpl<K, E> implements SortedMap<K, Set<Row<E>>>, TableEventHandler<E>, Serializable
 {
   /* ************************************************** Constants *************************************************** */
-  private static final long               serialVersionUID = -8584025610784755115L;
+  private static final long                       serialVersionUID = -8584025610784755115L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final SortedMap<K, Set<Row<E>>> keyToRowSetMap;
-  private final KeyExtractor<K, E[]>      keyExtractor;
-  private final Table<E>                  table;
+  private final SortedMap<K, Set<Row<E>>>         keyToRowSetMap;
+  private final KeyExtractor<K, RowDataReader<E>> keyExtractor;
+  private final Table<E>                          table;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -59,7 +62,7 @@ class TableIndexArbitraryImpl<K, E> implements SortedMap<K, Set<Row<E>>>, TableE
    * @see TableIndexArbitraryImpl
    * @param column
    */
-  TableIndexArbitraryImpl( Table<E> table, KeyExtractor<K, E[]> keyExtractor, Comparator<K> comparator )
+  TableIndexArbitraryImpl( Table<E> table, KeyExtractor<K, RowDataReader<E>> keyExtractor, Comparator<K> comparator )
   {
     super();
     this.table = table;
@@ -77,9 +80,16 @@ class TableIndexArbitraryImpl<K, E> implements SortedMap<K, Set<Row<E>>>, TableE
     this.keyToRowSetMap.clear();
     for ( Row<E> row : this.table.rows() )
     {
-      K key = this.keyExtractor.extractKey( row.getElements() );
+      final K key = extractKey( row );
       this.keyToRowSetMap.get( key ).add( row );
     }
+  }
+  
+  private K extractKey( Row<E> row )
+  {
+    final RowDataReader<E> rowDataReader = new RowToRowDataAccessorAdapter<E>( row );
+    final K key = this.keyExtractor.extractKey( rowDataReader );
+    return key;
   }
   
   @Override
@@ -138,6 +148,14 @@ class TableIndexArbitraryImpl<K, E> implements SortedMap<K, Set<Row<E>>>, TableE
                                                                 {
                                                                   throw new UnsupportedOperationException();
                                                                 }
+                                                                
+                                                                @Override
+                                                                public String toString()
+                                                                {
+                                                                  return String.valueOf( this.getKey() ) + "="
+                                                                         + String.valueOf( this.getValue() );
+                                                                }
+                                                                
                                                               };
                                                             }
                                                             
@@ -186,15 +204,15 @@ class TableIndexArbitraryImpl<K, E> implements SortedMap<K, Set<Row<E>>>, TableE
   }
   
   @Override
-  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  public void handleRemovedColumn( int columnIndex, E[] previousElements, String columnTitle )
   {
     this.rebuildIndexFully();
   }
   
   @Override
-  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  public void handleRemovedRow( int rowIndex, E[] previousElements, String rowTitle )
   {
-    final K key = this.keyExtractor.extractKey( previousElements );
+    final K key = extractKey( previousElements );
     boolean containsKey = this.keyToRowSetMap.containsKey( key );
     if ( containsKey )
     {
@@ -214,6 +232,13 @@ class TableIndexArbitraryImpl<K, E> implements SortedMap<K, Set<Row<E>>>, TableE
     }
   }
   
+  private K extractKey( E[] previousElements )
+  {
+    final RowDataReader<E> rowDataReader = new ElementsToRowDataReaderAdapter<E>( previousElements, this.table );
+    final K key = this.keyExtractor.extractKey( rowDataReader );
+    return key;
+  }
+  
   @Override
   public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement )
   {
@@ -222,8 +247,8 @@ class TableIndexArbitraryImpl<K, E> implements SortedMap<K, Set<Row<E>>>, TableE
     final E[] elementsPrevious = Arrays.copyOf( elements, elements.length );
     elementsPrevious[columnIndex] = previousElement;
     
-    final K keyPrevious = this.keyExtractor.extractKey( elementsPrevious );
-    final K keyNew = this.keyExtractor.extractKey( elements );
+    final K keyPrevious = this.extractKey( elementsPrevious );
+    final K keyNew = this.extractKey( elements );
     
     this.updateForChangedRow( rowIndex, row, keyPrevious, keyNew );
   }
@@ -232,8 +257,8 @@ class TableIndexArbitraryImpl<K, E> implements SortedMap<K, Set<Row<E>>>, TableE
   public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices )
   {
     final Row<E> row = this.table.row( rowIndex );
-    final K keyPrevious = this.keyExtractor.extractKey( previousElements );
-    final K keyNew = this.keyExtractor.extractKey( elements );
+    final K keyPrevious = this.extractKey( previousElements );
+    final K keyNew = this.extractKey( elements );
     
     this.updateForChangedRow( rowIndex, row, keyPrevious, keyNew );
   }
@@ -243,6 +268,7 @@ class TableIndexArbitraryImpl<K, E> implements SortedMap<K, Set<Row<E>>>, TableE
     if ( !ObjectUtils.equals( keyNew, keyPrevious ) )
     {
       //remove old
+      if ( keyPrevious != null )
       {
         final Set<Row<E>> rowSet = this.keyToRowSetMap.get( keyPrevious );
         final Set<Row<E>> rowRemovableSet = new HashSet<Row<E>>();
@@ -261,6 +287,7 @@ class TableIndexArbitraryImpl<K, E> implements SortedMap<K, Set<Row<E>>>, TableE
       }
       
       //add new
+      if ( keyNew != null )
       {
         Set<Row<E>> rowSet = this.keyToRowSetMap.get( keyNew );
         rowSet.add( row );
@@ -343,6 +370,14 @@ class TableIndexArbitraryImpl<K, E> implements SortedMap<K, Set<Row<E>>>, TableE
   {
     return Collections.unmodifiableCollection( CollectionUtils.adapter( this.keyToRowSetMap.values(),
                                                                         new ElementBidirectionalConverterSetToUnmodifiableSet<Row<E>>() ) );
+  }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( MapUtils.toString( this ) );
+    return builder.toString();
   }
   
 }

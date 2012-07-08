@@ -46,7 +46,7 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   public Row<E> add( E element )
   {
     int columnIndex = this.size();
-    this.table.setCellElement( this.rowIndex, columnIndex, element );
+    this.table.setElement( this.rowIndex, columnIndex, element );
     return this;
   }
   
@@ -70,7 +70,13 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   @Override
   public E getElement( int columnIndex )
   {
-    return this.table.getCellElement( this.rowIndex, columnIndex );
+    return this.table.getElement( this.rowIndex, columnIndex );
+  }
+  
+  @Override
+  public E getElement( String title )
+  {
+    return this.table.getElement( this.rowIndex, title );
   }
   
   @Override
@@ -101,13 +107,13 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   }
   
   @Override
-  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  public void handleRemovedColumn( int columnIndex, E[] previousElements, String columnTitle )
   {
     this.isModified = true;
   }
   
   @Override
-  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  public void handleRemovedRow( int rowIndex, E[] previousElements, String rowTitle )
   {
     if ( rowIndex == this.rowIndex )
     {
@@ -163,19 +169,26 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   }
   
   @Override
-  public Row<E> setCellElement( int columnIndex, E element )
+  public Row<E> setElement( int columnIndex, E element )
   {
-    this.table.setCellElement( this.rowIndex, columnIndex, element );
+    this.table.setElement( this.rowIndex, columnIndex, element );
     return this;
   }
   
   @Override
-  public Row<E> setCellElements( E... elements )
+  public Row<E> setElement( String columnTitle, E element )
+  {
+    this.table.setElement( this.rowIndex, columnTitle, element );
+    return this;
+  }
+  
+  @Override
+  public Row<E> setElements( E... elements )
   {
     this.clear();
     for ( int ii = 0; ii < elements.length; ii++ )
     {
-      this.setCellElement( ii, elements[ii] );
+      this.setElement( ii, elements[ii] );
     }
     return this;
   }
@@ -196,16 +209,19 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   @Override
   public Row<E> moveTo( int newRowIndex )
   {
-    final E[] elements = this.getElements();
-    final String title = this.getTitle();
-    
-    this.table.addRowElements( newRowIndex, elements );
-    this.table.setRowTitle( newRowIndex, title );
-    
-    final int oldRowIndex = this.rowIndex;
-    this.rowIndex = newRowIndex;
-    
-    this.table.removeRow( oldRowIndex );
+    if ( this.rowIndex != newRowIndex )
+    {
+      final E[] elements = this.getElements();
+      final String title = this.getTitle();
+      
+      this.table.addRowElements( newRowIndex, elements );
+      this.table.setRowTitle( newRowIndex, title );
+      
+      final int oldRowIndex = this.rowIndex;
+      this.rowIndex = newRowIndex;
+      
+      this.table.removeRow( oldRowIndex );
+    }
     
     return this;
   }

@@ -109,7 +109,7 @@ class TwoColumnToMapAdapter<E> extends MapAbstract<E, Set<E>>
         final E elementPrevious = row.getElement( TwoColumnToMapAdapter.this.columnIndexValue );
         
         final E newElement = iterator != null && iterator.hasNext() ? iterator.next() : null;
-        row.setCellElement( TwoColumnToMapAdapter.this.columnIndexValue, newElement );
+        row.setElement( TwoColumnToMapAdapter.this.columnIndexValue, newElement );
         
         return elementPrevious;
       }

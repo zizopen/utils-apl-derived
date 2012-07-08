@@ -31,6 +31,7 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterElementToMapEntry;
+import org.omnaest.utils.structure.element.converter.ElementConverterObjectToString;
 import org.omnaest.utils.structure.iterator.IteratorUtils;
 import org.omnaest.utils.structure.map.MapUtils;
 
@@ -451,13 +452,26 @@ public class CollectionUtils
     return retval.toString();
   }
   
-  public static <E> String toString( Set<E> set, ElementConverter<E, String> elementConverter, Joiner joiner )
+  /**
+   * @param collection
+   * @param joiner
+   *          {@link Joiner}
+   * @return
+   */
+  public static <E> String toString( Collection<E> collection, Joiner joiner )
+  {
+    @SuppressWarnings("unchecked")
+    ElementConverter<E, String> elementConverter = (ElementConverter<E, String>) new ElementConverterObjectToString();
+    return toString( collection, elementConverter, joiner );
+  }
+  
+  public static <E> String toString( Collection<E> collection, ElementConverter<E, String> elementConverter, Joiner joiner )
   {
     if ( joiner == null )
     {
       joiner = Joiner.on( "," );
     }
-    List<String> partList = ListUtils.convert( set, elementConverter );
+    List<String> partList = ListUtils.convert( collection, elementConverter );
     return joiner.join( partList );
   }
   

@@ -109,7 +109,7 @@ public class ListToTypeAdapter<T, L extends List<?>>
         if ( beanMethodInformation != null )
         {
           //
-          String referencedFieldName = beanMethodInformation.getReferencedFieldName();
+          String referencedFieldName = beanMethodInformation.getPropertyName();
           
           //
           boolean accessToUnderlyingMap = ListToTypeAdapter.this.hasAccessToUnderlyingData

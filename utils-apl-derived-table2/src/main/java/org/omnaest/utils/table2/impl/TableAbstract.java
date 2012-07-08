@@ -40,19 +40,11 @@ import org.omnaest.utils.table2.impl.transformer.TableTransformerImpl;
  */
 abstract class TableAbstract<E> implements Table<E>
 {
-  /* ************************************************** Constants *************************************************** */
-  private static final long          serialVersionUID = 6651647383929942697L;
-  
-  /* ************************************** Variables / State (internal/hiding) ************************************* */
-  protected ExceptionHandlerDelegate exceptionHandler = new ExceptionHandlerDelegate( new ExceptionHandlerIgnoring() );
-  
-  /* ********************************************** Classes/Interfaces ********************************************** */
-  
   public static final class ColumnIterator<E, C extends ImmutableColumn<E>> implements Iterator<C>
   {
+    private int            index = -1;
     /* ************************************** Variables / State (internal/hiding) ************************************* */
     private final int      indexMax;
-    private int            index = -1;
     
     /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
     private final Table<E> table;
@@ -122,6 +114,14 @@ abstract class TableAbstract<E> implements Table<E>
     }
   }
   
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /* ************************************************** Constants *************************************************** */
+  private static final long          serialVersionUID = 6651647383929942697L;
+  
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  protected ExceptionHandlerDelegate exceptionHandler = new ExceptionHandlerDelegate( new ExceptionHandlerIgnoring() );
+  
   /* *************************************************** Methods **************************************************** */
   public TableAbstract()
   {
@@ -133,6 +133,14 @@ abstract class TableAbstract<E> implements Table<E>
     super();
     
     this.copyFrom( elementMatrix );
+  }
+  
+  @Override
+  public Table<E> addColumnTitle( String columnTitle )
+  {
+    final int columnIndex = this.getColumnTitleList().size();
+    this.setColumnTitle( columnIndex, columnTitle );
+    return this;
   }
   
   @Override
@@ -191,11 +199,24 @@ abstract class TableAbstract<E> implements Table<E>
   {
     return new TableTransformerImpl<E>( this );
   }
-  
+
   @Override
   public String toString()
   {
     return this.to().string();
+  }
+
+  @Override
+  public Row<E> newRow()
+  {
+    final int rowIndex = this.rowSize();
+    return this.row( rowIndex );
+  }
+
+  @Override
+  public Row<E> lastRow()
+  {
+    return this.row( this.rowSize() - 1 );
   }
   
 }

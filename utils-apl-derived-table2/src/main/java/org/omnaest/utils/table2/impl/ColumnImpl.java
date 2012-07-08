@@ -59,7 +59,13 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   @Override
   public E getElement( int rowIndex )
   {
-    return this.table.getCellElement( rowIndex, this.columnIndex );
+    return this.table.getElement( rowIndex, this.columnIndex );
+  }
+  
+  @Override
+  public E getElement( String title )
+  {
+    return this.table.getElement( title, this.columnIndex );
   }
   
   @Override
@@ -90,7 +96,7 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   }
   
   @Override
-  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  public void handleRemovedColumn( int columnIndex, E[] previousElements, String columnTitle )
   {
     if ( columnIndex == this.columnIndex )
     {
@@ -103,7 +109,7 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   }
   
   @Override
-  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  public void handleRemovedRow( int rowIndex, E[] previousElements, String rowTitle )
   {
     this.isModified = true;
   }
@@ -151,7 +157,7 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   @Override
   public Column<E> setCellElement( int rowIndex, E element )
   {
-    this.table.setCellElement( rowIndex, this.columnIndex, element );
+    this.table.setElement( rowIndex, this.columnIndex, element );
     return this;
   }
   

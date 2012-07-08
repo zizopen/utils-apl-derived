@@ -237,7 +237,7 @@ class CsvUnmarshallerImpl<E> extends UnmarshallerAbstract<E> implements Unmarsha
             final String elementString = cellTokens[columnIndexPosition];
             final Class<E> elementType = this.table.elementType();
             final E element = ObjectUtils.castTo( elementType, elementString );
-            this.table.setCellElement( rowIndexPosition, columnIndexPosition, element );
+            this.table.setElement( rowIndexPosition, columnIndexPosition, element );
           }
           catch ( Exception e )
           {

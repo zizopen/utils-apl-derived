@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -553,6 +554,47 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
     }
   }
   
+  private static class InstanceFactoryCreatorAndCopierFactoryForDate implements InstanceFactoryCreator, InstanceFactory,
+                                                                    CopierFactory
+  {
+    private static final long serialVersionUID = -8024424149443680755L;
+    
+    @Override
+    public boolean isHandling( Class<?> type )
+    {
+      return Date.class.equals( type );
+    }
+    
+    @Override
+    public InstanceFactory newInstanceFactory( Class<?> type )
+    {
+      return this;
+    }
+    
+    @Override
+    public Object newReplacementInstance( Class<?> type )
+    {
+      return new Date();
+    }
+    
+    @Override
+    public Copier newCopier( Class<?> typeFrom, Class<?> typeTo, Configuration configuration, MetaDataHandler metaDataHandler )
+    {
+      return new Copier()
+      {
+        private static final long serialVersionUID = 858420964408231399L;
+        
+        @Override
+        public void copy( Object instanceFrom, Object instanceTo, Transformer transformer )
+        {
+          Date dateFrom = (Date) instanceFrom;
+          Date dateTo = (Date) instanceTo;
+          dateTo.setTime( dateFrom.getTime() );
+        }
+      };
+    }
+  }
+  
   private static class InstanceFactoryCreatorForMappedTypes implements InstanceFactoryCreator, InstanceFactory
   {
     /* ************************************************** Constants *************************************************** */
@@ -1035,6 +1077,7 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
         if ( configuration.isHandlingPrimitivesAndWrappers() )
         {
           instanceHandlerFactoryList.add( 0, new InstanceFactoryCreatorForPrimitives() );
+          instanceHandlerFactoryList.add( 1, new InstanceFactoryCreatorAndCopierFactoryForDate() );
         }
         
         if ( configuration.isHandlingLists() )
@@ -1088,6 +1131,10 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
     {
       final List<CopierFactory> copierFactoryList = new ArrayList<CopierFactory>( configuration.getCopierFactoryList() );
       {
+        if ( configuration.isHandlingPrimitivesAndWrappers() )
+        {
+          copierFactoryList.add( 0, new InstanceFactoryCreatorAndCopierFactoryForDate() );
+        }
         if ( configuration.isHandlingLists() )
         {
           copierFactoryList.add( new InstanceFactoryCreatorAndCopierFactoryForList() );

@@ -46,6 +46,14 @@ public interface ImmutableStripe<E> extends Iterable<E>, Serializable
   public E getElement( int index );
   
   /**
+   * Returns the element for the given title of the orthogonal stripe
+   * 
+   * @param title
+   * @return element instance
+   */
+  public E getElement( String title );
+  
+  /**
    * Returns an array of all elements
    * 
    * @return
