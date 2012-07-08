@@ -61,8 +61,8 @@ public class TableToMapAdapterTest
     //
     assertEquals( 10, map.size() );
     assertEquals( "1:1", map.get( "1:3" ) );
-    assertEquals( "[0:3, 1:3, 2:3, 3:3, 4:3, 5:3, 6:3, 7:3, 8:3, 9:3]", String.valueOf( map.keySet() ) );
-    assertEquals( "[0:1, 1:1, 2:1, 3:1, 4:1, 5:1, 6:1, 7:1, 8:1, 9:1]", String.valueOf( map.values() ) );
+    assertEquals( "[0:3,1:3,2:3,3:3,4:3,5:3,6:3,7:3,8:3,9:3]", String.valueOf( map.keySet() ) );
+    assertEquals( "[0:1,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:1,9:1]", String.valueOf( map.values() ) );
   }
   
 }
