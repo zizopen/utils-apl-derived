@@ -58,7 +58,7 @@ public class StubCreatorTest
   public void testBuild()
   {
     //
-    final StubCreator<TestInterface> stubCreator = new StubCreator<TestInterface>( TestInterface.class, null );
+    final StubCreator<TestInterface> stubCreator = new StubCreator<TestInterface>( TestInterface.class, (Class<?>[]) null );
     final TestInterface testInterface = stubCreator.build( this.methodInvocationHandler );
     assertEquals( "test", testInterface.echoValue( "test" ) );
   }
@@ -81,7 +81,7 @@ public class StubCreatorTest
   public void testBuildPerformance()
   {
     //
-    final StubCreator<TestInterface> stubCreator = new StubCreator<TestInterface>( TestInterface.class, null );
+    final StubCreator<TestInterface> stubCreator = new StubCreator<TestInterface>( TestInterface.class, (Class<?>[]) null );
     
     //    
     final int numberOfInvocations = 1000000;

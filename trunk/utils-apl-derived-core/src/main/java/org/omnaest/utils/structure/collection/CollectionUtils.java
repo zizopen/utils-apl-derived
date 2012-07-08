@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.structure.collection.adapter.CollectionToCollectionAdapter;
 import org.omnaest.utils.structure.collection.decorator.LockingCollectionDecorator;
 import org.omnaest.utils.structure.collection.list.ListUtils;
@@ -450,6 +451,19 @@ public class CollectionUtils
     
     //
     return retval.toString();
+  }
+  
+  /**
+   * @param collection
+   * @param joiner
+   *          {@link Joiner}
+   * @param prefix
+   * @param suffix
+   * @return
+   */
+  public static <E> String toString( Collection<E> collection, Joiner joiner, String prefix, String suffix )
+  {
+    return StringUtils.defaultString( prefix ) + toString( collection, joiner ) + StringUtils.defaultString( suffix );
   }
   
   /**

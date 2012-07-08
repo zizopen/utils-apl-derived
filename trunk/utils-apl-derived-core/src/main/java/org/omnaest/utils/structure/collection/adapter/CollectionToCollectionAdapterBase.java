@@ -114,7 +114,7 @@ public abstract class CollectionToCollectionAdapterBase<FROM, TO> extends Collec
   @Override
   public String toString()
   {
-    return CollectionUtils.toString( this, Joiner.on( "," ) );
+    return CollectionUtils.toString( this, Joiner.on( "," ), "[", "]" );
   }
   
 }
