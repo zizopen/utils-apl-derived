@@ -142,13 +142,13 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
   }
   
   @Override
-  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  public void handleRemovedColumn( int columnIndex, E[] previousElements, String columnTitle )
   {
     ListUtils.remove( this.columnTitleList, columnIndex );
   }
   
   @Override
-  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  public void handleRemovedRow( int rowIndex, E[] previousElements, String rowTitle )
   {
     ListUtils.remove( this.rowTitleList, rowIndex );
   }

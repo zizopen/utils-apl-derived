@@ -26,6 +26,9 @@ import net.sf.cglib.proxy.Factory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.events.exception.ExceptionHandler;
+import org.omnaest.utils.events.exception.basic.ExceptionHandlerIgnoring;
 import org.omnaest.utils.proxy.handler.MethodCallCapture;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
 
@@ -50,7 +53,17 @@ public class StubCreator<E>
    */
   public StubCreator( Class<? extends E> type )
   {
-    this( type, null );
+    this( type, (Class<?>[]) null );
+  }
+  
+  /**
+   * @see StubCreator
+   * @param type
+   * @param exceptionHandler
+   */
+  public StubCreator( Class<? extends E> type, ExceptionHandler exceptionHandler )
+  {
+    this( type, (Class<?>[]) null, exceptionHandler );
   }
   
   /**
@@ -60,12 +73,25 @@ public class StubCreator<E>
    */
   public StubCreator( Class<? extends E> type, Class<?>[] interfaces )
   {
+    this( type, interfaces, new ExceptionHandlerIgnoring() );
+  }
+  
+  /**
+   * @see StubCreator
+   * @param type
+   * @param interfaces
+   * @param exceptionHandler
+   *          {@link ExceptionHandler}
+   */
+  public StubCreator( Class<? extends E> type, Class<?>[] interfaces, ExceptionHandler exceptionHandler )
+  {
     //
     super();
     
     //    
     MethodInvocationHandler methodInvocationHandler = null;
-    this.factory = (Factory) newStubInstance( type, interfaces, methodInvocationHandler );
+    this.factory = (Factory) newStubInstance( type, interfaces, methodInvocationHandler, exceptionHandler );
+    Assert.isNotNull( this.factory, "Failed to create a stub factory" );
   }
   
   /**
@@ -127,6 +153,24 @@ public class StubCreator<E>
   }
   
   /**
+   * Same as {@link #newStubInstance(Class, Class[], MethodInterceptor)} but uses a {@link MethodInvocationHandler} instead.
+   * 
+   * @param <E>
+   * @param clazz
+   * @param interfaces
+   * @param methodInvocationHandler
+   * @param exceptionHandler
+   * @return
+   */
+  public static <E> E newStubInstance( Class<? extends E> clazz,
+                                       Class<?>[] interfaces,
+                                       final MethodInvocationHandler methodInvocationHandler,
+                                       ExceptionHandler exceptionHandler )
+  {
+    return StubCreator.newStubInstance( clazz, interfaces, adapter( methodInvocationHandler ), exceptionHandler );
+  }
+  
+  /**
    * Returns a adapter which acts as {@link MethodInterceptor} for a given {@link MethodInvocationHandler}
    * 
    * @param methodInvocationHandler
@@ -153,8 +197,27 @@ public class StubCreator<E>
    * @param methodInterceptor
    * @return
    */
-  @SuppressWarnings("unchecked")
   public static <E> E newStubInstance( Class<? extends E> clazz, Class<?>[] interfaces, final MethodInterceptor methodInterceptor )
+  {
+    final ExceptionHandler exceptionHandler = null;
+    return newStubInstance( clazz, interfaces, methodInterceptor, exceptionHandler );
+  }
+  
+  /**
+   * Returns a new proxy stub for the given class or interface but takes additional interfaces.
+   * 
+   * @param <E>
+   * @param clazz
+   * @param interfaces
+   * @param methodInterceptor
+   * @param exceptionHandler
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> E newStubInstance( Class<? extends E> clazz,
+                                       Class<?>[] interfaces,
+                                       final MethodInterceptor methodInterceptor,
+                                       ExceptionHandler exceptionHandler )
   {
     //
     E retval = null;
@@ -196,6 +259,10 @@ public class StubCreator<E>
       }
       catch ( Exception e )
       {
+        if ( exceptionHandler != null )
+        {
+          exceptionHandler.handleException( e );
+        }
       }
     }
     

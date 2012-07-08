@@ -56,7 +56,7 @@ public interface TableIndexManager<E, C extends ImmutableCell<E>> extends Serial
    *          {@link KeyExtractor}
    * @return {@link SortedMap} backed by the {@link Table}
    */
-  public <K> SortedMap<K, Set<Row<E>>> of( KeyExtractor<K, E[]> keyExtractor );
+  public <K> SortedMap<K, Set<Row<E>>> of( KeyExtractor<K, RowDataReader<E>> keyExtractor );
   
   /**
    * Similar to {@link #of(KeyExtractor)} allowing to specify a {@link Comparator}
@@ -67,7 +67,7 @@ public interface TableIndexManager<E, C extends ImmutableCell<E>> extends Serial
    *          {@link Comparator}
    * @return {@link SortedMap} backed by the {@link Table}
    */
-  public <K> SortedMap<K, Set<Row<E>>> of( KeyExtractor<K, E[]> keyExtractor, Comparator<K> comparator );
+  public <K> SortedMap<K, Set<Row<E>>> of( KeyExtractor<K, RowDataReader<E>> keyExtractor, Comparator<K> comparator );
   
   /**
    * Similar to {@link #of(KeyExtractor, Comparator)} additionally allowing to transform the elements to a specific
@@ -81,7 +81,7 @@ public interface TableIndexManager<E, C extends ImmutableCell<E>> extends Serial
    *          {@link Comparator}
    * @return {@link SortedMap} backed by the {@link Table}
    */
-  public <K, V> SortedMap<K, V> of( KeyExtractor<K, E[]> keyExtractor,
+  public <K, V> SortedMap<K, V> of( KeyExtractor<K, RowDataReader<E>> keyExtractor,
                                     ValueExtractor<V, Set<E[]>> valueExtractor,
                                     Comparator<K> comparator );
   
@@ -94,5 +94,10 @@ public interface TableIndexManager<E, C extends ImmutableCell<E>> extends Serial
    *          {@link ValueExtractor}
    * @return {@link SortedMap} backed by the {@link Table}
    */
-  public <K, V> SortedMap<K, V> of( KeyExtractor<K, E[]> keyExtractor, final ValueExtractor<V, Set<E[]>> valueExtractor );
+  public <K, V> SortedMap<K, V> of( KeyExtractor<K, RowDataReader<E>> keyExtractor,
+                                    final ValueExtractor<V, Set<E[]>> valueExtractor );
+  
+  public <K, B> SortedMap<K, Set<B>> of( KeyExtractor<K, B> keyExtractor, Class<B> beanType );
+  
+  public <K, B> SortedMap<K, Set<B>> of( KeyExtractor<K, B> keyExtractor, Class<B> beanType, Comparator<K> comparator );
 }

@@ -722,7 +722,7 @@ public class BeanUtils
       BeanMethodInformation beanMethodInformation = BeanUtils.beanMethodInformation( method );
       
       //
-      String propertyName = beanMethodInformation.getReferencedFieldName();
+      String propertyName = beanMethodInformation.getPropertyName();
       retval = BeanUtils.beanPropertyAccessor( beanClass, propertyName );
     }
     
@@ -828,7 +828,7 @@ public class BeanUtils
         if ( beanMethodInformation != null )
         {
           //
-          String referencedFieldName = beanMethodInformation.getReferencedFieldName();
+          String referencedFieldName = beanMethodInformation.getPropertyName();
           
           //
           if ( !retmap.containsKey( referencedFieldName ) )
@@ -900,12 +900,13 @@ public class BeanUtils
         
         //
         boolean isGetter = parameterTypes != null && parameterTypes.length == 0 && returnType != null && methodName != null
+                           && !StringUtils.equals( methodName, "getClass" )
                            && ( methodName.startsWith( "is" ) || methodName.startsWith( "get" ) );
         boolean isSetter = parameterTypes != null && parameterTypes.length == 1 && methodName != null
                            && ( methodName.startsWith( "set" ) );
         
         boolean isGetterWithAdditionalArguments = parameterTypes != null && parameterTypes.length >= 1 && returnType != null
-                                                  && methodName != null
+                                                  && methodName != null && !StringUtils.equals( methodName, "getClass" )
                                                   && ( methodName.startsWith( "is" ) || methodName.startsWith( "get" ) );
         boolean isSetterWithAdditionalArguments = parameterTypes != null && parameterTypes.length >= 2 && methodName != null
                                                   && ( methodName.startsWith( "set" ) );

@@ -61,7 +61,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final Class<E>                        elementType;
   private final TableAdapterManager<E>          tableAdapterManager;
-  private final TableDataAccessor<E>            tableDataAccessor;
+  final TableDataAccessor<E>                    tableDataAccessor;
   private final TableIndexManager<E, Cell<E>>   tableIndexManager;
   private final TablePersistenceRegistration<E> tablePersistenceRegistration;
   
@@ -80,8 +80,8 @@ public class ArrayTable<E> extends TableAbstract<E>
     final TableDataCore<E> tableDataCore = new TableDataCore<E>( elementType );
     final TableEventDispatcher<E> tableEventDispatcher = new TableEventDispatcher<E>();
     this.tableDataAccessor = new TableDataAccessor<E>( tableDataCore, tableEventDispatcher, tableMetaData ).setExceptionHandler( this.exceptionHandler );
-    this.tableIndexManager = new TableIndexManagerImpl<E>( this.tableDataAccessor, this );
-    this.tableAdapterManager = new TableAdapterManagerImpl<E>( this );
+    this.tableIndexManager = new TableIndexManagerImpl<E>( this.tableDataAccessor, this, this.exceptionHandler );
+    this.tableAdapterManager = new TableAdapterManagerImpl<E>( this, this.exceptionHandler );
     this.tablePersistenceRegistration = this.tableDataAccessor.register( new TablePersistenceRegistrationImpl<E>(
                                                                                                                   this,
                                                                                                                   this.tableDataAccessor.getTableLock(),
@@ -93,6 +93,20 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     this( (Class<? extends E>) ArrayUtils.componentType( ArrayUtils.componentType( elementMatrix.getClass() ) ) );
     this.copyFrom( elementMatrix );
+  }
+  
+  @Override
+  public Table<E> addColumnElements( E... elements )
+  {
+    final int columnIndex = this.columnSize();
+    return this.addColumnElements( columnIndex, elements );
+  }
+  
+  @Override
+  public Table<E> addColumnElements( int columnIndex, E... elements )
+  {
+    this.tableDataAccessor.addColumn( columnIndex, elements );
+    return this;
   }
   
   @Override
@@ -125,10 +139,41 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
+  public Iterable<Cell<E>> cells()
+  {
+    return new Iterable<Cell<E>>()
+    {
+      @Override
+      public Iterator<Cell<E>> iterator()
+      {
+        final Iterator<Row<E>> rowIterator = rows().iterator();
+        return IteratorUtils.factoryBasedIterator( new Factory<Iterator<Cell<E>>>()
+        {
+          @Override
+          public Iterator<Cell<E>> newInstance()
+          {
+            return rowIterator.hasNext() ? rowIterator.next().cells().iterator() : null;
+          }
+        } );
+      }
+    };
+  }
+  
+  @Override
   public Table<E> clear()
   {
     this.tableDataAccessor.clear();
     return this;
+  }
+  
+  @Override
+  public Table<E> clone()
+  {
+    Table<E> table = new ArrayTable<E>( this.to().array() );
+    table.setTableName( this.getTableName() );
+    table.setRowTitles( this.getRowTitleList() );
+    table.setColumnTitles( this.getColumnTitleList() );
+    return table;
   }
   
   @Override
@@ -287,8 +332,30 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public E getCellElement( int rowIndex, int columnIndex )
+  public E getElement( int rowIndex, int columnIndex )
   {
+    return this.tableDataAccessor.getElement( rowIndex, columnIndex );
+  }
+  
+  @Override
+  public E getElement( String rowTitle, int columnIndex )
+  {
+    final int rowIndex = this.tableDataAccessor.getRowIndex( rowTitle );
+    return this.tableDataAccessor.getElement( rowIndex, columnIndex );
+  }
+  
+  @Override
+  public E getElement( int rowIndex, String columnTitle )
+  {
+    final int columnIndex = this.tableDataAccessor.getColumnIndex( columnTitle );
+    return this.tableDataAccessor.getElement( rowIndex, columnIndex );
+  }
+  
+  @Override
+  public E getElement( String rowTitle, String columnTitle )
+  {
+    final int rowIndex = this.tableDataAccessor.getRowIndex( rowTitle );
+    final int columnIndex = this.tableDataAccessor.getColumnIndex( columnTitle );
     return this.tableDataAccessor.getElement( rowIndex, columnIndex );
   }
   
@@ -347,6 +414,12 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
+  public TablePersistenceRegistration<E> persistence()
+  {
+    return this.tablePersistenceRegistration;
+  }
+  
+  @Override
   public Table<E> removeColumn( int columnIndex )
   {
     this.tableDataAccessor.removeColumn( columnIndex );
@@ -392,13 +465,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> setCellElement( int rowIndex, int columnIndex, E element )
-  {
-    this.tableDataAccessor.set( element, rowIndex, columnIndex );
-    return this;
-  }
-  
-  @Override
   public Table<E> setColumnTitle( int columnIndex, String columnTitle )
   {
     this.tableDataAccessor.setColumnTitle( columnIndex, columnTitle );
@@ -409,6 +475,38 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Table<E> setColumnTitles( Iterable<String> columnTitleIterable )
   {
     this.tableDataAccessor.setColumnTitles( columnTitleIterable );
+    return this;
+  }
+  
+  @Override
+  public Table<E> setElement( int rowIndex, int columnIndex, E element )
+  {
+    this.tableDataAccessor.set( element, rowIndex, columnIndex );
+    return this;
+  }
+  
+  @Override
+  public Table<E> setElement( int rowIndex, String columnTitle, E element )
+  {
+    final int columnIndex = this.tableDataAccessor.getColumnIndex( columnTitle );
+    this.setElement( rowIndex, columnIndex, element );
+    return this;
+  }
+  
+  @Override
+  public Table<E> setElement( String rowTitle, int columnIndex, E element )
+  {
+    final int rowIndex = this.tableDataAccessor.getRowIndex( rowTitle );
+    this.setElement( rowIndex, columnIndex, element );
+    return this;
+  }
+  
+  @Override
+  public Table<E> setElement( String rowTitle, String columnTitle, E element )
+  {
+    final int columnIndex = this.tableDataAccessor.getColumnIndex( columnTitle );
+    final int rowIndex = this.tableDataAccessor.getRowIndex( rowTitle );
+    this.setElement( rowIndex, columnIndex, element );
     return this;
   }
   
@@ -441,59 +539,15 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Iterable<Cell<E>> cells()
-  {
-    return new Iterable<Cell<E>>()
-    {
-      @Override
-      public Iterator<Cell<E>> iterator()
-      {
-        final Iterator<Row<E>> rowIterator = rows().iterator();
-        return IteratorUtils.factoryBasedIterator( new Factory<Iterator<Cell<E>>>()
-        {
-          @Override
-          public Iterator<Cell<E>> newInstance()
-          {
-            return rowIterator.hasNext() ? rowIterator.next().cells().iterator() : null;
-          }
-        } );
-      }
-    };
-  }
-  
-  @Override
-  public Table<E> addColumnElements( E... elements )
-  {
-    final int columnIndex = this.columnSize();
-    return this.addColumnElements( columnIndex, elements );
-  }
-  
-  @Override
-  public Table<E> addColumnElements( int columnIndex, E... elements )
-  {
-    this.tableDataAccessor.addColumn( columnIndex, elements );
-    return this;
-  }
-  
-  @Override
-  public Table<E> clone()
-  {
-    Table<E> table = new ArrayTable<E>( this.to().array() );
-    table.setTableName( this.getTableName() );
-    table.setRowTitles( this.getRowTitleList() );
-    table.setColumnTitles( this.getColumnTitleList() );
-    return table;
-  }
-  
-  @Override
   public TableSorter<E> sort()
   {
     return new TableSorterImpl<E>( this );
   }
   
   @Override
-  public TablePersistenceRegistration<E> persistence()
+  public int getColumnIndex( String columnTitle )
   {
-    return this.tablePersistenceRegistration;
+    return this.tableDataAccessor.getColumnIndex( columnTitle );
   }
+  
 }

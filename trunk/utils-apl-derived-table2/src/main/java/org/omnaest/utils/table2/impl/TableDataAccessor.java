@@ -383,8 +383,10 @@ class TableDataAccessor<E> implements Serializable
       public void execute()
       {
         final E[] previousElements = TableDataAccessor.this.tableDataCore.removeColumn( columnIndex );
+        final String columnTitle = TableDataAccessor.this.getColumnTitle( columnIndex );
+        ;
         TableDataAccessor.this.modificationCounter.incrementAndGet();
-        TableDataAccessor.this.tableEventDispatcher.handleRemovedColumn( columnIndex, previousElements );
+        TableDataAccessor.this.tableEventDispatcher.handleRemovedColumn( columnIndex, previousElements, columnTitle );
       }
     }, this.tableLock.writeLock() );
   }
@@ -397,8 +399,9 @@ class TableDataAccessor<E> implements Serializable
       public void execute()
       {
         final E[] previousElements = TableDataAccessor.this.tableDataCore.removeRow( rowIndex );
+        final String rowTitle = TableDataAccessor.this.getRowTitle( rowIndex );
         TableDataAccessor.this.modificationCounter.incrementAndGet();
-        TableDataAccessor.this.tableEventDispatcher.handleRemovedRow( rowIndex, previousElements );
+        TableDataAccessor.this.tableEventDispatcher.handleRemovedRow( rowIndex, previousElements, rowTitle );
       }
     }, this.tableLock.writeLock() );
     

@@ -160,15 +160,6 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
                                                 ImmutableTable<E>... furtherLockedTables );
   
   /**
-   * Returns the element at the given row and column index position
-   * 
-   * @param rowIndex
-   * @param columnIndex
-   * @return
-   */
-  public E getCellElement( int rowIndex, int columnIndex );
-  
-  /**
    * Returns the title of the column with the given index position
    * 
    * @param columnIndex
@@ -182,6 +173,42 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    * @return
    */
   public List<String> getColumnTitleList();
+  
+  /**
+   * Returns the element at the given row and column index position
+   * 
+   * @param rowIndex
+   * @param columnIndex
+   * @return
+   */
+  public E getElement( int rowIndex, int columnIndex );
+  
+  /**
+   * Similar to {@link #getElement(int, int)}
+   * 
+   * @param rowIndex
+   * @param columnTitle
+   * @return element instance
+   */
+  public E getElement( int rowIndex, String columnTitle );
+  
+  /**
+   * Similar to {@link #getElement(int, int)}
+   * 
+   * @param rowTitle
+   * @param columnIndex
+   * @return element instance
+   */
+  public E getElement( String rowTitle, int columnIndex );
+  
+  /**
+   * Similar to {@link #getElement(int, int)}
+   * 
+   * @param rowTitle
+   * @param columnTitle
+   * @return element instance
+   */
+  public E getElement( String rowTitle, String columnTitle );
   
   /**
    * Returns the title of the row with the given index position
@@ -233,6 +260,13 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    * @return
    */
   public TableIndexManager<E, ? extends ImmutableCell<E>> index();
+  
+  /**
+   * Returns the last {@link ImmutableRow}
+   * 
+   * @return
+   */
+  public ImmutableRow<E> lastRow();
   
   /**
    * Returns a new {@link ImmutableRow} currently related to the given row index position
@@ -294,4 +328,12 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    * @return
    */
   public TableTransformer<E> to();
+  
+  /**
+   * Returns the column index position for the given column title. If no column title matches -1 is returned
+   * 
+   * @param columnTitle
+   * @return
+   */
+  public int getColumnIndex( String columnTitle );
 }

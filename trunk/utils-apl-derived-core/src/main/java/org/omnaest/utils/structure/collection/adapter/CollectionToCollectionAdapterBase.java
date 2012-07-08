@@ -20,8 +20,11 @@ import java.util.Iterator;
 
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.collection.CollectionAbstract;
+import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.iterator.IteratorToIteratorAdapter;
+
+import com.google.common.base.Joiner;
 
 /**
  * Base implementation of an {@link CollectionToCollectionAdapter}
@@ -107,5 +110,11 @@ public abstract class CollectionToCollectionAdapterBase<FROM, TO> extends Collec
   }
   
   protected abstract Collection<FROM> getCollection();
+  
+  @Override
+  public String toString()
+  {
+    return CollectionUtils.toString( this, Joiner.on( "," ) );
+  }
   
 }

@@ -26,9 +26,11 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.collections.ComparatorUtils;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.ValueExtractor;
+import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverterSerializable;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterSerializable;
@@ -38,9 +40,11 @@ import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.ImmutableColumn;
 import org.omnaest.utils.table2.Row;
+import org.omnaest.utils.table2.RowDataReader;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableIndex;
 import org.omnaest.utils.table2.TableIndexManager;
+import org.omnaest.utils.table2.impl.rowdata.RowDataBasedBeanFactory;
 import org.omnaest.utils.tuple.Tuple2;
 
 /**
@@ -60,6 +64,7 @@ final class TableIndexManagerImpl<E> implements TableIndexManager<E, Cell<E>>
   /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
   private final TableDataAccessor<E>                    tableDataAccessor;
   private final Table<E>                                table;
+  private final ExceptionHandler                        exceptionHandler;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -88,11 +93,11 @@ final class TableIndexManagerImpl<E> implements TableIndexManager<E, Cell<E>>
     
   }
   
-  private static class KeyExtractorAndComparator<E> extends Tuple2<KeyExtractor<?, E[]>, Comparator<?>>
+  private static class KeyExtractorAndComparator<E> extends Tuple2<KeyExtractor<?, RowDataReader<E>>, Comparator<?>>
   {
     private static final long serialVersionUID = 3598403450230804232L;
     
-    public KeyExtractorAndComparator( KeyExtractor<?, E[]> valueFirst, Comparator<?> valueSecond )
+    public KeyExtractorAndComparator( KeyExtractor<?, RowDataReader<E>> valueFirst, Comparator<?> valueSecond )
     {
       super( valueFirst, valueSecond );
     }
@@ -114,13 +119,15 @@ final class TableIndexManagerImpl<E> implements TableIndexManager<E, Cell<E>>
    * @see TableIndexManagerImpl
    * @param tableDataAccessor
    * @param table
+   * @param exceptionHandler
    */
   @SuppressWarnings("javadoc")
-  public TableIndexManagerImpl( TableDataAccessor<E> tableDataAccessor, Table<E> table )
+  public TableIndexManagerImpl( TableDataAccessor<E> tableDataAccessor, Table<E> table, ExceptionHandler exceptionHandler )
   {
     super();
     this.tableDataAccessor = tableDataAccessor;
     this.table = table;
+    this.exceptionHandler = exceptionHandler;
   }
   
   @Override
@@ -170,7 +177,7 @@ final class TableIndexManagerImpl<E> implements TableIndexManager<E, Cell<E>>
   }
   
   @Override
-  public <K> SortedMap<K, Set<Row<E>>> of( KeyExtractor<K, E[]> keyExtractor )
+  public <K> SortedMap<K, Set<Row<E>>> of( KeyExtractor<K, RowDataReader<E>> keyExtractor )
   {
     @SuppressWarnings("unchecked")
     final Comparator<K> comparator = ComparatorUtils.NATURAL_COMPARATOR;
@@ -178,13 +185,14 @@ final class TableIndexManagerImpl<E> implements TableIndexManager<E, Cell<E>>
   }
   
   @Override
-  public <K> SortedMap<K, Set<Row<E>>> of( KeyExtractor<K, E[]> keyExtractor, Comparator<K> comparator )
+  public <K> SortedMap<K, Set<Row<E>>> of( KeyExtractor<K, RowDataReader<E>> keyExtractor, Comparator<K> comparator )
   {
     return getOrCreateTableIndexForKeyExtractorAndComparator( keyExtractor, comparator );
   }
   
   @Override
-  public <K, V> SortedMap<K, V> of( KeyExtractor<K, E[]> keyExtractor, final ValueExtractor<V, Set<E[]>> valueExtractor )
+  public <K, V> SortedMap<K, V> of( KeyExtractor<K, RowDataReader<E>> keyExtractor,
+                                    final ValueExtractor<V, Set<E[]>> valueExtractor )
   {
     @SuppressWarnings("unchecked")
     final Comparator<K> comparator = ComparatorUtils.NATURAL_COMPARATOR;
@@ -192,7 +200,7 @@ final class TableIndexManagerImpl<E> implements TableIndexManager<E, Cell<E>>
   }
   
   @Override
-  public <K, V> SortedMap<K, V> of( KeyExtractor<K, E[]> keyExtractor,
+  public <K, V> SortedMap<K, V> of( KeyExtractor<K, RowDataReader<E>> keyExtractor,
                                     final ValueExtractor<V, Set<E[]>> valueExtractor,
                                     Comparator<K> comparator )
   {
@@ -227,7 +235,7 @@ final class TableIndexManagerImpl<E> implements TableIndexManager<E, Cell<E>>
   }
   
   @SuppressWarnings("unchecked")
-  private <K> SortedMap<K, Set<Row<E>>> getOrCreateTableIndexForKeyExtractorAndComparator( KeyExtractor<K, E[]> keyExtractor,
+  private <K> SortedMap<K, Set<Row<E>>> getOrCreateTableIndexForKeyExtractorAndComparator( KeyExtractor<K, RowDataReader<E>> keyExtractor,
                                                                                            Comparator<K> comparator )
   {
     SortedMap<K, Set<Row<E>>> retval = null;
@@ -246,6 +254,64 @@ final class TableIndexManagerImpl<E> implements TableIndexManager<E, Cell<E>>
       }
     }
     return retval;
+  }
+  
+  @Override
+  public <K, B> SortedMap<K, Set<B>> of( KeyExtractor<K, B> keyExtractor, Class<B> beanType )
+  {
+    @SuppressWarnings("unchecked")
+    final Comparator<K> comparator = ComparatorUtils.NATURAL_COMPARATOR;
+    return this.of( keyExtractor, beanType, comparator );
+  }
+  
+  @Override
+  public <K, B> SortedMap<K, Set<B>> of( final KeyExtractor<K, B> keyExtractor, Class<B> beanType, Comparator<K> comparator )
+  {
+    final RowDataBasedBeanFactory<B> rowDataBasedBeanFactory = new RowDataBasedBeanFactory<B>( beanType, this.exceptionHandler );
+    KeyExtractor<K, RowDataReader<E>> keyExtractorOther = new KeyExtractor<K, RowDataReader<E>>()
+    {
+      private static final long serialVersionUID = 3710840461645547536L;
+      
+      @Override
+      public K extractKey( RowDataReader<E> rowDataReader )
+      {
+        K retval = null;
+        if ( keyExtractor != null )
+        {
+          B bean = rowDataBasedBeanFactory.build( rowDataReader );
+          retval = keyExtractor.extractKey( bean );
+        }
+        return retval;
+      }
+    };
+    final SortedMap<K, Set<Row<E>>> sortedMap = this.of( keyExtractorOther, comparator );
+    final ElementBidirectionalConverter<Set<Row<E>>, Set<B>> elementBidirectionalConverterValue = new ElementBidirectionalConverterSerializable<Set<Row<E>>, Set<B>>()
+    {
+      private static final long serialVersionUID = -5432567823705034055L;
+      
+      @Override
+      public Set<Row<E>> convertBackwards( Set<B> element )
+      {
+        throw new UnsupportedOperationException();
+      }
+      
+      @Override
+      public Set<B> convert( Set<Row<E>> rowSet )
+      {
+        ElementConverter<Row<E>, B> elementConverter = new ElementConverterSerializable<Row<E>, B>()
+        {
+          private static final long serialVersionUID = 3560928844959299734L;
+          
+          @Override
+          public B convert( Row<E> row )
+          {
+            return rowDataBasedBeanFactory.build( row );
+          }
+        };
+        return SetUtils.convert( rowSet, elementConverter );
+      }
+    };
+    return MapUtils.adapter( sortedMap, elementBidirectionalConverterValue );
   }
   
 }

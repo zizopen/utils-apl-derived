@@ -139,7 +139,7 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   @Override
   public E getElement()
   {
-    return this.isDeleted ? null : this.table.getCellElement( this.rowIndex, this.columnIndex );
+    return this.isDeleted ? null : this.table.getElement( this.rowIndex, this.columnIndex );
   }
   
   @Override
@@ -178,7 +178,7 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   }
   
   @Override
-  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  public void handleRemovedColumn( int columnIndex, E[] previousElements, String columnTitle )
   {
     if ( this.columnIndex == columnIndex )
     {
@@ -187,7 +187,7 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   }
   
   @Override
-  public void handleRemovedRow( int rowIndex, E[] previousElements )
+  public void handleRemovedRow( int rowIndex, E[] previousElements, String rowTitle )
   {
     if ( this.rowIndex == rowIndex )
     {
@@ -249,7 +249,7 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
   {
     if ( !this.isDeleted )
     {
-      this.table.setCellElement( this.rowIndex, this.columnIndex, element );
+      this.table.setElement( this.rowIndex, this.columnIndex, element );
     }
     return this;
   }

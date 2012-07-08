@@ -412,7 +412,7 @@ public class BeanUtilsTest
     for ( BeanMethodInformation beanMethodInformation : beanMethodInformationSet )
     {
       //
-      if ( StringUtils.equals( "fieldString", beanMethodInformation.getReferencedFieldName() ) )
+      if ( StringUtils.equals( "fieldString", beanMethodInformation.getPropertyName() ) )
       {
         if ( beanMethodInformation.isSetter() )
         {

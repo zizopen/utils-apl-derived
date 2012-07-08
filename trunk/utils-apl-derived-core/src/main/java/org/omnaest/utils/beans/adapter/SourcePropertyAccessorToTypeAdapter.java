@@ -317,7 +317,7 @@ public class SourcePropertyAccessorToTypeAdapter<T> implements Serializable
         if ( beanMethodInformation != null )
         {
           //
-          final String referencedFieldName = beanMethodInformation.getReferencedFieldName();
+          final String referencedFieldName = beanMethodInformation.getPropertyName();
           
           //          
           boolean isGetter = beanMethodInformation.isGetter() && args.length == 0;

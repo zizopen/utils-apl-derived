@@ -17,6 +17,7 @@ package org.omnaest.utils.table2;
 
 import java.io.Serializable;
 import java.util.BitSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,5 +60,14 @@ public interface TableAdapterManager<E> extends Serializable
    * @return
    */
   public Map<E, BitSet> rowIndexMap( int columnIndexKey );
+  
+  /**
+   * Returns a {@link List} of Java beans which are backed by the {@link Table}. The mapping is done by column titles to property
+   * name.
+   * 
+   * @param type
+   * @return new {@link List} adapter instance
+   */
+  public <B> List<B> beanList( Class<? extends B> type );
   
 }

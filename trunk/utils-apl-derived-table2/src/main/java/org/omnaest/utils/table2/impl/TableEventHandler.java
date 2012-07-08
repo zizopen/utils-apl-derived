@@ -32,9 +32,9 @@ interface TableEventHandler<E> extends Serializable
   
   public void handleClearTable();
   
-  public void handleRemovedColumn( int columnIndex, E[] previousElements );
+  public void handleRemovedColumn( int columnIndex, E[] previousElements, String columnTitle );
   
-  public void handleRemovedRow( int rowIndex, E[] previousElements );
+  public void handleRemovedRow( int rowIndex, E[] previousElements, String rowTitle );
   
   public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement );
   

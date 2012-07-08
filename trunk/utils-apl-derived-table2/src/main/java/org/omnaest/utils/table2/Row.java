@@ -40,7 +40,9 @@ public interface Row<E> extends Stripe<E>, ImmutableRow<E>
    * @param element
    * @return this
    */
-  public Row<E> setCellElement( int columnIndex, E element );
+  public Row<E> setElement( int columnIndex, E element );
+  
+  public Row<E> setElement( String columnTitle, E element );
   
   /**
    * Sets the title of the {@link Row}
@@ -63,7 +65,7 @@ public interface Row<E> extends Stripe<E>, ImmutableRow<E>
    * @param elements
    * @return this
    */
-  public Row<E> setCellElements( E... elements );
+  public Row<E> setElements( E... elements );
   
   /**
    * Sets all cell elements to null
@@ -96,4 +98,5 @@ public interface Row<E> extends Stripe<E>, ImmutableRow<E>
    * @return this
    */
   public Row<E> switchWith( Row<E> otherRow );
+  
 }

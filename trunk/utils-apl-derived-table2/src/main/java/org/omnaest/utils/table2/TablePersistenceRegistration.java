@@ -18,8 +18,6 @@ package org.omnaest.utils.table2;
 import java.io.File;
 import java.io.Serializable;
 
-import org.omnaest.utils.table2.impl.persistence.SimpleDirectoryBasedTablePersistenceUsingSerializable;
-import org.omnaest.utils.table2.impl.persistence.SimpleDirectoryBasedTablePersistenceUsingXStream;
 import org.omnaest.utils.table2.impl.persistence.SimpleFileBasedTablePersistence;
 
 /**
@@ -30,6 +28,40 @@ import org.omnaest.utils.table2.impl.persistence.SimpleFileBasedTablePersistence
  */
 public interface TablePersistenceRegistration<E> extends Serializable
 {
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface TablePersistenceAttacherTarget<E> extends Serializable
+  {
+    public Table<E> toDirectory( File directory );
+  }
+  
+  /**
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface TablePersistenceAttacherXML<E> extends Serializable
+  {
+    public TablePersistenceAttacherTarget<E> usingXStream();
+  }
+  
+  /**
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface TablePersistenceAttacher<E> extends Serializable
+  {
+    public TablePersistenceAttacherTarget<E> asSerialized();
+    
+    public TablePersistenceAttacherXML<E> asXML();
+    
+  }
+  
+  /* *************************************************** Methods **************************************************** */
+  
   /**
    * Attaches a {@link TablePersistence} and synchronizes the current {@link Table} with it immediately
    * 
@@ -55,18 +87,9 @@ public interface TablePersistenceRegistration<E> extends Serializable
   public Table<E> attachToFile( File file );
   
   /**
-   * Attaches the {@link Table} to a {@link SimpleDirectoryBasedTablePersistenceUsingSerializable}
+   * Predefined ways to attach the {@link Table} to e.g. a directory
    * 
-   * @param directory
-   * @return underlying {@link Table}
+   * @return
    */
-  public Table<E> attachToDirectoryUsingSerializable( File directory );
-  
-  /**
-   * Attaches the {@link Table} to a {@link SimpleDirectoryBasedTablePersistenceUsingXStream}
-   * 
-   * @param directory
-   * @return underlying {@link Table}
-   */
-  public Table<E> attachToDirectoryUsingXStream( File directory );
+  public TablePersistenceAttacher<E> attach();
 }

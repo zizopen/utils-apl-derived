@@ -34,7 +34,7 @@ class TableToArrayConverter<E> implements ElementConverter<Table<E>, E[][]>
     {
       for ( int columnIndex = 0; columnIndex < columnSize; columnIndex++ )
       {
-        retvals[rowIndex][columnIndex] = table.getCellElement( rowIndex, columnIndex );
+        retvals[rowIndex][columnIndex] = table.getElement( rowIndex, columnIndex );
       }
     }
     return retvals;

@@ -63,18 +63,6 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
   }
   
   @Override
-  public Table<E> attachToDirectoryUsingXStream( File directory )
-  {
-    return this.attach( new SimpleDirectoryBasedTablePersistenceUsingXStream<E>( directory, this.exceptionHandler ) );
-  }
-  
-  @Override
-  public Table<E> attachToDirectoryUsingSerializable( File directory )
-  {
-    return this.attach( new SimpleDirectoryBasedTablePersistenceUsingSerializable<E>( directory, this.exceptionHandler ) );
-  }
-  
-  @Override
   public Table<E> attach( TablePersistence<E> tablePersistence )
   {
     if ( tablePersistence != null )
@@ -147,13 +135,13 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
   }
   
   @Override
-  public void handleRemovedColumn( int columnIndex, E[] previousElements )
+  public void handleRemovedColumn( int columnIndex, E[] previousElements, String columnTitle )
   {
     this.updateAllRows();
   }
   
   @Override
-  public void handleRemovedRow( final int rowIndex, E[] previousElements )
+  public void handleRemovedRow( final int rowIndex, E[] previousElements, String rowTitle )
   {
     this.executeOnAllTablePersistenceInstances( new OperationVoid<TablePersistence<E>>()
     {
@@ -234,5 +222,54 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
         tablePersistence.update( rowIndex, elements );
       }
     } );
+  }
+  
+  @Override
+  public TablePersistenceAttacher<E> attach()
+  {
+    final ExceptionHandlerSerializable exceptionHandler = this.exceptionHandler;
+    return new TablePersistenceAttacher<E>()
+    {
+      private static final long serialVersionUID = 836395788258554075L;
+      
+      @Override
+      public TablePersistenceAttacherTarget<E> asSerialized()
+      {
+        return new TablePersistenceAttacherTarget<E>()
+        {
+          private static final long serialVersionUID = -7912388527497053782L;
+          
+          @Override
+          public Table<E> toDirectory( File directory )
+          {
+            return attach( new SimpleDirectoryBasedTablePersistenceUsingSerializable<E>( directory, exceptionHandler ) );
+          }
+        };
+      }
+      
+      @Override
+      public TablePersistenceAttacherXML<E> asXML()
+      {
+        return new TablePersistenceAttacherXML<E>()
+        {
+          private static final long serialVersionUID = 9203977272669395577L;
+          
+          @Override
+          public TablePersistenceAttacherTarget<E> usingXStream()
+          {
+            return new TablePersistenceAttacherTarget<E>()
+            {
+              private static final long serialVersionUID = 5729367299715389727L;
+              
+              @Override
+              public Table<E> toDirectory( File directory )
+              {
+                return attach( new SimpleDirectoryBasedTablePersistenceUsingXStream<E>( directory, exceptionHandler ) );
+              }
+            };
+          }
+        };
+      }
+    };
   }
 }

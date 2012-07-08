@@ -27,6 +27,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +51,7 @@ import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.KeyExtractor;
+import org.omnaest.utils.structure.element.ValueExtractor;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
@@ -61,6 +65,120 @@ import org.omnaest.utils.table2.impl.persistence.SimpleFileBasedTablePersistence
  */
 public abstract class TableTest
 {
+  static class SimpleTestBean
+  {
+    private String c0;
+    private String c1;
+    private String c2;
+    private String c3;
+    private String c4;
+    
+    public SimpleTestBean()
+    {
+      super();
+    }
+    
+    public String getC0()
+    {
+      return this.c0;
+    }
+    
+    public void setC0( String c0 )
+    {
+      this.c0 = c0;
+    }
+    
+    public String getC1()
+    {
+      return this.c1;
+    }
+    
+    public void setC1( String c1 )
+    {
+      this.c1 = c1;
+    }
+    
+    public String getC2()
+    {
+      return this.c2;
+    }
+    
+    public void setC2( String c2 )
+    {
+      this.c2 = c2;
+    }
+    
+    public String getC4()
+    {
+      return this.c4;
+    }
+    
+    public void setC4( String c4 )
+    {
+      this.c4 = c4;
+    }
+    
+    public String getC3()
+    {
+      return this.c3;
+    }
+    
+    public void setC3( String c3 )
+    {
+      this.c3 = c3;
+    }
+    
+  }
+  
+  static class TestDomain
+  {
+    private String fieldString;
+    private Date   fieldDate;
+    private Double fieldDouble;
+    private Long   fieldLong;
+    
+    public String getFieldString()
+    {
+      return this.fieldString;
+    }
+    
+    public void setFieldString( String fieldString )
+    {
+      this.fieldString = fieldString;
+    }
+    
+    public Date getFieldDate()
+    {
+      return this.fieldDate;
+    }
+    
+    public void setFieldDate( Date fieldDate )
+    {
+      this.fieldDate = fieldDate;
+    }
+    
+    public Double getFieldDouble()
+    {
+      return this.fieldDouble;
+    }
+    
+    public void setFieldDouble( Double fieldDouble )
+    {
+      this.fieldDouble = fieldDouble;
+    }
+    
+    public Long getFieldLong()
+    {
+      return this.fieldLong;
+    }
+    
+    public void setFieldLong( Long fieldLong )
+    {
+      this.fieldLong = fieldLong;
+    }
+    
+  }
+  
   private static void assertSameColumnOrRowValue( String[] cellElements, final int index )
   {
     List<String> elementList = ListUtils.valueOf( cellElements );
@@ -74,6 +192,18 @@ public abstract class TableTest
     } );
     Set<String> elementRowSet = SetUtils.valueOf( elementList );
     assertEquals( 1, elementRowSet.size() );
+  }
+  
+  private static Date newRelativeDate( final Date date, int ii )
+  {
+    final Date fieldDate;
+    {
+      final Calendar calendar = Calendar.getInstance();
+      calendar.setTime( date );
+      calendar.add( Calendar.DAY_OF_MONTH, ii );
+      fieldDate = calendar.getTime();
+    }
+    return fieldDate;
   }
   
   protected Table<String> filledTable( int rowSize, int columnSize )
@@ -375,7 +505,7 @@ public abstract class TableTest
       assertFalse( tableIndex.containsKey( "0:0" ) );
       assertTrue( tableIndex.containsKey( "0:1" ) );
       
-      table.setCellElement( 0, 1, "xxx" );
+      table.setElement( 0, 1, "xxx" );
       assertFalse( tableIndex.containsKey( "0:1" ) );
       assertTrue( tableIndex.containsKey( "xxx" ) );
       
@@ -532,7 +662,7 @@ public abstract class TableTest
     }
     {
       Row<String> row = table.row( 0 );
-      row.setCellElement( 1, "b2" );
+      row.setElement( 1, "b2" );
       assertEquals( "b2", row.getElement( 1 ) );
     }
     {
@@ -586,18 +716,18 @@ public abstract class TableTest
                                   .table();
       assertNotNull( result );
       assertEquals( 10, result.rowSize() );
-      assertEquals( "0:1", result.getCellElement( 0, 0 ) );
-      assertEquals( "0:0", result.getCellElement( 0, 1 ) );
-      assertEquals( "0:1", result.getCellElement( 0, 2 ) );
-      assertEquals( "0:6", result.getCellElement( 0, 7 ) );
-      assertEquals( "0:7", result.getCellElement( 0, 8 ) );
-      assertNull( result.getCellElement( 0, 9 ) );
+      assertEquals( "0:1", result.getElement( 0, 0 ) );
+      assertEquals( "0:0", result.getElement( 0, 1 ) );
+      assertEquals( "0:1", result.getElement( 0, 2 ) );
+      assertEquals( "0:6", result.getElement( 0, 7 ) );
+      assertEquals( "0:7", result.getElement( 0, 8 ) );
+      assertNull( result.getElement( 0, 9 ) );
       
-      assertEquals( "9:1", result.getCellElement( 9, 0 ) );
-      assertEquals( "9:0", result.getCellElement( 9, 1 ) );
-      assertEquals( "9:1", result.getCellElement( 9, 2 ) );
-      assertEquals( "9:6", result.getCellElement( 9, 7 ) );
-      assertEquals( "9:7", result.getCellElement( 9, 8 ) );
+      assertEquals( "9:1", result.getElement( 9, 0 ) );
+      assertEquals( "9:0", result.getElement( 9, 1 ) );
+      assertEquals( "9:1", result.getElement( 9, 2 ) );
+      assertEquals( "9:6", result.getElement( 9, 7 ) );
+      assertEquals( "9:7", result.getElement( 9, 8 ) );
     }
     {
       Table<String> result = table.select()
@@ -609,15 +739,15 @@ public abstract class TableTest
                                   .table();
       assertNotNull( result );
       assertEquals( 10, result.rowSize() );
-      assertEquals( "0:1", result.getCellElement( 0, 0 ) );
-      assertEquals( "0:2", result.getCellElement( 0, 1 ) );
-      assertEquals( "0:6", result.getCellElement( 0, 2 ) );
-      assertEquals( "0:7", result.getCellElement( 0, 3 ) );
+      assertEquals( "0:1", result.getElement( 0, 0 ) );
+      assertEquals( "0:2", result.getElement( 0, 1 ) );
+      assertEquals( "0:6", result.getElement( 0, 2 ) );
+      assertEquals( "0:7", result.getElement( 0, 3 ) );
       
-      assertEquals( "9:1", result.getCellElement( 9, 0 ) );
-      assertEquals( "9:2", result.getCellElement( 9, 1 ) );
-      assertEquals( "9:6", result.getCellElement( 9, 2 ) );
-      assertEquals( "9:7", result.getCellElement( 9, 3 ) );
+      assertEquals( "9:1", result.getElement( 9, 0 ) );
+      assertEquals( "9:2", result.getElement( 9, 1 ) );
+      assertEquals( "9:6", result.getElement( 9, 2 ) );
+      assertEquals( "9:7", result.getElement( 9, 3 ) );
       
     }
     
@@ -651,29 +781,29 @@ public abstract class TableTest
       
       assertNotNull( result );
       assertEquals( 30, result.rowSize() );
-      assertEquals( "0:1", result.getCellElement( 0, 0 ) );
-      assertEquals( "0:2", result.getCellElement( 0, 1 ) );
-      assertEquals( "0:6", result.getCellElement( 0, 2 ) );
-      assertEquals( "0:7", result.getCellElement( 0, 3 ) );
-      assertEquals( "0:0", result.getCellElement( 0, 4 ) );
+      assertEquals( "0:1", result.getElement( 0, 0 ) );
+      assertEquals( "0:2", result.getElement( 0, 1 ) );
+      assertEquals( "0:6", result.getElement( 0, 2 ) );
+      assertEquals( "0:7", result.getElement( 0, 3 ) );
+      assertEquals( "0:0", result.getElement( 0, 4 ) );
       
-      assertEquals( "0:1", result.getCellElement( 2, 0 ) );
-      assertEquals( "0:2", result.getCellElement( 2, 1 ) );
-      assertEquals( "0:6", result.getCellElement( 2, 2 ) );
-      assertEquals( "0:7", result.getCellElement( 2, 3 ) );
-      assertEquals( "2:0", result.getCellElement( 2, 4 ) );
+      assertEquals( "0:1", result.getElement( 2, 0 ) );
+      assertEquals( "0:2", result.getElement( 2, 1 ) );
+      assertEquals( "0:6", result.getElement( 2, 2 ) );
+      assertEquals( "0:7", result.getElement( 2, 3 ) );
+      assertEquals( "2:0", result.getElement( 2, 4 ) );
       
-      assertEquals( "9:1", result.getCellElement( 27, 0 ) );
-      assertEquals( "9:2", result.getCellElement( 27, 1 ) );
-      assertEquals( "9:6", result.getCellElement( 27, 2 ) );
-      assertEquals( "9:7", result.getCellElement( 27, 3 ) );
-      assertEquals( "0:0", result.getCellElement( 27, 4 ) );
+      assertEquals( "9:1", result.getElement( 27, 0 ) );
+      assertEquals( "9:2", result.getElement( 27, 1 ) );
+      assertEquals( "9:6", result.getElement( 27, 2 ) );
+      assertEquals( "9:7", result.getElement( 27, 3 ) );
+      assertEquals( "0:0", result.getElement( 27, 4 ) );
       
-      assertEquals( "9:1", result.getCellElement( 29, 0 ) );
-      assertEquals( "9:2", result.getCellElement( 29, 1 ) );
-      assertEquals( "9:6", result.getCellElement( 29, 2 ) );
-      assertEquals( "9:7", result.getCellElement( 29, 3 ) );
-      assertEquals( "2:0", result.getCellElement( 29, 4 ) );
+      assertEquals( "9:1", result.getElement( 29, 0 ) );
+      assertEquals( "9:2", result.getElement( 29, 1 ) );
+      assertEquals( "9:6", result.getElement( 29, 2 ) );
+      assertEquals( "9:7", result.getElement( 29, 3 ) );
+      assertEquals( "2:0", result.getElement( 29, 4 ) );
       
     }
     {
@@ -698,17 +828,17 @@ public abstract class TableTest
       
       assertNotNull( result );
       assertEquals( 3, result.rowSize() );
-      assertEquals( "0:1", result.getCellElement( 0, 0 ) );
-      assertEquals( "0:2", result.getCellElement( 0, 1 ) );
-      assertEquals( "0:6", result.getCellElement( 0, 2 ) );
-      assertEquals( "0:7", result.getCellElement( 0, 3 ) );
-      assertEquals( "0:0", result.getCellElement( 0, 4 ) );
+      assertEquals( "0:1", result.getElement( 0, 0 ) );
+      assertEquals( "0:2", result.getElement( 0, 1 ) );
+      assertEquals( "0:6", result.getElement( 0, 2 ) );
+      assertEquals( "0:7", result.getElement( 0, 3 ) );
+      assertEquals( "0:0", result.getElement( 0, 4 ) );
       
-      assertEquals( "2:1", result.getCellElement( 2, 0 ) );
-      assertEquals( "2:2", result.getCellElement( 2, 1 ) );
-      assertEquals( "2:6", result.getCellElement( 2, 2 ) );
-      assertEquals( "2:7", result.getCellElement( 2, 3 ) );
-      assertEquals( "2:0", result.getCellElement( 2, 4 ) );
+      assertEquals( "2:1", result.getElement( 2, 0 ) );
+      assertEquals( "2:2", result.getElement( 2, 1 ) );
+      assertEquals( "2:6", result.getElement( 2, 2 ) );
+      assertEquals( "2:7", result.getElement( 2, 3 ) );
+      assertEquals( "2:0", result.getElement( 2, 4 ) );
       
     }
     {
@@ -736,17 +866,17 @@ public abstract class TableTest
       
       assertNotNull( result );
       assertEquals( 3, result.rowSize() );
-      assertEquals( "0:1", result.getCellElement( 0, 0 ) );
-      assertEquals( "0:2", result.getCellElement( 0, 1 ) );
-      assertEquals( "0:6", result.getCellElement( 0, 2 ) );
-      assertEquals( "0:7", result.getCellElement( 0, 3 ) );
-      assertEquals( "0:0", result.getCellElement( 0, 4 ) );
+      assertEquals( "0:1", result.getElement( 0, 0 ) );
+      assertEquals( "0:2", result.getElement( 0, 1 ) );
+      assertEquals( "0:6", result.getElement( 0, 2 ) );
+      assertEquals( "0:7", result.getElement( 0, 3 ) );
+      assertEquals( "0:0", result.getElement( 0, 4 ) );
       
-      assertEquals( "2:1", result.getCellElement( 2, 0 ) );
-      assertEquals( "2:2", result.getCellElement( 2, 1 ) );
-      assertEquals( "2:6", result.getCellElement( 2, 2 ) );
-      assertEquals( "2:7", result.getCellElement( 2, 3 ) );
-      assertEquals( "2:0", result.getCellElement( 2, 4 ) );
+      assertEquals( "2:1", result.getElement( 2, 0 ) );
+      assertEquals( "2:2", result.getElement( 2, 1 ) );
+      assertEquals( "2:6", result.getElement( 2, 2 ) );
+      assertEquals( "2:7", result.getElement( 2, 3 ) );
+      assertEquals( "2:0", result.getElement( 2, 4 ) );
       
     }
     
@@ -996,17 +1126,65 @@ public abstract class TableTest
       assertTrue( table.equalsInContent( tableOther ) );
     }
   }
-
+  
+  @Test
+  public void testMoreComplexListAdapter()
+  {
+    final Table<Object> table = new ArrayTable<Object>( Object.class ).setExceptionHandler( new ExceptionHandlerEPrintStackTrace() );
+    table.setColumnTitles( Arrays.asList( "fieldDate", "fieldDouble", "fieldLong", "fieldString" ) );
+    final SortedMap<Date, Set<TestDomain>> sortedMap = table.index().of( new KeyExtractor<Date, TestDomain>()
+    {
+      private static final long serialVersionUID = -2612713147012980832L;
+      
+      @Override
+      public Date extractKey( TestDomain testDomain )
+      {
+        final Date date = testDomain.getFieldDate();
+        return date;
+      }
+    }, TestDomain.class );
+    final List<TestDomain> domainList = table.as().beanList( TestDomain.class );
+    final Date date = new Date();
+    for ( int ii = 0; ii < 20; ii++ )
+    {
+      TestDomain testDomain = new TestDomain();
+      final Date fieldDate = newRelativeDate( date, ii / 2 );
+      testDomain.setFieldDate( fieldDate );
+      testDomain.setFieldDouble( 123.5 + ii );
+      testDomain.setFieldLong( 134l + ii );
+      testDomain.setFieldString( "test" + ii );
+      domainList.add( testDomain );
+      assertEquals( 1 + ii, domainList.size() );
+      assertEquals( domainList.size(), table.rowSize() );
+      assertEquals( Math.round( domainList.size() / 2.0 ), sortedMap.size() );
+    }
+    {
+      final int daysBack = 5;
+      SortedMap<Date, Set<TestDomain>> headMap = sortedMap.headMap( newRelativeDate( date, daysBack ) );
+      //System.out.println( headMap );
+      
+      Set<TestDomain> mergeAll = SetUtils.mergeAll( headMap.values() );
+      //System.out.println( mergeAll );
+      assertEquals( daysBack * 2, mergeAll.size() );
+    }
+    //System.out.println( table );
+    //System.out.println( MapUtils.toString( sortedMap ) );
+    
+  }
+  
   @Test
   public void testIndexOfArbitraryKeyExtractor()
   {
     Table<String> table = this.filledTable( 100, 5 );
     
-    KeyExtractor<Integer, String[]> keyExtractor = new KeyExtractor<Integer, String[]>()
+    KeyExtractor<Integer, RowDataReader<String>> keyExtractor = new KeyExtractor<Integer, RowDataReader<String>>()
     {
+      private static final long serialVersionUID = -4201644938610833630L;
+      
       @Override
-      public Integer extractKey( String[] elements )
+      public Integer extractKey( RowDataReader<String> rowDataReader )
       {
+        String[] elements = rowDataReader.getElements();
         String[] tokens = elements[1].split( ":" );
         return Integer.valueOf( tokens[0] );
       }
@@ -1024,7 +1202,7 @@ public abstract class TableTest
       assertTrue( sortedMap.containsKey( 1 ) );
       assertFalse( sortedMap.containsKey( 101 ) );
       
-      table.setCellElement( 0, 1, "101:88" );
+      table.setElement( 0, 1, "101:88" );
       assertTrue( sortedMap.containsKey( 101 ) );
       
       Set<Row<String>> rowSet = sortedMap.get( 101 );
@@ -1054,5 +1232,102 @@ public abstract class TableTest
       table.clear();
       assertTrue( sortedMap.isEmpty() );
     }
+  }
+  
+  @SuppressWarnings({ "unchecked", "cast" })
+  @Test
+  public void testIndexOfArbitraryKeyExtractorWithValueExtractor()
+  {
+    Table<String> table = this.filledTable( 100, 5 );
+    
+    KeyExtractor<Integer, RowDataReader<String>> keyExtractor = new KeyExtractor<Integer, RowDataReader<String>>()
+    {
+      private static final long serialVersionUID = -7714884390309847394L;
+      
+      @Override
+      public Integer extractKey( RowDataReader<String> rowDataReader )
+      {
+        String[] elements = rowDataReader.getElements();
+        String[] tokens = elements[1].split( ":" );
+        return Integer.valueOf( tokens[0] );
+      }
+    };
+    ValueExtractor<Integer, Set<String[]>> valueExtractor = new ValueExtractor<Integer, Set<String[]>>()
+    {
+      @Override
+      public Integer extractValue( Set<String[]> elementsSet )
+      {
+        final String[] elements = IterableUtils.firstElement( elementsSet );
+        final String[] tokens = elements[1].split( ":" );
+        return Integer.valueOf( tokens[1] );
+      }
+    };
+    
+    SortedMap<Integer, Integer> sortedMap = table.index()
+                                                 .of( keyExtractor,
+                                                      valueExtractor,
+                                                      (Comparator<Integer>) ComparatorUtils.reversedComparator( ComparatorUtils.NATURAL_COMPARATOR ) );
+    {
+      assertNotNull( sortedMap );
+      assertEquals( table.rowSize(), sortedMap.size() );
+      assertTrue( sortedMap.containsKey( 0 ) );
+    }
+    
+    table.removeRow( 0 );
+    {
+      assertFalse( sortedMap.containsKey( 0 ) );
+      assertTrue( sortedMap.containsKey( 1 ) );
+      assertFalse( sortedMap.containsKey( 101 ) );
+      
+      table.setElement( 0, 1, "101:88" );
+      assertTrue( sortedMap.containsKey( 101 ) );
+      
+      Integer columnIndex = sortedMap.get( 101 );
+      assertEquals( 88, columnIndex.intValue() );
+    }
+    
+  }
+  
+  @Test
+  public void testListAdapter()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 ).setExceptionHandler( new ExceptionHandlerEPrintStackTrace() );
+    
+    List<SimpleTestBean> beanList = table.as().beanList( SimpleTestBean.class );
+    assertNotNull( beanList );
+    assertEquals( table.rowSize(), beanList.size() );
+    for ( int ii = 0; ii < 10; ii++ )
+    {
+      SimpleTestBean bean = beanList.get( ii );
+      assertEquals( ii + ":0", bean.getC0() );
+      assertEquals( ii + ":1", bean.getC1() );
+      assertEquals( ii + ":2", bean.getC2() );
+      assertEquals( ii + ":3", bean.getC3() );
+      assertEquals( ii + ":4", bean.getC4() );
+    }
+    
+    {
+      SimpleTestBean bean = new SimpleTestBean();
+      bean.setC0( "C0" );
+      bean.setC1( "C1" );
+      bean.setC2( "C2" );
+      bean.setC3( "C3" );
+      bean.setC4( "C4" );
+      beanList.add( bean );
+      
+      Row<String> lastRow = table.lastRow();
+      assertEquals( "C0", lastRow.getElement( "c0" ) );
+      assertEquals( "C1", lastRow.getElement( "c1" ) );
+      assertEquals( "C2", lastRow.getElement( "c2" ) );
+      assertEquals( "C3", lastRow.getElement( "c3" ) );
+      assertEquals( "C4", lastRow.getElement( "c4" ) );
+    }
+    {
+      Row<String> row = table.row( 5 );
+      beanList.remove( 5 );
+      assertTrue( row.isDeleted() );
+    }
+    
+    //System.out.println( table );
   }
 }

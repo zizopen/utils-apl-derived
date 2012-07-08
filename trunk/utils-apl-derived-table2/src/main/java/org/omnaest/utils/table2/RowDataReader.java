@@ -13,25 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.structure.element;
-
-import java.io.Serializable;
-
-import org.omnaest.utils.structure.map.MapUtils;
+package org.omnaest.utils.table2;
 
 /**
- * @see MapUtils#valueOf(KeyExtractor, Iterable)
  * @author Omnaest
- * @param <K>
  * @param <E>
  */
-public interface KeyExtractor<K, E> extends Serializable
+public interface RowDataReader<E>
 {
-  /**
-   * Extracts a key from the given element
-   * 
-   * @param element
-   * @return
-   */
-  public K extractKey( E element );
+  public E getElement( String columnTitle );
+  
+  public E getElement( int columnIndex );
+  
+  public E[] getElements();
 }
