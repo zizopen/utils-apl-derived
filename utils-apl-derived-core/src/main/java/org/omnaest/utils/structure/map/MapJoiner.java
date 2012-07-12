@@ -23,7 +23,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.omnaest.utils.structure.element.KeyExtractor;
-import org.omnaest.utils.tuple.TupleTwo;
+import org.omnaest.utils.tuple.Tuple2;
 
 /**
  * A {@link MapJoiner} allows to join two or multiple {@link Map} instances by their keys. Or additionally with {@link List}
@@ -35,6 +35,32 @@ import org.omnaest.utils.tuple.TupleTwo;
 public class MapJoiner
 {
   /* ********************************************** Classes/Interfaces ********************************************** */
+  /**
+   * Similar to {@link JoinedValue} special for a {@link Map} join result containing both values for a shared key
+   * 
+   * @see JoinedValue
+   * @author Omnaest
+   */
+  public static class JoinedValue<V1, V2> extends Tuple2<V1, V2>
+  {
+    private static final long serialVersionUID = -4203095271240152615L;
+    
+    public JoinedValue()
+    {
+      super();
+    }
+    
+    public JoinedValue( Tuple2<V1, V2> tuple2 )
+    {
+      super( tuple2 );
+    }
+    
+    public JoinedValue( V1 valueFirst, V2 valueSecond )
+    {
+      super( valueFirst, valueSecond );
+    }
+    
+  }
   
   /**
    * @author Omnaest
@@ -82,7 +108,7 @@ public class MapJoiner
      * @param valueTuple
      * @return
      */
-    public boolean accept( K key, TupleTwo<VL, VR> valueTuple );
+    public boolean accept( K key, JoinedValue<VL, VR> valueTuple );
     
   }
   
@@ -113,7 +139,7 @@ public class MapJoiner
     }
     
     @Override
-    public boolean accept( K key, TupleTwo<VL, VR> valueTuple )
+    public boolean accept( K key, JoinedValue<VL, VR> valueTuple )
     {
       return this.keySet != null && this.keySet.contains( key );
     }
@@ -126,14 +152,14 @@ public class MapJoiner
    * @param <VL>
    * @param <VR>
    */
-  public static interface JoinResult<K, VL, VR> extends From<K, TupleTwo<VL, VR>>
+  public static interface JoinResult<K, VL, VR> extends From<K, JoinedValue<VL, VR>>
   {
     /**
      * Returns the result {@link Map}
      * 
      * @return
      */
-    public Map<K, TupleTwo<VL, VR>> getResultMap();
+    public Map<K, JoinedValue<VL, VR>> getResultMap();
     
     /**
      * Filters the current {@link JoinResult} using a given {@link Predicate}
@@ -167,7 +193,7 @@ public class MapJoiner
     public <VR> JoinResult<K, VL, VR> joinInner( Map<K, ? extends VR> map )
     {
       //
-      final Map<K, TupleTwo<VL, VR>> retmap = new LinkedHashMap<K, TupleTwo<VL, VR>>();
+      final Map<K, JoinedValue<VL, VR>> retmap = new LinkedHashMap<K, JoinedValue<VL, VR>>();
       
       //
       if ( this.map != null && map != null )
@@ -180,7 +206,7 @@ public class MapJoiner
           //
           final VL vl = this.map.get( key );
           final VR vr = map.get( key );
-          retmap.put( key, new TupleTwo<VL, VR>( vl, vr ) );
+          retmap.put( key, new JoinedValue<VL, VR>( vl, vr ) );
         }
       }
       
@@ -204,16 +230,16 @@ public class MapJoiner
    * @param <VL>
    * @param <VR>
    */
-  private static class JoinResultImpl<K, VL, VR> extends MapJoinerImpl<K, TupleTwo<VL, VR>> implements JoinResult<K, VL, VR>
+  private static class JoinResultImpl<K, VL, VR> extends MapJoinerImpl<K, JoinedValue<VL, VR>> implements JoinResult<K, VL, VR>
   {
     
-    public JoinResultImpl( Map<K, TupleTwo<VL, VR>> map )
+    public JoinResultImpl( Map<K, JoinedValue<VL, VR>> map )
     {
       super( map );
     }
     
     @Override
-    public Map<K, TupleTwo<VL, VR>> getResultMap()
+    public Map<K, JoinedValue<VL, VR>> getResultMap()
     {
       //
       return this.map;
@@ -223,19 +249,19 @@ public class MapJoiner
     public JoinResult<K, VL, VR> where( Predicate<K, VL, VR> predicate )
     {
       //
-      final Map<K, TupleTwo<VL, VR>> retmap = new LinkedHashMap<K, TupleTwo<VL, VR>>();
+      final Map<K, JoinedValue<VL, VR>> retmap = new LinkedHashMap<K, JoinedValue<VL, VR>>();
       
       //
       if ( predicate != null )
       {
         //
-        for ( Entry<K, TupleTwo<VL, VR>> entry : this.map.entrySet() )
+        for ( Entry<K, JoinedValue<VL, VR>> entry : this.map.entrySet() )
         {
           if ( entry != null )
           {
             // 
             final K key = entry.getKey();
-            final TupleTwo<VL, VR> value = entry.getValue();
+            final JoinedValue<VL, VR> value = entry.getValue();
             boolean accept = predicate.accept( key, value );
             if ( accept )
             {

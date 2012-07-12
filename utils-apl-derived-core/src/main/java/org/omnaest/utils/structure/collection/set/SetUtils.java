@@ -62,14 +62,11 @@ public class SetUtils
    *          {@link Set}
    * @param removingIterable
    *          {@link Iterable}
-   * @return same {@link Set} instance or null if null is given
+   * @return same {@link Set} instance or null, if null is given
    */
-  public static <E> Set<E> removeAll( Set<E> set, Iterable<E> removingIterable )
+  public static <E> Set<E> removeAll( Set<E> set, Iterable<? extends E> removingIterable )
   {
-    //
-    Set<E> retset = set;
-    
-    //
+    final Set<E> retset = set;
     if ( retset != null && removingIterable != null )
     {
       for ( E element : removingIterable )
@@ -77,8 +74,23 @@ public class SetUtils
         retset.remove( element );
       }
     }
-    
-    //
+    return retset;
+  }
+  
+  /**
+   * Removes the given element from the given {@link Set} instance.
+   * 
+   * @param set
+   * @param element
+   * @return the given {@link Set} instance or null if null is given
+   */
+  public static <E> Set<E> remove( Set<E> set, E element )
+  {
+    final Set<E> retset = set;
+    if ( retset != null )
+    {
+      retset.remove( element );
+    }
     return retset;
   }
   
@@ -107,22 +119,44 @@ public class SetUtils
    */
   public static <E> Set<E> add( Set<E> set, E... elements )
   {
-    //    
     Set<E> retset = set;
     
-    //
     if ( retset == null )
     {
       retset = new LinkedHashSet<E>();
     }
     
-    //
     for ( E element : elements )
     {
       retset.add( element );
     }
     
-    //
+    return retset;
+  }
+  
+  /**
+   * Does call {@link Set#retainAll(Collection)} on the given {@link Set} instance. If null is given a new {@link LinkedHashSet}
+   * instance is created containing the given retainable elements
+   * 
+   * @param set
+   * @param retainableCollection
+   * @return given instance or new {@link LinkedHashSet}
+   */
+  public static <E> Set<E> retainAll( Set<E> set, Collection<? extends E> retainableCollection )
+  {
+    Set<E> retset = set;
+    if ( retset == null )
+    {
+      retset = new LinkedHashSet<E>();
+      if ( retainableCollection != null )
+      {
+        retset.addAll( retainableCollection );
+      }
+    }
+    else
+    {
+      retset.retainAll( retainableCollection );
+    }
     return retset;
   }
   
