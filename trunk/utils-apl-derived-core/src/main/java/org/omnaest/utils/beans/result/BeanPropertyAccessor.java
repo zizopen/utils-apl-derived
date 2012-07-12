@@ -128,6 +128,27 @@ public class BeanPropertyAccessor<B> implements Serializable
   }
   
   /**
+   * Copies the addressed bean value of the given source instance using this {@link BeanPropertyAccessor} to another instance
+   * using the given {@link BeanPropertyAccessor}
+   * 
+   * @param beanSource
+   * @param beanPropertyAccessorTarget
+   * @param beanTarget
+   * @return true, if anything copied
+   */
+  public boolean copyPropertyValue( B beanSource, BeanPropertyAccessor<B> beanPropertyAccessorTarget, B beanTarget )
+  {
+    boolean retval = false;
+    if ( beanPropertyAccessorTarget != null )
+    {
+      Object value = this.getPropertyValue( beanSource );
+      beanPropertyAccessorTarget.setPropertyValue( beanTarget, value );
+      retval = true;
+    }
+    return retval;
+  }
+  
+  /**
    * Determines the {@link Class} type for the property. This is also known as the declaring return or field type not the type of
    * any actual object instance.
    * 
