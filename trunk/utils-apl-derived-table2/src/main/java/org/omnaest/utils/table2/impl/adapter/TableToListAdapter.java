@@ -15,7 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl.adapter;
 
-import org.omnaest.utils.beans.copier.PreparedBeanCopier;
+import org.omnaest.utils.beans.replicator2.BeanReplicator;
+import org.omnaest.utils.beans.replicator2.BeanReplicator.Declaration;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.collection.list.ListAbstract;
 import org.omnaest.utils.table2.Row;
@@ -34,7 +35,7 @@ class TableToListAdapter<E, B> extends ListAbstract<B>
   
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final RowDataBasedBeanFactory<B> beanFactory;
-  private final PreparedBeanCopier<B, B>   preparedBeanCopier;
+  private final BeanReplicator<B, B>       beanReplicator;
   
   /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
   private final Table<E>                   table;
@@ -46,15 +47,32 @@ class TableToListAdapter<E, B> extends ListAbstract<B>
    * @param table
    *          {@link Table}
    * @param beanType
-   *          {@link Class}
+   * @param declaration
+   *          {@link Declaration}
    * @param exceptionHandler
+   *          {@link ExceptionHandler}
    */
   @SuppressWarnings("unchecked")
-  TableToListAdapter( Table<E> table, Class<? extends B> beanType, final ExceptionHandler exceptionHandler )
+  TableToListAdapter( Table<E> table, Class<? extends B> beanType, Declaration declaration,
+                      final ExceptionHandler exceptionHandler )
   {
     this.table = table;
     this.beanFactory = new RowDataBasedBeanFactory<B>( (Class<B>) beanType, exceptionHandler );
-    this.preparedBeanCopier = new PreparedBeanCopier<B, B>( beanType, beanType ).setExceptionHandler( exceptionHandler );
+    this.beanReplicator = new BeanReplicator<B, B>( (Class<B>) beanType, (Class<B>) beanType ).declare( declaration )
+                                                                                              .setExceptionHandler( exceptionHandler );
+  }
+  
+  /**
+   * @see TableToListAdapter
+   * @param table
+   *          {@link Table}
+   * @param beanType
+   *          {@link Class}
+   * @param exceptionHandler
+   */
+  TableToListAdapter( Table<E> table, Class<? extends B> beanType, final ExceptionHandler exceptionHandler )
+  {
+    this( table, beanType, (Declaration) null, exceptionHandler );
   }
   
   @Override
@@ -84,10 +102,10 @@ class TableToListAdapter<E, B> extends ListAbstract<B>
   public B set( int index, B bean )
   {
     B accessBean = this.get( index );
-    B retval = this.preparedBeanCopier.deepCloneProperties( accessBean );
+    B retval = this.beanReplicator.clone( accessBean );
     if ( bean != null )
     {
-      this.preparedBeanCopier.deepCopyProperties( bean, accessBean );
+      this.beanReplicator.copy( bean, accessBean );
     }
     return retval;
   }
@@ -99,7 +117,7 @@ class TableToListAdapter<E, B> extends ListAbstract<B>
     if ( bean != null )
     {
       B accessBean = this.beanFactory.build( row );
-      this.preparedBeanCopier.deepCopyProperties( bean, accessBean );
+      this.beanReplicator.copy( bean, accessBean );
       row.moveTo( index );
     }
   }

@@ -1446,4 +1446,26 @@ public class ListUtils
     return retval;
   }
   
+  /**
+   * Returns an empty {@link ArrayList}
+   * 
+   * @return
+   */
+  public static <E> List<E> emptyList()
+  {
+    return new ArrayList<E>();
+  }
+  
+  /**
+   * Returns true if the given type is not null and assignable to a {@link List}
+   * 
+   * @param type
+   *          {@link Class}
+   * @return
+   */
+  public static boolean isListType( Class<?> type )
+  {
+    return type != null && List.class.isAssignableFrom( type );
+  }
+  
 }

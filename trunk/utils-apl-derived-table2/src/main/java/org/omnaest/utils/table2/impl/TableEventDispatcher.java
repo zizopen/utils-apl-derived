@@ -18,6 +18,7 @@ package org.omnaest.utils.table2.impl;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,9 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerIgnoring;
 import org.omnaest.utils.operation.special.OperationVoid;
-import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.ObjectUtils;
-import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverterWeakReference;
 
 /**
  * @author Omnaest
@@ -36,27 +35,29 @@ import org.omnaest.utils.structure.element.converter.ElementBidirectionalConvert
 class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
 {
   /* ************************************************** Constants *************************************************** */
-  private static final long                          serialVersionUID = -8336460926560156773L;
+  private static final long                                         serialVersionUID = -8336460926560156773L;
   
-  private ExceptionHandler                           exceptionHandler = new ExceptionHandlerIgnoring();
+  private ExceptionHandler                                          exceptionHandler = new ExceptionHandlerIgnoring();
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final transient List<TableEventHandler<E>> instanceList;
+  private final transient List<WeakReference<TableEventHandler<E>>> tableEventHandlerReferenceList;
   
   /* *************************************************** Methods **************************************************** */
   
-  public TableEventDispatcher()
+  /**
+   * @see TableEventDispatcher
+   */
+  TableEventDispatcher()
   {
     super();
     
-    this.instanceList = ListUtils.adapter( new CopyOnWriteArrayList<WeakReference<TableEventHandler<E>>>(),
-                                           new ElementBidirectionalConverterWeakReference<TableEventHandler<E>>() );
+    this.tableEventHandlerReferenceList = new CopyOnWriteArrayList<WeakReference<TableEventHandler<E>>>();
   }
   
   public void add( TableEventHandler<E> tableEventHandler )
   {
     if ( tableEventHandler != null )
     {
-      this.instanceList.add( tableEventHandler );
+      this.tableEventHandlerReferenceList.add( new WeakReference<TableEventHandler<E>>( tableEventHandler ) );
     }
   }
   
@@ -69,20 +70,30 @@ class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
   {
     if ( operation != null )
     {
-      for ( TableEventHandler<E> instance : this.instanceList )
+      final List<WeakReference<TableEventHandler<E>>> removableInstanceList = new ArrayList<WeakReference<TableEventHandler<E>>>();
+      for ( WeakReference<TableEventHandler<E>> reference : this.tableEventHandlerReferenceList )
       {
-        if ( instance != null )
+        if ( reference != null )
         {
-          try
+          final TableEventHandler<E> tableEventHandler = reference.get();
+          if ( tableEventHandler == null )
           {
-            operation.execute( instance );
+            removableInstanceList.add( reference );
           }
-          catch ( Exception e )
+          else
           {
-            this.exceptionHandler.handleException( e );
+            try
+            {
+              operation.execute( tableEventHandler );
+            }
+            catch ( Exception e )
+            {
+              this.exceptionHandler.handleException( e );
+            }
           }
         }
       }
+      this.tableEventHandlerReferenceList.removeAll( removableInstanceList );
     }
   }
   

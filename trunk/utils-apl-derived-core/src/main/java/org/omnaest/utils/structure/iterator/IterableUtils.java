@@ -46,7 +46,8 @@ public class IterableUtils
    *          {@link ElementConverter}
    * @return new instance
    */
-  public static <FROM, TO> Iterable<TO> adapter( final Iterable<FROM> iterable, final ElementConverter<FROM, TO> elementConverter )
+  public static <FROM, TO> Iterable<TO> adapter( final Iterable<? extends FROM> iterable,
+                                                 final ElementConverter<FROM, TO> elementConverter )
   {
     return new Iterable<TO>()
     {

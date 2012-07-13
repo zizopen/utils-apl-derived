@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.omnaest.utils.beans.replicator2.BeanReplicator.Declaration;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
@@ -98,5 +99,11 @@ public class TableAdapterManagerImpl<E> implements TableAdapterManager<E>
   public <B> List<B> beanList( Class<? extends B> type )
   {
     return new TableToListAdapter<E, B>( this.table, type, this.exceptionHandler );
+  }
+  
+  @Override
+  public <B> List<B> beanList( Class<? extends B> type, Declaration declaration )
+  {
+    return new TableToListAdapter<E, B>( this.table, type, declaration, this.exceptionHandler );
   }
 }

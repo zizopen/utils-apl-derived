@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.omnaest.utils.beans.replicator2.BeanReplicator;
+import org.omnaest.utils.beans.replicator2.BeanReplicator.Declaration;
+
 /**
  * Manager for any adapter which allows to access a {@link Table} from any other type
  * 
@@ -63,11 +66,27 @@ public interface TableAdapterManager<E> extends Serializable
   
   /**
    * Returns a {@link List} of Java beans which are backed by the {@link Table}. The mapping is done by column titles to property
-   * name.
+   * name.<br>
+   * <br>
+   * Be aware that this performs very slowly, since the beans are mapped to the columns of the table by proxy instances created on
+   * the fly.<br>
+   * A list of <b>1000 instances</b> can be created and read in <b>about 1-3 seconds</b>.
    * 
    * @param type
    * @return new {@link List} adapter instance
    */
   public <B> List<B> beanList( Class<? extends B> type );
+  
+  /**
+   * Similar to {@link #beanList(Class)} allowing to specify a bean mapping {@link Declaration}
+   * 
+   * @see BeanReplicator
+   * @see Declaration
+   * @param type
+   * @param declaration
+   *          {@link Declaration}
+   * @return new {@link List} adapter instance
+   */
+  public <B> List<B> beanList( Class<? extends B> type, Declaration declaration );
   
 }

@@ -1145,7 +1145,7 @@ public abstract class TableTest
     }, TestDomain.class );
     final List<TestDomain> domainList = table.as().beanList( TestDomain.class );
     final Date date = new Date();
-    for ( int ii = 0; ii < 20; ii++ )
+    for ( int ii = 0; ii < 30; ii++ )
     {
       TestDomain testDomain = new TestDomain();
       final Date fieldDate = newRelativeDate( date, ii / 2 );
