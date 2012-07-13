@@ -279,7 +279,7 @@ public class ArrayUtils
    */
   public static int length( Object arrayObject )
   {
-    return isArray( arrayObject ) ? Array.getLength( arrayObject ) : -1;
+    return arrayObject != null && isArray( arrayObject ) ? Array.getLength( arrayObject ) : -1;
   }
   
   /**

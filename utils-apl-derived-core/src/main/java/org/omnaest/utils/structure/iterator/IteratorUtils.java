@@ -241,11 +241,12 @@ public class IteratorUtils
    * @param elementConverter
    * @return
    */
-  public static <TO, FROM> Iterator<TO> adapter( Iterator<FROM> iterator, ElementConverter<FROM, TO> elementConverter )
+  @SuppressWarnings("unchecked")
+  public static <TO, FROM> Iterator<TO> adapter( Iterator<? extends FROM> iterator, ElementConverter<FROM, TO> elementConverter )
   {
     //
     final boolean referencesAreNotNull = iterator != null && elementConverter != null;
-    return referencesAreNotNull ? new IteratorToIteratorAdapter<FROM, TO>( iterator, elementConverter ) : null;
+    return referencesAreNotNull ? new IteratorToIteratorAdapter<FROM, TO>( (Iterator<FROM>) iterator, elementConverter ) : null;
   }
   
   /**

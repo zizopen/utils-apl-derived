@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.map.MapJoiner.JoinedValue;
 import org.omnaest.utils.structure.map.MapJoiner.Predicate;
-import org.omnaest.utils.tuple.TupleTwo;
 
 /**
  * @see MapJoiner
@@ -55,29 +55,31 @@ public class MapJoinerTest
     final List<String> list = Arrays.asList( "1", "2", "3", "5", "7" );
     final KeyExtractor<String, String> keyExtractor = new KeyExtractor<String, String>()
     {
+      private static final long serialVersionUID = 17485934L;
+      
       @Override
       public String extractKey( String element )
       {
         return "key" + element;
       }
     };
-    final Predicate<String, TupleTwo<Integer, Long>, String> predicate = new MapJoiner.PredicateIncludingKeySet<String, TupleTwo<Integer, Long>, String>(
-                                                                                                                                                          SetUtils.convert( list,
-                                                                                                                                                                            new ElementConverter<String, String>()
-                                                                                                                                                                            {
-                                                                                                                                                                              @Override
-                                                                                                                                                                              public String convert( String element )
-                                                                                                                                                                              {
-                                                                                                                                                                                // 
-                                                                                                                                                                                return "key"
-                                                                                                                                                                                       + element;
-                                                                                                                                                                              }
-                                                                                                                                                                            } ) );
-    Map<String, TupleTwo<TupleTwo<Integer, Long>, String>> map = new MapJoiner().from( map1 )
-                                                                                .joinInner( map2 )
-                                                                                .joinInner( keyExtractor, list )
-                                                                                .where( predicate )
-                                                                                .getResultMap();
+    final Predicate<String, JoinedValue<Integer, Long>, String> predicate = new MapJoiner.PredicateIncludingKeySet<String, JoinedValue<Integer, Long>, String>(
+                                                                                                                                                                SetUtils.convert( list,
+                                                                                                                                                                                  new ElementConverter<String, String>()
+                                                                                                                                                                                  {
+                                                                                                                                                                                    @Override
+                                                                                                                                                                                    public String convert( String element )
+                                                                                                                                                                                    {
+                                                                                                                                                                                      // 
+                                                                                                                                                                                      return "key"
+                                                                                                                                                                                             + element;
+                                                                                                                                                                                    }
+                                                                                                                                                                                  } ) );
+    Map<String, JoinedValue<JoinedValue<Integer, Long>, String>> map = new MapJoiner().from( map1 )
+                                                                                      .joinInner( map2 )
+                                                                                      .joinInner( keyExtractor, list )
+                                                                                      .where( predicate )
+                                                                                      .getResultMap();
     assertNotNull( map );
     assertEquals( 2, map.size() );
     assertEquals( "key1", MapUtils.firstEntry( map ).getKey() );

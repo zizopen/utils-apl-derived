@@ -36,6 +36,11 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
   
   /* *************************************************** Methods **************************************************** */
   
+  /**
+   * @see RowImpl
+   * @param rowIndex
+   * @param table
+   */
   protected RowImpl( int rowIndex, Table<E> table )
   {
     super( table );

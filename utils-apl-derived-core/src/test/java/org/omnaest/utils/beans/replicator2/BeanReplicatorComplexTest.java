@@ -17,31 +17,40 @@ package org.omnaest.utils.beans.replicator2;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
-import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.beans.replicator2.BeanReplicator.Declaration;
 import org.omnaest.utils.beans.replicator2.BeanReplicator.DeclarationSupport;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.map.MapBuilder;
 
-public class BeanReplicatorTest
+/**
+ * @see BeanReplicator
+ * @author Omnaest
+ */
+public class BeanReplicatorComplexTest
 {
-  
-  private static final int NUMBER_OF_INVOCATIONS = 10000;
-  
+  /* ********************************************** Classes/Interfaces ********************************************** */
   private static class TestBeanFrom
   {
     private String              fieldString;
+    private Date                date;
+    private Date                dateToCalendar;
+    private Map<String, String> map;
+    private Map<String, String> mapToBean;
+    private List<String>        list;
+    
     private TestSubBeanFrom     testSubBean;
     private TestSubBeanFrom     testSubBeanFrom;
     private TestSubBeanFrom     testSubBeanFrom2;
     private TestSubBeanFrom     testSubBeanToInterface;
-    private Map<String, String> map;
-    private Map<String, String> mapToBean;
     
     public String getFieldString()
     {
@@ -113,6 +122,36 @@ public class BeanReplicatorTest
       this.testSubBeanToInterface = testSubBeanToInterface;
     }
     
+    public Date getDate()
+    {
+      return this.date;
+    }
+    
+    public void setDate( Date date )
+    {
+      this.date = date;
+    }
+    
+    public Date getDateToCalendar()
+    {
+      return this.dateToCalendar;
+    }
+    
+    public void setDateToCalendar( Date dateToCalendar )
+    {
+      this.dateToCalendar = dateToCalendar;
+    }
+    
+    public List<String> getList()
+    {
+      return this.list;
+    }
+    
+    public void setList( List<String> list )
+    {
+      this.list = list;
+    }
+    
   }
   
   private static class TestSubBeanFrom
@@ -172,12 +211,18 @@ public class BeanReplicatorTest
   private static class TestBeanTo
   {
     private String                 fieldString;
+    private Date                   date;
+    private Calendar               dateToCalendar;
+    
+    private List<String>           list;
+    
+    private Map<String, String>    map;
+    private MapBean                mapToBean;
+    
+    private TestSubBeanToInterface testSubBeanToInterface;
     private TestSubBeanTo          testSubBean;
     private TestSubBeanTo          testSubBeanTo;
     private TestSubBeanTo          testSubBeanTo2;
-    private Map<String, String>    map;
-    private MapBean                mapToBean;
-    private TestSubBeanToInterface testSubBeanToInterface;
     
     public String getFieldString()
     {
@@ -249,6 +294,36 @@ public class BeanReplicatorTest
       this.testSubBeanToInterface = testSubBeanToInterface;
     }
     
+    public Date getDate()
+    {
+      return this.date;
+    }
+    
+    public void setDate( Date date )
+    {
+      this.date = date;
+    }
+    
+    public Calendar getDateToCalendar()
+    {
+      return this.dateToCalendar;
+    }
+    
+    public void setDateToCalendar( Calendar dateToCalendar )
+    {
+      this.dateToCalendar = dateToCalendar;
+    }
+    
+    public List<String> getList()
+    {
+      return this.list;
+    }
+    
+    public void setList( List<String> list )
+    {
+      this.list = list;
+    }
+    
   }
   
   private static class TestSubBeanTo implements TestSubBeanToInterface
@@ -295,94 +370,20 @@ public class BeanReplicatorTest
     
   }
   
-  public static class SimpleBean
-  {
-    private String  fieldString;
-    private Double  fieldDouble;
-    private Boolean fieldBoolean;
-    private Long    fieldLong;
-    private Integer fieldInteger;
-    private Float   fieldFloat;
-    
-    public String getFieldString()
-    {
-      return this.fieldString;
-    }
-    
-    public void setFieldString( String fieldString )
-    {
-      this.fieldString = fieldString;
-    }
-    
-    public Long getFieldLong()
-    {
-      return this.fieldLong;
-    }
-    
-    public void setFieldLong( Long fieldLong )
-    {
-      this.fieldLong = fieldLong;
-    }
-    
-    @Override
-    public String toString()
-    {
-      StringBuilder builder = new StringBuilder();
-      builder.append( "SimpleBean [fieldString=" );
-      builder.append( this.fieldString );
-      builder.append( ", fieldLong=" );
-      builder.append( this.fieldLong );
-      builder.append( "]" );
-      return builder.toString();
-    }
-    
-    public Double getFieldDouble()
-    {
-      return this.fieldDouble;
-    }
-    
-    public void setFieldDouble( Double fieldDouble )
-    {
-      this.fieldDouble = fieldDouble;
-    }
-    
-    public Boolean getFieldBoolean()
-    {
-      return this.fieldBoolean;
-    }
-    
-    public void setFieldBoolean( Boolean fieldBoolean )
-    {
-      this.fieldBoolean = fieldBoolean;
-    }
-    
-    public Integer getFieldInteger()
-    {
-      return this.fieldInteger;
-    }
-    
-    public void setFieldInteger( Integer fieldInteger )
-    {
-      this.fieldInteger = fieldInteger;
-    }
-    
-    public Float getFieldFloat()
-    {
-      return this.fieldFloat;
-    }
-    
-    public void setFieldFloat( Float fieldFloat )
-    {
-      this.fieldFloat = fieldFloat;
-    }
-    
-  }
-  
+  /* *************************************************** Methods **************************************************** */
   @Test
   public void testBasicReplication()
   {
     BeanReplicator<TestBeanFrom, TestBeanTo> beanReplicator = new BeanReplicator<TestBeanFrom, TestBeanTo>( TestBeanFrom.class,
-                                                                                                            TestBeanTo.class );
+                                                                                                            TestBeanTo.class ).setExceptionHandler( new ExceptionHandler()
+    {
+      @Override
+      public void handleException( Exception e )
+      {
+        e.printStackTrace();
+        fail();
+      }
+    } );
     beanReplicator.declare( new Declaration()
     {
       @Override
@@ -410,6 +411,39 @@ public class BeanReplicatorTest
       }
     } );
     
+    TestBeanFrom testBeanFrom = generateTestBeanFrom();
+    TestBeanTo testBeanTo = new TestBeanTo();
+    beanReplicator.copy( testBeanFrom, testBeanTo );
+    
+    assertTestBeanTo( testBeanFrom, testBeanTo );
+    
+  }
+  
+  private static void assertTestBeanTo( TestBeanFrom testBeanFrom, TestBeanTo testBeanTo )
+  {
+    assertEquals( testBeanFrom.getFieldString(), testBeanTo.getFieldString() );
+    assertEquals( testBeanFrom.getMap(), testBeanTo.getMap() );
+    assertEquals( testBeanFrom.getMapToBean().get( "key1" ), testBeanTo.getMapToBean().getKey1() );
+    assertEquals( testBeanFrom.getMapToBean().get( "key2" ), testBeanTo.getMapToBean().getKey2() );
+    assertEquals( testBeanFrom.getDate(), testBeanTo.getDate() );
+    assertEquals( testBeanFrom.getDateToCalendar(), testBeanTo.getDateToCalendar().getTime() );
+    assertEquals( testBeanFrom.getList(), testBeanTo.getList() );
+    
+    assertNotNull( testBeanTo.getTestSubBean() );
+    assertEquals( testBeanFrom.getTestSubBean().getFieldString(), testBeanTo.getTestSubBean().getFieldString() );
+    assertEquals( testBeanFrom.getTestSubBean().getFieldOther(), testBeanTo.getTestSubBean().getFieldOther2() );
+    assertNotNull( testBeanTo.getTestSubBeanTo() );
+    assertEquals( testBeanFrom.getTestSubBeanFrom().getFieldString(), testBeanTo.getTestSubBeanTo().getFieldString() );
+    assertNotNull( testBeanTo.getTestSubBeanTo2() );
+    assertEquals( testBeanFrom.getTestSubBeanFrom2().getFieldString(), testBeanTo.getTestSubBeanTo2().getFieldString() );
+    assertEquals( testBeanFrom.getTestSubBeanToInterface().getFieldString(), testBeanTo.getTestSubBeanToInterface()
+                                                                                       .getFieldString() );
+    assertEquals( testBeanFrom.getTestSubBeanToInterface().getFieldOther(), testBeanTo.getTestSubBeanToInterface()
+                                                                                      .getFieldOther2() );
+  }
+  
+  private static TestBeanFrom generateTestBeanFrom()
+  {
     TestBeanFrom testBeanFrom = new TestBeanFrom();
     {
       testBeanFrom.setFieldString( "test" );
@@ -428,94 +462,11 @@ public class BeanReplicatorTest
       testBeanFrom.setTestSubBeanToInterface( testSubBean );
       testBeanFrom.setMap( map );
       testBeanFrom.setMapToBean( map );
+      testBeanFrom.setDate( new Date() );
+      testBeanFrom.setDateToCalendar( new Date() );
+      testBeanFrom.setList( Arrays.asList( "a", "b", "c" ) );
     }
-    TestBeanTo testBeanTo = new TestBeanTo();
-    beanReplicator.copy( testBeanFrom, testBeanTo );
-    
-    assertEquals( testBeanFrom.getFieldString(), testBeanTo.getFieldString() );
-    assertEquals( testBeanFrom.getMap(), testBeanTo.getMap() );
-    assertEquals( testBeanFrom.getMapToBean().get( "key1" ), testBeanTo.getMapToBean().getKey1() );
-    assertEquals( testBeanFrom.getMapToBean().get( "key2" ), testBeanTo.getMapToBean().getKey2() );
-    assertNotNull( testBeanTo.getTestSubBean() );
-    assertEquals( testBeanFrom.getTestSubBean().getFieldString(), testBeanTo.getTestSubBean().getFieldString() );
-    assertEquals( testBeanFrom.getTestSubBean().getFieldOther(), testBeanTo.getTestSubBean().getFieldOther2() );
-    assertNotNull( testBeanTo.getTestSubBeanTo() );
-    assertEquals( testBeanFrom.getTestSubBeanFrom().getFieldString(), testBeanTo.getTestSubBeanTo().getFieldString() );
-    assertNotNull( testBeanTo.getTestSubBeanTo2() );
-    assertEquals( testBeanFrom.getTestSubBeanFrom2().getFieldString(), testBeanTo.getTestSubBeanTo2().getFieldString() );
-    assertEquals( testBeanFrom.getTestSubBeanToInterface().getFieldString(), testBeanTo.getTestSubBeanToInterface()
-                                                                                       .getFieldString() );
-    assertEquals( testBeanFrom.getTestSubBeanToInterface().getFieldOther(), testBeanTo.getTestSubBeanToInterface()
-                                                                                      .getFieldOther2() );
-    
+    return testBeanFrom;
   }
   
-  @Test
-  public void testPerformanceNativeGetterSetter() throws IllegalAccessException,
-                                                 InvocationTargetException
-  {
-    final SimpleBean simpleBean = newPreparedSimpleBean();
-    for ( int ii = 0; ii < NUMBER_OF_INVOCATIONS; ii++ )
-    {
-      SimpleBean clone = new SimpleBean();
-      clone.setFieldString( simpleBean.getFieldString() );
-      clone.setFieldLong( simpleBean.getFieldLong() );
-      clone.setFieldInteger( simpleBean.getFieldInteger() );
-      clone.setFieldDouble( simpleBean.getFieldDouble() );
-      clone.setFieldFloat( simpleBean.getFieldFloat() );
-      clone.setFieldBoolean( simpleBean.getFieldBoolean() );
-      assertSimpleBean( simpleBean, clone );
-    }
-  }
-  
-  @Test
-  public void testPerformanceBeanReplicator()
-  {
-    final BeanReplicator<SimpleBean, SimpleBean> beanReplicator = new BeanReplicator<SimpleBean, SimpleBean>( SimpleBean.class,
-                                                                                                              SimpleBean.class );
-    
-    final SimpleBean simpleBean = newPreparedSimpleBean();
-    for ( int ii = 0; ii < NUMBER_OF_INVOCATIONS; ii++ )
-    {
-      SimpleBean clone = new SimpleBean();
-      beanReplicator.copy( simpleBean, clone );
-      assertSimpleBean( simpleBean, clone );
-    }
-  }
-  
-  @Test
-  @Ignore
-  public void testPerformanceCommonsBeanUtils() throws IllegalAccessException,
-                                               InvocationTargetException
-  {
-    final SimpleBean simpleBean = newPreparedSimpleBean();
-    for ( int ii = 0; ii < NUMBER_OF_INVOCATIONS; ii++ )
-    {
-      SimpleBean clone = new SimpleBean();
-      BeanUtils.copyProperties( clone, simpleBean );
-      assertSimpleBean( simpleBean, clone );
-    }
-  }
-  
-  private static void assertSimpleBean( final SimpleBean simpleBean, SimpleBean clone )
-  {
-    assertEquals( simpleBean.getFieldString(), clone.getFieldString() );
-    assertEquals( simpleBean.getFieldLong(), clone.getFieldLong() );
-    assertEquals( simpleBean.getFieldInteger(), clone.getFieldInteger() );
-    assertEquals( simpleBean.getFieldDouble(), clone.getFieldDouble() );
-    assertEquals( simpleBean.getFieldFloat(), clone.getFieldFloat() );
-    assertEquals( simpleBean.getFieldBoolean(), clone.getFieldBoolean() );
-  }
-  
-  private static SimpleBean newPreparedSimpleBean()
-  {
-    final SimpleBean simpleBean = new SimpleBean();
-    simpleBean.setFieldString( "test" );
-    simpleBean.setFieldLong( 123l );
-    simpleBean.setFieldBoolean( true );
-    simpleBean.setFieldDouble( 123.5 );
-    simpleBean.setFieldFloat( 156.7f );
-    simpleBean.setFieldInteger( 12 );
-    return simpleBean;
-  }
 }
