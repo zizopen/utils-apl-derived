@@ -23,14 +23,36 @@ public class CopyException extends Exception
 {
   private static final long serialVersionUID = 8967195180924402684L;
   
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final String      canonicalPath;
   
-  public CopyException( Throwable cause, String canonicalPath )
+  /* *************************************************** Methods **************************************************** */
+  
+  /**
+   * @see CopyException
+   * @param cause
+   * @param canonicalPath
+   */
+  CopyException( String message, String canonicalPath )
+  {
+    super( message );
+    this.canonicalPath = canonicalPath;
+  }
+  
+  /**
+   * @see CopyException
+   * @param cause
+   * @param canonicalPath
+   */
+  CopyException( Throwable cause, String canonicalPath )
   {
     super( "Copying failed at " + canonicalPath, cause );
     this.canonicalPath = canonicalPath;
   }
   
+  /**
+   * @return
+   */
   public String getCanonicalPath()
   {
     return this.canonicalPath;

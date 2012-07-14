@@ -17,33 +17,25 @@ package org.omnaest.utils.beans.replicator2;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.commons.lang3.SerializationUtils;
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @see BeanReplicator
  * @author Omnaest
  */
-public class BeanReplicatorSimple2Test
+public class BeanCopierTest
 {
   /* ************************************************** Constants *************************************************** */
-  private final BeanReplicator<TestSimpleBeanFrom, TestSimpleBeanTo> beanReplicator = new BeanReplicator<TestSimpleBeanFrom, TestSimpleBeanTo>(
-                                                                                                                                                TestSimpleBeanFrom.class,
-                                                                                                                                                TestSimpleBeanTo.class );
+  private static final int           NUMBER_OF_INVOCATIONS = 10;
+  private BeanCopier<TestSingleBean> beanCopier        = new BeanCopier<TestSingleBean>( TestSingleBean.class );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
-  private static class TestSimpleBeanFrom extends TestSimpleBeanBase
-  {
-    
-  }
-  
-  private static class TestSimpleBeanTo extends TestSimpleBeanBase
-  {
-    
-  }
-  
-  private static class TestSimpleBeanBase
+  private static class TestSingleBean
   {
     private String  fieldString;
     private Double  fieldDouble;
@@ -129,30 +121,50 @@ public class BeanReplicatorSimple2Test
   /* *************************************************** Methods **************************************************** */
   
   @Test
-  public void testBeanReplicator()
+  public void testPerformanceNativeGetterSetter() throws IllegalAccessException,
+                                                 InvocationTargetException
   {
-    final TestSimpleBeanFrom simpleBean = newPreparedSimpleBean();
+    final TestSingleBean simpleBean = newPreparedSimpleBean();
+    for ( int ii = 0; ii < NUMBER_OF_INVOCATIONS; ii++ )
     {
-      final TestSimpleBeanTo clone = new TestSimpleBeanTo();
-      this.beanReplicator.copy( simpleBean, clone );
-      assertSimpleBean( simpleBean, clone );
-    }
-    {
-      final TestSimpleBeanTo clone = this.beanReplicator.clone( simpleBean );
+      TestSingleBean clone = new TestSingleBean();
+      clone.setFieldString( simpleBean.getFieldString() );
+      clone.setFieldLong( simpleBean.getFieldLong() );
+      clone.setFieldInteger( simpleBean.getFieldInteger() );
+      clone.setFieldDouble( simpleBean.getFieldDouble() );
+      clone.setFieldFloat( simpleBean.getFieldFloat() );
+      clone.setFieldBoolean( simpleBean.getFieldBoolean() );
       assertSimpleBean( simpleBean, clone );
     }
   }
   
   @Test
-  public void testSerialization()
+  public void testPerformanceBeanReplicator()
   {
-    BeanReplicator<TestSimpleBeanFrom, TestSimpleBeanTo> beanReplicator = SerializationUtils.clone( this.beanReplicator );
-    final TestSimpleBeanFrom simpleBean = newPreparedSimpleBean();
-    final TestSimpleBeanTo clone = beanReplicator.clone( simpleBean );
-    assertSimpleBean( simpleBean, clone );
+    final TestSingleBean simpleBean = newPreparedSimpleBean();
+    for ( int ii = 0; ii < NUMBER_OF_INVOCATIONS; ii++ )
+    {
+      final TestSingleBean clone = new TestSingleBean();
+      this.beanCopier.copy( simpleBean, clone );
+      assertSimpleBean( simpleBean, clone );
+    }
   }
   
-  private static void assertSimpleBean( final TestSimpleBeanFrom simpleBean, TestSimpleBeanTo clone )
+  @Test
+  @Ignore
+  public void testPerformanceCommonsBeanUtils() throws IllegalAccessException,
+                                               InvocationTargetException
+  {
+    final TestSingleBean simpleBean = newPreparedSimpleBean();
+    for ( int ii = 0; ii < NUMBER_OF_INVOCATIONS; ii++ )
+    {
+      TestSingleBean clone = new TestSingleBean();
+      BeanUtils.copyProperties( clone, simpleBean );
+      assertSimpleBean( simpleBean, clone );
+    }
+  }
+  
+  private static void assertSimpleBean( final TestSingleBean simpleBean, TestSingleBean clone )
   {
     assertEquals( simpleBean.getFieldString(), clone.getFieldString() );
     assertEquals( simpleBean.getFieldLong(), clone.getFieldLong() );
@@ -162,9 +174,9 @@ public class BeanReplicatorSimple2Test
     assertEquals( simpleBean.getFieldBoolean(), clone.getFieldBoolean() );
   }
   
-  private static TestSimpleBeanFrom newPreparedSimpleBean()
+  private static TestSingleBean newPreparedSimpleBean()
   {
-    final TestSimpleBeanFrom simpleBean = new TestSimpleBeanFrom();
+    final TestSingleBean simpleBean = new TestSingleBean();
     simpleBean.setFieldString( "test" );
     simpleBean.setFieldLong( 123l );
     simpleBean.setFieldBoolean( true );

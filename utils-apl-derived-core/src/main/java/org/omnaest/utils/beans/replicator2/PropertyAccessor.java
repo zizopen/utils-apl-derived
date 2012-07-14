@@ -42,10 +42,4 @@ interface PropertyAccessor extends Serializable
    */
   public Class<?> getType();
   
-  /**
-   * Returns an implementation specific parameter. For arrays this is the length, since the factory has to now it in advance
-   * 
-   * @return
-   */
-  public Object getFactoryParameter();
 }

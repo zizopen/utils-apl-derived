@@ -30,17 +30,20 @@ import org.omnaest.utils.structure.map.MapUtils;
 /**
  * @author Omnaest
  */
-class InstanceAccessorForList implements InstanceAccessor
+class InstanceAccessorForIterable implements InstanceAccessor
 {
-  private static final long serialVersionUID = -516323037234035344L;
-  
+  /* ************************************************** Constants *************************************************** */
+  private static final long serialVersionUID = -2295601391716506677L;
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final Class<?>    type;
   
+  /* *************************************************** Methods **************************************************** */
+  
   /**
-   * @see InstanceAccessorForList
+   * @see InstanceAccessorForIterable
    * @param type
    */
-  InstanceAccessorForList( Class<?> type )
+  InstanceAccessorForIterable( Class<?> type )
   {
     this.type = type;
   }
@@ -48,7 +51,9 @@ class InstanceAccessorForList implements InstanceAccessor
   @Override
   public PropertyAccessor getPropertyAccessor( final String propertyName, Object instance )
   {
-    final List<Object> list = determineListInstanceFrom( instance );
+    final List<Object> list = determineWrappedListInstanceFrom( instance );
+    final List<Object> nativeList = determineListInstanceFrom( instance );
+    final Collection<Object> nativeCollection = determineCollectionInstanceFrom( instance );
     final int index = Integer.valueOf( propertyName );
     return new PropertyAccessor()
     {
@@ -57,7 +62,18 @@ class InstanceAccessorForList implements InstanceAccessor
       @Override
       public void setValue( Object value )
       {
-        ListUtils.set( list, index, value );
+        if ( nativeList != null )
+        {
+          ListUtils.set( nativeList, index, value );
+        }
+        else if ( nativeCollection != null )
+        {
+          nativeCollection.add( value );
+        }
+        else
+        {
+          throw new UnsupportedOperationException( "Iterable cannot be written since it does not allow to add elements to it" );
+        }
       }
       
       @Override
@@ -85,16 +101,46 @@ class InstanceAccessorForList implements InstanceAccessor
   @Override
   public Iterable<String> getPropertyNameIterable( Object instance )
   {
-    final List<Object> list = determineListInstanceFrom( instance );
-    final Iterable<? extends Number> range = new Range( 0, list.size() - 1 );
+    final int lastIndex = determineSizeFrom( instance ) - 1;
+    final Iterable<? extends Number> range = new Range( 0, lastIndex );
     final ElementConverter<Number, String> elementConverter = new ElementConverterNumberToString();
     return IterableUtils.<Number, String> adapter( range, elementConverter );
   }
   
   @SuppressWarnings("unchecked")
+  private static int determineSizeFrom( Object instance )
+  {
+    return IterableUtils.size( (Iterable<Object>) instance );
+  }
+  
+  @SuppressWarnings("unchecked")
   private static List<Object> determineListInstanceFrom( Object instance )
   {
-    return (List<Object>) instance;
+    if ( instance instanceof List )
+    {
+      return (List<Object>) instance;
+    }
+    return null;
+  }
+  
+  @SuppressWarnings("unchecked")
+  private static List<Object> determineWrappedListInstanceFrom( Object instance )
+  {
+    if ( instance instanceof List )
+    {
+      return (List<Object>) instance;
+    }
+    return ListUtils.valueOf( (Iterable<Object>) instance );
+  }
+  
+  @SuppressWarnings("unchecked")
+  private static Collection<Object> determineCollectionInstanceFrom( Object instance )
+  {
+    if ( instance instanceof Collection )
+    {
+      return (Collection<Object>) instance;
+    }
+    return null;
   }
   
   @Override
@@ -104,6 +150,7 @@ class InstanceAccessorForList implements InstanceAccessor
   }
   
   @Override
+  @SuppressWarnings("unchecked")
   public Map<String, Object> determineFactoryMetaInformation( Object instance )
   {
     int size = 0;
@@ -111,8 +158,11 @@ class InstanceAccessorForList implements InstanceAccessor
     {
       size = CollectionUtils.size( instance );
     }
+    else if ( instance instanceof Iterable )
+    {
+      size = IterableUtils.size( (Iterable<Object>) instance );
+    }
     final Map<String, Object> retmap = MapUtils.builder().put( "size", (Object) size ).buildAs().hashMap();
     return retmap;
   }
-  
 }

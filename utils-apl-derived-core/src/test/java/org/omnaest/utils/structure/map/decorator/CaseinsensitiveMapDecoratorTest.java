@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.omnaest.utils.structure.map.AssertContract;
-import org.omnaest.utils.structure.map.MapBuilder;
+import org.omnaest.utils.structure.map.MapBuilderOld;
 
 /**
  * @see CaseinsensitiveMapDecorator
@@ -33,7 +33,7 @@ import org.omnaest.utils.structure.map.MapBuilder;
 public class CaseinsensitiveMapDecoratorTest
 {
   /* ********************************************** Variables ********************************************** */
-  private final Map<String, Object>                 map          = new MapBuilder<String, Object>().linkedHashMap()
+  private final Map<String, Object>                 map          = new MapBuilderOld<String, Object>().linkedHashMap()
                                                                                                    .put( "kEy0", "value0" )
                                                                                                    .put( "key1", "value1" )
                                                                                                    .put( "KEY2", "value2" )

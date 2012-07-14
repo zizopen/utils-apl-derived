@@ -18,8 +18,10 @@ package org.omnaest.utils.beans.replicator2;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.iterator.IterableUtils;
 
 /**
  * @see InstanceAccessorResolver
@@ -29,18 +31,21 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
 class InstanceAccessorResolverImpl implements InstanceAccessorResolver
 {
   /* ************************************************** Constants *************************************************** */
-  private static final long               serialVersionUID          = 7646339051909377254L;
+  private static final long                     serialVersionUID          = 7646339051909377254L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private Map<Class<?>, InstanceAccessor> typeToInstanceAccessorMap = new HashMap<Class<?>, InstanceAccessor>();
+  private final Map<Class<?>, InstanceAccessor> typeToInstanceAccessorMap = new HashMap<Class<?>, InstanceAccessor>();
+  private final ExceptionHandler                exceptionHandler;
   
   /* *************************************************** Methods **************************************************** */
   
   /**
+   * @param exceptionHandler
    * @see InstanceAccessorResolverImpl
    */
-  public InstanceAccessorResolverImpl()
+  InstanceAccessorResolverImpl( ExceptionHandler exceptionHandler )
   {
     super();
+    this.exceptionHandler = exceptionHandler;
   }
   
   @Override
@@ -61,9 +66,13 @@ class InstanceAccessorResolverImpl implements InstanceAccessorResolver
       {
         retval = new InstanceAccessorForList( type );
       }
+      else if ( IterableUtils.isIterableType( type ) )
+      {
+        retval = new InstanceAccessorForIterable( type );
+      }
       else
       {
-        retval = new InstanceAccessorArbitraryObject( type );
+        retval = new InstanceAccessorArbitraryObject( type, this.exceptionHandler );
       }
       
       this.typeToInstanceAccessorMap.put( type, retval );

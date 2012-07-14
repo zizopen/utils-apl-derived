@@ -41,7 +41,7 @@ import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentitiyCast;
-import org.omnaest.utils.structure.map.MapBuilder;
+import org.omnaest.utils.structure.map.MapBuilderOld;
 import org.omnaest.utils.threads.FutureTaskManager;
 
 /**
@@ -69,7 +69,7 @@ public class PreparedBeanCopierTest
     this.testBeanFrom.setList( Arrays.asList( "a", "b", "c" ) );
     this.testBeanFrom.setCollection( Arrays.asList( "a", "b", "c3" ) );
     this.testBeanFrom.setSet( SetUtils.valueOf( "a", "b", "c2" ) );
-    this.testBeanFrom.setMap( new MapBuilder<String, String>().linkedHashMap()
+    this.testBeanFrom.setMap( new MapBuilderOld<String, String>().linkedHashMap()
                                                               .put( "key1", "value1" )
                                                               .put( "key2", "value2" )
                                                               .build() );
@@ -498,7 +498,7 @@ public class PreparedBeanCopierTest
       clone.setList( new ArrayList<String>( this.testBeanFrom.getList() ) );
       clone.setSet( new LinkedHashSet<String>( this.testBeanFrom.getSet() ) );
       clone.setCollection( new LinkedHashSet<String>( this.testBeanFrom.getCollection() ) );
-      clone.setMap( new MapBuilder<String, String>().linkedHashMap().putAll( this.testBeanFrom.getMap() ).build() );
+      clone.setMap( new MapBuilderOld<String, String>().linkedHashMap().putAll( this.testBeanFrom.getMap() ).build() );
       clone.setTestSubBean( new TestSubBeanTo().setFieldString( this.testBeanFrom.getTestSubBean().getFieldString() ) );
     }
   }

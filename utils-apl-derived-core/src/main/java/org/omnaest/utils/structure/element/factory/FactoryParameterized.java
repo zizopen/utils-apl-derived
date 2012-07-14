@@ -28,8 +28,8 @@ public interface FactoryParameterized<R, P>
   /**
    * Returns a new instance for the given parameter
    * 
-   * @param parameter
+   * @param parameterMap
    * @return new instance
    */
-  public abstract R newInstance( P parameter );
+  public abstract R newInstance( P parameterMap );
 }

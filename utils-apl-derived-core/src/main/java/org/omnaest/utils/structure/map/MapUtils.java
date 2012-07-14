@@ -814,7 +814,7 @@ public class MapUtils
     return new MapDecorator<K, V>( map )
     {
       private static final long serialVersionUID = -2028575193912665021L;
-
+      
       @SuppressWarnings("unchecked")
       @Override
       public V get( Object key )
@@ -860,7 +860,7 @@ public class MapUtils
     return new MapDecorator<K, V>( map )
     {
       private static final long serialVersionUID = -9085868697374650245L;
-
+      
       @SuppressWarnings("unchecked")
       @Override
       public V get( Object keyObject )
@@ -1229,5 +1229,63 @@ public class MapUtils
     }
     
     return retmap;
+  }
+  
+  /**
+   * Returns true if the given type is assignable to the {@link Map} interface
+   * 
+   * @param type
+   * @return
+   */
+  public static boolean isMapType( Class<?> type )
+  {
+    boolean retval = false;
+    if ( type != null )
+    {
+      retval = Map.class.isAssignableFrom( type );
+    }
+    return retval;
+  }
+  
+  /**
+   * Returns true if the given type is assignable to the {@link SortedMap} interface
+   * 
+   * @param type
+   * @return
+   */
+  public static boolean isSortedMapType( Class<?> type )
+  {
+    boolean retval = false;
+    if ( type != null )
+    {
+      retval = SortedMap.class.isAssignableFrom( type );
+    }
+    return retval;
+  }
+  
+  /**
+   * Returns a new {@link MapBuilder} instance
+   * 
+   * @return
+   */
+  public static MapBuilder builder()
+  {
+    return new MapBuilder();
+  }
+  
+  /**
+   * Returns the size of the given {@link Map} or 0 if the given {@link Map} reference is null.
+   * 
+   * @param map
+   * @return
+   */
+  public static int size( Map<?, ?> map )
+  {
+    int retval = 0;
+    if ( map != null )
+    {
+      retval = map.size();
+    }
+    return retval;
   }
 }

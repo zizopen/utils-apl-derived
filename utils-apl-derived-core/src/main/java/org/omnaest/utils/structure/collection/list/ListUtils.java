@@ -506,10 +506,10 @@ public class ListUtils
   }
   
   /**
-   * Returns a new {@link List} for a given {@link Iterable}
+   * Returns a new {@link ArrayList} instance containing the elements of a given {@link Iterable}
    * 
    * @param iterable
-   * @return
+   * @return new {@link ArrayList}
    */
   public static <E> List<E> valueOf( Iterable<? extends E> iterable )
   {
@@ -960,7 +960,7 @@ public class ListUtils
    * @return given {@link List} instance or a new {@link ArrayList} if null is given
    */
   @SuppressWarnings("unchecked")
-  public static <E> List<E> addAll( List<? extends E> list, Iterable<E> iterable )
+  public static <E> List<E> addAll( List<? extends E> list, Iterable<? extends E> iterable )
   {
     final List<E> retlist = (List<E>) ( list != null ? list : new ArrayList<E>() );
     if ( iterable != null )

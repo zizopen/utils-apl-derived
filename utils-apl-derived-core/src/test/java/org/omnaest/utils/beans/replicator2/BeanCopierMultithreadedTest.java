@@ -16,24 +16,27 @@
 package org.omnaest.utils.beans.replicator2;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.junit.Ignore;
+import org.apache.commons.lang3.BooleanUtils;
 import org.junit.Test;
+import org.omnaest.utils.structure.element.ExceptionHandledResult;
+import org.omnaest.utils.threads.FutureTaskManager;
 
 /**
  * @see BeanReplicator
  * @author Omnaest
  */
-public class BeanReplicatorSingleBeanTest
+public class BeanCopierMultithreadedTest
 {
   /* ************************************************** Constants *************************************************** */
-  private static final int                               NUMBER_OF_INVOCATIONS = 1000;
-  private BeanReplicator<TestSingleBean, TestSingleBean> beanReplicator        = new BeanReplicator<TestSingleBean, TestSingleBean>(
-                                                                                                                                     TestSingleBean.class,
-                                                                                                                                     TestSingleBean.class );
+  private static final int           NUMBER_OF_INVOCATIONS = 100;
+  private BeanCopier<TestSingleBean> beanCopier            = new BeanCopier<TestSingleBean>( TestSingleBean.class );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -123,46 +126,38 @@ public class BeanReplicatorSingleBeanTest
   /* *************************************************** Methods **************************************************** */
   
   @Test
-  public void testPerformanceNativeGetterSetter() throws IllegalAccessException,
-                                                 InvocationTargetException
+  public void testCloningMultithreaded()
   {
-    final TestSingleBean simpleBean = newPreparedSimpleBean();
-    for ( int ii = 0; ii < NUMBER_OF_INVOCATIONS; ii++ )
+    ExecutorService executorService = Executors.newFixedThreadPool( 10 );
+    FutureTaskManager futureTaskManager = new FutureTaskManager( executorService );
+    futureTaskManager.submitAndManage( new Callable<Boolean>()
     {
-      TestSingleBean clone = new TestSingleBean();
-      clone.setFieldString( simpleBean.getFieldString() );
-      clone.setFieldLong( simpleBean.getFieldLong() );
-      clone.setFieldInteger( simpleBean.getFieldInteger() );
-      clone.setFieldDouble( simpleBean.getFieldDouble() );
-      clone.setFieldFloat( simpleBean.getFieldFloat() );
-      clone.setFieldBoolean( simpleBean.getFieldBoolean() );
-      assertSimpleBean( simpleBean, clone );
-    }
-  }
-  
-  @Test
-  public void testPerformanceBeanReplicator()
-  {
-    final TestSingleBean simpleBean = newPreparedSimpleBean();
-    for ( int ii = 0; ii < NUMBER_OF_INVOCATIONS; ii++ )
+      @Override
+      public Boolean call() throws Exception
+      {
+        boolean retval = false;
+        try
+        {
+          for ( int ii = 0; ii < NUMBER_OF_INVOCATIONS; ii++ )
+          {
+            final TestSingleBean simpleBean = newPreparedSimpleBean();
+            final TestSingleBean clone = new TestSingleBean();
+            BeanCopierMultithreadedTest.this.beanCopier.copy( simpleBean, clone );
+            assertSimpleBean( simpleBean, clone );
+          }
+          retval = true;
+        }
+        catch ( Throwable e )
+        {
+        }
+        return retval;
+      }
+    }, 100 );
+    ExceptionHandledResult<List<Object>> result = futureTaskManager.waitForAllTasksToFinish();
+    List<Object> resultList = result.getResult();
+    for ( Object object : resultList )
     {
-      final TestSingleBean clone = new TestSingleBean();
-      this.beanReplicator.copy( simpleBean, clone );
-      assertSimpleBean( simpleBean, clone );
-    }
-  }
-  
-  @Test
-  @Ignore
-  public void testPerformanceCommonsBeanUtils() throws IllegalAccessException,
-                                               InvocationTargetException
-  {
-    final TestSingleBean simpleBean = newPreparedSimpleBean();
-    for ( int ii = 0; ii < NUMBER_OF_INVOCATIONS; ii++ )
-    {
-      TestSingleBean clone = new TestSingleBean();
-      BeanUtils.copyProperties( clone, simpleBean );
-      assertSimpleBean( simpleBean, clone );
+      assertTrue( BooleanUtils.isTrue( (Boolean) object ) );
     }
   }
   
@@ -179,12 +174,13 @@ public class BeanReplicatorSingleBeanTest
   private static TestSingleBean newPreparedSimpleBean()
   {
     final TestSingleBean simpleBean = new TestSingleBean();
-    simpleBean.setFieldString( "test" );
-    simpleBean.setFieldLong( 123l );
+    final int random = (int) ( Math.random() * 10000 );
+    simpleBean.setFieldString( "test" + random );
+    simpleBean.setFieldLong( 123l + random );
     simpleBean.setFieldBoolean( true );
-    simpleBean.setFieldDouble( 123.5 );
-    simpleBean.setFieldFloat( 156.7f );
-    simpleBean.setFieldInteger( 12 );
+    simpleBean.setFieldDouble( 123.5 + random );
+    simpleBean.setFieldFloat( 156.7f + random );
+    simpleBean.setFieldInteger( 12 + random );
     return simpleBean;
   }
 }

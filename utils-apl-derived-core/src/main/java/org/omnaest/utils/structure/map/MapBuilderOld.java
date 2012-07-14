@@ -30,7 +30,7 @@ import org.omnaest.utils.reflection.ReflectionUtils;
 /**
  * Builder for {@link Map} instances filled with keys and values.<br>
  * <br>
- * The {@link MapBuilder} is not thread safe, since it uses an temporary not thread safe internal {@link Map}.<br>
+ * The {@link MapBuilderOld} is not thread safe, since it uses an temporary not thread safe internal {@link Map}.<br>
  * The order of elements is respected when put into the {@link Map}. A {@link Map} implementation which supports ordering will
  * contain the {@link Entry}s in the right order afterwards.<br>
  * <br>
@@ -45,8 +45,10 @@ import org.omnaest.utils.reflection.ReflectionUtils;
  * @author Omnaest
  * @param <K>
  * @param <V>
+ * @deprecated use {@link MapUtils#builder()} or {@link MapBuilder} instead
  */
-public class MapBuilder<K, V>
+@Deprecated
+public class MapBuilderOld<K, V>
 {
   
   /* ********************************************** Classes/Interfaces ********************************************** */
@@ -67,12 +69,12 @@ public class MapBuilder<K, V>
   }
   
   /**
-   * A {@link MapBuilder} which has a declared {@link Map} type and now allows to modify and build a {@link Map}
+   * A {@link MapBuilderOld} which has a declared {@link Map} type and now allows to modify and build a {@link Map}
    * 
-   * @see MapBuilder
+   * @see MapBuilderOld
    * @author Omnaest
    */
-  public class MapBuilderWithMap
+  public class MapBuilderWithMap<M extends Map<K, V>>
   {
     /* ********************************************** Variables ********************************************** */
     protected final Map<K, V>        map = new LinkedHashMap<K, V>();
@@ -95,11 +97,11 @@ public class MapBuilder<K, V>
      * 
      * @return
      */
-    public <M extends Map<K, V>> M build()
+    public <ME extends M> ME build()
     {
       //
       @SuppressWarnings("unchecked")
-      M retmap = (M) this.mapFactory.newInstance();
+      ME retmap = (ME) this.mapFactory.newInstance();
       retmap.putAll( this.map );
       
       //
@@ -160,7 +162,7 @@ public class MapBuilder<K, V>
      * @param value
      * @return this
      */
-    public MapBuilderWithMap put( K key, V value )
+    public MapBuilderWithMap<M> put( K key, V value )
     {
       this.map.put( key, value );
       return this;
@@ -171,7 +173,7 @@ public class MapBuilder<K, V>
      * @param key
      * @return this
      */
-    public MapBuilderWithMap remove( Object key )
+    public MapBuilderWithMap<M> remove( Object key )
     {
       this.map.remove( key );
       return this;
@@ -182,7 +184,7 @@ public class MapBuilder<K, V>
      * @param m
      * @return this
      */
-    public MapBuilderWithMap putAll( Map<? extends K, ? extends V> m )
+    public MapBuilderWithMap<M> putAll( Map<? extends K, ? extends V> m )
     {
       this.map.putAll( m );
       return this;
@@ -192,7 +194,7 @@ public class MapBuilder<K, V>
      * @see java.util.Map#clear()
      * @return this
      */
-    public MapBuilderWithMap clear()
+    public MapBuilderWithMap<M> clear()
     {
       this.map.clear();
       return this;
@@ -202,9 +204,9 @@ public class MapBuilder<K, V>
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * @see MapBuilder
+   * @see MapBuilderOld
    */
-  public MapBuilder()
+  public MapBuilderOld()
   {
     super();
   }
@@ -213,7 +215,7 @@ public class MapBuilder<K, V>
    * @see HashMap
    * @return {@link MapBuilderWithMap}
    */
-  public MapBuilderWithMap hashMap()
+  public MapBuilderWithMap<Map<K, V>> hashMap()
   {
     //
     MapFactory<K, V> mapFactory = new MapFactory<K, V>()
@@ -224,16 +226,16 @@ public class MapBuilder<K, V>
         return new HashMap<K, V>();
       }
     };
-    return new MapBuilderWithMap( mapFactory );
+    return new MapBuilderWithMap<Map<K, V>>( mapFactory );
   }
   
   /**
    * @see LinkedHashMap
    * @return {@link MapBuilderWithMap}
    */
-  public MapBuilderWithMap linkedHashMap()
+  public MapBuilderWithMap<Map<K, V>> linkedHashMap()
   {
-    return new MapBuilderWithMap( new MapFactory<K, V>()
+    return new MapBuilderWithMap<Map<K, V>>( new MapFactory<K, V>()
     {
       @Override
       public Map<K, V> newInstance()
@@ -247,9 +249,9 @@ public class MapBuilder<K, V>
    * @see ConcurrentHashMap
    * @return {@link MapBuilderWithMap}
    */
-  public MapBuilderWithMap concurrentHashMap()
+  public MapBuilderWithMap<Map<K, V>> concurrentHashMap()
   {
-    return new MapBuilderWithMap( new MapFactory<K, V>()
+    return new MapBuilderWithMap<Map<K, V>>( new MapFactory<K, V>()
     {
       @Override
       public Map<K, V> newInstance()
@@ -264,9 +266,9 @@ public class MapBuilder<K, V>
    * @param initialCapacity
    * @return {@link MapBuilderWithMap}
    */
-  public MapBuilderWithMap concurrentHashMap( final int initialCapacity )
+  public MapBuilderWithMap<Map<K, V>> concurrentHashMap( final int initialCapacity )
   {
-    return new MapBuilderWithMap( new MapFactory<K, V>()
+    return new MapBuilderWithMap<Map<K, V>>( new MapFactory<K, V>()
     {
       @Override
       public Map<K, V> newInstance()
@@ -282,9 +284,9 @@ public class MapBuilder<K, V>
    * @see SortedMap
    * @return {@link MapBuilderWithMap}
    */
-  public MapBuilderWithMap treeMap()
+  public MapBuilderWithMap<SortedMap<K, V>> treeMap()
   {
-    return new MapBuilderWithMap( new MapFactory<K, V>()
+    return new MapBuilderWithMap<SortedMap<K, V>>( new MapFactory<K, V>()
     {
       @Override
       public Map<K, V> newInstance()
@@ -300,9 +302,9 @@ public class MapBuilder<K, V>
    * @param comparator
    * @return {@link MapBuilderWithMap}
    */
-  public MapBuilderWithMap treeMap( final Comparator<? super K> comparator )
+  public MapBuilderWithMap<SortedMap<K, V>> treeMap( final Comparator<? super K> comparator )
   {
-    return new MapBuilderWithMap( new MapFactory<K, V>()
+    return new MapBuilderWithMap<SortedMap<K, V>>( new MapFactory<K, V>()
     {
       @Override
       public Map<K, V> newInstance()
@@ -314,22 +316,22 @@ public class MapBuilder<K, V>
   }
   
   /**
-   * {@link MapBuilder} using a {@link MapFactory} to create a {@link Map} instance at {@link MapBuilderWithMap#build()} time
+   * {@link MapBuilderOld} using a {@link MapFactory} to create a {@link Map} instance at {@link MapBuilderWithMap#build()} time
    * 
    * @see MapFactory
-   * @see MapBuilder
+   * @see MapBuilderOld
    * @param mapFactory
    */
-  public MapBuilderWithMap map( MapFactory<K, V> mapFactory )
+  public MapBuilderWithMap<Map<K, V>> map( MapFactory<K, V> mapFactory )
   {
     //
     Assert.isNotNull( mapFactory, "MapFactory must not be null" );
-    return new MapBuilderWithMap( mapFactory );
+    return new MapBuilderWithMap<Map<K, V>>( mapFactory );
   }
   
   /**
-   * Generic {@link MapBuilder} instance creator method which creates a {@link MapBuilder} with a {@link Map} instance of the
-   * given {@link Class} by using reflection. The given {@link Map} implementation type has to have a default constructor or a
+   * Generic {@link MapBuilderOld} instance creator method which creates a {@link MapBuilderOld} with a {@link Map} instance of
+   * the given {@link Class} by using reflection. The given {@link Map} implementation type has to have a default constructor or a
    * constructor which has the same parameter signature as the additionally given arguments.
    * 
    * @param mapType
@@ -338,7 +340,8 @@ public class MapBuilder<K, V>
    *           if no map instance could be created
    * @return {@link MapBuilderWithMap}
    */
-  public MapBuilderWithMap map( @SuppressWarnings("rawtypes") final Class<? extends Map> mapType, final Object... arguments )
+  public MapBuilderWithMap<Map<K, V>> map( @SuppressWarnings("rawtypes") final Class<? extends Map> mapType,
+                                           final Object... arguments )
   {
     //
     MapFactory<K, V> mapFactory = null;
@@ -372,7 +375,7 @@ public class MapBuilder<K, V>
     
     //
     Assert.isNotNull( mapFactory, "The given type of Map does not have a constructor for the given arguments." );
-    return new MapBuilderWithMap( mapFactory );
+    return new MapBuilderWithMap<Map<K, V>>( mapFactory );
   }
   
 }

@@ -16,6 +16,9 @@
 package org.omnaest.utils.beans.replicator2;
 
 import java.io.Serializable;
+import java.util.Map;
+
+import org.omnaest.utils.structure.element.factory.FactoryParameterized;
 
 /**
  * @author Omnaest
@@ -41,4 +44,13 @@ interface InstanceAccessor extends Serializable
    * @return
    */
   public Class<?> getType();
+  
+  /**
+   * Determines a implementation specific {@link Map} of meta parameters allowing any {@link FactoryParameterized} instance to
+   * create related instances
+   * @param instance TODO
+   * 
+   * @return
+   */
+  public Map<String, Object> determineFactoryMetaInformation(Object instance);
 }
