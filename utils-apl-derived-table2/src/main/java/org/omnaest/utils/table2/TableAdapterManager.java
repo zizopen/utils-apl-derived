@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.omnaest.utils.beans.replicator2.BeanReplicator;
-import org.omnaest.utils.beans.replicator2.BeanReplicator.Declaration;
+import org.omnaest.utils.beans.replicator.BeanReplicator;
+import org.omnaest.utils.beans.replicator.BeanReplicator.Declaration;
 
 /**
  * Manager for any adapter which allows to access a {@link Table} from any other type

@@ -15,8 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl.adapter;
 
-import org.omnaest.utils.beans.replicator2.BeanReplicator;
-import org.omnaest.utils.beans.replicator2.BeanReplicator.Declaration;
+import org.omnaest.utils.beans.replicator.BeanReplicator;
+import org.omnaest.utils.beans.replicator.BeanReplicator.Declaration;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.collection.list.ListAbstract;
 import org.omnaest.utils.table2.Row;
