@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.omnaest.utils.beans.replicator2.BeanReplicator.Declaration;
+import org.omnaest.utils.beans.replicator.BeanReplicator.Declaration;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.element.converter.ElementBidirectionalConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
