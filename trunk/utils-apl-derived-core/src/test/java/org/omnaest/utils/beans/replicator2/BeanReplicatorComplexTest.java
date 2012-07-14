@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.omnaest.utils.beans.replicator2.BeanReplicator.Declaration;
 import org.omnaest.utils.beans.replicator2.BeanReplicator.DeclarationSupport;
 import org.omnaest.utils.events.exception.ExceptionHandler;
-import org.omnaest.utils.structure.map.MapBuilder;
+import org.omnaest.utils.structure.map.MapUtils;
 
 /**
  * @see BeanReplicator
@@ -181,6 +181,7 @@ public class BeanReplicatorComplexTest
     
   }
   
+  @SuppressWarnings("unused")
   private static class MapBean
   {
     private String key1;
@@ -208,6 +209,7 @@ public class BeanReplicatorComplexTest
     
   }
   
+  @SuppressWarnings("unused")
   private static class TestBeanTo
   {
     private String                 fieldString;
@@ -452,10 +454,7 @@ public class BeanReplicatorComplexTest
         testSubBean.setFieldString( "testsub" );
         testSubBean.setFieldOther( "testother" );
       }
-      Map<String, String> map = new MapBuilder<String, String>().linkedHashMap()
-                                                                .put( "key1", "value1" )
-                                                                .put( "key2", "value2" )
-                                                                .build();
+      Map<String, String> map = MapUtils.builder().put( "key1", "value1" ).put( "key2", "value2" ).buildAs().linkedHashMap();
       testBeanFrom.setTestSubBean( testSubBean );
       testBeanFrom.setTestSubBeanFrom( testSubBean );
       testBeanFrom.setTestSubBeanFrom2( testSubBean );

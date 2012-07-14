@@ -183,7 +183,7 @@ public class MapUtilsTest
     FactoryParameterized<Boolean, String> valueFactory = new FactoryParameterized<Boolean, String>()
     {
       @Override
-      public Boolean newInstance( String parameter )
+      public Boolean newInstance( String parameterMap )
       {
         return true;
       }
@@ -209,7 +209,7 @@ public class MapUtilsTest
     assertEquals( 4, invertedMap.size() );
     
     //
-    assertEquals( new MapBuilder<Integer, String>().linkedHashMap()
+    assertEquals( new MapBuilderOld<Integer, String>().linkedHashMap()
                                                    .put( 1, "key1" )
                                                    .put( 2, "key2" )
                                                    .put( 3, "key3" )
@@ -245,6 +245,17 @@ public class MapUtilsTest
     assertEquals( 2, map.size() );
     assertEquals( "value1", map.get( "key1" ) );
     assertEquals( "value2", map.get( "key2" ) );
+  }
+  
+  @Test
+  public void testBuilder() throws Exception
+  {
+    String key = "key1";
+    Object value = "value1";
+    Map<String, Object> map = MapUtils.builder().put( key, value ).buildAs().linkedHashMap();
+    assertNotNull( map );
+    assertEquals( "key1", map.keySet().iterator().next() );
+    assertEquals( "value1", map.values().iterator().next() );
   }
   
 }

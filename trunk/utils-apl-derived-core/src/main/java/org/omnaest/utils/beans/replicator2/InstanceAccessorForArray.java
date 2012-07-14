@@ -15,11 +15,14 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.replicator2;
 
+import java.util.Map;
+
 import org.omnaest.utils.operation.foreach.Range;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterNumberToString;
 import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.structure.map.MapUtils;
 
 /**
  * {@link InstanceAccessor} for arrays
@@ -85,11 +88,6 @@ class InstanceAccessorForArray implements InstanceAccessor
         return propertyName;
       }
       
-      @Override
-      public Object getFactoryParameter()
-      {
-        return ArrayUtils.length( array );
-      }
     };
   }
   
@@ -111,6 +109,14 @@ class InstanceAccessorForArray implements InstanceAccessor
   public Class<?> getType()
   {
     return this.type;
+  }
+  
+  @Override
+  public Map<String, Object> determineFactoryMetaInformation( Object instance )
+  {
+    final int length = ArrayUtils.length( instance );
+    Map<String, Object> retmap = MapUtils.builder().put( "size", (Object) length ).buildAs().hashMap();
+    return retmap;
   }
   
 }

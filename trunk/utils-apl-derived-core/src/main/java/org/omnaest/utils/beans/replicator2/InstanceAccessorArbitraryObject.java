@@ -19,6 +19,8 @@ import java.util.Map;
 
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
+import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -34,6 +36,7 @@ class InstanceAccessorArbitraryObject implements InstanceAccessor
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final Map<String, BeanPropertyAccessor<?>> propertyNameToBeanPropertyAccessorMap;
   private final Class<?>                             type;
+  private final ExceptionHandler                     exceptionHandler;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -42,11 +45,13 @@ class InstanceAccessorArbitraryObject implements InstanceAccessor
    */
   static final class PropertyForArbitraryObject implements PropertyAccessor
   {
-    private static final long                  serialVersionUID = 8531632621722929109L;
+    private static final long                  serialVersionUID   = 8531632621722929109L;
     /* ************************************** Variables / State (internal/hiding) ************************************* */
     private final String                       propertyName;
     private final BeanPropertyAccessor<Object> beanPropertyAccessor;
     private final Object                       instance;
+    private final ExceptionHandler             exceptionHandler;
+    private final PropertyAccessType           propertyAccessType = PropertyAccessType.PROPERTY;
     
     /* *************************************************** Methods **************************************************** */
     
@@ -55,24 +60,27 @@ class InstanceAccessorArbitraryObject implements InstanceAccessor
      * @param propertyName
      * @param beanPropertyAccessor
      * @param instance
+     * @param exceptionHandler
      */
-    public PropertyForArbitraryObject( String propertyName, BeanPropertyAccessor<Object> beanPropertyAccessor, Object instance )
+    public PropertyForArbitraryObject( String propertyName, BeanPropertyAccessor<Object> beanPropertyAccessor, Object instance,
+                                       ExceptionHandler exceptionHandler )
     {
       this.propertyName = propertyName;
       this.beanPropertyAccessor = beanPropertyAccessor;
       this.instance = instance;
+      this.exceptionHandler = exceptionHandler;
     }
     
     @Override
     public void setValue( Object value )
     {
-      this.beanPropertyAccessor.setPropertyValue( this.instance, value );
+      this.beanPropertyAccessor.setPropertyValue( this.instance, value, this.propertyAccessType, this.exceptionHandler );
     }
     
     @Override
     public Object getValue()
     {
-      return this.beanPropertyAccessor.getPropertyValue( this.instance );
+      return this.beanPropertyAccessor.getPropertyValue( this.instance, this.propertyAccessType, this.exceptionHandler );
     }
     
     @Override
@@ -87,11 +95,6 @@ class InstanceAccessorArbitraryObject implements InstanceAccessor
       return this.propertyName;
     }
     
-    @Override
-    public Object getFactoryParameter()
-    {
-      return null;
-    }
   }
   
   /* *************************************************** Methods **************************************************** */
@@ -99,11 +102,13 @@ class InstanceAccessorArbitraryObject implements InstanceAccessor
   /**
    * @see InstanceAccessorArbitraryObject
    * @param type
+   * @param exceptionHandler
    */
-  InstanceAccessorArbitraryObject( Class<?> type )
+  InstanceAccessorArbitraryObject( Class<?> type, ExceptionHandler exceptionHandler )
   {
     super();
     this.type = type;
+    this.exceptionHandler = exceptionHandler;
     this.propertyNameToBeanPropertyAccessorMap = ImmutableMap.<String, BeanPropertyAccessor<?>> copyOf( BeanUtils.propertyNameToBeanPropertyAccessorMap( type ) );
   }
   
@@ -112,7 +117,8 @@ class InstanceAccessorArbitraryObject implements InstanceAccessor
   {
     @SuppressWarnings("unchecked")
     final BeanPropertyAccessor<Object> beanPropertyAccessor = (BeanPropertyAccessor<Object>) this.propertyNameToBeanPropertyAccessorMap.get( propertyName );
-    return beanPropertyAccessor == null ? null : new PropertyForArbitraryObject( propertyName, beanPropertyAccessor, instance );
+    return beanPropertyAccessor == null ? null : new PropertyForArbitraryObject( propertyName, beanPropertyAccessor, instance,
+                                                                                 this.exceptionHandler );
   }
   
   @Override
@@ -125,6 +131,12 @@ class InstanceAccessorArbitraryObject implements InstanceAccessor
   public Class<?> getType()
   {
     return this.type;
+  }
+  
+  @Override
+  public Map<String, Object> determineFactoryMetaInformation( Object instance )
+  {
+    return null;
   }
   
 }

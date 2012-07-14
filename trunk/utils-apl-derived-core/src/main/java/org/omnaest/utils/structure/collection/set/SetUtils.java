@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -135,27 +136,50 @@ public class SetUtils
   }
   
   /**
-   * Does call {@link Set#retainAll(Collection)} on the given {@link Set} instance. If null is given a new {@link LinkedHashSet}
-   * instance is created containing the given retainable elements
+   * Adds the elements from the given {@link Iterable} to the given {@link Set}. If the given {@link Set} is null, a new
+   * {@link LinkedHashSet} is returned. If the given {@link Iterable} is null, nothing is added.
+   * 
+   * @param set
+   *          {@link Set}
+   * @param elementIterable
+   *          {@link Iterable}
+   * @return given {@link Set} instance or new {@link LinkedHashSet}
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> Set<E> addAll( Set<? extends E> set, Iterable<? extends E> elementIterable )
+  {
+    Set<E> retset = set != null ? (Set<E>) set : new LinkedHashSet<E>();
+    if ( elementIterable != null )
+    {
+      for ( E element : elementIterable )
+      {
+        retset.add( element );
+      }
+    }
+    return retset;
+  }
+  
+  /**
+   * Does call {@link Set#retainAll(Collection)} on the given {@link Set} instance. If null is given as {@link Set} null is
+   * returned as result. If null is given as retainable element {@link Collection} the given {@link Set} is cleared.
    * 
    * @param set
    * @param retainableCollection
-   * @return given instance or new {@link LinkedHashSet}
+   * @return given instance or null if null is given
    */
   public static <E> Set<E> retainAll( Set<E> set, Collection<? extends E> retainableCollection )
   {
-    Set<E> retset = set;
-    if ( retset == null )
+    final Set<E> retset = set;
+    if ( retset != null )
     {
-      retset = new LinkedHashSet<E>();
       if ( retainableCollection != null )
       {
-        retset.addAll( retainableCollection );
+        retset.retainAll( retainableCollection );
       }
-    }
-    else
-    {
-      retset.retainAll( retainableCollection );
+      else
+      {
+        retset.clear();
+      }
     }
     return retset;
   }
@@ -493,6 +517,40 @@ public class SetUtils
   public static <E> Set<E> composite( Collection<Set<E>> setCollection )
   {
     return new SetComposite<E>( setCollection );
+  }
+  
+  /**
+   * Returns true if the given type is assignable to the {@link Set} interface
+   * 
+   * @see #isSortedSetType(Class)
+   * @param type
+   * @return
+   */
+  public static boolean isSetType( Class<?> type )
+  {
+    boolean retval = false;
+    if ( type != null )
+    {
+      retval = Set.class.isAssignableFrom( type );
+    }
+    return retval;
+  }
+  
+  /**
+   * Returns true if the given type is assignable to the {@link SortedSet} interface
+   * 
+   * @see #isSetType(Class)
+   * @param type
+   * @return
+   */
+  public static boolean isSortedSetType( Class<?> type )
+  {
+    boolean retval = false;
+    if ( type != null )
+    {
+      retval = SortedSet.class.isAssignableFrom( type );
+    }
+    return retval;
   }
   
 }

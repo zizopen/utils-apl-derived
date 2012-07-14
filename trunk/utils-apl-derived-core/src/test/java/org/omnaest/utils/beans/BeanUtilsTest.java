@@ -43,7 +43,7 @@ import org.junit.Test;
 import org.omnaest.utils.beans.result.BeanMethodInformation;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessors;
-import org.omnaest.utils.structure.map.MapBuilder;
+import org.omnaest.utils.structure.map.MapBuilderOld;
 import org.omnaest.utils.structure.map.UnderlyingMapAware;
 
 /**
@@ -743,7 +743,7 @@ public class BeanUtilsTest
       TestSubClass testBean = prepareTestSubClass();
       
       //    
-      Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap = new MapBuilder<Class<?>, Class<?>>().hashMap()
+      Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap = new MapBuilderOld<Class<?>, Class<?>>().hashMap()
                                                                                                    .put( TestValue.class,
                                                                                                          TestValueDTO.class )
                                                                                                    .build();
@@ -762,7 +762,7 @@ public class BeanUtilsTest
       TestSubClass testBean = prepareTestSubClass();
       
       //    
-      Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap = new MapBuilder<Class<?>, Class<?>>().hashMap()
+      Map<Class<?>, Class<?>> sourceTypeTodestinationTypeMap = new MapBuilderOld<Class<?>, Class<?>>().hashMap()
                                                                                                    .put( TestValue.class,
                                                                                                          TestValueOther.class )
                                                                                                    .build();

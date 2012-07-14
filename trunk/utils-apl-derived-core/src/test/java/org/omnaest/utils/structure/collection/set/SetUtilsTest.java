@@ -78,4 +78,22 @@ public class SetUtilsTest
     assertEquals( SetUtils.valueOf( "b", "c" ),
                   SetUtils.intersection( SetUtils.valueOf( "a", "b", "c", "d" ), SetUtils.valueOf( "b", "c", "e" ) ) );
   }
+  
+  @Test
+  public void testRetainAll() throws Exception
+  {
+    assertEquals( SetUtils.valueOf( "b", "c" ),
+                  SetUtils.retainAll( SetUtils.valueOf( "a", "b", "c", "d" ), Arrays.asList( "b", "c", "e" ) ) );
+    assertEquals( SetUtils.valueOf(), SetUtils.retainAll( SetUtils.valueOf( "a", "b", "c", "d" ), null ) );
+    assertEquals( null, SetUtils.retainAll( null, Arrays.asList( "b", "c", "e" ) ) );
+  }
+  
+  @Test
+  public void testAddAll() throws Exception
+  {
+    assertEquals( SetUtils.valueOf( "a", "b", "c", "d" ),
+                  SetUtils.addAll( SetUtils.valueOf( "a", "b" ), Arrays.asList( "b", "c", "d" ) ) );
+    assertEquals( SetUtils.valueOf( "b", "c", "d" ), SetUtils.addAll( null, Arrays.asList( "b", "c", "d" ) ) );
+    assertEquals( SetUtils.valueOf( "a", "b" ), SetUtils.addAll( SetUtils.valueOf( "a", "b" ), null ) );
+  }
 }

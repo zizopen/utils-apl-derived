@@ -32,7 +32,7 @@ import org.mockito.stubbing.Answer;
 import org.omnaest.utils.beans.adapter.SourcePropertyAccessorToTypeAdapter;
 import org.omnaest.utils.beans.adapter.source.SourcePropertyAccessor.PropertyMetaInformation;
 import org.omnaest.utils.structure.element.ElementHolder;
-import org.omnaest.utils.structure.map.MapBuilder;
+import org.omnaest.utils.structure.map.MapBuilderOld;
 
 /**
  * @see SourcePropertyAccessorDecoratorDefaultValue
@@ -219,7 +219,7 @@ public class SourcePropertyAccessorDecoratorDefaultValueTest
     {
       //
       this.elementHolderReturnValue.setElement( null );
-      assertEquals( new MapBuilder<String, Double>().linkedHashMap().put( "key1", 1.23 ).put( "key2", 2.34 ).build(),
+      assertEquals( new MapBuilderOld<String, Double>().linkedHashMap().put( "key1", 1.23 ).put( "key2", 2.34 ).build(),
                     this.testInterface.getMapStringAndDouble() );
     }
   }

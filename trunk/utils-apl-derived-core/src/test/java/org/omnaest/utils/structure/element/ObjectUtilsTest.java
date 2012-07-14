@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.omnaest.utils.structure.element.factory.Factory;
-import org.omnaest.utils.structure.map.MapBuilder;
+import org.omnaest.utils.structure.map.MapBuilderOld;
 
 /**
  * @see ObjectUtils
@@ -276,7 +276,7 @@ public class ObjectUtilsTest
       //
       Double[] doubles = new Double[] { 1.5, 1.6, 2.5, 2.6 };
       Map<String, String> castedArray = ObjectUtils.castArrayTo( Map.class, String.class, doubles );
-      assertEquals( new MapBuilder<String, String>().linkedHashMap().put( "1.5", "1.6" ).put( "2.5", "2.6" ).build(), castedArray );
+      assertEquals( new MapBuilderOld<String, String>().linkedHashMap().put( "1.5", "1.6" ).put( "2.5", "2.6" ).build(), castedArray );
     }
     {
       //

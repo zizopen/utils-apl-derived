@@ -15,16 +15,41 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.replicator2;
 
-import java.io.Serializable;
+import org.omnaest.utils.events.exception.ExceptionHandler;
 
 /**
+ * The {@link BeanCopier} is a simple {@link BeanReplicator} which has the same source and target type
+ * 
+ * @see BeanReplicator
  * @author Omnaest
+ * @param <B>
  */
-interface FactoryResolver extends Serializable
+public class BeanCopier<B> extends BeanReplicator<B, B>
 {
+  
+  private static final long serialVersionUID = -5810117294888896465L;
+  
   /**
+   * @see BeanCopier
    * @param type
-   * @return {@link InstanceFactory}
    */
-  public InstanceFactory resolveFactory( Class<?> type );
+  public BeanCopier( Class<B> type )
+  {
+    super( type, type );
+  }
+  
+  @Override
+  public BeanCopier<B> declare( org.omnaest.utils.beans.replicator2.BeanReplicator.Declaration declaration )
+  {
+    super.declare( declaration );
+    return this;
+  }
+  
+  @Override
+  public BeanCopier<B> setExceptionHandler( ExceptionHandler exceptionHandler )
+  {
+    super.setExceptionHandler( exceptionHandler );
+    return this;
+  }
+  
 }

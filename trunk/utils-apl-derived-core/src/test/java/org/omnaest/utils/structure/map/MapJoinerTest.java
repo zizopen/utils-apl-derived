@@ -40,12 +40,12 @@ public class MapJoinerTest
   public void testNewInstance()
   {
     //
-    final Map<String, Integer> map1 = new MapBuilder<String, Integer>().linkedHashMap()
+    final Map<String, Integer> map1 = new MapBuilderOld<String, Integer>().linkedHashMap()
                                                                        .put( "key1", 1 )
                                                                        .put( "key2", 2 )
                                                                        .put( "key3", 3 )
                                                                        .build();
-    final Map<String, Long> map2 = new MapBuilder<String, Long>().linkedHashMap()
+    final Map<String, Long> map2 = new MapBuilderOld<String, Long>().linkedHashMap()
                                                                  .put( "key1", 1l )
                                                                  .put( "key2", 2l )
                                                                  .put( "key4", 4l )

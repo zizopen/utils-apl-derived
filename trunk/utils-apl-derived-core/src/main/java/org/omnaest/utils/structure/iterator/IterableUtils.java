@@ -442,4 +442,20 @@ public class IterableUtils
       }
     };
   }
+  
+  /**
+   * Returns true if the given type is assignable to the {@link Iterable} interface
+   * 
+   * @param type
+   * @return
+   */
+  public static boolean isIterableType( Class<?> type )
+  {
+    boolean retval = false;
+    if ( type != null )
+    {
+      retval = Iterable.class.isAssignableFrom( type );
+    }
+    return retval;
+  }
 }

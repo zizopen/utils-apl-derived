@@ -15,10 +15,13 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.replicator2;
 
+import java.util.Comparator;
 import java.util.Map;
+import java.util.SortedMap;
 
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverterObjectToString;
+import org.omnaest.utils.structure.map.MapUtils;
 
 /**
  * {@link InstanceAccessor} for {@link Map} instances
@@ -84,11 +87,6 @@ class InstanceAccessorForMap implements InstanceAccessor
         return propertyName;
       }
       
-      @Override
-      public Object getFactoryParameter()
-      {
-        return map != null ? map.size() : 0;
-      }
     };
   }
   
@@ -112,4 +110,26 @@ class InstanceAccessorForMap implements InstanceAccessor
     return Map.class;
   }
   
+  @SuppressWarnings("unchecked")
+  @Override
+  public Map<String, Object> determineFactoryMetaInformation( Object instance )
+  {
+    int size = 0;
+    Comparator<Object> comparator = null;
+    if ( instance instanceof Map )
+    {
+      size = MapUtils.size( (Map<?, ?>) instance );
+    }
+    if ( instance instanceof SortedMap )
+    {
+      SortedMap<Object, Object> sortedMap = (SortedMap<Object, Object>) instance;
+      comparator = (Comparator<Object>) sortedMap.comparator();
+    }
+    final Map<String, Object> retmap = MapUtils.builder()
+                                               .put( "comparator", (Object) comparator )
+                                               .put( "size", size )
+                                               .buildAs()
+                                               .hashMap();
+    return retmap;
+  }
 }

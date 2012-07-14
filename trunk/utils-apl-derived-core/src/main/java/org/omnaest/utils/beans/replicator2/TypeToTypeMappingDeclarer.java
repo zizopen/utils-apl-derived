@@ -18,22 +18,31 @@ package org.omnaest.utils.beans.replicator2;
 /**
  * @author Omnaest
  */
-interface TypeToTypeMappingDeclarer
+public interface TypeToTypeMappingDeclarer
 {
   
   /**
+   * Adds a generally applied mapping from a source type to another target type regardless where the type is located
+   * 
+   * @see #addTypeMappingForPath(String, Class, Class)
+   * @see #addTypeAndPropertyNameMapping(Class, String, Class, String)
    * @param typeFrom
    * @param typeTo
    */
   public void addTypeMapping( Class<?> typeFrom, Class<?> typeTo );
   
   /**
+   * Adds a generally applied mapping from one property name to another regardless where the properties are located.
+   * 
+   * @see #addPropertyNameMapping(String, String)
    * @param propertyNameFrom
    * @param propertyNameTo
    */
   public void addPropertyNameMapping( String propertyNameFrom, String propertyNameTo );
   
   /**
+   * Adds a mapping from one property name to another for the specific path
+   * 
    * @param path
    * @param propertyNameFrom
    * @param propertyNameTo
@@ -41,6 +50,8 @@ interface TypeToTypeMappingDeclarer
   public void addPropertyNameMapping( String path, String propertyNameFrom, String propertyNameTo );
   
   /**
+   * Adds a mapping for any property having the given name and type to another property with a new name and a new type
+   * 
    * @param typeFrom
    * @param propertyNameFrom
    * @param typeTo
@@ -49,6 +60,8 @@ interface TypeToTypeMappingDeclarer
   public void addTypeAndPropertyNameMapping( Class<?> typeFrom, String propertyNameFrom, Class<?> typeTo, String propertyNameTo );
   
   /**
+   * Similar to {@link #addTypeAndPropertyNameMapping(Class, String, Class, String)} but allows to further specify a path
+   * 
    * @param path
    * @param typeFrom
    * @param propertyNameFrom
@@ -62,6 +75,8 @@ interface TypeToTypeMappingDeclarer
                                              String propertyNameTo );
   
   /**
+   * Adds a type to type mapping for a special path
+   * 
    * @param path
    * @param typeFrom
    * @param typeTo

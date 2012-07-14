@@ -27,33 +27,33 @@ import java.util.Map;
 import org.junit.Test;
 
 /**
- * @see MapBuilder
+ * @see MapBuilderOld
  * @author Omnaest
  */
-public class MapBuilderTest
+public class MapBuilderOldTest
 {
   
   @Test
   public void testBuild()
   {
     //
-    assertMapBuilder( new MapBuilder<String, String>().map( LinkedHashMap.class ) );
-    assertMapBuilder( new MapBuilder<String, String>().concurrentHashMap() );
-    assertMapBuilder( new MapBuilder<String, String>().linkedHashMap() );
-    assertMapBuilder( new MapBuilder<String, String>().hashMap() );
-    assertMapBuilder( new MapBuilder<String, String>().treeMap() );
+    assertMapBuilder( new MapBuilderOld<String, String>().map( LinkedHashMap.class ) );
+    assertMapBuilder( new MapBuilderOld<String, String>().concurrentHashMap() );
+    assertMapBuilder( new MapBuilderOld<String, String>().linkedHashMap() );
+    assertMapBuilder( new MapBuilderOld<String, String>().hashMap() );
+    assertMapBuilder( new MapBuilderOld<String, String>().treeMap() );
   }
   
   @Test
   public void testBuildMultipleTimes()
   {
     //
-    assertNotSame( new MapBuilder<String, String>().map( LinkedHashMap.class ),
-                   new MapBuilder<String, String>().map( LinkedHashMap.class ) );
+    assertNotSame( new MapBuilderOld<String, String>().map( LinkedHashMap.class ),
+                   new MapBuilderOld<String, String>().map( LinkedHashMap.class ) );
     
   }
   
-  private static void assertMapBuilder( MapBuilder<String, String>.MapBuilderWithMap mapBuilderWithMap )
+  private static void assertMapBuilder( MapBuilderOld<String, String>.MapBuilderWithMap<? extends Map<String, String>> mapBuilderWithMap )
   {
     //
     Map<String, String> map = mapBuilderWithMap.put( "key1", "value1" ).put( "key2", "value2" ).build();

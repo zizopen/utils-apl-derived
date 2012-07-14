@@ -15,43 +15,44 @@
  ******************************************************************************/
 package org.omnaest.utils.beans.replicator2;
 
-import java.io.Serializable;
-import java.util.Collection;
+import com.thoughtworks.xstream.io.json.AbstractJsonWriter.Type;
 
 /**
  * @author Omnaest
  */
-interface PreservedTypeInstanceManager extends Serializable
+interface PreservationAndIgnorationManager extends PreservationAndIgnorationDeclarer
 {
-  
-  /**
-   * @param typeCollection
-   */
-  public void removeAll( Collection<? extends Class<?>> typeCollection );
-  
-  /**
-   * @param typeCollection
-   */
-  public void retainAll( Collection<? extends Class<?>> typeCollection );
-  
-  /**
-   * @param typeCollection
-   */
-  public void addAll( Collection<? extends Class<?>> typeCollection );
-  
-  /**
-   * @param type
-   */
-  public void remove( Class<?> type );
-  
-  /**
-   * @param type
-   */
-  public void add( Class<?> type );
   
   /**
    * @param type
    * @return
    */
-  public boolean contains( Class<?> type );
+  public boolean isPreservedType( Class<?> type );
+  
+  /**
+   * Returns true if there is an preserved {@link Path} declared
+   * 
+   * @param path
+   * @return
+   */
+  @SuppressWarnings("javadoc")
+  public boolean isPreservedPath( Path path );
+  
+  /**
+   * Returns true, if the given {@link Path} should be ignored and the traversal should leap over
+   * 
+   * @param subPath
+   *          {@link Path}
+   * @return
+   */
+  @SuppressWarnings("javadoc")
+  public boolean isIgnoredPath( Path subPath );
+  
+  /**
+   * Returns true if the traversal should ignore the given {@link Type} and not inject at all into the target
+   * 
+   * @param type
+   * @return
+   */
+  public boolean isIgnoredType( Class<?> type );
 }

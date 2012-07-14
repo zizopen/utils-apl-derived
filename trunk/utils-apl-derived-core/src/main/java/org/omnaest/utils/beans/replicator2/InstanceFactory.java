@@ -13,30 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.beans.replicator.adapter.helper;
+package org.omnaest.utils.beans.replicator2;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.io.Serializable;
+import java.util.Map;
+
+import org.omnaest.utils.structure.element.factory.FactoryParameterized;
 
 /**
- * Package level annotation which can be used in combination of <code>package-info.java</code> to annotate a {@link Package}<br>
- * <br>
- * An example of a <code>package-info.java</code> created within the <code>org.omnaest.utils.dtoexample</code> {@link Package}
- * looks like:<br>
+ * Factory for an instance
  * 
- * <pre>
- * &#064;DTOPackage
- * package org.omnaest.utils.dtoexample;
- * 
- * import org.omnaest.utils.beans.replicator.BeanReplicator.DTOPackage;
- * </pre>
- * 
+ * @see FactoryParameterized
  * @author Omnaest
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PACKAGE)
-public @interface DTOPackage
+public interface InstanceFactory extends FactoryParameterized<Object, Map<String, Object>>, Serializable
 {
 }

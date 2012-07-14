@@ -949,6 +949,20 @@ public class ObjectUtils
   }
   
   /**
+   * Similar to {@link #toStringAsNestedHierarchy(Object)} but with reduced information
+   * 
+   * @param object
+   * @return
+   */
+  public static String toStringAsSimpleNestedHierarchy( Object object )
+  {
+    String regex = "ObjectModel \\[object=[^,]*, setterMethod=[^,]*, getterMethod=[^ ]* ?([^ ]*) ?[^,]*, field=[^,]*, propertyName=([^\\]]*)\\]";
+    String nestedHierarchy = toStringAsNestedHierarchy( object );
+    nestedHierarchy = nestedHierarchy.replaceAll( regex, "$1 $2" );
+    return nestedHierarchy;
+  }
+  
+  /**
    * Returns a {@link ObjectTreeNavigator} for the given {@link Object}
    * 
    * @param object
@@ -957,6 +971,22 @@ public class ObjectUtils
   public static ObjectTreeNavigator treeNavigator( Object object )
   {
     return new ObjectTreeNavigator( new ObjectToTreeNodeAdapter( new ObjectModel( object ) ) );
+  }
+  
+  /**
+   * Returns the {@link Class} of the given instance or null if null is given as instance
+   * 
+   * @param instance
+   * @return
+   */
+  public static Class<?> typeOf( Object instance )
+  {
+    Class<?> retval = null;
+    if ( instance != null )
+    {
+      retval = instance.getClass();
+    }
+    return retval;
   }
   
 }
