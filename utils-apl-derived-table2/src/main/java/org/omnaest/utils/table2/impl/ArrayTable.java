@@ -38,6 +38,7 @@ import org.omnaest.utils.table2.ImmutableRow;
 import org.omnaest.utils.table2.ImmutableStripe;
 import org.omnaest.utils.table2.ImmutableTable;
 import org.omnaest.utils.table2.Row;
+import org.omnaest.utils.table2.Rows;
 import org.omnaest.utils.table2.StripeTransformerPlugin;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableAdapterManager;
@@ -449,9 +450,9 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Iterable<Row<E>> rows( BitSet filter )
+  public Rows<E, Row<E>> rows( BitSet filter )
   {
-    return IterableUtils.filtered( this.rows(), filter );
+    return this.rows().filtered( filter );
   }
   
   @Override

@@ -51,6 +51,7 @@ public class StripeTransformerPluginODocumentTest
                                                                                                      "column3" ) );
         
         table.addRowElements( "a", "b", "c" );
+        table.addRowElements( "a", "b", "c" );
         ODocument document = table.row( 0 ).to().type( new ODocument( "Test" ) );
         document.save();
         
@@ -58,10 +59,16 @@ public class StripeTransformerPluginODocumentTest
         document2.setClassName( "Test" );
         document2.save();
         
+        table.setTableName( "Test" );
+        Iterable<ODocument> iterable = table.rows().to().types( ODocument.class );
+        for ( ODocument oDocument : iterable )
+        {
+          oDocument.save();
+        }        
       }
       {
         List<ODocument> result = db.query( new OSQLSynchQuery<ODocument>( "select * from Test" ) );
-        assertEquals( 2, result.size() );
+        assertEquals( 4, result.size() );
         {
           final Iterator<ODocument> iterator = result.iterator();
           while ( iterator.hasNext() )

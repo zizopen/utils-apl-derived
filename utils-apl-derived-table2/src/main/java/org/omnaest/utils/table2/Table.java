@@ -255,20 +255,20 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   /**
    * Returns an {@link Iterable} instance over all {@link Row}s of the {@link Table}
    * 
-   * @return
+   * @return new {@link Rows}
    */
   @Override
-  public Iterable<Row<E>> rows();
+  public Rows<E, Row<E>> rows();
   
   /**
    * Returns an {@link Iterable} over all {@link Row}s where the row index position has an enabled bit within the filter
    * {@link BitSet}
    * 
    * @param indexFilter
-   * @return new {@link Iterable}
+   * @return new {@link Rows}
    */
   @Override
-  public Iterable<Row<E>> rows( BitSet indexFilter );
+  public Rows<E, Row<E>> rows( BitSet indexFilter );
   
   /**
    * Returns an {@link Iterable} over all {@link Row}s which are between the two given row index positions. The lower index is
@@ -276,10 +276,10 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * 
    * @param rowIndexFrom
    * @param rowIndexTo
-   * @return new {@link Iterable}
+   * @return new {@link Rows}
    */
   @Override
-  public Iterable<Row<E>> rows( int rowIndexFrom, int rowIndexTo );
+  public Rows<E, Row<E>> rows( int rowIndexFrom, int rowIndexTo );
   
   /**
    * Returns a {@link TableSerializer} instance

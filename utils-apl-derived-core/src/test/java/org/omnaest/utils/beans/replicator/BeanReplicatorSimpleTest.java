@@ -156,14 +156,14 @@ public class BeanReplicatorSimpleTest
     assertSimpleBean( simpleBean, clone );
   }
   
-  @SuppressWarnings({ "unchecked" })
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
   public void testMappingWithMap()
   {
     {
-      BeanReplicator<TestSimpleBeanFrom, Map<String, Object>> beanReplicator = new BeanReplicator<TestSimpleBeanFrom, Map<String, Object>>(
+      BeanReplicator<TestSimpleBeanFrom, Map> beanReplicator = new BeanReplicator<TestSimpleBeanFrom, Map>(
                                                                                                                                             TestSimpleBeanFrom.class,
-                                                                                                                                            (Class<? extends Map<String, Object>>) Map.class );
+                                                                                                                                             Map.class );
       
       final TestSimpleBeanFrom source = new TestSimpleBeanFrom();
       source.setFieldString( "test" );
