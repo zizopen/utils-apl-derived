@@ -17,6 +17,7 @@ package org.omnaest.utils.table2.impl;
 
 import java.util.BitSet;
 
+import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.ImmutableColumn;
@@ -172,6 +173,12 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   public int size()
   {
     return this.table.rowSize();
+  }
+  
+  @Override
+  protected String[] getOrthogonalTitles()
+  {
+    return ArrayUtils.valueOf( this.table.getRowTitleList(), String.class );
   }
   
 }

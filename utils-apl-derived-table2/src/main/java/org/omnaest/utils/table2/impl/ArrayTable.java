@@ -35,8 +35,10 @@ import org.omnaest.utils.structure.iterator.IteratorUtils;
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.ImmutableRow;
+import org.omnaest.utils.table2.ImmutableStripe;
 import org.omnaest.utils.table2.ImmutableTable;
 import org.omnaest.utils.table2.Row;
+import org.omnaest.utils.table2.StripeTransformerPlugin;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableAdapterManager;
 import org.omnaest.utils.table2.TableExecution;
@@ -56,14 +58,15 @@ import org.omnaest.utils.table2.impl.join.TableSelectImpl;
 public class ArrayTable<E> extends TableAbstract<E>
 {
   /* ************************************************** Constants *************************************************** */
-  private static final long                     serialVersionUID = 6360131663629436319L;
+  private static final long                       serialVersionUID = 6360131663629436319L;
   
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final Class<E>                        elementType;
-  private final TableAdapterManager<E>          tableAdapterManager;
-  final TableDataAccessor<E>                    tableDataAccessor;
-  private final TableIndexManager<E, Cell<E>>   tableIndexManager;
-  private final TablePersistenceRegistration<E> tablePersistenceRegistration;
+  private final Class<E>                          elementType;
+  private final TableAdapterManager<E>            tableAdapterManager;
+  final TableDataAccessor<E>                      tableDataAccessor;
+  private final TableIndexManager<E, Cell<E>>     tableIndexManager;
+  private final TablePersistenceRegistration<E>   tablePersistenceRegistration;
+  private final StripeTransformerPluginManager<E> stripeTransformerPluginManager;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -86,6 +89,7 @@ public class ArrayTable<E> extends TableAbstract<E>
                                                                                                                   this,
                                                                                                                   this.tableDataAccessor.getTableLock(),
                                                                                                                   this.exceptionHandler ) );
+    this.stripeTransformerPluginManager = new StripeTransformerPluginManagerImpl<E>();
   }
   
   @SuppressWarnings("unchecked")
@@ -110,9 +114,8 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Table<E> addRowElements( E[] elements )
+  public Table<E> addRowElements( E... elements )
   {
-    //
     this.tableDataAccessor.addRow( elements );
     return this;
   }
@@ -120,7 +123,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public Table<E> addRowElements( int rowIndex, E... elements )
   {
-    //
     this.tableDataAccessor.addRow( rowIndex, elements );
     return this;
   }
@@ -550,4 +552,56 @@ public class ArrayTable<E> extends TableAbstract<E>
     return this.tableDataAccessor.getColumnIndex( columnTitle );
   }
   
+  @Override
+  public Table<E> register( StripeTransformerPlugin<E, ?> stripeTransformerPlugin )
+  {
+    this.stripeTransformerPluginManager.register( stripeTransformerPlugin );
+    return this;
+  }
+  
+  @Override
+  public <T> T transformStripeInto( Class<T> type, ImmutableStripe<E> stripe )
+  {
+    T retval = null;
+    if ( stripe != null )
+    {
+      final StripeTransformerPlugin<E, T> stripeTransformerPlugin = this.stripeTransformerPluginManager.resolveStripeTransformerPluginFor( type );
+      if ( stripeTransformerPlugin != null )
+      {
+        try
+        {
+          retval = stripeTransformerPlugin.transform( stripe );
+        }
+        catch ( Exception e )
+        {
+          this.exceptionHandler.handleException( e );
+        }
+      }
+    }
+    return retval;
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T transformStripeInto( T instance, ImmutableStripe<E> stripe )
+  {
+    T retval = null;
+    if ( instance != null && stripe != null )
+    {
+      final Class<T> type = (Class<T>) instance.getClass();
+      final StripeTransformerPlugin<E, T> stripeTransformerPlugin = this.stripeTransformerPluginManager.resolveStripeTransformerPluginFor( type );
+      if ( stripeTransformerPlugin != null )
+      {
+        try
+        {
+          retval = stripeTransformerPlugin.transform( stripe, instance );
+        }
+        catch ( Exception e )
+        {
+          this.exceptionHandler.handleException( e );
+        }
+      }
+    }
+    return retval;
+  }
 }

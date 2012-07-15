@@ -64,7 +64,7 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @param elements
    * @return this
    */
-  public Table<E> addRowElements( E[] elements );
+  public Table<E> addRowElements( E... elements );
   
   /**
    * Adds new elements as {@link Row} to the {@link Table} at the specific row index position.
@@ -215,6 +215,9 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    */
   public TablePersistenceRegistration<E> persistence();
   
+  @Override
+  public Table<E> register( StripeTransformerPlugin<E, ?> stripeTransformerPlugin );
+  
   /**
    * Removes the {@link Column} for the given column index position
    * 
@@ -266,6 +269,17 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    */
   @Override
   public Iterable<Row<E>> rows( BitSet indexFilter );
+  
+  /**
+   * Returns an {@link Iterable} over all {@link Row}s which are between the two given row index positions. The lower index is
+   * inclusive the upper index position is exclusive.
+   * 
+   * @param rowIndexFrom
+   * @param rowIndexTo
+   * @return new {@link Iterable}
+   */
+  @Override
+  public Iterable<Row<E>> rows( int rowIndexFrom, int rowIndexTo );
   
   /**
    * Returns a {@link TableSerializer} instance

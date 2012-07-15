@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  * @author Omnaest
  * @param <E>
  */
-public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
+public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTransformerPluginRegistration<E>
 {
   
   /**
@@ -160,6 +160,14 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
                                                 ImmutableTable<E>... furtherLockedTables );
   
   /**
+   * Returns the column index position for the given column title. If no column title matches -1 is returned
+   * 
+   * @param columnTitle
+   * @return
+   */
+  public int getColumnIndex( String columnTitle );
+  
+  /**
    * Returns the title of the column with the given index position
    * 
    * @param columnIndex
@@ -268,6 +276,9 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
    */
   public ImmutableRow<E> lastRow();
   
+  @Override
+  public ImmutableTable<E> register( StripeTransformerPlugin<E, ?> stripeTransformerPlugin );
+  
   /**
    * Returns a new {@link ImmutableRow} currently related to the given row index position
    * 
@@ -301,6 +312,16 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
   public Iterable<? extends ImmutableRow<E>> rows( BitSet indexFilter );
   
   /**
+   * Returns an {@link Iterable} over all {@link ImmutableRow}s which are between the two given row index positions. The lower
+   * index is inclusive the upper index position is exclusive.
+   * 
+   * @param rowIndexFrom
+   * @param rowIndexTo
+   * @return new {@link Iterable}
+   */
+  public Iterable<? extends ImmutableRow<E>> rows( int rowIndexFrom, int rowIndexTo );
+  
+  /**
    * Returns the number of {@link Row}s
    * 
    * @return
@@ -330,10 +351,23 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>
   public TableTransformer<E> to();
   
   /**
-   * Returns the column index position for the given column title. If no column title matches -1 is returned
+   * Transforms the given {@link ImmutableStripe} into an instance of the given {@link Class} type. This requires a
+   * {@link StripeTransformerPlugin} being registered using {@link #register(StripeTransformerPlugin)} before.
    * 
-   * @param columnTitle
-   * @return
+   * @param type
+   * @param stripe
+   *          {@link ImmutableStripe}
+   * @return new instance
    */
-  public int getColumnIndex( String columnTitle );
+  public <T> T transformStripeInto( Class<T> type, ImmutableStripe<E> stripe );
+  
+  /**
+   * Similar to {@link #transformStripeInto(Class, ImmutableStripe)} using the given instance and returning it in an enriched
+   * manner.
+   * 
+   * @param instance
+   * @param stripe
+   * @return given instance
+   */
+  public <T> T transformStripeInto( T instance, ImmutableStripe<E> stripe );
 }

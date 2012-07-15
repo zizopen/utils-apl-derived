@@ -19,7 +19,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -150,8 +152,11 @@ public abstract class StripeImpl<E> implements Stripe<E>
   {
     final ImmutableStripe<E> stripe = this;
     final Table<E> table = this.table;
+    final String[] orthogonalTitles = this.getOrthogonalTitles();
     return new StripeTransformer<E>()
     {
+      private static final long serialVersionUID = 4473192340081669345L;
+      
       @Override
       public Set<E> set()
       {
@@ -171,11 +176,35 @@ public abstract class StripeImpl<E> implements Stripe<E>
       }
       
       @Override
+      public Map<String, E> map()
+      {
+        Map<String, E> retmap = new LinkedHashMap<String, E>();
+        for ( String title : orthogonalTitles )
+        {
+          final E element = stripe.getElement( title );
+          retmap.put( title, element );
+        }
+        return retmap;
+      }
+      
+      @Override
       public StripeEntity<E> entity()
       {
         final String title = getTitle();
         final E[] elements = getElements();
         return new StripeEntity<E>( title, elements );
+      }
+      
+      @Override
+      public <T> T type( Class<T> type )
+      {
+        return table.transformStripeInto( type, stripe );
+      }
+      
+      @Override
+      public <T> T type( T instance )
+      {
+        return table.transformStripeInto( instance, StripeImpl.this );
       }
     };
   }
@@ -191,6 +220,8 @@ public abstract class StripeImpl<E> implements Stripe<E>
     }
     return retvals;
   }
+  
+  protected abstract String[] getOrthogonalTitles();
   
   @Override
   public String toString()
