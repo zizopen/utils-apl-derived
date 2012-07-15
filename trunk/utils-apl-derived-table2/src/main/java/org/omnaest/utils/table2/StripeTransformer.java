@@ -15,7 +15,9 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -25,7 +27,7 @@ import java.util.Set;
  * @author Omnaest
  * @param <E>
  */
-public interface StripeTransformer<E>
+public interface StripeTransformer<E> extends Serializable
 {
   /**
    * Returns a new {@link Set} instance containing all elements
@@ -54,4 +56,31 @@ public interface StripeTransformer<E>
    * @return
    */
   public StripeEntity<E> entity();
+  
+  /**
+   * Returns the {@link Stripe} transformed into the given type. <br>
+   * <br>
+   * To allow this to work there has to be a {@link StripeTransformerPlugin} registered to the underlying {@link Table}.
+   * 
+   * @param type
+   *          {@link Class}
+   * @return
+   */
+  public <T> T type( Class<T> type );
+  
+  /**
+   * Similar to {@link #type(Class)} using a given instance which is returned enriched with the data of the {@link Stripe}
+   * 
+   * @param instance
+   * @return given instance
+   */
+  public <T> T type( T instance );
+  
+  /**
+   * Returns the {@link Stripe} as a {@link Map}. The keys are the orthogonal titles and the values are the actual elements of the
+   * {@link Stripe}
+   * 
+   * @return
+   */
+  public Map<String, E> map();
 }

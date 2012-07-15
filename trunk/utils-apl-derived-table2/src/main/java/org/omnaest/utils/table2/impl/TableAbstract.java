@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.util.BitSet;
 import java.util.Iterator;
 
 import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
@@ -40,6 +41,14 @@ import org.omnaest.utils.table2.impl.transformer.TableTransformerImpl;
  */
 abstract class TableAbstract<E> implements Table<E>
 {
+  /* ************************************************** Constants *************************************************** */
+  private static final long          serialVersionUID = 6651647383929942697L;
+  
+  /* ************************************** Variables / State (internal/hiding) ************************************* */
+  protected ExceptionHandlerDelegate exceptionHandler = new ExceptionHandlerDelegate( new ExceptionHandlerIgnoring() );
+  
+  /* ********************************************** Classes/Interfaces ********************************************** */  
+  /* ********************************************** Classes/Interfaces ********************************************** */
   public static final class ColumnIterator<E, C extends ImmutableColumn<E>> implements Iterator<C>
   {
     private int            index = -1;
@@ -113,14 +122,6 @@ abstract class TableAbstract<E> implements Table<E>
       throw new UnsupportedOperationException();
     }
   }
-  
-  /* ********************************************** Classes/Interfaces ********************************************** */
-  
-  /* ************************************************** Constants *************************************************** */
-  private static final long          serialVersionUID = 6651647383929942697L;
-  
-  /* ************************************** Variables / State (internal/hiding) ************************************* */
-  protected ExceptionHandlerDelegate exceptionHandler = new ExceptionHandlerDelegate( new ExceptionHandlerIgnoring() );
   
   /* *************************************************** Methods **************************************************** */
   public TableAbstract()
@@ -199,24 +200,32 @@ abstract class TableAbstract<E> implements Table<E>
   {
     return new TableTransformerImpl<E>( this );
   }
-
+  
   @Override
   public String toString()
   {
     return this.to().string();
   }
-
+  
   @Override
   public Row<E> newRow()
   {
     final int rowIndex = this.rowSize();
     return this.row( rowIndex );
   }
-
+  
   @Override
   public Row<E> lastRow()
   {
     return this.row( this.rowSize() - 1 );
+  }
+  
+  @Override
+  public Iterable<Row<E>> rows( int rowIndexFrom, int rowIndexTo )
+  {
+    final BitSet filter = new BitSet();
+    filter.set( rowIndexFrom, rowIndexTo );
+    return this.rows( filter );
   }
   
 }

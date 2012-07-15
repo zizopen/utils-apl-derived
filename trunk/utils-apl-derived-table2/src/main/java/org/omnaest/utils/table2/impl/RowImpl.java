@@ -18,6 +18,7 @@ package org.omnaest.utils.table2.impl;
 import java.util.Arrays;
 import java.util.BitSet;
 
+import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
@@ -267,6 +268,12 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
     builder.append( Arrays.toString( this.getElements() ) );
     builder.append( "]" );
     return builder.toString();
+  }
+
+  @Override
+  protected String[] getOrthogonalTitles()
+  {
+    return ArrayUtils.valueOf( this.table.getColumnTitleList(), String.class );
   }
   
 }
