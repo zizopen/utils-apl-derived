@@ -23,11 +23,13 @@ import org.omnaest.utils.events.exception.basic.ExceptionHandlerDelegate;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerIgnoring;
 import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.element.factory.Factory;
+import org.omnaest.utils.structure.element.factory.FactorySerializable;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.ImmutableColumn;
 import org.omnaest.utils.table2.ImmutableRow;
 import org.omnaest.utils.table2.Row;
+import org.omnaest.utils.table2.Rows;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableSerializer;
 import org.omnaest.utils.table2.TableTransformer;
@@ -47,7 +49,7 @@ abstract class TableAbstract<E> implements Table<E>
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   protected ExceptionHandlerDelegate exceptionHandler = new ExceptionHandlerDelegate( new ExceptionHandlerIgnoring() );
   
-  /* ********************************************** Classes/Interfaces ********************************************** */  
+  /* ********************************************** Classes/Interfaces ********************************************** */
   /* ********************************************** Classes/Interfaces ********************************************** */
   public static final class ColumnIterator<E, C extends ImmutableColumn<E>> implements Iterator<C>
   {
@@ -86,7 +88,7 @@ abstract class TableAbstract<E> implements Table<E>
     }
   }
   
-  public static final class RowIterator<E, R extends ImmutableRow<E>> implements Iterator<R>
+  static final class RowIterator<E, R extends ImmutableRow<E>> implements Iterator<R>
   {
     /* ************************************** Variables / State (internal/hiding) ************************************* */
     private int            index = -1;
@@ -97,6 +99,10 @@ abstract class TableAbstract<E> implements Table<E>
     
     /* *************************************************** Methods **************************************************** */
     
+    /**
+     * @see RowIterator
+     * @param table
+     */
     public RowIterator( Table<E> table )
     {
       this.table = table;
@@ -168,18 +174,19 @@ abstract class TableAbstract<E> implements Table<E>
   }
   
   @Override
-  public Iterable<Row<E>> rows()
+  public Rows<E, Row<E>> rows()
   {
     final Table<E> table = this;
-    return IterableUtils.valueOf( new Factory<Iterator<Row<E>>>()
+    return new RowsImpl<E>( IterableUtils.valueOf( new FactorySerializable<Iterator<Row<E>>>()
     {
+      private static final long serialVersionUID = -8151494883227852607L;
+      
       @Override
       public Iterator<Row<E>> newInstance()
       {
         return new RowIterator<E, Row<E>>( table );
       }
-    } );
-    
+    } ) );
   }
   
   @Override
@@ -221,7 +228,7 @@ abstract class TableAbstract<E> implements Table<E>
   }
   
   @Override
-  public Iterable<Row<E>> rows( int rowIndexFrom, int rowIndexTo )
+  public Rows<E, Row<E>> rows( int rowIndexFrom, int rowIndexTo )
   {
     final BitSet filter = new BitSet();
     filter.set( rowIndexFrom, rowIndexTo );

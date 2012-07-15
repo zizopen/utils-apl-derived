@@ -298,18 +298,18 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTran
   /**
    * Returns an {@link Iterable} instance over all {@link ImmutableRow}s of the {@link Table}
    * 
-   * @return
+   * @return new {@link Rows}
    */
-  public Iterable<? extends ImmutableRow<E>> rows();
+  public Rows<E, ? extends ImmutableRow<E>> rows();
   
   /**
    * Returns an {@link Iterable} over all {@link ImmutableRow}s where the row index position has an enabled bit within the filter
    * {@link BitSet}
    * 
    * @param indexFilter
-   * @return new {@link Iterable}
+   * @return new {@link Rows}
    */
-  public Iterable<? extends ImmutableRow<E>> rows( BitSet indexFilter );
+  public Rows<E, ? extends ImmutableRow<E>> rows( BitSet indexFilter );
   
   /**
    * Returns an {@link Iterable} over all {@link ImmutableRow}s which are between the two given row index positions. The lower
@@ -317,9 +317,9 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTran
    * 
    * @param rowIndexFrom
    * @param rowIndexTo
-   * @return new {@link Iterable}
+   * @return new {@link Rows}
    */
-  public Iterable<? extends ImmutableRow<E>> rows( int rowIndexFrom, int rowIndexTo );
+  public Rows<E, ? extends ImmutableRow<E>> rows( int rowIndexFrom, int rowIndexTo );
   
   /**
    * Returns the number of {@link Row}s

@@ -42,7 +42,8 @@ public class StripeTransformerPluginODocument<E> implements StripeTransformerPlu
   @Override
   public ODocument transform( ImmutableStripe<E> stripe )
   {
-    final ODocument document = new ODocument();
+    String tableName = stripe.table().getTableName();
+    final ODocument document = new ODocument( tableName );
     this.copyDataToDocument( stripe, document );
     return document;
   }
