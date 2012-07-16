@@ -65,7 +65,7 @@ import org.omnaest.utils.table2.impl.persistence.SimpleFileBasedTablePersistence
  */
 public abstract class TableTest
 {
-  static class SimpleTestBean
+  protected static class SimpleTestBean
   {
     private String c0;
     private String c1;
@@ -130,12 +130,17 @@ public abstract class TableTest
     
   }
   
-  static class TestDomain
+  protected static class TestDomain
   {
     private String fieldString;
     private Date   fieldDate;
     private Double fieldDouble;
     private Long   fieldLong;
+    
+    public TestDomain()
+    {
+      super();
+    }
     
     public String getFieldString()
     {
@@ -194,7 +199,7 @@ public abstract class TableTest
     assertEquals( 1, elementRowSet.size() );
   }
   
-  private static Date newRelativeDate( final Date date, int ii )
+  protected static Date newRelativeDate( final Date date, int ii )
   {
     final Date fieldDate;
     {
@@ -1128,7 +1133,7 @@ public abstract class TableTest
   }
   
   @Test
-  public void testMoreComplexListAdapter()
+  public void testMoreComplexManagedBeanListAdapter()
   {
     final Table<Object> table = new ArrayTable<Object>( Object.class ).setExceptionHandler( new ExceptionHandlerEPrintStackTrace() );
     table.setColumnTitles( Arrays.asList( "fieldDate", "fieldDouble", "fieldLong", "fieldString" ) );
@@ -1143,7 +1148,7 @@ public abstract class TableTest
         return date;
       }
     }, TestDomain.class );
-    final List<TestDomain> domainList = table.as().beanList( TestDomain.class );
+    final List<TestDomain> domainList = table.as().managedBeanList( TestDomain.class );
     final Date date = new Date();
     for ( int ii = 0; ii < 30; ii++ )
     {
@@ -1293,7 +1298,7 @@ public abstract class TableTest
   {
     Table<String> table = this.filledTableWithTitles( 10, 5 ).setExceptionHandler( new ExceptionHandlerEPrintStackTrace() );
     
-    List<SimpleTestBean> beanList = table.as().beanList( SimpleTestBean.class );
+    List<SimpleTestBean> beanList = table.as().managedBeanList( SimpleTestBean.class );
     assertNotNull( beanList );
     assertEquals( table.rowSize(), beanList.size() );
     for ( int ii = 0; ii < 10; ii++ )
@@ -1329,5 +1334,45 @@ public abstract class TableTest
     }
     
     //System.out.println( table );
+  }
+  
+  @Test
+  public void testMoreComplexDTObasedListAdapter()
+  {
+    final Table<Object> table = new ArrayTable<Object>( Object.class ).setExceptionHandler( new ExceptionHandlerEPrintStackTrace() );
+    table.setColumnTitles( Arrays.asList( "fieldDate", "fieldDouble", "fieldLong", "fieldString" ) );
+    final List<TestDomain> domainList = table.as().beanList( TestDomain.class );
+    final Date date = new Date();
+    final int numberOfRows = 20;
+    for ( int ii = 0; ii < numberOfRows; ii++ )
+    {
+      TestDomain testDomain = new TestDomain();
+      {
+        final Date fieldDate = newRelativeDate( date, ii / 2 );
+        testDomain.setFieldDate( fieldDate );
+        testDomain.setFieldDouble( 123.5 + ii );
+        testDomain.setFieldLong( 134l + ii );
+        testDomain.setFieldString( "test" + ii );
+      }
+      domainList.add( testDomain );
+      assertEquals( 1 + ii, domainList.size() );
+      assertEquals( domainList.size(), table.rowSize() );
+    }
+    assertEquals( numberOfRows, domainList.size() );
+    assertNotNull( ListUtils.firstElement( domainList ) );
+    assertNotNull( ListUtils.lastElement( domainList ) );
+    
+    {
+      TestDomain testDomain = ListUtils.get( domainList, 0 );
+      assertEquals( "test0", testDomain.getFieldString() );
+      assertEquals( 134l, testDomain.getFieldLong().longValue() );
+    }
+    {
+      TestDomain testDomain = ListUtils.get( domainList, 10 );
+      assertEquals( "test10", testDomain.getFieldString() );
+      assertEquals( 134l + 10, testDomain.getFieldLong().longValue() );
+    }
+    
+    //System.out.println( table );    
   }
 }

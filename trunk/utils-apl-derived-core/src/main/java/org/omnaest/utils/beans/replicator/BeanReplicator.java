@@ -234,7 +234,7 @@ public class BeanReplicator<FROM, TO> implements Serializable
    * @see #declare(DeclarationSupport)
    * @author Omnaest
    */
-  public static interface Declaration
+  public static interface Declaration extends Serializable
   {
     /**
      * @see DeclarationSupport

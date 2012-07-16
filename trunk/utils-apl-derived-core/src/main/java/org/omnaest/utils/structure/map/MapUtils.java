@@ -16,6 +16,7 @@
 package org.omnaest.utils.structure.map;
 
 import java.io.PrintStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1287,5 +1288,22 @@ public class MapUtils
       retval = map.size();
     }
     return retval;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static <K, V> V[] filteredValues( Map<K, V> map, Class<V> valueType, K... keys )
+  {
+    Assert.isNotNull( valueType );
+    final V[] retvals = (V[]) Array.newInstance( valueType, keys != null ? keys.length : 0 );
+    if ( keys != null && map != null )
+    {
+      int ii = 0;
+      for ( K key : keys )
+      {
+        V value = map.get( key );
+        retvals[ii++] = value;
+      }
+    }
+    return retvals;
   }
 }

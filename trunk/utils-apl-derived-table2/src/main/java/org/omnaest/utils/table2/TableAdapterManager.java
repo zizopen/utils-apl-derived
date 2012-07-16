@@ -65,8 +65,8 @@ public interface TableAdapterManager<E> extends Serializable
   public Map<E, BitSet> rowIndexMap( int columnIndexKey );
   
   /**
-   * Returns a {@link List} of Java beans which are backed by the {@link Table}. The mapping is done by column titles to property
-   * name.<br>
+   * Returns a {@link List} of Java beans where the {@link List} as well the returned Java beans are backed by the {@link Table}.
+   * The mapping is done by column titles to property name.<br>
    * <br>
    * Be aware that this performs very slowly, since the beans are mapped to the columns of the table by proxy instances created on
    * the fly.<br>
@@ -75,10 +75,21 @@ public interface TableAdapterManager<E> extends Serializable
    * @param type
    * @return new {@link List} adapter instance
    */
+  public <B> List<B> managedBeanList( Class<? extends B> type );
+  
+  /**
+   * Returns a {@link List} of Java beans which as {@link List} is backed by the {@link Table} but having independent bean
+   * instances.<br>
+   * <br>
+   * The mapping is done by column titles to property name.<br>
+   * 
+   * @param type
+   * @return backed {@link List}
+   */
   public <B> List<B> beanList( Class<? extends B> type );
   
   /**
-   * Similar to {@link #beanList(Class)} allowing to specify a bean mapping {@link Declaration}
+   * Similar to {@link #managedBeanList(Class)} allowing to specify a bean mapping {@link Declaration}
    * 
    * @see BeanReplicator
    * @see Declaration
@@ -87,6 +98,6 @@ public interface TableAdapterManager<E> extends Serializable
    *          {@link Declaration}
    * @return new {@link List} adapter instance
    */
-  public <B> List<B> beanList( Class<? extends B> type, Declaration declaration );
+  public <B> List<B> managedBeanList( Class<? extends B> type, Declaration declaration );
   
 }

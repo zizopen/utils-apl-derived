@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.map;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -210,11 +211,11 @@ public class MapUtilsTest
     
     //
     assertEquals( new MapBuilderOld<Integer, String>().linkedHashMap()
-                                                   .put( 1, "key1" )
-                                                   .put( 2, "key2" )
-                                                   .put( 3, "key3" )
-                                                   .put( 4, "key4" )
-                                                   .build(), invertedMap );
+                                                      .put( 1, "key1" )
+                                                      .put( 2, "key2" )
+                                                      .put( 3, "key3" )
+                                                      .put( 4, "key4" )
+                                                      .build(), invertedMap );
   }
   
   @Test
@@ -256,6 +257,18 @@ public class MapUtilsTest
     assertNotNull( map );
     assertEquals( "key1", map.keySet().iterator().next() );
     assertEquals( "value1", map.values().iterator().next() );
+  }
+  
+  @Test
+  public void testFilteredValues() throws Exception
+  {
+    String[] filteredValues = MapUtils.filteredValues( MapUtils.builder()
+                                                               .put( "key1", "value1" )
+                                                               .put( "key2", "value2" )
+                                                               .put( "key3", "value3" )
+                                                               .buildAs()
+                                                               .linkedHashMap(), String.class, "key1", "key2" );
+    assertArrayEquals( new String[] { "value1", "value2" }, filteredValues );
   }
   
 }
