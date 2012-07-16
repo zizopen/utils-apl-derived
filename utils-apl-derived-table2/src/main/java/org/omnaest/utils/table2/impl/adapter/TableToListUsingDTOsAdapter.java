@@ -15,35 +15,40 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl.adapter;
 
+import java.util.Map;
+
 import org.omnaest.utils.beans.replicator.BeanReplicator;
 import org.omnaest.utils.beans.replicator.BeanReplicator.Declaration;
+import org.omnaest.utils.beans.replicator.BeanReplicator.DeclarationSupport;
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.collection.list.ListAbstract;
+import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
-import org.omnaest.utils.table2.impl.rowdata.RowDataBasedBeanFactory;
 
 /**
  * @author Omnaest
  * @param <E>
  * @param <B>
  */
-class TableToListAdapter<E, B> extends ListAbstract<B>
+class TableToListUsingDTOsAdapter<E, B> extends ListAbstract<B>
 {
   /* ************************************************** Constants *************************************************** */
-  private static final long                serialVersionUID = -5899940297760214750L;
+  private static final long            serialVersionUID = -5899940297760214750L;
   
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final RowDataBasedBeanFactory<B> beanFactory;
-  private final BeanReplicator<B, B>       beanReplicator;
+  @SuppressWarnings("rawtypes")
+  private final BeanReplicator<B, Map> beanReplicator;
+  @SuppressWarnings("rawtypes")
+  private final BeanReplicator<Map, B> beanReplicatorRowToBean;
   
   /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
-  private final Table<E>                   table;
+  private final Table<E>               table;
   
   /* *************************************************** Methods **************************************************** */
   
   /**
-   * @see TableToListAdapter
+   * @see TableToListUsingDTOsAdapter
    * @param table
    *          {@link Table}
    * @param beanType
@@ -52,27 +57,37 @@ class TableToListAdapter<E, B> extends ListAbstract<B>
    * @param exceptionHandler
    *          {@link ExceptionHandler}
    */
-  @SuppressWarnings("unchecked")
-  TableToListAdapter( Table<E> table, Class<? extends B> beanType, Declaration declaration,
-                      final ExceptionHandler exceptionHandler )
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  TableToListUsingDTOsAdapter( Table<E> table, Class<? extends B> beanType, Declaration declaration,
+                               final ExceptionHandler exceptionHandler )
   {
     this.table = table;
-    this.beanFactory = new RowDataBasedBeanFactory<B>( (Class<B>) beanType, exceptionHandler );
-    this.beanReplicator = new BeanReplicator<B, B>( (Class<B>) beanType, (Class<B>) beanType ).declare( declaration )
-                                                                                              .setExceptionHandler( exceptionHandler );
+    this.beanReplicator = new BeanReplicator<B, Map>( (Class<B>) beanType, Map.class ).declare( declaration )
+                                                                                      .setExceptionHandler( exceptionHandler );
+    this.beanReplicatorRowToBean = new BeanReplicator<Map, B>( Map.class, beanType ).declare( declaration )
+                                                                                    .setExceptionHandler( exceptionHandler );
   }
   
   /**
-   * @see TableToListAdapter
+   * @see TableToListUsingDTOsAdapter
    * @param table
    *          {@link Table}
    * @param beanType
    *          {@link Class}
    * @param exceptionHandler
    */
-  TableToListAdapter( Table<E> table, Class<? extends B> beanType, final ExceptionHandler exceptionHandler )
+  TableToListUsingDTOsAdapter( Table<E> table, Class<? extends B> beanType, final ExceptionHandler exceptionHandler )
   {
-    this( table, beanType, (Declaration) null, exceptionHandler );
+    this( table, beanType, new Declaration()
+    {
+      private static final long serialVersionUID = -5488806350640682134L;
+      
+      @Override
+      public void declare( DeclarationSupport support )
+      {
+        support.setPreservedDeepnessLevel( 1 );
+      }
+    }, exceptionHandler );
   }
   
   @Override
@@ -93,32 +108,36 @@ class TableToListAdapter<E, B> extends ListAbstract<B>
   @Override
   public B get( int index )
   {
-    final Row<E> row = this.table.row( index );
-    final B retval = this.beanFactory.build( row );
+    final boolean detached = true;
+    final Row<E> row = this.table.row( index, detached );
+    final Map<String, E> map = row.to().map();
+    B retval = this.beanReplicatorRowToBean.clone( map );
     return retval;
   }
   
+  @SuppressWarnings("unchecked")
   @Override
   public B set( int index, B bean )
   {
-    B accessBean = this.get( index );
-    B retval = this.beanReplicator.clone( accessBean );
+    B retval = this.get( index );
     if ( bean != null )
     {
-      this.beanReplicator.copy( bean, accessBean );
+      Map<String, E> map = this.beanReplicator.clone( bean );
+      E[] elements = MapUtils.filteredValues( map, this.table.elementType(), this.table.getColumnTitles() );
+      this.table.setRowElements( index, elements );
     }
     return retval;
   }
   
+  @SuppressWarnings("unchecked")
   @Override
   public void add( int index, B bean )
   {
-    final Row<E> row = this.table.newRow();
     if ( bean != null )
     {
-      B accessBean = this.beanFactory.build( row );
-      this.beanReplicator.copy( bean, accessBean );
-      row.moveTo( index );
+      Map<String, E> map = this.beanReplicator.clone( bean );
+      E[] elements = MapUtils.filteredValues( map, this.table.elementType(), this.table.getColumnTitles() );
+      this.table.addRowElements( index, elements );
     }
   }
   

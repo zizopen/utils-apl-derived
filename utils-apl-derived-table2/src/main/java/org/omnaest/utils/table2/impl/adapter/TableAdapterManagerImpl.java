@@ -96,14 +96,20 @@ public class TableAdapterManagerImpl<E> implements TableAdapterManager<E>
   }
   
   @Override
-  public <B> List<B> beanList( Class<? extends B> type )
+  public <B> List<B> managedBeanList( Class<? extends B> type )
   {
-    return new TableToListAdapter<E, B>( this.table, type, this.exceptionHandler );
+    return new TableToListUsingManagedBeansAdapter<E, B>( this.table, type, this.exceptionHandler );
   }
   
   @Override
-  public <B> List<B> beanList( Class<? extends B> type, Declaration declaration )
+  public <B> List<B> managedBeanList( Class<? extends B> type, Declaration declaration )
   {
-    return new TableToListAdapter<E, B>( this.table, type, declaration, this.exceptionHandler );
+    return new TableToListUsingManagedBeansAdapter<E, B>( this.table, type, declaration, this.exceptionHandler );
+  }
+  
+  @Override
+  public <B> List<B> beanList( Class<? extends B> type )
+  {
+    return new TableToListUsingDTOsAdapter<E, B>( this.table, type, this.exceptionHandler );
   }
 }
