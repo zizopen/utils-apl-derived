@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.table2.Table;
+import org.omnaest.utils.table2.TableEventHandler;
 
 /**
  * Container for the {@link Table} meta data like titles

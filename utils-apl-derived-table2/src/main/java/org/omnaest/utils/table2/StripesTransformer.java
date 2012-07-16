@@ -23,9 +23,9 @@ import java.io.Serializable;
 public interface StripesTransformer<E> extends Serializable
 {
   /**
-   * @see StripeTransformer#type(Class)
+   * @see StripeTransformer#instanceOf(Class)
    * @param type
    * @return
    */
-  public <T> Iterable<T> types( Class<T> type );
+  public <T> Iterable<T> instancesOf( Class<T> type );
 }

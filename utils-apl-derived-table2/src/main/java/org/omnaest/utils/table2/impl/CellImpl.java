@@ -21,6 +21,7 @@ import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.Table;
+import org.omnaest.utils.table2.TableEventHandler;
 
 /**
  * @see Cell

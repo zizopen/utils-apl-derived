@@ -34,6 +34,7 @@ import org.omnaest.utils.structure.element.factory.concrete.LinkedHashSetFactory
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
+import org.omnaest.utils.table2.TableEventHandler;
 import org.omnaest.utils.table2.ImmutableCell.Position;
 import org.omnaest.utils.table2.TableIndex;
 

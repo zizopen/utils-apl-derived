@@ -31,6 +31,7 @@ import org.omnaest.utils.operation.OperationUtils;
 import org.omnaest.utils.operation.special.OperationIntrinsic;
 import org.omnaest.utils.operation.special.OperationWithResult;
 import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.table2.TableEventHandler;
 
 /**
  * Internal data core facade used by the {@link ArrayTable}
@@ -368,10 +369,21 @@ class TableDataAccessor<E> implements Serializable
    * @param tableEventHandler
    * @return the given instance
    */
-  @SuppressWarnings("javadoc")
   public <T extends TableEventHandler<E>> T register( T tableEventHandler )
   {
     this.tableEventDispatcher.add( tableEventHandler );
+    return tableEventHandler;
+  }
+  
+  /**
+   * Unregisters a given {@link TableEventHandler} instance
+   * 
+   * @param tableEventHandler
+   * @return
+   */
+  public <T extends TableEventHandler<E>> T unregister( T tableEventHandler )
+  {
+    this.tableEventDispatcher.remove( tableEventHandler );
     return tableEventHandler;
   }
   
