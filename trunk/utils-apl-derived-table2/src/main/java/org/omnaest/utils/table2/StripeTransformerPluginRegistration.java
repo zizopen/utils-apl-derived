@@ -27,7 +27,7 @@ public interface StripeTransformerPluginRegistration<E> extends Serializable
 {
   
   /**
-   * Registers a {@link StripeTransformerPlugin} allowing to use {@link StripeTransformer#type(Class)} to transform a
+   * Registers a {@link StripeTransformerPlugin} allowing to use {@link StripeTransformer#instanceOf(Class)} to transform a
    * {@link Stripe} into another type instance.
    * 
    * @param stripeTransformerPlugin

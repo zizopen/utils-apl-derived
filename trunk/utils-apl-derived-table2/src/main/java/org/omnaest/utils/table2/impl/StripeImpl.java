@@ -34,19 +34,21 @@ import org.omnaest.utils.table2.Stripe;
 import org.omnaest.utils.table2.StripeEntity;
 import org.omnaest.utils.table2.StripeTransformer;
 import org.omnaest.utils.table2.Table;
+import org.omnaest.utils.table2.TableEventHandler;
 
 /**
  * @see Stripe
  * @author Omnaest
  * @param <E>
  */
-public abstract class StripeImpl<E> implements Stripe<E>
+abstract class StripeImpl<E> implements Stripe<E>, TableEventHandler<E>
 {
   /* ************************************************** Constants *************************************************** */
   private static final long  serialVersionUID = 3138389285052519615L;
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   protected volatile boolean isDeleted        = false;
   protected volatile boolean isModified       = false;
+  protected volatile boolean isDetached       = false;
   
   /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
   protected final Table<E>   table;
@@ -56,13 +58,18 @@ public abstract class StripeImpl<E> implements Stripe<E>
   /**
    * @see StripeImpl
    * @param table
+   * @param isDetached
    */
-  public StripeImpl( Table<E> table )
+  StripeImpl( Table<E> table, boolean isDetached )
   {
     super();
     this.table = table;
+    this.isDetached = isDetached;
   }
   
+  /**
+   * 
+   */
   public Iterator<E> iterator()
   {
     final int indexMax = this.size() - 1;
@@ -196,13 +203,13 @@ public abstract class StripeImpl<E> implements Stripe<E>
       }
       
       @Override
-      public <T> T type( Class<T> type )
+      public <T> T instanceOf( Class<T> type )
       {
         return table.transformStripeInto( type, stripe );
       }
       
       @Override
-      public <T> T type( T instance )
+      public <T> T instance( T instance )
       {
         return table.transformStripeInto( instance, StripeImpl.this );
       }
@@ -237,4 +244,17 @@ public abstract class StripeImpl<E> implements Stripe<E>
     return builder.toString();
   }
   
+  @Override
+  public boolean isDetached()
+  {
+    return this.isDetached;
+  }
+  
+  @Override
+  public Stripe<E> detach()
+  {
+    this.table.tableEventHandlerRegistration().detach( this );
+    this.isDetached = true;
+    return this;
+  }
 }

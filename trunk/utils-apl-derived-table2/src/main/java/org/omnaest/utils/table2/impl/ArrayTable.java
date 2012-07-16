@@ -29,6 +29,8 @@ import org.omnaest.utils.operation.OperationUtils;
 import org.omnaest.utils.operation.special.OperationIntrinsic;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterSerializable;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.iterator.IteratorUtils;
@@ -38,10 +40,12 @@ import org.omnaest.utils.table2.ImmutableRow;
 import org.omnaest.utils.table2.ImmutableStripe;
 import org.omnaest.utils.table2.ImmutableTable;
 import org.omnaest.utils.table2.Row;
-import org.omnaest.utils.table2.Rows;
 import org.omnaest.utils.table2.StripeTransformerPlugin;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableAdapterManager;
+import org.omnaest.utils.table2.TableDataSource;
+import org.omnaest.utils.table2.TableDataSourceCopier;
+import org.omnaest.utils.table2.TableEventHandler;
 import org.omnaest.utils.table2.TableExecution;
 import org.omnaest.utils.table2.TableIndexManager;
 import org.omnaest.utils.table2.TablePersistenceRegistration;
@@ -64,7 +68,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final Class<E>                          elementType;
   private final TableAdapterManager<E>            tableAdapterManager;
-  final TableDataAccessor<E>                      tableDataAccessor;
+  private final TableDataAccessor<E>              tableDataAccessor;
   private final TableIndexManager<E, Cell<E>>     tableIndexManager;
   private final TablePersistenceRegistration<E>   tablePersistenceRegistration;
   private final StripeTransformerPluginManager<E> stripeTransformerPluginManager;
@@ -97,7 +101,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   public ArrayTable( E[][] elementMatrix )
   {
     this( (Class<? extends E>) ArrayUtils.componentType( ArrayUtils.componentType( elementMatrix.getClass() ) ) );
-    this.copyFrom( elementMatrix );
+    this.copy().from( elementMatrix );
   }
   
   @Override
@@ -182,7 +186,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public Column<E> column( int columnIndex )
   {
-    return columnIndex >= 0 ? this.tableDataAccessor.register( new ColumnImpl<E>( columnIndex, this ) ) : null;
+    return columnIndex >= 0 ? this.tableDataAccessor.register( new ColumnImpl<E>( columnIndex, this, false ) ) : null;
   }
   
   @Override
@@ -216,25 +220,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   public int columnSize()
   {
     return this.tableDataAccessor.columnSize();
-  }
-  
-  @Override
-  public Table<E> copyFrom( E[][] array )
-  {
-    //
-    this.clear();
-    
-    //
-    if ( array != null )
-    {
-      for ( E[] elements : array )
-      {
-        this.addRowElements( elements );
-      }
-    }
-    
-    //
-    return this;
   }
   
   @Override
@@ -439,7 +424,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   @Override
   public Row<E> row( int rowIndex )
   {
-    return rowIndex >= 0 ? this.tableDataAccessor.register( new RowImpl<E>( rowIndex, this ) ) : null;
+    return rowIndex >= 0 ? this.tableDataAccessor.register( new RowImpl<E>( rowIndex, this, false ) ) : null;
   }
   
   @Override
@@ -447,12 +432,6 @@ public class ArrayTable<E> extends TableAbstract<E>
   {
     final int rowIndex = this.tableDataAccessor.getRowIndex( rowTitle );
     return this.row( rowIndex );
-  }
-  
-  @Override
-  public Rows<E, Row<E>> rows( BitSet filter )
-  {
-    return this.rows().filtered( filter );
   }
   
   @Override
@@ -604,5 +583,109 @@ public class ArrayTable<E> extends TableAbstract<E>
       }
     }
     return retval;
+  }
+  
+  @Override
+  public TableDataSourceCopier<E> copy()
+  {
+    final Table<E> table = this;
+    return new TableDataSourceCopier<E>()
+    {
+      private static final long serialVersionUID = 306474856413841605L;
+      
+      @Override
+      public Table<E> from( E[][] elementMatrix )
+      {
+        if ( elementMatrix != null )
+        {
+          for ( E[] elements : elementMatrix )
+          {
+            table.addRowElements( elements );
+          }
+        }
+        return table;
+      }
+      
+      @Override
+      public Table<E> from( TableDataSource<E> tableDataSource )
+      {
+        if ( tableDataSource != null )
+        {
+          final Iterable<E[]> rowElements = tableDataSource.rowElements();
+          if ( rowElements != null )
+          {
+            for ( E[] elements : rowElements )
+            {
+              table.addRowElements( elements );
+            }
+          }
+          
+          final String[] columnTitles = tableDataSource.getColumnTitles();
+          final String tableName = tableDataSource.getTableName();
+          if ( tableName != null )
+          {
+            table.setTableName( tableName );
+          }
+          if ( columnTitles != null )
+          {
+            table.setColumnTitles( columnTitles );
+          }
+        }
+        return table;
+      }
+    };
+  }
+  
+  @Override
+  public String[] getColumnTitles()
+  {
+    return ArrayUtils.valueOf( this.getColumnTitleList(), String.class );
+  }
+  
+  @Override
+  public TableEventHandlerRegistration<E, Table<E>> tableEventHandlerRegistration()
+  {
+    final Table<E> table = this;
+    final TableDataAccessor<E> tableDataAccessor = this.tableDataAccessor;
+    return new TableEventHandlerRegistration<E, Table<E>>()
+    {
+      private static final long serialVersionUID = -4733568643076274493L;
+      
+      @Override
+      public Table<E> attach( TableEventHandler<E> tableEventHandler )
+      {
+        tableDataAccessor.register( tableEventHandler );
+        return table;
+      }
+      
+      @Override
+      public Table<E> detach( TableEventHandler<E> tableEventHandler )
+      {
+        tableDataAccessor.unregister( tableEventHandler );
+        return table;
+      }
+    };
+  }
+  
+  @Override
+  public Iterable<E[]> rowElements()
+  {
+    final ElementConverter<Row<E>, E[]> elementConverter = new ElementConverterSerializable<Row<E>, E[]>()
+    {
+      private static final long serialVersionUID = -4211554274134868391L;
+      
+      @Override
+      public E[] convert( Row<E> row )
+      {
+        return row.to().array();
+      }
+    };
+    return IterableUtils.adapter( this.rows(), elementConverter );
+  }
+  
+  @Override
+  public Row<E> row( int rowIndex, boolean detached )
+  {
+    return rowIndex >= 0 ? new RowImpl<E>( rowIndex, this, detached ) : null;
   }
 }

@@ -69,7 +69,7 @@ class RowsImpl<E> implements Rows<E, Row<E>>
       private static final long serialVersionUID = 2110974282111579037L;
       
       @Override
-      public <T> Iterable<T> types( final Class<T> type )
+      public <T> Iterable<T> instancesOf( final Class<T> type )
       {
         final ElementConverter<Row<E>, T> elementConverter = new ElementConverterSerializable<Row<E>, T>()
         {
@@ -78,7 +78,7 @@ class RowsImpl<E> implements Rows<E, Row<E>>
           @Override
           public T convert( Row<E> row )
           {
-            return row.to().type( type );
+            return row.to().instanceOf( type );
           }
         };
         return IterableUtils.adapter( rowIterable, elementConverter );

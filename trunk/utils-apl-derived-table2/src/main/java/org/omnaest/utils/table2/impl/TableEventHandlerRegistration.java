@@ -13,45 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.table2;
+package org.omnaest.utils.table2.impl;
+
+import java.io.Serializable;
+
+import org.omnaest.utils.table2.ImmutableTable;
+import org.omnaest.utils.table2.Table;
+import org.omnaest.utils.table2.TableEventHandler;
 
 /**
- * Base type of {@link Row} and {@link Column}
+ * Allows to {@link #attach(TableEventHandler)} or {@link #detach(TableEventHandler)} {@link TableEventHandler}s to the
+ * underlying {@link Table}
  * 
- * @see ImmutableStripe
- * @see Table
  * @author Omnaest
  * @param <E>
+ * @param <T>
  */
-public interface Stripe<E> extends ImmutableStripe<E>
+public interface TableEventHandlerRegistration<E, T extends ImmutableTable<E>> extends Serializable
 {
   /**
-   * Returns the {@link Cell} for the given orthogonal index position
-   * 
-   * @param index
-   * @return new {@link Cell} instance
+   * @param tableEventHandler
+   * @return underlying {@link Table}
    */
-  public Cell<E> cell( int index );
+  public T attach( TableEventHandler<E> tableEventHandler );
   
   /**
-   * Returns a new {@link Iterable} instance over the {@link Cell}s
-   * 
-   * @return
+   * @param tableEventHandler
+   * @return underlying {@link Table}
    */
-  public Iterable<Cell<E>> cells();
-  
-  /**
-   * Returns the underlying {@link Table}
-   * 
-   * @return
-   */
-  public Table<E> table();
-  
-  /**
-   * Detaches from the underlying {@link Table}. This means any change to the {@link Table} will not be reflected by the
-   * {@link Stripe} which could lead to inconsistent modifications.
-   * 
-   * @return this
-   */
-  public Stripe<E> detach();
+  public T detach( TableEventHandler<E> tableEventHandler );
 }

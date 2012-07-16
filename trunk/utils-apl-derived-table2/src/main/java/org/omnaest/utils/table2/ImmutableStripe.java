@@ -125,4 +125,14 @@ public interface ImmutableStripe<E> extends Iterable<E>, Serializable
    * @return
    */
   public String getTitle();
+  
+  public boolean isDetached();
+  
+  /**
+   * Detaches from the underlying {@link ImmutableTable}. This means any change to the {@link ImmutableTable} will not be
+   * reflected by the {@link ImmutableStripe} which could lead to inconsistent modifications.
+   * 
+   * @return this
+   */
+  public ImmutableStripe<E> detach();
 }

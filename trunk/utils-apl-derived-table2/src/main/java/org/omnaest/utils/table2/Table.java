@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.regex.Pattern;
 
 import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
+import org.omnaest.utils.table2.impl.TableEventHandlerRegistration;
 
 /**
  * A {@link Table} represents a two dimensional container
@@ -168,12 +169,11 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Iterable<Column<E>> columns( String... columnTitles );
   
   /**
-   * Copies the elements from an array
+   * Returns a {@link TableDataSourceCopier} instance
    * 
-   * @param elementMatrix
-   * @return this
+   * @return
    */
-  public Table<E> copyFrom( E[][] elementMatrix );
+  public TableDataSourceCopier<E> copy();
   
   /**
    * Executes a {@link TableExecution} with a table wide {@link WriteLock}
@@ -244,6 +244,16 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Row<E> row( int rowIndex );
   
   /**
+   * Returns a detached {@link Row}. A detached {@link Row} does not reflect any changes done to the underlying {@link Table}
+   * 
+   * @param rowIndex
+   * @param detached
+   * @return new detached {@link Row} instance
+   */
+  @Override
+  public Row<E> row( int rowIndex, boolean detached );
+  
+  /**
    * Similar to {@link #row(int)} based on the first matching row title
    * 
    * @param rowTitle
@@ -271,6 +281,25 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Rows<E, Row<E>> rows( BitSet indexFilter );
   
   /**
+   * Similar to {@link #rows(BitSet)} and {@link #row(int, boolean)}
+   * 
+   * @param filter
+   * @param detached
+   * @return {@link Rows}
+   */
+  @Override
+  public Rows<E, Row<E>> rows( BitSet filter, boolean detached );
+  
+  /**
+   * Similar to {@link #rows()} but allows to return detached {@link Row} instances
+   * 
+   * @param detached
+   * @return new {@link Rows}
+   */
+  @Override
+  public Rows<E, Row<E>> rows( final boolean detached );
+  
+  /**
    * Returns an {@link Iterable} over all {@link Row}s which are between the two given row index positions. The lower index is
    * inclusive the upper index position is exclusive.
    * 
@@ -280,6 +309,17 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    */
   @Override
   public Rows<E, Row<E>> rows( int rowIndexFrom, int rowIndexTo );
+  
+  /**
+   * Similar to {@link #rows(BitSet, boolean)} and {@link #rows(int, int)}
+   * 
+   * @param rowIndexFrom
+   * @param rowIndexTo
+   * @param detached
+   * @return {@link Rows}
+   */
+  @Override
+  public Rows<E, Row<E>> rows( int rowIndexFrom, int rowIndexTo, boolean detached );
   
   /**
    * Returns a {@link TableSerializer} instance
@@ -305,6 +345,14 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @return this
    */
   public Table<E> setColumnTitles( Iterable<String> columnTitleIterable );
+  
+  /**
+   * Similar to {@link #setColumnTitles(Iterable)}
+   * 
+   * @param columnTitles
+   * @return this
+   */
+  public Table<E> setColumnTitles( String... columnTitles );
   
   /**
    * Sets the element for a given row and column index position
@@ -394,5 +442,13 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @return {@link TableSorter} instance
    */
   public TableSorter<E> sort();
+  
+  /**
+   * Returns a {@link TableEventHandlerRegistration} instance allowing to attach or detach {@link TableEventHandler} instances
+   * 
+   * @return
+   */
+  @Override
+  public TableEventHandlerRegistration<E, Table<E>> tableEventHandlerRegistration();
   
 }

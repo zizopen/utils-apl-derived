@@ -66,15 +66,15 @@ public interface StripeTransformer<E> extends Serializable
    *          {@link Class}
    * @return
    */
-  public <T> T type( Class<T> type );
+  public <T> T instanceOf( Class<T> type );
   
   /**
-   * Similar to {@link #type(Class)} using a given instance which is returned enriched with the data of the {@link Stripe}
+   * Similar to {@link #instanceOf(Class)} using a given instance which is returned enriched with the data of the {@link Stripe}
    * 
    * @param instance
    * @return given instance
    */
-  public <T> T type( T instance );
+  public <T> T instance( T instance );
   
   /**
    * Returns the {@link Stripe} as a {@link Map}. The keys are the orthogonal titles and the values are the actual elements of the

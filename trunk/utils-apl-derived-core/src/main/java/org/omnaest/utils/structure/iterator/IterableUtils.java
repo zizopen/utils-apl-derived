@@ -458,4 +458,15 @@ public class IterableUtils
     }
     return retval;
   }
+  
+  /**
+   * Returns an {@link Iterable} over the given elements
+   * 
+   * @param elements
+   * @return
+   */
+  public static <E> Iterable<E> valueOf( E... elements )
+  {
+    return valueOf( IteratorUtils.valueOf( elements ) );
+  }
 }

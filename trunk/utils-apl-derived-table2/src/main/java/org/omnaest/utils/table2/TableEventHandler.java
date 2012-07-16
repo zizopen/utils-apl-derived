@@ -15,43 +15,28 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import java.io.Serializable;
+import java.util.BitSet;
+
 /**
- * Base type of {@link Row} and {@link Column}
+ * Handler for table events
  * 
- * @see ImmutableStripe
- * @see Table
  * @author Omnaest
  * @param <E>
  */
-public interface Stripe<E> extends ImmutableStripe<E>
+public interface TableEventHandler<E> extends Serializable
 {
-  /**
-   * Returns the {@link Cell} for the given orthogonal index position
-   * 
-   * @param index
-   * @return new {@link Cell} instance
-   */
-  public Cell<E> cell( int index );
+  public void handleAddedColumn( int columnIndex, E... elements );
   
-  /**
-   * Returns a new {@link Iterable} instance over the {@link Cell}s
-   * 
-   * @return
-   */
-  public Iterable<Cell<E>> cells();
+  public void handleAddedRow( int rowIndex, E... elements );
   
-  /**
-   * Returns the underlying {@link Table}
-   * 
-   * @return
-   */
-  public Table<E> table();
+  public void handleClearTable();
   
-  /**
-   * Detaches from the underlying {@link Table}. This means any change to the {@link Table} will not be reflected by the
-   * {@link Stripe} which could lead to inconsistent modifications.
-   * 
-   * @return this
-   */
-  public Stripe<E> detach();
+  public void handleRemovedColumn( int columnIndex, E[] previousElements, String columnTitle );
+  
+  public void handleRemovedRow( int rowIndex, E[] previousElements, String rowTitle );
+  
+  public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement );
+  
+  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices );
 }

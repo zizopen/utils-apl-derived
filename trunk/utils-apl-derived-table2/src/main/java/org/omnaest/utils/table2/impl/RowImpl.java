@@ -28,7 +28,7 @@ import org.omnaest.utils.table2.Table;
  * @author Omnaest
  * @param <E>
  */
-class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
+class RowImpl<E> extends StripeImpl<E> implements Row<E>
 {
   /* ************************************************** Constants *************************************************** */
   private static final long serialVersionUID = -1519020631976249637L;
@@ -41,10 +41,11 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
    * @see RowImpl
    * @param rowIndex
    * @param table
+   * @param isDetached
    */
-  protected RowImpl( int rowIndex, Table<E> table )
+  protected RowImpl( int rowIndex, Table<E> table, boolean isDetached )
   {
-    super( table );
+    super( table, isDetached );
     this.rowIndex = rowIndex;
   }
   
@@ -269,7 +270,7 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>, TableEventHandler<E>
     builder.append( "]" );
     return builder.toString();
   }
-
+  
   @Override
   protected String[] getOrthogonalTitles()
   {

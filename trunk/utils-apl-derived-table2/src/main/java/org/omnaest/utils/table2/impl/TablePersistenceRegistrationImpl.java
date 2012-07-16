@@ -28,6 +28,7 @@ import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
 import org.omnaest.utils.operation.special.OperationVoid;
 import org.omnaest.utils.table2.ImmutableRow;
 import org.omnaest.utils.table2.Table;
+import org.omnaest.utils.table2.TableEventHandler;
 import org.omnaest.utils.table2.TablePersistence;
 import org.omnaest.utils.table2.TablePersistenceRegistration;
 import org.omnaest.utils.table2.impl.persistence.SimpleDirectoryBasedTablePersistenceUsingSerializable;

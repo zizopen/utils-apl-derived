@@ -22,6 +22,7 @@ import org.omnaest.utils.table2.Cell;
 import org.omnaest.utils.table2.Column;
 import org.omnaest.utils.table2.ImmutableColumn;
 import org.omnaest.utils.table2.Table;
+import org.omnaest.utils.table2.TableEventHandler;
 
 /**
  * @see Column
@@ -36,9 +37,15 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   
   /* *************************************************** Methods **************************************************** */
   
-  public ColumnImpl( int columnIndex, Table<E> table )
+  /**
+   * @see ColumnImpl
+   * @param columnIndex
+   * @param table
+   * @param isDetached
+   */
+  ColumnImpl( int columnIndex, Table<E> table, boolean isDetached )
   {
-    super( table );
+    super( table, isDetached );
     this.columnIndex = columnIndex;
   }
   

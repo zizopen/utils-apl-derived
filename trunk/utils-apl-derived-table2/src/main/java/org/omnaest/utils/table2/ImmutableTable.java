@@ -22,6 +22,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.omnaest.utils.table2.impl.TableEventHandlerRegistration;
+
 /**
  * Immutable {@link Table}
  * 
@@ -29,7 +31,7 @@ import java.util.regex.Pattern;
  * @author Omnaest
  * @param <E>
  */
-public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTransformerPluginRegistration<E>
+public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTransformerPluginRegistration<E>, TableDataSource<E>
 {
   
   /**
@@ -288,6 +290,16 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTran
   public ImmutableRow<E> row( int rowIndex );
   
   /**
+   * Returns a detached {@link ImmutableRow}. A detached {@link ImmutableRow} does not reflect any changes done to the underlying
+   * {@link ImmutableTable}
+   * 
+   * @param rowIndex
+   * @param detached
+   * @return new detached {@link ImmutableRow} instance
+   */
+  public ImmutableRow<E> row( int rowIndex, boolean detached );
+  
+  /**
    * Similar to {@link #row(int)} based on the first matching row title
    * 
    * @param rowTitle
@@ -312,6 +324,23 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTran
   public Rows<E, ? extends ImmutableRow<E>> rows( BitSet indexFilter );
   
   /**
+   * Similar to {@link #rows(BitSet)} and {@link #row(int, boolean)}
+   * 
+   * @param filter
+   * @param detached
+   * @return {@link Rows}
+   */
+  public Rows<E, ? extends ImmutableRow<E>> rows( BitSet filter, boolean detached );
+  
+  /**
+   * Similar to {@link #rows()} but allows to return detached {@link ImmutableRow} instances
+   * 
+   * @param detached
+   * @return new {@link Rows}
+   */
+  public Rows<E, ? extends ImmutableRow<E>> rows( final boolean detached );
+  
+  /**
    * Returns an {@link Iterable} over all {@link ImmutableRow}s which are between the two given row index positions. The lower
    * index is inclusive the upper index position is exclusive.
    * 
@@ -320,6 +349,16 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTran
    * @return new {@link Rows}
    */
   public Rows<E, ? extends ImmutableRow<E>> rows( int rowIndexFrom, int rowIndexTo );
+  
+  /**
+   * Similar to {@link #rows(BitSet, boolean)} and {@link #rows(int, int)}
+   * 
+   * @param rowIndexFrom
+   * @param rowIndexTo
+   * @param detached
+   * @return {@link Rows}
+   */
+  public Rows<E, ? extends ImmutableRow<E>> rows( int rowIndexFrom, int rowIndexTo, boolean detached );
   
   /**
    * Returns the number of {@link Row}s
@@ -342,6 +381,13 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTran
    * @return
    */
   public ImmutableTableSerializer<E> serializer();
+  
+  /**
+   * Returns a {@link TableEventHandlerRegistration} instance allowing to attach or detach {@link TableEventHandler} instances
+   * 
+   * @return
+   */
+  public TableEventHandlerRegistration<E, ? extends ImmutableTable<E>> tableEventHandlerRegistration();
   
   /**
    * Returns a {@link TableTransformer} instance

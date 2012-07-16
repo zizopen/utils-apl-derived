@@ -37,7 +37,7 @@ public class ArrayTableTest extends TableTest
   @Override
   public <E> Table<E> newTable( E[][] elementMatrix, Class<E> type )
   {
-    return new ArrayTable<E>( type ).copyFrom( elementMatrix );
+    return new ArrayTable<E>( type ).copy().from( elementMatrix );
   }
   
   @Test

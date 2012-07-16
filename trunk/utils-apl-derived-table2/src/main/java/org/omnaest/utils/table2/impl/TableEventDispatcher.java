@@ -27,6 +27,7 @@ import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerIgnoring;
 import org.omnaest.utils.operation.special.OperationVoid;
 import org.omnaest.utils.structure.element.ObjectUtils;
+import org.omnaest.utils.table2.TableEventHandler;
 
 /**
  * @author Omnaest
@@ -37,9 +38,9 @@ class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
   /* ************************************************** Constants *************************************************** */
   private static final long                                         serialVersionUID = -8336460926560156773L;
   
-  private ExceptionHandler                                          exceptionHandler = new ExceptionHandlerIgnoring();
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   private final transient List<WeakReference<TableEventHandler<E>>> tableEventHandlerReferenceList;
+  private ExceptionHandler                                          exceptionHandler = new ExceptionHandlerIgnoring();
   
   /* *************************************************** Methods **************************************************** */
   
@@ -53,11 +54,32 @@ class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
     this.tableEventHandlerReferenceList = new CopyOnWriteArrayList<WeakReference<TableEventHandler<E>>>();
   }
   
+  /**
+   * @param tableEventHandler
+   */
   public void add( TableEventHandler<E> tableEventHandler )
   {
     if ( tableEventHandler != null )
     {
       this.tableEventHandlerReferenceList.add( new WeakReference<TableEventHandler<E>>( tableEventHandler ) );
+    }
+  }
+  
+  /**
+   * @param tableEventHandler
+   */
+  public void remove( TableEventHandler<E> tableEventHandler )
+  {
+    if ( tableEventHandler != null )
+    {
+      for ( WeakReference<TableEventHandler<E>> reference : this.tableEventHandlerReferenceList )
+      {
+        if ( tableEventHandler == reference.get() )
+        {
+          this.tableEventHandlerReferenceList.remove( reference );
+          break;
+        }
+      }
     }
   }
   

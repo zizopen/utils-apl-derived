@@ -15,43 +15,30 @@
  ******************************************************************************/
 package org.omnaest.utils.table2;
 
+import java.io.Serializable;
+
 /**
- * Base type of {@link Row} and {@link Column}
+ * The {@link TableDataSourceCopier} copies data from a given {@link TableDataSource} to the underlying {@link Table} using
+ * {@link Table#addRowElements(Object...)}
  * 
- * @see ImmutableStripe
- * @see Table
  * @author Omnaest
  * @param <E>
  */
-public interface Stripe<E> extends ImmutableStripe<E>
+public interface TableDataSourceCopier<E> extends Serializable
 {
   /**
-   * Returns the {@link Cell} for the given orthogonal index position
+   * Copies the data from a given element matrix
    * 
-   * @param index
-   * @return new {@link Cell} instance
+   * @param elementMatrix
+   * @return underlying {@link Table}
    */
-  public Cell<E> cell( int index );
+  public Table<E> from( E[][] elementMatrix );
   
   /**
-   * Returns a new {@link Iterable} instance over the {@link Cell}s
+   * Copies the data from a given {@link TableDataSource}
    * 
-   * @return
+   * @param tableDataSource
+   * @return underlying {@link Table}
    */
-  public Iterable<Cell<E>> cells();
-  
-  /**
-   * Returns the underlying {@link Table}
-   * 
-   * @return
-   */
-  public Table<E> table();
-  
-  /**
-   * Detaches from the underlying {@link Table}. This means any change to the {@link Table} will not be reflected by the
-   * {@link Stripe} which could lead to inconsistent modifications.
-   * 
-   * @return this
-   */
-  public Stripe<E> detach();
+  public Table<E> from( TableDataSource<E> tableDataSource );
 }

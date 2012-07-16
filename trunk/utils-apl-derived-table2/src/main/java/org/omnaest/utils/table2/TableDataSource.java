@@ -13,30 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.table2.impl;
+package org.omnaest.utils.table2;
 
 import java.io.Serializable;
-import java.util.BitSet;
 
 /**
- * Handler for table events
+ * Source of data to be copied to a {@link Table}
  * 
+ * @see TableDataSourceCopier
  * @author Omnaest
- * @param <E>
  */
-interface TableEventHandler<E> extends Serializable
+public interface TableDataSource<E> extends Serializable
 {
-  public void handleAddedColumn( int columnIndex, E... elements );
+  public String getTableName();
   
-  public void handleAddedRow( int rowIndex, E... elements );
+  public String[] getColumnTitles();
   
-  public void handleClearTable();
-  
-  public void handleRemovedColumn( int columnIndex, E[] previousElements, String columnTitle );
-  
-  public void handleRemovedRow( int rowIndex, E[] previousElements, String rowTitle );
-  
-  public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement );
-  
-  public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices );
+  public Iterable<E[]> rowElements();
 }

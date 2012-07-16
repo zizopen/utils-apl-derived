@@ -38,6 +38,7 @@ import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.table2.Row;
 import org.omnaest.utils.table2.RowDataReader;
 import org.omnaest.utils.table2.Table;
+import org.omnaest.utils.table2.TableEventHandler;
 import org.omnaest.utils.table2.TableIndex;
 import org.omnaest.utils.table2.impl.rowdata.ElementsToRowDataReaderAdapter;
 import org.omnaest.utils.table2.impl.rowdata.RowToRowDataAccessorAdapter;

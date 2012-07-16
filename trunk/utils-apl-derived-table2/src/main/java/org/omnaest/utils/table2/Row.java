@@ -16,6 +16,13 @@
 package org.omnaest.utils.table2;
 
 /**
+ * A {@link Row} represents the horizontal {@link Stripe} of elements of a {@link Table}<br>
+ * <br>
+ * By default a {@link Row} will reflect any changes to its underlying {@link Table}. Even the removing of {@link Row}s is
+ * captured by {@link #isDeleted()} or normal modifications by {@link #isModified()}.<br>
+ * If a {@link Row} {@link #isDetached()} it will not reflect those changes to the underlying {@link Table} anymore, which can
+ * cause inconsistent data.
+ * 
  * @see ImmutableRow
  * @see Table
  * @see Column
@@ -42,6 +49,13 @@ public interface Row<E> extends Stripe<E>, ImmutableRow<E>
    */
   public Row<E> setElement( int columnIndex, E element );
   
+  /**
+   * Similar to {@link #setElement(int, Object)} based on the {@link Column#getTitle()}
+   * 
+   * @param columnTitle
+   * @param element
+   * @return this
+   */
   public Row<E> setElement( String columnTitle, E element );
   
   /**

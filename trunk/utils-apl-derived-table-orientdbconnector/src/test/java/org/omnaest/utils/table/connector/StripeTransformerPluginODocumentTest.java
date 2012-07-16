@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table.connector;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -52,19 +53,19 @@ public class StripeTransformerPluginODocumentTest
         
         table.addRowElements( "a", "b", "c" );
         table.addRowElements( "a", "b", "c" );
-        ODocument document = table.row( 0 ).to().type( new ODocument( "Test" ) );
+        ODocument document = table.row( 0 ).to().instance( new ODocument( "Test" ) );
         document.save();
         
-        ODocument document2 = table.row( 0 ).to().type( ODocument.class );
+        ODocument document2 = table.row( 0 ).to().instanceOf( ODocument.class );
         document2.setClassName( "Test" );
         document2.save();
         
         table.setTableName( "Test" );
-        Iterable<ODocument> iterable = table.rows().to().types( ODocument.class );
+        Iterable<ODocument> iterable = table.rows().to().instancesOf( ODocument.class );
         for ( ODocument oDocument : iterable )
         {
           oDocument.save();
-        }        
+        }
       }
       {
         List<ODocument> result = db.query( new OSQLSynchQuery<ODocument>( "select * from Test" ) );
@@ -91,6 +92,32 @@ public class StripeTransformerPluginODocumentTest
                                   .linkedHashMap(), resultMap );
           }
         }
+      }
+      {
+        Table<String> table = new ArrayTable<String>( String.class );
+        
+        final String className = "Test";
+        final String whereClause = "";
+        final Class<String> type = String.class;
+        final String[] fieldNames = new String[] { "column1", "column3" };
+        table.copy().from( new TableDataSourceOrientDBTable<String>( type, db, className, fieldNames, whereClause ) );
+        
+        assertEquals( 4, table.rowSize() );
+        //System.out.println( table );
+        
+        /*
+            ======Test=======
+            !column1!column3!
+            |   a   |   c   |
+            |   a   |   c   |
+            |   a   |   c   |
+            |   a   |   c   |
+            -----------------
+         */
+        
+        assertEquals( "Test", table.getTableName() );
+        assertArrayEquals( fieldNames, table.getColumnTitles() );
+        assertArrayEquals( new String[] { "a", "c" }, table.row( 0 ).getElements() );
       }
     }
     db.close();

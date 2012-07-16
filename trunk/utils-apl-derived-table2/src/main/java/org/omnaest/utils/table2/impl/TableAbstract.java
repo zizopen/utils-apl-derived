@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Iterator;
 
@@ -49,7 +50,6 @@ abstract class TableAbstract<E> implements Table<E>
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   protected ExceptionHandlerDelegate exceptionHandler = new ExceptionHandlerDelegate( new ExceptionHandlerIgnoring() );
   
-  /* ********************************************** Classes/Interfaces ********************************************** */
   /* ********************************************** Classes/Interfaces ********************************************** */
   public static final class ColumnIterator<E, C extends ImmutableColumn<E>> implements Iterator<C>
   {
@@ -102,8 +102,9 @@ abstract class TableAbstract<E> implements Table<E>
     /**
      * @see RowIterator
      * @param table
+     * @param isDetached
      */
-    public RowIterator( Table<E> table )
+    public RowIterator( Table<E> table, boolean isDetached )
     {
       this.table = table;
       this.indexMax = table.rowSize() - 1;
@@ -130,16 +131,21 @@ abstract class TableAbstract<E> implements Table<E>
   }
   
   /* *************************************************** Methods **************************************************** */
-  public TableAbstract()
+  
+  TableAbstract()
   {
     super();
   }
   
-  public TableAbstract( E[][] elementMatrix )
+  /**
+   * @see TableAbstract
+   * @param elementMatrix
+   */
+  TableAbstract( E[][] elementMatrix )
   {
     super();
     
-    this.copyFrom( elementMatrix );
+    this.copy().from( elementMatrix );
   }
   
   @Override
@@ -170,7 +176,24 @@ abstract class TableAbstract<E> implements Table<E>
   @Override
   public Iterator<ImmutableRow<E>> iterator()
   {
-    return new RowIterator<E, ImmutableRow<E>>( this );
+    final boolean detached = false;
+    return new RowIterator<E, ImmutableRow<E>>( this, detached );
+  }
+  
+  @Override
+  public Rows<E, Row<E>> rows( final boolean detached )
+  {
+    final Table<E> table = this;
+    return new RowsImpl<E>( IterableUtils.valueOf( new FactorySerializable<Iterator<Row<E>>>()
+    {
+      private static final long serialVersionUID = -8151494883227852607L;
+      
+      @Override
+      public Iterator<Row<E>> newInstance()
+      {
+        return new RowIterator<E, Row<E>>( table, detached );
+      }
+    } ) );
   }
   
   @Override
@@ -184,7 +207,8 @@ abstract class TableAbstract<E> implements Table<E>
       @Override
       public Iterator<Row<E>> newInstance()
       {
-        return new RowIterator<E, Row<E>>( table );
+        final boolean detached = false;
+        return new RowIterator<E, Row<E>>( table, detached );
       }
     } ) );
   }
@@ -233,6 +257,33 @@ abstract class TableAbstract<E> implements Table<E>
     final BitSet filter = new BitSet();
     filter.set( rowIndexFrom, rowIndexTo );
     return this.rows( filter );
+  }
+  
+  @Override
+  public Table<E> setColumnTitles( String... columnTitles )
+  {
+    this.setColumnTitles( Arrays.asList( columnTitles ) );
+    return this;
+  }
+  
+  @Override
+  public Rows<E, Row<E>> rows( int rowIndexFrom, int rowIndexTo, boolean detached )
+  {
+    final BitSet filter = new BitSet();
+    filter.set( rowIndexFrom, rowIndexTo );
+    return this.rows( filter, detached );
+  }
+  
+  @Override
+  public Rows<E, Row<E>> rows( BitSet filter, boolean detached )
+  {
+    return this.rows( detached ).filtered( filter );
+  }
+  
+  @Override
+  public Rows<E, Row<E>> rows( BitSet filter )
+  {
+    return this.rows().filtered( filter );
   }
   
 }
