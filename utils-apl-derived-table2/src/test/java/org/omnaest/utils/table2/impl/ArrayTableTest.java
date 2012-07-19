@@ -16,16 +16,20 @@
 package org.omnaest.utils.table2.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerEPrintStackTrace;
 import org.omnaest.utils.table2.Table;
 import org.omnaest.utils.table2.TableTest;
+import org.omnaest.utils.table2.impl.datasource.TableDataSourceResultSet;
 
 /**
  * @see ArrayTable
@@ -38,6 +42,29 @@ public class ArrayTableTest extends TableTest
   public <E> Table<E> newTable( E[][] elementMatrix, Class<E> type )
   {
     return new ArrayTable<E>( type ).copy().from( elementMatrix );
+  }
+  
+  @Test
+  public void testResultSet() throws SQLException
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 );
+    {
+      ResultSet resultSet = table.as().resultSet();
+      for ( int ii = 0; ii < 10; ii++ )
+      {
+        assertTrue( resultSet.next() );
+        assertEquals( ii + ":0", resultSet.getString( 1 ) );
+        assertEquals( ii + ":1", resultSet.getString( "c1" ) );
+      }
+      assertFalse( resultSet.next() );
+    }
+    {
+      ResultSet resultSet = table.as().resultSet();
+      Table<String> tableOther = new ArrayTable<String>( String.class );
+      tableOther.copy().from( new TableDataSourceResultSet<String>( resultSet, String.class ) );
+      assertTrue( table.equalsInContent( tableOther ) );
+      //System.out.println( tableOther );
+    }
   }
   
   @Test

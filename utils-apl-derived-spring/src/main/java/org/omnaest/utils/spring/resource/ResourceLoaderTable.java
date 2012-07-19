@@ -17,10 +17,8 @@ package org.omnaest.utils.spring.resource;
 
 import java.io.Serializable;
 
-import org.omnaest.utils.structure.table.Table;
-import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
-import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
-import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerCSV;
+import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
+import org.omnaest.utils.table2.Table;
 import org.springframework.core.io.ResourceLoader;
 
 /**
@@ -40,8 +38,7 @@ public interface ResourceLoaderTable extends Serializable
   /**
    * Returns a new {@link Table} instance for the location of a csv file
    * 
-   * @see #getTableFromCSV(String, CSVMarshallingConfiguration)
-   * @see TableUnmarshallerCSV
+   * @param elementType
    * @param location
    * @param encoding
    * @param delimiter
@@ -49,9 +46,11 @@ public interface ResourceLoaderTable extends Serializable
    * @param hasTableName
    * @param hasColumnTitles
    * @param hasRowTitles
+   * @see #getTableFromCSV(Class, String, CSVMarshallingConfiguration)
    * @return
    */
-  public <E> Table<E> getTableFromCSV( String location,
+  public <E> Table<E> getTableFromCSV( Class<E> elementType,
+                                       String location,
                                        String encoding,
                                        String delimiter,
                                        String quotationCharacter,
@@ -60,40 +59,15 @@ public interface ResourceLoaderTable extends Serializable
                                        boolean hasRowTitles );
   
   /**
-   * Similar to {@link #getTableFromCSV(String, String, String, String, boolean, boolean, boolean)} using the given
+   * Similar to {@link #getTableFromCSV(Class, String, String, String, String, boolean, boolean, boolean)} using the given
    * {@link CSVMarshallingConfiguration} instance
    * 
+   * @param elementType
    * @param location
    * @param configuration
    *          {@link CSVMarshallingConfiguration}
    * @return {@link Table}
    */
-  public <E> Table<E> getTableFromCSV( String location, CSVMarshallingConfiguration configuration );
-  
-  /**
-   * Returns a new {@link Table} instance for the location of an Excel xls file
-   * 
-   * @param location
-   * @param workSheetName
-   * @param hasTableName
-   * @param hasColumnTitles
-   * @param hasRowTitles
-   * @return
-   */
-  public <E> Table<E> getTableFromXLS( String location,
-                                       String workSheetName,
-                                       boolean hasTableName,
-                                       boolean hasColumnTitles,
-                                       boolean hasRowTitles );
-  
-  /**
-   * Returns a {@link Table} for the given resource location which is parsed using the given {@link TableUnmarshaller}
-   * 
-   * @see TableUnmarshaller
-   * @param location
-   * @param tableUnmarshaller
-   * @return {@link Table}
-   */
-  public <E> Table<E> getTableFrom( String location, TableUnmarshaller<E> tableUnmarshaller );
+  public <E> Table<E> getTableFromCSV( Class<? extends E> elementType, String location, CSVMarshallingConfiguration configuration );
   
 }

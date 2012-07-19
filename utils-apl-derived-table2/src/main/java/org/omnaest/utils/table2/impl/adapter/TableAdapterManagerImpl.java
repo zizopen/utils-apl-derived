@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table2.impl.adapter;
 
+import java.sql.ResultSet;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
@@ -111,5 +112,17 @@ public class TableAdapterManagerImpl<E> implements TableAdapterManager<E>
   public <B> List<B> beanList( Class<? extends B> type )
   {
     return new TableToListUsingDTOsAdapter<E, B>( this.table, type, this.exceptionHandler );
+  }
+  
+  @Override
+  public <B> List<B> beanList( Class<? extends B> type, Declaration declaration )
+  {
+    return new TableToListUsingDTOsAdapter<E, B>( this.table, type, declaration, this.exceptionHandler );
+  }
+  
+  @Override
+  public ResultSet resultSet()
+  {
+    return new TableToResultSetAdapter( this.table );
   }
 }

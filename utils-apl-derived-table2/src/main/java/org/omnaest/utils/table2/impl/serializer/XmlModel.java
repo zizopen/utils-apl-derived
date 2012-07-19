@@ -58,14 +58,14 @@ class XmlModel<E>
         @XmlElement(name = "boolean", type = Boolean.class), @XmlElement(name = "object") })
     private E[] elements;
     
-    public Row( int index, E[] elements )
+    Row( int index, E[] elements )
     {
       super();
       this.index = index;
       this.elements = elements;
     }
     
-    public Row()
+    Row()
     {
       super();
     }
