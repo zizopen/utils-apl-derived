@@ -6,7 +6,7 @@
         <artifactId>utils-apl-derived</artifactId>
         <version>0.1.17-SNAPSHOT</version>
     </parent>
-    <artifactId>utils-apl-derived-table2</artifactId>
+    <artifactId>utils-apl-derived-table</artifactId>
     <dependencies>
         <dependency>
             <groupId>org.omnaest.utils</groupId>

@@ -10,7 +10,7 @@
     <dependencies>
         <dependency>
             <groupId>org.omnaest.utils</groupId>
-            <artifactId>utils-apl-derived-table2</artifactId>
+            <artifactId>utils-apl-derived-table</artifactId>
         </dependency>
         <dependency>
             <groupId>com.orientechnologies</groupId>
