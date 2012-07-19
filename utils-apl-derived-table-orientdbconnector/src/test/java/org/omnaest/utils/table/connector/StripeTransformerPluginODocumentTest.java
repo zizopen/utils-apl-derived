@@ -26,8 +26,8 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.omnaest.utils.structure.map.MapUtils;
-import org.omnaest.utils.table2.Table;
-import org.omnaest.utils.table2.impl.ArrayTable;
+import org.omnaest.utils.table.Table;
+import org.omnaest.utils.table.impl.ArrayTable;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.record.impl.ODocument;

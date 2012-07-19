@@ -18,9 +18,9 @@ package org.omnaest.utils.spring.resource.implementation;
 import java.io.InputStream;
 
 import org.omnaest.utils.spring.resource.ResourceLoaderTable;
-import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
-import org.omnaest.utils.table2.Table;
-import org.omnaest.utils.table2.impl.ArrayTable;
+import org.omnaest.utils.table.Table;
+import org.omnaest.utils.table.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
+import org.omnaest.utils.table.impl.ArrayTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
