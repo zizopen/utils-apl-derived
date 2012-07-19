@@ -23,7 +23,7 @@ import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterSerializable;
 import org.omnaest.utils.structure.iterator.IterableUtils;
-import org.omnaest.utils.table2.TableDataSource;
+import org.omnaest.utils.table.TableDataSource;
 
 import com.google.common.base.Joiner;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;

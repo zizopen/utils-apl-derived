@@ -17,9 +17,9 @@ package org.omnaest.utils.table.connector;
 
 import java.util.Map;
 
-import org.omnaest.utils.table2.ImmutableStripe;
-import org.omnaest.utils.table2.Stripe;
-import org.omnaest.utils.table2.StripeTransformerPlugin;
+import org.omnaest.utils.table.ImmutableStripe;
+import org.omnaest.utils.table.Stripe;
+import org.omnaest.utils.table.StripeTransformerPlugin;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 

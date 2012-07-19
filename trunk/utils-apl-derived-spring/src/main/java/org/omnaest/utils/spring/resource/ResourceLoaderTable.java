@@ -17,8 +17,8 @@ package org.omnaest.utils.spring.resource;
 
 import java.io.Serializable;
 
-import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
-import org.omnaest.utils.table2.Table;
+import org.omnaest.utils.table.Table;
+import org.omnaest.utils.table.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
 import org.springframework.core.io.ResourceLoader;
 
 /**
