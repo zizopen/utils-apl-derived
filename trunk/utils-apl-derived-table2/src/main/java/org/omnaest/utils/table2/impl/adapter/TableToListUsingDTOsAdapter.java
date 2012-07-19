@@ -38,7 +38,7 @@ class TableToListUsingDTOsAdapter<E, B> extends ListAbstract<B>
   
   /* ************************************** Variables / State (internal/hiding) ************************************* */
   @SuppressWarnings("rawtypes")
-  private final BeanReplicator<B, Map> beanReplicator;
+  private final BeanReplicator<B, Map> beanReplicatorBeanToRow;
   @SuppressWarnings("rawtypes")
   private final BeanReplicator<Map, B> beanReplicatorRowToBean;
   
@@ -62,8 +62,8 @@ class TableToListUsingDTOsAdapter<E, B> extends ListAbstract<B>
                                final ExceptionHandler exceptionHandler )
   {
     this.table = table;
-    this.beanReplicator = new BeanReplicator<B, Map>( (Class<B>) beanType, Map.class ).declare( declaration )
-                                                                                      .setExceptionHandler( exceptionHandler );
+    this.beanReplicatorBeanToRow = new BeanReplicator<B, Map>( (Class<B>) beanType, Map.class ).declare( declaration )
+                                                                                               .setExceptionHandler( exceptionHandler );
     this.beanReplicatorRowToBean = new BeanReplicator<Map, B>( Map.class, beanType ).declare( declaration )
                                                                                     .setExceptionHandler( exceptionHandler );
   }
@@ -122,7 +122,7 @@ class TableToListUsingDTOsAdapter<E, B> extends ListAbstract<B>
     B retval = this.get( index );
     if ( bean != null )
     {
-      Map<String, E> map = this.beanReplicator.clone( bean );
+      Map<String, E> map = this.beanReplicatorBeanToRow.clone( bean );
       E[] elements = MapUtils.filteredValues( map, this.table.elementType(), this.table.getColumnTitles() );
       this.table.setRowElements( index, elements );
     }
@@ -135,7 +135,7 @@ class TableToListUsingDTOsAdapter<E, B> extends ListAbstract<B>
   {
     if ( bean != null )
     {
-      Map<String, E> map = this.beanReplicator.clone( bean );
+      Map<String, E> map = this.beanReplicatorBeanToRow.clone( bean );
       E[] elements = MapUtils.filteredValues( map, this.table.elementType(), this.table.getColumnTitles() );
       this.table.addRowElements( index, elements );
     }

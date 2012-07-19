@@ -16,6 +16,7 @@
 package org.omnaest.utils.table2;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,16 @@ public interface TableAdapterManager<E> extends Serializable
   public <B> List<B> beanList( Class<? extends B> type );
   
   /**
+   * Similar to {@link #beanList(Class)} allowing to specify a bean mapping {@link Declaration}
+   * 
+   * @param type
+   * @param declaration
+   *          {@link Declaration}
+   * @return backed {@link List}
+   */
+  public <B> List<B> beanList( Class<? extends B> type, Declaration declaration );
+  
+  /**
    * Similar to {@link #managedBeanList(Class)} allowing to specify a bean mapping {@link Declaration}
    * 
    * @see BeanReplicator
@@ -99,5 +110,12 @@ public interface TableAdapterManager<E> extends Serializable
    * @return new {@link List} adapter instance
    */
   public <B> List<B> managedBeanList( Class<? extends B> type, Declaration declaration );
+  
+  /**
+   * Returns a {@link ResultSet} backed by the underlying {@link Table}
+   * 
+   * @return
+   */
+  public ResultSet resultSet();
   
 }

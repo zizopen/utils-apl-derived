@@ -18,12 +18,9 @@ package org.omnaest.utils.spring.resource.implementation;
 import java.io.InputStream;
 
 import org.omnaest.utils.spring.resource.ResourceLoaderTable;
-import org.omnaest.utils.structure.table.Table;
-import org.omnaest.utils.structure.table.concrete.ArrayTable;
-import org.omnaest.utils.structure.table.serializer.TableUnmarshaller;
-import org.omnaest.utils.structure.table.serializer.common.CSVMarshallingConfiguration;
-import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerCSV;
-import org.omnaest.utils.structure.table.serializer.unmarshaller.TableUnmarshallerXLS;
+import org.omnaest.utils.table2.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
+import org.omnaest.utils.table2.Table;
+import org.omnaest.utils.table2.impl.ArrayTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -37,51 +34,13 @@ public class ResourceLoaderTableImpl implements ResourceLoaderTable
   private static final long serialVersionUID = -5636329784509801515L;
   /* ********************************************** Variables ********************************************** */
   @Autowired
-  protected ResourceLoader resourceLoader = null;
+  protected ResourceLoader  resourceLoader   = null;
   
   /* ********************************************** Methods ********************************************** */
   
   @Override
-  public <E> Table<E> getTableFrom( String location, TableUnmarshaller<E> tableUnmarshaller )
-  {
-    //
-    Table<E> table = null;
-    
-    //
-    try
-    {
-      if ( location != null )
-      {
-        //
-        Resource resource = this.resourceLoader.getResource( location );
-        InputStream inputStream = resource.getInputStream();
-        
-        //
-        table = new ArrayTable<E>().serializer().unmarshal( tableUnmarshaller ).from( inputStream );
-      }
-    }
-    catch ( Exception e )
-    {
-    }
-    
-    //
-    return table;
-  }
-  
-  @Override
-  public <E> Table<E> getTableFromXLS( String location,
-                                       String workSheetName,
-                                       boolean hasTableName,
-                                       boolean hasColumnTitles,
-                                       boolean hasRowTitles )
-  {
-    TableUnmarshaller<E> tableUnmarshaller = new TableUnmarshallerXLS<E>( workSheetName, hasTableName, hasColumnTitles,
-                                                                          hasRowTitles );
-    return this.getTableFrom( location, tableUnmarshaller );
-  }
-  
-  @Override
-  public <E> Table<E> getTableFromCSV( String location,
+  public <E> Table<E> getTableFromCSV( Class<E> elementType,
+                                       String location,
                                        String encoding,
                                        String delimiter,
                                        String quotationCharacter,
@@ -91,19 +50,32 @@ public class ResourceLoaderTableImpl implements ResourceLoaderTable
   {
     //
     CSVMarshallingConfiguration configuration = new CSVMarshallingConfiguration().setDelimiter( delimiter )
-                                                                           .setEncoding( encoding )
-                                                                           .setQuotationCharacter( quotationCharacter )
-                                                                           .setHasEnabledColumnTitles( hasColumnTitles )
-                                                                           .setHasEnabledRowTitles( hasRowTitles )
-                                                                           .setHasEnabledTableName( hasTableName );
-    return this.getTableFromCSV( location, configuration );
+                                                                                 .setEncoding( encoding )
+                                                                                 .setQuotationCharacter( quotationCharacter )
+                                                                                 .setHasEnabledColumnTitles( hasColumnTitles )
+                                                                                 .setHasEnabledRowTitles( hasRowTitles )
+                                                                                 .setHasEnabledTableName( hasTableName );
+    return this.getTableFromCSV( elementType, location, configuration );
   }
   
   @Override
-  public <E> Table<E> getTableFromCSV( String location, CSVMarshallingConfiguration configuration )
+  public <E> Table<E> getTableFromCSV( Class<? extends E> elementType, String location, CSVMarshallingConfiguration configuration )
   {
-    //
-    return this.getTableFrom( location, new TableUnmarshallerCSV<E>().setConfiguration( configuration ) );
+    Table<E> table = null;
+    try
+    {
+      if ( location != null )
+      {
+        Resource resource = this.resourceLoader.getResource( location );
+        InputStream inputStream = resource.getInputStream();
+        
+        table = new ArrayTable<E>( elementType ).serializer().unmarshal().asCsv().using( configuration ).from( inputStream );
+      }
+    }
+    catch ( Exception e )
+    {
+    }
+    return table;
   }
   
 }
