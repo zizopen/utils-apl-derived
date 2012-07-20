@@ -15,8 +15,10 @@
  ******************************************************************************/
 package org.omnaest.utils.table;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URL;
 
 import org.omnaest.utils.table.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
 import org.omnaest.utils.table.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
@@ -96,6 +98,20 @@ public interface TableSerializer<E> extends ImmutableTableSerializer<E>
      * @return executing {@link Table} instance
      */
     public Table<E> from( CharSequence charSequence );
+    
+    /**
+     * @param file
+     *          {@link File}
+     * @return executing {@link Table} instance
+     */
+    public Table<E> from( File file );
+    
+    /**
+     * @param url
+     *          {@link URL}
+     * @return executing {@link Table} instance
+     */
+    public Table<E> from( URL url );
   }
   
   /**

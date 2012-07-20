@@ -16,17 +16,84 @@
 package org.omnaest.utils.table;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
 import java.util.BitSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.regex.Pattern;
 
 import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
+import org.omnaest.utils.table.TableSelect.TableJoin;
 import org.omnaest.utils.table.impl.TableEventHandlerRegistration;
 
 /**
- * A {@link Table} represents a two dimensional container
+ * <h1>General</h1><br>
+ * A {@link Table} represents a two dimensional container which allows modification of {@link Row}s and {@link Column}s.<br>
+ * <br>
  * 
+ * <pre>
+ * Table&lt;String&gt; table = new ArrayTable&lt;String&gt;( String.class );
+ * table.addRowElements( &quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot; );
+ * 
+ * String element = table.getElement( 7, 4 );
+ * 
+ * for ( Map&lt;String, String&gt; map : table.rows( 3, 6 ).to().maps() )
+ * {
+ *   //...
+ * }
+ * </pre>
+ * 
+ * <h2>Index</h2><br>
+ * With the {@link #index()} method the {@link Table} allows to create {@link TableIndex}s of several forms. Those indexes can be
+ * backed by the {@link Table} which does hide the complexity of updates within the {@link Table} implementation.<br>
+ * 
+ * <pre>
+ * TableIndex&lt;String, Cell&lt;String&gt;&gt; tableIndex = table.index().of( table.column( 1 ) );
+ * </pre>
+ * 
+ * <h2>Select</h2><br>
+ * With {@link #select()} is a simple {@link TableJoin} related to SQL possible. <br>
+ * 
+ * <pre>
+ * Table&lt;String&gt; result = table.select()
+ *                             .column( 1 )
+ *                             .column( 2 )
+ *                             .join( tableOther )
+ *                             .allColumns()
+ *                             .onEqual( table.column( 1 ), tableOther.column( 0 ) )
+ *                             .as()
+ *                             .table();
+ * </pre>
+ * 
+ * <h2>Serialization</h2><br>
+ * With {@link #serializer()} it is possible to serialize and deserialzie the {@link Table} content into and from several formats
+ * like Json, Xml, plain text. <br>
+ * 
+ * <pre>
+ * String content = table.serializer().marshal().asJson().toString();
+ * </pre>
+ * 
+ * <h2>Copy</h2><br>
+ * With {@link #copy()} the table can copy content of other sources, like other {@link Table} instances or any other
+ * {@link TableDataSource}. E.g. a {@link ResultSet} can be used as source as well. <br>
+ * <h2>Adapter</h2><br>
+ * The {@link #as()} method provides adapter instances which allow to access the {@link Table} e.g. as a {@link List} of Java
+ * beans. <br>
+ * 
+ * <pre>
+ * List&lt;Domain&gt; domainList = table.as().beanList( Domain.class );
+ * domainList.add( new Domain() );
+ * </pre>
+ * 
+ * @see #select()
+ * @see #serializer()
+ * @see #index()
+ * @see #copy()
+ * @see #as()
+ * @see Row
+ * @see Column
+ * @see Stripe
  * @see ImmutableTable
  * @author Omnaest
  * @param <E>

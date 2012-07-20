@@ -15,7 +15,13 @@
  ******************************************************************************/
 package org.omnaest.utils.table.impl.serializer;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 import org.apache.commons.io.input.CharSequenceReader;
 import org.omnaest.utils.events.exception.ExceptionHandler;
@@ -59,6 +65,14 @@ abstract class UnmarshallerAbstract<E> implements Unmarshaller<E>
       //
       ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
       byteArrayContainer.copyFrom( inputStream );
+      try
+      {
+        inputStream.close();
+      }
+      catch ( IOException e )
+      {
+        this.exceptionHandler.handleException( e );
+      }
       
       this.from( byteArrayContainer.getReader( this.getEncoding() ) );
     }
@@ -73,6 +87,36 @@ abstract class UnmarshallerAbstract<E> implements Unmarshaller<E>
   public Table<E> from( CharSequence charSequence )
   {
     return this.from( new CharSequenceReader( charSequence ) );
+  }
+  
+  @Override
+  public Table<E> from( File file )
+  {
+    InputStream inputStream = null;
+    try
+    {
+      inputStream = new BufferedInputStream( new FileInputStream( file ) );
+    }
+    catch ( FileNotFoundException e )
+    {
+      this.exceptionHandler.handleException( e );
+    }
+    return this.from( inputStream );
+  }
+  
+  @Override
+  public Table<E> from( URL url )
+  {
+    InputStream inputStream = null;
+    try
+    {
+      inputStream = url == null ? null : url.openStream();
+    }
+    catch ( IOException e )
+    {
+      this.exceptionHandler.handleException( e );
+    }
+    return this.from( inputStream );
   }
   
 }

@@ -15,9 +15,17 @@
  ******************************************************************************/
 package org.omnaest.utils.table;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
- * Base type of {@link Row} and {@link Column}
+ * Base type of {@link Row} and {@link Column}.<br>
+ * <br>
+ * The {@link #to()} method allows to transform the content of the given {@link Stripe} into other forms like {@link List},
+ * {@link Set}, {@link Map}, etc.
  * 
+ * @see StripeTransformer
  * @see ImmutableStripe
  * @see Table
  * @author Omnaest

@@ -18,6 +18,7 @@ package org.omnaest.utils.table;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.regex.Pattern;
 
 import org.omnaest.utils.table.ImmutableColumn.ColumnIdentity;
 
@@ -102,12 +103,42 @@ public interface TableSelect<E>
     public TableJoin<E> onEqual( ImmutableColumn<E> columnLeft, ImmutableColumn<E> columnRight );
     
     /**
+     * Filters all values which are {@link Object#equals(Object)} to the given value
+     * 
+     * @param column
+     *          {@link ImmutableColumn}
+     * @param value
+     * @return this
+     */
+    public TableJoin<E> onEqual( ImmutableColumn<E> column, E value );
+    
+    /**
+     * Filters all values which are true if given to {@link Set#contains(Object)} of the given value {@link Set}
+     * 
+     * @param column
+     *          {@link ImmutableColumn}
+     * @param valueSet
+     * @return this
+     */
+    public TableJoin<E> onWithin( ImmutableColumn<E> column, Set<E> valueSet );
+    
+    /**
      * {@link TableSelect.Predicate} which is only applied to the joined {@link Table}
      * 
      * @param predicate
      * @return this
      */
     public TableJoin<E> on( Predicate<E> predicate );
+    
+    /**
+     * Filters all values which can be cast to {@link String} and which will match the given {@link Pattern}
+     * 
+     * @param column
+     *          {@link ImmutableColumn}
+     * @param pattern
+     * @return this
+     */
+    public TableJoin<E> onLike( ImmutableColumn<E> column, Pattern pattern );
     
     @Override
     public TableJoin<E> withTableLock( boolean lockEnabled );
@@ -197,6 +228,44 @@ public interface TableSelect<E>
    * @return this
    */
   public TableSelect<E> where( TableSelect.Predicate<E> predicate, TableSelect.Predicate<E>... predicates );
+  
+  /**
+   * Allows to add one {@link Predicate}s which will filter the result of the cross product of {@link Row}s
+   * 
+   * @param predicate
+   * @return this
+   */
+  public TableSelect<E> where( TableSelect.Predicate<E> predicate );
+  
+  /**
+   * Filters all values which are {@link Object#equals(Object)} to the given value
+   * 
+   * @param column
+   *          {@link ImmutableColumn}
+   * @param value
+   * @return this
+   */
+  public TableSelect<E> whereEqual( ImmutableColumn<E> column, E value );
+  
+  /**
+   * Filters all values which are true if given to {@link Set#contains(Object)} of the given value {@link Set}
+   * 
+   * @param column
+   *          {@link ImmutableColumn}
+   * @param valueSet
+   * @return this
+   */
+  public TableSelect<E> whereWithin( ImmutableColumn<E> column, Set<E> valueSet );
+  
+  /**
+   * Filters all values which can be cast to {@link String} and which will match the given {@link Pattern}
+   * 
+   * @param column
+   *          {@link ImmutableColumn}
+   * @param pattern
+   * @return this
+   */
+  public TableSelect<E> whereLike( ImmutableColumn<E> column, Pattern pattern );
   
   /**
    * Returns a {@link TableSelectExecution} instance which will calculate the result

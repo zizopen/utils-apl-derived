@@ -29,8 +29,10 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.operation.foreach.Range;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.CollectionUtils;
@@ -44,16 +46,16 @@ import org.omnaest.utils.structure.element.factory.concrete.LinkedHashSetFactory
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.table.ImmutableColumn;
+import org.omnaest.utils.table.ImmutableColumn.ColumnIdentity;
 import org.omnaest.utils.table.ImmutableRow;
 import org.omnaest.utils.table.ImmutableTable;
 import org.omnaest.utils.table.Row;
 import org.omnaest.utils.table.Table;
 import org.omnaest.utils.table.TableExecution;
 import org.omnaest.utils.table.TableSelect;
-import org.omnaest.utils.table.ImmutableColumn.ColumnIdentity;
+import org.omnaest.utils.table.TableSelect.Predicate.FilterRow;
 import org.omnaest.utils.table.TableSelect.TableJoin;
 import org.omnaest.utils.table.TableSelect.TableSelectExecution;
-import org.omnaest.utils.table.TableSelect.Predicate.FilterRow;
 import org.omnaest.utils.table.impl.ArrayTable;
 
 import com.google.common.base.Joiner;
@@ -73,6 +75,65 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
   private Set<ImmutableTable<E>> tableForLockingSet = new LinkedHashSet<ImmutableTable<E>>();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  private static final class PredicateEqualValue<E> implements Predicate<E>
+  {
+    private final E                 value;
+    private final ColumnIdentity<E> columnIdentity;
+    
+    private PredicateEqualValue( E value, ColumnIdentity<E> columnIdentity )
+    {
+      this.value = value;
+      this.columnIdentity = columnIdentity;
+    }
+    
+    @Override
+    public boolean isIncluding( TableSelect.Predicate.FilterRow<E> row )
+    {
+      final E element = row.getElement( this.columnIdentity );
+      return ObjectUtils.equals( this.value, element );
+    }
+  }
+  
+  private static final class PredicateWithin<E> implements Predicate<E>
+  {
+    private final ColumnIdentity<E> columnIdentity;
+    private final Set<E>            valueSet;
+    
+    private PredicateWithin( ColumnIdentity<E> columnIdentity, Set<E> valueSet )
+    {
+      this.columnIdentity = columnIdentity;
+      this.valueSet = valueSet;
+    }
+    
+    @Override
+    public boolean isIncluding( TableSelect.Predicate.FilterRow<E> row )
+    {
+      final E element = row.getElement( this.columnIdentity );
+      return this.valueSet != null && this.valueSet.contains( element );
+    }
+  }
+  
+  private static final class PredicateLike<E> implements Predicate<E>
+  {
+    private final ColumnIdentity<E> columnIdentity;
+    private final Pattern           pattern;
+    
+    private PredicateLike( ColumnIdentity<E> columnIdentity, Pattern pattern )
+    {
+      this.columnIdentity = columnIdentity;
+      this.pattern = pattern;
+    }
+    
+    @Override
+    public boolean isIncluding( TableSelect.Predicate.FilterRow<E> row )
+    {
+      final E element = row.getElement( this.columnIdentity );
+      final String value = element != null ? String.valueOf( element ) : null;
+      final boolean retval = this.pattern != null && value != null && this.pattern.matcher( value ).matches();
+      return retval;
+    }
+  }
   
   private static class MatchElement<E>
   {
@@ -280,18 +341,20 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
   
   private static final class SelectExecution<E> implements TableExecution<ImmutableTable<E>, E>
   {
-    private final ElementHolder<Table<E>> rettableElementHolder;
-    private final List<Bucket<E>>         closedBucketList;
-    private final Class<E>                componentType;
-    private final List<ColumnJoin<E>>     columnJoinList;
+    private final ElementHolder<Table<E>>        rettableElementHolder;
+    private final List<Bucket<E>>                closedBucketList;
+    private final Class<E>                       componentType;
+    private final List<ColumnJoin<E>>            columnJoinList;
+    private final List<TableSelect.Predicate<E>> predicateList;
     
     private SelectExecution( ElementHolder<Table<E>> rettableElementHolder, List<Bucket<E>> closedBucketList,
-                             Class<E> componentType, List<ColumnJoin<E>> columnJoinList )
+                             Class<E> componentType, List<ColumnJoin<E>> columnJoinList, List<Predicate<E>> predicateList )
     {
       this.rettableElementHolder = rettableElementHolder;
       this.closedBucketList = closedBucketList;
       this.componentType = componentType;
       this.columnJoinList = columnJoinList;
+      this.predicateList = predicateList;
     }
     
     @SuppressWarnings("unchecked")
@@ -299,7 +362,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
     public void execute( ImmutableTable<E> table )
     {
       //
-      Set<ColumnIdentity<E>> selectedColumnIdentitySet = new LinkedHashSet<ColumnIdentity<E>>();
+      List<ColumnIdentity<E>> selectedColumnIdentityList = new ArrayList<ImmutableColumn.ColumnIdentity<E>>();
       List<Iterable<? extends FilterRow<E>>> filteredFilterRowIterableList = new ArrayList<Iterable<? extends FilterRow<E>>>();
       {
         final PreparedColumnJoin<E> preparedColumnJoin = new PreparedColumnJoin<E>( this.columnJoinList );
@@ -315,7 +378,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
           filteredFilterRowIterableList.add( filteredFilterRowIterable );
           
           //
-          selectedColumnIdentitySet.addAll( bucket.getSelectedColumnIdentitySet() );
+          selectedColumnIdentityList.addAll( bucket.getSelectedColumnIdentityList() );
         }
       }
       
@@ -353,10 +416,23 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
         }
         
         //
+        if ( this.predicateList != null )
+        {
+          for ( Predicate<E> predicate : this.predicateList )
+          {
+            include &= predicate.isIncluding( filterRow );
+            if ( !include )
+            {
+              break;
+            }
+          }
+        }
+        
+        //
         if ( include )
         {
           final List<E> elementList = new ArrayList<E>();
-          for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentitySet )
+          for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentityList )
           {
             E element = filterRow.getElement( columnIdentity );
             elementList.add( element );
@@ -372,7 +448,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
       {
         final Set<String> tableNameSet = new LinkedHashSet<String>();
         int columnIndex = 0;
-        for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentitySet )
+        for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentityList )
         {
           final ImmutableColumn<E> column = columnIdentity.column();
           final String tableName = column.table().getTableName();
@@ -566,7 +642,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
         
         private void resolveNextFilterRowListIfUnresolved()
         {
-          if ( !this.resolved )
+          while ( !this.resolved )
           {
             this.filterRowRight = null;
             
@@ -591,6 +667,10 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
             if ( this.filterRowRightIterator != null && this.filterRowRightIterator.hasNext() )
             {
               this.filterRowRight = this.filterRowRightIterator.next();
+            }
+            else if ( filterRowLeftIterator.hasNext() )
+            {
+              continue;
             }
             
             this.resolved = true;
@@ -892,14 +972,14 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
       return this.predicateList;
     }
     
-    public Set<ColumnIdentity<E>> getSelectedColumnIdentitySet()
+    public List<ColumnIdentity<E>> getSelectedColumnIdentityList()
     {
-      final Set<ColumnIdentity<E>> columnIdentitySet = new LinkedHashSet<ImmutableColumn.ColumnIdentity<E>>();
+      final List<ColumnIdentity<E>> retlist = new ArrayList<ColumnIdentity<E>>();
       for ( ImmutableColumn<E> immutableColumn : this.columnList )
       {
-        columnIdentitySet.add( immutableColumn.id() );
+        retlist.add( immutableColumn.id() );
       }
-      return columnIdentitySet;
+      return retlist;
     }
     
   }
@@ -994,6 +1074,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
   @Override
   public TableSelect.TableJoin<E> join( ImmutableTable<E> table )
   {
+    Assert.isNotNull( table, "table must not be null if joined" );
     this.closeAndRolloverBucket( table );
     return this;
   }
@@ -1095,7 +1176,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
     final List<Bucket<E>> closedBucketList = this.closedBucketList;
     final List<ColumnJoin<E>> columnJoinList = this.columnJoinList;
     final SelectExecution<E> tableExecution = new SelectExecution<E>( rettableElementHolder, closedBucketList, componentType,
-                                                                      columnJoinList );
+                                                                      columnJoinList, this.predicateList );
     
     Set<ImmutableTable<E>> tableForLockingSet = this.tableForLockingSet;
     if ( tableForLockingSet.isEmpty() )
@@ -1138,6 +1219,62 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
     }
     
     return retmap;
+  }
+  
+  @Override
+  public org.omnaest.utils.table.TableSelect.TableJoin<E> onEqual( final ImmutableColumn<E> column, final E value )
+  {
+    final ColumnIdentity<E> columnIdentity = column.id();
+    final Predicate<E> predicate = new PredicateEqualValue<E>( value, columnIdentity );
+    return this.on( predicate );
+  }
+  
+  @Override
+  public org.omnaest.utils.table.TableSelect.TableJoin<E> onWithin( final ImmutableColumn<E> column, final Set<E> valueSet )
+  {
+    final ColumnIdentity<E> columnIdentity = column.id();
+    final Predicate<E> predicate = new PredicateWithin<E>( columnIdentity, valueSet );
+    return this.on( predicate );
+  }
+  
+  @Override
+  public org.omnaest.utils.table.TableSelect.TableJoin<E> onLike( final ImmutableColumn<E> column, final Pattern pattern )
+  {
+    final ColumnIdentity<E> columnIdentity = column.id();
+    final Predicate<E> predicate = new PredicateLike<E>( columnIdentity, pattern );
+    return this.on( predicate );
+  }
+  
+  @Override
+  public TableSelect<E> whereEqual( ImmutableColumn<E> column, E value )
+  {
+    final ColumnIdentity<E> columnIdentity = column.id();
+    final Predicate<E> predicate = new PredicateEqualValue<E>( value, columnIdentity );
+    return this.where( predicate );
+  }
+  
+  @Override
+  public TableSelect<E> whereWithin( ImmutableColumn<E> column, Set<E> valueSet )
+  {
+    final ColumnIdentity<E> columnIdentity = column.id();
+    final Predicate<E> predicate = new PredicateWithin<E>( columnIdentity, valueSet );
+    return this.where( predicate );
+  }
+  
+  @Override
+  public TableSelect<E> whereLike( ImmutableColumn<E> column, Pattern pattern )
+  {
+    final ColumnIdentity<E> columnIdentity = column.id();
+    final Predicate<E> predicate = new PredicateLike<E>( columnIdentity, pattern );
+    return this.where( predicate );
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public TableSelect<E> where( org.omnaest.utils.table.TableSelect.Predicate<E> predicate )
+  {
+    Predicate<E>[] predicates = new Predicate[0];
+    return this.where( predicate, predicates );
   }
   
 }

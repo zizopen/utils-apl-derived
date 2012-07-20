@@ -15,14 +15,18 @@
  ******************************************************************************/
 package org.omnaest.utils.table.impl.serializer;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 
 import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
-import org.omnaest.utils.table.Table;
 import org.omnaest.utils.table.ImmutableTableSerializer.Marshaller;
+import org.omnaest.utils.table.Table;
 
 abstract class MarshallerAbstract<E> implements Marshaller<E>
 {
@@ -65,16 +69,39 @@ abstract class MarshallerAbstract<E> implements Marshaller<E>
   @Override
   public Table<E> to( OutputStream outputStream )
   {
+    final boolean closeStream = false;
+    return this.to( outputStream, closeStream );
+  }
+  
+  public Table<E> to( OutputStream outputStream, boolean closeStream )
+  {
     if ( outputStream != null )
     {
-      //
-      StringBuffer stringBuffer = new StringBuffer();
-      this.to( stringBuffer );
-      
-      //
-      ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
-      byteArrayContainer.copyFrom( stringBuffer, this.getEncoding() );
-      byteArrayContainer.writeTo( outputStream );
+      try
+      {
+        //
+        StringBuffer stringBuffer = new StringBuffer();
+        this.to( stringBuffer );
+        
+        //
+        ByteArrayContainer byteArrayContainer = new ByteArrayContainer();
+        byteArrayContainer.copyFrom( stringBuffer, this.getEncoding() );
+        byteArrayContainer.writeTo( outputStream );
+      }
+      finally
+      {
+        if ( closeStream )
+        {
+          try
+          {
+            outputStream.close();
+          }
+          catch ( IOException e )
+          {
+            this.exceptionHandler.handleException( e );
+          }
+        }
+      }
     }
     
     // 
@@ -90,5 +117,21 @@ abstract class MarshallerAbstract<E> implements Marshaller<E>
   }
   
   protected abstract String getEncoding();
+  
+  @Override
+  public Table<E> to( File file )
+  {
+    OutputStream outputStream = null;
+    try
+    {
+      outputStream = new BufferedOutputStream( new FileOutputStream( file ) );
+    }
+    catch ( FileNotFoundException e )
+    {
+      this.exceptionHandler.handleException( e );
+    }
+    final boolean closeStream = true;
+    return this.to( outputStream, closeStream );
+  }
   
 }

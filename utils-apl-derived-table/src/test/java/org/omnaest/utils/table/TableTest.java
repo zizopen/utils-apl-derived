@@ -24,6 +24,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -54,19 +56,10 @@ import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.ValueExtractor;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.iterator.IterableUtils;
-import org.omnaest.utils.table.Cell;
-import org.omnaest.utils.table.Column;
-import org.omnaest.utils.table.ImmutableRow;
-import org.omnaest.utils.table.ImmutableTable;
-import org.omnaest.utils.table.Row;
-import org.omnaest.utils.table.RowDataReader;
-import org.omnaest.utils.table.Table;
-import org.omnaest.utils.table.TableExecution;
-import org.omnaest.utils.table.TableIndex;
-import org.omnaest.utils.table.TablePersistence;
 import org.omnaest.utils.table.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
 import org.omnaest.utils.table.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
 import org.omnaest.utils.table.impl.ArrayTable;
+import org.omnaest.utils.table.impl.datasource.TableDataSourceResultSet;
 import org.omnaest.utils.table.impl.persistence.SimpleFileBasedTablePersistence;
 
 /**
@@ -692,6 +685,19 @@ public abstract class TableTest
       assertEquals( table.row( 1 ).id(), IterableUtils.elementAt( rows, 0 ).id() );
       assertEquals( table.row( 2 ).id(), IterableUtils.elementAt( rows, 1 ).id() );
     }
+    
+  }
+  
+  @Test
+  public void testRows()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 );
+    {
+      final Iterable<Map<String, String>> maps = table.rows( 3, 6 ).to().maps();
+      assertEquals( 3, IterableUtils.size( maps ) );
+      Map<String, String> map = maps.iterator().next();
+      assertEquals( SetUtils.valueOf( table.getColumnTitleList() ), map.keySet() );
+    }
   }
   
   @Test
@@ -714,12 +720,14 @@ public abstract class TableTest
       assertTrue( result.equalsInContent( table ) );
     }
     {
-      Table<String> result = table.select().column( 0 ).allColumns( table ).as().table();
+      Table<String> result = table.select().columns( 0, 1, 2, 3 ).as().table();
       assertTrue( result.equalsInContent( table ) );
     }
     {
-      Table<String> result = table.select().columns( 0, 1, 2, 3 ).as().table();
-      assertTrue( result.equalsInContent( table ) );
+      Table<String> result = table.select().column( 0 ).allColumns( table ).as().table();
+      assertTrue( table.equalsInContent( result.select().columns( 1, 2, 3, 4 ).as().table() ) );
+      assertEquals( table.column( 0 ).to().list(), result.column( 0 ).to().list() );
+      assertEquals( table.column( 0 ).to().list(), result.column( 1 ).to().list() );
     }
     {
       Table<String> result = table.select()
@@ -1384,5 +1392,107 @@ public abstract class TableTest
     }
     
     //System.out.println( table );    
+  }
+  
+  @Test
+  public void testResultSet() throws SQLException
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 );
+    {
+      ResultSet resultSet = table.as().resultSet();
+      for ( int ii = 0; ii < 10; ii++ )
+      {
+        assertTrue( resultSet.next() );
+        assertEquals( ii + ":0", resultSet.getString( 1 ) );
+        assertEquals( ii + ":1", resultSet.getString( "c1" ) );
+      }
+      assertFalse( resultSet.next() );
+    }
+    {
+      ResultSet resultSet = table.as().resultSet();
+      Table<String> tableOther = new ArrayTable<String>( String.class );
+      tableOther.copy().from( new TableDataSourceResultSet<String>( resultSet, String.class ) );
+      assertTrue( table.equalsInContent( tableOther ) );
+      //System.out.println( tableOther );
+    }
+  }
+  
+  @Test
+  public void testSelectOn()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 );
+    Table<String> table2 = table.clone();
+    
+    {
+      Table<String> result = table.select().allColumns().whereEqual( table.column( 1 ), "2:1" ).as().table();
+      
+      //System.out.println( result );
+      
+      assertEquals( 1, result.rowSize() );
+      assertEquals( "2:0", result.getElement( 0, 0 ) );
+    }
+    {
+      Table<String> result = table.select().allColumns().whereLike( table.column( 1 ), Pattern.compile( "5:1" ) ).as().table();
+      
+      //System.out.println( result );
+      
+      assertEquals( 1, result.rowSize() );
+      assertEquals( "5:0", result.getElement( 0, 0 ) );
+    }
+    {
+      Table<String> result = table.select().allColumns().whereWithin( table.column( 1 ), SetUtils.valueOf( "3:1" ) ).as().table();
+      
+      //System.out.println( result );
+      
+      assertEquals( 1, result.rowSize() );
+      assertEquals( "3:0", result.getElement( 0, 0 ) );
+    }
+    
+    {
+      Table<String> result = table.select()
+                                  .allColumns()
+                                  .join( table2 )
+                                  .allColumns()
+                                  .onEqual( table.column( 0 ), table2.column( 0 ) )
+                                  .onEqual( table2.column( 1 ), "2:1" )
+                                  .as()
+                                  .table();
+      
+      //System.out.println( result );
+      
+      assertEquals( 1, result.rowSize() );
+      assertEquals( "2:0", result.getElement( 0, 0 ) );
+    }
+    {
+      Table<String> result = table.select()
+                                  .allColumns()
+                                  .join( table2 )
+                                  .allColumns()
+                                  .onEqual( table.column( 0 ), table2.column( 0 ) )
+                                  .onLike( table2.column( 1 ), Pattern.compile( "5:1" ) )
+                                  .as()
+                                  .table();
+      
+      //System.out.println( result );
+      
+      assertEquals( 1, result.rowSize() );
+      assertEquals( "5:0", result.getElement( 0, 0 ) );
+    }
+    {
+      Table<String> result = table.select()
+                                  .allColumns()
+                                  .join( table2 )
+                                  .allColumns()
+                                  .onEqual( table.column( 0 ), table2.column( 0 ) )
+                                  .onWithin( table2.column( 1 ), SetUtils.valueOf( "3:1" ) )
+                                  .as()
+                                  .table();
+      
+      //System.out.println( result );
+      
+      assertEquals( 1, result.rowSize() );
+      assertEquals( "3:0", result.getElement( 0, 0 ) );
+    }
+    
   }
 }

@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.table;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.io.Writer;
 
@@ -198,6 +199,15 @@ public interface ImmutableTableSerializer<E>
      * @return
      */
     public String toString();
+    
+    /**
+     * Writes to a {@link File}
+     * 
+     * @param file
+     *          {@link File}
+     * @return the executing {@link Table} instance
+     */
+    public Table<E> to( File file );
     
   }
   
