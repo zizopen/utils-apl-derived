@@ -16,6 +16,7 @@
 package org.omnaest.utils.table;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * @author Omnaest
@@ -28,4 +29,11 @@ public interface StripesTransformer<E> extends Serializable
    * @return
    */
   public <T> Iterable<T> instancesOf( Class<T> type );
+  
+  /**
+   * Returns the {@link StripeTransformer#map()}s
+   * 
+   * @return {@link Iterable} of {@link Map}s
+   */
+  public Iterable<Map<String, E>> maps();
 }

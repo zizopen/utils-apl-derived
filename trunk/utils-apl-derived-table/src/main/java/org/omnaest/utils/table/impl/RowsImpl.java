@@ -17,6 +17,7 @@ package org.omnaest.utils.table.impl;
 
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterSerializable;
@@ -79,6 +80,22 @@ class RowsImpl<E> implements Rows<E, Row<E>>
           public T convert( Row<E> row )
           {
             return row.to().instanceOf( type );
+          }
+        };
+        return IterableUtils.adapter( rowIterable, elementConverter );
+      }
+      
+      @Override
+      public Iterable<Map<String, E>> maps()
+      {
+        final ElementConverter<Row<E>, Map<String, E>> elementConverter = new ElementConverterSerializable<Row<E>, Map<String, E>>()
+        {
+          private static final long serialVersionUID = -4832586956691329459L;
+          
+          @Override
+          public Map<String, E> convert( Row<E> row )
+          {
+            return row.to().map();
           }
         };
         return IterableUtils.adapter( rowIterable, elementConverter );

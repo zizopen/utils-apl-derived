@@ -23,6 +23,7 @@ import java.util.Set;
 /**
  * Transforms the elements of a {@link Stripe} into a new independent other container instance
  * 
+ * @see StripeTransformerPlugin
  * @see ImmutableStripe#to()
  * @author Omnaest
  * @param <E>
