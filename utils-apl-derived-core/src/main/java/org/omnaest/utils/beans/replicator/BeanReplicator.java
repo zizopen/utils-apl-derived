@@ -340,13 +340,21 @@ public class BeanReplicator<FROM, TO> implements Serializable
   public TO clone( FROM source )
   {
     TO retval = null;
-    final FactoryParameterized<Object, Map<String, Object>> factory = this.factoryResolver.resolveFactory( this.targetType );
-    if ( factory != null )
+    try
     {
-      retval = (TO) factory.newInstance( determineFactoryMetaInformation( this.sourceType, source ) );
-      this.copy( source, retval );
+      final FactoryParameterized<Object, Map<String, Object>> factory = this.factoryResolver.resolveFactory( this.targetType );
+      if ( factory != null )
+      {
+        retval = (TO) factory.newInstance( determineFactoryMetaInformation( this.sourceType, source ) );
+        Assert.isNotNull( retval, "Failed to create instance of type " + this.sourceType );
+        this.copy( source, retval );
+      }
     }
-    
+    catch ( Exception e )
+    {
+      final String canonicalPath = "";
+      this.exceptionHandler.handleException( new CopyException( e, canonicalPath ) );
+    }
     return retval;
   }
   
