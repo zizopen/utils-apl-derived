@@ -90,9 +90,9 @@ public class MapBuilderTest
                                       .buildAs()
                                       .linkedHashMap();
       assertNotNull( map );
-      assertEquals( 3, map.size() );
-      assertEquals( SetUtils.valueOf( "key1", "key2", "key3" ), map.keySet() );
-      assertEquals( ListUtils.valueOf( "value1", 2l, 1.234 ), ListUtils.valueOf( map.values() ) );
+      assertEquals( 4, map.size() );
+      assertEquals( SetUtils.valueOf( "key1", "key2", "key3", "key4" ), map.keySet() );
+      assertEquals( ListUtils.valueOf( 1l, 2l, 3l, 4l ), ListUtils.valueOf( map.values() ) );
     }
     {
       Map<String, Object> map = MapUtils.builder()
@@ -103,9 +103,9 @@ public class MapBuilderTest
                                         .buildAs()
                                         .linkedHashMap();
       assertNotNull( map );
-      assertEquals( 3, map.size() );
-      assertEquals( SetUtils.valueOf( "key1", "key2", "key3" ), map.keySet() );
-      assertEquals( ListUtils.valueOf( "value1", 2l, 1.234 ), ListUtils.valueOf( map.values() ) );
+      assertEquals( 4, map.size() );
+      assertEquals( SetUtils.valueOf( "key1", "key2", "key3", "key4" ), map.keySet() );
+      assertEquals( ListUtils.valueOf( 1l, 2l, 3l, 4l ), ListUtils.valueOf( map.values() ) );
     }
   }
   

@@ -240,7 +240,9 @@ class FactoryResolverImpl implements FactoryResolver
           @Override
           public Object newInstance( Map<String, Object> parameterMap )
           {
-            return this.builder.newTypeAdapter( new HashMap<String, Object>() );
+            final Object retval = this.builder.newTypeAdapter( new HashMap<String, Object>() );
+            Assert.isNotNull( retval, "Failed to create proxy instance of type " + type );
+            return retval;
           }
         };
       }
@@ -253,7 +255,9 @@ class FactoryResolverImpl implements FactoryResolver
           @Override
           public Object newInstance( Map<String, Object> parameterMap )
           {
-            return ReflectionUtils.newInstanceOf( type );
+            final Object retval = ReflectionUtils.newInstanceOf( type );
+            Assert.isNotNull( retval, "Failed to create instance of type " + type );
+            return retval;
           }
         };
       }
