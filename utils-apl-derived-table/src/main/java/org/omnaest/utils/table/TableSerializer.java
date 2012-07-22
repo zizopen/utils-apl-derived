@@ -56,6 +56,13 @@ public interface TableSerializer<E> extends ImmutableTableSerializer<E>
     public UnmarshallerXml<E> asXml();
     
     /**
+     * Returns an {@link TableSerializer.UnmarshallerXml} instance
+     * 
+     * @return
+     */
+    public UnmarshallerXHtml<E> asXHtml();
+    
+    /**
      * Returns an {@link TableSerializer.UnmarshallerJson} instance
      * 
      * @return
@@ -148,6 +155,16 @@ public interface TableSerializer<E> extends ImmutableTableSerializer<E>
      * @return this
      */
     public UnmarshallerXml<E> using( MarshallingConfiguration configuration );
+  }
+  
+  /**
+   * {@link TableSerializer.Unmarshaller} for XHTML
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface UnmarshallerXHtml<E> extends UnmarshallerXml<E>
+  {
   }
   
   /**

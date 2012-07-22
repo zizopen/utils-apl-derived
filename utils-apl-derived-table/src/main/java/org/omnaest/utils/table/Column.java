@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.table;
 
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+
 /**
  * @see Table
  * @author Omnaest
@@ -31,6 +33,20 @@ public interface Column<E> extends Stripe<E>, Iterable<E>, ImmutableColumn<E>
    */
   public Column<E> add( E element );
   
+  @Override
+  public Column<E> apply( ElementConverter<E, E> elementConverter );
+  
+  @Override
+  public Column<E> clear();
+  
+  /**
+   * Removes the current {@link Column} from its {@link Table}. The {@link Column} will return true for {@link #isDeleted()}
+   * afterwards.
+   * 
+   * @return this
+   */
+  public Column<E> remove();
+  
   /**
    * Sets the element at the given row index position
    * 
@@ -41,18 +57,30 @@ public interface Column<E> extends Stripe<E>, Iterable<E>, ImmutableColumn<E>
   public Column<E> setCellElement( int rowIndex, E element );
   
   /**
+   * Sets the element at the given {@link Row} index position
+   * 
+   * @param rowIndex
+   * @param element
+   * @return this
+   */
+  @Override
+  public Column<E> setElement( int rowIndex, E element );
+  
+  /**
+   * Similar to {@link #setElement(int, Object)} based on the {@link Row#getTitle()}
+   * 
+   * @param rowTitle
+   * @param element
+   * @return this
+   */
+  @Override
+  public Column<E> setElement( String rowTitle, E element );
+  
+  /**
    * Sets the title of the {@link Column}
    * 
    * @param columnTitle
    * @return
    */
   public Column<E> setTitle( String columnTitle );
-  
-  /**
-   * Removes the current {@link Column} from its {@link Table}. The {@link Column} will return true for {@link #isDeleted()}
-   * afterwards.
-   * 
-   * @return this
-   */
-  public Column<E> remove();
 }

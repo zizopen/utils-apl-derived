@@ -29,5 +29,7 @@ public interface TableDataSource<E> extends Serializable
   
   public String[] getColumnTitles();
   
+  public String[] getRowTitles();
+  
   public Iterable<E[]> rowElements();
 }

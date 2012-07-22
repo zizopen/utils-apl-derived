@@ -15,12 +15,15 @@
  ******************************************************************************/
 package org.omnaest.utils.table.impl.serializer;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -31,7 +34,7 @@ import javax.xml.bind.annotation.XmlType;
  * @author Omnaest
  */
 @SuppressWarnings("javadoc")
-@XmlRootElement
+@XmlRootElement(name = "table")
 @XmlAccessorType(XmlAccessType.FIELD)
 class XmlModel<E>
 {
@@ -40,7 +43,8 @@ class XmlModel<E>
   @XmlElement
   private MetaData metaData = null;
   
-  @XmlElement
+  @XmlElementWrapper(name = "rows")
+  @XmlElement(name = "row")
   private Row<E>[] rows;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
@@ -48,36 +52,24 @@ class XmlModel<E>
   @XmlAccessorType(XmlAccessType.FIELD)
   static class Row<E>
   {
-    @XmlAttribute
-    private int index;
-    
     @XmlElements({ @XmlElement(name = "string", type = String.class), @XmlElement(name = "byte", type = Byte.class),
         @XmlElement(name = "short", type = Short.class), @XmlElement(name = "int", type = Integer.class),
         @XmlElement(name = "long", type = Long.class), @XmlElement(name = "char", type = Character.class),
         @XmlElement(name = "float", type = Float.class), @XmlElement(name = "double", type = Double.class),
-        @XmlElement(name = "boolean", type = Boolean.class), @XmlElement(name = "object") })
+        @XmlElement(name = "boolean", type = Boolean.class), @XmlElement(name = "date", type = Date.class),
+        @XmlElement(name = "bigint", type = BigInteger.class), @XmlElement(name = "bigdecimal", type = BigDecimal.class),
+        @XmlElement(name = "object") })
     private E[] elements;
     
-    Row( int index, E[] elements )
+    Row( E[] elements )
     {
       super();
-      this.index = index;
       this.elements = elements;
     }
     
     Row()
     {
       super();
-    }
-    
-    public int getIndex()
-    {
-      return this.index;
-    }
-    
-    public void setIndex( int index )
-    {
-      this.index = index;
     }
     
     public E[] getElements()
@@ -98,10 +90,12 @@ class XmlModel<E>
   {
     private String       tableName       = null;
     
-    @XmlElement(name = "row")
+    @XmlElementWrapper(name = "rowTitles")
+    @XmlElement(name = "rowTitle")
     private List<String> rowTitleList    = null;
     
-    @XmlElement(name = "column")
+    @XmlElementWrapper(name = "columnTitles")
+    @XmlElement(name = "columnTitle")
     private List<String> columnTitleList = null;
     
     public String getTableName()

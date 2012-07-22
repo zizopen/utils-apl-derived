@@ -65,38 +65,41 @@ class XmlUnmarshallerImpl<E> extends UnmarshallerAbstract<E> implements Unmarsha
       XmlModel<E> xmlModel = JAXBXMLHelper.loadObjectFromXML( byteArrayContainer.toString( this.getEncoding() ), XmlModel.class,
                                                               unmarshallingConfiguration );
       
-      final Row<E>[] rows = xmlModel.getRows();
-      int rowIndex = 0;
-      if ( rows != null )
+      if ( xmlModel != null )
       {
-        for ( Row<E> row : rows )
+        final Row<E>[] rows = xmlModel.getRows();
+        int rowIndex = 0;
+        if ( rows != null )
         {
-          final E[] elements = row.getElements();
-          this.table.setRowElements( rowIndex++, elements );
+          for ( Row<E> row : rows )
+          {
+            final E[] elements = row.getElements();
+            this.table.setRowElements( rowIndex++, elements );
+          }
         }
-      }
-      
-      final MetaData metaData = xmlModel.getMetaData();
-      final boolean hasMetaData = metaData != null;
-      if ( hasMetaData )
-      {
-        final boolean hasEnabledTableName = this.configuration.hasEnabledTableName();
-        final boolean hasEnabledRowTitles = this.configuration.hasEnabledRowTitles();
-        final boolean hasEnabledColumnTitles = this.configuration.hasEnabledColumnTitles();
-        if ( hasEnabledTableName )
+        
+        final MetaData metaData = xmlModel.getMetaData();
+        final boolean hasMetaData = metaData != null;
+        if ( hasMetaData )
         {
-          final String tableName = metaData.getTableName();
-          this.table.setTableName( tableName );
-        }
-        if ( hasEnabledRowTitles )
-        {
-          final List<String> rowTitleList = metaData.getRowTitleList();
-          this.table.setRowTitles( rowTitleList );
-        }
-        if ( hasEnabledColumnTitles )
-        {
-          final List<String> columnTitleList = metaData.getColumnTitleList();
-          this.table.setColumnTitles( columnTitleList );
+          final boolean hasEnabledTableName = this.configuration.hasEnabledTableName();
+          final boolean hasEnabledRowTitles = this.configuration.hasEnabledRowTitles();
+          final boolean hasEnabledColumnTitles = this.configuration.hasEnabledColumnTitles();
+          if ( hasEnabledTableName )
+          {
+            final String tableName = metaData.getTableName();
+            this.table.setTableName( tableName );
+          }
+          if ( hasEnabledRowTitles )
+          {
+            final List<String> rowTitleList = metaData.getRowTitleList();
+            this.table.setRowTitles( rowTitleList );
+          }
+          if ( hasEnabledColumnTitles )
+          {
+            final List<String> columnTitleList = metaData.getColumnTitleList();
+            this.table.setColumnTitles( columnTitleList );
+          }
         }
       }
     }

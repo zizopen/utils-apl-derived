@@ -203,12 +203,12 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Column<E> column( String columnTitle );
   
   /**
-   * Returns an {@link Iterable} over all {@link Column}s
+   * Returns the {@link Columns} of the {@link Table}
    * 
    * @return
    */
   @Override
-  public Iterable<Column<E>> columns();
+  public Columns<E, Column<E>> columns();
   
   /**
    * Returns an {@link Iterable} over all {@link Column}s which have a column title matched by the given {@link Pattern}
@@ -216,7 +216,7 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @return
    */
   @Override
-  public Iterable<Column<E>> columns( Pattern columnTitlePattern );
+  public Columns<E, Column<E>> columns( Pattern columnTitlePattern );
   
   /**
    * Returns an {@link Iterable} over all {@link Column}s which have a column title included in the given {@link Set} of titles
@@ -224,7 +224,7 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @return
    */
   @Override
-  public Iterable<Column<E>> columns( Set<String> columnTitleSet );
+  public Columns<E, Column<E>> columns( Set<String> columnTitleSet );
   
   /**
    * Returns all {@link Column}s which have a column title included in the given titles
@@ -233,7 +233,7 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @return
    */
   @Override
-  public Iterable<Column<E>> columns( String... columnTitles );
+  public Columns<E, Column<E>> columns( String... columnTitles );
   
   /**
    * Returns a {@link TableDataSourceCopier} instance
@@ -496,6 +496,14 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Table<E> setRowTitles( Iterable<String> rowTitleIterable );
   
   /**
+   * Similar to {@link #setRowTitles(Iterable)}
+   * 
+   * @param rowTitles
+   * @return this
+   */
+  public Table<E> setRowTitles( String... rowTitles );
+  
+  /**
    * Sets the name of the {@link Table}
    * 
    * @param tableName
@@ -518,4 +526,13 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   @Override
   public TableEventHandlerRegistration<E, Table<E>> tableEventHandlerRegistration();
   
+  /**
+   * @return this
+   */
+  public Table<E> setColumnTitlesUsingFirstRow();
+  
+  /**
+   * @return this
+   */
+  public Table<E> setRowTitlesUsingFirstColumn();
 }

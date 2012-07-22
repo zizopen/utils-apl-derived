@@ -28,6 +28,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.table.Cell;
 import org.omnaest.utils.table.ImmutableStripe;
 import org.omnaest.utils.table.Stripe;
@@ -213,6 +214,13 @@ abstract class StripeImpl<E> implements Stripe<E>, TableEventHandler<E>
       {
         return table.transformStripeInto( instance, StripeImpl.this );
       }
+      
+      @SuppressWarnings("unchecked")
+      @Override
+      public <T> T[] array( Class<T> type )
+      {
+        return (T[]) ArrayUtils.valueOf( stripe, type );
+      }
     };
   }
   
@@ -257,4 +265,14 @@ abstract class StripeImpl<E> implements Stripe<E>, TableEventHandler<E>
     this.isDetached = true;
     return this;
   }
+  
+  @Override
+  public Stripe<E> apply( ElementConverter<E, E> elementConverter )
+  {
+    final E[] elements = this.getElements();
+    final E[] convertedElements = ArrayUtils.convertArray( elements, this.table.elementType(), elementConverter );
+    this.setElements( convertedElements );
+    return this;
+  }
+  
 }

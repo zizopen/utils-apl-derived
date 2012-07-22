@@ -20,8 +20,8 @@ import java.util.Iterator;
 
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.iterator.IterableUtils;
-import org.omnaest.utils.table.Row;
-import org.omnaest.utils.table.Rows;
+import org.omnaest.utils.table.Column;
+import org.omnaest.utils.table.Columns;
 import org.omnaest.utils.table.Stripe;
 import org.omnaest.utils.table.StripesTransformer;
 
@@ -30,49 +30,49 @@ import org.omnaest.utils.table.StripesTransformer;
  * @param <E>
  * @param <R>
  */
-class RowsImpl<E> implements Rows<E, Row<E>>
+class ColumnsImpl<E> implements Columns<E, Column<E>>
 {
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final Iterable<Row<E>> rowIterable;
+  private final Iterable<Column<E>> columnIterable;
   
   /* *************************************************** Methods **************************************************** */
   
   /**
-   * @see RowsImpl
-   * @param rowIterable
+   * @see ColumnsImpl
+   * @param columnIterable
    */
-  RowsImpl( Iterable<Row<E>> rowIterable )
+  ColumnsImpl( Iterable<Column<E>> columnIterable )
   {
     super();
-    this.rowIterable = rowIterable;
+    this.columnIterable = columnIterable;
   }
   
   @Override
-  public Iterator<Row<E>> iterator()
+  public Iterator<Column<E>> iterator()
   {
-    return this.rowIterable.iterator();
+    return this.columnIterable.iterator();
   }
   
   @Override
-  public Rows<E, Row<E>> filtered( BitSet filter )
+  public Columns<E, Column<E>> filtered( BitSet filter )
   {
-    final Iterable<Row<E>> rowIterable = IterableUtils.filtered( this.rowIterable, filter );
-    return new RowsImpl<E>( rowIterable );
+    final Iterable<Column<E>> rowIterable = IterableUtils.filtered( this.columnIterable, filter );
+    return new ColumnsImpl<E>( rowIterable );
   }
   
   @Override
   public StripesTransformer<E> to()
   {
-    final Iterable<? extends Stripe<E>> stripeIterable = this.rowIterable;
+    final Iterable<? extends Stripe<E>> stripeIterable = this.columnIterable;
     return new StripesTransformerImpl<E>( stripeIterable );
   }
   
   @Override
-  public Rows<E, Row<E>> apply( ElementConverter<E, E> elementConverter )
+  public Columns<E, Column<E>> apply( ElementConverter<E, E> elementConverter )
   {
-    for ( Row<E> row : this.rowIterable )
+    for ( Column<E> column : this.columnIterable )
     {
-      row.apply( elementConverter );
+      column.apply( elementConverter );
     }
     return this;
   }

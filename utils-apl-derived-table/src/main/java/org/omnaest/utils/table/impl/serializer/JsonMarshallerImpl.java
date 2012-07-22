@@ -60,7 +60,7 @@ class JsonMarshallerImpl<E> extends MarshallerAbstract<E> implements MarshallerJ
         for ( int index = 0; index < rowSize; index++ )
         {
           final E[] elements = this.table.row( index ).to().array();
-          rows[index] = new Row<E>( index, elements );
+          rows[index] = new Row<E>( elements );
         }
       }
       xmlModel.setRows( rows );

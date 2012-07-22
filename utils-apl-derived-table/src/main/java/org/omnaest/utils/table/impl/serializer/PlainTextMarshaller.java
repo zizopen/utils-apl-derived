@@ -24,10 +24,10 @@ import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.structure.collection.CollectionUtils;
 import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.table.Column;
-import org.omnaest.utils.table.Row;
-import org.omnaest.utils.table.Table;
 import org.omnaest.utils.table.ImmutableTableSerializer.Marshaller;
 import org.omnaest.utils.table.ImmutableTableSerializer.MarshallerPlainText;
+import org.omnaest.utils.table.Row;
+import org.omnaest.utils.table.Table;
 
 /**
  * {@link Marshaller} for plain text
@@ -72,29 +72,18 @@ class PlainTextMarshaller<E> extends MarshallerAbstract<E> implements Marshaller
      */
     private Integer determineRowTitleWidth( Table<E> table )
     {
-      //
-      Integer retval = null;
-      
-      //
-      for ( Row<E> row : table.rows() )
+      List<String> rowTitleList = table.getRowTitleList();
+      return determineWidthFor( rowTitleList );
+    }
+    
+    private Integer determineWidthFor( List<String> titleList )
+    {
+      int retval = 0;
+      for ( String content : titleList )
       {
-        //
-        int lengthMax = 0;
-        
-        //
-        {
-          String content = this.convertObjectContentToString( row.getTitle() );
-          if ( content != null )
-          {
-            lengthMax = content.length();
-          }
-        }
-        
-        //
-        retval = lengthMax;
+        int lengthMax = StringUtils.length( content );
+        retval = Math.max( lengthMax, retval );
       }
-      
-      //
       return retval;
     }
     
@@ -106,36 +95,20 @@ class PlainTextMarshaller<E> extends MarshallerAbstract<E> implements Marshaller
      */
     private List<Integer> determineColumnWidthList( Table<E> table )
     {
-      //
       List<Integer> retlist = new ArrayList<Integer>();
-      
-      //
       for ( Column<E> column : table.columns() )
       {
-        //
         if ( column != null )
         {
-          //
           int lengthMax = 0;
           
-          //
           final String columnTitle = column.getTitle();
-          if ( columnTitle != null )
-          {
-            String content = this.convertObjectContentToString( columnTitle );
-            if ( content != null )
-            {
-              lengthMax = content.length();
-            }
-          }
+          lengthMax = StringUtils.length( columnTitle );
           
-          //
           for ( E element : column )
           {
-            //
             if ( element != null )
             {
-              //
               String content = this.convertObjectContentToString( element );
               if ( content != null )
               {
@@ -144,12 +117,9 @@ class PlainTextMarshaller<E> extends MarshallerAbstract<E> implements Marshaller
             }
           }
           
-          //
           retlist.add( lengthMax );
         }
       }
-      
-      //
       return retlist;
     }
     
@@ -170,7 +140,6 @@ class PlainTextMarshaller<E> extends MarshallerAbstract<E> implements Marshaller
       //
       try
       {
-        
         //
         final String delimiterRow = "-";
         final String delimiterColumn = "|";

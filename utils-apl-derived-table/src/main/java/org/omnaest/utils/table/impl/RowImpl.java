@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.table.Cell;
 import org.omnaest.utils.table.Row;
 import org.omnaest.utils.table.Table;
@@ -265,6 +266,8 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>
     builder.append( this.isDeleted );
     builder.append( ", isModified=" );
     builder.append( this.isModified );
+    builder.append( ", isDetached=" );
+    builder.append( this.isDetached );
     builder.append( ", getCellElements()=" );
     builder.append( Arrays.toString( this.getElements() ) );
     builder.append( "]" );
@@ -277,4 +280,10 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>
     return ArrayUtils.valueOf( this.table.getColumnTitleList(), String.class );
   }
   
+  @Override
+  public Row<E> apply( ElementConverter<E, E> elementConverter )
+  {
+    super.apply( elementConverter );
+    return this;
+  }
 }
