@@ -63,6 +63,13 @@ public interface ImmutableCell<E>
   public E getElement();
   
   /**
+   * Similar to {@link #getElement()} casting the element to another return type
+   * 
+   * @return
+   */
+  public <T> T getElementAsCast();
+  
+  /**
    * @return
    */
   public int rowIndex();

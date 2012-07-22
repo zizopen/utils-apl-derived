@@ -69,16 +69,44 @@ public class MapBuilderTest
   @Test
   public void testBuildComplex()
   {
-    Map<String, Object> map = MapUtils.builder()
-                                      .put( "key1", (Object) "value1" )
+    {
+      Map<String, Object> map = MapUtils.builder()
+                                        .put( "key1", (Object) "value1" )
+                                        .put( "key2", 2l )
+                                        .put( "key3", 1.234 )
+                                        .buildAs()
+                                        .linkedHashMap();
+      assertNotNull( map );
+      assertEquals( 3, map.size() );
+      assertEquals( SetUtils.valueOf( "key1", "key2", "key3" ), map.keySet() );
+      assertEquals( ListUtils.valueOf( "value1", 2l, 1.234 ), ListUtils.valueOf( map.values() ) );
+    }
+    {
+      Map<String, Long> map = MapUtils.builder()
+                                      .put( "key1", 1l )
                                       .put( "key2", 2l )
-                                      .put( "key3", 1.234 )
+                                      .put( "key3", 3l )
+                                      .put( "key4", 4l )
                                       .buildAs()
                                       .linkedHashMap();
-    assertNotNull( map );
-    assertEquals( 3, map.size() );
-    assertEquals( SetUtils.valueOf( "key1", "key2", "key3" ), map.keySet() );
-    assertEquals( ListUtils.valueOf( "value1", 2l, 1.234 ), ListUtils.valueOf( map.values() ) );
+      assertNotNull( map );
+      assertEquals( 3, map.size() );
+      assertEquals( SetUtils.valueOf( "key1", "key2", "key3" ), map.keySet() );
+      assertEquals( ListUtils.valueOf( "value1", 2l, 1.234 ), ListUtils.valueOf( map.values() ) );
+    }
+    {
+      Map<String, Object> map = MapUtils.builder()
+                                        .<String, Object> put( "key1", 1l )
+                                        .put( "key2", 2l )
+                                        .put( "key3", 3l )
+                                        .put( "key4", 4l )
+                                        .buildAs()
+                                        .linkedHashMap();
+      assertNotNull( map );
+      assertEquals( 3, map.size() );
+      assertEquals( SetUtils.valueOf( "key1", "key2", "key3" ), map.keySet() );
+      assertEquals( ListUtils.valueOf( "value1", 2l, 1.234 ), ListUtils.valueOf( map.values() ) );
+    }
   }
   
   @Test

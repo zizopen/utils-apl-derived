@@ -55,7 +55,7 @@ public class DirectoryBasedObjectStoreUsingSerializable<E extends Serializable> 
       @Override
       public ByteArrayContainer convertBackwards( E element )
       {
-        return new ByteArrayContainer().copyFromSerialized( element );
+        return new ByteArrayContainer().copyFromAsSerialized( element );
       }
     }, baseDirectory, exceptionHandler );
   }

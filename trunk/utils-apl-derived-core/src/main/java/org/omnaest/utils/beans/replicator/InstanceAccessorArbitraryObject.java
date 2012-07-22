@@ -17,6 +17,7 @@ package org.omnaest.utils.beans.replicator;
 
 import java.util.Map;
 
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.beans.BeanUtils;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor;
 import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
@@ -74,7 +75,9 @@ class InstanceAccessorArbitraryObject implements InstanceAccessor
     @Override
     public void setValue( Object value )
     {
-      this.beanPropertyAccessor.setPropertyValue( this.instance, value, this.propertyAccessType, this.exceptionHandler );
+      boolean setPropertyValue = this.beanPropertyAccessor.setPropertyValue( this.instance, value, this.propertyAccessType,
+                                                                             this.exceptionHandler );
+      Assert.isTrue( setPropertyValue, "Property is not writable" );
     }
     
     @Override

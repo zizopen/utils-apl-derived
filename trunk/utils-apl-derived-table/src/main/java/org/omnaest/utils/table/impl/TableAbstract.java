@@ -27,6 +27,7 @@ import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.element.factory.FactorySerializable;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.table.Column;
+import org.omnaest.utils.table.Columns;
 import org.omnaest.utils.table.ImmutableColumn;
 import org.omnaest.utils.table.ImmutableRow;
 import org.omnaest.utils.table.Row;
@@ -160,17 +161,17 @@ abstract class TableAbstract<E> implements Table<E>
   public abstract Table<E> clone();
   
   @Override
-  public Iterable<Column<E>> columns()
+  public Columns<E, Column<E>> columns()
   {
     final Table<E> table = this;
-    return IterableUtils.valueOf( new Factory<Iterator<Column<E>>>()
+    return new ColumnsImpl<E>( IterableUtils.valueOf( new Factory<Iterator<Column<E>>>()
     {
       @Override
       public Iterator<Column<E>> newInstance()
       {
         return new ColumnIterator<E, Column<E>>( table );
       }
-    } );
+    } ) );
   }
   
   @Override
@@ -284,6 +285,18 @@ abstract class TableAbstract<E> implements Table<E>
   public Rows<E, Row<E>> rows( BitSet filter )
   {
     return this.rows().filtered( filter );
+  }
+  
+  @Override
+  public Table<E> setRowTitles( String... rowTitles )
+  {
+    return this.setRowTitles( Arrays.asList( rowTitles ) );
+  }
+  
+  @Override
+  public String[] getRowTitles()
+  {
+    return this.getRowTitleList().toArray( new String[0] );
   }
   
 }

@@ -68,6 +68,12 @@ public class TableSerializerImpl<E> implements TableSerializer<E>
       {
         return new PlainTextUnmarshaller<E>( table, exceptionHandler );
       }
+      
+      @Override
+      public org.omnaest.utils.table.TableSerializer.UnmarshallerXHtml<E> asXHtml()
+      {
+        return new XHtmlUnmarshallerImpl<E>( table, exceptionHandler );
+      }
     };
   }
   
@@ -100,6 +106,12 @@ public class TableSerializerImpl<E> implements TableSerializer<E>
       public MarshallerPlainText<E> asPlainText()
       {
         return new PlainTextMarshaller<E>( table, exceptionHandler );
+      }
+      
+      @Override
+      public org.omnaest.utils.table.ImmutableTableSerializer.MarshallerXHtml<E> asXHtml()
+      {
+        return new XHtmlMarshallerImpl<E>( table, exceptionHandler );
       }
     };
   }

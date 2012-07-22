@@ -273,4 +273,11 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
     return builder.toString();
   }
   
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getElementAsCast()
+  {
+    return (T) this.getElement();
+  }
+  
 }

@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+
 /**
  * Base type of {@link Row} and {@link Column}.<br>
  * <br>
@@ -33,6 +35,14 @@ import java.util.Set;
  */
 public interface Stripe<E> extends ImmutableStripe<E>
 {
+  /**
+   * Applies the given {@link ElementConverter} to all the elements and rewrites the result to the underyling {@link Table}
+   * 
+   * @param elementConverter
+   * @return this
+   */
+  public Stripe<E> apply( ElementConverter<E, E> elementConverter );
+  
   /**
    * Returns the {@link Cell} for the given orthogonal index position
    * 
@@ -49,11 +59,11 @@ public interface Stripe<E> extends ImmutableStripe<E>
   public Iterable<Cell<E>> cells();
   
   /**
-   * Returns the underlying {@link Table}
+   * Sets all {@link Cell} elements to null
    * 
-   * @return
+   * @return this
    */
-  public Table<E> table();
+  public Stripe<E> clear();
   
   /**
    * Detaches from the underlying {@link Table}. This means any change to the {@link Table} will not be reflected by the
@@ -62,4 +72,33 @@ public interface Stripe<E> extends ImmutableStripe<E>
    * @return this
    */
   public Stripe<E> detach();
+  
+  /**
+   * @param orthogonalIndex
+   * @param element
+   * @return this
+   */
+  public Stripe<E> setElement( int orthogonalIndex, E element );
+  
+  /**
+   * @param orthogonalTitle
+   * @param element
+   * @return this
+   */
+  public Stripe<E> setElement( String orthogonalTitle, E element );
+  
+  /**
+   * Clears and sets all elements of the {@link Stripe}
+   * 
+   * @param elements
+   * @return this
+   */
+  public Stripe<E> setElements( E... elements );
+  
+  /**
+   * Returns the underlying {@link Table}
+   * 
+   * @return
+   */
+  public Table<E> table();
 }

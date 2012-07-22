@@ -75,18 +75,18 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTran
   public ImmutableColumn<E> column( String columnTitle );
   
   /**
-   * Returns an {@link Iterable} over all {@link ImmutableColumn}s
+   * Returns the {@link Columns} over all {@link ImmutableColumn}s
    * 
    * @return
    */
-  public Iterable<? extends ImmutableColumn<E>> columns();
+  public Columns<E, ? extends ImmutableColumn<E>> columns();
   
   /**
    * Returns an {@link Iterable} over all {@link ImmutableColumn}s which have a column title matched by the given {@link Matcher}
    * 
    * @return
    */
-  public Iterable<? extends ImmutableColumn<E>> columns( Pattern columnTitlePattern );
+  public Columns<E, ? extends ImmutableColumn<E>> columns( Pattern columnTitlePattern );
   
   /**
    * Returns an {@link Iterable} over all {@link ImmutableColumn}s which have a column title included in the given {@link Set} of
@@ -94,7 +94,7 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTran
    * 
    * @return
    */
-  public Iterable<? extends ImmutableColumn<E>> columns( Set<String> columnTitleSet );
+  public Columns<E, ? extends ImmutableColumn<E>> columns( Set<String> columnTitleSet );
   
   /**
    * Returns all {@link ImmutableColumn}s which have a column title included in the given titles
@@ -102,7 +102,7 @@ public interface ImmutableTable<E> extends Iterable<ImmutableRow<E>>, StripeTran
    * @param columnTitles
    * @return
    */
-  public Iterable<? extends ImmutableColumn<E>> columns( String... columnTitles );
+  public Columns<E, ? extends ImmutableColumn<E>> columns( String... columnTitles );
   
   /**
    * Returns the number of {@link Column}s

@@ -30,12 +30,14 @@ import org.omnaest.utils.operation.special.OperationIntrinsic;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterObjectToString;
 import org.omnaest.utils.structure.element.converter.ElementConverterSerializable;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.iterator.IteratorUtils;
 import org.omnaest.utils.table.Cell;
 import org.omnaest.utils.table.Column;
+import org.omnaest.utils.table.Columns;
 import org.omnaest.utils.table.ImmutableRow;
 import org.omnaest.utils.table.ImmutableStripe;
 import org.omnaest.utils.table.ImmutableTable;
@@ -197,21 +199,21 @@ public class ArrayTable<E> extends TableAbstract<E>
   }
   
   @Override
-  public Iterable<Column<E>> columns( Pattern columnTitlePattern )
+  public Columns<E, Column<E>> columns( Pattern columnTitlePattern )
   {
     final BitSet columnIndexFilter = this.tableDataAccessor.getColumnIndexFilter( columnTitlePattern );
-    return IterableUtils.filtered( this.columns(), columnIndexFilter );
+    return new ColumnsImpl<E>( IterableUtils.filtered( this.columns(), columnIndexFilter ) );
   }
   
   @Override
-  public Iterable<Column<E>> columns( Set<String> columnTitleSet )
+  public Columns<E, Column<E>> columns( Set<String> columnTitleSet )
   {
     final BitSet columnIndexFilter = this.tableDataAccessor.getColumnIndexFilter( columnTitleSet );
-    return IterableUtils.filtered( this.columns(), columnIndexFilter );
+    return new ColumnsImpl<E>( IterableUtils.filtered( this.columns(), columnIndexFilter ) );
   }
   
   @Override
-  public Iterable<Column<E>> columns( String... columnTitles )
+  public Columns<E, Column<E>> columns( String... columnTitles )
   {
     return this.columns( SetUtils.valueOf( columnTitles ) );
   }
@@ -621,6 +623,7 @@ public class ArrayTable<E> extends TableAbstract<E>
           }
           
           final String[] columnTitles = tableDataSource.getColumnTitles();
+          final String[] rowTitles = tableDataSource.getRowTitles();
           final String tableName = tableDataSource.getTableName();
           if ( tableName != null )
           {
@@ -629,6 +632,10 @@ public class ArrayTable<E> extends TableAbstract<E>
           if ( columnTitles != null )
           {
             table.setColumnTitles( columnTitles );
+          }
+          if ( rowTitles != null )
+          {
+            table.setRowTitles( rowTitles );
           }
         }
         return table;
@@ -687,5 +694,27 @@ public class ArrayTable<E> extends TableAbstract<E>
   public Row<E> row( int rowIndex, boolean detached )
   {
     return rowIndex >= 0 ? new RowImpl<E>( rowIndex, this, detached ) : null;
+  }
+  
+  @Override
+  public Table<E> setColumnTitlesUsingFirstRow()
+  {
+    final Row<E> row = this.row( 0 );
+    final E[] elements = row.to().array();
+    final String[] columnTitles = ArrayUtils.convertArray( elements, String.class, new ElementConverterObjectToString() );
+    this.setColumnTitles( columnTitles );
+    row.remove();
+    return this;
+  }
+  
+  @Override
+  public Table<E> setRowTitlesUsingFirstColumn()
+  {
+    final Column<E> column = this.column( 0 );
+    final E[] elements = column.to().array();
+    final String[] rowTitles = ArrayUtils.convertArray( elements, String.class, new ElementConverterObjectToString() );
+    this.setRowTitles( rowTitles );
+    column.remove();
+    return this;
   }
 }

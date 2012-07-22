@@ -124,4 +124,10 @@ public class TableDataSourceOrientDBTable<E> implements TableDataSource<E>
     return IterableUtils.adapter( query, elementConverter );
   }
   
+  @Override
+  public String[] getRowTitles()
+  {
+    return null;
+  }
+  
 }

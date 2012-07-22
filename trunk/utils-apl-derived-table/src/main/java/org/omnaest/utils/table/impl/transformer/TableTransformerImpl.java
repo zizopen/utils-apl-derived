@@ -15,14 +15,25 @@
  ******************************************************************************/
 package org.omnaest.utils.table.impl.transformer;
 
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+import org.omnaest.utils.structure.element.converter.ElementConverterSerializable;
+import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.table.Column;
+import org.omnaest.utils.table.Row;
+import org.omnaest.utils.table.Rows;
 import org.omnaest.utils.table.Table;
+import org.omnaest.utils.table.TableDataSource;
 import org.omnaest.utils.table.TableTransformer;
+import org.omnaest.utils.table.impl.ArrayTable;
 
 /**
  * {@link TableTransformer} implementation
@@ -161,5 +172,149 @@ public class TableTransformerImpl<E> implements TableTransformer<E>
   {
     final SortedMap<E, E> map = new TreeMap<E, E>( comparator );
     return this.map( map, columnIndexKey, columnIndexValue );
+  }
+  
+  @Override
+  public Table<E> swapped()
+  {
+    final Table<E> table = this.table;
+    final Table<E> retval = new ArrayTable<E>( this.table.elementType() );
+    retval.copy().from( new TableDataSource<E>()
+    {
+      private static final long serialVersionUID = 5929745410356641061L;
+      
+      @Override
+      public String getTableName()
+      {
+        return table.getTableName();
+      }
+      
+      @Override
+      public String[] getColumnTitles()
+      {
+        return table.getRowTitles();
+      }
+      
+      @Override
+      public Iterable<E[]> rowElements()
+      {
+        final Iterable<Column<E>> columns = table.columns();
+        final ElementConverter<Column<E>, E[]> elementConverter = new ElementConverterSerializable<Column<E>, E[]>()
+        {
+          private static final long serialVersionUID = -3322314134295745486L;
+          
+          @Override
+          public E[] convert( Column<E> column )
+          {
+            return column.to().array();
+          }
+        };
+        return IterableUtils.convert( columns, elementConverter );
+      }
+      
+      @Override
+      public String[] getRowTitles()
+      {
+        return table.getColumnTitles();
+      }
+    } );
+    return retval;
+  }
+  
+  @Override
+  public <N> Table<N> converted( final Class<N> elementType, final ElementConverter<E, N> elementConverter )
+  {
+    final Table<E> table = this.table;
+    final Table<N> retval = new ArrayTable<N>( elementType );
+    retval.copy().from( new TableDataSource<N>()
+    {
+      private static final long serialVersionUID = 5929745410356641061L;
+      
+      @Override
+      public String getTableName()
+      {
+        return table.getTableName();
+      }
+      
+      @Override
+      public String[] getColumnTitles()
+      {
+        return table.getColumnTitles();
+      }
+      
+      @Override
+      public Iterable<N[]> rowElements()
+      {
+        final boolean detached = true;
+        Rows<E, Row<E>> rows = table.rows( detached );
+        return IterableUtils.convert( rows, new ElementConverterSerializable<Row<E>, N[]>()
+        {
+          private static final long serialVersionUID = -5480913656973372565L;
+          
+          @Override
+          public N[] convert( Row<E> row )
+          {
+            return ArrayUtils.convertArray( row.to().array(), elementType, elementConverter );
+          }
+        } );
+      }
+      
+      @Override
+      public String[] getRowTitles()
+      {
+        return table.getRowTitles();
+      }
+    } );
+    return retval;
+  }
+  
+  @Override
+  public Table<E> subTable( final int rowIndexFrom, final int rowIndexTo, final int columnIndexFrom, final int columnIndexTo )
+  {
+    final Table<E> table = this.table;
+    final Table<E> retval = new ArrayTable<E>( table.elementType() );
+    retval.copy().from( new TableDataSource<E>()
+    {
+      private static final long serialVersionUID = -8443061443474858835L;
+      
+      @Override
+      public String getTableName()
+      {
+        return table.getTableName();
+      }
+      
+      @Override
+      public String[] getColumnTitles()
+      {
+        return Arrays.copyOfRange( table.getColumnTitles(), columnIndexFrom, columnIndexTo );
+      }
+      
+      @Override
+      public String[] getRowTitles()
+      {
+        return Arrays.copyOfRange( table.getRowTitles(), rowIndexFrom, rowIndexTo );
+      }
+      
+      @Override
+      public Iterable<E[]> rowElements()
+      {
+        final boolean detached = true;
+        final BitSet filter = new BitSet();
+        filter.set( rowIndexFrom, rowIndexTo );
+        Rows<E, Row<E>> rows = table.rows( filter, detached );
+        return IterableUtils.convert( rows, new ElementConverterSerializable<Row<E>, E[]>()
+        {
+          private static final long serialVersionUID = -5480913656973372565L;
+          
+          @Override
+          public E[] convert( Row<E> row )
+          {
+            return Arrays.copyOfRange( row.to().array(), columnIndexFrom, columnIndexTo );
+          }
+        } );
+      }
+      
+    } );
+    return retval;
   }
 }

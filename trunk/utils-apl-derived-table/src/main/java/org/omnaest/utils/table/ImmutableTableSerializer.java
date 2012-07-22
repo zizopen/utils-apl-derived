@@ -43,11 +43,239 @@ public interface ImmutableTableSerializer<E>
     public MarshallerCsv<E> asCsv();
     
     /**
+     * Example:
+     * 
+     * <pre>
+     * &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; standalone=&quot;yes&quot;?&gt;
+     * &lt;table&gt;
+     *     &lt;metaData&gt;
+     *         &lt;tableName&gt;table name&lt;/tableName&gt;
+     *         &lt;rowTitles&gt;
+     *             &lt;rowTitle&gt;r0&lt;/rowTitle&gt;
+     *             &lt;rowTitle&gt;r1&lt;/rowTitle&gt;
+     *             &lt;rowTitle&gt;r2&lt;/rowTitle&gt;
+     *             &lt;rowTitle&gt;r3&lt;/rowTitle&gt;
+     *             &lt;rowTitle&gt;r4&lt;/rowTitle&gt;
+     *             &lt;rowTitle&gt;r5&lt;/rowTitle&gt;
+     *             &lt;rowTitle&gt;r6&lt;/rowTitle&gt;
+     *             &lt;rowTitle&gt;r7&lt;/rowTitle&gt;
+     *             &lt;rowTitle&gt;r8&lt;/rowTitle&gt;
+     *             &lt;rowTitle&gt;r9&lt;/rowTitle&gt;
+     *         &lt;/rowTitles&gt;
+     *         &lt;columnTitles&gt;
+     *             &lt;columnTitle&gt;c0&lt;/columnTitle&gt;
+     *             &lt;columnTitle&gt;c1&lt;/columnTitle&gt;
+     *             &lt;columnTitle&gt;c2&lt;/columnTitle&gt;
+     *             &lt;columnTitle&gt;c3&lt;/columnTitle&gt;
+     *             &lt;columnTitle&gt;c4&lt;/columnTitle&gt;
+     *         &lt;/columnTitles&gt;
+     *     &lt;/metaData&gt;
+     *     &lt;rows&gt;
+     *         &lt;row&gt;
+     *             &lt;string&gt;0:0&lt;/string&gt;
+     *             &lt;string&gt;0:1&lt;/string&gt;
+     *             &lt;string&gt;0:2&lt;/string&gt;
+     *             &lt;string&gt;0:3&lt;/string&gt;
+     *             &lt;string&gt;0:4&lt;/string&gt;
+     *         &lt;/row&gt;
+     *         &lt;row&gt;
+     *             &lt;string&gt;1:0&lt;/string&gt;
+     *             &lt;string&gt;1:1&lt;/string&gt;
+     *             &lt;string&gt;1:2&lt;/string&gt;
+     *             &lt;string&gt;1:3&lt;/string&gt;
+     *             &lt;string&gt;1:4&lt;/string&gt;
+     *         &lt;/row&gt;
+     *         &lt;row&gt;
+     *             &lt;string&gt;2:0&lt;/string&gt;
+     *             &lt;string&gt;2:1&lt;/string&gt;
+     *             &lt;string&gt;2:2&lt;/string&gt;
+     *             &lt;string&gt;2:3&lt;/string&gt;
+     *             &lt;string&gt;2:4&lt;/string&gt;
+     *         &lt;/row&gt;
+     *         &lt;row&gt;
+     *             &lt;string&gt;3:0&lt;/string&gt;
+     *             &lt;string&gt;3:1&lt;/string&gt;
+     *             &lt;string&gt;3:2&lt;/string&gt;
+     *             &lt;string&gt;3:3&lt;/string&gt;
+     *             &lt;string&gt;3:4&lt;/string&gt;
+     *         &lt;/row&gt;
+     *         &lt;row&gt;
+     *             &lt;string&gt;4:0&lt;/string&gt;
+     *             &lt;string&gt;4:1&lt;/string&gt;
+     *             &lt;string&gt;4:2&lt;/string&gt;
+     *             &lt;string&gt;4:3&lt;/string&gt;
+     *             &lt;string&gt;4:4&lt;/string&gt;
+     *         &lt;/row&gt;
+     *         &lt;row&gt;
+     *             &lt;string&gt;5:0&lt;/string&gt;
+     *             &lt;string&gt;5:1&lt;/string&gt;
+     *             &lt;string&gt;5:2&lt;/string&gt;
+     *             &lt;string&gt;5:3&lt;/string&gt;
+     *             &lt;string&gt;5:4&lt;/string&gt;
+     *         &lt;/row&gt;
+     *         &lt;row&gt;
+     *             &lt;string&gt;6:0&lt;/string&gt;
+     *             &lt;string&gt;6:1&lt;/string&gt;
+     *             &lt;string&gt;6:2&lt;/string&gt;
+     *             &lt;string&gt;6:3&lt;/string&gt;
+     *             &lt;string&gt;6:4&lt;/string&gt;
+     *         &lt;/row&gt;
+     *         &lt;row&gt;
+     *             &lt;string&gt;7:0&lt;/string&gt;
+     *             &lt;string&gt;7:1&lt;/string&gt;
+     *             &lt;string&gt;7:2&lt;/string&gt;
+     *             &lt;string&gt;7:3&lt;/string&gt;
+     *             &lt;string&gt;7:4&lt;/string&gt;
+     *         &lt;/row&gt;
+     *         &lt;row&gt;
+     *             &lt;string&gt;8:0&lt;/string&gt;
+     *             &lt;string&gt;8:1&lt;/string&gt;
+     *             &lt;string&gt;8:2&lt;/string&gt;
+     *             &lt;string&gt;8:3&lt;/string&gt;
+     *             &lt;string&gt;8:4&lt;/string&gt;
+     *         &lt;/row&gt;
+     *         &lt;row&gt;
+     *             &lt;string&gt;9:0&lt;/string&gt;
+     *             &lt;string&gt;9:1&lt;/string&gt;
+     *             &lt;string&gt;9:2&lt;/string&gt;
+     *             &lt;string&gt;9:3&lt;/string&gt;
+     *             &lt;string&gt;9:4&lt;/string&gt;
+     *         &lt;/row&gt;
+     *     &lt;/rows&gt;
+     * &lt;/table&gt;
+     * </pre>
+     * 
      * @return {@link ImmutableTableSerializer.MarshallerXml}
      */
     public MarshallerXml<E> asXml();
     
     /**
+     * Example:
+     * 
+     * <pre>
+     * &lt;table id=&quot;table name&quot;&gt;
+     *     &lt;thead&gt;
+     *         &lt;tr&gt;
+     *             &lt;th&gt;c0&lt;/th&gt;
+     *             &lt;th&gt;c1&lt;/th&gt;
+     *             &lt;th&gt;c2&lt;/th&gt;
+     *             &lt;th&gt;c3&lt;/th&gt;
+     *             &lt;th&gt;c4&lt;/th&gt;
+     *         &lt;/tr&gt;
+     *     &lt;/thead&gt;
+     *     &lt;tbody&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;0:0&lt;/td&gt;
+     *             &lt;td&gt;0:1&lt;/td&gt;
+     *             &lt;td&gt;0:2&lt;/td&gt;
+     *             &lt;td&gt;0:3&lt;/td&gt;
+     *             &lt;td&gt;0:4&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;1:0&lt;/td&gt;
+     *             &lt;td&gt;1:1&lt;/td&gt;
+     *             &lt;td&gt;1:2&lt;/td&gt;
+     *             &lt;td&gt;1:3&lt;/td&gt;
+     *             &lt;td&gt;1:4&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;2:0&lt;/td&gt;
+     *             &lt;td&gt;2:1&lt;/td&gt;
+     *             &lt;td&gt;2:2&lt;/td&gt;
+     *             &lt;td&gt;2:3&lt;/td&gt;
+     *             &lt;td&gt;2:4&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;3:0&lt;/td&gt;
+     *             &lt;td&gt;3:1&lt;/td&gt;
+     *             &lt;td&gt;3:2&lt;/td&gt;
+     *             &lt;td&gt;3:3&lt;/td&gt;
+     *             &lt;td&gt;3:4&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;4:0&lt;/td&gt;
+     *             &lt;td&gt;4:1&lt;/td&gt;
+     *             &lt;td&gt;4:2&lt;/td&gt;
+     *             &lt;td&gt;4:3&lt;/td&gt;
+     *             &lt;td&gt;4:4&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;5:0&lt;/td&gt;
+     *             &lt;td&gt;5:1&lt;/td&gt;
+     *             &lt;td&gt;5:2&lt;/td&gt;
+     *             &lt;td&gt;5:3&lt;/td&gt;
+     *             &lt;td&gt;5:4&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;6:0&lt;/td&gt;
+     *             &lt;td&gt;6:1&lt;/td&gt;
+     *             &lt;td&gt;6:2&lt;/td&gt;
+     *             &lt;td&gt;6:3&lt;/td&gt;
+     *             &lt;td&gt;6:4&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;7:0&lt;/td&gt;
+     *             &lt;td&gt;7:1&lt;/td&gt;
+     *             &lt;td&gt;7:2&lt;/td&gt;
+     *             &lt;td&gt;7:3&lt;/td&gt;
+     *             &lt;td&gt;7:4&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;8:0&lt;/td&gt;
+     *             &lt;td&gt;8:1&lt;/td&gt;
+     *             &lt;td&gt;8:2&lt;/td&gt;
+     *             &lt;td&gt;8:3&lt;/td&gt;
+     *             &lt;td&gt;8:4&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;9:0&lt;/td&gt;
+     *             &lt;td&gt;9:1&lt;/td&gt;
+     *             &lt;td&gt;9:2&lt;/td&gt;
+     *             &lt;td&gt;9:3&lt;/td&gt;
+     *             &lt;td&gt;9:4&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *     &lt;/tbody&gt;
+     * &lt;/table&gt
+     * </pre>
+     * 
+     * @return
+     */
+    public MarshallerXHtml<E> asXHtml();
+    
+    /**
+     * Example:
+     * 
+     * <pre>
+     * {
+     *   "metaData" : {
+     *     "tableName" : "table name",
+     *     "rowTitle" : [ "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9" ],
+     *     "columnTitle" : [ "c0", "c1", "c2", "c3", "c4" ]
+     *   },
+     *   "row" : [ {
+     *     "elements" : [ "0:0", "0:1", "0:2", "0:3", "0:4" ]
+     *   }, {
+     *     "elements" : [ "1:0", "1:1", "1:2", "1:3", "1:4" ]
+     *   }, {
+     *     "elements" : [ "2:0", "2:1", "2:2", "2:3", "2:4" ]
+     *   }, {
+     *     "elements" : [ "3:0", "3:1", "3:2", "3:3", "3:4" ]
+     *   }, {
+     *     "elements" : [ "4:0", "4:1", "4:2", "4:3", "4:4" ]
+     *   }, {
+     *     "elements" : [ "5:0", "5:1", "5:2", "5:3", "5:4" ]
+     *   }, {
+     *     "elements" : [ "6:0", "6:1", "6:2", "6:3", "6:4" ]
+     *   }, {
+     *     "elements" : [ "7:0", "7:1", "7:2", "7:3", "7:4" ]
+     *   }, {
+     *     "elements" : [ "8:0", "8:1", "8:2", "8:3", "8:4" ]
+     *   }, {
+     *     "elements" : [ "9:0", "9:1", "9:2", "9:3", "9:4" ]
+     *   } ]
+     * }
+     * </pre>
+     * 
      * @return {@link ImmutableTableSerializer.MarshallerJson}
      */
     public MarshallerJson<E> asJson();
@@ -247,6 +475,16 @@ public interface ImmutableTableSerializer<E>
      * @return this
      */
     public MarshallerXml<E> using( MarshallingConfiguration configuration );
+  }
+  
+  /**
+   * {@link ImmutableTableSerializer.Marshaller} for XHtml
+   * 
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface MarshallerXHtml<E> extends MarshallerXml<E>
+  {
   }
   
   /**

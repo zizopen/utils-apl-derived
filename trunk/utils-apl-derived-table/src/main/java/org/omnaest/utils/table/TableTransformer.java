@@ -19,6 +19,8 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedMap;
 
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+
 /**
  * Transforms a {@link Table} into instances of other types.
  * 
@@ -36,11 +38,14 @@ public interface TableTransformer<E>
   public E[][] array();
   
   /**
-   * Returns a {@link String} representation for the {@link Table}
+   * Returns a new {@link Table} instance based on another {@link Class} type which has all its elements based on the converted
+   * elements by the given {@link ElementConverter}
    * 
-   * @return
+   * @param elementType
+   * @param elementConverter
+   * @return new {@link Table} instance
    */
-  public String string();
+  public <N> Table<N> converted( Class<N> elementType, ElementConverter<E, N> elementConverter );
   
   /**
    * Returns a new {@link Map} instance which will contain the first {@link Column} as key and all elements of each {@link Row} as
@@ -78,6 +83,26 @@ public interface TableTransformer<E>
   public Map<E, E> map( int columnIndexKey, int columnIndexValue );
   
   /**
+   * Returns the given {@link Map} instance enriched by the {@link Table} data. See {@link #map()} for more details.
+   * 
+   * @see #map()
+   * @see #map(Map, int)
+   * @param map
+   * @return the given {@link Map} instance
+   */
+  public <M extends Map<E, E[]>> M map( M map );
+  
+  /**
+   * Returns the given {@link Map} instance enriched by the {@link Table} data. See {@link #map(int)} for more details.
+   * 
+   * @see #map(Map)
+   * @param map
+   * @param columnIndex
+   * @return the given {@link Map} instance or a new one if the given instance is null
+   */
+  public <M extends Map<E, E[]>> M map( M map, int columnIndex );
+  
+  /**
    * Similar to {@link #map(int, int)} but allows to specify a {@link Map} instance which is used
    * 
    * @param map
@@ -95,25 +120,6 @@ public interface TableTransformer<E>
    * @return new {@link SortedMap} instance
    */
   public SortedMap<E, E[]> sortedMap();
-  
-  /**
-   * Similar to {@link #sortedMap()} and {@link #map(int)}
-   * 
-   * @see #sortedMap()
-   * @param columnIndex
-   * @return new {@link SortedMap} instance
-   */
-  public SortedMap<E, E[]> sortedMap( int columnIndex );
-  
-  /**
-   * Similar to {@link #sortedMap()} and {@link #map(int, int)}
-   * 
-   * @see #sortedMap()
-   * @param columnIndexKey
-   * @param columnIndexValue
-   * @return new {@link SortedMap} instance
-   */
-  public SortedMap<E, E> sortedMap( int columnIndexKey, int columnIndexValue );
   
   /**
    * Similar to {@link #sortedMap()} but allows to specify a {@link Comparator}
@@ -146,22 +152,50 @@ public interface TableTransformer<E>
   public SortedMap<E, E> sortedMap( Comparator<E> comparator, int columnIndexKey, int columnIndexValue );
   
   /**
-   * Returns the given {@link Map} instance enriched by the {@link Table} data. See {@link #map()} for more details.
+   * Similar to {@link #sortedMap()} and {@link #map(int)}
    * 
-   * @see #map()
-   * @see #map(Map, int)
-   * @param map
-   * @return the given {@link Map} instance
+   * @see #sortedMap()
+   * @param columnIndex
+   * @return new {@link SortedMap} instance
    */
-  public <M extends Map<E, E[]>> M map( M map );
+  public SortedMap<E, E[]> sortedMap( int columnIndex );
   
   /**
-   * Returns the given {@link Map} instance enriched by the {@link Table} data. See {@link #map(int)} for more details.
+   * Similar to {@link #sortedMap()} and {@link #map(int, int)}
    * 
-   * @see #map(Map)
-   * @param map
-   * @param columnIndex
-   * @return the given {@link Map} instance or a new one if the given instance is null
+   * @see #sortedMap()
+   * @param columnIndexKey
+   * @param columnIndexValue
+   * @return new {@link SortedMap} instance
    */
-  public <M extends Map<E, E[]>> M map( M map, int columnIndex );
+  public SortedMap<E, E> sortedMap( int columnIndexKey, int columnIndexValue );
+  
+  /**
+   * Returns a {@link String} representation for the {@link Table}
+   * 
+   * @return
+   */
+  public String string();
+  
+  /**
+   * Returns a new sub {@link Table} instance based on the underlying one
+   * 
+   * @param rowIndexFrom
+   *          (inclusive)
+   * @param rowIndexTo
+   *          (exclusive)
+   * @param columnIndexFrom
+   *          (inclusive)
+   * @param columnIndexTo
+   *          (exclusive)
+   * @return new {@link Table} instance
+   */
+  public Table<E> subTable( int rowIndexFrom, int rowIndexTo, int columnIndexFrom, int columnIndexTo );
+  
+  /**
+   * Returns a new {@link Table} with {@link Row}s and {@link Column}s swapped
+   * 
+   * @return new {@link Table} instance
+   */
+  public Table<E> swapped();
 }

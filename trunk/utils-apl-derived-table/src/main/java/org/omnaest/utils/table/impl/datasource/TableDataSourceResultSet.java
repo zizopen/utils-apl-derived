@@ -159,4 +159,10 @@ public class TableDataSourceResultSet<E> implements TableDataSource<E>
   {
     this.exceptionHandlerDelegate.setExceptionHandler( exceptionHandler );
   }
+  
+  @Override
+  public String[] getRowTitles()
+  {
+    return null;
+  }
 }

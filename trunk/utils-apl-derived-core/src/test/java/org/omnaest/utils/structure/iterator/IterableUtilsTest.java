@@ -27,6 +27,7 @@ import java.util.BitSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.omnaest.utils.structure.collection.list.ListUtils;
@@ -164,5 +165,14 @@ public class IterableUtilsTest
     assertEquals( Arrays.asList( "b", "d" ),
                   ListUtils.valueOf( IterableUtils.filtered( Arrays.asList( "a", "b", "c", "d" ), filter ) ) );
     
+  }
+  
+  @Test
+  public void testToCountedElementsMap() throws Exception
+  {
+    Map<String, Integer> countedElementsMap = IterableUtils.toCountedElementsMap( Arrays.asList( "a", "b", "c", "a", "a", "c" ) );
+    assertEquals( 3, countedElementsMap.size() );
+    assertEquals( ListUtils.valueOf( "a", "c", "b" ), ListUtils.valueOf( countedElementsMap.keySet() ) );
+    assertEquals( ListUtils.valueOf( 3, 2, 1 ), ListUtils.valueOf( countedElementsMap.values() ) );
   }
 }

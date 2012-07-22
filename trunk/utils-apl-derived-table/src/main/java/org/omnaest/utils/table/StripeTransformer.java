@@ -45,6 +45,14 @@ public interface StripeTransformer<E> extends Serializable
   public E[] array();
   
   /**
+   * Returns an array of the given {@link Class} type
+   * 
+   * @param type
+   * @return
+   */
+  public <T> T[] array( Class<T> type );
+  
+  /**
    * Returns a new {@link List} instance containing all elements
    * 
    * @return
@@ -84,4 +92,5 @@ public interface StripeTransformer<E> extends Serializable
    * @return
    */
   public Map<String, E> map();
+  
 }

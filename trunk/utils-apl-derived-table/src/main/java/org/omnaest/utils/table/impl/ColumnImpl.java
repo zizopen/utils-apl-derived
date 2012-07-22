@@ -15,9 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.table.impl;
 
+import java.util.Arrays;
 import java.util.BitSet;
 
 import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.table.Cell;
 import org.omnaest.utils.table.Column;
 import org.omnaest.utils.table.ImmutableColumn;
@@ -186,6 +188,67 @@ class ColumnImpl<E> extends StripeImpl<E> implements Column<E>, TableEventHandle
   protected String[] getOrthogonalTitles()
   {
     return ArrayUtils.valueOf( this.table.getRowTitleList(), String.class );
+  }
+  
+  @Override
+  public Column<E> apply( ElementConverter<E, E> elementConverter )
+  {
+    super.apply( elementConverter );
+    return this;
+  }
+  
+  @Override
+  public Column<E> setElements( E... elements )
+  {
+    this.clear();
+    for ( int ii = 0; ii < elements.length; ii++ )
+    {
+      this.setElement( ii, elements[ii] );
+    }
+    return this;
+  }
+  
+  @Override
+  public Column<E> clear()
+  {
+    final int size = this.size();
+    for ( int ii = 0; ii < size; ii++ )
+    {
+      this.cell( ii ).clear();
+    }
+    return this;
+  }
+  
+  @Override
+  public Column<E> setElement( int rowIndex, E element )
+  {
+    this.table.setElement( rowIndex, this.columnIndex, element );
+    return this;
+  }
+  
+  @Override
+  public Column<E> setElement( String rowTitle, E element )
+  {
+    this.table.setElement( rowTitle, this.columnIndex, element );
+    return this;
+  }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "ColumnImpl [columnIndex=" );
+    builder.append( this.columnIndex );
+    builder.append( ", isDeleted=" );
+    builder.append( this.isDeleted );
+    builder.append( ", isModified=" );
+    builder.append( this.isModified );
+    builder.append( ", isDetached=" );
+    builder.append( this.isDetached );
+    builder.append( ", getElements()=" );
+    builder.append( Arrays.toString( this.getElements() ) );
+    builder.append( "]" );
+    return builder.toString();
   }
   
 }

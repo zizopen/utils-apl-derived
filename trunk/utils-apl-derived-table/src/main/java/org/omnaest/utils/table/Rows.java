@@ -17,13 +17,15 @@ package org.omnaest.utils.table;
 
 import java.util.BitSet;
 
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+
 /**
  * {@link Iterable} over {@link Row}s
  * 
  * @author Omnaest
  * @param <E>
  */
-public interface Rows<E, R extends ImmutableRow<E>> extends Iterable<R>
+public interface Rows<E, R extends ImmutableRow<E>> extends Stripes<E, R>
 {
   
   /**
@@ -32,6 +34,7 @@ public interface Rows<E, R extends ImmutableRow<E>> extends Iterable<R>
    * @param filter
    * @return new {@link Rows}
    */
+  @Override
   public Rows<E, R> filtered( BitSet filter );
   
   /**
@@ -39,5 +42,16 @@ public interface Rows<E, R extends ImmutableRow<E>> extends Iterable<R>
    * 
    * @return
    */
+  @Override
   public StripesTransformer<E> to();
+  
+  /**
+   * Applies the given {@link ElementConverter} to all the underlying {@link Row}s
+   * 
+   * @param elementConverter
+   *          {@link ElementConverter}
+   * @return this
+   */
+  @Override
+  public Rows<E, R> apply( ElementConverter<E, E> elementConverter );
 }

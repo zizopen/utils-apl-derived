@@ -15,8 +15,13 @@
  ******************************************************************************/
 package org.omnaest.utils.xml;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -36,6 +41,74 @@ import org.w3c.dom.Node;
  */
 public class XMLHelper
 {
+  /* ********************************************** Classes/Interfaces ********************************************** */
+  /**
+   * Configuration for an {@link TransformerFactory}
+   * 
+   * @see XMLHelper#transform(StreamSource, StreamSource, StreamResult, ExceptionHandler, XSLTransformerConfiguration)
+   * @author Omnaest
+   */
+  public static class XSLTransformerConfiguration
+  {
+    private final Map<String, Object> attributeMap      = new HashMap<String, Object>();
+    private final Map<String, String> outputPropertyMap = new HashMap<String, String>();
+    private final Map<String, Object> parameterMap      = new HashMap<String, Object>();
+    
+    /**
+     * @see TransformerFactory#setAttribute(String, Object)
+     * @param key
+     * @param value
+     * @return this
+     */
+    public XSLTransformerConfiguration addAttribute( String key, Object value )
+    {
+      this.attributeMap.put( key, value );
+      return this;
+    }
+    
+    /**
+     * @see Transformer#setParameter(String, Object)
+     * @param key
+     * @param value
+     * @return this
+     */
+    public XSLTransformerConfiguration addParameter( String key, Object value )
+    {
+      this.parameterMap.put( key, value );
+      return this;
+    }
+    
+    /**
+     * @see Transformer#setOutputProperty(String, String)
+     * @param key
+     * @param value
+     * @return this
+     */
+    public XSLTransformerConfiguration addOutputProperty( String key, String value )
+    {
+      this.outputPropertyMap.put( key, value );
+      return this;
+    }
+    
+    protected Map<String, Object> getAttributeMap()
+    {
+      return this.attributeMap;
+    }
+    
+    protected Map<String, String> getOutputPropertyMap()
+    {
+      return this.outputPropertyMap;
+    }
+    
+    protected Map<String, Object> getParameterMap()
+    {
+      return this.parameterMap;
+    }
+    
+  }
+  
+  /* *************************************************** Methods **************************************************** */
+  
   /**
    * Similar to {@link #select(String, Node, ExceptionHandler)}
    * 
@@ -94,4 +167,75 @@ public class XMLHelper
     return new XMLNestedMapConverter().newMapFromXML( xmlContent );
   }
   
+  /**
+   * Uses the default {@link TransformerFactory} to transform the given xml {@link StreamSource} using the given xslt
+   * {@link StreamSource} into the {@link StreamResult}
+   * 
+   * @param xslt
+   *          {@link StreamSource}
+   * @param xml
+   *          {@link StreamSource}
+   * @param result
+   *          {@link StreamResult}
+   * @param exceptionHandler
+   *          {@link ExceptionHandler}
+   * @param xslTransformerConfiguration
+   *          {@link XSLTransformerConfiguration}
+   */
+  public static void transform( StreamSource xslt,
+                                StreamSource xml,
+                                StreamResult result,
+                                ExceptionHandler exceptionHandler,
+                                XSLTransformerConfiguration xslTransformerConfiguration )
+  {
+    try
+    {
+      final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      if ( xslTransformerConfiguration != null )
+      {
+        final Map<String, Object> attributeMap = xslTransformerConfiguration.getAttributeMap();
+        if ( attributeMap != null )
+        {
+          for ( String name : attributeMap.keySet() )
+          {
+            final Object value = attributeMap.get( name );
+            transformerFactory.setAttribute( name, value );
+          }
+        }
+      }
+      
+      final Transformer transformer = transformerFactory.newTransformer( xslt );
+      if ( xslTransformerConfiguration != null )
+      {
+        final Map<String, String> outputPropertyMap = xslTransformerConfiguration.getOutputPropertyMap();
+        if ( outputPropertyMap != null )
+        {
+          for ( String name : outputPropertyMap.keySet() )
+          {
+            final String value = outputPropertyMap.get( name );
+            transformer.setOutputProperty( name, value );
+          }
+        }
+        
+        final Map<String, Object> parameterMap = xslTransformerConfiguration.getParameterMap();
+        if ( parameterMap != null )
+        {
+          for ( String name : parameterMap.keySet() )
+          {
+            final Object value = parameterMap.get( name );
+            transformer.setParameter( name, value );
+          }
+        }
+      }
+      
+      transformer.transform( xml, result );
+    }
+    catch ( Exception e )
+    {
+      if ( exceptionHandler != null )
+      {
+        exceptionHandler.handleException( e );
+      }
+    }
+  }
 }

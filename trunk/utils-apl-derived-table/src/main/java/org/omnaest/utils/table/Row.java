@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.table;
 
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+
 /**
  * A {@link Row} represents the horizontal {@link Stripe} of elements of a {@link Table}<br>
  * <br>
@@ -32,6 +34,7 @@ package org.omnaest.utils.table;
  */
 public interface Row<E> extends Stripe<E>, ImmutableRow<E>
 {
+  
   /**
    * Adds an element to the {@link Row}
    * 
@@ -40,52 +43,10 @@ public interface Row<E> extends Stripe<E>, ImmutableRow<E>
    */
   public Row<E> add( E element );
   
-  /**
-   * Sets the element at the given column index position
-   * 
-   * @param columnIndex
-   * @param element
-   * @return this
-   */
-  public Row<E> setElement( int columnIndex, E element );
+  @Override
+  public Row<E> apply( ElementConverter<E, E> elementConverter );
   
-  /**
-   * Similar to {@link #setElement(int, Object)} based on the {@link Column#getTitle()}
-   * 
-   * @param columnTitle
-   * @param element
-   * @return this
-   */
-  public Row<E> setElement( String columnTitle, E element );
-  
-  /**
-   * Sets the title of the {@link Row}
-   * 
-   * @param rowTitle
-   * @return
-   */
-  public Row<E> setTitle( String rowTitle );
-  
-  /**
-   * Removes the current {@link Row} from its {@link Table}. The {@link Row} will return true for {@link #isDeleted()} afterwards.
-   * 
-   * @return this
-   */
-  public Row<E> remove();
-  
-  /**
-   * Clears and sets all elements of the {@link Row}
-   * 
-   * @param elements
-   * @return this
-   */
-  public Row<E> setElements( E... elements );
-  
-  /**
-   * Sets all cell elements to null
-   * 
-   * @return this
-   */
+  @Override
   public Row<E> clear();
   
   /**
@@ -96,6 +57,50 @@ public interface Row<E> extends Stripe<E>, ImmutableRow<E>
    * @return this
    */
   public Row<E> moveTo( int newRowIndex );
+  
+  /**
+   * Removes the current {@link Row} from its {@link Table}. The {@link Row} will return true for {@link #isDeleted()} afterwards.
+   * 
+   * @return this
+   */
+  public Row<E> remove();
+  
+  /**
+   * Sets the element at the given column index position
+   * 
+   * @param columnIndex
+   * @param element
+   * @return this
+   */
+  @Override
+  public Row<E> setElement( int columnIndex, E element );
+  
+  /**
+   * Similar to {@link #setElement(int, Object)} based on the {@link Column#getTitle()}
+   * 
+   * @param columnTitle
+   * @param element
+   * @return this
+   */
+  @Override
+  public Row<E> setElement( String columnTitle, E element );
+  
+  /**
+   * Clears and sets all elements of the {@link Row}
+   * 
+   * @param elements
+   * @return this
+   */
+  @Override
+  public Row<E> setElements( E... elements );
+  
+  /**
+   * Sets the title of the {@link Row}
+   * 
+   * @param rowTitle
+   * @return
+   */
+  public Row<E> setTitle( String rowTitle );
   
   /**
    * Switches the current {@link Row} with the row at the given index position

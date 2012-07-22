@@ -413,16 +413,13 @@ public class ByteArrayContainer
     InputStream sourceInputStream = null;
     try
     {
-      //
       Assert.isNotNull( url, "url must not be null" );
       
-      //
       sourceInputStream = url.openStream();
       BufferedInputStream bufferedInputStream = new BufferedInputStream( sourceInputStream );
       this.copyFrom( bufferedInputStream );
       bufferedInputStream.close();
       
-      //
       this.isContentInvalid = false;
     }
     catch ( IOException e )
@@ -433,7 +430,6 @@ public class ByteArrayContainer
     {
       try
       {
-        //
         sourceInputStream.close();
       }
       catch ( Exception e )
@@ -647,7 +643,7 @@ public class ByteArrayContainer
    * @param element
    * @return this
    */
-  public <S extends Serializable> ByteArrayContainer copyFromSerialized( S element )
+  public <S extends Serializable> ByteArrayContainer copyFromAsSerialized( S element )
   {
     final byte[] content = element != null ? SerializationUtils.serialize( element ) : null;
     this.setContent( content );
@@ -658,7 +654,7 @@ public class ByteArrayContainer
   /**
    * Deserializes the content into an element
    * 
-   * @see #copyFromSerialized(Serializable)
+   * @see #copyFromAsSerialized(Serializable)
    * @return new element instance
    */
   @SuppressWarnings("unchecked")

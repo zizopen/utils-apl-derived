@@ -1265,7 +1265,29 @@ public class MapUtils
   }
   
   /**
-   * Returns a new {@link MapBuilder} instance
+   * Returns a new {@link MapBuilder} instance.<br>
+   * <br>
+   * Examples:
+   * 
+   * <pre>
+   * Map&lt;String, Long&gt; map = MapUtils.builder()
+   *                                 .put( &quot;key1&quot;, 1l )
+   *                                 .put( &quot;key2&quot;, 2l )
+   *                                 .put( &quot;key3&quot;, 3l )
+   *                                 .put( &quot;key4&quot;, 4l )
+   *                                 .buildAs()
+   *                                 .linkedHashMap();
+   * </pre>
+   * 
+   * <pre>
+   * Map&lt;String, Object&gt; map = MapUtils.builder()
+   *                                   .&lt;String, Object&gt; put( &quot;key1&quot;, 1l )
+   *                                   .put( &quot;key2&quot;, 2l )
+   *                                   .put( &quot;key3&quot;, 3l )
+   *                                   .put( &quot;key4&quot;, 4l )
+   *                                   .buildAs()
+   *                                   .linkedHashMap();
+   * </pre>
    * 
    * @return
    */

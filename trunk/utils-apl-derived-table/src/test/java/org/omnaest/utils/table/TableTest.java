@@ -47,6 +47,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerEPrintStackTrace;
 import org.omnaest.utils.structure.array.ArrayUtils;
@@ -1494,5 +1495,128 @@ public abstract class TableTest
       assertEquals( "3:0", result.getElement( 0, 0 ) );
     }
     
+  }
+  
+  @Test
+  public void testSerializationXHTML()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 );
+    table.setExceptionHandler( new ExceptionHandlerEPrintStackTrace() );
+    
+    final MarshallingConfiguration configuration = new MarshallingConfiguration().setHasEnabledColumnTitles( true )
+                                                                                 .setHasEnabledRowTitles( true )
+                                                                                 .setHasEnabledTableName( true );
+    
+    String content = table.serializer().marshal().asXHtml().using( configuration ).toString();
+    //System.out.println( content );
+    
+    Table<String> clone = new ArrayTable<String>( String.class ).serializer()
+                                                                .unmarshal()
+                                                                .asXHtml()
+                                                                .using( configuration )
+                                                                .from( content );
+    
+    //System.out.println( clone );
+    assertTrue( table.equalsInContent( clone ) );
+    assertEquals( table.getColumnTitleList(), clone.getColumnTitleList() );
+    
+  }
+
+  @Test
+  public void testSwapped()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 );
+    Table<String> swapped = table.to().swapped();
+    //System.out.println( swapped );
+    
+    assertEquals( 5, swapped.rowSize() );
+    assertEquals( 10, swapped.columnSize() );
+    assertTrue( table.equalsInContentAndMetaData( swapped.to().swapped() ) );
+  }
+
+  @Test
+  public void testTransformFirstRowAndColumnToTitles()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 );
+    
+    final String[] columnTitles = Arrays.copyOfRange( table.row( 0 ).to().array(), 1, 5 );
+    final String[] rowTitles = Arrays.copyOfRange( table.column( 0 ).to().array(), 1, 10 );
+    
+    table.setRowTitlesUsingFirstColumn();
+    //System.out.println( table );
+    
+    table.setColumnTitlesUsingFirstRow();
+    //System.out.println( table );
+    
+    assertArrayEquals( rowTitles, table.getRowTitles() );
+    assertArrayEquals( columnTitles, table.getColumnTitles() );
+  }
+
+  @Test
+  public void testSubTable()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 );
+    
+    final int rowIndexFrom = 1;
+    final int rowIndexTo = 6;
+    final int columnIndexFrom = 1;
+    final int columnIndexTo = 4;
+    Table<String> subTable = table.to().subTable( rowIndexFrom, rowIndexTo, columnIndexFrom, columnIndexTo );
+    
+    //System.out.println( subTable );
+    /*
+    ===table name===
+    !  !c1 !c2 !c3 !
+    !r1!1:1|1:2|1:3|
+    !r2!2:1|2:2|2:3|
+    !r3!3:1|3:2|3:3|
+    !r4!4:1|4:2|4:3|
+    !r5!5:1|5:2|5:3|
+    ----------------
+     */
+    
+    assertEquals( rowIndexTo - rowIndexFrom, subTable.rowSize() );
+    assertEquals( columnIndexTo - columnIndexFrom, subTable.columnSize() );
+    assertEquals( "1:1", subTable.getElement( 0, 0 ) );
+    assertEquals( "5:3", subTable.getElement( 4, 2 ) );
+    assertEquals( Arrays.asList( "c1", "c2", "c3" ), subTable.getColumnTitleList() );
+    assertEquals( Arrays.asList( "r1", "r2", "r3", "r4", "r5" ), subTable.getRowTitleList() );
+  }
+
+  @Test
+  public void testApplyConverter()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 );
+    
+    ElementConverter<String, String> elementConverter = new ElementConverter<String, String>()
+    {
+      @Override
+      public String convert( String element )
+      {
+        return StringUtils.replace( element, ":", " " );
+      }
+    };
+    table.rows( 1, 4 ).apply( elementConverter );
+    
+    //System.out.println( table );
+    /*
+    =======table name=======
+    !  !c0 !c1 !c2 !c3 !c4 !
+    !r0!0:0|0:1|0:2|0:3|0:4|
+    !r1!1 0|1 1|1 2|1 3|1 4|
+    !r2!2 0|2 1|2 2|2 3|2 4|
+    !r3!3 0|3 1|3 2|3 3|3 4|
+    !r4!4:0|4:1|4:2|4:3|4:4|
+    !r5!5:0|5:1|5:2|5:3|5:4|
+    !r6!6:0|6:1|6:2|6:3|6:4|
+    !r7!7:0|7:1|7:2|7:3|7:4|
+    !r8!8:0|8:1|8:2|8:3|8:4|
+    !r9!9:0|9:1|9:2|9:3|9:4|
+    ------------------------
+     */
+    assertEquals( "1 0", table.getElement( 1, 0 ) );
+    assertEquals( "3 4", table.getElement( 3, 4 ) );
+    assertEquals( "4:4", table.getElement( 4, 4 ) );
+    assertEquals( "0:0", table.getElement( 0, 0 ) );
   }
 }

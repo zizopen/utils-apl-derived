@@ -15,8 +15,16 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.iterator;
 
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.utils.assertion.Assert;
@@ -468,5 +476,66 @@ public class IterableUtils
   public static <E> Iterable<E> valueOf( E... elements )
   {
     return valueOf( IteratorUtils.valueOf( elements ) );
+  }
+  
+  /**
+   * Returns a {@link Map} containing the {@link Set} of elements as keys and the count of each element as value.<br>
+   * <br>
+   * E.g. [a,b,a,a] will be returned as [a=3,b=1]
+   * 
+   * @param iterable
+   * @return {@link Map}
+   */
+  public static <E> Map<E, Integer> toCountedElementsMap( Iterable<E> iterable )
+  {
+    class ComparatorUsingMap implements Comparator<E>
+    {
+      private final Map<E, Integer> map;
+      private final List<E>         list;
+      
+      @Override
+      public int compare( E o1, E o2 )
+      {
+        final Integer value1 = this.map.get( o1 );
+        final Integer value2 = this.map.get( o2 );
+        final int compareTo = -1 * value1.compareTo( value2 );
+        
+        int retval = compareTo;
+        if ( retval == 0 )
+        {
+          retval = Integer.valueOf( this.list.indexOf( o1 ) ).compareTo( this.list.indexOf( o2 ) );
+        }
+        
+        return retval;
+      }
+      
+      public ComparatorUsingMap( Map<E, Integer> map, List<E> list )
+      {
+        super();
+        this.map = map;
+        this.list = list;
+      }
+      
+    }
+    final Map<E, Integer> retmap = new HashMap<E, Integer>();
+    final List<E> list = new ArrayList<E>();
+    if ( iterable != null )
+    {
+      for ( E element : iterable )
+      {
+        Integer count = retmap.get( element );
+        if ( count == null )
+        {
+          count = 0;
+          retmap.put( element, count );
+        }
+        retmap.put( element, ++count );
+        list.add( element );
+      }
+    }
+    final ComparatorUsingMap comparator = new ComparatorUsingMap( retmap, list );
+    final Map<E, Integer> retmapSorted = new TreeMap<E, Integer>( comparator );
+    retmapSorted.putAll( retmap );
+    return new LinkedHashMap<E, Integer>( retmapSorted );
   }
 }

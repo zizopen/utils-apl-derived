@@ -15,43 +15,40 @@
  ******************************************************************************/
 package org.omnaest.utils.table;
 
+import java.util.BitSet;
+
+import org.omnaest.utils.structure.element.converter.ElementConverter;
+
 /**
- * @see Table
- * @see ImmutableCell
+ * {@link Iterable} over {@link Row}s
+ * 
  * @author Omnaest
  * @param <E>
  */
-public interface Cell<E> extends ImmutableCell<E>
+public interface Columns<E, C extends ImmutableColumn<E>> extends Stripes<E, C>
 {
+  
   /**
-   * Sets the underlying element
+   * Returns new {@link Columns} filtered by the given {@link BitSet} filter.
    * 
-   * @param element
+   * @param filter
+   * @return new {@link Columns}
+   */
+  public Columns<E, C> filtered( BitSet filter );
+  
+  /**
+   * Returns a new {@link StripesTransformer} instance
+   * 
+   * @return
+   */
+  public StripesTransformer<E> to();
+  
+  /**
+   * Applies the given {@link ElementConverter} to all the underlying {@link Column}s
+   * 
+   * @param elementConverter
+   *          {@link ElementConverter}
    * @return this
    */
-  public Cell<E> setElement( E element );
-  
-  /**
-   * Returns a {@link Row} related to this {@link Cell}
-   * 
-   * @return
-   */
-  @Override
-  public Row<E> row();
-  
-  /**
-   * Returns a {@link Column} related to this {@link Cell}
-   * 
-   * @return
-   */
-  @Override
-  public Column<E> column();
-  
-  /**
-   * Sets the underlying {@link Cell#setElement(Object)} to null
-   * 
-   * @return the previously set element
-   */
-  public E clear();
-  
+  public Columns<E, C> apply( ElementConverter<E, E> elementConverter );
 }
