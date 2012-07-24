@@ -29,6 +29,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -73,6 +74,8 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
   private List<Bucket<E>>        closedBucketList   = new ArrayList<Bucket<E>>();
   private Bucket<E>              bucket;
   private Set<ImmutableTable<E>> tableForLockingSet = new LinkedHashSet<ImmutableTable<E>>();
+  private int                    top                = -1;
+  private int                    skip               = 0;
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
@@ -346,15 +349,20 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
     private final Class<E>                       componentType;
     private final List<ColumnJoin<E>>            columnJoinList;
     private final List<TableSelect.Predicate<E>> predicateList;
+    private final int                            top;
+    private final int                            skip;
     
     private SelectExecution( ElementHolder<Table<E>> rettableElementHolder, List<Bucket<E>> closedBucketList,
-                             Class<E> componentType, List<ColumnJoin<E>> columnJoinList, List<Predicate<E>> predicateList )
+                             Class<E> componentType, List<ColumnJoin<E>> columnJoinList, List<Predicate<E>> predicateList,
+                             int top, int skip )
     {
       this.rettableElementHolder = rettableElementHolder;
       this.closedBucketList = closedBucketList;
       this.componentType = componentType;
       this.columnJoinList = columnJoinList;
       this.predicateList = predicateList;
+      this.top = top;
+      this.skip = skip;
     }
     
     @SuppressWarnings("unchecked")
@@ -387,7 +395,10 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
                                                                                                                 this.columnJoinList );
       
       final List<E[]> elementArrayList = new ArrayList<E[]>();
+      final int resultRowStart = this.skip;
+      final int resultRowEnd = this.top >= 0 ? this.top + this.skip - 1 : -1;
       int columnSize = 0;
+      int rowCounter = 0;
       for ( FilterRow<E> filterRow : crossProductFilterRowGenerator )
       {
         //
@@ -431,14 +442,20 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
         //
         if ( include )
         {
-          final List<E> elementList = new ArrayList<E>();
-          for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentityList )
+          if ( rowCounter >= resultRowStart && ( resultRowEnd < 0 || rowCounter <= resultRowEnd ) )
           {
-            E element = filterRow.getElement( columnIdentity );
-            elementList.add( element );
+            final List<E> elementList = new ArrayList<E>();
+            Map<E, AtomicInteger> columnIdentityToCounterMap = MapUtils.initializedCounterMap();
+            for ( ColumnIdentity<E> columnIdentity : selectedColumnIdentityList )
+            {
+              final int counter = columnIdentityToCounterMap.get( columnIdentity ).getAndIncrement();
+              E element = filterRow.getElement( columnIdentity, counter );
+              elementList.add( element );
+            }
+            elementArrayList.add( elementList.toArray( (E[]) Array.newInstance( this.componentType, elementList.size() ) ) );
+            columnSize = elementArrayList.size();
           }
-          elementArrayList.add( elementList.toArray( (E[]) Array.newInstance( this.componentType, elementList.size() ) ) );
-          columnSize = elementArrayList.size();
+          rowCounter++;
         }
       }
       
@@ -544,17 +561,8 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
     @Override
     public E getElement( ColumnIdentity<E> columnIdentity )
     {
-      E retval = null;
-      for ( FilterRow<E> filterRow : this.filterRowList )
-      {
-        final E element = filterRow.getElement( columnIdentity );
-        if ( element != null )
-        {
-          retval = element;
-          break;
-        }
-      }
-      return retval;
+      final int skipNumber = 0;
+      return this.getElement( columnIdentity, skipNumber );
     }
     
     @Override
@@ -569,6 +577,27 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
         }
       }
       return false;
+    }
+    
+    @Override
+    public E getElement( ColumnIdentity<E> columnIdentity, int skipNumber )
+    {
+      E retval = null;
+      int matchCounter = 0;
+      for ( FilterRow<E> filterRow : this.filterRowList )
+      {
+        if ( filterRow.hasColumn( columnIdentity ) )
+        {
+          if ( skipNumber == matchCounter )
+          {
+            final E element = filterRow.getElement( columnIdentity );
+            retval = element;
+            break;
+          }
+          matchCounter++;
+        }
+      }
+      return retval;
     }
   }
   
@@ -861,6 +890,12 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
           public boolean hasColumn( ColumnIdentity<E> columnIdentity )
           {
             return columnIdentitySet.contains( columnIdentity );
+          }
+          
+          @Override
+          public E getElement( ColumnIdentity<E> columnIdentity, int skipNumber )
+          {
+            return this.getElement( columnIdentity );
           }
         };
       }
@@ -1176,7 +1211,7 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
     final List<Bucket<E>> closedBucketList = this.closedBucketList;
     final List<ColumnJoin<E>> columnJoinList = this.columnJoinList;
     final SelectExecution<E> tableExecution = new SelectExecution<E>( rettableElementHolder, closedBucketList, componentType,
-                                                                      columnJoinList, this.predicateList );
+                                                                      columnJoinList, this.predicateList, this.top, this.skip );
     
     Set<ImmutableTable<E>> tableForLockingSet = this.tableForLockingSet;
     if ( tableForLockingSet.isEmpty() )
@@ -1275,6 +1310,20 @@ public class TableSelectImpl<E> implements TableSelect<E>, TableJoin<E>, TableSe
   {
     Predicate<E>[] predicates = new Predicate[0];
     return this.where( predicate, predicates );
+  }
+  
+  @Override
+  public TableSelect<E> top( int top )
+  {
+    this.top = top;
+    return this;
+  }
+  
+  @Override
+  public TableSelect<E> skip( int skip )
+  {
+    this.skip = skip;
+    return this;
   }
   
 }

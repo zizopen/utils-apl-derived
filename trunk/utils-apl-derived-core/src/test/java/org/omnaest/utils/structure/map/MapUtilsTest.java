@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
@@ -269,6 +270,16 @@ public class MapUtilsTest
                                                                .buildAs()
                                                                .linkedHashMap(), String.class, "key1", "key2" );
     assertArrayEquals( new String[] { "value1", "value2" }, filteredValues );
+  }
+  
+  @Test
+  public void testInitializedCounterMap() throws Exception
+  {
+    Map<Object, AtomicInteger> map = MapUtils.initializedCounterMap();
+    int value1 = map.get( "lala" ).getAndIncrement();
+    int value2 = map.get( "lala" ).incrementAndGet();
+    assertEquals( 0, value1 );
+    assertEquals( 2, value2 );
   }
   
 }

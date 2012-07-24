@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -45,6 +46,7 @@ import org.omnaest.utils.structure.element.converter.ElementConverterElementToMa
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.element.factory.FactoryParameterized;
+import org.omnaest.utils.structure.element.factory.FactorySerializable;
 import org.omnaest.utils.structure.element.filter.ElementFilter;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.map.adapter.MapToMapAdapter;
@@ -1327,5 +1329,33 @@ public class MapUtils
       }
     }
     return retvals;
+  }
+  
+  /**
+   * Returns a {@link Map} instance which returns for {@link Map#get(Object)} always an {@link AtomicInteger} instance. This
+   * allows statements like:
+   * 
+   * <pre>
+   * Map&lt;Object, AtomicInteger&gt; map = MapUtils.initializedCounterMap();
+   * int value1 = map.get( &quot;lala&quot; ).getAndIncrement();
+   * int value2 = map.get( &quot;lala&quot; ).incrementAndGet();
+   * assertEquals( 0, value1 );
+   * assertEquals( 2, value2 );
+   * </pre>
+   * 
+   * @return
+   */
+  public static <E> Map<E, AtomicInteger> initializedCounterMap()
+  {
+    return MapUtils.<E, AtomicInteger> initializedMap( new FactorySerializable<AtomicInteger>()
+    {
+      private static final long serialVersionUID = 2356741002226308586L;
+      
+      @Override
+      public AtomicInteger newInstance()
+      {
+        return new AtomicInteger();
+      }
+    } );
   }
 }

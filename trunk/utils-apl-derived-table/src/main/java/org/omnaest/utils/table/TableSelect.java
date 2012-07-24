@@ -48,7 +48,24 @@ public interface TableSelect<E>
      */
     public static interface FilterRow<E>
     {
+      /**
+       * Returns the element for the given {@link ColumnIdentity}.
+       * 
+       * @param columnIdentity
+       * @return
+       */
       public E getElement( ColumnIdentity<E> columnIdentity );
+      
+      /**
+       * Similar to {@link #getElement(ColumnIdentity)} but skips the given number of matches of the {@link ColumnIdentity} to
+       * allow resolving {@link ColumnIdentity}s which are occurring more than once, too. This is e.g. necessary for self joins,
+       * where the same table columns will occur multiple times.
+       * 
+       * @param columnIdentity
+       * @param skipNumber
+       * @return
+       */
+      public E getElement( ColumnIdentity<E> columnIdentity, int skipNumber );
       
       public E getElement( ImmutableTable<E> table, int columnIndex );
       
@@ -282,4 +299,24 @@ public interface TableSelect<E>
    * @return this
    */
   public TableSelect<E> withTableLock( boolean lockEnabled );
+  
+  /**
+   * The join will skip the given number of result rows before writing to the result. This is counted post filtered.
+   * 
+   * @see #top(int)
+   * @param skip
+   * @return this
+   */
+  public TableSelect<E> skip( int skip );
+  
+  /**
+   * The join will return only the given number of top rows as result. <br>
+   * <br>
+   * If {@link #skip(int)} is applied also, this counts from the start after the skipped rows of the result.
+   * 
+   * @see #skip(int)
+   * @param top
+   * @return
+   */
+  public TableSelect<E> top( int top );
 }

@@ -1619,4 +1619,71 @@ public abstract class TableTest
     assertEquals( "4:4", table.getElement( 4, 4 ) );
     assertEquals( "0:0", table.getElement( 0, 0 ) );
   }
+
+  @Test
+  public void testSelectTopAndSkip()
+  {
+    Table<String> table = this.filledTableWithTitles( 20, 2 );
+    {
+      Table<String> result = table.select().allColumns().top( 5 ).as().table();
+      //System.out.println( result );
+      
+      assertEquals( 5, result.rowSize() );
+      assertArrayEquals( new String[] { "0:0", "0:1" }, result.row( 0 ).to().array() );
+    }
+    {
+      Table<String> result = table.select().allColumns().skip( 3 ).as().table();
+      //System.out.println( result );
+      
+      assertEquals( 17, result.rowSize() );
+      assertArrayEquals( new String[] { "3:0", "3:1" }, result.row( 0 ).to().array() );
+    }
+    {
+      Table<String> result = table.select().allColumns().top( 5 ).skip( 3 ).as().table();
+      //System.out.println( result );
+      
+      assertEquals( 5, result.rowSize() );
+      assertArrayEquals( new String[] { "3:0", "3:1" }, result.row( 0 ).to().array() );
+    }
+  }
+
+  @Test
+  public void testSelectSelfJoin()
+  {
+    Table<String> table = this.filledTableWithTitles( 4, 2 );
+    
+    Table<String> result = table.select().allColumns().join( table ).allColumns().as().table();
+    //System.out.println( result );
+    
+    /*
+    =======================table name========================
+    !table name.c0!table name.c1!table name.c0!table name.c1!
+    |     0:0     |     0:1     |     0:0     |     0:1     |
+    |     0:0     |     0:1     |     1:0     |     1:1     |
+    |     0:0     |     0:1     |     2:0     |     2:1     |
+    |     0:0     |     0:1     |     3:0     |     3:1     |
+    |     1:0     |     1:1     |     0:0     |     0:1     |
+    |     1:0     |     1:1     |     1:0     |     1:1     |
+    |     1:0     |     1:1     |     2:0     |     2:1     |
+    |     1:0     |     1:1     |     3:0     |     3:1     |
+    |     2:0     |     2:1     |     0:0     |     0:1     |
+    |     2:0     |     2:1     |     1:0     |     1:1     |
+    |     2:0     |     2:1     |     2:0     |     2:1     |
+    |     2:0     |     2:1     |     3:0     |     3:1     |
+    |     3:0     |     3:1     |     0:0     |     0:1     |
+    |     3:0     |     3:1     |     1:0     |     1:1     |
+    |     3:0     |     3:1     |     2:0     |     2:1     |
+    |     3:0     |     3:1     |     3:0     |     3:1     |
+    ---------------------------------------------------------
+    */
+    for ( int ii = 0; ii < 4; ii++ )
+    {
+      assertArrayEquals( new String[] { "0:0", "0:1", ii + ":0", ii + ":1" }, result.row( ii ).to().array() );
+    }
+    for ( int ii = 0; ii < 4; ii++ )
+    {
+      assertArrayEquals( new String[] { "3:0", "3:1", ii + ":0", ii + ":1" }, result.row( 4 * 3 + ii ).to().array() );
+    }
+    
+  }
 }
