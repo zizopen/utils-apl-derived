@@ -245,13 +245,14 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>
   {
     if ( otherRow != null )
     {
-      final int rowIndexOther = otherRow.index();
-      final int rowIndexOld = this.rowIndex;
-      final int rowSize = this.table.rowSize();
+      final E[] elements = this.getElements();
+      final String rowTitle = this.getTitle();
       
-      this.moveTo( rowSize );
-      otherRow.moveTo( rowIndexOld );
-      this.moveTo( rowIndexOther );
+      this.setElements( otherRow.getElements() );
+      this.setTitle( otherRow.getTitle() );
+      
+      otherRow.setElements( elements );
+      otherRow.setTitle( rowTitle );      
     }
     return this;
   }
@@ -285,5 +286,30 @@ class RowImpl<E> extends StripeImpl<E> implements Row<E>
   {
     super.apply( elementConverter );
     return this;
+  }
+  
+  @Override
+  public void handleModifiedColumnTitle( int columnIndex, String columnTitle, String columnTitlePrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedRowTitle( int rowIndex, String rowTitle, String rowTitlePrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedColumnTitles( String[] columnTitles, String[] columnTitlesPrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedRowTitles( String[] rowTitles, String[] rowTitlesPrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedTableName( String tableName, String tableNamePrevious )
+  {
   }
 }

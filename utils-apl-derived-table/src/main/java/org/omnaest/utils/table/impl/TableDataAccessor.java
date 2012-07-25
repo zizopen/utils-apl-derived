@@ -456,7 +456,8 @@ class TableDataAccessor<E> implements Serializable
       @Override
       public Void execute()
       {
-        TableDataAccessor.this.tableMetaData.setColumnTitle( columnIndex, columnTitle );
+        final String columnTitlePrevious = TableDataAccessor.this.tableMetaData.setColumnTitle( columnIndex, columnTitle );
+        TableDataAccessor.this.tableEventDispatcher.handleModifiedColumnTitle( columnIndex, columnTitle, columnTitlePrevious );
         return null;
       }
     }, this.tableLock.writeLock() );
@@ -469,7 +470,9 @@ class TableDataAccessor<E> implements Serializable
       @Override
       public Void execute()
       {
-        TableDataAccessor.this.tableMetaData.setColumnTitles( columnTitleIterable );
+        final String[] columnTitles = ArrayUtils.valueOf( columnTitleIterable, String.class );
+        final String[] columnTitlesPrevious = TableDataAccessor.this.tableMetaData.setColumnTitles( columnTitles );
+        TableDataAccessor.this.tableEventDispatcher.handleModifiedColumnTitles( columnTitles, columnTitlesPrevious );
         return null;
       }
     }, this.tableLock.writeLock() );
@@ -507,7 +510,8 @@ class TableDataAccessor<E> implements Serializable
       @Override
       public Void execute()
       {
-        TableDataAccessor.this.tableMetaData.setRowTitle( rowIndex, rowTitle );
+        final String rowTitlePrevious = TableDataAccessor.this.tableMetaData.setRowTitle( rowIndex, rowTitle );
+        TableDataAccessor.this.tableEventDispatcher.handleModifiedRowTitle( rowIndex, rowTitle, rowTitlePrevious );
         return null;
       }
     }, this.tableLock.writeLock() );
@@ -520,20 +524,23 @@ class TableDataAccessor<E> implements Serializable
       @Override
       public Void execute()
       {
-        TableDataAccessor.this.tableMetaData.setRowTitles( rowTitleIterable );
+        final String[] rowTitles = ArrayUtils.valueOf( rowTitleIterable, String.class );
+        final String[] rowTitlesPrevious = TableDataAccessor.this.tableMetaData.setRowTitles( rowTitles );
+        TableDataAccessor.this.tableEventDispatcher.handleModifiedRowTitles( rowTitles, rowTitlesPrevious );
         return null;
       }
     }, this.tableLock.writeLock() );
   }
   
-  public void setTableName( final String tableTitle )
+  public void setTableName( final String tableName )
   {
     OperationUtils.executeWithLocks( new OperationWithResult<Void>()
     {
       @Override
       public Void execute()
       {
-        TableDataAccessor.this.tableMetaData.setTableName( tableTitle );
+        final String tableNamePrevious = TableDataAccessor.this.tableMetaData.setTableName( tableName );
+        TableDataAccessor.this.tableEventDispatcher.handleModifiedTableName( tableName, tableNamePrevious );
         return null;
       }
     }, this.tableLock.writeLock() );

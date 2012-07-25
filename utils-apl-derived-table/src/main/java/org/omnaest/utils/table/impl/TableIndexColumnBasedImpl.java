@@ -34,16 +34,17 @@ import org.omnaest.utils.structure.element.factory.concrete.LinkedHashSetFactory
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.table.Cell;
 import org.omnaest.utils.table.Column;
+import org.omnaest.utils.table.ImmutableCell.Position;
 import org.omnaest.utils.table.TableEventHandler;
 import org.omnaest.utils.table.TableIndex;
-import org.omnaest.utils.table.ImmutableCell.Position;
 
 /**
  * @see TableIndex
  * @author Omnaest
  * @param <E>
  */
-class TableIndexColumnBasedImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, Set<Cell<E>>>, TableEventHandler<E>, Serializable
+class TableIndexColumnBasedImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<E, Set<Cell<E>>>, TableEventHandler<E>,
+                                   Serializable
 {
   /* ************************************************** Constants *************************************************** */
   private static final long                serialVersionUID = 3723253328291423721L;
@@ -331,6 +332,31 @@ class TableIndexColumnBasedImpl<E> implements TableIndex<E, Cell<E>>, SortedMap<
   {
     return Collections.unmodifiableCollection( CollectionUtils.adapter( this.elementToCellSetMap.values(),
                                                                         new ElementBidirectionalConverterSetToUnmodifiableSet<Cell<E>>() ) );
+  }
+  
+  @Override
+  public void handleModifiedColumnTitle( int columnIndex, String columnTitle, String columnTitlePrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedRowTitle( int rowIndex, String rowTitle, String rowTitlePrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedColumnTitles( String[] columnTitles, String[] columnTitlesPrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedRowTitles( String[] rowTitles, String[] rowTitlesPrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedTableName( String tableName, String tableNamePrevious )
+  {
   }
   
 }

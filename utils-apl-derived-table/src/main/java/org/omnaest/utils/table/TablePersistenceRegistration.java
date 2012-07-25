@@ -63,7 +63,9 @@ public interface TablePersistenceRegistration<E> extends Serializable
   /* *************************************************** Methods **************************************************** */
   
   /**
-   * Attaches a {@link TablePersistence} and synchronizes the current {@link Table} with it immediately
+   * Attaches a {@link TablePersistence} and synchronizes the current {@link Table} with it immediately. <br>
+   * <br>
+   * The synchronization requires any table name and table columns to be already declared before this call.
    * 
    * @param tablePersistence
    * @return underlying {@link Table}

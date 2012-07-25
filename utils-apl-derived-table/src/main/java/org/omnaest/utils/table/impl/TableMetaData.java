@@ -181,30 +181,87 @@ public class TableMetaData<E> implements TableEventHandler<E>, Serializable
     return this.tableName != null;
   }
   
-  public void setColumnTitle( int columnIndex, String columnTitle )
+  /**
+   * @param columnIndex
+   * @param columnTitle
+   * @return previously set element
+   */
+  public String setColumnTitle( int columnIndex, String columnTitle )
   {
+    final String retval = ListUtils.get( this.columnTitleList, columnIndex );
     ListUtils.set( this.columnTitleList, columnIndex, columnTitle );
+    return retval;
   }
   
-  public void setColumnTitles( Iterable<String> columnTitleIterable )
+  /**
+   * @param columnTitles
+   * @return previous column titles
+   */
+  public String[] setColumnTitles( String[] columnTitles )
   {
+    final String[] retvals = this.columnTitleList.toArray( new String[0] );
     this.columnTitleList.clear();
-    ListUtils.addAll( this.columnTitleList, columnTitleIterable );
+    ListUtils.addAll( this.columnTitleList, columnTitles );
+    return retvals;
   }
   
-  public void setRowTitle( int rowIndex, String rowTitle )
+  /**
+   * @param rowIndex
+   * @param rowTitle
+   * @return previously set row title
+   */
+  public String setRowTitle( int rowIndex, String rowTitle )
   {
+    final String retval = ListUtils.get( this.rowTitleList, rowIndex );
     ListUtils.set( this.rowTitleList, rowIndex, rowTitle );
+    return retval;
   }
   
-  public void setRowTitles( Iterable<String> rowTitleIterable )
+  /**
+   * @param rowTitles
+   * @return previously set elements
+   */
+  public String[] setRowTitles( String[] rowTitles )
   {
+    final String[] retvals = this.rowTitleList.toArray( new String[0] );
     this.rowTitleList.clear();
-    ListUtils.addAll( this.rowTitleList, rowTitleIterable );
+    ListUtils.addAll( this.rowTitleList, rowTitles );
+    return retvals;
   }
   
-  public void setTableName( String tableName )
+  /**
+   * @param tableName
+   * @return the previously set table name
+   */
+  public String setTableName( String tableName )
   {
+    String retval = this.tableName;
     this.tableName = tableName;
+    return retval;
+  }
+  
+  @Override
+  public void handleModifiedColumnTitle( int columnIndex, String columnTitle, String columnTitlePrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedRowTitle( int rowIndex, String rowTitle, String rowTitlePrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedColumnTitles( String[] columnTitles, String[] columnTitlesPrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedRowTitles( String[] rowTitles, String[] rowTitlesPrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedTableName( String tableName, String tableNamePrevious )
+  {
   }
 }

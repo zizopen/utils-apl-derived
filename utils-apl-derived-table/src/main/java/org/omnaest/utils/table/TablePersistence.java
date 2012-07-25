@@ -20,7 +20,10 @@ import java.io.Serializable;
 import org.omnaest.utils.tuple.KeyValue;
 
 /**
- * A {@link TablePersistence} handles the change events from a {@link Table} and persists any modified, added or removed data
+ * A {@link TablePersistence} handles the change events from a {@link Table} and persists any modified, added or removed data <br>
+ * <br>
+ * {@link #setColumnTitles(String[])} and {@link #setTableName(String)} are called before any attempt to access the
+ * {@link TablePersistence}, so this methods are useful to synchronize the meta data
  * 
  * @author Omnaest
  * @param <E>
@@ -36,4 +39,18 @@ public interface TablePersistence<E> extends Serializable
   public void removeAll();
   
   public Iterable<KeyValue<Integer, E[]>> allElements();
+  
+  /**
+   * This is set before any attempt to write or read from the persistence or the table name changes
+   * 
+   * @param tableName
+   */
+  public void setTableName( String tableName );
+  
+  /**
+   * This is set before any attempt to write or read from the persistence or if any of the column titles changes
+   * 
+   * @param columnTitles
+   */
+  public void setColumnTitles( String[] columnTitles );
 }

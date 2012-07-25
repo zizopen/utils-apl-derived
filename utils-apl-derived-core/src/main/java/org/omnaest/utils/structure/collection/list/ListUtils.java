@@ -974,6 +974,18 @@ public class ListUtils
   }
   
   /**
+   * Similar to {@link #add(List, Object...)}
+   * 
+   * @param list
+   * @param elements
+   * @return
+   */
+  public static <E> List<E> addAll( List<? extends E> list, E... elements )
+  {
+    return add( list, elements );
+  }
+  
+  /**
    * Returns the given {@link List} instance or a new {@link List} instance if the given one is null. The returned instance will
    * contain all elements of the given {@link List} and additionally all further given elements. <br>
    * <br>
@@ -996,13 +1008,29 @@ public class ListUtils
     }
     
     //
-    for ( E element : elements )
+    if ( elements != null )
     {
-      retlist.add( element );
+      for ( E element : elements )
+      {
+        retlist.add( element );
+      }
     }
     
     //
     return retlist;
+  }
+  
+  /**
+   * Similar to {@link #add(List, int, Object...)}
+   * 
+   * @param list
+   * @param index
+   * @param elements
+   * @return
+   */
+  public static <E> List<E> addAll( List<? extends E> list, int index, E... elements )
+  {
+    return add( list, index, elements );
   }
   
   /**
@@ -1033,10 +1061,13 @@ public class ListUtils
     
     //
     int relative = 0;
-    for ( E element : elements )
+    if ( elements != null )
     {
-      retlist.add( index + relative, element );
-      relative++;
+      for ( E element : elements )
+      {
+        retlist.add( index + relative, element );
+        relative++;
+      }
     }
     
     //

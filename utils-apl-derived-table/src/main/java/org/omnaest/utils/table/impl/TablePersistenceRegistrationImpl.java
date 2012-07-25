@@ -111,12 +111,23 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
   @Override
   public void handleAddedRow( final int rowIndex, final E... elements )
   {
+    final Table<E> table = this.table;
+    final int rowIndexFrom = rowIndex;
+    final int rowIndexTo = table.rowSize();
     this.executeOnAllTablePersistenceInstances( new OperationVoid<TablePersistence<E>>()
     {
       @Override
       public void execute( TablePersistence<E> tablePersistence )
       {
-        tablePersistence.add( rowIndex, elements );
+        for ( int ii = rowIndexFrom + 1; ii < rowIndexTo; ii++ )
+        {
+          tablePersistence.remove( ii - 1 );
+        }
+        for ( int ii = rowIndexFrom; ii < rowIndexTo; ii++ )
+        {
+          final boolean detached = true;
+          tablePersistence.add( ii, table.row( ii, detached ).getElements() );
+        }
       }
     } );
     
@@ -144,12 +155,24 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
   @Override
   public void handleRemovedRow( final int rowIndex, E[] previousElements, String rowTitle )
   {
+    final Table<E> table = this.table;
+    final int rowIndexFrom = rowIndex;
+    final int rowIndexTo = table.rowSize();
     this.executeOnAllTablePersistenceInstances( new OperationVoid<TablePersistence<E>>()
     {
       @Override
       public void execute( TablePersistence<E> tablePersistence )
       {
         tablePersistence.remove( rowIndex );
+        for ( int ii = rowIndexFrom; ii < rowIndexTo; ii++ )
+        {
+          tablePersistence.remove( ii + 1 );
+        }
+        for ( int ii = rowIndexFrom; ii < rowIndexTo; ii++ )
+        {
+          final boolean detached = true;
+          tablePersistence.add( ii, table.row( ii, detached ).getElements() );
+        }
       }
     } );
   }
@@ -168,6 +191,11 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
   
   private void synchronizeTableWithPersistence( TablePersistence<E> tablePersistence )
   {
+    //
+    tablePersistence.setTableName( this.table.getTableName() );
+    tablePersistence.setColumnTitles( this.table.getColumnTitles() );
+    
+    //
     final Set<Integer> rowIndexSet = new HashSet<Integer>();
     final Iterable<KeyValue<Integer, E[]>> allElements = tablePersistence.allElements();
     if ( allElements != null )
@@ -272,5 +300,56 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
         };
       }
     };
+  }
+  
+  @Override
+  public void handleModifiedColumnTitle( int columnIndex, String columnTitle, String columnTitlePrevious )
+  {
+    final Table<E> table = this.table;
+    this.executeOnAllTablePersistenceInstances( new OperationVoid<TablePersistence<E>>()
+    {
+      @Override
+      public void execute( TablePersistence<E> tablePersistence )
+      {
+        tablePersistence.setColumnTitles( table.getColumnTitles() );
+      }
+    } );
+  }
+  
+  @Override
+  public void handleModifiedRowTitle( int rowIndex, String rowTitle, String rowTitlePrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedColumnTitles( final String[] columnTitles, String[] columnTitlesPrevious )
+  {
+    this.executeOnAllTablePersistenceInstances( new OperationVoid<TablePersistence<E>>()
+    {
+      @Override
+      public void execute( TablePersistence<E> tablePersistence )
+      {
+        tablePersistence.setColumnTitles( columnTitles );
+      }
+    } );
+  }
+  
+  @Override
+  public void handleModifiedRowTitles( String[] rowTitles, String[] rowTitlesPrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedTableName( final String tableName, String tableNamePrevious )
+  {
+    this.executeOnAllTablePersistenceInstances( new OperationVoid<TablePersistence<E>>()
+    {
+      @Override
+      public void execute( TablePersistence<E> tablePersistence )
+      {
+        tablePersistence.setTableName( tableName );
+      }
+    } );
+    
   }
 }
