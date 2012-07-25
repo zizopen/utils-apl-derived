@@ -81,4 +81,14 @@ abstract class SimpleDirectoryBasedTablePersistenceAbstract<E> implements TableP
     this.elementsList.set( id, elements );
   }
   
+  @Override
+  public void setTableName( String tableName )
+  {
+  }
+  
+  @Override
+  public void setColumnTitles( String[] columnTitles )
+  {
+  }
+  
 }

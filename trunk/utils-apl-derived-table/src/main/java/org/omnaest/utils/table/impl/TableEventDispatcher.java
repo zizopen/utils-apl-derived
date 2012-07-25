@@ -227,4 +227,69 @@ class TableEventDispatcher<E> implements TableEventHandler<E>, Serializable
     return this;
   }
   
+  @Override
+  public void handleModifiedColumnTitle( final int columnIndex, final String columnTitle, final String columnTitlePrevious )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleModifiedColumnTitle( columnIndex, columnTitle, columnTitlePrevious );
+      }
+    } );
+  }
+  
+  @Override
+  public void handleModifiedRowTitle( final int rowIndex, final String rowTitle, final String rowTitlePrevious )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleModifiedRowTitle( rowIndex, rowTitle, rowTitlePrevious );
+      }
+    } );
+  }
+  
+  @Override
+  public void handleModifiedColumnTitles( final String[] columnTitles, final String[] columnTitlesPrevious )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleModifiedColumnTitles( columnTitles, columnTitlesPrevious );
+      }
+    } );
+  }
+  
+  @Override
+  public void handleModifiedRowTitles( final String[] rowTitles, final String[] rowTitlesPrevious )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleModifiedRowTitles( rowTitles, rowTitlesPrevious );
+      }
+    } );
+  }
+  
+  @Override
+  public void handleModifiedTableName( final String tableName, final String tableNamePrevious )
+  {
+    this.executeOnAllInstances( new OperationVoid<TableEventHandler<E>>()
+    {
+      @Override
+      public void execute( TableEventHandler<E> tableEventHandler )
+      {
+        tableEventHandler.handleModifiedTableName( tableName, tableNamePrevious );
+      }
+    } );
+  }
+  
 }

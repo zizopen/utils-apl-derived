@@ -152,4 +152,14 @@ public class SimpleFileBasedTablePersistence<E> implements TablePersistence<E>
     }
   }
   
+  @Override
+  public void setTableName( String tableName )
+  {
+  }
+  
+  @Override
+  public void setColumnTitles( String[] columnTitles )
+  {
+  }
+  
 }

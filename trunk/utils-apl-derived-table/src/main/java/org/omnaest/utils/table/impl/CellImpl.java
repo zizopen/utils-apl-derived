@@ -280,4 +280,29 @@ class CellImpl<E> implements Cell<E>, TableEventHandler<E>
     return (T) this.getElement();
   }
   
+  @Override
+  public void handleModifiedColumnTitle( int columnIndex, String columnTitle, String columnTitlePrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedRowTitle( int rowIndex, String rowTitle, String rowTitlePrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedColumnTitles( String[] columnTitles, String[] columnTitlesPrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedRowTitles( String[] rowTitles, String[] rowTitlesPrevious )
+  {
+  }
+  
+  @Override
+  public void handleModifiedTableName( String tableName, String tableNamePrevious )
+  {
+  }
+  
 }

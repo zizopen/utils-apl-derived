@@ -39,4 +39,14 @@ public interface TableEventHandler<E> extends Serializable
   public void handleUpdatedCell( int rowIndex, int columnIndex, E element, E previousElement );
   
   public void handleUpdatedRow( int rowIndex, E[] elements, E[] previousElements, BitSet modifiedIndices );
+  
+  public void handleModifiedColumnTitle( int columnIndex, String columnTitle, String columnTitlePrevious );
+  
+  public void handleModifiedRowTitle( int rowIndex, String rowTitle, String rowTitlePrevious );
+  
+  public void handleModifiedColumnTitles( String[] columnTitles, String[] columnTitlesPrevious );
+  
+  public void handleModifiedRowTitles( String[] rowTitles, String[] rowTitlesPrevious );
+  
+  public void handleModifiedTableName( String tableName, String tableNamePrevious );
 }
