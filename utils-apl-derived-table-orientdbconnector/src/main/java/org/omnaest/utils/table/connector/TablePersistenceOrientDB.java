@@ -142,12 +142,12 @@ public class TablePersistenceOrientDB<E> implements TablePersistence<E>
           @Override
           public KeyValue<Integer, E[]> convert( ODocument document )
           {
-            final int id = document.field( fieldId );
+            final Integer id = document.<Integer> field( fieldId, Integer.class );
             final E[] elements = (E[]) Array.newInstance( elementType, columnTitles.length );
             for ( int ii = 0; ii < columnTitles.length; ii++ )
             {
               final String columnTitle = columnTitles[ii];
-              elements[ii] = (E) document.field( columnTitle );
+              elements[ii] = document.<E> field( columnTitle, elementType );
             }
             return new KeyValue<Integer, E[]>( id, elements );
           }
