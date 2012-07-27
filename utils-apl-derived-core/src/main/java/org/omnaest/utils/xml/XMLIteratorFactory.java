@@ -227,7 +227,7 @@ public class XMLIteratorFactory
   public static class JAXBTypeContentConverter<E> implements ElementConverter<String, E>
   {
     /* ************************************** Variables / State (internal/hiding) ************************************* */
-    protected final ThreadLocalCachedElement<JAXBContextBasedUnmarshaller> cachedElement;
+    protected final ThreadLocalCachedElement<JAXBContextBasedUnmarshaller<E>> cachedElement;
     
     /* *************************************************** Methods **************************************************** */
     
@@ -238,16 +238,17 @@ public class XMLIteratorFactory
      */
     public JAXBTypeContentConverter( final Class<? extends E> type, final ExceptionHandler exceptionHandler )
     {
-      this.cachedElement = new ThreadLocalCachedElement<JAXBXMLHelper.JAXBContextBasedUnmarshaller>(
-                                                                                                     new ValueResolver<JAXBContextBasedUnmarshaller>()
-                                                                                                     {
-                                                                                                       @Override
-                                                                                                       public JAXBContextBasedUnmarshaller resolveValue()
-                                                                                                       {
-                                                                                                         return JAXBXMLHelper.newJAXBContextBasedUnmarshaller( type,
-                                                                                                                                                               new UnmarshallingConfiguration().setExceptionHandler( exceptionHandler ) );
-                                                                                                       }
-                                                                                                     } );
+      this.cachedElement = new ThreadLocalCachedElement<JAXBXMLHelper.JAXBContextBasedUnmarshaller<E>>(
+                                                                                                        new ValueResolver<JAXBContextBasedUnmarshaller<E>>()
+                                                                                                        {
+                                                                                                          @SuppressWarnings("unchecked")
+                                                                                                          @Override
+                                                                                                          public JAXBContextBasedUnmarshaller<E> resolveValue()
+                                                                                                          {
+                                                                                                            return JAXBXMLHelper.<E> newJAXBContextBasedUnmarshaller( (Class<E>) type,
+                                                                                                                                                                      new UnmarshallingConfiguration().setExceptionHandler( exceptionHandler ) );
+                                                                                                          }
+                                                                                                        } );
     }
     
     @Override
