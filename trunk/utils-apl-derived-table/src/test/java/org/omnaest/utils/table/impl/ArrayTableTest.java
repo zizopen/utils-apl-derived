@@ -42,7 +42,7 @@ public class ArrayTableTest extends TableTest
   
   @Test
   @Ignore("Persistence test")
-  public void testPersistenceWithDirectory()
+  public void testPersistenceWithDirectoryAndXStream()
   {
     final File directory = new File( "target/persistenceStoreTest" );
     final ExceptionHandlerEPrintStackTrace exceptionHandler = new ExceptionHandlerEPrintStackTrace();
@@ -92,6 +92,68 @@ public class ArrayTableTest extends TableTest
                                                                        .attach()
                                                                        .asXML()
                                                                        .usingXStream()
+                                                                       .toDirectory( directory );
+      //System.out.println( tableOther );
+      assertTrue( table.equalsInContent( tableOther ) );
+    }
+    
+    table.clear();
+  }
+  
+  @Test
+  @Ignore("Persistence test")
+  public void testPersistenceWithDirectoryAndJAXB()
+  {
+    final File directory = new File( "target/persistenceStoreTest" );
+    final ExceptionHandlerEPrintStackTrace exceptionHandler = new ExceptionHandlerEPrintStackTrace();
+    
+    Table<String> table = new ArrayTable<String>( String.class ).setExceptionHandler( exceptionHandler )
+                                                                .persistence()
+                                                                .attach()
+                                                                .asXML()
+                                                                .usingJAXB()
+                                                                .toDirectory( directory );
+    table.clear();
+    
+    final int rowSize = 500;
+    if ( table.rowSize() == 0 )
+    {
+      table = this.filledTable( rowSize, 5 )
+                  .setExceptionHandler( exceptionHandler )
+                  .persistence()
+                  .attach()
+                  .asXML()
+                  .usingJAXB()
+                  .toDirectory( directory );
+    }
+    
+    assertEquals( rowSize, table.rowSize() );
+    
+    {
+      Table<String> tableOther = new ArrayTable<String>( String.class ).setExceptionHandler( exceptionHandler )
+                                                                       .persistence()
+                                                                       .attach()
+                                                                       .asXML()
+                                                                       .usingJAXB()
+                                                                       .toDirectory( directory );
+      
+      System.out.println( tableOther );
+      assertEquals( table.rowSize(), tableOther.rowSize() );
+      assertTrue( table.equalsInContent( tableOther ) );
+    }
+    
+    table.row( 16 ).switchWith( 4 );
+    table.row( 5 ).switchWith( 15 );
+    table.row( 14 ).switchWith( 6 );
+    table.row( 7 ).switchWith( 14 );
+    //System.out.println( table );
+    
+    {
+      Table<String> tableOther = new ArrayTable<String>( String.class ).setExceptionHandler( exceptionHandler )
+                                                                       .persistence()
+                                                                       .attach()
+                                                                       .asXML()
+                                                                       .usingJAXB()
                                                                        .toDirectory( directory );
       //System.out.println( tableOther );
       assertTrue( table.equalsInContent( tableOther ) );

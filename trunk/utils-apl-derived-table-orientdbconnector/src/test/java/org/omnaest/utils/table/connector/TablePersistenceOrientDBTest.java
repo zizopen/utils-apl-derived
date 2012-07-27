@@ -92,6 +92,36 @@ public class TablePersistenceOrientDBTest
         assertArrayEquals( new String[] { "a3", "b", "c" }, table.row( 3 ).getElements() );
         
       }
+      {
+        final String[] reducedColumns = new String[] { "column1", "column3" };
+        Table<String> table = new ArrayTable<String>( String.class ).setExceptionHandler( exceptionHandler )
+                                                                    .setTableName( tableName )
+                                                                    .setColumnTitles( reducedColumns )
+                                                                    .persistence()
+                                                                    .attach( tablePersistence );
+        
+        /*
+        ======Test=======
+        !column1!column3!
+        |  a0   |   c   |
+        |  a2   |   c   |
+        |  a1   |   c   |
+        |  a3   |   c   |
+        -----------------
+         */
+        
+        //System.out.println( table );
+        assertEquals( 4, table.rowSize() );
+        
+        assertEquals( tableName, table.getTableName() );
+        assertArrayEquals( reducedColumns, table.getColumnTitles() );
+        
+        assertArrayEquals( new String[] { "a0", "c" }, table.row( 0 ).getElements() );
+        assertArrayEquals( new String[] { "a2", "c" }, table.row( 1 ).getElements() );
+        assertArrayEquals( new String[] { "a1", "c" }, table.row( 2 ).getElements() );
+        assertArrayEquals( new String[] { "a3", "c" }, table.row( 3 ).getElements() );
+        
+      }
     }
     db.close();
   }

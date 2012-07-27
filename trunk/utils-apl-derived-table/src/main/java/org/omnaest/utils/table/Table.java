@@ -74,6 +74,17 @@ import org.omnaest.utils.table.impl.TableEventHandlerRegistration;
  * String content = table.serializer().marshal().asJson().toString();
  * </pre>
  * 
+ * <h2>Persistence</h2><br>
+ * The {@link Table} can be attached and detached to and from a {@link TablePersistence} instance.<br>
+ * There are rudimentary file and directory based implementations, which are serializing the objects e.g. as xml or Java object
+ * {@link Serializable}. (Some formats imply the import of third party dependencies)<br>
+ * <br>
+ * Example:
+ * 
+ * <pre>
+ * Table&lt;String&gt; table = new ArrayTable&lt;String&gt;( String.class ).persistence().attach().asXML().usingJAXB().toDirectory( directory );
+ * </pre>
+ * 
  * <h2>Copy</h2><br>
  * With {@link #copy()} the table can copy content of other sources, like other {@link Table} instances or any other
  * {@link TableDataSource}. E.g. a {@link ResultSet} can be used as source as well. <br>

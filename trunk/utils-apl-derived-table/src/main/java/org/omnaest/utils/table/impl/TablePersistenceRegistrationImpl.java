@@ -26,11 +26,13 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
 import org.omnaest.utils.operation.special.OperationVoid;
+import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.table.ImmutableRow;
 import org.omnaest.utils.table.Table;
 import org.omnaest.utils.table.TableEventHandler;
 import org.omnaest.utils.table.TablePersistence;
 import org.omnaest.utils.table.TablePersistenceRegistration;
+import org.omnaest.utils.table.impl.persistence.SimpleDirectoryBasedTablePersistenceUsingJAXB;
 import org.omnaest.utils.table.impl.persistence.SimpleDirectoryBasedTablePersistenceUsingSerializable;
 import org.omnaest.utils.table.impl.persistence.SimpleDirectoryBasedTablePersistenceUsingXStream;
 import org.omnaest.utils.table.impl.persistence.SimpleFileBasedTablePersistence;
@@ -51,10 +53,17 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
   private final Set<TablePersistence<E>> tablePersistenceSet = new LinkedHashSet<TablePersistence<E>>();
   private ExceptionHandlerSerializable   exceptionHandler;
   
+  /**
+   * @see TablePersistenceRegistrationImpl
+   * @param table
+   * @param tableLock
+   * @param exceptionHandler
+   */
   TablePersistenceRegistrationImpl( Table<E> table, ReadWriteLock tableLock, ExceptionHandlerSerializable exceptionHandler )
   {
     this.table = table;
     this.tableLock = tableLock;
+    this.exceptionHandler = exceptionHandler;
   }
   
   @Override
@@ -257,6 +266,7 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
   public TablePersistenceAttacher<E> attach()
   {
     final ExceptionHandlerSerializable exceptionHandler = this.exceptionHandler;
+    final Table<E> table = this.table;
     return new TablePersistenceAttacher<E>()
     {
       private static final long serialVersionUID = 836395788258554075L;
@@ -294,6 +304,22 @@ final class TablePersistenceRegistrationImpl<E> implements TablePersistenceRegis
               public Table<E> toDirectory( File directory )
               {
                 return attach( new SimpleDirectoryBasedTablePersistenceUsingXStream<E>( directory, exceptionHandler ) );
+              }
+            };
+          }
+          
+          @Override
+          public TablePersistenceAttacherTarget<E> usingJAXB()
+          {
+            return new TablePersistenceAttacherTarget<E>()
+            {
+              private static final long serialVersionUID = -7728346094938256974L;
+              
+              @Override
+              public Table<E> toDirectory( File directory )
+              {
+                return attach( new SimpleDirectoryBasedTablePersistenceUsingJAXB<E>( directory, exceptionHandler,
+                                                                                     ArrayUtils.arrayType( table.elementType() ) ) );
               }
             };
           }
