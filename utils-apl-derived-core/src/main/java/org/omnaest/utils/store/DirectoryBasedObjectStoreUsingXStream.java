@@ -16,7 +16,6 @@
 package org.omnaest.utils.store;
 
 import java.io.File;
-import java.io.Serializable;
 
 import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
@@ -25,13 +24,12 @@ import org.omnaest.utils.structure.element.converter.ElementBidirectionalConvert
 import com.thoughtworks.xstream.XStream;
 
 /**
- * A simple {@link Object} store based on a nested directory structure using Java serialization. All elements have to subclass the
- * {@link Serializable} interface.
+ * A simple {@link Object} store based on a nested directory structure using {@link XStream}
  * 
  * @author Omnaest
  * @param <E>
  */
-public class DirectoryBasedObjectStoreUsingXStream<E extends Serializable> extends DirectoryBasedObjectStoreAbstract<E>
+public class DirectoryBasedObjectStoreUsingXStream<E> extends DirectoryBasedObjectStoreAbstract<E>
 {
   private static final long serialVersionUID = -3189372961705877115L;
   

@@ -434,15 +434,26 @@ public class ArrayUtils
   public static <E> BitSet differenceBitSet( E[] elements1, E[] elements2 )
   {
     final BitSet retvals = new BitSet();
-    for ( int ii = 0; ii < elements1.length || ii < elements2.length; ii++ )
+    if ( elements1 == null && elements2 != null )
     {
-      if ( ii >= elements1.length || ii >= elements2.length )
+      retvals.set( 0, elements2.length );
+    }
+    else if ( elements1 != null && elements2 == null )
+    {
+      retvals.set( 0, elements1.length );
+    }
+    else if ( elements1 != null && elements2 != null )
+    {
+      for ( int ii = 0; ii < elements1.length || ii < elements2.length; ii++ )
       {
-        retvals.set( ii );
-      }
-      else if ( !org.apache.commons.lang3.ObjectUtils.equals( elements1[ii], elements2[ii] ) )
-      {
-        retvals.set( ii );
+        if ( ii >= elements1.length || ii >= elements2.length )
+        {
+          retvals.set( ii );
+        }
+        else if ( !org.apache.commons.lang3.ObjectUtils.equals( elements1[ii], elements2[ii] ) )
+        {
+          retvals.set( ii );
+        }
       }
     }
     return retvals;

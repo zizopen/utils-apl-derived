@@ -547,7 +547,7 @@ class TableDataCore<E> implements Serializable
       this.addRow();
     }
     
-    this.ensureColumnSize( elements.length );
+    this.ensureColumnSize( elements != null ? elements.length : 0 );
     this.ensureRowSize( this.rowSize );
     
     final int nativeRowIndex = this.determineNativeRowIndex( rowIndex );
@@ -556,9 +556,12 @@ class TableDataCore<E> implements Serializable
       retval = Arrays.copyOfRange( this.matrix[nativeRowIndex], 0, this.columnSize );
       
       this.matrix[nativeRowIndex] = this.newArray( this.nativeColumnIndices.length );
-      for ( int ii = 0; ii < elements.length; ii++ )
+      if ( elements != null )
       {
-        this.matrix[nativeRowIndex][ii] = elements[ii];
+        for ( int ii = 0; ii < elements.length; ii++ )
+        {
+          this.matrix[nativeRowIndex][ii] = elements[ii];
+        }
       }
     }
     

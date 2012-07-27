@@ -18,11 +18,19 @@ package org.omnaest.utils.table;
 import java.io.File;
 import java.io.Serializable;
 
+import javax.xml.bind.JAXB;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.omnaest.utils.table.impl.persistence.SimpleFileBasedTablePersistence;
 
 /**
  * Registration for {@link TablePersistence} instances
  * 
+ * @see TablePersistence
+ * @see #attach()
+ * @see #attach(TablePersistence)
+ * @see #attachToFile(File)
+ * @see #detach(TablePersistence)
  * @author Omnaest
  * @param <E>
  */
@@ -45,7 +53,22 @@ public interface TablePersistenceRegistration<E> extends Serializable
    */
   public static interface TablePersistenceAttacherXML<E> extends Serializable
   {
+    /**
+     * This uses the XStream library to serialize the elements of the {@link Table}. XStream has to be present when using this as
+     * dependency.
+     * 
+     * @return
+     */
     public TablePersistenceAttacherTarget<E> usingXStream();
+    
+    /**
+     * The elements have to be of a type {@link JAXB} can handle. So every complex {@link Object} needs a {@link XmlRootElement}
+     * annotation, primitives are captured without such an annotation.
+     * 
+     * @return
+     */
+    public TablePersistenceAttacherTarget<E> usingJAXB();
+    
   }
   
   /**
@@ -84,6 +107,7 @@ public interface TablePersistenceRegistration<E> extends Serializable
    * Attaches the {@link Table} to a {@link SimpleFileBasedTablePersistence}
    * 
    * @param file
+   *          {@link File}
    * @return underlying {@link Table}
    */
   public Table<E> attachToFile( File file );

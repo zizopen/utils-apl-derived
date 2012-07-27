@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.util.Arrays;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -470,13 +471,14 @@ public class JAXBXMLHelper
    * 
    * @author Omnaest
    */
-  public static class JAXBContextBasedUnmarshaller
+  public static class JAXBContextBasedUnmarshaller<E>
   {
     /* ********************************************** Variables / State ********************************************** */
     private final Unmarshaller     unmarshaller;
     private final XMLReader        xmlReader;
     private final ExceptionHandler exceptionHandler;
     private final String           encoding;
+    private final Class<E>         type;
     
     /* ********************************************** Methods ********************************************** */
     
@@ -486,9 +488,10 @@ public class JAXBXMLHelper
      * @param xmlReader
      * @param exceptionHandler
      * @param encoding
+     * @param type
      */
     public JAXBContextBasedUnmarshaller( Unmarshaller unmarshaller, XMLReader xmlReader, ExceptionHandler exceptionHandler,
-                                         String encoding )
+                                         String encoding, Class<E> type )
     {
       //
       super();
@@ -496,10 +499,11 @@ public class JAXBXMLHelper
       this.xmlReader = xmlReader;
       this.exceptionHandler = exceptionHandler;
       this.encoding = encoding;
+      this.type = type;
     }
     
     @SuppressWarnings("unchecked")
-    public <E> E unmarshal( InputStream inputStream )
+    public E unmarshal( InputStream inputStream )
     {
       //
       E retval = null;
@@ -529,8 +533,38 @@ public class JAXBXMLHelper
       return retval;
     }
     
+    public JAXBElement<E> unmarshalAsJAXBElement( InputStream inputStream )
+    {
+      //
+      JAXBElement<E> retval = null;
+      
+      //
+      try
+      {
+        //
+        final Reader reader = new InputStreamReader( inputStream, this.encoding );
+        
+        //
+        final InputSource inputSource = new InputSource( reader );
+        final SAXSource saxSource = new SAXSource( this.xmlReader, inputSource );
+        
+        //
+        retval = this.unmarshaller.unmarshal( saxSource, this.type );
+      }
+      catch ( Exception e )
+      {
+        if ( this.exceptionHandler != null )
+        {
+          this.exceptionHandler.handleException( e );
+        }
+      }
+      
+      //
+      return retval;
+    }
+    
     @SuppressWarnings("unchecked")
-    public <E> E unmarshal( XMLEventReader xmlEventReader )
+    public E unmarshal( XMLEventReader xmlEventReader )
     {
       //
       E retval = null;
@@ -648,7 +682,8 @@ public class JAXBXMLHelper
     {
       //
       final Class<? extends Object> objectType = object.getClass();
-      final Class<?>[] contextTypes = ArrayUtils.add( knownTypes, objectType );
+      final Class<?>[] contextTypes = !( object instanceof JAXBElement ) ? ArrayUtils.add( knownTypes, objectType )
+                                                                        : ( knownTypes != null ? knownTypes : new Class[0] );
       
       //
       final JAXBContext jaxbContext = JAXBContext.newInstance( contextTypes );
@@ -861,11 +896,11 @@ public class JAXBXMLHelper
    * @param unmarshallingConfiguration
    * @return new {@link JAXBContextBasedUnmarshaller}
    */
-  public static <E> JAXBContextBasedUnmarshaller newJAXBContextBasedUnmarshaller( Class<E> type,
-                                                                                  UnmarshallingConfiguration unmarshallingConfiguration )
+  public static <E> JAXBContextBasedUnmarshaller<E> newJAXBContextBasedUnmarshaller( Class<E> type,
+                                                                                     UnmarshallingConfiguration unmarshallingConfiguration )
   {
     //
-    JAXBContextBasedUnmarshaller retval = null;
+    JAXBContextBasedUnmarshaller<E> retval = null;
     
     //
     unmarshallingConfiguration = UnmarshallingConfiguration.defaultUnmarshallingConfiguration( unmarshallingConfiguration );
@@ -904,7 +939,7 @@ public class JAXBXMLHelper
       final XMLReader xmlReader = saxParserFactory.newSAXParser().getXMLReader();
       
       //
-      retval = new JAXBContextBasedUnmarshaller( unmarshaller, xmlReader, exceptionHandler, encoding );
+      retval = new JAXBContextBasedUnmarshaller<E>( unmarshaller, xmlReader, exceptionHandler, encoding, type );
     }
     catch ( Exception e )
     {
@@ -939,9 +974,21 @@ public class JAXBXMLHelper
     E retval = null;
     
     //
-    JAXBContextBasedUnmarshaller jaxbContextBasedUnmarshaller = newJAXBContextBasedUnmarshaller( type, unmarshallingConfiguration );
-    
-    retval = jaxbContextBasedUnmarshaller.unmarshal( inputStream );
+    try
+    {
+      JAXBContextBasedUnmarshaller<E> jaxbContextBasedUnmarshaller = newJAXBContextBasedUnmarshaller( type,
+                                                                                                      unmarshallingConfiguration );
+      
+      retval = jaxbContextBasedUnmarshaller.unmarshal( inputStream );
+    }
+    catch ( Exception e )
+    {
+      ExceptionHandler exceptionHandler = unmarshallingConfiguration.getExceptionHandler();
+      if ( exceptionHandler != null )
+      {
+        exceptionHandler.handleException( e );
+      }
+    }
     
     //
     return retval;
