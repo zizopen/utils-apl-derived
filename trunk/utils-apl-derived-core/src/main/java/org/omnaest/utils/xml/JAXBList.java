@@ -15,7 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.xml;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -119,7 +123,9 @@ public class JAXBList<E> implements List<E>
       @XmlElement(name = "short", type = Short.class), @XmlElement(name = "int", type = Integer.class),
       @XmlElement(name = "long", type = Long.class), @XmlElement(name = "char", type = Character.class),
       @XmlElement(name = "float", type = Float.class), @XmlElement(name = "double", type = Double.class),
-      @XmlElement(name = "boolean", type = Boolean.class), @XmlElement(name = "object") })
+      @XmlElement(name = "boolean", type = Boolean.class), @XmlElement(name = "date", type = Date.class),
+      @XmlElement(name = "calendar", type = Calendar.class), @XmlElement(name = "bigint", type = BigInteger.class),
+      @XmlElement(name = "bigdecimal", type = BigDecimal.class), @XmlElement(name = "object") })
   protected List<E> list = null;
   
   /* ********************************************** Methods ********************************************** */
