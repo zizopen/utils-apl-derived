@@ -56,6 +56,8 @@ import org.omnaest.utils.structure.map.decorator.MapDecorator;
 public class JAXBMap<K, V> extends MapDecorator<K, V>
 {
   
+  private static final long serialVersionUID = 8195905729882497290L;
+
   /**
    * @see JAXBMap
    */
