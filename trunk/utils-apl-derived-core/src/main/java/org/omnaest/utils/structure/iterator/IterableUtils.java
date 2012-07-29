@@ -539,4 +539,29 @@ public class IterableUtils
     return new LinkedHashMap<E, Integer>( retmapSorted );
   }
   
+  /**
+   * Returns true if the given {@link Iterable} contains the given value. If the given {@link Iterable} is null, false is
+   * returned.
+   * 
+   * @param iterable
+   * @param value
+   * @return
+   */
+  public static <E> boolean contains( Iterable<E> iterable, E value )
+  {
+    boolean retval = false;
+    if ( iterable != null )
+    {
+      for ( E element : iterable )
+      {
+        if ( ObjectUtils.equals( element, value ) )
+        {
+          retval = true;
+          break;
+        }
+      }
+    }
+    return retval;
+  }
+  
 }
