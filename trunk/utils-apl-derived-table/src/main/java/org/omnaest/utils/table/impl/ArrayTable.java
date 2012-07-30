@@ -15,10 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.table.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -28,6 +30,7 @@ import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.operation.OperationUtils;
 import org.omnaest.utils.operation.special.OperationIntrinsic;
 import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterObjectToString;
@@ -68,7 +71,7 @@ public class ArrayTable<E> extends TableAbstract<E>
   private static final long                       serialVersionUID = 6360131663629436319L;
   
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final Class<E>                          elementType;
+  final Class<E>                                  elementType;
   private final TableAdapterManager<E>            tableAdapterManager;
   private final TableDataAccessor<E>              tableDataAccessor;
   private final TableIndexManager<E, Cell<E>>     tableIndexManager;
@@ -715,6 +718,47 @@ public class ArrayTable<E> extends TableAbstract<E>
     final String[] rowTitles = ArrayUtils.convertArray( elements, String.class, new ElementConverterObjectToString() );
     this.setRowTitles( rowTitles );
     column.remove();
+    return this;
+  }
+  
+  @Override
+  public Table<E> addRowElements( Map<String, E> columnToElementMap, boolean createColumnTitleIfDontExists )
+  {
+    if ( columnToElementMap != null )
+    {
+      final List<E> elementList = new ArrayList<E>();
+      {
+        final Set<String> columnTitleSet = columnToElementMap.keySet();
+        final List<String> columnTitleList = new ArrayList<String>( this.getColumnTitleList() );
+        for ( String columnTitle : columnTitleSet )
+        {
+          int indexOf = columnTitleList.indexOf( columnTitle );
+          if ( createColumnTitleIfDontExists && indexOf < 0 )
+          {
+            indexOf = columnTitleList.size();
+            columnTitleList.add( columnTitle );
+            this.addColumnTitle( columnTitle );
+          }
+          if ( indexOf >= 0 )
+          {
+            final E element = columnToElementMap.get( columnTitle );
+            ListUtils.set( elementList, indexOf, element );
+          }
+        }
+      }
+      this.addRowElements( elementList );
+    }
+    return this;
+  }
+  
+  @Override
+  public Table<E> addRowElements( Iterable<E> elementIterable )
+  {
+    if ( elementIterable != null )
+    {
+      final E[] elements = ArrayUtils.valueOf( elementIterable, this.elementType );
+      this.addRowElements( elements );
+    }
     return this;
   }
 }

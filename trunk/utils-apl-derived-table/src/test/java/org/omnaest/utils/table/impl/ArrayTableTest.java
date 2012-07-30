@@ -20,10 +20,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.Map;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerEPrintStackTrace;
+import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.table.Table;
 import org.omnaest.utils.table.TableTest;
 
@@ -38,6 +40,15 @@ public class ArrayTableTest extends TableTest
   public <E> Table<E> newTable( E[][] elementMatrix, Class<E> type )
   {
     return new ArrayTable<E>( type ).copy().from( elementMatrix );
+  }
+  
+  @Test
+  public void testxyz()
+  {
+    Table<String> table = this.filledTableWithTitles( 10, 5 );
+    
+    Map<String, String> map = MapUtils.builder().put( "c0", "value1" ).put( "c1", "value2" ).buildAs().linkedHashMap();
+    table.addRowElements( map );
   }
   
   @Test
@@ -213,4 +224,5 @@ public class ArrayTableTest extends TableTest
     }
     
   }
+  
 }

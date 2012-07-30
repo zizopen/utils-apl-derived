@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.regex.Pattern;
@@ -153,6 +154,36 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    * @return this
    */
   public Table<E> addRowElements( int rowIndex, E... elements );
+  
+  /**
+   * Similar to {@link #addRowElements(Object...)}
+   * 
+   * @param elementIterable
+   * @return this
+   */
+  public Table<E> addRowElements( Iterable<E> elementIterable );
+  
+  /**
+   * Adds the values of a given {@link Map} as new row to the {@link Table}. The keys of the {@link Map} are treated as column
+   * titles. Any key within the {@link Map} which is not available as column title will create a new column with exactly this
+   * title.
+   * 
+   * @see #addRowElements(Map, boolean)
+   * @param columnToElementMap
+   * @return this
+   */
+  public Table<E> addRowElements( Map<String, E> columnToElementMap );
+  
+  /**
+   * Adds the values of a given {@link Map} as new row to the {@link Table}. The keys of the {@link Map} are treated as column
+   * titles. Any key within the {@link Map} which is not available as column title will create a new column with exactly this
+   * title if the given createColumnTitleIfDontExists flag is set to true.
+   * 
+   * @param columnToElementMap
+   * @param createColumnTitleIfDontExists
+   * @return this
+   */
+  public Table<E> addRowElements( Map<String, E> columnToElementMap, boolean createColumnTitleIfDontExists );
   
   /**
    * Returns a {@link TableAdapterManager} instance which allows to craeate adapter instances
@@ -433,6 +464,11 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Table<E> setColumnTitles( String... columnTitles );
   
   /**
+   * @return this
+   */
+  public Table<E> setColumnTitlesUsingFirstRow();
+  
+  /**
    * Sets the element for a given row and column index position
    * 
    * @param rowIndex
@@ -515,6 +551,11 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
   public Table<E> setRowTitles( String... rowTitles );
   
   /**
+   * @return this
+   */
+  public Table<E> setRowTitlesUsingFirstColumn();
+  
+  /**
    * Sets the name of the {@link Table}
    * 
    * @param tableName
@@ -536,14 +577,4 @@ public interface Table<E> extends ImmutableTable<E>, Serializable
    */
   @Override
   public TableEventHandlerRegistration<E, Table<E>> tableEventHandlerRegistration();
-  
-  /**
-   * @return this
-   */
-  public Table<E> setColumnTitlesUsingFirstRow();
-  
-  /**
-   * @return this
-   */
-  public Table<E> setRowTitlesUsingFirstColumn();
 }

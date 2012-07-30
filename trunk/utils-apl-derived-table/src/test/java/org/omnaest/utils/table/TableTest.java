@@ -57,6 +57,7 @@ import org.omnaest.utils.structure.element.KeyExtractor;
 import org.omnaest.utils.structure.element.ValueExtractor;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.table.ImmutableTableSerializer.Marshaller.MarshallingConfiguration;
 import org.omnaest.utils.table.ImmutableTableSerializer.MarshallerCsv.CSVMarshallingConfiguration;
 import org.omnaest.utils.table.impl.ArrayTable;
@@ -1685,5 +1686,51 @@ public abstract class TableTest
       assertArrayEquals( new String[] { "3:0", "3:1", ii + ":0", ii + ":1" }, result.row( 4 * 3 + ii ).to().array() );
     }
     
+  }
+
+  @Test
+  public void testAddRowElements() throws Exception
+  {
+    {
+      Table<String> table = this.filledTableWithTitles( 0, 3 );
+      
+      final Map<String, String> columnToElementMap = MapUtils.builder()
+                                                             .put( "c0", "0:0" )
+                                                             .put( "c3", "0:3" )
+                                                             .buildAs()
+                                                             .linkedHashMap();
+      table.addRowElements( columnToElementMap );
+      
+      /*
+      ==table name===
+      !c0 !c1!c2!c3 !
+      |0:0|  |  |0:3|
+      ---------------
+       */
+      //System.out.println( table );
+      assertArrayEquals( new String[] { "0:0", null, null, "0:3" }, table.row( 0 ).getElements() );
+      assertEquals( 1, table.rowSize() );
+    }
+    {
+      Table<String> table = this.filledTableWithTitles( 0, 3 );
+      
+      final Map<String, String> columnToElementMap = MapUtils.builder()
+                                                             .put( "c0", "0:0" )
+                                                             .put( "c3", "0:3" )
+                                                             .buildAs()
+                                                             .linkedHashMap();
+      final boolean createColumnTitleIfDontExists = false;
+      table.addRowElements( columnToElementMap, createColumnTitleIfDontExists );
+      
+      /*
+      table name
+      !c0 !
+      |0:0|
+      -----
+       */
+      //System.out.println( table );
+      assertArrayEquals( new String[] { "0:0" }, table.row( 0 ).getElements() );
+      assertEquals( 1, table.rowSize() );
+    }
   }
 }
