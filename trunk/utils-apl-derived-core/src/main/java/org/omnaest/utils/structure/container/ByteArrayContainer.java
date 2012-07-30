@@ -569,10 +569,18 @@ public class ByteArrayContainer
     this.isContentInvalid = true;
     try
     {
-      OutputStreamWriter osw = new OutputStreamWriter( this.getOutputStream(), encoding );
-      osw.write( string );
-      osw.close();
-      this.isContentInvalid = false;
+      final OutputStream outputStream = this.getOutputStream();
+      try
+      {
+        final OutputStreamWriter osw = new OutputStreamWriter( outputStream, encoding );
+        osw.write( string );
+        osw.close();
+        this.isContentInvalid = false;
+      }
+      finally
+      {
+        outputStream.close();
+      }
     }
     catch ( IOException e )
     {
