@@ -18,6 +18,7 @@ package org.omnaest.utils.table.impl;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerDelegate;
@@ -297,6 +298,13 @@ abstract class TableAbstract<E> implements Table<E>
   public String[] getRowTitles()
   {
     return this.getRowTitleList().toArray( new String[0] );
+  }
+  
+  @Override
+  public Table<E> addRowElements( Map<String, E> columnToElementMap )
+  {
+    final boolean createColumnTitleIfDontExists = true;
+    return this.addRowElements( columnToElementMap, createColumnTitleIfDontExists );
   }
   
 }
