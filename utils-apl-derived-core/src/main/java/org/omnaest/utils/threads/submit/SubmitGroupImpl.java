@@ -16,6 +16,7 @@
 package org.omnaest.utils.threads.submit;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -23,6 +24,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.omnaest.utils.events.exception.ExceptionHandler;
+import org.omnaest.utils.structure.element.ObjectUtils;
 
 /**
  * @see SubmitGroup
@@ -40,6 +42,7 @@ class SubmitGroupImpl<T> implements SubmitGroup<T>
   /* ***************************** Beans / Services / References / Delegates (external) ***************************** */
   private final ExecutorService  executorService;
   private final ExceptionHandler exceptionHandler;
+  private final Collection<T>    resultCollection;
   
   /* *************************************************** Methods **************************************************** */
   
@@ -52,6 +55,14 @@ class SubmitGroupImpl<T> implements SubmitGroup<T>
   {
     this.executorService = executorService;
     this.exceptionHandler = exceptionHandler;
+    this.resultCollection = new ArrayList<T>();
+  }
+  
+  SubmitGroupImpl( ExecutorService executorService, ExceptionHandler exceptionHandler, Collection<T> resultCollection )
+  {
+    this.executorService = executorService;
+    this.exceptionHandler = exceptionHandler;
+    this.resultCollection = ObjectUtils.defaultIfNull( resultCollection, new ArrayList<T>() );
   }
   
   @Override
@@ -77,20 +88,20 @@ class SubmitGroupImpl<T> implements SubmitGroup<T>
   {
     final ExceptionHandler exceptionHandler = this.exceptionHandler;
     final List<Future<T>> futureList = this.futureList;
+    final Collection<T> resultCollection = this.resultCollection;
     return new Waiter<T>()
     {
       private static final long serialVersionUID = -7431148600723570701L;
       
-      private final List<T>     resultList       = new ArrayList<T>();
-      private final Reducer<T>  reducer          = new ReducerImpl<T>( this.resultList );
+      private final Reducer<T>  reducer          = new ReducerImpl<T>( resultCollection );
       
       @Override
       public Reducer<T> untilAllTasksAreDone()
       {
-        this.resultList.clear();
+        resultCollection.clear();
         for ( Future<T> future : futureList )
         {
-          this.tryResolveValue( exceptionHandler, future, this.resultList );
+          this.tryResolveValue( exceptionHandler, future, resultCollection );
         }
         return this.reducer;
       }
@@ -113,14 +124,14 @@ class SubmitGroupImpl<T> implements SubmitGroup<T>
       public Reducer<T> untilThePercentageOfTasksAreDone( double ratio )
       {
         final int resultSizeMax = futureList.size();
-        this.resultList.clear();
+        resultCollection.clear();
         for ( Future<T> future : futureList )
         {
           //
-          this.tryResolveValue( exceptionHandler, future, this.resultList );
+          this.tryResolveValue( exceptionHandler, future, resultCollection );
           
           //
-          final int resultSize = this.resultList.size();
+          final int resultSize = resultCollection.size();
           double currentRatio = resultSize * 1.0 / resultSizeMax;
           if ( currentRatio >= ratio )
           {
@@ -133,14 +144,14 @@ class SubmitGroupImpl<T> implements SubmitGroup<T>
       @Override
       public Reducer<T> untilTheNumberOfTasksAreDone( int numberOfTasks )
       {
-        this.resultList.clear();
+        resultCollection.clear();
         for ( Future<T> future : futureList )
         {
           //
-          this.tryResolveValue( exceptionHandler, future, this.resultList );
+          this.tryResolveValue( exceptionHandler, future, resultCollection );
           
           //
-          final int resultSize = this.resultList.size();
+          final int resultSize = resultCollection.size();
           if ( resultSize >= numberOfTasks )
           {
             break;
@@ -149,7 +160,7 @@ class SubmitGroupImpl<T> implements SubmitGroup<T>
         return this.reducer;
       }
       
-      private void tryResolveValue( ExceptionHandler exceptionHandler, Future<T> future, List<T> resultList )
+      private void tryResolveValue( ExceptionHandler exceptionHandler, Future<T> future, Collection<T> resultCollection )
       {
         try
         {
@@ -158,7 +169,7 @@ class SubmitGroupImpl<T> implements SubmitGroup<T>
             try
             {
               final T result = future.get();
-              resultList.add( result );
+              resultCollection.add( result );
               done = true;
             }
             catch ( InterruptedException e )

@@ -860,6 +860,19 @@ public class ObjectUtils
   }
   
   /**
+   * Similar to {@link #defaultIfNull(Object, Object, Object...)}
+   * 
+   * @param object
+   * @param defaultObject
+   * @return
+   */
+  public static <O extends Object> O defaultIfNull( O object, O defaultObject )
+  {
+    final O[] defaultObjects = null;
+    return defaultIfNull( object, defaultObject, defaultObjects );
+  }
+  
+  /**
    * Returns the object parameter if it is not null, otherwise the defaultObject. <br>
    * <br>
    * Examples:
@@ -892,12 +905,12 @@ public class ObjectUtils
     {
       retval = defaultObject;
     }
-    else if ( defaultObjects.length > 1 )
+    else if ( defaultObjects != null && defaultObjects.length > 1 )
     {
       retval = defaultIfNull( defaultObjects[0], defaultObjects[1],
                               org.apache.commons.lang3.ArrayUtils.subarray( defaultObjects, 2, defaultObjects.length ) );
     }
-    else if ( defaultObjects.length == 1 )
+    else if ( defaultObjects != null && defaultObjects.length == 1 )
     {
       retval = defaultObjects[0];
     }
