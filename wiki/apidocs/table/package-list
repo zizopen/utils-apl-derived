@@ -1,0 +1,9 @@
+org.omnaest.utils.table
+org.omnaest.utils.table.impl
+org.omnaest.utils.table.impl.adapter
+org.omnaest.utils.table.impl.datasource
+org.omnaest.utils.table.impl.join
+org.omnaest.utils.table.impl.persistence
+org.omnaest.utils.table.impl.rowdata
+org.omnaest.utils.table.impl.serializer
+org.omnaest.utils.table.impl.transformer
