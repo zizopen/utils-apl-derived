@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -47,6 +48,8 @@ import org.omnaest.utils.operation.foreach.ForEach;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.threads.submit.SubmitGroup;
+import org.omnaest.utils.threads.submit.SubmitGroupFactory;
 import org.omnaest.utils.xml.XMLIteratorFactory.JAXBTypeContentConverterFactory;
 import org.omnaest.utils.xml.context.XMLInstanceContextFactory;
 import org.omnaest.utils.xml.context.XMLInstanceContextFactoryStAXONImpl;
@@ -576,6 +579,80 @@ public class XMLIteratorFactoryTest
   
   @Test
   @Ignore("Performance test")
+  public void testNewIteratorJAXBPerformance()
+  {
+    //    
+    final int numberOfObjects = 10000;
+    final ByteArrayContainer byteArrayContainer = generateTestObjects( numberOfObjects );
+    
+    //
+    final InputStream inputStream = byteArrayContainer.getInputStream();
+    Iterator<Book> iterator = new XMLIteratorFactory( inputStream ).doLowerCaseXMLTagAndAttributeNames().newIterator( Book.class );
+    
+    //
+    final List<Book> bookList = ListUtils.valueOf( iterator );
+    assertEquals( numberOfObjects, bookList.size() );
+    
+    //
+    for ( Book book : bookList )
+    {
+      //System.out.println( book );
+      
+      //
+      assertNotNull( book.getAuthor() );
+      assertNotNull( book.getTitle() );
+    }
+    
+  }
+  
+  @Test
+  @Ignore("Performance test")
+  public void testNewIteratorJAXBPerformanceMultithreaded()
+  {
+    //    
+    final int numberOfObjects = 10000;
+    final ByteArrayContainer byteArrayContainer = generateTestObjects( numberOfObjects );
+    
+    //
+    final InputStream inputStream = byteArrayContainer.getInputStream();
+    final Iterator<Book> iterator = new XMLIteratorFactory( inputStream ).doCreateThreadsafeIterators( true )
+                                                                         .doLowerCaseXMLTagAndAttributeNames()
+                                                                         .newIterator( Book.class );
+    
+    //
+    final int numberOfThreads = 10;
+    ExecutorService executorService = Executors.newFixedThreadPool( numberOfThreads );
+    SubmitGroupFactory submitGroupFactory = new SubmitGroupFactory( executorService );
+    SubmitGroup<List<Book>> submitGroup = submitGroupFactory.newSubmitGroup( new ArrayList<List<Book>>() );
+    Callable<List<Book>> callable = new Callable<List<Book>>()
+    {
+      @Override
+      public List<Book> call() throws Exception
+      {
+        final List<Book> bookList = new ArrayList<Book>();
+        ListUtils.addAll( bookList, IterableUtils.valueOf( iterator ) );
+        return bookList;
+      }
+    };
+    submitGroup.submit( callable, numberOfThreads );
+    
+    final List<Book> bookList = ListUtils.mergeAll( submitGroup.doWait().untilAllTasksAreDone().reduceToList() );
+    assertEquals( numberOfObjects, bookList.size() );
+    
+    //
+    for ( Book book : bookList )
+    {
+      //System.out.println( book );
+      
+      //
+      assertNotNull( book.getAuthor() );
+      assertNotNull( book.getTitle() );
+    }
+    
+  }
+  
+  @Test
+  @Ignore("Performance test")
   public void testNewIteratorMapBasedPerformance()
   {
     //    
@@ -591,6 +668,51 @@ public class XMLIteratorFactoryTest
     
     //
     final List<Map<String, Object>> bookList = ListUtils.valueOf( iterator );
+    assertEquals( numberOfObjects, bookList.size() );
+    
+    //
+    for ( Map<String, Object> book : bookList )
+    {
+      //      
+      assertNotNull( book.get( "author" ) );
+      assertNotNull( book.get( "title" ) );
+    }
+  }
+  
+  @Test
+  @Ignore("Performance test")
+  public void testNewIteratorMapBasedMultithreadedPerformance()
+  {
+    //    
+    final int numberOfObjects = 10000;
+    final ByteArrayContainer byteArrayContainer = generateTestObjects( numberOfObjects );
+    
+    //
+    final InputStream inputStream = byteArrayContainer.getInputStream();
+    final Iterator<Map<String, Object>> iterator = new XMLIteratorFactory( inputStream ).doCreateThreadsafeIterators( true )
+                                                                                        .doLowerCaseXMLTagAndAttributeNames()
+                                                                                        .newIteratorMapBased( new QName(
+                                                                                                                         "http://www.example.org",
+                                                                                                                         "book" ) );
+    
+    //    
+    final int numberOfThreads = 10;
+    ExecutorService executorService = Executors.newFixedThreadPool( numberOfThreads );
+    SubmitGroupFactory submitGroupFactory = new SubmitGroupFactory( executorService );
+    SubmitGroup<List<Map<String, Object>>> submitGroup = submitGroupFactory.newSubmitGroup( new ArrayList<List<Map<String, Object>>>() );
+    Callable<List<Map<String, Object>>> callable = new Callable<List<Map<String, Object>>>()
+    {
+      @Override
+      public List<Map<String, Object>> call() throws Exception
+      {
+        final List<Map<String, Object>> bookList = new ArrayList<Map<String, Object>>();
+        ListUtils.addAll( bookList, IterableUtils.valueOf( iterator ) );
+        return bookList;
+      }
+    };
+    submitGroup.submit( callable, numberOfThreads );
+    
+    final List<Map<String, Object>> bookList = ListUtils.mergeAll( submitGroup.doWait().untilAllTasksAreDone().reduceToList() );
     assertEquals( numberOfObjects, bookList.size() );
     
     //

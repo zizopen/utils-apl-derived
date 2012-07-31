@@ -16,6 +16,7 @@
 package org.omnaest.utils.threads.submit;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,29 +33,29 @@ import org.omnaest.utils.structure.collection.list.BooleanList;
 class ReducerImpl<T> implements Reducer<T>
 {
   /* ************************************** Variables / State (internal/hiding) ************************************* */
-  private final List<T> resultList;
+  private final Collection<T> resultCollection;
   
   /* *************************************************** Methods **************************************************** */
   
   /**
    * @see ReducerImpl
-   * @param resultList
+   * @param resultCollection
    */
-  ReducerImpl( List<T> resultList )
+  ReducerImpl( Collection<T> resultCollection )
   {
-    this.resultList = resultList;
+    this.resultCollection = resultCollection;
   }
   
   @Override
   public List<T> reduceToList()
   {
-    return Collections.unmodifiableList( this.resultList );
+    return Collections.unmodifiableList( new ArrayList<T>( this.resultCollection ) );
   }
   
   @Override
   public Set<T> reduceToSet()
   {
-    return Collections.unmodifiableSet( new LinkedHashSet<T>( this.resultList ) );
+    return Collections.unmodifiableSet( new LinkedHashSet<T>( this.resultCollection ) );
   }
   
   @Override
@@ -63,7 +64,7 @@ class ReducerImpl<T> implements Reducer<T>
     final List<R> retlist = new ArrayList<R>();
     if ( valueHandler != null )
     {
-      for ( T value : this.resultList )
+      for ( T value : this.resultCollection )
       {
         final R result = valueHandler.reduce( value );
         retlist.add( result );
@@ -78,7 +79,7 @@ class ReducerImpl<T> implements Reducer<T>
     final Set<R> retset = new LinkedHashSet<R>();
     if ( valueHandler != null )
     {
-      for ( T value : this.resultList )
+      for ( T value : this.resultCollection )
       {
         final R result = valueHandler.reduce( value );
         retset.add( result );
@@ -93,7 +94,7 @@ class ReducerImpl<T> implements Reducer<T>
     R retval = null;
     if ( valuesHandler != null )
     {
-      retval = valuesHandler.reduce( this.resultList );
+      retval = valuesHandler.reduce( this.resultCollection );
     }
     return retval;
   }
@@ -114,7 +115,7 @@ class ReducerImpl<T> implements Reducer<T>
   @Override
   public boolean reduceToBooleanValue( Reducer.BooleansHandler<T> booleansHandler )
   {
-    return booleansHandler != null && BooleanUtils.isTrue( booleansHandler.reduce( this.resultList ) );
+    return booleansHandler != null && BooleanUtils.isTrue( booleansHandler.reduce( this.resultCollection ) );
   }
   
   @Override

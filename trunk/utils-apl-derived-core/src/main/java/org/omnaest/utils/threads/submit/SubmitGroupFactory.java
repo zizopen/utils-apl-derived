@@ -16,6 +16,7 @@
 package org.omnaest.utils.threads.submit;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 
 import org.omnaest.utils.events.exception.ExceptionHandler;
@@ -61,13 +62,17 @@ public class SubmitGroupFactory implements Serializable
   
   public <T> SubmitGroup<T> newSubmitGroup( Class<T> type )
   {
-    final ExecutorService executorService = this.executorService;
-    return new SubmitGroupImpl<T>( executorService, this.exceptionHandler );
+    return new SubmitGroupImpl<T>( this.executorService, this.exceptionHandler );
   }
   
   public ExecutorService getExecutorService()
   {
     return this.executorService;
+  }
+  
+  public <T> SubmitGroup<T> newSubmitGroup( Collection<T> resultCollection )
+  {
+    return new SubmitGroupImpl<T>( this.executorService, this.exceptionHandler, resultCollection );
   }
   
 }
