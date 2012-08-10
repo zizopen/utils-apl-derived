@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.codec.component;
+package org.omnaest.utils.codec;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,12 +25,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.omnaest.utils.codec.Codec;
 
 /**
  * @see EncoderAndDecoderAlphanumericTokens
  * @author Omnaest
  */
+@SuppressWarnings("javadoc")
 @RunWith(Parameterized.class)
 public class EncoderAndDecoderAlphanumericTokensTest
 {
@@ -63,11 +63,11 @@ public class EncoderAndDecoderAlphanumericTokensTest
   public void testAlphaNumeric()
   {
     final String source = this.source;
-    String encodedSource = Codec.AlphaNumeric.encode( source );
+    String encodedSource = Codec.alphaNumeric().encode( source );
     
     System.out.println( encodedSource );
     
-    String decodedSource = Codec.AlphaNumeric.decode( encodedSource );
+    String decodedSource = Codec.alphaNumeric().decode( encodedSource );
     assertEquals( source, decodedSource );
   }
   

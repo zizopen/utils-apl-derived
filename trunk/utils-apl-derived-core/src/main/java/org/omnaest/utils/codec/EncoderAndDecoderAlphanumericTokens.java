@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.omnaest.utils.codec.component;
+package org.omnaest.utils.codec;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.assertion.Assert.FailedOperationException;
-import org.omnaest.utils.codec.Codec;
 import org.omnaest.utils.codec.Codec.EncoderAndDecoder;
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
@@ -44,7 +43,8 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
  * @see EncoderAndDecoder
  * @author Omnaest
  */
-public class EncoderAndDecoderAlphanumericTokens implements EncoderAndDecoder<String, String>
+@SuppressWarnings("javadoc")
+class EncoderAndDecoderAlphanumericTokens implements EncoderAndDecoder<String, String>
 {
   /* ********************************************** Constants ********************************************** */
   private static final String CHARSET_UTF_8      = "utf-8";

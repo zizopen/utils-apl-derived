@@ -15,7 +15,6 @@
  ******************************************************************************/
 package org.omnaest.utils.codec;
 
-import org.omnaest.utils.codec.component.EncoderAndDecoderAlphanumericTokens;
 import org.omnaest.utils.structure.element.converter.ElementConverterAlphaNumericEncodedStringToDecodedString;
 import org.omnaest.utils.structure.element.converter.ElementConverterStringToAlphaNumericEncodedString;
 
@@ -25,7 +24,7 @@ import org.omnaest.utils.structure.element.converter.ElementConverterStringToAlp
  * @see #AlphaNumeric
  * @author Omnaest
  */
-public interface Codec
+public abstract class Codec
 {
   /* ********************************************** Constants ********************************************** */
   /**
@@ -34,7 +33,10 @@ public interface Codec
    * 
    * @see ElementConverterStringToAlphaNumericEncodedString
    * @see ElementConverterAlphaNumericEncodedStringToDecodedString
+   * @deprecated use {@link #alphaNumeric()} instead
    */
+  @SuppressWarnings("javadoc")
+  @Deprecated
   public final EncoderAndDecoder<String, String> AlphaNumeric = new EncoderAndDecoderAlphanumericTokens();
   
   /* ********************************************** Classes/Interfaces ********************************************** */
@@ -90,4 +92,31 @@ public interface Codec
   {
   }
   
+  /* *************************************************** Methods **************************************************** */
+  
+  /**
+   * Returns a new {@link EncoderAndDecoderAlphanumericTokens} instance
+   * 
+   * @see ElementConverterStringToAlphaNumericEncodedString
+   * @see ElementConverterAlphaNumericEncodedStringToDecodedString
+   * @return
+   */
+  @SuppressWarnings("javadoc")
+  public static EncoderAndDecoder<String, String> alphaNumeric()
+  {
+    return new EncoderAndDecoderAlphanumericTokens();
+  }
+  
+  /**
+   * Returns a new {@link EncoderAndDecoderEscaping} instance
+   * 
+   * @param escapeCharacter
+   * @param encodedCharacters
+   * @return
+   */
+  @SuppressWarnings("javadoc")
+  public static EncoderAndDecoder<String, String> escaping( String escapeCharacter, String... encodedCharacters )
+  {
+    return new EncoderAndDecoderEscaping( escapeCharacter, encodedCharacters );
+  }
 }
