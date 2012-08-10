@@ -18,9 +18,9 @@ package org.omnaest.utils.structure.element.converter;
 import org.omnaest.utils.codec.Codec;
 
 /**
- * Encodes the given {@link String} using the {@link Codec#AlphaNumeric} codec
+ * Encodes the given {@link String} using the {@link Codec#alphaNumeric()} codec
  * 
- * @see Codec#AlphaNumeric
+ * @see Codec#alphaNumeric()
  * @see ElementConverterAlphaNumericEncodedStringToDecodedString
  * @see ElementConverter
  * @author Omnaest
@@ -29,7 +29,7 @@ public class ElementConverterStringToAlphaNumericEncodedString implements Elemen
 {
   
   private static final long serialVersionUID = -4688840461828045728L;
-
+  
   @Override
   public String convert( String element )
   {
@@ -41,7 +41,7 @@ public class ElementConverterStringToAlphaNumericEncodedString implements Elemen
     {
       try
       {
-        retval = Codec.AlphaNumeric.encode( element );
+        retval = Codec.alphaNumeric().encode( element );
       }
       catch ( Exception e )
       {
