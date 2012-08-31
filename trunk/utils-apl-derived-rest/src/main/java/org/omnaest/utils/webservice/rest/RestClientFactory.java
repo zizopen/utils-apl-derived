@@ -30,9 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -45,12 +44,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.UriBuilder;
 
+import org.omnaest.utils.cache.Cache;
+import org.omnaest.utils.cache.CacheUtils;
 import org.omnaest.utils.download.URIHelper;
 import org.omnaest.utils.proxy.StubCreator;
 import org.omnaest.utils.proxy.handler.MethodCallCapture;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.reflection.ReflectionUtils.MethodParameterMetaInformation;
+import org.omnaest.utils.structure.element.factory.Factory;
 
 /**
  * The {@link RestClientFactory} allows to produce proxies for given class or interface types which are based on the <a
@@ -62,84 +64,75 @@ import org.omnaest.utils.reflection.ReflectionUtils.MethodParameterMetaInformati
 public abstract class RestClientFactory
 {
   /* ********************************************** Variables ********************************************** */
-  protected URI                                  baseAddress                          = null;
-  protected RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler = null;
-  protected Authentification                     authentification                     = null;
+  private URI                                  baseAddress                          = null;
+  private RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler = null;
+  private Cache<Types, StubCreator<Object>>    stubCreatorCache                     = CacheUtils.adapter( new ConcurrentHashMap<Types, StubCreator<Object>>() );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
-  /**
-   * @see BasicAuthentification
-   * @see RestClientFactory
-   * @author Omnaest
-   */
-  public static interface Authentification
+  private static class Types
   {
+    private List<Class<?>> typeList = new ArrayList<Class<?>>();
     
-  }
-  
-  /**
-   * @see Authentification
-   * @author Omnaest
-   */
-  public static class BasicAuthentification implements Authentification
-  {
-    /* ********************************************** Variables ********************************************** */
-    protected String username = null;
-    protected String password = null;
-    
-    /* ********************************************** Methods ********************************************** */
-    
-    /**
-     * @param username
-     * @param password
-     */
-    public BasicAuthentification( String username, String password )
+    public Types( Class<?> type, Class<?>... types )
     {
       super();
-      this.username = username;
-      this.password = password;
+      this.typeList.add( type );
+      for ( Class<?> itype : types )
+      {
+        this.typeList.add( itype );
+      }
     }
     
-    public String getUsername()
+    @Override
+    public int hashCode()
     {
-      return this.username;
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ( ( this.typeList == null ) ? 0 : this.typeList.hashCode() );
+      return result;
     }
     
-    public String getPassword()
+    @Override
+    public boolean equals( Object obj )
     {
-      return this.password;
+      if ( this == obj )
+      {
+        return true;
+      }
+      if ( obj == null )
+      {
+        return false;
+      }
+      if ( !( obj instanceof Types ) )
+      {
+        return false;
+      }
+      Types other = (Types) obj;
+      if ( this.typeList == null )
+      {
+        if ( other.typeList != null )
+        {
+          return false;
+        }
+      }
+      else if ( !this.typeList.equals( other.typeList ) )
+      {
+        return false;
+      }
+      return true;
     }
-  }
-  
-  /**
-   * @see Authentification
-   * @author Omnaest
-   */
-  public static class HTTPSAuthentification implements Authentification
-  {
-    /* ********************************************** Variables ********************************************** */
-    protected SSLContext       sslContext       = null;
-    protected HostnameVerifier hostnameVerifier = null;
     
-    /* ********************************************** Methods ********************************************** */
-    
-    public HTTPSAuthentification( SSLContext sslContext, HostnameVerifier hostnameVerifier )
+    @Override
+    public String toString()
     {
-      super();
-      this.sslContext = sslContext;
-      this.hostnameVerifier = hostnameVerifier;
+      StringBuilder builder = new StringBuilder();
+      builder.append( "Types [typeList=" );
+      builder.append( this.typeList );
+      builder.append( "]" );
+      return builder.toString();
     }
     
-    public HostnameVerifier getHostnameVerifier()
-    {
-      return this.hostnameVerifier;
-    }
-    
-    public SSLContext getSslContext()
-    {
-      return this.sslContext;
-    }
   }
   
   /**
@@ -158,7 +151,9 @@ public abstract class RestClientFactory
      * @param parameterList
      * @param returnType
      * @param consumesMediaTypes
+     *          media types in order method declaration, type declaration
      * @param producesMediaTypes
+     *          media types in order method declaration, type declaration
      * @return
      */
     public <T> T handleMethodInvocation( URI baseAddress,
@@ -424,7 +419,7 @@ public abstract class RestClientFactory
       
       //
       Class<?> returnType = methodCallCapture.getMethod().getReturnType();
-      boolean declaresPathAnnotation = ReflectionUtils.hasDeclaredAnnotation( returnType, Path.class );
+      boolean hasSubResourceReturnType = ReflectionUtils.hasDeclaredAnnotation( returnType, Path.class );
       
       //
       final URI baseAddress = this.baseAddress;
@@ -437,7 +432,7 @@ public abstract class RestClientFactory
                                                           restInterfaceMetaInformationForMethod, arguments );
       
       //
-      if ( declaresPathAnnotation )
+      if ( hasSubResourceReturnType )
       {
         //
         URI newBaseAddress = URIHelper.createUri( baseAddress, relativePath );
@@ -476,8 +471,8 @@ public abstract class RestClientFactory
     {
       //
       List<String> mediaTypeConsumesList = new ArrayList<String>();
-      mediaTypeConsumesList.addAll( restInterfaceMetaInformationForClass.getMediaTypeConsumesList() );
       mediaTypeConsumesList.addAll( restInterfaceMetaInformationForMethod.getMediaTypeConsumesList() );
+      mediaTypeConsumesList.addAll( restInterfaceMetaInformationForClass.getMediaTypeConsumesList() );
       
       //
       return new LinkedHashSet<String>( mediaTypeConsumesList ).toArray( new String[0] );
@@ -632,18 +627,6 @@ public abstract class RestClientFactory
   public RestClientFactory( String baseAddress, RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
   
   {
-    this( baseAddress, null, restInterfaceMethodInvocationHandler );
-  }
-  
-  /**
-   * @param baseAddress
-   * @param authentification
-   * @param restInterfaceMethodInvocationHandler
-   */
-  public RestClientFactory( String baseAddress, Authentification authentification,
-                            RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
-  
-  {
     super();
     
     //
@@ -653,10 +636,8 @@ public abstract class RestClientFactory
     }
     catch ( URISyntaxException e )
     {
-      e.printStackTrace();
     }
     this.restInterfaceMethodInvocationHandler = restInterfaceMethodInvocationHandler;
-    this.authentification = authentification;
   }
   
   /**
@@ -677,8 +658,8 @@ public abstract class RestClientFactory
    * @param baseAddress
    * @return
    */
-  @SuppressWarnings("cast")
-  public <T> T newRestClient( Class<T> type, URI baseAddress )
+  @SuppressWarnings({ "unchecked" })
+  public <T> T newRestClient( final Class<T> type, URI baseAddress )
   {
     //
     T retval = null;
@@ -687,15 +668,23 @@ public abstract class RestClientFactory
     if ( type != null )
     {
       //
-      RestInterfaceMetaInformation restInterfaceMetaInformation = analyzeTheRestInterfaceMetaInformation( type );
-      MethodInvocationHandler methodInvocationHandler = new RestClientMethodInvocationHandler( restInterfaceMetaInformation,
-                                                                                               baseAddress );
+      final RestInterfaceMetaInformation restInterfaceMetaInformation = analyzeTheRestInterfaceMetaInformation( type );
+      final MethodInvocationHandler methodInvocationHandler = new RestClientMethodInvocationHandler(
+                                                                                                     restInterfaceMetaInformation,
+                                                                                                     baseAddress );
       
       //
-      Class<?>[] interfaces = type.getInterfaces();
+      final Class<?>[] interfaces = type.getInterfaces();
       
       //
-      retval = (T) StubCreator.newStubInstance( type, interfaces, methodInvocationHandler );
+      retval = (T) this.stubCreatorCache.getOrCreate( new Types( type, interfaces ), new Factory<StubCreator<Object>>()
+      {
+        @Override
+        public StubCreator<Object> newInstance()
+        {
+          return new StubCreator<Object>( type, interfaces );
+        }
+      } ).build( methodInvocationHandler );
     }
     
     //

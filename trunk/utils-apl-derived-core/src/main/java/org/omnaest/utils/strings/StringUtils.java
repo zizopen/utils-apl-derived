@@ -18,6 +18,8 @@ package org.omnaest.utils.strings;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.text.StrMatcher;
+import org.apache.commons.lang3.text.StrTokenizer;
 import org.omnaest.utils.strings.tokenizer.ConvertingCharacterSequenceTokenizerDecoratorToString;
 import org.omnaest.utils.strings.tokenizer.PatternBasedCharacterSequenceTokenizer;
 
@@ -261,6 +263,19 @@ public class StringUtils
   }
   
   /**
+   * Simple form of the {@link StrTokenizer}
+   * 
+   * @param text
+   * @param delimiter
+   * @param quote
+   * @return
+   */
+  public static String[] split( String text, char delimiter, char quote )
+  {
+    return new StrTokenizer( text, delimiter, quote ).getTokenArray();
+  }
+  
+  /**
    * Counts the number of matching substrings within the given text. As substring a regular expression is expected, please use
    * {@link Pattern#quote(String)} if a substring contains special characters. <br>
    * <br>
@@ -331,4 +346,5 @@ public class StringUtils
                                                                                                                                                                    regexDelimiter ) )
                                                          : null;
   }
+  
 }
