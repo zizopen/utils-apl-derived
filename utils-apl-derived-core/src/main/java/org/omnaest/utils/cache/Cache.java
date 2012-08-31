@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.omnaest.utils.structure.element.factory.Factory;
+
 /**
  * A {@link Cache} is a container which allows to hold key value pairs. The makes it technically very similar to a {@link Map} so
  * it does actually implements the {@link Map} interface.<br>
@@ -40,7 +42,7 @@ import java.util.Set;
  * @param <K>
  * @param <V>
  */
-public interface Cache<K, V> extends Map<K, V> , Serializable
+public interface Cache<K, V> extends Map<K, V>, Serializable
 {
   /**
    * Returns an unmodifiable {@link Set} of all keys within the {@link Cache} which only represents a snapshot in moment
@@ -60,4 +62,13 @@ public interface Cache<K, V> extends Map<K, V> , Serializable
    */
   @Override
   public Set<Entry<K, V>> entrySet();
+  
+  /**
+   * Gets a cached value or creates a new one using the given {@link Factory} and puts the new value into the cache.
+   * 
+   * @param key
+   * @param factory
+   * @return
+   */
+  public V getOrCreate( K key, Factory<V> factory );
 }

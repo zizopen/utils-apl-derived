@@ -34,7 +34,7 @@ import org.omnaest.utils.structure.collection.set.SetUtils;
  * @param <K>
  * @param <V>
  */
-public class SynchronizedWeakReferenceCache<K, V> implements Cache<K, V>
+public class SynchronizedWeakReferenceCache<K, V> extends CacheAbstract<K, V>
 {
   /* ************************************************** Constants *************************************************** */
   private static final long serialVersionUID = -3985243797516127152L;

@@ -19,19 +19,19 @@ import org.omnaest.utils.events.exception.ExceptionHandler;
 import org.omnaest.utils.events.exception.ExceptionHandlerSerializable;
 
 /**
- * Simple {@link ExceptionHandler} which does nothing
+ * Simple {@link ExceptionHandler} which does rethrow the given {@link Exception} as cause of a new {@link RuntimeException}
  * 
  * @author Omnaest
  */
-public class ExceptionHandlerIgnoring implements ExceptionHandlerSerializable
+public class ExceptionHandlerRethrowingAsRuntimeException implements ExceptionHandlerSerializable
 {
   
-  private static final long serialVersionUID = 211649048847495447L;
+  private static final long serialVersionUID = 21194048847495447L;
   
   @Override
   public void handleException( Exception e )
   {
-    //Do nothing
+    throw new RuntimeException( e );
   }
   
 }

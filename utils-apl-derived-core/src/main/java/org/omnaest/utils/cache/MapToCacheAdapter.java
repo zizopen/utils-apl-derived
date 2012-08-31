@@ -30,7 +30,7 @@ import java.util.Set;
  * @param <K>
  * @param <V>
  */
-public final class MapToCacheAdapter<K, V> implements Cache<K, V>
+public final class MapToCacheAdapter<K, V> extends CacheAbstract<K, V>
 {
   /* ************************************************** Constants *************************************************** */
   private static final long serialVersionUID = 6347242138203739267L;

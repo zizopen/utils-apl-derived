@@ -39,7 +39,7 @@ import org.omnaest.utils.structure.element.ElementHolder;
  * @param <K>
  * @param <V>
  */
-public class ConcurrentWeakReferenceCache<K, V> implements Cache<K, V>
+public class ConcurrentWeakReferenceCache<K, V> extends CacheAbstract<K, V>
 {
   /* ************************************************** Constants *************************************************** */
   private static final long       serialVersionUID      = -3600058653640214269L;

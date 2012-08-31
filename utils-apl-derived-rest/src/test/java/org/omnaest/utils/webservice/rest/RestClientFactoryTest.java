@@ -148,7 +148,7 @@ public class RestClientFactoryTest
       assertEquals( 1, this.dataRecord.parameterList.size() );
       assertArrayEquals( new String[] { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON },
                          this.dataRecord.producesMediaTypes );
-      assertArrayEquals( new String[] { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML },
+      assertArrayEquals( new String[] { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON },
                          this.dataRecord.consumesMediaTypes );
       assertEquals( String.class, this.dataRecord.returnType );
       
