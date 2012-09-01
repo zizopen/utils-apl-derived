@@ -34,6 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.webservice.rest.RestClientFactory.BodyParameter;
 import org.omnaest.utils.webservice.rest.RestClientFactory.HttpMethod;
@@ -203,6 +204,42 @@ public class RestClientFactoryTest
       assertEquals( HttpMethod.PUT, this.dataRecord.httpMethod );
       assertEquals( this.baseAddress + "/mockJSR311Interface/subresource", this.dataRecord.baseAddress.toString() );
       assertEquals( "mockJSR311Interface", this.dataRecord.pathRelative );
+    }
+  }
+  
+  @Test
+  @Ignore("Performance test")
+  public void testNewRestClientPerformance()
+  {
+    for ( int ii = 0; ii < 100000; ii++ )
+    {
+      //
+      MockJSR311Interface mockJSR311Interface = this.restClientFactory.newRestClient( MockJSR311Interface.class );
+      
+      //
+      {
+        //
+        this.returnValue = "lala";
+        String determineFieldString = mockJSR311Interface.determineFieldString( 123 );
+        assertEquals( this.returnValue, determineFieldString );
+        assertEquals( this.baseAddress, this.dataRecord.baseAddress.toString() );
+        assertEquals( "mockJSR311Interface/determineFieldString", this.dataRecord.pathRelative );
+        assertEquals( HttpMethod.GET, this.dataRecord.httpMethod );
+        assertEquals( 1, this.dataRecord.parameterList.size() );
+        assertArrayEquals( new String[] { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON },
+                           this.dataRecord.producesMediaTypes );
+        assertArrayEquals( new String[] { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON },
+                           this.dataRecord.consumesMediaTypes );
+        assertEquals( String.class, this.dataRecord.returnType );
+        
+        //
+        Parameter parameter = this.dataRecord.parameterList.iterator().next();
+        assertTrue( parameter instanceof QueryParameter );
+        
+        QueryParameter queryParameter = (QueryParameter) parameter;
+        assertEquals( "number", queryParameter.getKey() );
+        assertEquals( "123", queryParameter.getValue() );
+      }
     }
   }
 }

@@ -15,10 +15,17 @@
  ******************************************************************************/
 package org.omnaest.utils.webservice.rest;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -73,13 +80,22 @@ public class RestClientFactoryJerseyTest
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_ATOM_XML)
     public void container( Entity entity );
+    
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void diverseParams( @MatrixParam("matrix") List<String> matrix,
+                               @HeaderParam("user-agent") String headerParam,
+                               @CookieParam("cookieParam") Cookie cookieParam,
+                               @CookieParam("cookieParam2") String cookieValue );
   }
   
   @Test
   @Ignore
   public void testRestClientFactoryJersey() throws Exception
   {
-    final Configuration configuration = new Configuration().setActivateJSONPojoMapping( true );
+    final Configuration configuration = new Configuration().setActivateJSONPojoMapping( true )
+                                                           .setAuthentification( new Authentification().setBasicAuthentification( "username",
+                                                                                                                                  "password" ) );
     final String baseAddress = "http://localhost:8888/webapp";
     RestClientFactoryJersey restClientFactoryJersey = new RestClientFactoryJersey( baseAddress, configuration );
     
@@ -104,5 +120,21 @@ public class RestClientFactoryJerseyTest
     Entity entity = new Entity();
     entity.setFieldString( "test" );
     restService.container( entity );
+  }
+  
+  @Test
+  @Ignore
+  public void testDiverseParams()
+  {
+    final String baseAddress = "http://localhost:8888/webapp";
+    RestClientFactoryJersey restClientFactoryJersey = new RestClientFactoryJersey( baseAddress );
+    
+    RestService restService = restClientFactoryJersey.newRestClient( RestService.class );
+    
+    List<String> matrix = Arrays.asList( "value1", "value2" );
+    String headerParam = "user-agent value";
+    Cookie cookieParam = new Cookie( "cookiekey", "cookievalue" );
+    String cookieValue = "other cookie value";
+    restService.diverseParams( matrix, headerParam, cookieParam, cookieValue );
   }
 }
