@@ -44,8 +44,9 @@ import com.sun.jersey.client.urlconnection.HTTPSProperties;
 /**
  * Implementation for a {@link RestClientFactory} for Jersey.<br>
  * <br>
- * This implementation does currently <b>not support matrix parameters</b>
+ * This is an experimental implementation, please test the functionality carefully if used in production.
  * 
+ * @see RestClientFactory
  * @author Omnaest
  */
 public class RestClientFactoryJersey extends RestClientFactory
@@ -54,10 +55,10 @@ public class RestClientFactoryJersey extends RestClientFactory
   
   private static class InvocationHandlerArbitraryClient implements RestInterfaceMethodInvocationHandler
   {
-    protected final Configuration configuration;
-    protected final Client        client;
+    private final BasicConfiguration configuration;
+    private final Client             client;
     
-    public InvocationHandlerArbitraryClient( Configuration configuration, Client client )
+    public InvocationHandlerArbitraryClient( BasicConfiguration configuration, Client client )
     {
       super();
       this.configuration = configuration;
@@ -81,35 +82,7 @@ public class RestClientFactoryJersey extends RestClientFactory
       try
       {
         //
-        final Authentification authentification = this.configuration != null ? this.configuration.getAuthentification() : null;
-        final Client client = this.client;
-        {
-          //
-          if ( authentification != null )
-          {
-            final BasicAuthentification basicAuthentification = authentification.getBasicAuthentification();
-            if ( basicAuthentification != null )
-            {
-              String username = basicAuthentification.getUsername();
-              String password = basicAuthentification.getPassword();
-              
-              client.addFilter( new HTTPBasicAuthFilter( username, password ) );
-            }
-          }
-          
-          //
-          if ( this.configuration != null )
-          {
-            final ClientModificator clientModificator = this.configuration.getClientModificator();
-            if ( clientModificator != null )
-            {
-              clientModificator.modifyClient( client );
-            }
-          }
-        }
-        
-        //
-        WebResource webResource = client.resource( baseAddress ).path( pathRelative );
+        WebResource webResource = this.client.resource( baseAddress ).path( pathRelative );
         Object entity = null;
         {
           //
@@ -139,18 +112,6 @@ public class RestClientFactoryJersey extends RestClientFactory
                 final String value = queryParameter.getValue();
                 webResource = webResource.queryParam( key, value );
               }
-              else if ( parameter instanceof MatrixParameter )
-              {
-                //
-                //MatrixParameter matrixParameter = (MatrixParameter) parameter;
-                
-                //
-                //String key = matrixParameter.getKey();
-                //Collection<Object> valueCollection = matrixParameter.getValueCollection();
-                
-                //FIXME missing matrix parameter
-                throw new UnsupportedOperationException( "Matrix paramters are unsupported" );
-              }
               else if ( parameter instanceof BodyParameter )
               {
                 //
@@ -166,6 +127,27 @@ public class RestClientFactoryJersey extends RestClientFactory
         if ( consumesMediaTypes.length > 0 )
         {
           webRequestBuilder = webRequestBuilder.type( consumesMediaTypes[0] );
+        }
+        
+        if ( parameterList != null )
+        {
+          for ( Parameter parameter : parameterList )
+          {
+            if ( parameter instanceof CookieParameter )
+            {
+              //
+              final CookieParameter cookieParameter = (CookieParameter) parameter;
+              webRequestBuilder = webRequestBuilder.cookie( cookieParameter.getCookie() );
+            }
+            else if ( parameter instanceof HeaderParameter )
+            {
+              //
+              final HeaderParameter headerParameter = (HeaderParameter) parameter;
+              final String key = headerParameter.getKey();
+              final String value = headerParameter.getValue();
+              webRequestBuilder = webRequestBuilder.header( key, value );
+            }
+          }
         }
         
         //
@@ -240,9 +222,9 @@ public class RestClientFactoryJersey extends RestClientFactory
             }
           }
           
-          final boolean preemtiveBaiscAuth = false;
+          final boolean preemtiveBasicAuth = false;
           final CookieStore cookieStore = new BasicCookieStore();
-          return new ApacheHttpClient4( new ApacheHttpClient4Handler( httpClient, cookieStore, preemtiveBaiscAuth ), clientConfig );
+          return new ApacheHttpClient4( new ApacheHttpClient4Handler( httpClient, cookieStore, preemtiveBasicAuth ), clientConfig );
         }
       } );
       
@@ -315,7 +297,62 @@ public class RestClientFactoryJersey extends RestClientFactory
         }
       }
       
-      return clientFactory.newInstance( clientConfig );
+      final Client client = clientFactory.newInstance( clientConfig );
+      {
+        //
+        if ( authentification != null )
+        {
+          final BasicAuthentification basicAuthentification = authentification.getBasicAuthentification();
+          if ( basicAuthentification != null )
+          {
+            String username = basicAuthentification.getUsername();
+            String password = basicAuthentification.getPassword();
+            
+            client.addFilter( new HTTPBasicAuthFilter( username, password ) );
+          }
+        }
+        
+        //
+        if ( configuration != null )
+        {
+          final ClientModificator clientModificator = configuration.getClientModificator();
+          if ( clientModificator != null )
+          {
+            clientModificator.modifyClient( client );
+          }
+        }
+      }
+      
+      return client;
+    }
+    
+  }
+  
+  public static class BasicConfiguration
+  {
+    private WebResourceModificator webResourceModificator = null;
+    private ExceptionHandler       exceptionHandler       = null;
+    
+    WebResourceModificator getWebResourceModificator()
+    {
+      return this.webResourceModificator;
+    }
+    
+    public BasicConfiguration setWebResourceModificator( WebResourceModificator webResourceModificator )
+    {
+      this.webResourceModificator = webResourceModificator;
+      return this;
+    }
+    
+    ExceptionHandler getExceptionHandler()
+    {
+      return this.exceptionHandler;
+    }
+    
+    public BasicConfiguration setExceptionHandler( ExceptionHandler exceptionHandler )
+    {
+      this.exceptionHandler = exceptionHandler;
+      return this;
     }
     
   }
@@ -326,14 +363,12 @@ public class RestClientFactoryJersey extends RestClientFactory
    * @see Authentification
    * @author Omnaest
    */
-  public static class Configuration
+  public static class Configuration extends BasicConfiguration
   {
     private Authentification        authentification        = null;
-    private boolean                 activateJSONPojoMapping = false;
     private ClientConfigModificator clientConfigModificator = null;
-    private WebResourceModificator  webResourceModificator  = null;
     private ClientModificator       clientModificator       = null;
-    private ExceptionHandler        exceptionHandler        = null;
+    private boolean                 activateJSONPojoMapping = false;
     
     ClientConfigModificator getClientConfigModificator()
     {
@@ -346,14 +381,10 @@ public class RestClientFactoryJersey extends RestClientFactory
       return this;
     }
     
-    WebResourceModificator getWebResourceModificator()
-    {
-      return this.webResourceModificator;
-    }
-    
+    @Override
     public Configuration setWebResourceModificator( WebResourceModificator webResourceModificator )
     {
-      this.webResourceModificator = webResourceModificator;
+      super.setWebResourceModificator( webResourceModificator );
       return this;
     }
     
@@ -390,14 +421,10 @@ public class RestClientFactoryJersey extends RestClientFactory
       return this;
     }
     
-    ExceptionHandler getExceptionHandler()
-    {
-      return this.exceptionHandler;
-    }
-    
+    @Override
     public Configuration setExceptionHandler( ExceptionHandler exceptionHandler )
     {
-      this.exceptionHandler = exceptionHandler;
+      super.setExceptionHandler( exceptionHandler );
       return this;
     }
     
@@ -626,7 +653,7 @@ public class RestClientFactoryJersey extends RestClientFactory
    * @param configuration
    *          {@link Configuration}
    */
-  public RestClientFactoryJersey( String baseAddress, Client client, Configuration configuration )
+  public RestClientFactoryJersey( String baseAddress, Client client, BasicConfiguration configuration )
   {
     super( baseAddress, new InvocationHandlerArbitraryClient( configuration, client ) );
   }

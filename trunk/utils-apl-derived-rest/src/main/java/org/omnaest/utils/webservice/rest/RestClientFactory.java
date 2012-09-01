@@ -33,8 +33,10 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -42,8 +44,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.UriBuilder;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.CacheUtils;
 import org.omnaest.utils.download.URIHelper;
@@ -52,11 +56,20 @@ import org.omnaest.utils.proxy.handler.MethodCallCapture;
 import org.omnaest.utils.proxy.handler.MethodInvocationHandler;
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.reflection.ReflectionUtils.MethodParameterMetaInformation;
+import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.factory.Factory;
+import org.omnaest.utils.tuple.Tuple2;
 
 /**
  * The {@link RestClientFactory} allows to produce proxies for given class or interface types which are based on the <a
  * href="http://jsr311.java.net/">JSR-311 API (REST)</a><br>
+ * <br>
+ * The performance is
+ * <ul>
+ * <li>about 1000 calls in less than 1s</li>
+ * <li>about 100000 calls in less than 10s</li>
+ * </ul>
  * 
  * @see #newRestClient(Class)
  * @author Omnaest
@@ -64,76 +77,11 @@ import org.omnaest.utils.structure.element.factory.Factory;
 public abstract class RestClientFactory
 {
   /* ********************************************** Variables ********************************************** */
-  private URI                                  baseAddress                          = null;
-  private RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler = null;
-  private Cache<Types, StubCreator<Object>>    stubCreatorCache                     = CacheUtils.adapter( new ConcurrentHashMap<Types, StubCreator<Object>>() );
+  private URI                                                                        baseAddress                                     = null;
+  private RestInterfaceMethodInvocationHandler                                       restInterfaceMethodInvocationHandler            = null;
+  private Cache<Class<?>, Tuple2<StubCreator<Object>, RestInterfaceMetaInformation>> stubCreatorAndRestInterfaceMetaInformationCache = CacheUtils.adapter( new ConcurrentHashMap<Class<?>, Tuple2<StubCreator<Object>, RestInterfaceMetaInformation>>() );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
-  
-  private static class Types
-  {
-    private List<Class<?>> typeList = new ArrayList<Class<?>>();
-    
-    public Types( Class<?> type, Class<?>... types )
-    {
-      super();
-      this.typeList.add( type );
-      for ( Class<?> itype : types )
-      {
-        this.typeList.add( itype );
-      }
-    }
-    
-    @Override
-    public int hashCode()
-    {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ( ( this.typeList == null ) ? 0 : this.typeList.hashCode() );
-      return result;
-    }
-    
-    @Override
-    public boolean equals( Object obj )
-    {
-      if ( this == obj )
-      {
-        return true;
-      }
-      if ( obj == null )
-      {
-        return false;
-      }
-      if ( !( obj instanceof Types ) )
-      {
-        return false;
-      }
-      Types other = (Types) obj;
-      if ( this.typeList == null )
-      {
-        if ( other.typeList != null )
-        {
-          return false;
-        }
-      }
-      else if ( !this.typeList.equals( other.typeList ) )
-      {
-        return false;
-      }
-      return true;
-    }
-    
-    @Override
-    public String toString()
-    {
-      StringBuilder builder = new StringBuilder();
-      builder.append( "Types [typeList=" );
-      builder.append( this.typeList );
-      builder.append( "]" );
-      return builder.toString();
-    }
-    
-  }
   
   /**
    * Handler for {@link Method} invocations on the generated proxy for a JSR-311 type
@@ -199,6 +147,16 @@ public abstract class RestClientFactory
       return this.value;
     }
     
+    @Override
+    public String toString()
+    {
+      StringBuilder builder = new StringBuilder();
+      builder.append( "BodyParameter [value=" );
+      builder.append( this.value );
+      builder.append( "]" );
+      return builder.toString();
+    }
+    
   }
   
   /**
@@ -206,7 +164,65 @@ public abstract class RestClientFactory
    * 
    * @author Omnaest
    */
-  public static class QueryParameter implements Parameter
+  public static class QueryParameter extends KeyAndValueParameter
+  {
+    public QueryParameter( String key, String value )
+    {
+      super( key, value );
+    }
+  }
+  
+  /**
+   * Representation of a {@link CookieParam} annotated method parameter
+   * 
+   * @author Omnaest
+   */
+  public static class CookieParameter implements Parameter
+  {
+    private final Cookie cookie;
+    
+    public CookieParameter( Cookie cookie )
+    {
+      super();
+      this.cookie = cookie;
+    }
+    
+    @Override
+    public String toString()
+    {
+      StringBuilder builder = new StringBuilder();
+      builder.append( "CookieParameter [cookie=" );
+      builder.append( this.cookie );
+      builder.append( "]" );
+      return builder.toString();
+    }
+    
+    public Cookie getCookie()
+    {
+      return this.cookie;
+    }
+    
+  }
+  
+  /**
+   * Representation of a {@link HeaderParam} annotated method parameter
+   * 
+   * @author Omnaest
+   */
+  public static class HeaderParameter extends KeyAndValueParameter
+  {
+    public HeaderParameter( String key, String value )
+    {
+      super( key, value );
+    }
+  }
+  
+  /**
+   * Representation of a {@link QueryParam} annotated method parameter
+   * 
+   * @author Omnaest
+   */
+  private static abstract class KeyAndValueParameter implements Parameter
   {
     /* ********************************************** Variables ********************************************** */
     private String key   = null;
@@ -223,11 +239,23 @@ public abstract class RestClientFactory
       return this.value;
     }
     
-    public QueryParameter( String key, String value )
+    public KeyAndValueParameter( String key, String value )
     {
       super();
       this.key = key;
       this.value = value;
+    }
+    
+    @Override
+    public String toString()
+    {
+      StringBuilder builder = new StringBuilder();
+      builder.append( "KeyAndValueParameter [key=" );
+      builder.append( this.key );
+      builder.append( ", value=" );
+      builder.append( this.value );
+      builder.append( "]" );
+      return builder.toString();
     }
     
   }
@@ -350,11 +378,13 @@ public abstract class RestClientFactory
   protected static class RestInterfaceMetaInformationForMethod extends RestInterfaceMetaInformationForClass
   {
     /* ********************************************** Variables ********************************************** */
-    protected Method                     method                                        = null;
-    protected HttpMethod                 httpMethod                                    = null;
-    protected SortedMap<Integer, String> parameterIndexPositionToQueryParameterTagMap  = new TreeMap<Integer, String>();
-    protected SortedMap<Integer, String> parameterIndexPositionToPathParameterTagMap   = new TreeMap<Integer, String>();
-    protected SortedMap<Integer, String> parameterIndexPositionToMatrixParameterTagMap = new TreeMap<Integer, String>();
+    private Method                           method                                        = null;
+    private HttpMethod                       httpMethod                                    = null;
+    private final SortedMap<Integer, String> parameterIndexPositionToQueryParameterTagMap  = new TreeMap<Integer, String>();
+    private final SortedMap<Integer, String> parameterIndexPositionToPathParameterTagMap   = new TreeMap<Integer, String>();
+    private final SortedMap<Integer, String> parameterIndexPositionToMatrixParameterTagMap = new TreeMap<Integer, String>();
+    private final SortedMap<Integer, String> parameterIndexPositionToHeaderParameterTagMap = new TreeMap<Integer, String>();
+    private final SortedMap<Integer, String> parameterIndexPositionToCookieParameterTagMap = new TreeMap<Integer, String>();
     
     /* ********************************************** Methods ********************************************** */
     
@@ -391,6 +421,16 @@ public abstract class RestClientFactory
     public void setMethod( Method method )
     {
       this.method = method;
+    }
+    
+    public SortedMap<Integer, String> getParameterIndexPositionToHeaderParameterTagMap()
+    {
+      return this.parameterIndexPositionToHeaderParameterTagMap;
+    }
+    
+    public SortedMap<Integer, String> getParameterIndexPositionToCookieParameterTagMap()
+    {
+      return this.parameterIndexPositionToCookieParameterTagMap;
     }
     
   }
@@ -500,31 +540,53 @@ public abstract class RestClientFactory
       //
       {
         //
-        SortedMap<Integer, String> parameterIndexPositionToQueryParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToQueryParameterTagMap();
+        final SortedMap<Integer, String> parameterIndexPositionToQueryParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToQueryParameterTagMap();
         for ( Integer parameterIndexPosition : parameterIndexPositionToQueryParameterTagMap.keySet() )
         {
           if ( parameterIndexPosition != null && parameterIndexPosition < arguments.length )
           {
-            //
-            String key = parameterIndexPositionToQueryParameterTagMap.get( parameterIndexPosition );
-            Object value = arguments[parameterIndexPosition];
-            
-            //
-            try
+            final String key = parameterIndexPositionToQueryParameterTagMap.get( parameterIndexPosition );
+            final Object value = arguments[parameterIndexPosition];
+            retlist.add( new QueryParameter( key, ObjectUtils.toString( value ) ) );
+          }
+        }
+      }
+      {
+        //
+        final SortedMap<Integer, String> parameterIndexPositionToCookieParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToCookieParameterTagMap();
+        for ( Integer parameterIndexPosition : parameterIndexPositionToCookieParameterTagMap.keySet() )
+        {
+          if ( parameterIndexPosition != null && parameterIndexPosition < arguments.length )
+          {
+            final String key = parameterIndexPositionToCookieParameterTagMap.get( parameterIndexPosition );
+            final Object value = arguments[parameterIndexPosition];
+            if ( value instanceof Cookie )
             {
-              retlist.add( new QueryParameter( key, String.valueOf( value ) ) );
+              retlist.add( new CookieParameter( (Cookie) value ) );
             }
-            catch ( Exception e )
+            else
             {
+              retlist.add( new CookieParameter( new Cookie( key, ObjectUtils.toString( value ) ) ) );
             }
           }
         }
       }
-      
-      //
       {
         //
-        SortedMap<Integer, String> parameterIndexPositionToMatrixParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToMatrixParameterTagMap();
+        final SortedMap<Integer, String> parameterIndexPositionToHeaderParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToHeaderParameterTagMap();
+        for ( Integer parameterIndexPosition : parameterIndexPositionToHeaderParameterTagMap.keySet() )
+        {
+          if ( parameterIndexPosition != null && parameterIndexPosition < arguments.length )
+          {
+            final String key = parameterIndexPositionToHeaderParameterTagMap.get( parameterIndexPosition );
+            final Object value = arguments[parameterIndexPosition];
+            retlist.add( new HeaderParameter( key, ObjectUtils.toString( value ) ) );
+          }
+        }
+      }
+      {
+        //
+        final SortedMap<Integer, String> parameterIndexPositionToMatrixParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToMatrixParameterTagMap();
         for ( Integer parameterIndexPosition : parameterIndexPositionToMatrixParameterTagMap.keySet() )
         {
           if ( parameterIndexPosition != null && parameterIndexPosition < arguments.length )
@@ -536,12 +598,13 @@ public abstract class RestClientFactory
             //
             if ( value instanceof Collection )
             {
-              //
               @SuppressWarnings("unchecked")
-              Collection<Object> valueCollection = (Collection<Object>) value;
-              
-              //
+              final Collection<Object> valueCollection = (Collection<Object>) value;
               retlist.add( new MatrixParameter( key, valueCollection ) );
+            }
+            else if ( value != null )
+            {
+              retlist.add( new MatrixParameter( key, Arrays.asList( value ) ) );
             }
           }
         }
@@ -550,19 +613,23 @@ public abstract class RestClientFactory
       //
       {
         //
-        SortedMap<Integer, String> parameterIndexPositionToMatrixParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToMatrixParameterTagMap();
-        SortedMap<Integer, String> parameterIndexPositionToPathParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToPathParameterTagMap();
-        SortedMap<Integer, String> parameterIndexPositionToQueryParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToQueryParameterTagMap();
+        @SuppressWarnings("unchecked")
+        final Set<Integer> alreadyProcessedIndexPositionSet = SetUtils.mergeAll( restInterfaceMetaInformationForMethod.getParameterIndexPositionToCookieParameterTagMap()
+                                                                                                                      .keySet(),
+                                                                                 restInterfaceMetaInformationForMethod.getParameterIndexPositionToHeaderParameterTagMap()
+                                                                                                                      .keySet(),
+                                                                                 restInterfaceMetaInformationForMethod.getParameterIndexPositionToMatrixParameterTagMap()
+                                                                                                                      .keySet(),
+                                                                                 restInterfaceMetaInformationForMethod.getParameterIndexPositionToPathParameterTagMap()
+                                                                                                                      .keySet(),
+                                                                                 restInterfaceMetaInformationForMethod.getParameterIndexPositionToQueryParameterTagMap()
+                                                                                                                      .keySet() );
+        
         for ( int indexPosition = 0; indexPosition < arguments.length; indexPosition++ )
         {
-          //
-          boolean isMatrixParameter = parameterIndexPositionToMatrixParameterTagMap.containsKey( indexPosition );
-          boolean isPathParameter = parameterIndexPositionToPathParameterTagMap.containsKey( indexPosition );
-          boolean isQueryParameter = parameterIndexPositionToQueryParameterTagMap.containsKey( indexPosition );
-          if ( !isMatrixParameter && !isPathParameter && !isQueryParameter )
+          if ( !alreadyProcessedIndexPositionSet.contains( indexPosition ) )
           {
-            //
-            Object value = arguments[indexPosition];
+            final Object value = arguments[indexPosition];
             retlist.add( new BodyParameter( value ) );
           }
         }
@@ -583,18 +650,50 @@ public abstract class RestClientFactory
       UriBuilder uriBuilder = UriBuilder.fromResource( restInterfaceMetaInformationForClass.getType() );
       
       //
-      Method method = restInterfaceMetaInformationForMethod.getMethod();
-      boolean hasDeclaredPathAnnotation = ReflectionUtils.hasDeclaredAnnotation( method, Path.class );
+      final boolean hasDeclaredPathAnnotation = ReflectionUtils.hasDeclaredAnnotation( restInterfaceMetaInformationForMethod.getMethod(),
+                                                                                       Path.class );
       if ( hasDeclaredPathAnnotation )
       {
         uriBuilder.path( restInterfaceMetaInformationForMethod.getMethod() );
       }
       
       //
+      {
+        final SortedMap<Integer, String> parameterIndexPositionToMatrixParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToMatrixParameterTagMap();
+        for ( Integer indexPosition : parameterIndexPositionToMatrixParameterTagMap.keySet() )
+        {
+          if ( indexPosition != null && indexPosition < arguments.length )
+          {
+            //
+            final String key = parameterIndexPositionToMatrixParameterTagMap.get( indexPosition );
+            final Object argument = arguments[indexPosition];
+            
+            //
+            Object[] values = new Object[] {};
+            if ( ArrayUtils.isArray( argument ) )
+            {
+              values = (Object[]) argument;
+            }
+            else if ( argument instanceof Collection )
+            {
+              @SuppressWarnings("unchecked")
+              final Collection<Object> collection = (Collection<Object>) argument;
+              values = collection.toArray();
+            }
+            else
+            {
+              values = new Object[] { argument };
+            }
+            uriBuilder.matrixParam( key, values );
+          }
+        }
+      }
+      
+      //
       Map<String, Object> pathKeyToValueMap = new LinkedHashMap<String, Object>();
       {
         //
-        SortedMap<Integer, String> parameterIndexPositionToPathParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToPathParameterTagMap();
+        final SortedMap<Integer, String> parameterIndexPositionToPathParameterTagMap = restInterfaceMetaInformationForMethod.getParameterIndexPositionToPathParameterTagMap();
         for ( Integer indexPosition : parameterIndexPositionToPathParameterTagMap.keySet() )
         {
           if ( indexPosition != null && indexPosition < arguments.length )
@@ -668,23 +767,29 @@ public abstract class RestClientFactory
     if ( type != null )
     {
       //
-      final RestInterfaceMetaInformation restInterfaceMetaInformation = analyzeTheRestInterfaceMetaInformation( type );
+      Tuple2<StubCreator<Object>, RestInterfaceMetaInformation> cachedStubCreatorAndMetaInfo = this.stubCreatorAndRestInterfaceMetaInformationCache.getOrCreate( type,
+                                                                                                                                                                 new Factory<Tuple2<StubCreator<Object>, RestInterfaceMetaInformation>>()
+                                                                                                                                                                 {
+                                                                                                                                                                   @Override
+                                                                                                                                                                   public Tuple2<StubCreator<Object>, RestInterfaceMetaInformation> newInstance()
+                                                                                                                                                                   {
+                                                                                                                                                                     final Class<?>[] interfaces = type.getInterfaces();
+                                                                                                                                                                     final RestInterfaceMetaInformation restInterfaceMetaInformation = analyzeTheRestInterfaceMetaInformation( type );
+                                                                                                                                                                     return new Tuple2<StubCreator<Object>, RestInterfaceMetaInformation>(
+                                                                                                                                                                                                                                           new StubCreator<Object>(
+                                                                                                                                                                                                                                                                    type,
+                                                                                                                                                                                                                                                                    interfaces ),
+                                                                                                                                                                                                                                           restInterfaceMetaInformation );
+                                                                                                                                                                   }
+                                                                                                                                                                 } );
+      
+      final RestInterfaceMetaInformation restInterfaceMetaInformation = cachedStubCreatorAndMetaInfo.getValueSecond();
       final MethodInvocationHandler methodInvocationHandler = new RestClientMethodInvocationHandler(
                                                                                                      restInterfaceMetaInformation,
                                                                                                      baseAddress );
       
-      //
-      final Class<?>[] interfaces = type.getInterfaces();
-      
-      //
-      retval = (T) this.stubCreatorCache.getOrCreate( new Types( type, interfaces ), new Factory<StubCreator<Object>>()
-      {
-        @Override
-        public StubCreator<Object> newInstance()
-        {
-          return new StubCreator<Object>( type, interfaces );
-        }
-      } ).build( methodInvocationHandler );
+      final StubCreator<Object> stubCreator = cachedStubCreatorAndMetaInfo.getValueFirst();
+      retval = (T) stubCreator.build( methodInvocationHandler );
     }
     
     //
@@ -824,6 +929,22 @@ public abstract class RestClientFactory
                   MatrixParam matrixParam = (MatrixParam) annotation;
                   String value = matrixParam.value();
                   restInterfaceMetaInformationForMethod.getParameterIndexPositionToMatrixParameterTagMap().put( indexPosition,
+                                                                                                                value );
+                }
+                else if ( annotation instanceof HeaderParam )
+                {
+                  //
+                  HeaderParam headerParam = (HeaderParam) annotation;
+                  String value = headerParam.value();
+                  restInterfaceMetaInformationForMethod.getParameterIndexPositionToHeaderParameterTagMap().put( indexPosition,
+                                                                                                                value );
+                }
+                else if ( annotation instanceof CookieParam )
+                {
+                  //
+                  CookieParam cookieParam = (CookieParam) annotation;
+                  String value = cookieParam.value();
+                  restInterfaceMetaInformationForMethod.getParameterIndexPositionToCookieParameterTagMap().put( indexPosition,
                                                                                                                 value );
                 }
               }
