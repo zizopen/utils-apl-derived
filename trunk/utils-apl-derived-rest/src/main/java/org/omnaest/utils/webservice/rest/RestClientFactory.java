@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -69,6 +70,7 @@ import org.omnaest.utils.tuple.Tuple2;
  * <ul>
  * <li>about 1000 calls in less than 1s</li>
  * <li>about 100000 calls in less than 10s</li>
+ * <li>about 1000000 calls in less than 20s</li>
  * </ul>
  * 
  * @see #newRestClient(Class)
@@ -80,8 +82,91 @@ public abstract class RestClientFactory
   private URI                                                                        baseAddress                                     = null;
   private RestInterfaceMethodInvocationHandler                                       restInterfaceMethodInvocationHandler            = null;
   private Cache<Class<?>, Tuple2<StubCreator<Object>, RestInterfaceMetaInformation>> stubCreatorAndRestInterfaceMetaInformationCache = CacheUtils.adapter( new ConcurrentHashMap<Class<?>, Tuple2<StubCreator<Object>, RestInterfaceMetaInformation>>() );
+  private Cache<TypeAndBaseAddress, Object>                                          restClientInstanceCache                         = CacheUtils.adapter( new ConcurrentHashMap<TypeAndBaseAddress, Object>() );
   
   /* ********************************************** Classes/Interfaces ********************************************** */
+  
+  /**
+   * Simple combined entity that implements {@link #hashCode()} and {@link #equals(Object)}
+   * 
+   * @author Omnaest
+   */
+  private static class TypeAndBaseAddress
+  {
+    private final Class<?> type;
+    private final URI      baseAddress;
+    
+    public TypeAndBaseAddress( Class<?> type, URI baseAddress )
+    {
+      super();
+      this.type = type;
+      this.baseAddress = baseAddress;
+    }
+    
+    @Override
+    public String toString()
+    {
+      StringBuilder builder = new StringBuilder();
+      builder.append( "TypeAndBaseAddress [type=" );
+      builder.append( this.type );
+      builder.append( ", baseAddress=" );
+      builder.append( this.baseAddress );
+      builder.append( "]" );
+      return builder.toString();
+    }
+    
+    @Override
+    public int hashCode()
+    {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ( ( this.baseAddress == null ) ? 0 : this.baseAddress.hashCode() );
+      result = prime * result + ( ( this.type == null ) ? 0 : this.type.hashCode() );
+      return result;
+    }
+    
+    @Override
+    public boolean equals( Object obj )
+    {
+      if ( this == obj )
+      {
+        return true;
+      }
+      if ( obj == null )
+      {
+        return false;
+      }
+      if ( !( obj instanceof TypeAndBaseAddress ) )
+      {
+        return false;
+      }
+      TypeAndBaseAddress other = (TypeAndBaseAddress) obj;
+      if ( this.baseAddress == null )
+      {
+        if ( other.baseAddress != null )
+        {
+          return false;
+        }
+      }
+      else if ( !this.baseAddress.equals( other.baseAddress ) )
+      {
+        return false;
+      }
+      if ( this.type == null )
+      {
+        if ( other.type != null )
+        {
+          return false;
+        }
+      }
+      else if ( !this.type.equals( other.type ) )
+      {
+        return false;
+      }
+      return true;
+    }
+    
+  }
   
   /**
    * Handler for {@link Method} invocations on the generated proxy for a JSR-311 type
@@ -300,19 +385,27 @@ public abstract class RestClientFactory
   protected static class RestInterfaceMetaInformation
   {
     /* ********************************************** Variables ********************************************** */
-    protected RestInterfaceMetaInformationForClass               restInterfaceMetaInformationForClass             = null;
-    protected Map<Method, RestInterfaceMetaInformationForMethod> methodToRestInterfaceMetaInformationForMethodMap = new HashMap<Method, RestInterfaceMetaInformationForMethod>();
+    private final RestInterfaceMetaInformationForClass               restInterfaceMetaInformationForClass;
+    private final Map<Method, RestInterfaceMetaInformationForMethod> methodToRestInterfaceMetaInformationForMethodMap;
     
     /* ********************************************** Methods ********************************************** */
+    
+    /**
+     * @see RestInterfaceMetaInformation
+     * @param restInterfaceMetaInformationForClass
+     * @param methodToRestInterfaceMetaInformationForMethodMap
+     */
+    public RestInterfaceMetaInformation( RestInterfaceMetaInformationForClass restInterfaceMetaInformationForClass,
+                                         Map<Method, RestInterfaceMetaInformationForMethod> methodToRestInterfaceMetaInformationForMethodMap )
+    {
+      super();
+      this.restInterfaceMetaInformationForClass = restInterfaceMetaInformationForClass;
+      this.methodToRestInterfaceMetaInformationForMethodMap = Collections.unmodifiableMap( methodToRestInterfaceMetaInformationForMethodMap );
+    }
     
     public RestInterfaceMetaInformationForClass getRestInterfaceMetaInformationForClass()
     {
       return this.restInterfaceMetaInformationForClass;
-    }
-    
-    public void setRestInterfaceMetaInformationForClass( RestInterfaceMetaInformationForClass restInterfaceMetaInformationForClass )
-    {
-      this.restInterfaceMetaInformationForClass = restInterfaceMetaInformationForClass;
     }
     
     public Map<Method, RestInterfaceMetaInformationForMethod> getMethodToRestInterfaceMetaInformationForMethodMap()
@@ -438,9 +531,9 @@ public abstract class RestClientFactory
   protected class RestClientMethodInvocationHandler implements MethodInvocationHandler
   {
     /* ********************************************** Variables ********************************************** */
-    protected RestInterfaceMetaInformation restInterfaceMetaInformation = null;
+    protected final RestInterfaceMetaInformation restInterfaceMetaInformation;
     @SuppressWarnings("hiding")
-    protected URI                          baseAddress                  = null;
+    protected final URI                          baseAddress;
     
     /* ********************************************** Methods ********************************************** */
     
@@ -758,51 +851,56 @@ public abstract class RestClientFactory
    * @return
    */
   @SuppressWarnings({ "unchecked" })
-  public <T> T newRestClient( final Class<T> type, URI baseAddress )
+  public <T> T newRestClient( final Class<T> type, final URI baseAddress )
   {
     //
     T retval = null;
-    
-    //
-    if ( type != null )
+    if ( type != null && baseAddress != null )
     {
-      //
-      Tuple2<StubCreator<Object>, RestInterfaceMetaInformation> cachedStubCreatorAndMetaInfo = this.stubCreatorAndRestInterfaceMetaInformationCache.getOrCreate( type,
-                                                                                                                                                                 new Factory<Tuple2<StubCreator<Object>, RestInterfaceMetaInformation>>()
-                                                                                                                                                                 {
-                                                                                                                                                                   @Override
-                                                                                                                                                                   public Tuple2<StubCreator<Object>, RestInterfaceMetaInformation> newInstance()
-                                                                                                                                                                   {
-                                                                                                                                                                     final Class<?>[] interfaces = type.getInterfaces();
-                                                                                                                                                                     final RestInterfaceMetaInformation restInterfaceMetaInformation = analyzeTheRestInterfaceMetaInformation( type );
-                                                                                                                                                                     return new Tuple2<StubCreator<Object>, RestInterfaceMetaInformation>(
-                                                                                                                                                                                                                                           new StubCreator<Object>(
-                                                                                                                                                                                                                                                                    type,
-                                                                                                                                                                                                                                                                    interfaces ),
-                                                                                                                                                                                                                                           restInterfaceMetaInformation );
-                                                                                                                                                                   }
-                                                                                                                                                                 } );
+      final Factory<Object> restClientfactory = new Factory<Object>()
+      {
+        @SuppressWarnings("cast")
+        @Override
+        public Object newInstance()
+        {
+          //
+          Tuple2<StubCreator<Object>, RestInterfaceMetaInformation> cachedStubCreatorAndMetaInfo = RestClientFactory.this.stubCreatorAndRestInterfaceMetaInformationCache.getOrCreate( type,
+                                                                                                                                                                                       new Factory<Tuple2<StubCreator<Object>, RestInterfaceMetaInformation>>()
+                                                                                                                                                                                       {
+                                                                                                                                                                                         @Override
+                                                                                                                                                                                         public Tuple2<StubCreator<Object>, RestInterfaceMetaInformation> newInstance()
+                                                                                                                                                                                         {
+                                                                                                                                                                                           final Class<?>[] interfaces = type.getInterfaces();
+                                                                                                                                                                                           final RestInterfaceMetaInformation restInterfaceMetaInformation = analyzeTheRestInterfaceMetaInformation( type );
+                                                                                                                                                                                           return new Tuple2<StubCreator<Object>, RestInterfaceMetaInformation>(
+                                                                                                                                                                                                                                                                 new StubCreator<Object>(
+                                                                                                                                                                                                                                                                                          type,
+                                                                                                                                                                                                                                                                                          interfaces ),
+                                                                                                                                                                                                                                                                 restInterfaceMetaInformation );
+                                                                                                                                                                                         }
+                                                                                                                                                                                       } );
+          
+          final RestInterfaceMetaInformation restInterfaceMetaInformation = cachedStubCreatorAndMetaInfo.getValueSecond();
+          final MethodInvocationHandler methodInvocationHandler = new RestClientMethodInvocationHandler(
+                                                                                                         restInterfaceMetaInformation,
+                                                                                                         baseAddress );
+          
+          final StubCreator<Object> stubCreator = cachedStubCreatorAndMetaInfo.getValueFirst();
+          
+          return (T) stubCreator.build( methodInvocationHandler );
+        }
+      };
+      retval = (T) this.restClientInstanceCache.getOrCreate( new TypeAndBaseAddress( type, baseAddress ), restClientfactory );
       
-      final RestInterfaceMetaInformation restInterfaceMetaInformation = cachedStubCreatorAndMetaInfo.getValueSecond();
-      final MethodInvocationHandler methodInvocationHandler = new RestClientMethodInvocationHandler(
-                                                                                                     restInterfaceMetaInformation,
-                                                                                                     baseAddress );
-      
-      final StubCreator<Object> stubCreator = cachedStubCreatorAndMetaInfo.getValueFirst();
-      retval = (T) stubCreator.build( methodInvocationHandler );
     }
-    
-    //
     return retval;
   }
   
   protected static <T> RestInterfaceMetaInformation analyzeTheRestInterfaceMetaInformation( Class<T> type )
   {
-    //
-    RestInterfaceMetaInformation restInterfaceMetaInformation = new RestInterfaceMetaInformation();
+    final RestInterfaceMetaInformationForClass restInterfaceMetaInformationForClass = new RestInterfaceMetaInformationForClass();
+    final Map<Method, RestInterfaceMetaInformationForMethod> methodToRestInterfaceMetaInformationForMethodMap = new HashMap<Method, RestInterfaceMetaInformationForMethod>();
     {
-      //
-      RestInterfaceMetaInformationForClass restInterfaceMetaInformationForClass = new RestInterfaceMetaInformationForClass();
       {
         //
         restInterfaceMetaInformationForClass.setType( type );
@@ -834,134 +932,133 @@ public abstract class RestClientFactory
           }
         }
       }
-      restInterfaceMetaInformation.setRestInterfaceMetaInformationForClass( restInterfaceMetaInformationForClass );
-      
-      //
-      List<Method> declaredMethodList = ReflectionUtils.declaredMethodList( type );
-      for ( Method method : declaredMethodList )
       {
-        //
-        RestInterfaceMetaInformationForMethod restInterfaceMetaInformationForMethod = new RestInterfaceMetaInformationForMethod();
-        {
-          //
-          restInterfaceMetaInformationForMethod.setMethod( method );
-          
-          //
-          {
-            //
-            Set<Annotation> declaredAnnotationSet = ReflectionUtils.declaredAnnotationSet( method );
-            for ( Annotation annotation : declaredAnnotationSet )
-            {
-              if ( annotation instanceof Path )
-              {
-                //
-                Path path = (Path) annotation;
-                String pathValue = path.value();
-                restInterfaceMetaInformationForMethod.setPath( pathValue );
-              }
-              else if ( annotation instanceof GET )
-              {
-                HttpMethod httpMethod = HttpMethod.GET;
-                restInterfaceMetaInformationForMethod.setHttpMethod( httpMethod );
-              }
-              else if ( annotation instanceof PUT )
-              {
-                HttpMethod httpMethod = HttpMethod.PUT;
-                restInterfaceMetaInformationForMethod.setHttpMethod( httpMethod );
-              }
-              else if ( annotation instanceof POST )
-              {
-                HttpMethod httpMethod = HttpMethod.POST;
-                restInterfaceMetaInformationForMethod.setHttpMethod( httpMethod );
-              }
-              else if ( annotation instanceof DELETE )
-              {
-                HttpMethod httpMethod = HttpMethod.DELETE;
-                restInterfaceMetaInformationForMethod.setHttpMethod( httpMethod );
-              }
-              else if ( annotation instanceof Produces )
-              {
-                //
-                Produces produces = (Produces) annotation;
-                String[] values = produces.value();
-                restInterfaceMetaInformationForMethod.getMediaTypeProducesList().addAll( Arrays.asList( values ) );
-              }
-              else if ( annotation instanceof Consumes )
-              {
-                //
-                Consumes consumes = (Consumes) annotation;
-                String[] values = consumes.value();
-                restInterfaceMetaInformationForMethod.getMediaTypeConsumesList().addAll( Arrays.asList( values ) );
-              }
-            }
-          }
-          
-          //          
-          {
-            //
-            List<MethodParameterMetaInformation> declaredMethodParameterMetaInformationList = ReflectionUtils.declaredMethodParameterMetaInformationList( method );
-            int indexPosition = 0;
-            for ( MethodParameterMetaInformation methodParameterMetaInformation : declaredMethodParameterMetaInformationList )
-            {
-              //
-              List<Annotation> declaredAnnotationList = methodParameterMetaInformation.getDeclaredAnnotationList();
-              for ( Annotation annotation : declaredAnnotationList )
-              {
-                if ( annotation instanceof QueryParam )
-                {
-                  //
-                  QueryParam queryParam = (QueryParam) annotation;
-                  String value = queryParam.value();
-                  restInterfaceMetaInformationForMethod.getParameterIndexPositionToQueryParameterTagMap().put( indexPosition,
-                                                                                                               value );
-                }
-                else if ( annotation instanceof PathParam )
-                {
-                  //
-                  PathParam pathParam = (PathParam) annotation;
-                  String value = pathParam.value();
-                  restInterfaceMetaInformationForMethod.getParameterIndexPositionToPathParameterTagMap().put( indexPosition,
-                                                                                                              value );
-                }
-                else if ( annotation instanceof MatrixParam )
-                {
-                  //
-                  MatrixParam matrixParam = (MatrixParam) annotation;
-                  String value = matrixParam.value();
-                  restInterfaceMetaInformationForMethod.getParameterIndexPositionToMatrixParameterTagMap().put( indexPosition,
-                                                                                                                value );
-                }
-                else if ( annotation instanceof HeaderParam )
-                {
-                  //
-                  HeaderParam headerParam = (HeaderParam) annotation;
-                  String value = headerParam.value();
-                  restInterfaceMetaInformationForMethod.getParameterIndexPositionToHeaderParameterTagMap().put( indexPosition,
-                                                                                                                value );
-                }
-                else if ( annotation instanceof CookieParam )
-                {
-                  //
-                  CookieParam cookieParam = (CookieParam) annotation;
-                  String value = cookieParam.value();
-                  restInterfaceMetaInformationForMethod.getParameterIndexPositionToCookieParameterTagMap().put( indexPosition,
-                                                                                                                value );
-                }
-              }
-              
-              //
-              indexPosition++;
-            }
-          }
-        }
         
         //
-        restInterfaceMetaInformation.getMethodToRestInterfaceMetaInformationForMethodMap()
-                                    .put( method, restInterfaceMetaInformationForMethod );
+        List<Method> declaredMethodList = ReflectionUtils.declaredMethodList( type );
+        for ( Method method : declaredMethodList )
+        {
+          //
+          RestInterfaceMetaInformationForMethod restInterfaceMetaInformationForMethod = new RestInterfaceMetaInformationForMethod();
+          {
+            //
+            restInterfaceMetaInformationForMethod.setMethod( method );
+            
+            //
+            {
+              //
+              Set<Annotation> declaredAnnotationSet = ReflectionUtils.declaredAnnotationSet( method );
+              for ( Annotation annotation : declaredAnnotationSet )
+              {
+                if ( annotation instanceof Path )
+                {
+                  //
+                  Path path = (Path) annotation;
+                  String pathValue = path.value();
+                  restInterfaceMetaInformationForMethod.setPath( pathValue );
+                }
+                else if ( annotation instanceof GET )
+                {
+                  HttpMethod httpMethod = HttpMethod.GET;
+                  restInterfaceMetaInformationForMethod.setHttpMethod( httpMethod );
+                }
+                else if ( annotation instanceof PUT )
+                {
+                  HttpMethod httpMethod = HttpMethod.PUT;
+                  restInterfaceMetaInformationForMethod.setHttpMethod( httpMethod );
+                }
+                else if ( annotation instanceof POST )
+                {
+                  HttpMethod httpMethod = HttpMethod.POST;
+                  restInterfaceMetaInformationForMethod.setHttpMethod( httpMethod );
+                }
+                else if ( annotation instanceof DELETE )
+                {
+                  HttpMethod httpMethod = HttpMethod.DELETE;
+                  restInterfaceMetaInformationForMethod.setHttpMethod( httpMethod );
+                }
+                else if ( annotation instanceof Produces )
+                {
+                  //
+                  Produces produces = (Produces) annotation;
+                  String[] values = produces.value();
+                  restInterfaceMetaInformationForMethod.getMediaTypeProducesList().addAll( Arrays.asList( values ) );
+                }
+                else if ( annotation instanceof Consumes )
+                {
+                  //
+                  Consumes consumes = (Consumes) annotation;
+                  String[] values = consumes.value();
+                  restInterfaceMetaInformationForMethod.getMediaTypeConsumesList().addAll( Arrays.asList( values ) );
+                }
+              }
+            }
+            
+            //          
+            {
+              //
+              List<MethodParameterMetaInformation> declaredMethodParameterMetaInformationList = ReflectionUtils.declaredMethodParameterMetaInformationList( method );
+              int indexPosition = 0;
+              for ( MethodParameterMetaInformation methodParameterMetaInformation : declaredMethodParameterMetaInformationList )
+              {
+                //
+                List<Annotation> declaredAnnotationList = methodParameterMetaInformation.getDeclaredAnnotationList();
+                for ( Annotation annotation : declaredAnnotationList )
+                {
+                  if ( annotation instanceof QueryParam )
+                  {
+                    //
+                    QueryParam queryParam = (QueryParam) annotation;
+                    String value = queryParam.value();
+                    restInterfaceMetaInformationForMethod.getParameterIndexPositionToQueryParameterTagMap().put( indexPosition,
+                                                                                                                 value );
+                  }
+                  else if ( annotation instanceof PathParam )
+                  {
+                    //
+                    PathParam pathParam = (PathParam) annotation;
+                    String value = pathParam.value();
+                    restInterfaceMetaInformationForMethod.getParameterIndexPositionToPathParameterTagMap().put( indexPosition,
+                                                                                                                value );
+                  }
+                  else if ( annotation instanceof MatrixParam )
+                  {
+                    //
+                    MatrixParam matrixParam = (MatrixParam) annotation;
+                    String value = matrixParam.value();
+                    restInterfaceMetaInformationForMethod.getParameterIndexPositionToMatrixParameterTagMap().put( indexPosition,
+                                                                                                                  value );
+                  }
+                  else if ( annotation instanceof HeaderParam )
+                  {
+                    //
+                    HeaderParam headerParam = (HeaderParam) annotation;
+                    String value = headerParam.value();
+                    restInterfaceMetaInformationForMethod.getParameterIndexPositionToHeaderParameterTagMap().put( indexPosition,
+                                                                                                                  value );
+                  }
+                  else if ( annotation instanceof CookieParam )
+                  {
+                    //
+                    CookieParam cookieParam = (CookieParam) annotation;
+                    String value = cookieParam.value();
+                    restInterfaceMetaInformationForMethod.getParameterIndexPositionToCookieParameterTagMap().put( indexPosition,
+                                                                                                                  value );
+                  }
+                }
+                
+                //
+                indexPosition++;
+              }
+            }
+          }
+          methodToRestInterfaceMetaInformationForMethodMap.put( method, restInterfaceMetaInformationForMethod );
+        }
       }
     }
     
     //
-    return restInterfaceMetaInformation;
+    return new RestInterfaceMetaInformation( restInterfaceMetaInformationForClass,
+                                             methodToRestInterfaceMetaInformationForMethodMap );
   }
 }
