@@ -32,12 +32,9 @@ import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterChain;
 import org.omnaest.utils.structure.element.factory.Factory;
-import org.omnaest.utils.structure.element.factory.FactorySerializable;
 import org.omnaest.utils.structure.iterator.decorator.IteratorDecorator;
 import org.omnaest.utils.structure.iterator.decorator.IteratorToIteratorAdapter;
 import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  * Helper related to {@link Iterator}
@@ -564,26 +561,4 @@ public class IteratorUtils
     };
   }
   
-  /**
-   * Returns an {@link Factory} of {@link Iterator} instances which is based on an internal {@link List} buffer which will contain
-   * the elements of the given {@link Iterator}. This allows to replicate the content of an {@link Iterator} multiple times.
-   * 
-   * @param iterator
-   * @return new {@link Factory} instance for {@link Iterator}s
-   */
-  public static <E> Factory<Iterator<E>> replicatingIteratorFactory( final Iterator<E> iterator )
-  {
-    return new FactorySerializable<Iterator<E>>()
-    {
-      private static final long serialVersionUID = -3260792842971752718L;
-      
-      private List<E>           list             = ImmutableList.<E> copyOf( iterator );
-      
-      @Override
-      public Iterator<E> newInstance()
-      {
-        return this.list.iterator();
-      }
-    };
-  }
 }

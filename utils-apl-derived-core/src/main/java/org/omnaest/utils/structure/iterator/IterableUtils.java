@@ -35,6 +35,8 @@ import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.factory.Factory;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Helper class related to {@link Iterable} instances
  * 
@@ -438,7 +440,9 @@ public class IterableUtils
   /**
    * Returns a new instance of an {@link Iterable} which returns the given {@link Iterator} instance
    * 
+   * @see #valueOf(Iterator, boolean)
    * @param iterator
+   *          {@link Iterator}
    * @return
    */
   public static <E> Iterable<E> valueOf( final Iterator<E> iterator )
@@ -615,5 +619,43 @@ public class IterableUtils
         return this;
       }
     };
+  }
+  
+  /**
+   * Returns an {@link Factory} of {@link Iterator} instances which is based on an internal {@link List} buffer which will contain
+   * the elements of the given {@link Iterator}. This allows to replicate the content of an {@link Iterator} multiple times.
+   * 
+   * @see #valueOf(Iterator)
+   * @param iterator
+   *          {@link Iterator}
+   * @param replicate
+   *          if true, the {@link Iterable} will return always a new {@link Iterator} instance with the same elements based on an
+   *          internal immutable {@link List} buffer, otherwise only the same given instance without using a buffer.
+   * @return new {@link Factory} instance for {@link Iterator}s
+   */
+  public static <E> Iterable<E> valueOf( final Iterator<E> iterator, boolean replicate )
+  {
+    return replicate ? new Iterable<E>()
+    {
+      private List<E> list = ImmutableList.<E> copyOf( iterator );
+      
+      @Override
+      public Iterator<E> iterator()
+      {
+        return this.list.iterator();
+      }
+    } : valueOf( iterator );
+  }
+  
+  /**
+   * Returns a {@link IterableReplicator}
+   * 
+   * @param iterator
+   *          {@link Iterator}
+   * @return new {@link IterableReplicator} instance
+   */
+  public static <E> IterableReplicator<E> replicate( final Iterator<E> iterator )
+  {
+    return IterableUtils.replicate( IterableUtils.valueOf( iterator, true ) );
   }
 }
