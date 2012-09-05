@@ -15,8 +15,10 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.iterator;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -564,4 +566,54 @@ public class IterableUtils
     return retval;
   }
   
+  /**
+   * The {@link IterableReplicator} allows to replicate elements to a given {@link Collection}
+   * 
+   * @see #to(Collection)
+   * @author Omnaest
+   * @param <E>
+   */
+  public static interface IterableReplicator<E> extends Serializable
+  {
+    /**
+     * Replicates all the original elements to a given {@link Collection}. Does nothing if null references are given.
+     * 
+     * @param collection
+     *          {@link Collection}
+     * @return this
+     */
+    public IterableReplicator<E> to( Collection<E> collection );
+  }
+  
+  /**
+   * Returns a {@link IterableReplicator}
+   * 
+   * @param iterable
+   *          {@link Iterable}
+   * @return new {@link IterableReplicator} instance
+   */
+  public static <E> IterableReplicator<E> replicate( final Iterable<E> iterable )
+  {
+    return new IterableReplicator<E>()
+    {
+      private static final long serialVersionUID = -3082211438096618075L;
+      
+      @Override
+      public IterableReplicator<E> to( Collection<E> collection )
+      {
+        if ( collection != null && iterable != null )
+        {
+          Iterator<E> iterator = iterable.iterator();
+          if ( iterator != null )
+          {
+            while ( iterator.hasNext() )
+            {
+              collection.add( iterator.next() );
+            }
+          }
+        }
+        return this;
+      }
+    };
+  }
 }
