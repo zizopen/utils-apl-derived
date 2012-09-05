@@ -175,4 +175,17 @@ public class IterableUtilsTest
     assertEquals( ListUtils.valueOf( "a", "c", "b" ), ListUtils.valueOf( countedElementsMap.keySet() ) );
     assertEquals( ListUtils.valueOf( 3, 2, 1 ), ListUtils.valueOf( countedElementsMap.values() ) );
   }
+  
+  @Test
+  public void testReplicate() throws Exception
+  {
+    final List<String> list1 = new ArrayList<String>();
+    final List<String> list2 = new ArrayList<String>();
+    
+    final List<String> sourceList = Arrays.asList( "a", "b", "c" );
+    IterableUtils.replicate( sourceList ).to( list1 ).to( list2 );
+    
+    assertEquals( sourceList, list1 );
+    assertEquals( sourceList, list2 );
+  }
 }
