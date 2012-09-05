@@ -188,4 +188,14 @@ public class IterableUtilsTest
     assertEquals( sourceList, list1 );
     assertEquals( sourceList, list2 );
   }
+  
+  @Test
+  public void testReplicatingIteratorFactory() throws Exception
+  {
+    final List<String> sourceList = Arrays.asList( "a", "b", "c" );
+    Iterable<String> iterable = IterableUtils.valueOf( sourceList.iterator(), true );
+    assertEquals( sourceList, ListUtils.valueOf( iterable.iterator() ) );
+    assertEquals( sourceList, ListUtils.valueOf( iterable.iterator() ) );
+    assertEquals( sourceList, ListUtils.valueOf( iterable.iterator() ) );
+  }
 }

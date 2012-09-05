@@ -105,13 +105,4 @@ public class IteratorUtilsTest
     assertEquals( Arrays.asList( "c" ), sourceList );
   }
   
-  @Test
-  public void testReplicatingIteratorFactory() throws Exception
-  {
-    final List<String> sourceList = Arrays.asList( "a", "b", "c" );
-    Factory<Iterator<String>> replicatingIteratorFactory = IteratorUtils.replicatingIteratorFactory( sourceList.iterator() );
-    assertEquals( sourceList, ListUtils.valueOf( replicatingIteratorFactory.newInstance() ) );
-    assertEquals( sourceList, ListUtils.valueOf( replicatingIteratorFactory.newInstance() ) );
-    assertEquals( sourceList, ListUtils.valueOf( replicatingIteratorFactory.newInstance() ) );
-  }
 }
