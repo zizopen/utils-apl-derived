@@ -79,18 +79,17 @@ public class IteratorUtilsTest
   }
   
   @Test
-    public void testAdapter()
-    {
-      //
-      final List<String> sourceList = Arrays.asList( "100", "101", "102" );
-      final Iterator<String> iterator = sourceList.iterator();
-      final ElementConverter<String, Long> elementConverterFirst = new ElementConverterStringToLong();
-      final ElementConverter<Long, Long> elementConverterSecond = new ElementConverterIdentitiyCast<Long, Long>();
-      final ElementConverter<Number, String> elementConverterThird = new ElementConverterNumberToString();
-      assertEquals( sourceList, ListUtils.valueOf( IteratorUtils.adapter( iterator, elementConverterFirst,
-                                                                                              elementConverterSecond,
-                                                                                              elementConverterThird ) ) );
-    }
+  public void testAdapter()
+  {
+    //
+    final List<String> sourceList = Arrays.asList( "100", "101", "102" );
+    final Iterator<String> iterator = sourceList.iterator();
+    final ElementConverter<String, Long> elementConverterFirst = new ElementConverterStringToLong();
+    final ElementConverter<Long, Long> elementConverterSecond = new ElementConverterIdentitiyCast<Long, Long>();
+    final ElementConverter<Number, String> elementConverterThird = new ElementConverterNumberToString();
+    assertEquals( sourceList, ListUtils.valueOf( IteratorUtils.adapter( iterator, elementConverterFirst, elementConverterSecond,
+                                                                        elementConverterThird ) ) );
+  }
   
   @Test
   public void testDrainTo()
@@ -104,5 +103,15 @@ public class IteratorUtilsTest
     //
     assertEquals( Arrays.asList( "a", "b" ), collection );
     assertEquals( Arrays.asList( "c" ), sourceList );
+  }
+  
+  @Test
+  public void testReplicatingIteratorFactory() throws Exception
+  {
+    final List<String> sourceList = Arrays.asList( "a", "b", "c" );
+    Factory<Iterator<String>> replicatingIteratorFactory = IteratorUtils.replicatingIteratorFactory( sourceList.iterator() );
+    assertEquals( sourceList, ListUtils.valueOf( replicatingIteratorFactory.newInstance() ) );
+    assertEquals( sourceList, ListUtils.valueOf( replicatingIteratorFactory.newInstance() ) );
+    assertEquals( sourceList, ListUtils.valueOf( replicatingIteratorFactory.newInstance() ) );
   }
 }

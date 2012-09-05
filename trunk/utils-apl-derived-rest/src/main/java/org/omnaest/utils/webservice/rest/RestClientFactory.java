@@ -49,6 +49,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.cache.Cache;
 import org.omnaest.utils.cache.CacheUtils;
 import org.omnaest.utils.download.URIHelper;
@@ -63,17 +64,18 @@ import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.tuple.Tuple2;
 
 /**
- * The {@link RestClientFactory} allows to produce proxies for given class or interface types which are based on the <a
- * href="http://jsr311.java.net/">JSR-311 API (REST)</a><br>
+ * The {@link RestClientFactory} is an abstract implementation which provides functionality to produce proxies for given class or
+ * interface types which are based on the <a href="http://jsr311.java.net/">JSR-311 API (REST)</a><br>
  * <br>
- * The performance is
+ * The performance is about
  * <ul>
- * <li>about 1000 calls in less than 1s</li>
- * <li>about 100000 calls in less than 10s</li>
- * <li>about 1000000 calls in less than 20s</li>
+ * <li>1000 calls in less than 1s</li>
+ * <li>100000 calls in less than 10s</li>
+ * <li>1000000 calls in less than 20s</li>
  * </ul>
  * 
  * @see #newRestClient(Class)
+ * @see RestClientFactoryJersey
  * @author Omnaest
  */
 public abstract class RestClientFactory
@@ -813,8 +815,19 @@ public abstract class RestClientFactory
   /* ********************************************** Methods ********************************************** */
   
   /**
+   * @see RestClientFactory
+   * @param restInterfaceMethodInvocationHandler
+   *          {@link RestInterfaceMethodInvocationHandler}
+   */
+  public RestClientFactory( RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
+  {
+    this( null, restInterfaceMethodInvocationHandler );
+  }
+  
+  /**
    * @param baseAddress
    * @param restInterfaceMethodInvocationHandler
+   *          {@link RestInterfaceMethodInvocationHandler}
    */
   public RestClientFactory( String baseAddress, RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
   
@@ -833,13 +846,17 @@ public abstract class RestClientFactory
   }
   
   /**
-   * Factory method for new REST client proxy instances.
+   * Factory method for new REST client proxy instances.<br>
+   * <br>
+   * This uses the base address given to the instance constructor. If no base address is given this throws an
+   * {@link IllegalArgumentException}.
    * 
    * @param type
    * @return
    */
   public <T> T newRestClient( Class<T> type )
   {
+    Assert.isNotNull( this.baseAddress, "base address given to the constructor must not be null" );
     return newRestClient( type, this.baseAddress );
   }
   

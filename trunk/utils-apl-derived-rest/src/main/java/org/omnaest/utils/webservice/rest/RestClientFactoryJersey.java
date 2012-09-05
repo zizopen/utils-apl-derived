@@ -42,9 +42,24 @@ import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
 import com.sun.jersey.client.urlconnection.HTTPSProperties;
 
 /**
- * Implementation for a {@link RestClientFactory} for Jersey.<br>
+ * Implementation for a {@link RestClientFactory} using the Jersey client.<br>
  * <br>
- * This is an experimental implementation, please test the functionality carefully if used in production.
+ * This is an experimental implementation, please test the functionality carefully if used in production.<br>
+ * <br>
+ * Example:
+ * 
+ * <pre>
+ * final Configuration configuration = new Configuration().setActivateJSONPojoMapping( true )
+ *                                                        .setAuthentification( new Authentification().setBasicAuthentification( &quot;username&quot;,
+ *                                                                                                                               &quot;password&quot; ) );
+ * final String baseAddress = &quot;http://localhost:8888/webapp&quot;;
+ * RestClientFactoryJersey restClientFactoryJersey = new RestClientFactoryJersey( baseAddress, configuration );
+ * 
+ * RestService restService = restClientFactoryJersey.newRestClient( RestService.class );
+ * Entity entity = new Entity();
+ * entity.setFieldString( &quot;test&quot; );
+ * restService.container( entity );
+ * </pre>
  * 
  * @see RestClientFactory
  * @author Omnaest
@@ -626,8 +641,18 @@ public class RestClientFactoryJersey extends RestClientFactory
   }
   
   /* *************************************************** Methods **************************************************** */
+  
+  /**
+   * @see RestClientFactoryJersey
+   */
+  public RestClientFactoryJersey()
+  {
+    this( null, null );
+  }
+  
   /**
    * @param baseAddress
+   *          default base address used
    */
   public RestClientFactoryJersey( String baseAddress )
   {
