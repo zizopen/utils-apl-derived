@@ -15,9 +15,11 @@
  ******************************************************************************/
 package org.omnaest.utils.assertion;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.junit.Test;
@@ -133,6 +135,33 @@ public class AssertLoggerTest
     {
       this.logger.error( "Assertion failed", e );
     }
+  }
+  
+  @Test
+  public void testAssertThat() throws Exception
+  {
+    assertTrue( this.assertLogger.assertThat().isTrue( true ).getAssertResult() );
+    assertTrue( this.assertLogger.assertThat().isFalse( false ).getAssertResult() );
+    assertTrue( this.assertLogger.assertThat().isTrue( true ).isFalse( false ).getAssertResult() );
+    assertFalse( this.assertLogger.assertThat().isTrue( true ).isFalse( true ).getAssertResult() );
+    assertFalse( this.assertLogger.assertThat().isTrue( false ).isFalse( false ).getAssertResult() );
+    assertFalse( this.assertLogger.assertThat().isTrue( false ).isFalse( true ).getAssertResult() );
+    
+    assertTrue( this.assertLogger.assertThat().isNotNull( new Object() ).getAssertResult() );
+    assertTrue( this.assertLogger.assertThat().isNotEmpty( Arrays.asList( "a" ) ).getAssertResult() );
+    assertFalse( this.assertLogger.assertThat().isNotEmpty( Arrays.asList() ).getAssertResult() );
+    assertFalse( this.assertLogger.assertThat().fails().getAssertResult() );
+    
+    assertFalse( this.assertLogger.assertThat().isTrue( false ).onFailure().log().asInfo().getAssertResult() );
+    
+    assertFalse( this.assertLogger.assertThat()
+                                  .isTrue( false )
+                                  .isFalse( true )
+                                  .onFailure()
+                                  .logWithMessage( "message" )
+                                  .asInfo()
+                                  .getAssertResult() );
+    
   }
   
 }

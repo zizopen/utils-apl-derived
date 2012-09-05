@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import org.omnaest.utils.assertion.AssertLogger.LoglevelImpl.LoglevelSupport;
+import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.time.DurationCapture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -760,6 +761,508 @@ public class AssertLogger implements Serializable
     }
   }
   
+  /**
+   * @author Omnaest
+   */
+  public static interface DirectAssertHandlerMessageChoice
+  {
+    /**
+     * @param message
+     * @return {@link DirectAssertHandler}
+     */
+    public DirectAssertHandlerLogLevelChoice logWithMessage( String message );
+    
+    /**
+     * @param messageFactory
+     * @return {@link DirectAssertHandler}
+     */
+    public DirectAssertHandlerLogLevelChoice logWithMessage( Factory<String> messageFactory );
+  }
+  
+  /**
+   * @author Omnaest
+   */
+  public static interface DirectAssertHandlerLogLevelChoice
+  {
+    /**
+     * @return {@link DirectAssertHandler}
+     */
+    public DirectAssertHandler asError();
+    
+    /**
+     * @return {@link DirectAssertHandler}
+     */
+    public DirectAssertHandler asWarn();
+    
+    /**
+     * @return {@link DirectAssertHandler}
+     */
+    public DirectAssertHandler asInfo();
+    
+    /**
+     * @return {@link DirectAssertHandler}
+     */
+    public DirectAssertHandler asDebug();
+    
+    /**
+     * @return {@link DirectAssertHandler}
+     */
+    public DirectAssertHandler asTrace();
+    
+  }
+  
+  /**
+   * @author Omnaest
+   */
+  public static interface DirectAssertResultValueProvider
+  {
+    /**
+     * Returns the result of the assertion. If the assertion fails this is false otherwise true.
+     * 
+     * @return
+     */
+    public boolean getAssertResult();
+  }
+  
+  /**
+   * @author Omnaest
+   */
+  public static interface DirectAssertHandler extends DirectAssertResultValueProvider, Serializable,
+                                             DirectAssertHandlerMessageChoice
+  {
+    /**
+     * @throws Exception
+     */
+    public void throwException() throws Exception;
+    
+    /**
+     * 
+     */
+    public void throwRuntimeException();
+    
+    /**
+     * @param exception
+     * @throws Exception
+     */
+    public void throwException( Exception exception ) throws Exception;
+    
+    /**
+     * @param throwable
+     * @throws Throwable
+     */
+    public void throwException( Throwable throwable ) throws Throwable;
+    
+    /**
+     * @return {@link DirectAssertHandlerLogLevelChoice}
+     */
+    public DirectAssertHandlerLogLevelChoice log();
+  }
+  
+  public static interface DirectAssertWithExpression extends DirectAssert, DirectAssertResultValueProvider
+  {
+    /**
+     * Returns the {@link DirectAssert} again to assert further expressions
+     * 
+     * @return this
+     */
+    public DirectAssert and();
+    
+    /**
+     * Returns the {@link DirectAssertHandler} which allows to handle the result of the previous assertions
+     * 
+     * @return
+     */
+    public DirectAssertHandler onFailure();
+  }
+  
+  /**
+   * @author Omnaest
+   */
+  public static interface DirectAssert extends Serializable
+  {
+    
+    /**
+     * Returns true if the {@link DurationCapture#getInterimTime(TimeUnit)} is lower than the given duration limit.
+     * 
+     * @see Assert#isInterimTimeLowerThan(int, TimeUnit, DurationCapture, Object[])
+     * @see LoglevelAssert
+     * @param durationLimit
+     * @param timeUnit
+     *          {@link TimeUnit}
+     * @param durationCapture
+     *          {@link DurationCapture}
+     * @param intervalKeys
+     * @return
+     */
+    public DirectAssertWithExpression isInterimTimeLowerThan( int durationLimit,
+                                                              TimeUnit timeUnit,
+                                                              DurationCapture durationCapture,
+                                                              Object[] intervalKeys );
+    
+    /**
+     * @see Assert#fails(Exception)
+     * @see LoglevelAssert
+     * @param cause
+     */
+    public DirectAssertWithExpression fails( Exception cause );
+    
+    /**
+     * @see Assert#fails()
+     * @see LoglevelAssert
+     */
+    public DirectAssertWithExpression fails();
+    
+    /**
+     * Returns true if all the given {@link Object}s are not null.
+     * 
+     * @see Assert#isNotNull(Object, Object...)
+     * @see LoglevelAssert
+     * @param object
+     * @param objects
+     * @return
+     */
+    public DirectAssertWithExpression isNotNull( Object object, Object... objects );
+    
+    /**
+     * Returns true if the given {@link Object} is not null.
+     * 
+     * @see Assert#isNotNull(Object)
+     * @see LoglevelAssert
+     * @param object
+     * @return
+     */
+    public DirectAssertWithExpression isNotNull( Object object );
+    
+    /**
+     * Returns true if the given {@link Collection}s is not null and not empty.
+     * 
+     * @see Assert#isNotEmpty(Collection)
+     * @see LoglevelAssert
+     * @param collection
+     * @return
+     */
+    public DirectAssertWithExpression isNotEmpty( Collection<?> collection );
+    
+    /**
+     * Returns true if the given {@link Object}s are equal
+     * 
+     * @see Assert#areEqual(Object, Object)
+     * @see LoglevelAssert
+     * @param object1
+     * @param object2
+     * @return
+     */
+    public DirectAssertWithExpression areEqual( Object object1, Object object2 );
+    
+    /**
+     * Returns true if the given expression is false
+     * 
+     * @see Assert#isFalse(boolean)
+     * @see LoglevelAssert
+     * @param expression
+     * @return
+     */
+    public DirectAssertWithExpression isFalse( boolean expression );
+    
+    /**
+     * Returns true if the given expression is true
+     * 
+     * @see Assert#isTrue(boolean)
+     * @see LoglevelAssert
+     * @param expression
+     * @return
+     */
+    public DirectAssertWithExpression isTrue( boolean expression );
+  }
+  
+  private class DirectAssertImpl implements DirectAssert, DirectAssertWithExpression, DirectAssertHandler,
+                                DirectAssertHandlerLogLevelChoice, DirectAssertHandlerMessageChoice
+  {
+    /* ************************************************** Constants *************************************************** */
+    private static final long serialVersionUID = -885293756532927338L;
+    
+    /* ************************************** Variables / State (internal/hiding) ************************************* */
+    private boolean           assertResult     = true;
+    private String            message          = null;
+    private Exception         catchedException = null;
+    
+    /* *************************************************** Methods **************************************************** */
+    
+    @Override
+    public DirectAssertWithExpression isInterimTimeLowerThan( int durationLimit,
+                                                              TimeUnit timeUnit,
+                                                              DurationCapture durationCapture,
+                                                              Object[] intervalKeys )
+    {
+      try
+      {
+        Assert.isInterimTimeLowerThan( durationLimit, timeUnit, durationCapture, intervalKeys );
+      }
+      catch ( Exception e )
+      {
+        this.assertResult = false;
+        this.catchedException = e;
+      }
+      return this;
+    }
+    
+    @Override
+    public DirectAssertWithExpression fails( Exception cause )
+    {
+      try
+      {
+        Assert.fails( cause );
+      }
+      catch ( Exception e )
+      {
+        this.assertResult = false;
+        this.catchedException = e;
+      }
+      return this;
+    }
+    
+    @Override
+    public DirectAssertWithExpression fails()
+    {
+      try
+      {
+        Assert.fails();
+      }
+      catch ( Exception e )
+      {
+        this.assertResult = false;
+        this.catchedException = e;
+      }
+      return this;
+    }
+    
+    @Override
+    public DirectAssertWithExpression isNotNull( Object object, Object... objects )
+    {
+      try
+      {
+        Assert.isNotNull( object, objects );
+      }
+      catch ( Exception e )
+      {
+        this.assertResult = false;
+        this.catchedException = e;
+      }
+      return this;
+    }
+    
+    @Override
+    public DirectAssertWithExpression isNotNull( Object object )
+    {
+      try
+      {
+        Assert.isNotNull( object );
+      }
+      catch ( Exception e )
+      {
+        this.assertResult = false;
+        this.catchedException = e;
+      }
+      return this;
+    }
+    
+    @Override
+    public DirectAssertWithExpression isNotEmpty( Collection<?> collection )
+    {
+      try
+      {
+        Assert.isNotEmpty( collection );
+      }
+      catch ( Exception e )
+      {
+        this.assertResult = false;
+        this.catchedException = e;
+      }
+      return this;
+    }
+    
+    @Override
+    public DirectAssertWithExpression areEqual( Object object1, Object object2 )
+    {
+      try
+      {
+        Assert.areEqual( object1, object2 );
+      }
+      catch ( Exception e )
+      {
+        this.assertResult = false;
+        this.catchedException = e;
+      }
+      return this;
+    }
+    
+    @Override
+    public DirectAssertWithExpression isFalse( boolean expression )
+    {
+      try
+      {
+        Assert.isFalse( expression );
+      }
+      catch ( Exception e )
+      {
+        this.assertResult = false;
+        this.catchedException = e;
+      }
+      return this;
+    }
+    
+    @Override
+    public DirectAssertWithExpression isTrue( boolean expression )
+    {
+      try
+      {
+        Assert.isTrue( expression );
+      }
+      catch ( Exception e )
+      {
+        this.assertResult = false;
+        this.catchedException = e;
+      }
+      return this;
+    }
+    
+    @Override
+    public boolean getAssertResult()
+    {
+      return this.assertResult;
+    }
+    
+    @Override
+    public DirectAssert and()
+    {
+      return this;
+    }
+    
+    @Override
+    public DirectAssertHandler onFailure()
+    {
+      return this;
+    }
+    
+    @Override
+    public void throwException() throws Exception
+    {
+      if ( !this.assertResult )
+      {
+        if ( this.message != null )
+        {
+          throw new RuntimeException( this.message, this.catchedException );
+        }
+        throw new Exception( this.catchedException );
+      }
+    }
+    
+    @Override
+    public void throwException( Exception exception ) throws Exception
+    {
+      if ( !this.assertResult && exception != null )
+      {
+        throw exception;
+      }
+    }
+    
+    @Override
+    public void throwException( Throwable throwable ) throws Throwable
+    {
+      if ( !this.assertResult && throwable != null )
+      {
+        throw throwable;
+      }
+    }
+    
+    @Override
+    public void throwRuntimeException()
+    {
+      if ( !this.assertResult )
+      {
+        if ( this.message != null )
+        {
+          throw new RuntimeException( this.message, this.catchedException );
+        }
+        throw new RuntimeException( this.catchedException );
+      }
+    }
+    
+    @Override
+    public DirectAssertHandler asError()
+    {
+      this.log( AssertLogger.this.error );
+      return this;
+    }
+    
+    @Override
+    public DirectAssertHandler asWarn()
+    {
+      this.log( AssertLogger.this.warn );
+      return this;
+    }
+    
+    @Override
+    public DirectAssertHandler asInfo()
+    {
+      this.log( AssertLogger.this.info );
+      return this;
+    }
+    
+    @Override
+    public DirectAssertHandler asDebug()
+    {
+      this.log( AssertLogger.this.debug );
+      return this;
+    }
+    
+    @Override
+    public DirectAssertHandler asTrace()
+    {
+      this.log( AssertLogger.this.trace );
+      return this;
+    }
+    
+    private void log( Loglevel loglevel )
+    {
+      if ( !this.assertResult )
+      {
+        if ( this.message != null )
+        {
+          loglevel.message( this.message, this.catchedException );
+        }
+        else
+        {
+          loglevel.message( this.catchedException );
+        }
+      }
+    }
+    
+    @Override
+    public DirectAssertHandlerLogLevelChoice logWithMessage( String message )
+    {
+      this.message = message;
+      return this;
+    }
+    
+    @Override
+    public DirectAssertHandlerLogLevelChoice logWithMessage( Factory<String> messageFactory )
+    {
+      if ( !this.assertResult )
+      {
+        this.message = messageFactory != null ? messageFactory.newInstance() : null;
+      }
+      return this;
+    }
+    
+    @Override
+    public DirectAssertHandlerLogLevelChoice log()
+    {
+      return this;
+    }
+    
+  }
+  
   /* ********************************************** Methods ********************************************** */
   
   /**
@@ -785,7 +1288,7 @@ public class AssertLogger implements Serializable
     this.trace = new LoglevelImpl( new LoglevelSupport()
     {
       private static final long serialVersionUID = 7211946266092536103L;
-
+      
       @Override
       public void writeMessage( String message, Throwable e )
       {
@@ -807,7 +1310,7 @@ public class AssertLogger implements Serializable
     this.debug = new LoglevelImpl( new LoglevelSupport()
     {
       private static final long serialVersionUID = -8205878887500731466L;
-
+      
       @Override
       public void writeMessage( String message, Throwable e )
       {
@@ -829,7 +1332,7 @@ public class AssertLogger implements Serializable
     this.info = new LoglevelImpl( new LoglevelSupport()
     {
       private static final long serialVersionUID = -763948000020211389L;
-
+      
       @Override
       public void writeMessage( String message, Throwable e )
       {
@@ -851,7 +1354,7 @@ public class AssertLogger implements Serializable
     this.warn = new LoglevelImpl( new LoglevelSupport()
     {
       private static final long serialVersionUID = -5760294798817317257L;
-
+      
       @Override
       public void writeMessage( String message, Throwable e )
       {
@@ -873,7 +1376,7 @@ public class AssertLogger implements Serializable
     this.error = new LoglevelImpl( new LoglevelSupport()
     {
       private static final long serialVersionUID = 8052613300931257305L;
-
+      
       @Override
       public void writeMessage( String message, Throwable e )
       {
@@ -892,7 +1395,14 @@ public class AssertLogger implements Serializable
         return logger.isErrorEnabled();
       }
     } );
-    
+  }
+  
+  /**
+   * @return new {@link DirectAssert} instance
+   */
+  public DirectAssert assertThat()
+  {
+    return new DirectAssertImpl();
   }
   
 }
