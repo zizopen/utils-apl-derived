@@ -1358,4 +1358,19 @@ public class MapUtils
       }
     } );
   }
+  
+  /**
+   * Returns a new {@link MapDelta} for the given two {@link Map} instances
+   * 
+   * @see SetUtils#delta(Set, Set)
+   * @see Map
+   * @param mapFirst
+   * @param mapSecond
+   * @return new {@link MapDelta}
+   */
+  public static <K, V> MapDelta<K, V> delta( Map<K, V> mapFirst, Map<K, V> mapSecond )
+  {
+    return new MapDelta<K, V>( mapFirst, mapSecond );
+  }
+  
 }

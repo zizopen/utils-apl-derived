@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.Times;
+import org.omnaest.utils.assertion.AssertLogger.DirectAssertHandlerMessageChoice.LogLevel;
 import org.omnaest.utils.assertion.AssertLogger.MessageFactory;
 import org.slf4j.Logger;
 
@@ -152,16 +153,29 @@ public class AssertLoggerTest
     assertFalse( this.assertLogger.assertThat().isNotEmpty( Arrays.asList() ).getAssertResult() );
     assertFalse( this.assertLogger.assertThat().fails().getAssertResult() );
     
-    assertFalse( this.assertLogger.assertThat().isTrue( false ).onFailure().log().asInfo().getAssertResult() );
+    assertFalse( this.assertLogger.assertThat().isTrue( false ).onFailure().logAs( LogLevel.INFO ).getAssertResult() );
+    Mockito.verify( this.logger, new Times( 1 ) ).info( Matchers.anyString(), Matchers.any( Throwable.class ) );
     
-    assertFalse( this.assertLogger.assertThat()
-                                  .isTrue( false )
-                                  .isFalse( true )
-                                  .onFailure()
-                                  .logWithMessage( "message" )
-                                  .asInfo()
-                                  .getAssertResult() );
+    {
+      assertFalse( this.assertLogger.assertThat()
+                                    .isTrue( false )
+                                    .onSuccess()
+                                    .logWithMessage( LogLevel.DEBUG, "success" )
+                                    .onFailure()
+                                    .logWithMessage( LogLevel.ERROR, "failed" )
+                                    .getAssertResult() );
+      Mockito.verify( this.logger, new Times( 1 ) ).error( Matchers.anyString(), Matchers.any( Throwable.class ) );
+    }
+    {
+      assertTrue( this.assertLogger.assertThat()
+                                   .isTrue( true )
+                                   .onSuccess()
+                                   .logWithMessage( LogLevel.DEBUG, "success" )
+                                   .onFailure()
+                                   .logWithMessage( LogLevel.ERROR, "failed" )
+                                   .getAssertResult() );
+      Mockito.verify( this.logger, new Times( 1 ) ).debug( Matchers.anyString() );
+    }
     
   }
-  
 }

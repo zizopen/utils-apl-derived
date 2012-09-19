@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.collection.set;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.omnaest.utils.structure.element.ObjectUtils;
@@ -59,7 +60,7 @@ public class SetDelta<E>
    */
   public Set<E> getAddedElementSet()
   {
-    return this.addedElementSet;
+    return Collections.unmodifiableSet( this.addedElementSet );
   }
   
   /**
@@ -69,7 +70,7 @@ public class SetDelta<E>
    */
   public Set<E> getRemovedElementSet()
   {
-    return this.removedElementSet;
+    return Collections.unmodifiableSet( this.removedElementSet );
   }
   
   /**
@@ -79,6 +80,85 @@ public class SetDelta<E>
    */
   public Set<E> getRetainedElementSet()
   {
-    return this.intersection;
+    return Collections.unmodifiableSet( this.intersection );
   }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "SetDelta [addedElementSet=" );
+    builder.append( this.addedElementSet );
+    builder.append( ", removedElementSet=" );
+    builder.append( this.removedElementSet );
+    builder.append( ", intersection=" );
+    builder.append( this.intersection );
+    builder.append( "]" );
+    return builder.toString();
+  }
+  
+  @Override
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( this.addedElementSet == null ) ? 0 : this.addedElementSet.hashCode() );
+    result = prime * result + ( ( this.intersection == null ) ? 0 : this.intersection.hashCode() );
+    result = prime * result + ( ( this.removedElementSet == null ) ? 0 : this.removedElementSet.hashCode() );
+    return result;
+  }
+  
+  @Override
+  public boolean equals( Object obj )
+  {
+    if ( this == obj )
+    {
+      return true;
+    }
+    if ( obj == null )
+    {
+      return false;
+    }
+    if ( !( obj instanceof SetDelta ) )
+    {
+      return false;
+    }
+    @SuppressWarnings("rawtypes")
+    SetDelta other = (SetDelta) obj;
+    if ( this.addedElementSet == null )
+    {
+      if ( other.addedElementSet != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.addedElementSet.equals( other.addedElementSet ) )
+    {
+      return false;
+    }
+    if ( this.intersection == null )
+    {
+      if ( other.intersection != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.intersection.equals( other.intersection ) )
+    {
+      return false;
+    }
+    if ( this.removedElementSet == null )
+    {
+      if ( other.removedElementSet != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.removedElementSet.equals( other.removedElementSet ) )
+    {
+      return false;
+    }
+    return true;
+  }
+  
 }

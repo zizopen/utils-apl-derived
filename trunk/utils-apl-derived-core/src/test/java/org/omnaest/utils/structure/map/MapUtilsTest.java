@@ -282,4 +282,28 @@ public class MapUtilsTest
     assertEquals( 2, value2 );
   }
   
+  @Test
+  public void testDelta() throws Exception
+  {
+    final Map<String, String> mapFirst = MapUtils.builder()
+                                                 .put( "key1", "value1" )
+                                                 .put( "key2", "value2" )
+                                                 .put( "key3b", "value2" )
+                                                 .buildAs()
+                                                 .linkedHashMap();
+    final Map<String, String> mapSecond = MapUtils.builder()
+                                                  .put( "key1", "value2" )
+                                                  .put( "key2", "value2" )
+                                                  .put( "key3a", "value2" )
+                                                  .buildAs()
+                                                  .linkedHashMap();
+    MapDelta<String, String> delta = MapUtils.delta( mapFirst, mapSecond );
+    
+    assertEquals( SetUtils.delta( mapFirst.keySet(), mapSecond.keySet() ), delta.getKeySetDelta() );
+    assertEquals( SetUtils.valueOf( "key2" ), delta.getRetainedKeyToEqualValueMap().keySet() );
+    assertEquals( "value2", delta.getRetainedKeyToEqualValueMap().get( "key2" ) );
+    assertEquals( SetUtils.valueOf( "key1" ), delta.getRetainedKeyToUnequalValuesMap().keySet() );
+    assertEquals( "value1", delta.getRetainedKeyToUnequalValuesMap().get( "key1" ).getValueFirst() );
+    assertEquals( "value2", delta.getRetainedKeyToUnequalValuesMap().get( "key1" ).getValueSecond() );
+  }
 }
