@@ -43,11 +43,114 @@ public class BeanReplicatorWithCollectionsTest
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   
+  @SuppressWarnings("unused")
+  private static class SubBean
+  {
+    private String first;
+    private String second;
+    
+    public SubBean()
+    {
+      super();
+    }
+    
+    public SubBean( String first, String second )
+    {
+      super();
+      this.first = first;
+      this.second = second;
+    }
+    
+    @Override
+    public String toString()
+    {
+      StringBuilder builder = new StringBuilder();
+      builder.append( "SubBean [first=" );
+      builder.append( this.first );
+      builder.append( ", second=" );
+      builder.append( this.second );
+      builder.append( "]" );
+      return builder.toString();
+    }
+    
+    public String getFirst()
+    {
+      return this.first;
+    }
+    
+    public void setFirst( String first )
+    {
+      this.first = first;
+    }
+    
+    public String getSecond()
+    {
+      return this.second;
+    }
+    
+    public void setSecond( String second )
+    {
+      this.second = second;
+    }
+    
+    @Override
+    public int hashCode()
+    {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ( ( this.first == null ) ? 0 : this.first.hashCode() );
+      result = prime * result + ( ( this.second == null ) ? 0 : this.second.hashCode() );
+      return result;
+    }
+    
+    @Override
+    public boolean equals( Object obj )
+    {
+      if ( this == obj )
+      {
+        return true;
+      }
+      if ( obj == null )
+      {
+        return false;
+      }
+      if ( !( obj instanceof SubBean ) )
+      {
+        return false;
+      }
+      SubBean other = (SubBean) obj;
+      if ( this.first == null )
+      {
+        if ( other.first != null )
+        {
+          return false;
+        }
+      }
+      else if ( !this.first.equals( other.first ) )
+      {
+        return false;
+      }
+      if ( this.second == null )
+      {
+        if ( other.second != null )
+        {
+          return false;
+        }
+      }
+      else if ( !this.second.equals( other.second ) )
+      {
+        return false;
+      }
+      return true;
+    }
+    
+  }
+  
   private static class TestSimpleBean
   {
     private Map<String, Object>       map;
     private Set<String>               set;
-    private List<String>              list;
+    private List<SubBean>             list;
     private Iterable<String>          iterable;
     private Collection<String>        collection;
     private String[]                  array;
@@ -72,16 +175,6 @@ public class BeanReplicatorWithCollectionsTest
     public void setSet( Set<String> set )
     {
       this.set = set;
-    }
-    
-    public List<String> getList()
-    {
-      return this.list;
-    }
-    
-    public void setList( List<String> list )
-    {
-      this.list = list;
     }
     
     public Iterable<String> getIterable()
@@ -134,6 +227,16 @@ public class BeanReplicatorWithCollectionsTest
       this.sortedMap = sortedMap;
     }
     
+    public List<SubBean> getList()
+    {
+      return this.list;
+    }
+    
+    public void setList( List<SubBean> list )
+    {
+      this.list = list;
+    }
+    
   }
   
   /* *************************************************** Methods **************************************************** */
@@ -156,7 +259,7 @@ public class BeanReplicatorWithCollectionsTest
                                            .treeMap( ComparatorUtils.reversedComparator( ComparatorUtils.NATURAL_COMPARATOR ) ) );
       testSimpleBean.setSet( SetUtils.valueOf( "a", "b", "c", "d" ) );
       testSimpleBean.setSortedSet( new TreeSet<String>( SetUtils.valueOf( "b", "c", "d", "a" ) ) );
-      testSimpleBean.setList( ListUtils.valueOf( "a", "b", "c", "d" ) );
+      testSimpleBean.setList( ListUtils.valueOf( new SubBean( "a", "b" ), new SubBean( "c", "d" ) ) );
       testSimpleBean.setCollection( ListUtils.valueOf( "a", "b", "c", "d" ) );
       testSimpleBean.setIterable( ListUtils.valueOf( "a", "b", "c", "d" ) );
       testSimpleBean.setArray( new String[] { "a", "b", "c", "d" } );

@@ -373,6 +373,7 @@ public class BeanReplicatorComplexTest
   }
   
   /* *************************************************** Methods **************************************************** */
+  @SuppressWarnings("serial")
   @Test
   public void testBasicReplication()
   {
