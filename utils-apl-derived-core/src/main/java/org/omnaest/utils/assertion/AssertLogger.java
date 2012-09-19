@@ -464,7 +464,14 @@ public class AssertLogger implements Serializable
     public Loglevel message( String message, Throwable e )
     {
       //
-      this.loglevelSupport.writeMessage( message, e );
+      if ( e != null )
+      {
+        this.loglevelSupport.writeMessage( message, e );
+      }
+      else
+      {
+        this.loglevelSupport.writeMessage( message );
+      }
       return this;
     }
     
@@ -690,7 +697,7 @@ public class AssertLogger implements Serializable
       }
       catch ( Exception e )
       {
-        this.message( "Assert.fails() notifies about an operation failure", e );
+        this.message( "Assert.fails() notifies about an operation failureHandling", e );
       }
     }
     
@@ -704,7 +711,7 @@ public class AssertLogger implements Serializable
       }
       catch ( Exception e )
       {
-        this.message( "Assert.fails() notifies about an operation failure", e );
+        this.message( "Assert.fails() notifies about an operation failureHandling", e );
       }
     }
     
@@ -718,7 +725,7 @@ public class AssertLogger implements Serializable
       }
       catch ( Exception e )
       {
-        this.message( "Assert.fails() notifies about an operation failure", e );
+        this.message( "Assert.fails() notifies about an operation failureHandling", e );
       }
     }
     
@@ -732,7 +739,7 @@ public class AssertLogger implements Serializable
       }
       catch ( Exception e )
       {
-        this.message( "Assert.fails() notifies about an operation failure", e );
+        this.message( "Assert.fails() notifies about an operation failureHandling", e );
       }
     }
     
@@ -766,49 +773,29 @@ public class AssertLogger implements Serializable
    */
   public static interface DirectAssertHandlerMessageChoice
   {
+    public static enum LogLevel
+    {
+      ERROR,
+      WARN,
+      INFO,
+      DEBUG,
+      TRACE
+    }
+    
     /**
+     * @param logLevel
      * @param message
      * @return {@link DirectAssertHandler}
      */
-    public DirectAssertHandlerLogLevelChoice logWithMessage( String message );
+    public DirectAssertHandler logWithMessage( LogLevel logLevel, String message );
     
     /**
+     * @param logLevel
      * @param messageFactory
+     *          {@link MessageFactory}
      * @return {@link DirectAssertHandler}
      */
-    public DirectAssertHandlerLogLevelChoice logWithMessage( Factory<String> messageFactory );
-  }
-  
-  /**
-   * @author Omnaest
-   */
-  public static interface DirectAssertHandlerLogLevelChoice
-  {
-    /**
-     * @return {@link DirectAssertHandler}
-     */
-    public DirectAssertHandler asError();
-    
-    /**
-     * @return {@link DirectAssertHandler}
-     */
-    public DirectAssertHandler asWarn();
-    
-    /**
-     * @return {@link DirectAssertHandler}
-     */
-    public DirectAssertHandler asInfo();
-    
-    /**
-     * @return {@link DirectAssertHandler}
-     */
-    public DirectAssertHandler asDebug();
-    
-    /**
-     * @return {@link DirectAssertHandler}
-     */
-    public DirectAssertHandler asTrace();
-    
+    public DirectAssertHandler logWithMessage( LogLevel logLevel, Factory<String> messageFactory );
   }
   
   /**
@@ -828,7 +815,7 @@ public class AssertLogger implements Serializable
    * @author Omnaest
    */
   public static interface DirectAssertHandler extends DirectAssertResultValueProvider, Serializable,
-                                             DirectAssertHandlerMessageChoice
+                                             DirectAssertHandlerMessageChoice, DirectAssertSuccessFailureChoice
   {
     /**
      * @throws Exception
@@ -853,12 +840,33 @@ public class AssertLogger implements Serializable
     public void throwException( Throwable throwable ) throws Throwable;
     
     /**
-     * @return {@link DirectAssertHandlerLogLevelChoice}
+     * @param logLevel
+     *          {@link LogLevel}
+     * @return
      */
-    public DirectAssertHandlerLogLevelChoice log();
+    public DirectAssertHandler logAs( LogLevel logLevel );
+    
   }
   
-  public static interface DirectAssertWithExpression extends DirectAssert, DirectAssertResultValueProvider
+  public static interface DirectAssertSuccessFailureChoice
+  {
+    /**
+     * Returns the {@link DirectAssertHandler} which allows to handle the failureHandling result of the previous assertions
+     * 
+     * @return
+     */
+    public DirectAssertHandler onFailure();
+    
+    /**
+     * Returns the {@link DirectAssertHandler} which allows to handle the succes result of the previous assertions
+     * 
+     * @return
+     */
+    public DirectAssertHandler onSuccess();
+  }
+  
+  public static interface DirectAssertWithExpression extends DirectAssert, DirectAssertResultValueProvider,
+                                                    DirectAssertSuccessFailureChoice
   {
     /**
      * Returns the {@link DirectAssert} again to assert further expressions
@@ -867,12 +875,6 @@ public class AssertLogger implements Serializable
      */
     public DirectAssert and();
     
-    /**
-     * Returns the {@link DirectAssertHandler} which allows to handle the result of the previous assertions
-     * 
-     * @return
-     */
-    public DirectAssertHandler onFailure();
   }
   
   /**
@@ -976,7 +978,7 @@ public class AssertLogger implements Serializable
   }
   
   private class DirectAssertImpl implements DirectAssert, DirectAssertWithExpression, DirectAssertHandler,
-                                DirectAssertHandlerLogLevelChoice, DirectAssertHandlerMessageChoice
+                                DirectAssertHandlerMessageChoice
   {
     /* ************************************************** Constants *************************************************** */
     private static final long serialVersionUID = -885293756532927338L;
@@ -985,6 +987,8 @@ public class AssertLogger implements Serializable
     private boolean           assertResult     = true;
     private String            message          = null;
     private Exception         catchedException = null;
+    
+    private boolean           failureHandling  = true;
     
     /* *************************************************** Methods **************************************************** */
     
@@ -1141,13 +1145,21 @@ public class AssertLogger implements Serializable
     @Override
     public DirectAssertHandler onFailure()
     {
+      this.failureHandling = true;
+      return this;
+    }
+    
+    @Override
+    public DirectAssertHandler onSuccess()
+    {
+      this.failureHandling = false;
       return this;
     }
     
     @Override
     public void throwException() throws Exception
     {
-      if ( !this.assertResult )
+      if ( !isTriggerEventProhibited() )
       {
         if ( this.message != null )
         {
@@ -1157,10 +1169,15 @@ public class AssertLogger implements Serializable
       }
     }
     
+    private boolean isTriggerEventProhibited()
+    {
+      return ( !this.failureHandling && !this.assertResult ) || ( this.failureHandling && this.assertResult );
+    }
+    
     @Override
     public void throwException( Exception exception ) throws Exception
     {
-      if ( !this.assertResult && exception != null )
+      if ( !isTriggerEventProhibited() && exception != null )
       {
         throw exception;
       }
@@ -1169,7 +1186,7 @@ public class AssertLogger implements Serializable
     @Override
     public void throwException( Throwable throwable ) throws Throwable
     {
-      if ( !this.assertResult && throwable != null )
+      if ( !isTriggerEventProhibited() && throwable != null )
       {
         throw throwable;
       }
@@ -1178,7 +1195,7 @@ public class AssertLogger implements Serializable
     @Override
     public void throwRuntimeException()
     {
-      if ( !this.assertResult )
+      if ( !isTriggerEventProhibited() )
       {
         if ( this.message != null )
         {
@@ -1188,44 +1205,9 @@ public class AssertLogger implements Serializable
       }
     }
     
-    @Override
-    public DirectAssertHandler asError()
-    {
-      this.log( AssertLogger.this.error );
-      return this;
-    }
-    
-    @Override
-    public DirectAssertHandler asWarn()
-    {
-      this.log( AssertLogger.this.warn );
-      return this;
-    }
-    
-    @Override
-    public DirectAssertHandler asInfo()
-    {
-      this.log( AssertLogger.this.info );
-      return this;
-    }
-    
-    @Override
-    public DirectAssertHandler asDebug()
-    {
-      this.log( AssertLogger.this.debug );
-      return this;
-    }
-    
-    @Override
-    public DirectAssertHandler asTrace()
-    {
-      this.log( AssertLogger.this.trace );
-      return this;
-    }
-    
     private void log( Loglevel loglevel )
     {
-      if ( !this.assertResult )
+      if ( !isTriggerEventProhibited() )
       {
         if ( this.message != null )
         {
@@ -1239,25 +1221,59 @@ public class AssertLogger implements Serializable
     }
     
     @Override
-    public DirectAssertHandlerLogLevelChoice logWithMessage( String message )
+    public DirectAssertHandler logWithMessage( LogLevel logLevel, String message )
     {
-      this.message = message;
-      return this;
-    }
-    
-    @Override
-    public DirectAssertHandlerLogLevelChoice logWithMessage( Factory<String> messageFactory )
-    {
-      if ( !this.assertResult )
+      if ( logLevel != null )
       {
-        this.message = messageFactory != null ? messageFactory.newInstance() : null;
+        if ( !isTriggerEventProhibited() )
+        {
+          this.message = message;
+          this.logAs( logLevel );
+        }
       }
       return this;
     }
     
     @Override
-    public DirectAssertHandlerLogLevelChoice log()
+    public DirectAssertHandler logWithMessage( LogLevel logLevel, Factory<String> messageFactory )
     {
+      if ( logLevel != null )
+      {
+        if ( !isTriggerEventProhibited() )
+        {
+          this.message = messageFactory != null ? messageFactory.newInstance() : null;
+          this.logAs( logLevel );
+        }
+      }
+      return this;
+    }
+    
+    @Override
+    public DirectAssertHandler logAs( LogLevel logLevel )
+    {
+      if ( logLevel != null )
+      {
+        if ( LogLevel.ERROR.equals( logLevel ) )
+        {
+          this.log( AssertLogger.this.error );
+        }
+        else if ( LogLevel.WARN.equals( logLevel ) )
+        {
+          this.log( AssertLogger.this.warn );
+        }
+        else if ( LogLevel.INFO.equals( logLevel ) )
+        {
+          this.log( AssertLogger.this.info );
+        }
+        else if ( LogLevel.DEBUG.equals( logLevel ) )
+        {
+          this.log( AssertLogger.this.debug );
+        }
+        else if ( LogLevel.TRACE.equals( logLevel ) )
+        {
+          this.log( AssertLogger.this.trace );
+        }
+      }
       return this;
     }
     

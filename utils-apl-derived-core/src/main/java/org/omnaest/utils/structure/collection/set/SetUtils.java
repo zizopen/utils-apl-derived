@@ -34,6 +34,7 @@ import org.omnaest.utils.structure.element.converter.ElementBidirectionalConvert
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.filter.ElementFilter;
 import org.omnaest.utils.structure.iterator.IterableUtils;
+import org.omnaest.utils.structure.map.MapUtils;
 
 /**
  * Helper for {@link Set} types
@@ -47,6 +48,7 @@ public class SetUtils
   /**
    * Returns a new {@link SetDelta} instance for the given {@link Set}s
    * 
+   * @see MapUtils#delta(java.util.Map, java.util.Map)
    * @param firstSet
    * @param secondSet
    * @return {@link SetDelta} instance
