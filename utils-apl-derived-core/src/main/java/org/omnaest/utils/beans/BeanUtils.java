@@ -43,7 +43,7 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.structure.map.MapUtils.MapElementMergeOperation;
-import org.omnaest.utils.tuple.TupleTwo;
+import org.omnaest.utils.tuple.Tuple2;
 
 /**
  * Helper class for Java beans.
@@ -1034,12 +1034,12 @@ public class BeanUtils
       final Map<String, BeanPropertyAccessor<D>> fieldnameToBeanPropertyAccessorDestinationMap = BeanUtils.propertyNameToBeanPropertyAccessorMap( (Class<D>) beanDestination.getClass() );
       
       //
-      final List<TupleTwo<BeanPropertyAccessor<S>, BeanPropertyAccessor<D>>> joinTupleList = ListUtils.valueOf( MapUtils.innerJoinMapByKey( fieldnameToBeanPropertyAccessorSourceMap,
-                                                                                                                                            fieldnameToBeanPropertyAccessorDestinationMap )
-                                                                                                                        .values() );
+      final List<Tuple2<BeanPropertyAccessor<S>, BeanPropertyAccessor<D>>> joinTupleList = ListUtils.valueOf( MapUtils.innerJoinMapByKey( fieldnameToBeanPropertyAccessorSourceMap,
+                                                                                                                                          fieldnameToBeanPropertyAccessorDestinationMap )
+                                                                                                                      .values() );
       
       //
-      for ( TupleTwo<BeanPropertyAccessor<S>, BeanPropertyAccessor<D>> tupleDuad : joinTupleList )
+      for ( Tuple2<BeanPropertyAccessor<S>, BeanPropertyAccessor<D>> tupleDuad : joinTupleList )
       {
         //
         BeanPropertyAccessor<S> beanPropertySourceAccessor = tupleDuad.getValueFirst();

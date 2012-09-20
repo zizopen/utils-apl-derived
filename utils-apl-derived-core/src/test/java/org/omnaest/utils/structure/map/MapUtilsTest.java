@@ -195,6 +195,7 @@ public class MapUtilsTest
     assertTrue( initializedMap.get( "test" ) );
   }
   
+  @SuppressWarnings("deprecation")
   @Test
   public void testInvertedBidirectionalMap()
   {
@@ -305,5 +306,48 @@ public class MapUtilsTest
     assertEquals( SetUtils.valueOf( "key1" ), delta.getRetainedKeyToUnequalValuesMap().keySet() );
     assertEquals( "value1", delta.getRetainedKeyToUnequalValuesMap().get( "key1" ).getValueFirst() );
     assertEquals( "value2", delta.getRetainedKeyToUnequalValuesMap().get( "key1" ).getValueSecond() );
+  }
+  
+  @Test
+  public void testPutIfAbsent() throws Exception
+  {
+    {
+      final String value1 = "value1";
+      final String value2 = "value2";
+      final String key = "key";
+      Map<String, String> map = new HashMap<String, String>();
+      
+      MapUtils.putIfAbsent( map, key, value1 );
+      MapUtils.putIfAbsent( map, key, value2 );
+      
+      assertTrue( map.containsKey( key ) );
+      assertEquals( value1, map.get( key ) );
+    }
+    {
+      final String value1 = "value1";
+      final String value2 = "value2";
+      final String key = "key";
+      Map<String, String> map = new HashMap<String, String>();
+      
+      MapUtils.putIfAbsent( map, key, new Factory<String>()
+      {
+        @Override
+        public String newInstance()
+        {
+          return value1;
+        }
+      } );
+      MapUtils.putIfAbsent( map, key, new Factory<String>()
+      {
+        @Override
+        public String newInstance()
+        {
+          return value2;
+        }
+      } );
+      
+      assertTrue( map.containsKey( key ) );
+      assertEquals( value1, map.get( key ) );
+    }
   }
 }
