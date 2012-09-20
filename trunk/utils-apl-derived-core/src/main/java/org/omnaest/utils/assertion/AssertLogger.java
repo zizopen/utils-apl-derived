@@ -799,6 +799,8 @@ public class AssertLogger implements Serializable
   }
   
   /**
+   * Allows to resolve the result of any previous assertion
+   * 
    * @author Omnaest
    */
   public static interface DirectAssertResultValueProvider
@@ -812,34 +814,52 @@ public class AssertLogger implements Serializable
   }
   
   /**
+   * Handler of an assertion result which allows to throw {@link Exception}s or log messages
+   * 
    * @author Omnaest
    */
   public static interface DirectAssertHandler extends DirectAssertResultValueProvider, Serializable,
                                              DirectAssertHandlerMessageChoice, DirectAssertSuccessFailureChoice
   {
     /**
+     * Throws an {@link Exception} triggered by the previous assertion
+     * 
      * @throws Exception
      */
     public void throwException() throws Exception;
     
     /**
-     * 
+     * Throws a {@link RuntimeException} triggered by the previous assertion
      */
     public void throwRuntimeException();
     
     /**
+     * Throws the given {@link RuntimeException} with the assertion as cause
+     * 
+     * @param runtimeException
+     * @throws RuntimeException
+     */
+    public void throwException( RuntimeException runtimeException );
+    
+    /**
+     * Throws the given {@link Exception} with the assertion as cause
+     * 
      * @param exception
      * @throws Exception
      */
     public void throwException( Exception exception ) throws Exception;
     
     /**
+     * Throws the given {@link Throwable} with the assertion as cause
+     * 
      * @param throwable
      * @throws Throwable
      */
     public void throwException( Throwable throwable ) throws Throwable;
     
     /**
+     * Logs the assertion {@link Exception} using the given {@link LogLevel}
+     * 
      * @param logLevel
      *          {@link LogLevel}
      * @return
@@ -848,6 +868,12 @@ public class AssertLogger implements Serializable
     
   }
   
+  /**
+   * Choice between {@link #onSuccess()} or {@link #onFailure()}. Every following action like logging will only be executed if the
+   * chosen case comes in
+   * 
+   * @author Omnaest
+   */
   public static interface DirectAssertSuccessFailureChoice
   {
     /**
@@ -865,6 +891,11 @@ public class AssertLogger implements Serializable
     public DirectAssertHandler onSuccess();
   }
   
+  /**
+   * {@link DirectAssert} with a previous set expression
+   * 
+   * @author Omnaest
+   */
   public static interface DirectAssertWithExpression extends DirectAssert, DirectAssertResultValueProvider,
                                                     DirectAssertSuccessFailureChoice
   {
@@ -878,6 +909,8 @@ public class AssertLogger implements Serializable
   }
   
   /**
+   * Provides assert methods
+   * 
    * @author Omnaest
    */
   public static interface DirectAssert extends Serializable
@@ -1189,6 +1222,15 @@ public class AssertLogger implements Serializable
       if ( !isTriggerEventProhibited() && throwable != null )
       {
         throw throwable;
+      }
+    }
+    
+    @Override
+    public void throwException( RuntimeException runtimeException )
+    {
+      if ( !isTriggerEventProhibited() && runtimeException != null )
+      {
+        throw runtimeException;
       }
     }
     

@@ -37,7 +37,7 @@ import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.ObjectUtils;
 import org.omnaest.utils.structure.map.MapUtils;
-import org.omnaest.utils.tuple.TupleTwo;
+import org.omnaest.utils.tuple.Tuple2;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -1006,8 +1006,8 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
     //
     final Map<String, BeanPropertyAccessor<FROM>> propertyNameToBeanPropertyAccessorMapFrom = BeanUtils.propertyNameToBeanPropertyAccessorMap( typeFrom );
     final Map<String, BeanPropertyAccessor<TO>> propertyNameToBeanPropertyAccessorMapTo = BeanUtils.propertyNameToBeanPropertyAccessorMap( typeTo );
-    Map<String, TupleTwo<BeanPropertyAccessor<FROM>, BeanPropertyAccessor<TO>>> joinMapByPropertyName = MapUtils.innerJoinMapByKey( propertyNameToBeanPropertyAccessorMapFrom,
-                                                                                                                                    propertyNameToBeanPropertyAccessorMapTo );
+    Map<String, Tuple2<BeanPropertyAccessor<FROM>, BeanPropertyAccessor<TO>>> joinMapByPropertyName = MapUtils.innerJoinMapByKey( propertyNameToBeanPropertyAccessorMapFrom,
+                                                                                                                                  propertyNameToBeanPropertyAccessorMapTo );
     {
       nonMatchingPropertyNameList.addAll( SetUtils.delta( propertyNameToBeanPropertyAccessorMapFrom.keySet(),
                                                           joinMapByPropertyName.keySet() ).getRemovedElementSet() );
@@ -1017,7 +1017,7 @@ public class PreparedBeanCopier<FROM, TO> implements Serializable
     for ( String propertyName : joinMapByPropertyName.keySet() )
     {
       //
-      final TupleTwo<BeanPropertyAccessor<FROM>, BeanPropertyAccessor<TO>> tuple = joinMapByPropertyName.get( propertyName );
+      final Tuple2<BeanPropertyAccessor<FROM>, BeanPropertyAccessor<TO>> tuple = joinMapByPropertyName.get( propertyName );
       final BeanPropertyAccessor<FROM> beanPropertyAccessorFrom = tuple.getValueFirst();
       final BeanPropertyAccessor<TO> beanPropertyAccessorTo = tuple.getValueSecond();
       if ( beanPropertyAccessorTo != null && beanPropertyAccessorFrom != null )

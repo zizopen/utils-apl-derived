@@ -54,7 +54,7 @@ import org.omnaest.utils.structure.map.adapter.SortedMapToSortedMapAdapter;
 import org.omnaest.utils.structure.map.decorator.LockingMapDecorator;
 import org.omnaest.utils.structure.map.decorator.MapDecorator;
 import org.omnaest.utils.structure.map.decorator.SortedMapDecorator;
-import org.omnaest.utils.tuple.TupleTwo;
+import org.omnaest.utils.tuple.Tuple2;
 
 /**
  * Helper class for {@link Map} operations.
@@ -203,8 +203,8 @@ public class MapUtils
   }
   
   /**
-   * Returns a {@link Map} with the matching keys and the respective value instances within a of {@link TupleTwo} wrapper, which
-   * has always the value of the first map and the value of the second map. Only the keys which are contained in both {@link Map}s
+   * Returns a {@link Map} with the matching keys and the respective value instances within a of {@link Tuple2} wrapper, which has
+   * always the value of the first map and the value of the second map. Only the keys which are contained in both {@link Map}s
    * will be returned.
    * 
    * @param <K>
@@ -214,10 +214,10 @@ public class MapUtils
    * @param mapB
    * @return
    */
-  public static <K, VA, VB> Map<K, TupleTwo<VA, VB>> innerJoinMapByKey( Map<K, VA> mapA, Map<K, VB> mapB )
+  public static <K, VA, VB> Map<K, Tuple2<VA, VB>> innerJoinMapByKey( Map<K, VA> mapA, Map<K, VB> mapB )
   {
     //
-    final Map<K, TupleTwo<VA, VB>> retmap = new LinkedHashMap<K, TupleTwo<VA, VB>>();
+    final Map<K, Tuple2<VA, VB>> retmap = new LinkedHashMap<K, Tuple2<VA, VB>>();
     
     //
     if ( mapA != null && mapB != null )
@@ -232,7 +232,7 @@ public class MapUtils
           VB valueB = mapB.get( key );
           
           //
-          retmap.put( key, new TupleTwo<VA, VB>( valueA, valueB ) );
+          retmap.put( key, new Tuple2<VA, VB>( valueA, valueB ) );
         }
       }
     }
@@ -1371,6 +1371,53 @@ public class MapUtils
   public static <K, V> MapDelta<K, V> delta( Map<K, V> mapFirst, Map<K, V> mapSecond )
   {
     return new MapDelta<K, V>( mapFirst, mapSecond );
+  }
+  
+  /**
+   * Puts the given key and value into the given {@link Map} only if there is no equal key already contained within the
+   * {@link Map}.<br>
+   * If the given {@link Map} is null, the method does nothing.
+   * 
+   * @param map
+   *          {@link Map}
+   * @param key
+   * @param value
+   * @return true, if the key and value were put into the {@link Map}
+   */
+  public static <K, V> boolean putIfAbsent( Map<K, V> map, K key, V value )
+  {
+    boolean retval = false;
+    if ( map != null && !map.containsKey( key ) )
+    {
+      map.put( key, value );
+      retval = true;
+    }
+    return retval;
+  }
+  
+  /**
+   * Puts the given key and value into the given {@link Map} only if there is no equal key already contained within the
+   * {@link Map}.<br>
+   * The value factory is only invoked, if the value has to be put into the {@link Map}.<br>
+   * If the given {@link Map} is null, the method does nothing.
+   * 
+   * @param map
+   *          {@link Map}
+   * @param key
+   * @param valueFactory
+   *          {@link Factory} for a single value
+   * @return true, if the key and value were put into the {@link Map}
+   */
+  public static <K, V> boolean putIfAbsent( Map<K, V> map, K key, Factory<V> valueFactory )
+  {
+    boolean retval = false;
+    if ( map != null && valueFactory != null && !map.containsKey( key ) )
+    {
+      V value = valueFactory.newInstance();
+      map.put( key, value );
+      retval = true;
+    }
+    return retval;
   }
   
 }
