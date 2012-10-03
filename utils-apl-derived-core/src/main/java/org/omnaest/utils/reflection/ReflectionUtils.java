@@ -14,6 +14,7 @@ nsed under the Apache License, Version 2.0 (the "License");
 package org.omnaest.utils.reflection;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -854,25 +855,43 @@ public class ReflectionUtils
   }
   
   /**
-   * Returns all {@link Method#getDeclaredAnnotations()} as {@link List}
+   * Returns all {@link AnnotatedElement#getDeclaredAnnotations()} as {@link Set}
    * 
-   * @param method
+   * @param annotatedElement
+   *          {@link Field}
    * @return
    */
-  public static Set<Annotation> declaredAnnotationSet( Method method )
+  public static Set<Annotation> declaredAnnotationSet( AnnotatedElement annotatedElement )
   {
-    //    
-    Set<Annotation> retlist = new LinkedHashSet<Annotation>();
-    
-    //
-    if ( method != null )
+    return annotatedElement != null ? SetUtils.valueOf( annotatedElement.getDeclaredAnnotations() )
+                                   : new LinkedHashSet<Annotation>();
+  }
+  
+  /**
+   * Returns all {@link AnnotatedElement#getAnnotations()} as {@link Map} which has the {@link Annotation} type as key and
+   * its related instance as value.
+   * 
+   * @param annotatedElement
+   *          {@link Field}
+   * @return always a {@link Map} instance, even if the annotatedElement is null
+   */
+  @SuppressWarnings("unchecked")
+  public static Map<Class<Annotation>, Annotation> annotationTypeToAnnotationMap( AnnotatedElement annotatedElement )
+  {
+    final Map<Class<Annotation>, Annotation> retmap = new LinkedHashMap<Class<Annotation>, Annotation>();
+    if ( annotatedElement != null )
     {
-      //
-      retlist.addAll( Arrays.asList( method.getDeclaredAnnotations() ) );
+      final Set<Annotation> annotationSet = SetUtils.valueOf( annotatedElement.getAnnotations() );
+      for ( Annotation annotation : annotationSet )
+      {
+        if ( annotation != null )
+        {
+          final Class<Annotation> annotationType = (Class<Annotation>) annotation.annotationType();
+          retmap.put( annotationType, annotation );
+        }
+      }
     }
-    
-    //
-    return retlist;
+    return retmap;
   }
   
   /**
@@ -880,7 +899,7 @@ public class ReflectionUtils
    * {@link Annotation}s related to the {@link Method}s
    * 
    * @see #declaredMethodList(Class)
-   * @see #declaredAnnotationSet(Method)
+   * @see #declaredAnnotationSet(AnnotatedElement)
    * @param type
    * @return
    */
@@ -895,7 +914,7 @@ public class ReflectionUtils
    * {@link Annotation}s related to the {@link Method}s
    * 
    * @see #declaredMethodList(Class)
-   * @see #declaredAnnotationSet(Method)
+   * @see #declaredAnnotationSet(AnnotatedElement)
    * @param type
    * @return
    */

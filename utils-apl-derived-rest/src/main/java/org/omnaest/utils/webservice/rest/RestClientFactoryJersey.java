@@ -688,4 +688,16 @@ public class RestClientFactoryJersey extends RestClientFactory
     super( baseAddress, new InvocationHandlerApache4Client( configuration ) );
   }
   
+  @Override
+  public <T> T newRestClient( Class<T> type )
+  {
+    return super.newRestClient( type );
+  }
+  
+  @Override
+  public <T> T newRestClient( Class<T> type, URI baseAddress )
+  {
+    return super.newRestClient( type, baseAddress );
+  }
+  
 }

@@ -25,7 +25,7 @@ import org.omnaest.utils.beans.result.BeanPropertyAccessor.PropertyAccessType;
  * A {@link BeanToNestedMapConverter} marshalls a given JavaBean into a {@link Map} or unmarshalls a given {@link Map} into a
  * JavaBean. This process is transitive and allows to translate arbitrary object graphs into nested {@link Map}s. <br>
  * <br>
- * With {@link #setPropertyAccessType(PropertyAccessType)} it can be declared in which way the {@link BeanToNestedMapConverter}
+ * With {@link #newBeanPropertyAccessorWithPropertyAccessType(PropertyAccessType)} it can be declared in which way the {@link BeanToNestedMapConverter}
  * should access given JavaBeans. With the default value of {@link PropertyAccessType#PROPERTY} the
  * {@link BeanToNestedMapConverter} will only use getters and setters whereby with {@link PropertyAccessType#FIELD} the fields of
  * the JavaBeans are accessed directly ignoring any getters or setters.
