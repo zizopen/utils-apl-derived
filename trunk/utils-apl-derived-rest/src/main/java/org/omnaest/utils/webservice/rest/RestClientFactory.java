@@ -73,11 +73,14 @@ import org.omnaest.utils.tuple.Tuple2;
  * <li>100000 calls in less than 10s</li>
  * <li>1000000 calls in less than 20s</li>
  * </ul>
+ * <br>
+ * Any subclass can use or override the {@link #newRestClient(Class)}, {@link #newRestClient(Class, URI)} and in rare cases
+ * {@link #newRestClient(Class, URI, RestInterfaceMethodInvocationHandler)}
  * 
- * @see #newRestClient(Class)
  * @see RestClientFactoryJersey
  * @author Omnaest
  */
+@SuppressWarnings("javadoc")
 public abstract class RestClientFactory
 {
   /* ********************************************** Variables ********************************************** */
@@ -201,7 +204,20 @@ public abstract class RestClientFactory
   }
   
   /**
-   * Representation of a method parameter. See the derived types.
+   * Representation of a method parameter. See the derived types. <br>
+   * E.g.:
+   * 
+   * <pre>
+   *  if ( parameter instanceof QueryParameter )
+   *  {
+   *    QueryParameter queryParameter = (QueryParameter) parameter;
+   *    ...   
+   *  }
+   *  else if (...)
+   *  {
+   *  ...
+   *  }
+   * </pre>
    * 
    * @see BodyParameter
    * @see QueryParameter
@@ -533,17 +549,21 @@ public abstract class RestClientFactory
   protected class RestClientMethodInvocationHandler implements MethodInvocationHandler
   {
     /* ********************************************** Variables ********************************************** */
-    protected final RestInterfaceMetaInformation restInterfaceMetaInformation;
+    protected final RestInterfaceMetaInformation         restInterfaceMetaInformation;
     @SuppressWarnings("hiding")
-    protected final URI                          baseAddress;
+    protected final URI                                  baseAddress;
+    @SuppressWarnings("hiding")
+    protected final RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler;
     
     /* ********************************************** Methods ********************************************** */
     
-    public RestClientMethodInvocationHandler( RestInterfaceMetaInformation restInterfaceMetaInformation, URI baseAddress )
+    public RestClientMethodInvocationHandler( RestInterfaceMetaInformation restInterfaceMetaInformation, URI baseAddress,
+                                              RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
     {
       super();
       this.restInterfaceMetaInformation = restInterfaceMetaInformation;
       this.baseAddress = baseAddress;
+      this.restInterfaceMethodInvocationHandler = restInterfaceMethodInvocationHandler;
     }
     
     @Override
@@ -576,7 +596,7 @@ public abstract class RestClientFactory
       else
       {
         //
-        final RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler = RestClientFactory.this.restInterfaceMethodInvocationHandler;
+        final RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler = this.restInterfaceMethodInvocationHandler;
         if ( restInterfaceMethodInvocationHandler != null )
         {
           
@@ -815,11 +835,26 @@ public abstract class RestClientFactory
   /* ********************************************** Methods ********************************************** */
   
   /**
+   * This constructor should be used only in cases where no default {@link RestInterfaceMethodInvocationHandler} should be used.<br>
+   * <br>
+   * Without the default instance the {@link RestClientFactory#newRestClient(Class)} and
+   * {@link RestClientFactory#newRestClient(Class, URI)} cannot be used. Instead the
+   * {@link RestClientFactory#newRestClient(Class, URI, RestInterfaceMethodInvocationHandler)} has to be called with a appropriate
+   * instance.
+   * 
+   * @see RestClientFactory
+   */
+  protected RestClientFactory()
+  {
+    this( null, null );
+  }
+  
+  /**
    * @see RestClientFactory
    * @param restInterfaceMethodInvocationHandler
    *          {@link RestInterfaceMethodInvocationHandler}
    */
-  public RestClientFactory( RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
+  protected RestClientFactory( RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
   {
     this( null, restInterfaceMethodInvocationHandler );
   }
@@ -829,7 +864,7 @@ public abstract class RestClientFactory
    * @param restInterfaceMethodInvocationHandler
    *          {@link RestInterfaceMethodInvocationHandler}
    */
-  public RestClientFactory( String baseAddress, RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
+  protected RestClientFactory( String baseAddress, RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
   
   {
     super();
@@ -854,7 +889,13 @@ public abstract class RestClientFactory
    * @param type
    * @return
    */
-  public <T> T newRestClient( Class<T> type )
+  protected <T> T newRestClient( Class<T> type, final RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
+  {
+    Assert.isNotNull( this.baseAddress, "base address given to the constructor must not be null" );
+    return newRestClient( type, this.baseAddress, restInterfaceMethodInvocationHandler );
+  }
+  
+  protected <T> T newRestClient( Class<T> type )
   {
     Assert.isNotNull( this.baseAddress, "base address given to the constructor must not be null" );
     return newRestClient( type, this.baseAddress );
@@ -867,9 +908,33 @@ public abstract class RestClientFactory
    * @param baseAddress
    * @return
    */
-  @SuppressWarnings({ "unchecked" })
-  public <T> T newRestClient( final Class<T> type, final URI baseAddress )
+  protected <T> T newRestClient( final Class<T> type, final URI baseAddress )
   {
+    Assert.isNotNull( this.restInterfaceMethodInvocationHandler,
+                      "A RestInterfaceMethodInvocationHandler instance has to be provided at constructor time of the RestClientFactory" );
+    return this.newRestClient( type, baseAddress, this.restInterfaceMethodInvocationHandler );
+  }
+  
+  /**
+   * Factory method for new REST client proxy instances. <br>
+   * <br>
+   * This method can be used if there was no default {@link RestInterfaceMethodInvocationHandler} set at constructor time
+   * 
+   * @param type
+   * @param baseAddress
+   * @param restInterfaceMethodInvocationHandler
+   *          {@link RestInterfaceMethodInvocationHandler}
+   * @return
+   */
+  @SuppressWarnings({ "unchecked" })
+  protected <T> T newRestClient( final Class<T> type,
+                                 final URI baseAddress,
+                                 final RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
+  {
+    Assert.isNotNull( restInterfaceMethodInvocationHandler, "restInterfaceMethodInvocationHandler instance must not be null" );
+    Assert.isNotNull( baseAddress, "baseAddress must not be null" );
+    Assert.isNotNull( type, "type must not be null" );
+    
     //
     T retval = null;
     if ( type != null && baseAddress != null )
@@ -900,14 +965,24 @@ public abstract class RestClientFactory
           final RestInterfaceMetaInformation restInterfaceMetaInformation = cachedStubCreatorAndMetaInfo.getValueSecond();
           final MethodInvocationHandler methodInvocationHandler = new RestClientMethodInvocationHandler(
                                                                                                          restInterfaceMetaInformation,
-                                                                                                         baseAddress );
+                                                                                                         baseAddress,
+                                                                                                         restInterfaceMethodInvocationHandler );
           
           final StubCreator<Object> stubCreator = cachedStubCreatorAndMetaInfo.getValueFirst();
           
           return (T) stubCreator.build( methodInvocationHandler );
         }
       };
-      retval = (T) this.restClientInstanceCache.getOrCreate( new TypeAndBaseAddress( type, baseAddress ), restClientfactory );
+      
+      final boolean isCacheable = restInterfaceMethodInvocationHandler == this.restInterfaceMethodInvocationHandler;
+      if ( isCacheable )
+      {
+        retval = (T) this.restClientInstanceCache.getOrCreate( new TypeAndBaseAddress( type, baseAddress ), restClientfactory );
+      }
+      else
+      {
+        retval = (T) restClientfactory.newInstance();
+      }
       
     }
     return retval;
@@ -1077,5 +1152,15 @@ public abstract class RestClientFactory
     //
     return new RestInterfaceMetaInformation( restInterfaceMetaInformationForClass,
                                              methodToRestInterfaceMetaInformationForMethodMap );
+  }
+  
+  protected void setBaseAddress( URI baseAddress )
+  {
+    this.baseAddress = baseAddress;
+  }
+  
+  protected void setRestInterfaceMethodInvocationHandler( RestInterfaceMethodInvocationHandler restInterfaceMethodInvocationHandler )
+  {
+    this.restInterfaceMethodInvocationHandler = restInterfaceMethodInvocationHandler;
   }
 }

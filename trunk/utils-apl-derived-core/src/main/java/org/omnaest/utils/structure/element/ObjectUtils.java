@@ -751,6 +751,58 @@ public class ObjectUtils
   }
   
   /**
+   * Returns true if the given source type instance is assignable to at least one of the given target types.
+   * 
+   * @param targetTypes
+   * @param sourceType
+   * @return
+   */
+  public static boolean isAnyTypeAssignableFromType( Iterable<Class<?>> targetTypes, Class<?> sourceType )
+  {
+    boolean retval = false;
+    if ( targetTypes != null && sourceType != null )
+    {
+      for ( Class<?> targetType : targetTypes )
+      {
+        if ( targetType != null )
+        {
+          retval = targetType.isAssignableFrom( sourceType );
+          if ( retval )
+          {
+            break;
+          }
+        }
+      }
+    }
+    return retval;
+  }
+  
+  /**
+   * Returns true if the given object instance is assignable to at least one of the given types.
+   * 
+   * @param targetTypes
+   * @param object
+   * @return
+   */
+  public static boolean isAnyTypeAssignableFromInstance( Iterable<Class<?>> targetTypes, Object object )
+  {
+    boolean retval = false;
+    if ( targetTypes != null )
+    {
+      for ( Class<?> targetType : targetTypes )
+      {
+        retval = isAssignableFromInstance( targetType, object );
+        if ( retval )
+        {
+          break;
+        }
+      }
+    }
+    
+    return retval;
+  }
+  
+  /**
    * Returns true if the given {@link Object} is not null and an {@link Array} type.
    * 
    * @see Class#isArray()

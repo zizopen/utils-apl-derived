@@ -122,18 +122,14 @@ public class SetUtils
    */
   public static <E> Set<E> add( Set<E> set, E... elements )
   {
-    Set<E> retset = set;
-    
-    if ( retset == null )
+    Set<E> retset = set != null ? set : new LinkedHashSet<E>();
+    if ( elements != null )
     {
-      retset = new LinkedHashSet<E>();
+      for ( E element : elements )
+      {
+        retset.add( element );
+      }
     }
-    
-    for ( E element : elements )
-    {
-      retset.add( element );
-    }
-    
     return retset;
   }
   
@@ -346,20 +342,18 @@ public class SetUtils
    * Same as {@link #valueOf(Iterable)} for one or more elements
    * 
    * @param elements
-   * @return
+   * @return a new {@link LinkedHashSet} instance containing all given elements
    */
   public static <E> Set<E> valueOf( E... elements )
   {
-    //    
     final Set<E> retset = new LinkedHashSet<E>();
-    
-    //
-    for ( E element : elements )
+    if ( elements != null )
     {
-      retset.add( element );
+      for ( E element : elements )
+      {
+        retset.add( element );
+      }
     }
-    
-    //
     return retset;
   }
   

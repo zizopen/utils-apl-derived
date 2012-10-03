@@ -205,8 +205,8 @@ public class BeanToNestedMapUnMarshaller<B>
             for ( String propertyName : propertyNameToBeanPropertyAccessorMap.keySet() )
             {
               //
-              BeanPropertyAccessor<Object> beanPropertyAccessor = propertyNameToBeanPropertyAccessorMap.get( propertyName );
-              beanPropertyAccessor.setPropertyAccessType( propertyAccessType );
+              BeanPropertyAccessor<Object> beanPropertyAccessor = propertyNameToBeanPropertyAccessorMap.get( propertyName )
+                                                                                                       .newBeanPropertyAccessorWithPropertyAccessType( propertyAccessType );
               if ( beanPropertyAccessor.isWritable() )
               {
                 //
