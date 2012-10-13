@@ -37,19 +37,24 @@ public class DurationCaptureTest
   }
   
   @Test
-  public void testXMLSerialization()
+  public void testXMLSerialization() throws InterruptedException
   {
     DurationCapture durationCapture = new DurationCapture().startTimeMeasurement();
     DurationCapture cloneObject = JAXBXMLHelper.cloneObject( durationCapture );
+    Thread.sleep( 10 );
     assertTrue( cloneObject.stopTimeMeasurement().getDurationInMilliseconds() > 0 );
   }
   
   @Test
-  public void testObjectSerialization()
+  public void testObjectSerialization() throws InterruptedException
   {
     DurationCapture durationCapture = new DurationCapture().startTimeMeasurement();
     DurationCapture cloneObject = SerializationUtils.clone( durationCapture );
-    assertTrue( cloneObject.stopTimeMeasurement().getDurationInMilliseconds() > 0 );
+    Thread.sleep( 10 );
+    final long durationInMilliseconds = cloneObject.stopTimeMeasurement().getDurationInMilliseconds();
+    //System.out.println( durationInMilliseconds );
+    //System.out.println( durationCapture );
+    assertTrue( durationInMilliseconds > 0 );
   }
   
   @Test
