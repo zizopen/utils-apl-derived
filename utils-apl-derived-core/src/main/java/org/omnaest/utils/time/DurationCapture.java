@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.time;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,6 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.omnaest.utils.strings.StringUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
@@ -35,10 +40,14 @@ import org.omnaest.utils.structure.element.converter.ElementConverterObjectToStr
  * @see DurationCaptureTypeFactory
  * @author Omnaest
  */
-public class DurationCapture
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class DurationCapture implements Serializable
 {
   /* ********************************************** Constants ********************************************** */
   public static final Object            INTERVAL_DEFAULTKEY      = "DEFAULT";
+  
+  private static final long             serialVersionUID         = 6433066272269919387L;
   private static final String           DEFAULT_LINESEPARATOR    = System.getProperty( "line.separator" );
   
   /* ********************************************** Variables ********************************************** */
@@ -50,14 +59,17 @@ public class DurationCapture
    * 
    * @author Omnaest
    */
-  public static class Interval
+  @XmlAccessorType(XmlAccessType.FIELD)
+  public static class Interval implements Serializable
   {
+    /* ************************************************** Constants *************************************************** */
+    private static final long serialVersionUID = -2883159459488305456L;
     /* ********************************************** Variables ********************************************** */
-    protected Object key       = null;
-    protected long   duration  = 0l;
+    protected Object          key              = null;
+    protected long            duration         = 0l;
     
-    protected long   startTime = 0;
-    protected long   stopTime  = 0;
+    protected long            startTime        = 0;
+    protected long            stopTime         = 0;
     
     /* ********************************************** Methods ********************************************** */
     
@@ -137,12 +149,15 @@ public class DurationCapture
    * @see DurationCapture
    * @author Omnaest
    */
-  protected static class IntervalStatistic
+  @XmlAccessorType(XmlAccessType.FIELD)
+  protected static class IntervalStatistic implements Serializable
   {
+    /* ************************************************** Constants *************************************************** */
+    private static final long serialVersionUID       = -5081536693492826365L;
     /* ********************************************** Variables ********************************************** */
-    protected Interval interval               = null;
-    protected long     durationInMilliseconds = 0;
-    protected double   durationPercentage     = 0.0;
+    protected Interval        interval               = null;
+    protected long            durationInMilliseconds = 0;
+    protected double          durationPercentage     = 0.0;
     
     /* ********************************************** Methods ********************************************** */
     public Interval getInterval()
@@ -184,9 +199,9 @@ public class DurationCapture
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * Use {@link DurationCapture#newInstance()} for creating an instance of this class.
+   * @see DurationCapture
    */
-  protected DurationCapture()
+  public DurationCapture()
   {
   }
   

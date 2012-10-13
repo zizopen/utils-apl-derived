@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.element.factory.FactoryParameterized;
@@ -348,6 +349,27 @@ public class MapUtilsTest
       
       assertTrue( map.containsKey( key ) );
       assertEquals( value1, map.get( key ) );
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testMergeAllValuesIntoSetAndList() throws Exception
+  {
+    Map<String, String> map1 = MapUtils.builder().put( "key1", "value11" ).put( "key2", "value21" ).buildAs().linkedHashMap();
+    Map<String, String> map2 = MapUtils.builder().put( "key1", "value12" ).put( "key2", "value21" ).buildAs().linkedHashMap();
+    
+    {
+      Map<String, List<String>> resultMap = MapUtils.mergeAllValuesIntoList( map1, map2 );
+      assertEquals( 2, resultMap.size() );
+      assertEquals( ListUtils.valueOf( "value11", "value12" ), resultMap.get( "key1" ) );
+      assertEquals( ListUtils.valueOf( "value21", "value21" ), resultMap.get( "key2" ) );
+    }
+    {
+      Map<String, Set<String>> resultMap = MapUtils.mergeAllValuesIntoSet( map1, map2 );
+      assertEquals( 2, resultMap.size() );
+      assertEquals( SetUtils.valueOf( "value11", "value12" ), resultMap.get( "key1" ) );
+      assertEquals( SetUtils.valueOf( "value21" ), resultMap.get( "key2" ) );
     }
   }
 }

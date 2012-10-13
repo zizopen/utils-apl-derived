@@ -15,10 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.strings;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.text.StrMatcher;
 import org.apache.commons.lang3.text.StrTokenizer;
 import org.omnaest.utils.strings.tokenizer.ConvertingCharacterSequenceTokenizerDecoratorToString;
 import org.omnaest.utils.strings.tokenizer.PatternBasedCharacterSequenceTokenizer;
@@ -345,6 +347,49 @@ public class StringUtils
                                                                                                                                                                    charSequence,
                                                                                                                                                                    regexDelimiter ) )
                                                          : null;
+  }
+  
+  /**
+   * Formats an given array into a {@link String} array using {@link String#format(String, Object...)}
+   * 
+   * @param format
+   * @param elements
+   *          has to be a non primitive array
+   * @return
+   */
+  public static <E> String[] formatPerArrayElement( String format, E... elements )
+  {
+    final List<String> retlist = new ArrayList<String>();
+    if ( format != null && elements != null )
+    {
+      for ( E element : elements )
+      {
+        retlist.add( String.format( format, element ) );
+      }
+    }
+    return retlist.toArray( new String[] {} );
+  }
+  
+  /**
+   * Similar to {@link #formatPerArrayElement(String, Object...)} using {@link String#format(Locale, String, Object...)} instead.
+   * 
+   * @param locale
+   *          {@link Locale}
+   * @param format
+   * @param elements
+   * @return
+   */
+  public static <E> String[] formatPerArrayElement( Locale locale, String format, E... elements )
+  {
+    final List<String> retlist = new ArrayList<String>();
+    if ( format != null && elements != null )
+    {
+      for ( E element : elements )
+      {
+        retlist.add( String.format( locale, format, element ) );
+      }
+    }
+    return retlist.toArray( new String[] {} );
   }
   
 }

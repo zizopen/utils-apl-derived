@@ -19,6 +19,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.junit.Test;
 import org.omnaest.utils.structure.collection.list.ListUtils;
@@ -114,6 +115,15 @@ public class StringUtilsTest
   public void testTokenizerPatternBased()
   {
     assertEquals( Arrays.asList( "a", "b" ), ListUtils.valueOf( StringUtils.tokenizerPatternBased( "a;b", ";" ) ) );
+  }
+  
+  @Test
+  public void testFormatPerArrayElement() throws Exception
+  {
+    final String format = "%2.2f";
+    final Double[] elements = new Double[] { 12d, 13d, 14.4d };
+    String[] formattedArray = StringUtils.formatPerArrayElement( new Locale( "de" ), format, elements );
+    assertArrayEquals( new String[] { "12,00", "13,00", "14,40" }, formattedArray );
   }
   
 }
