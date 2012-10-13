@@ -47,6 +47,8 @@ import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.element.factory.FactoryParameterized;
 import org.omnaest.utils.structure.element.factory.FactorySerializable;
+import org.omnaest.utils.structure.element.factory.concrete.ArrayListFactory;
+import org.omnaest.utils.structure.element.factory.concrete.LinkedHashSetFactory;
 import org.omnaest.utils.structure.element.filter.ElementFilter;
 import org.omnaest.utils.structure.iterator.IterableUtils;
 import org.omnaest.utils.structure.map.adapter.MapToMapAdapter;
@@ -200,6 +202,72 @@ public class MapUtils
   public static <K, V> Map<K, V> mergeAll( Map<K, V>... maps )
   {
     return MapUtils.mergeAll( Arrays.asList( maps ) );
+  }
+  
+  /**
+   * Similar to {@link #mergeAllValuesIntoList(Collection)}
+   * 
+   * @param maps
+   * @return
+   */
+  public static <K, V> Map<K, List<V>> mergeAllValuesIntoList( Map<K, V>... maps )
+  {
+    return mergeAllValuesIntoList( Arrays.asList( maps ) );
+  }
+  
+  /**
+   * Merges multiple {@link Map} instances whereby multiple values for the same key are merged into a {@link List}
+   * 
+   * @param mapCollection
+   * @return
+   */
+  public static <K, V> Map<K, List<V>> mergeAllValuesIntoList( Collection<Map<K, V>> mapCollection )
+  {
+    Map<K, List<V>> retmap = new LinkedHashMap<K, List<V>>();
+    
+    final Map<K, List<V>> initializedMap = initializedValueListMap( retmap );
+    for ( Map<K, V> map : mapCollection )
+    {
+      for ( K key : map.keySet() )
+      {
+        initializedMap.get( key ).add( map.get( key ) );
+      }
+    }
+    
+    return retmap;
+  }
+  
+  /**
+   * Similar to {@link #mergeAllValuesIntoSet(Collection)}
+   * 
+   * @param maps
+   * @return
+   */
+  public static <K, V> Map<K, Set<V>> mergeAllValuesIntoSet( Map<K, V>... maps )
+  {
+    return mergeAllValuesIntoSet( Arrays.asList( maps ) );
+  }
+  
+  /**
+   * Merges multiple {@link Map} instances whereby multiple values for the same key are merged into a {@link Set}
+   * 
+   * @param mapCollection
+   * @return
+   */
+  public static <K, V> Map<K, Set<V>> mergeAllValuesIntoSet( Collection<Map<K, V>> mapCollection )
+  {
+    Map<K, Set<V>> retmap = new LinkedHashMap<K, Set<V>>();
+    
+    final Map<K, Set<V>> initializedMap = initializedValueSetMap( retmap );
+    for ( Map<K, V> map : mapCollection )
+    {
+      for ( K key : map.keySet() )
+      {
+        initializedMap.get( key ).add( map.get( key ) );
+      }
+    }
+    
+    return retmap;
   }
   
   /**
@@ -837,6 +905,50 @@ public class MapUtils
       }
       
     };
+  }
+  
+  /**
+   * Short form of {@link #initializedMap(Factory)} using an {@link ArrayListFactory}
+   * 
+   * @return
+   */
+  public static <K, V> Map<K, List<V>> initializedValueListMap()
+  {
+    return initializedMap( new ArrayListFactory<V>() );
+  }
+  
+  /**
+   * Short form of {@link #initializedMap(Factory)} using an {@link ArrayListFactory}
+   * 
+   * @param map
+   *          underlying {@link Map}
+   * @return
+   */
+  public static <K, V> Map<K, List<V>> initializedValueListMap( Map<K, List<V>> map )
+  {
+    return initializedMap( map, new ArrayListFactory<V>() );
+  }
+  
+  /**
+   * Short form of {@link #initializedMap(Factory)} using an {@link LinkedHashSetFactory}
+   * 
+   * @return
+   */
+  public static <K, V> Map<K, Set<V>> initializedValueSetMap()
+  {
+    return initializedMap( new LinkedHashSetFactory<V>() );
+  }
+  
+  /**
+   * Short form of {@link #initializedMap(Factory)} using an {@link LinkedHashSetFactory}
+   * 
+   * @param map
+   *          underlying {@link Map}
+   * @return
+   */
+  public static <K, V> Map<K, Set<V>> initializedValueSetMap( Map<K, Set<V>> map )
+  {
+    return initializedMap( map, new LinkedHashSetFactory<V>() );
   }
   
   /**

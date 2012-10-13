@@ -23,8 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.omnaest.utils.xml.JAXBXMLHelper;
 
 public class DurationCaptureTest
 {
@@ -32,6 +34,22 @@ public class DurationCaptureTest
   @Before
   public void setUp() throws Exception
   {
+  }
+  
+  @Test
+  public void testXMLSerialization()
+  {
+    DurationCapture durationCapture = new DurationCapture().startTimeMeasurement();
+    DurationCapture cloneObject = JAXBXMLHelper.cloneObject( durationCapture );
+    assertTrue( cloneObject.stopTimeMeasurement().getDurationInMilliseconds() > 0 );
+  }
+  
+  @Test
+  public void testObjectSerialization()
+  {
+    DurationCapture durationCapture = new DurationCapture().startTimeMeasurement();
+    DurationCapture cloneObject = SerializationUtils.clone( durationCapture );
+    assertTrue( cloneObject.stopTimeMeasurement().getDurationInMilliseconds() > 0 );
   }
   
   @Test
