@@ -198,4 +198,23 @@ public class IterableUtilsTest
     assertEquals( sourceList, ListUtils.valueOf( iterable.iterator() ) );
     assertEquals( sourceList, ListUtils.valueOf( iterable.iterator() ) );
   }
+  
+  @Test
+  public void testRoundRobin() throws Exception
+  {
+    @SuppressWarnings("unchecked")
+    Iterable<String>[] iterables = new Iterable[] { Arrays.asList( "a", "b", "c" ), Arrays.asList( "d", "e", "f" ),
+        Arrays.asList( "g" ), null, new Iterable<String>()
+        {
+          @Override
+          public Iterator<String> iterator()
+          {
+            return null;
+          }
+        } };
+    Iterable<String> roundRobinIterable = IterableUtils.roundRobin( iterables );
+    
+    assertEquals( Arrays.asList( "a", "d", "g", "b", "e", "c", "f" ), ListUtils.valueOf( roundRobinIterable ) );
+    assertEquals( Arrays.asList( "a", "d", "g", "b", "e", "c", "f" ), ListUtils.valueOf( roundRobinIterable ) );
+  }
 }
