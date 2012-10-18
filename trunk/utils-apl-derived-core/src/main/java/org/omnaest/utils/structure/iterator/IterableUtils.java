@@ -658,4 +658,35 @@ public class IterableUtils
   {
     return IterableUtils.replicate( IterableUtils.valueOf( iterator, true ) );
   }
+  
+  /**
+   * Returns an {@link Iterable} which iterates through the {@link Iterator}s of each given {@link Iterable} every time the own
+   * {@link Iterable#iterator()} is called
+   * 
+   * @see ChainedIterable
+   * @param iterables
+   * @return
+   */
+  public static <E> Iterable<E> chained( Iterable<E>... iterables )
+  {
+    return new ChainedIterable<E>( iterables );
+  }
+  
+  /**
+   * Similar to {@link IteratorUtils#roundRobin(Iterator...)}
+   * 
+   * @param iterables
+   * @return
+   */
+  public static <E> Iterable<E> roundRobin( final Iterable<E>... iterables )
+  {
+    return new Iterable<E>()
+    {
+      @Override
+      public Iterator<E> iterator()
+      {
+        return IteratorUtils.roundRobin( IteratorUtils.valueOfMultiple( iterables ) );
+      }
+    };
+  }
 }

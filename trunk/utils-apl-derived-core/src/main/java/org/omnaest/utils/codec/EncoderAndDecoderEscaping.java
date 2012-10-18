@@ -105,10 +105,13 @@ class EncoderAndDecoderEscaping implements EncoderAndDecoder<String, String>
   {
     String retval = source;
     {
-      for ( String encodedCharacter : this.encodedCharacterToEscapeSequenceMap.keySet() )
+      if ( retval != null )
       {
-        final String escapeSequence = this.encodedCharacterToEscapeSequenceMap.get( encodedCharacter );
-        retval = retval.replaceAll( Pattern.quote( encodedCharacter ), Matcher.quoteReplacement( escapeSequence ) );
+        for ( String encodedCharacter : this.encodedCharacterToEscapeSequenceMap.keySet() )
+        {
+          final String escapeSequence = this.encodedCharacterToEscapeSequenceMap.get( encodedCharacter );
+          retval = retval.replaceAll( Pattern.quote( encodedCharacter ), Matcher.quoteReplacement( escapeSequence ) );
+        }
       }
     }
     return retval;
@@ -119,10 +122,13 @@ class EncoderAndDecoderEscaping implements EncoderAndDecoder<String, String>
   {
     String retval = source;
     {
-      for ( String escapeSequence : this.escapeSequenceToEncodedCharacterMap.keySet() )
+      if ( retval != null )
       {
-        final String encodedCharacter = this.escapeSequenceToEncodedCharacterMap.get( escapeSequence );
-        retval = retval.replaceAll( Pattern.quote( escapeSequence ), Matcher.quoteReplacement( encodedCharacter ) );
+        for ( String escapeSequence : this.escapeSequenceToEncodedCharacterMap.keySet() )
+        {
+          final String encodedCharacter = this.escapeSequenceToEncodedCharacterMap.get( escapeSequence );
+          retval = retval.replaceAll( Pattern.quote( escapeSequence ), Matcher.quoteReplacement( encodedCharacter ) );
+        }
       }
     }
     return retval;

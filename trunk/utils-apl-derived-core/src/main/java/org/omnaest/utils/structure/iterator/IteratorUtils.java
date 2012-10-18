@@ -15,6 +15,7 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.iterator;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -23,11 +24,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.structure.collection.list.ListUtils;
+import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.element.converter.ElementConverterChain;
@@ -35,6 +39,8 @@ import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.iterator.decorator.IteratorDecorator;
 import org.omnaest.utils.structure.iterator.decorator.IteratorToIteratorAdapter;
 import org.omnaest.utils.structure.iterator.decorator.LockingIteratorDecorator;
+
+import com.google.common.collect.AbstractIterator;
 
 /**
  * Helper related to {@link Iterator}
@@ -228,6 +234,93 @@ public class IteratorUtils
   public static <E> Iterator<E> chained( Iterator<E>... iterators )
   {
     return new ChainedIterator<E>( iterators );
+  }
+  
+  /**
+   * Returns an {@link Iterator} which calls {@link Iterator#next()} of all given {@link Iterator}s in a round robin way
+   * 
+   * @param iterators
+   * @return
+   */
+  public static <E> Iterator<E> roundRobin( Iterator<E>... iterators )
+  {
+    final Set<Iterator<E>> unemptyIteratorSet = SetUtils.valueOf( iterators );
+    {
+      List<Iterator<E>> removableIteratorList = new ArrayList<Iterator<E>>();
+      for ( Iterator<E> iterator : unemptyIteratorSet )
+      {
+        if ( !iterator.hasNext() )
+        {
+          removableIteratorList.add( iterator );
+        }
+      }
+      unemptyIteratorSet.removeAll( removableIteratorList );
+    }
+    return new AbstractIterator<E>()
+    {
+      private Queue<Iterator<E>> remainingIteratorQueue = new ArrayDeque<Iterator<E>>();
+      
+      @Override
+      protected E computeNext()
+      {
+        //
+        if ( this.remainingIteratorQueue.isEmpty() )
+        {
+          this.remainingIteratorQueue.addAll( unemptyIteratorSet );
+        }
+        
+        //
+        if ( this.remainingIteratorQueue.isEmpty() )
+        {
+          return this.endOfData();
+        }
+        
+        //
+        E retval = null;
+        
+        Iterator<E> iterator = this.remainingIteratorQueue.poll();
+        retval = iterator.next();
+        
+        if ( !iterator.hasNext() )
+        {
+          unemptyIteratorSet.remove( iterator );
+        }
+        
+        //
+        return retval;
+      }
+      
+    };
+    
+  }
+  
+  /**
+   * Returns a {@link List} of the {@link Iterator}s related to the given {@link Iterable}s
+   * 
+   * @param iterables
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> Iterator<E>[] valueOfMultiple( Iterable<E>... iterables )
+  {
+    List<Iterator<E>> retlist = new ArrayList<Iterator<E>>();
+    
+    if ( iterables != null )
+    {
+      for ( Iterable<E> iterable : iterables )
+      {
+        if ( iterable != null )
+        {
+          Iterator<E> iterator = iterable.iterator();
+          if ( iterator != null )
+          {
+            retlist.add( iterator );
+          }
+        }
+      }
+    }
+    
+    return retlist.toArray( new Iterator[0] );
   }
   
   /**
