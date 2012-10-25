@@ -18,6 +18,7 @@ package org.omnaest.utils.structure.hierarchy.nodemap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -122,4 +123,26 @@ public class NodeMapFactoryTest
     
     //System.out.println( nodeMap );
   }
+  
+  @Test
+  public void testNewNodeMapFromHierarchicalKeyMap() throws Exception
+  {
+    Map<String, String> hierarchicalMap = MapUtils.builder()
+                                                  .put( "parent.node1", "value1" )
+                                                  .put( "parent.node2", "value2" )
+                                                  .buildAs()
+                                                  .linkedHashMap();
+    NodeMap<String, String> nodeMap = NodeMapFactory.newNodeMapFromHierarchicalKeyMap( hierarchicalMap, "\\." );
+    assertEquals( 1, nodeMap.size() );
+    assertEquals( "parent", nodeMap.keySet().iterator().next() );
+    
+    Map<String, String> hierarchicalKeyMap = NodeMapFactory.convertNodeMapToHierarchicalKeyMap( nodeMap, "_" );
+    System.out.println( hierarchicalKeyMap );
+    assertEquals( 2, hierarchicalKeyMap.size() );
+    Iterator<String> iterator = hierarchicalKeyMap.keySet().iterator();
+    assertEquals( "parent_node1", iterator.next() );
+    assertEquals( "parent_node2", iterator.next() );
+    assertEquals( "value1", hierarchicalKeyMap.get( "parent_node1" ) );
+  }
+  
 }
