@@ -46,6 +46,7 @@ import org.omnaest.utils.structure.element.converter.ElementConverterElementToMa
 import org.omnaest.utils.structure.element.converter.ElementConverterIdentity;
 import org.omnaest.utils.structure.element.factory.Factory;
 import org.omnaest.utils.structure.element.factory.FactoryParameterized;
+import org.omnaest.utils.structure.element.factory.FactoryParameterizedSerializable;
 import org.omnaest.utils.structure.element.factory.FactorySerializable;
 import org.omnaest.utils.structure.element.factory.concrete.ArrayListFactory;
 import org.omnaest.utils.structure.element.factory.concrete.LinkedHashSetFactory;
@@ -990,6 +991,64 @@ public class MapUtils
           final K key = (K) keyObject;
           value = valueFactory.newInstance( key );
           this.put( key, value );
+        }
+        
+        //
+        return value;
+      }
+      
+    };
+  }
+  
+  /**
+   * Similar to {@link #defaultValueMap(Map, FactoryParameterized)}
+   * 
+   * @see #initializedMap(FactoryParameterized)
+   * @param map
+   * @param defaultValue
+   * @return
+   */
+  public static <K, V> Map<K, V> defaultValueMap( Map<K, V> map, final V defaultValue )
+  {
+    return defaultValueMap( map, new FactoryParameterizedSerializable<V, K>()
+    {
+      private static final long serialVersionUID = 19870987L;
+      
+      @Override
+      public V newInstance( K parameterMap )
+      {
+        return defaultValue;
+      }
+    } );
+  }
+  
+  /**
+   * Returns a {@link Map} which always returns a value prodcued by the given factory if the value would have be null
+   * 
+   * @see #initializedMap(Map, FactoryParameterized)
+   * @param map
+   * @param valueFactory
+   * @return
+   */
+  public static <K, V> Map<K, V> defaultValueMap( Map<K, V> map, final FactoryParameterized<V, K> valueFactory )
+  {
+    return new MapDecorator<K, V>( map )
+    {
+      private static final long serialVersionUID = -9083838697374650245L;
+      
+      @SuppressWarnings("unchecked")
+      @Override
+      public V get( Object keyObject )
+      {
+        //
+        V value = super.get( keyObject );
+        
+        //
+        if ( value == null )
+        {
+          //
+          final K key = (K) keyObject;
+          value = valueFactory.newInstance( key );
         }
         
         //

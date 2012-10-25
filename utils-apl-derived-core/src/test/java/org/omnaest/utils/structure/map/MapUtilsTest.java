@@ -372,4 +372,13 @@ public class MapUtilsTest
       assertEquals( SetUtils.valueOf( "value21" ), resultMap.get( "key2" ) );
     }
   }
+  
+  @Test
+  public void testDefaultValueMap() throws Exception
+  {
+    final Map<String, String> map = MapUtils.builder().put( "key1", "value1" ).buildAs().linkedHashMap();
+    Map<String, String> defaultValueMap = MapUtils.defaultValueMap( map, "default value" );
+    assertEquals( "value1", defaultValueMap.get( "key1" ) );
+    assertEquals( "default value", defaultValueMap.get( "key not available" ) );
+  }
 }
