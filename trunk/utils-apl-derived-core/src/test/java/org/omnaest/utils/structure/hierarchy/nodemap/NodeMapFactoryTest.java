@@ -137,7 +137,31 @@ public class NodeMapFactoryTest
     assertEquals( "parent", nodeMap.keySet().iterator().next() );
     
     Map<String, String> hierarchicalKeyMap = NodeMapFactory.convertNodeMapToHierarchicalKeyMap( nodeMap, "_" );
-    System.out.println( hierarchicalKeyMap );
+    //System.out.println( hierarchicalKeyMap );
+    
+    assertEquals( 2, hierarchicalKeyMap.size() );
+    Iterator<String> iterator = hierarchicalKeyMap.keySet().iterator();
+    assertEquals( "parent_node1", iterator.next() );
+    assertEquals( "parent_node2", iterator.next() );
+    assertEquals( "value1", hierarchicalKeyMap.get( "parent_node1" ) );
+  }
+  
+  @Test
+  public void testNewNodeMapFromHierarchicalKeyMapWithLastLevelAsMap() throws Exception
+  {
+    Map<String, String> hierarchicalMap = MapUtils.builder()
+                                                  .put( "parent.node1", "value1" )
+                                                  .put( "parent.node2", "value2" )
+                                                  .buildAs()
+                                                  .linkedHashMap();
+    NodeMap<String, Map<String, String>> nodeMap = NodeMapFactory.newNodeMapFromHierarchicalKeyMapWithLastLevelAsMap( hierarchicalMap,
+                                                                                                                      "\\." );
+    assertEquals( 1, nodeMap.size() );
+    assertEquals( "parent", nodeMap.keySet().iterator().next() );
+    
+    Map<String, String> hierarchicalKeyMap = NodeMapFactory.convertNodeMapWithLastLevelAsMapToHierarchicalKeyMap( nodeMap, "_" );
+    //System.out.println( hierarchicalKeyMap );
+    
     assertEquals( 2, hierarchicalKeyMap.size() );
     Iterator<String> iterator = hierarchicalKeyMap.keySet().iterator();
     assertEquals( "parent_node1", iterator.next() );
