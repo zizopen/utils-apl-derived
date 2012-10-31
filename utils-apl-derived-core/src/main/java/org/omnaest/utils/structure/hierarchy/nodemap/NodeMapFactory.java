@@ -187,6 +187,7 @@ public class NodeMapFactory
    * be e.g. node1.subnode1.subsubnode1 where '.' is the delimiter. Note: the point has to be quoted actually using
    * {@link Pattern#quote(String)}.
    * 
+   * @see #convertNodeMapToHierarchicalKeyMap(NodeMap, String)
    * @see Pattern#quote(String)
    * @param map
    *          {@link Map}
@@ -245,6 +246,79 @@ public class NodeMapFactory
   }
   
   /**
+   * Similar to {@link #newNodeMapFromHierarchicalKeyMap(Map, String)} but having the last hierarchy level put into a {@link Map}
+   * which acts as model
+   * 
+   * @see #convertNodeMapWithLastLevelAsMapToHierarchicalKeyMap(NodeMap, String)
+   * @param map
+   * @param delimiterRegEx
+   * @return
+   */
+  public static <V> NodeMap<String, Map<String, V>> newNodeMapFromHierarchicalKeyMapWithLastLevelAsMap( Map<String, V> map,
+                                                                                                        String delimiterRegEx )
+  {
+    NodeMap<String, Map<String, V>> retmap = new NodeMapImpl<String, Map<String, V>>();
+    
+    if ( map != null )
+    {
+      for ( String key : map.keySet() )
+      {
+        if ( key != null )
+        {
+          V value = map.get( key );
+          
+          String[] tokens = key.split( delimiterRegEx );
+          if ( tokens != null )
+          {
+            NodeMap<String, Map<String, V>> currentNodeMap = retmap;
+            if ( tokens.length > 1 )
+            {
+              for ( int ii = 0; ii < tokens.length - 1; ii++ )
+              {
+                final String token = tokens[ii];
+                if ( token != null )
+                {
+                  NodeMap<String, Map<String, V>> nodeMap = currentNodeMap.get( token );
+                  if ( nodeMap == null )
+                  {
+                    NodeMap<String, Map<String, V>> newNodeMap = new NodeMapImpl<String, Map<String, V>>();
+                    currentNodeMap.put( token, newNodeMap );
+                    currentNodeMap = newNodeMap;
+                  }
+                  else
+                  {
+                    currentNodeMap = nodeMap;
+                  }
+                }
+                
+              }
+              
+              if ( currentNodeMap != null )
+              {
+                Map<String, V> modelMap = currentNodeMap.getModel();
+                if ( modelMap == null )
+                {
+                  modelMap = new LinkedHashMap<String, V>();
+                  currentNodeMap.setModel( modelMap );
+                }
+                {
+                  final String token = tokens[tokens.length - 1];
+                  if ( token != null )
+                  {
+                    modelMap.put( token, value );
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return retmap;
+  }
+  
+  /**
    * Converts a {@link NodeMap} into a normal {@link Map} with hierarchical keys.<br>
    * Example:
    * 
@@ -259,6 +333,7 @@ public class NodeMapFactory
    * parent.subnode1=xyz<br>
    * parent.subnode2=xyz
    * 
+   * @see #newNodeMapFromHierarchicalKeyMap(Map, String)
    * @param nodeMap
    * @param delimiter
    * @return
@@ -296,4 +371,68 @@ public class NodeMapFactory
     }
   }
   
+  /**
+   * Converts a {@link NodeMap} into a normal {@link Map} with hierarchical keys.<br>
+   * Example:
+   * 
+   * <pre>
+   * parent +
+   *        |
+   *        Map<String,Model>
+   *          +-subnode1
+   *          +-subnode2
+   * </pre>
+   * 
+   * results in<br>
+   * parent.subnode1=xyz<br>
+   * parent.subnode2=xyz
+   * 
+   * @see #newNodeMapFromHierarchicalKeyMapWithLastLevelAsMap(Map, String)
+   * @param nodeMap
+   * @param delimiter
+   * @return
+   */
+  public static <M> Map<String, M> convertNodeMapWithLastLevelAsMapToHierarchicalKeyMap( NodeMap<String, Map<String, M>> nodeMap,
+                                                                                         String delimiter )
+  {
+    final String parent = null;
+    final Map<String, M> retmap = new LinkedHashMap<String, M>();
+    convertNodeMapWithLastLevelAsMapToHierarchicalKeyMap( nodeMap, parent, retmap, delimiter );
+    return retmap;
+  }
+  
+  private static <M> void convertNodeMapWithLastLevelAsMapToHierarchicalKeyMap( NodeMap<String, Map<String, M>> nodeMap,
+                                                                                String parent,
+                                                                                Map<String, M> retmap,
+                                                                                String delimiter )
+  {
+    if ( nodeMap != null )
+    {
+      if ( parent != null )
+      {
+        final Map<String, M> modelMap = nodeMap.getModel();
+        if ( modelMap != null )
+        {
+          for ( String key : modelMap.keySet() )
+          {
+            if ( key != null )
+            {
+              retmap.put( parent + delimiter + key, modelMap.get( key ) );
+            }
+          }
+        }
+      }
+      
+      Set<String> keySet = nodeMap.keySet();
+      for ( String key : keySet )
+      {
+        if ( key != null )
+        {
+          final NodeMap<String, Map<String, M>> subNodeMap = nodeMap.get( key );
+          convertNodeMapWithLastLevelAsMapToHierarchicalKeyMap( subNodeMap, ( parent != null ? parent + delimiter : "" ) + key,
+                                                                retmap, delimiter );
+        }
+      }
+    }
+  }
 }
