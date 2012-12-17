@@ -3,7 +3,7 @@
     <parent>
         <artifactId>utils-apl-derived</artifactId>
         <groupId>org.omnaest.utils</groupId>
-        <version>0.2.5</version>
+        <version>0.2.6-SNAPSHOT</version>
     </parent>
     <groupId>org.omnaest.utils</groupId>
     <artifactId>utils-apl-derived-spring</artifactId>
