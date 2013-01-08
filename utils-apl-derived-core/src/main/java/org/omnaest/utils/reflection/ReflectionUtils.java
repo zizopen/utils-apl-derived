@@ -855,6 +855,56 @@ public class ReflectionUtils
   }
   
   /**
+   * Returns true if the given {@link Class} type has any annotation of the given type on any of its methods
+   * 
+   * @param type
+   * @param annotationType
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static boolean hasAnnotationOnAnyMethod( Class<?> type, Class<? extends Annotation> annotationType )
+  {
+    return hasAnnotationOnAnyMethod( annotationType, new Class[] { annotationType } );
+  }
+  
+  /**
+   * Returns true if the given {@link Class} type has any annotation of the given types on any of its methods
+   * 
+   * @param type
+   * @param annotationTypes
+   * @return
+   */
+  public static boolean hasAnnotationOnAnyMethod( Class<?> type, Class<? extends Annotation>... annotationTypes )
+  {
+    //
+    boolean retval = false;
+    
+    //
+    if ( type != null && annotationTypes != null )
+    {
+      final Method[] methods = type.getMethods();
+      if ( methods != null )
+      {
+        for ( Method method : methods )
+        {
+          for ( Class<? extends Annotation> annotationType : annotationTypes )
+          {
+            Annotation annotation = method.getAnnotation( annotationType );
+            if ( annotation != null )
+            {
+              retval = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    
+    //
+    return retval;
+  }
+  
+  /**
    * Returns all {@link AnnotatedElement#getDeclaredAnnotations()} as {@link Set}
    * 
    * @param annotatedElement
@@ -868,8 +918,8 @@ public class ReflectionUtils
   }
   
   /**
-   * Returns all {@link AnnotatedElement#getAnnotations()} as {@link Map} which has the {@link Annotation} type as key and
-   * its related instance as value.
+   * Returns all {@link AnnotatedElement#getAnnotations()} as {@link Map} which has the {@link Annotation} type as key and its
+   * related instance as value.
    * 
    * @param annotatedElement
    *          {@link Field}
@@ -1460,4 +1510,5 @@ public class ReflectionUtils
     //
     return retval;
   }
+  
 }

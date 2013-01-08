@@ -574,7 +574,11 @@ public abstract class RestClientFactory
       
       //
       Class<?> returnType = methodCallCapture.getMethod().getReturnType();
-      boolean hasSubResourceReturnType = ReflectionUtils.hasDeclaredAnnotation( returnType, Path.class );
+      @SuppressWarnings("unchecked")
+      boolean hasSubResourceReturnType = ReflectionUtils.hasDeclaredAnnotation( returnType, Path.class )
+                                         || ReflectionUtils.hasAnnotationOnAnyMethod( returnType, Path.class, GET.class,
+                                                                                      PUT.class, POST.class, DELETE.class,
+                                                                                      Consumes.class, Produces.class );
       
       //
       final URI baseAddress = this.baseAddress;
@@ -762,14 +766,17 @@ public abstract class RestClientFactory
       String retval = null;
       
       //
-      UriBuilder uriBuilder = UriBuilder.fromResource( restInterfaceMetaInformationForClass.getType() );
+      final boolean hasPathAnnotationOnType = ReflectionUtils.hasAnnotation( restInterfaceMetaInformationForClass.getType(),
+                                                                             Path.class );
+      UriBuilder uriBuilder = hasPathAnnotationOnType ? UriBuilder.fromResource( restInterfaceMetaInformationForClass.getType() )
+                                                     : UriBuilder.fromPath( "" );
       
       //
       final boolean hasDeclaredPathAnnotation = ReflectionUtils.hasDeclaredAnnotation( restInterfaceMetaInformationForMethod.getMethod(),
                                                                                        Path.class );
       if ( hasDeclaredPathAnnotation )
       {
-        uriBuilder.path( restInterfaceMetaInformationForMethod.getMethod() );
+        uriBuilder = uriBuilder.path( restInterfaceMetaInformationForMethod.getMethod() );
       }
       
       //

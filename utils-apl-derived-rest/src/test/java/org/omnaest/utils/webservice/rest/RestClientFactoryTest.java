@@ -40,6 +40,7 @@ import org.omnaest.utils.webservice.rest.RestClientFactory.BodyParameter;
 import org.omnaest.utils.webservice.rest.RestClientFactory.HttpMethod;
 import org.omnaest.utils.webservice.rest.RestClientFactory.Parameter;
 import org.omnaest.utils.webservice.rest.RestClientFactory.QueryParameter;
+import org.omnaest.utils.webservice.rest.RestClientFactoryTest.MockJSR311Interface.SubResource;
 
 /**
  * @see RestClientFactory
@@ -109,6 +110,12 @@ public class RestClientFactoryTest
   public static interface MockJSR311Interface
   {
     
+    public static interface SubResource
+    {
+      @GET
+      public String getValue();
+    }
+    
     @GET
     @Consumes(MediaType.APPLICATION_XML)
     @Path("determineFieldString")
@@ -125,8 +132,8 @@ public class RestClientFactoryTest
     @PUT
     public void newInstance();
     
-    @Path("subresource")
-    public MockJSR311Interface getSubResource();
+    @Path("subresource/{identifier}")
+    public SubResource getSubResource( @PathParam("identifier") String identifier );
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -194,16 +201,18 @@ public class RestClientFactoryTest
     }
     {
       //
-      MockJSR311Interface subResource = mockJSR311Interface.getSubResource();
+      SubResource subResource = mockJSR311Interface.getSubResource( "identifier" );
       assertNotNull( subResource );
       
       //
-      subResource.newInstance();
+      this.returnValue = "test";
+      String value = subResource.getValue();
+      assertEquals( this.returnValue, value );
       
       //      
-      assertEquals( HttpMethod.PUT, this.dataRecord.httpMethod );
-      assertEquals( this.baseAddress + "/mockJSR311Interface/subresource", this.dataRecord.baseAddress.toString() );
-      assertEquals( "mockJSR311Interface", this.dataRecord.pathRelative );
+      assertEquals( HttpMethod.GET, this.dataRecord.httpMethod );
+      assertEquals( this.baseAddress + "/mockJSR311Interface/subresource/identifier", this.dataRecord.baseAddress.toString() );
+      assertEquals( "", this.dataRecord.pathRelative );
     }
   }
   
