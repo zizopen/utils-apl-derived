@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
@@ -35,6 +36,7 @@ import org.junit.Test;
 import org.omnaest.utils.webservice.rest.RestClientFactoryJersey.Apache4ClientConfiguration;
 import org.omnaest.utils.webservice.rest.RestClientFactoryJersey.Authentification;
 import org.omnaest.utils.webservice.rest.RestClientFactoryJersey.Configuration;
+import org.omnaest.utils.webservice.rest.RestClientFactoryJerseyTest.RestService.SubResource;
 
 /**
  * @see RestClientFactoryJersey
@@ -73,8 +75,15 @@ public class RestClientFactoryJerseyTest
   @Path("service")
   @Consumes(MediaType.APPLICATION_XML)
   @Produces(MediaType.APPLICATION_XML)
-  private static interface RestService
+  static interface RestService
   {
+    
+    static interface SubResource
+    {
+      @GET
+      public String getValue();
+    }
+    
     @POST
     @Path("container")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -87,6 +96,9 @@ public class RestClientFactoryJerseyTest
                                @HeaderParam("user-agent") String headerParam,
                                @CookieParam("cookieParam") Cookie cookieParam,
                                @CookieParam("cookieParam2") String cookieValue );
+    
+    @Path("subresource")
+    public SubResource getSubResource();
   }
   
   @Test
@@ -136,5 +148,22 @@ public class RestClientFactoryJerseyTest
     Cookie cookieParam = new Cookie( "cookiekey", "cookievalue" );
     String cookieValue = "other cookie value";
     restService.diverseParams( matrix, headerParam, cookieParam, cookieValue );
+  }
+  
+  @Test
+  @Ignore
+  public void testSubResource()
+  {
+    final Apache4ClientConfiguration configuration = new Apache4ClientConfiguration().setActivateJSONPojoMapping( true )
+                                                                                     .setProxy( new HttpHost( "localhost", 8888 ) );
+    
+    final String baseAddress = "http://localhost:8888/webapp";
+    RestClientFactoryJersey restClientFactoryJersey = new RestClientFactoryJersey( baseAddress, configuration );
+    
+    RestService restService = restClientFactoryJersey.newRestClient( RestService.class );
+    
+    SubResource subResource = restService.getSubResource();
+    String value = subResource.getValue();
+    
   }
 }
