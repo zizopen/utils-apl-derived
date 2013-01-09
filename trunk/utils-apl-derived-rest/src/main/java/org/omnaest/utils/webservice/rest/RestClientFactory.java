@@ -61,6 +61,7 @@ import org.omnaest.utils.reflection.ReflectionUtils.MethodParameterMetaInformati
 import org.omnaest.utils.structure.array.ArrayUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.omnaest.utils.structure.element.factory.Factory;
+import org.omnaest.utils.structure.map.MapUtils;
 import org.omnaest.utils.tuple.Tuple2;
 
 /**
@@ -586,10 +587,10 @@ public abstract class RestClientFactory
       final RestInterfaceMetaInformationForClass restInterfaceMetaInformationForClass = this.restInterfaceMetaInformation.getRestInterfaceMetaInformationForClass();
       final RestInterfaceMetaInformationForMethod restInterfaceMetaInformationForMethod = this.restInterfaceMetaInformation.getMethodToRestInterfaceMetaInformationForMethodMap()
                                                                                                                            .get( method );
+      
       final Object[] arguments = methodCallCapture.getArguments();
       final String relativePath = this.buildRelativePath( restInterfaceMetaInformationForClass,
                                                           restInterfaceMetaInformationForMethod, arguments );
-      
       //
       if ( hasSubResourceReturnType )
       {
@@ -1034,8 +1035,8 @@ public abstract class RestClientFactory
       {
         
         //
-        List<Method> declaredMethodList = ReflectionUtils.declaredMethodList( type );
-        for ( Method method : declaredMethodList )
+        List<Method> methodList = ReflectionUtils.methodListIncludingSuperMethods( type );
+        for ( Method method : methodList )
         {
           //
           RestInterfaceMetaInformationForMethod restInterfaceMetaInformationForMethod = new RestInterfaceMetaInformationForMethod();

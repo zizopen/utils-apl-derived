@@ -49,7 +49,7 @@ import org.omnaest.utils.webservice.rest.RestClientFactoryTest.MockJSR311Interfa
 public class RestClientFactoryTest
 {
   /* ********************************************** Variables ********************************************** */
-  private String            baseAddress       = "http://localhost:8080/root";
+  private String            baseAddress       = "http://localhost:8080/root/rest";
   private RestClientFactory restClientFactory = new RestClientFactoryTestImpl( this.baseAddress );
   
   private DataRecord        dataRecord        = new DataRecord();

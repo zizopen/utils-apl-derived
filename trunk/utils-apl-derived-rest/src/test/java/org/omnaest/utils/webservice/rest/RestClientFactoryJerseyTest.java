@@ -25,6 +25,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
@@ -36,7 +37,6 @@ import org.junit.Test;
 import org.omnaest.utils.webservice.rest.RestClientFactoryJersey.Apache4ClientConfiguration;
 import org.omnaest.utils.webservice.rest.RestClientFactoryJersey.Authentification;
 import org.omnaest.utils.webservice.rest.RestClientFactoryJersey.Configuration;
-import org.omnaest.utils.webservice.rest.RestClientFactoryJerseyTest.RestService.SubResource;
 
 /**
  * @see RestClientFactoryJersey
@@ -72,17 +72,20 @@ public class RestClientFactoryJerseyTest
     
   }
   
-  @Path("service")
+  static interface SubResource
+  {
+    @GET
+    public String getValue();
+    
+    @Path("{identifier}")
+    public SubResource getSubResource( @PathParam("identifier") String identifier );
+  }
+  
+  @Path("/service/subservice")
   @Consumes(MediaType.APPLICATION_XML)
   @Produces(MediaType.APPLICATION_XML)
-  static interface RestService
+  static interface RestService extends SubResource
   {
-    
-    static interface SubResource
-    {
-      @GET
-      public String getValue();
-    }
     
     @POST
     @Path("container")
@@ -97,8 +100,8 @@ public class RestClientFactoryJerseyTest
                                @CookieParam("cookieParam") Cookie cookieParam,
                                @CookieParam("cookieParam2") String cookieValue );
     
-    @Path("subresource")
-    public SubResource getSubResource();
+    @Path("subresource/{identifier}")
+    public SubResource getSubResource( @PathParam("identifier") String identifier );
   }
   
   @Test
@@ -157,13 +160,13 @@ public class RestClientFactoryJerseyTest
     final Apache4ClientConfiguration configuration = new Apache4ClientConfiguration().setActivateJSONPojoMapping( true )
                                                                                      .setProxy( new HttpHost( "localhost", 8888 ) );
     
-    final String baseAddress = "http://localhost:8888/webapp";
+    final String baseAddress = "http://localhost:8888/webapp/rest2";
     RestClientFactoryJersey restClientFactoryJersey = new RestClientFactoryJersey( baseAddress, configuration );
     
     RestService restService = restClientFactoryJersey.newRestClient( RestService.class );
     
-    SubResource subResource = restService.getSubResource();
+    SubResource subResource = restService.getSubResource( "identifier1" ).getSubResource( "identifier2" );
     String value = subResource.getValue();
-    
+    System.out.println();
   }
 }
