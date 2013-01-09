@@ -1120,17 +1120,37 @@ public class ReflectionUtils
    */
   public static List<Method> methodList( Class<?> type )
   {
-    //    
     final List<Method> retlist = new ArrayList<Method>();
-    
-    //
     if ( type != null )
     {
-      //
       retlist.addAll( Arrays.asList( type.getMethods() ) );
     }
+    return retlist;
+  }
+  
+  /**
+   * Similar to {@link #methodList(Class)} but including the methods of all inherited interfaces and superclasses
+   * 
+   * @param type
+   * @return
+   */
+  public static List<Method> methodListIncludingSuperMethods( Class<?> type )
+  {
+    List<Method> retlist = new ArrayList<Method>();
     
-    //
+    if ( type != null )
+    {
+      final boolean inherited = true;
+      final Set<Class<?>> assignableTypeSet = assignableTypeSet( type, inherited );
+      if ( assignableTypeSet != null )
+      {
+        for ( Class<?> assignableType : assignableTypeSet )
+        {
+          retlist.addAll( methodList( assignableType ) );
+        }
+      }
+    }
+    
     return retlist;
   }
   

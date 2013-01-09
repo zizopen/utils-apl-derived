@@ -110,6 +110,9 @@ public class URIHelper
         }
         
         //
+        relativePath = StringUtils.removeStart( relativePath, "/" );
+        
+        //
         retval = baseAddress.normalize().resolve( relativePath ).normalize();
       }
       catch ( Exception e )

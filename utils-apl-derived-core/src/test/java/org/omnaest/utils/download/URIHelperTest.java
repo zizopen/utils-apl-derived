@@ -69,6 +69,25 @@ public class URIHelperTest
       assertNotNull( uri );
       assertEquals( location + relativePath, uri.toString() );
     }
-    
+    {
+      //
+      String relativePath = "/someRelative/path";
+      String location = "http://localhost:8080/webapp";
+      URI baseAddress = URIHelper.createUri( location );
+      
+      URI uri = URIHelper.createUri( baseAddress, relativePath );
+      assertNotNull( uri );
+      assertEquals( location + relativePath, uri.toString() );
+    }
+    {
+      //
+      String relativePath = "someRelative/path";
+      String location = "http://localhost:8080/webapp/";
+      URI baseAddress = URIHelper.createUri( location );
+      
+      URI uri = URIHelper.createUri( baseAddress, "/" + relativePath );
+      assertNotNull( uri );
+      assertEquals( location + relativePath, uri.toString() );
+    }
   }
 }
