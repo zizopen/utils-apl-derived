@@ -1545,6 +1545,17 @@ public class MapUtils
   }
   
   /**
+   * Returns an {@link AggregatedMap} for the given {@link Map}s
+   * 
+   * @param mapIterable
+   * @return new {@link AggregatedMap}
+   */
+  public static <K, V> AggregatedMap<K, V> aggregatedMap( Iterable<? extends Map<K, V>> mapIterable )
+  {
+    return new AggregatedMap<K, V>( mapIterable );
+  }
+  
+  /**
    * Puts the given key and value into the given {@link Map} only if there is no equal key already contained within the
    * {@link Map}.<br>
    * If the given {@link Map} is null, the method does nothing.

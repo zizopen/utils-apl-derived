@@ -15,12 +15,14 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.collection.set;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.omnaest.utils.assertion.Assert;
-import org.omnaest.utils.structure.array.ArrayUtils;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.element.converter.ElementConverter;
 import org.omnaest.utils.structure.iterator.IteratorUtils;
 
@@ -68,7 +70,7 @@ public class SetComposite<E> extends SetAbstract<E>
     int retval = 0;
     
     //
-    for ( Set<E> set : this.sets )
+    for ( Set<E> set : this.determineReducedSetList() )
     {
       if ( set != null )
       {
@@ -100,11 +102,11 @@ public class SetComposite<E> extends SetAbstract<E>
     return retval;
   }
   
-  @SuppressWarnings("unchecked")
   @Override
   public Iterator<E> iterator()
   {
-    return IteratorUtils.chained( ArrayUtils.convertArray( this.sets, Iterator.class, new ElementConverter<Set<E>, Iterator<E>>()
+    final List<Set<E>> reducedSetList = this.determineReducedSetList();
+    return IteratorUtils.chained( ListUtils.convert( reducedSetList, new ElementConverter<Set<E>, Iterator<E>>()
     {
       @Override
       public Iterator<E> convert( Set<E> set )
@@ -112,6 +114,20 @@ public class SetComposite<E> extends SetAbstract<E>
         return set != null ? set.iterator() : null;
       }
     } ) );
+  }
+  
+  private List<Set<E>> determineReducedSetList()
+  {
+    final List<Set<E>> reducedSetList = new ArrayList<Set<E>>();
+    if ( this.sets != null )
+    {
+      for ( Set<E> set : this.sets )
+      {
+        final List<Set<E>> reductionSetList = new ArrayList<Set<E>>( reducedSetList );
+        reducedSetList.add( new ReducedSet<E>( set, reductionSetList ) );
+      }
+    }
+    return reducedSetList;
   }
   
   @Override

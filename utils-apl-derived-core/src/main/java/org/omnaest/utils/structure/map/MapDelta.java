@@ -126,6 +126,17 @@ public class MapDelta<K, V>
     return this.setDelta;
   }
   
+  /**
+   * Returns true, if the given {@link Map}s are {@link #equals(Object)} in key and values
+   * 
+   * @return
+   */
+  public boolean areEqual()
+  {
+    return this.setDelta.getAddedElementSet().isEmpty() && this.setDelta.getRemovedElementSet().isEmpty()
+           && this.retainedKeyToUnequalValuesMap.isEmpty();
+  }
+  
   @Override
   public String toString()
   {
