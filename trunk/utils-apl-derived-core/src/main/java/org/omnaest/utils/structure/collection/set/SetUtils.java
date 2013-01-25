@@ -209,6 +209,31 @@ public class SetUtils
   }
   
   /**
+   * Similar to {@link #mergeAll(Collection)}
+   * 
+   * @param iterableOfCollections
+   * @return {@link LinkedHashSet}
+   */
+  public static <E> Set<E> mergeAll( Iterable<? extends Collection<E>> iterableOfCollections )
+  {
+    final LinkedHashSet<E> retset = new LinkedHashSet<E>();
+    if ( iterableOfCollections != null )
+    {
+      for ( Collection<E> collection : iterableOfCollections )
+      {
+        if ( collection != null )
+        {
+          for ( E element : collection )
+          {
+            retset.add( element );
+          }
+        }
+      }
+    }
+    return retset;
+  }
+  
+  /**
    * Returns the intersection of the {@link Collection}s of the given container {@link Collection}
    * 
    * @param collectionOfCollections

@@ -157,7 +157,7 @@ public abstract class CollectionAbstract<E> implements Collection<E>, Serializab
     
     //
     Iterator<E> iterator = this.iterator();
-    for ( int ii = 0; ii < size; ii++ )
+    for ( int ii = 0; ii < size && iterator.hasNext(); ii++ )
     {
       retval[ii] = iterator.next();
     }

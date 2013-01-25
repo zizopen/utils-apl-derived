@@ -237,6 +237,18 @@ public class IteratorUtils
   }
   
   /**
+   * Similar to {@link #chained(Iterator...)}
+   * 
+   * @param iterators
+   * @return
+   */
+  @SuppressWarnings("unchecked")
+  public static <E> Iterator<E> chained( Collection<? extends Iterator<E>> iterators )
+  {
+    return chained( iterators.toArray( new Iterator[0] ) );
+  }
+  
+  /**
    * Returns an {@link Iterator} which calls {@link Iterator#next()} of all given {@link Iterator}s in a round robin way
    * 
    * @param iterators
