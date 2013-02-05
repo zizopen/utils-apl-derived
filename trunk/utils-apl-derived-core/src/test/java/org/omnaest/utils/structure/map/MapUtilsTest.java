@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.omnaest.utils.structure.collection.list.ListUtils;
@@ -380,5 +381,49 @@ public class MapUtilsTest
     Map<String, String> defaultValueMap = MapUtils.defaultValueMap( map, "default value" );
     assertEquals( "value1", defaultValueMap.get( "key1" ) );
     assertEquals( "default value", defaultValueMap.get( "key not available" ) );
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testSortKeys() throws Exception
+  {
+    final Map<String, String> map = MapUtils.builder()
+                                            .put( "key1", "value1" )
+                                            .put( "key3", "value3" )
+                                            .put( "key2", "value2" )
+                                            .buildAs()
+                                            .linkedHashMap();
+    MapUtils.sortKeys( map, ComparatorUtils.naturalComparator() );
+    
+    assertEquals( ListUtils.valueOf( "key1", "key2", "key3" ), ListUtils.valueOf( map.keySet() ) );
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testMergeAllMultiValuesIntoSet() throws Exception
+  {
+    Map<String, List<String>> map1 = MapUtils.builder()
+                                             .put( "key1", ListUtils.valueOf( "value11", "value13" ) )
+                                             .put( "key2", ListUtils.valueOf( "value21" ) )
+                                             .buildAs()
+                                             .linkedHashMap();
+    Map<String, Set<String>> map2 = MapUtils.builder()
+                                            .put( "key1", SetUtils.valueOf( "value12" ) )
+                                            .put( "key2", SetUtils.valueOf( "value21" ) )
+                                            .buildAs()
+                                            .linkedHashMap();
+    
+    {
+      Map<String, List<String>> resultMap = MapUtils.mergeAllMultiValuesIntoList( map1, map2 );
+      assertEquals( 2, resultMap.size() );
+      assertEquals( ListUtils.valueOf( "value11", "value13", "value12" ), resultMap.get( "key1" ) );
+      assertEquals( ListUtils.valueOf( "value21", "value21" ), resultMap.get( "key2" ) );
+    }
+    {
+      Map<String, Set<String>> resultMap = MapUtils.mergeAllMultiValuesIntoSet( map1, map2 );
+      assertEquals( 2, resultMap.size() );
+      assertEquals( SetUtils.valueOf( "value11", "value13", "value12" ), resultMap.get( "key1" ) );
+      assertEquals( SetUtils.valueOf( "value21" ), resultMap.get( "key2" ) );
+    }
   }
 }

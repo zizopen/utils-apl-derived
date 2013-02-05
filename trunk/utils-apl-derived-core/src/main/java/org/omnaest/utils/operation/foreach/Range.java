@@ -18,7 +18,10 @@ package org.omnaest.utils.operation.foreach;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.omnaest.utils.assertion.Assert;
+import org.omnaest.utils.strings.StringReplacer;
+import org.omnaest.utils.strings.StringReplacer.ReplacementResult;
 import org.omnaest.utils.structure.element.ElementStream;
 import org.omnaest.utils.structure.iterator.ElementStreamToIteratorAdapter;
 
@@ -39,12 +42,11 @@ import org.omnaest.utils.structure.iterator.ElementStreamToIteratorAdapter;
  */
 public class Range implements Iterable<Long>
 {
-  /* ********************************************** Variables ********************************************** */
-  private Long numberFrom = null;
-  private Long numberTo   = null;
-  private Long step       = 1l;
+  private static final long DEFAULT_STEP = 1l;
   
-  /* ********************************************** Methods ********************************************** */
+  private Long              numberFrom   = null;
+  private Long              numberTo     = null;
+  private Long              step         = Range.DEFAULT_STEP;
   
   /**
    * @see Range
@@ -70,6 +72,12 @@ public class Range implements Iterable<Long>
     super();
     this.numberFrom = numberFrom;
     this.numberTo = numberTo;
+    this.step = determineDefaultStep( this.numberFrom, this.numberTo );
+  }
+  
+  private static long determineDefaultStep( Long numberFrom, Long numberTo )
+  {
+    return numberTo >= numberFrom ? DEFAULT_STEP : -DEFAULT_STEP;
   }
   
   /**
@@ -82,6 +90,7 @@ public class Range implements Iterable<Long>
     super();
     this.numberFrom = numberFrom;
     this.numberTo = numberTo;
+    this.step = determineDefaultStep( this.numberFrom, this.numberTo );
   }
   
   /**
@@ -94,6 +103,7 @@ public class Range implements Iterable<Long>
     super();
     this.numberFrom = (long) numberFrom;
     this.numberTo = (long) numberTo;
+    this.step = determineDefaultStep( this.numberFrom, this.numberTo );
   }
   
   /**
@@ -102,7 +112,10 @@ public class Range implements Iterable<Long>
    * The expression format is:<br>
    * 
    * <pre>
-   * new Range( &quot;1-5&quot; );
+   * new Range( &quot;1-5&quot; ); //results in 1,2,3,4,5
+   * new Range( &quot;1-5:2&quot; ); //results in 1,3,5
+   * new Range( &quot;123&quot; ); //result in only a single value
+   * 
    * </pre>
    * 
    * @see Range
@@ -113,13 +126,44 @@ public class Range implements Iterable<Long>
     super();
     
     Assert.isNotNull( rangeExpression );
-    String[] tokens = rangeExpression.split( "-" );
-    Assert.isTrue( tokens.length == 2 );
-    StringUtils.isNumeric( tokens[0] );
-    StringUtils.isNumeric( tokens[1] );
     
-    this.numberFrom = Long.valueOf( tokens[0] );
-    this.numberTo = Long.valueOf( tokens[1] );
+    ReplacementResult replacementResult = new StringReplacer( "\\:([0-9]*)$" ).setGroup( 1 ).findAndRemoveFirst( rangeExpression );
+    final boolean hasDeclaredStep = replacementResult.hasMatchingTokens();
+    if ( hasDeclaredStep )
+    {
+      String[] matchingTokens = replacementResult.getMatchingTokens();
+      if ( matchingTokens != null && matchingTokens.length == 1 )
+      {
+        final String stepString = matchingTokens[0];
+        Assert.isTrue( StringUtils.isNumeric( stepString ), "Step must be numerical but was " + stepString );
+        this.step = NumberUtils.toLong( stepString, DEFAULT_STEP );
+      }
+    }
+    rangeExpression = replacementResult.getOutput();
+    
+    String[] tokens = rangeExpression.split( "-" );
+    Assert.isTrue( tokens.length == 2 || tokens.length == 1 );
+    if ( tokens.length == 2 )
+    {
+      Assert.isTrue( StringUtils.isNumeric( tokens[0] ), "Range start must be numerical but was " + tokens[0] );
+      Assert.isTrue( StringUtils.isNumeric( tokens[1] ), "Range start must be numerical but was " + tokens[1] );
+      
+      this.numberFrom = Long.valueOf( tokens[0] );
+      this.numberTo = Long.valueOf( tokens[1] );
+    }
+    else if ( tokens.length == 1 )
+    {
+      Assert.isTrue( StringUtils.isNumeric( tokens[0] ), "Range start and end must be numerical but was " + tokens[0] );
+      
+      this.numberFrom = this.numberTo = Long.valueOf( tokens[0] );
+    }
+    
+    if ( !hasDeclaredStep )
+    {
+      this.step = determineDefaultStep( this.numberFrom, this.numberTo );
+    }
+    Assert.isTrue( this.numberTo == this.numberFrom || Math.signum( this.numberTo - this.numberFrom ) == Math.signum( this.step ),
+                   "The given end number cannot be reached by the given start number and step " + this );
   }
   
   /**
@@ -196,6 +240,83 @@ public class Range implements Iterable<Long>
       retvals[ii] = numberFrom + ii * step;
     }
     return retvals;
+  }
+  
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append( "Range [numberFrom=" );
+    builder.append( this.numberFrom );
+    builder.append( ", numberTo=" );
+    builder.append( this.numberTo );
+    builder.append( ", step=" );
+    builder.append( this.step );
+    builder.append( "]" );
+    return builder.toString();
+  }
+  
+  @Override
+  public int hashCode()
+  {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ( ( this.numberFrom == null ) ? 0 : this.numberFrom.hashCode() );
+    result = prime * result + ( ( this.numberTo == null ) ? 0 : this.numberTo.hashCode() );
+    result = prime * result + ( ( this.step == null ) ? 0 : this.step.hashCode() );
+    return result;
+  }
+  
+  @Override
+  public boolean equals( Object obj )
+  {
+    if ( this == obj )
+    {
+      return true;
+    }
+    if ( obj == null )
+    {
+      return false;
+    }
+    if ( !( obj instanceof Range ) )
+    {
+      return false;
+    }
+    Range other = (Range) obj;
+    if ( this.numberFrom == null )
+    {
+      if ( other.numberFrom != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.numberFrom.equals( other.numberFrom ) )
+    {
+      return false;
+    }
+    if ( this.numberTo == null )
+    {
+      if ( other.numberTo != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.numberTo.equals( other.numberTo ) )
+    {
+      return false;
+    }
+    if ( this.step == null )
+    {
+      if ( other.step != null )
+      {
+        return false;
+      }
+    }
+    else if ( !this.step.equals( other.step ) )
+    {
+      return false;
+    }
+    return true;
   }
   
 }

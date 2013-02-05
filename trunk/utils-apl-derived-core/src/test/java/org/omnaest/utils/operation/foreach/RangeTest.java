@@ -15,10 +15,9 @@
  ******************************************************************************/
 package org.omnaest.utils.operation.foreach;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.junit.Test;
-import org.omnaest.utils.operation.foreach.Range;
 
 /**
  * @see Range
@@ -30,27 +29,17 @@ public class RangeTest
   @Test
   public void testRange()
   {
-    int counter = 0;
-    for ( @SuppressWarnings("unused")
-    Long ii : new Range( 5l, 10l ) )
-    {
-      counter++;
-    }
-    assertEquals( 6, counter );
-    
+    assertArrayEquals( new int[] { 1, 2, 3, 4, 5 }, new Range( 1, 5 ).toIntArray() );
+    assertArrayEquals( new int[] { 3, 2, 1 }, new Range( 3, 1 ).toIntArray() );
   }
   
   @Test
   public void testRangeWithString()
   {
-    int counter = 0;
-    for ( @SuppressWarnings("unused")
-    Long ii : new Range( "1-5" ) )
-    {
-      counter++;
-    }
-    assertEquals( 5, counter );
-    
+    assertArrayEquals( new int[] { 1, 2, 3, 4, 5 }, new Range( "1-5" ).toIntArray() );
+    assertArrayEquals( new int[] { 1, 3, 5 }, new Range( "1-5:2" ).toIntArray() );
+    assertArrayEquals( new int[] { 1 }, new Range( "1:2" ).toIntArray() );
+    assertArrayEquals( new int[] { 1 }, new Range( "1" ).toIntArray() );
+    assertArrayEquals( new int[] { 3, 2, 1 }, new Range( "3-1" ).toIntArray() );
   }
-  
 }

@@ -54,7 +54,7 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
   /* ********************************************** Classes/Interfaces ********************************************** */
   
   /**
-   * {@link Result} of a {@link ForEach} {@link Operation} which is basically an unmodifiable {@link List} of all returned
+   * {@link ReplacementResult} of a {@link ForEach} {@link Operation} which is basically an unmodifiable {@link List} of all returned
    * instances from the {@link Operation}s.<br>
    * <br>
    * Additionally there a some special methods.<br>
@@ -79,7 +79,7 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
     /* ********************************************** Methods ********************************************** */
     
     /**
-     * @see Result
+     * @see ReplacementResult
      * @param list
      */
     protected Result( List<V> list )
@@ -88,7 +88,7 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
     }
     
     /**
-     * Converts the {@link Result} to a single value using a {@link CollectionConverter}
+     * Converts the {@link ReplacementResult} to a single value using a {@link CollectionConverter}
      * 
      * @param collectionConverter
      * @return
@@ -99,7 +99,7 @@ public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
     }
     
     /**
-     * Returns true if all values of the {@link Result} are equal to the given value
+     * Returns true if all values of the {@link ReplacementResult} are equal to the given value
      * 
      * @param value
      * @return
