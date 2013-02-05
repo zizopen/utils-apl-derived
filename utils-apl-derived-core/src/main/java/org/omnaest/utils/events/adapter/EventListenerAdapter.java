@@ -115,7 +115,7 @@ public interface EventListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
   /* ********************************************** Methods ********************************************** */
   
   /**
-   * Adapts a given source and its event listener. Result is a parameter tuple, this allows to generate multiple results and
+   * Adapts a given source and its event listener. ReplacementResult is a parameter tuple, this allows to generate multiple results and
    * multiple clients.
    * 
    * @param otherParameter
@@ -124,7 +124,7 @@ public interface EventListenerAdapter<OTHER_EVENT, OTHER_RESULT, EVENT, RESULT>
   public List<EVENT> adaptEvent( OTHER_EVENT otherParameter );
   
   /**
-   * Adapts the given result from a given client. Result is a tuple of return information, this allows to generate multiple
+   * Adapts the given result from a given client. ReplacementResult is a tuple of return information, this allows to generate multiple
    * results and multiple clients.
    * 
    * @param returninfo

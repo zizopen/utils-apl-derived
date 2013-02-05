@@ -443,7 +443,7 @@ public class MethodCallCapturer
   }
   
   /**
-   * Result of a replay action.
+   * ReplacementResult of a replay action.
    * 
    * @see MethodCallCapturer#replay(Object)
    * @author Omnaest

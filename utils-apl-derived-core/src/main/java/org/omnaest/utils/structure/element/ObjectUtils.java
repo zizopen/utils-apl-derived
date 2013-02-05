@@ -47,7 +47,7 @@ public class ObjectUtils
   
   /* ********************************************** Classes/Interfaces ********************************************** */
   /**
-   * Result of the analysis for primitive arrays
+   * ReplacementResult of the analysis for primitive arrays
    * 
    * @author Omnaest
    */

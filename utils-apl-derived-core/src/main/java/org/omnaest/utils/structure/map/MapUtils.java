@@ -20,6 +20,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,8 +29,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableMap;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -125,6 +128,11 @@ public class MapUtils
                                            Map<? extends K, ? extends V>... maps )
   {
     return MapUtils.mergeAll( Arrays.asList( maps ), mapElementMergeOperation );
+  }
+  
+  private MapUtils()
+  {
+    super();
   }
   
   /**
@@ -232,6 +240,74 @@ public class MapUtils
       for ( K key : map.keySet() )
       {
         initializedMap.get( key ).add( map.get( key ) );
+      }
+    }
+    
+    return retmap;
+  }
+  
+  /**
+   * Similar to {@link #mergeAllMultiValuesIntoList(Collection)}
+   * 
+   * @param maps
+   * @return
+   */
+  public static <K, V> Map<K, List<V>> mergeAllMultiValuesIntoList( Map<K, ? extends Collection<V>>... maps )
+  {
+    return mergeAllMultiValuesIntoList( Arrays.asList( maps ) );
+  }
+  
+  /**
+   * Similar to {@link #mergeAllMultiValuesIntoSet(Collection)}
+   * 
+   * @param maps
+   * @return
+   */
+  public static <K, V> Map<K, Set<V>> mergeAllMultiValuesIntoSet( Map<K, ? extends Collection<V>>... maps )
+  {
+    return mergeAllMultiValuesIntoSet( Arrays.asList( maps ) );
+  }
+  
+  /**
+   * Similar to {@link #mergeAllValuesIntoList(Collection)} but merges the elements of the values which are from any
+   * {@link Collection} type into an {@link ArrayList}
+   * 
+   * @param mapCollection
+   * @return
+   */
+  public static <K, V> Map<K, List<V>> mergeAllMultiValuesIntoList( Collection<Map<K, ? extends Collection<V>>> mapCollection )
+  {
+    Map<K, List<V>> retmap = new LinkedHashMap<K, List<V>>();
+    
+    final Map<K, List<V>> initializedMap = initializedValueListMap( retmap );
+    for ( Map<K, ? extends Collection<V>> map : mapCollection )
+    {
+      for ( K key : map.keySet() )
+      {
+        initializedMap.get( key ).addAll( map.get( key ) );
+      }
+    }
+    
+    return retmap;
+  }
+  
+  /**
+   * Similar to {@link #mergeAllValuesIntoList(Collection)} but merges the elements of the values which are from any
+   * {@link Collection} type into a {@link LinkedHashSet}
+   * 
+   * @param mapCollection
+   * @return
+   */
+  public static <K, V> Map<K, Set<V>> mergeAllMultiValuesIntoSet( Collection<Map<K, ? extends Collection<V>>> mapCollection )
+  {
+    Map<K, Set<V>> retmap = new LinkedHashMap<K, Set<V>>();
+    
+    final Map<K, Set<V>> initializedMap = initializedValueSetMap( retmap );
+    for ( Map<K, ? extends Collection<V>> map : mapCollection )
+    {
+      for ( K key : map.keySet() )
+      {
+        initializedMap.get( key ).addAll( map.get( key ) );
       }
     }
     
@@ -1600,6 +1676,46 @@ public class MapUtils
       retval = true;
     }
     return retval;
+  }
+  
+  /**
+   * Returns a {@link TreeMap} using the given {@link Comparator} and with the key and values of the given {@link Map}
+   * 
+   * @param map
+   * @param comparator
+   * @return new {@link TreeMap}
+   */
+  public static <K, V> NavigableMap<K, V> sortedMap( Map<K, V> map, Comparator<K> comparator )
+  {
+    final TreeMap<K, V> treeMap = comparator != null ? new TreeMap<K, V>( comparator ) : new TreeMap<K, V>();
+    if ( map != null )
+    {
+      treeMap.putAll( map );
+    }
+    return treeMap;
+  }
+  
+  /**
+   * Sorts the keys of the given {@link Map} by swapping them and their values into a {@link TreeMap} and back again
+   * 
+   * @param map
+   * @param comparator
+   *          {@link Comparator}
+   */
+  public static <K, V> void sortKeys( Map<K, V> map, Comparator<? super K> comparator )
+  {
+    if ( map != null )
+    {
+      Set<K> keySet = map.keySet();
+      if ( keySet != null )
+      {
+        Map<K, V> treeMap = new TreeMap<K, V>( comparator );
+        treeMap.putAll( map );
+        
+        map.clear();
+        map.putAll( treeMap );
+      }
+    }
   }
   
 }

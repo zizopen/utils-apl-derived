@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 import net.sf.cglib.proxy.MethodProxy;
 
 /**
- * Result of a captured method call.
+ * ReplacementResult of a captured method call.
  */
 public class MethodCallCapture
 {
