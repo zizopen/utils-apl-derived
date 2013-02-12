@@ -392,4 +392,41 @@ public class StringUtils
     return retlist.toArray( new String[] {} );
   }
   
+  /**
+   * Similar to {@link #findAll(Pattern, String)}
+   * 
+   * @see #findAll(Pattern, String)
+   * @param regex
+   *          {@link Pattern#compile(String)}
+   * @param text
+   * @return
+   */
+  public static String[] findAll( String regex, String text )
+  {
+    return findAll( Pattern.compile( regex ), text );
+  }
+  
+  /**
+   * Finds all matching strings within the given text using the given {@link Pattern}
+   * 
+   * @see #findAll(String, String)
+   * @param pattern
+   *          {@link Pattern}
+   * @param text
+   * @return
+   */
+  public static String[] findAll( Pattern pattern, String text )
+  {
+    List<String> retlist = new ArrayList<String>();
+    if ( pattern != null && text != null )
+    {
+      Matcher matcher = pattern.matcher( text );
+      while ( matcher.find() )
+      {
+        retlist.add( matcher.group() );
+      }
+    }
+    return retlist.toArray( new String[0] );
+  }
+  
 }

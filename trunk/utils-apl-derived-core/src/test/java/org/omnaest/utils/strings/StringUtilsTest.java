@@ -126,4 +126,11 @@ public class StringUtilsTest
     assertArrayEquals( new String[] { "12,00", "13,00", "14,40" }, formattedArray );
   }
   
+  @Test
+  public void testFindAll() throws Exception
+  {
+    String[] tokens = StringUtils.findAll( "[^\\(\\,]*\\([^\\)]*\\)", "abc(def,ghi),def(abc,ghi)" );
+    assertArrayEquals( new String[] { "abc(def,ghi)", "def(abc,ghi)" }, tokens );
+  }
+  
 }
