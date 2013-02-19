@@ -56,7 +56,9 @@ public class PropertyFileContentWriterTest
   {
     //
     final String fileEncoding = "UTF-8";
-    PropertyFileContent propertyFileContent = PropertyFileContentParser.parsePropertyFileContent( this.srcFile, fileEncoding );
+    boolean useJavaStyleUnicodeEscaping = true;
+    PropertyFileContent propertyFileContent = PropertyFileContentParser.parsePropertyFileContent( this.srcFile, fileEncoding,
+                                                                                                  useJavaStyleUnicodeEscaping );
     
     //
     PropertyMap propertyMap = propertyFileContent.getPropertyMap();
@@ -125,5 +127,18 @@ public class PropertyFileContentWriterTest
       assertEquals( fileContent, fileContentRewritten );
     }
     
+  }
+  
+  @Test
+  public void testFixForIssue9()
+  {
+    //
+    String fileContent = "unicodeKey Text with Üäöß characters";
+    PropertyFile propertyFile = new PropertyFile( (File) null ).setUseJavaStyleUnicodeEscaping( true );
+    propertyFile.load( fileContent );
+    
+    //
+    String fileContentRewritten = propertyFile.toString();
+    assertEquals( "unicodeKey Text with \\u00DC\\u00E4\\u00F6\\u00DF characters", fileContentRewritten );
   }
 }

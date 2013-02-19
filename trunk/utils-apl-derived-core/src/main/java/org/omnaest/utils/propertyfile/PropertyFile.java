@@ -34,12 +34,13 @@ import org.omnaest.utils.propertyfile.content.parser.PropertyFileContentWriter;
 public class PropertyFile
 {
   /* ********************************************** Constants ********************************************** */
-  public final static String    FILE_ENCODING_DEFAULT = "UTF-8";
+  public final static String    FILE_ENCODING_DEFAULT       = "UTF-8";
   /* ********************************************** Variables ********************************************** */
-  protected File                file                  = null;
-  protected String              fileEncoding          = FILE_ENCODING_DEFAULT;
+  protected File                file                        = null;
+  protected String              fileEncoding                = FILE_ENCODING_DEFAULT;
+  protected boolean             useJavaStyleUnicodeEscaping = false;
   
-  protected PropertyFileContent propertyFileContent   = new PropertyFileContent();
+  protected PropertyFileContent propertyFileContent         = new PropertyFileContent();
   
   /* ********************************************** Methods ********************************************** */
   public PropertyFile( String propertyFileName )
@@ -57,7 +58,8 @@ public class PropertyFile
    */
   public void load()
   {
-    this.propertyFileContent = PropertyFileContentParser.parsePropertyFileContent( this.file, this.fileEncoding );
+    this.propertyFileContent = PropertyFileContentParser.parsePropertyFileContent( this.file, this.fileEncoding,
+                                                                                   this.useJavaStyleUnicodeEscaping );
   }
   
   /**
@@ -67,7 +69,7 @@ public class PropertyFile
    */
   public void load( String fileContent )
   {
-    this.propertyFileContent = PropertyFileContentParser.parsePropertyFileContent( fileContent );
+    this.propertyFileContent = PropertyFileContentParser.parsePropertyFileContent( fileContent, this.useJavaStyleUnicodeEscaping );
   }
   
   /**
@@ -76,7 +78,7 @@ public class PropertyFile
   @Override
   public String toString()
   {
-    return PropertyFileContentWriter.writePropertyFileContentToString( this.propertyFileContent );
+    return PropertyFileContentWriter.writePropertyFileContentToString( this.propertyFileContent, this.useJavaStyleUnicodeEscaping );
   }
   
   /**
@@ -84,7 +86,8 @@ public class PropertyFile
    */
   public void store()
   {
-    PropertyFileContentWriter.writePropertyFileContentToFile( this.propertyFileContent, this.file, this.fileEncoding );
+    PropertyFileContentWriter.writePropertyFileContentToFile( this.propertyFileContent, this.file, this.fileEncoding,
+                                                              this.useJavaStyleUnicodeEscaping );
   }
   
   public File getFile()
@@ -115,5 +118,11 @@ public class PropertyFile
   public void setFileEncoding( String fileEncoding )
   {
     this.fileEncoding = fileEncoding;
+  }
+  
+  public PropertyFile setUseJavaStyleUnicodeEscaping( boolean useJavaStyleUnicodeEscaping )
+  {
+    this.useJavaStyleUnicodeEscaping = useJavaStyleUnicodeEscaping;
+    return this;
   }
 }

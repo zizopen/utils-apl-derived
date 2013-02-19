@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.propertyfile.content.Element;
 import org.omnaest.utils.propertyfile.content.PropertyFileContent;
@@ -44,12 +45,21 @@ public class PropertyFileContentWriter
   
   /* ********************************************** Methods ********************************************** */
   
+  public static void writePropertyFileContentToFile( PropertyFileContent propertyFileContent, File file, String fileEncoding )
+  {
+    boolean useJavaStyleUnicodeEscaping = false;
+    writePropertyFileContentToFile( propertyFileContent, file, fileEncoding, useJavaStyleUnicodeEscaping );
+  }
+  
   /**
    * @see PropertyFileContentParser
    * @param propertyFileContent
    * @param file
    */
-  public static void writePropertyFileContentToFile( PropertyFileContent propertyFileContent, File file, String fileEncoding )
+  public static void writePropertyFileContentToFile( PropertyFileContent propertyFileContent,
+                                                     File file,
+                                                     String fileEncoding,
+                                                     boolean useJavaStyleUnicodeEscaping )
   {
     //
     if ( propertyFileContent != null && file != null && fileEncoding != null )
@@ -64,7 +74,7 @@ public class PropertyFileContentWriter
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter( new FileOutputStream( file ), fileEncoding );
         
         //
-        writePropertyFileContentToOutputStreamWriter( propertyFileContent, outputStreamWriter );
+        writePropertyFileContentToOutputStreamWriter( propertyFileContent, outputStreamWriter, useJavaStyleUnicodeEscaping );
       }
       catch ( Exception e )
       {
@@ -82,6 +92,20 @@ public class PropertyFileContentWriter
    */
   public static String writePropertyFileContentToString( PropertyFileContent propertyFileContent )
   {
+    boolean useJavaStyleUnicodeEscaping = false;
+    return writePropertyFileContentToString( propertyFileContent, useJavaStyleUnicodeEscaping );
+  }
+  
+  /**
+   * Returns the {@link PropertyFileContent} as {@link String}
+   * 
+   * @see PropertyFileContentParser
+   * @param propertyFileContent
+   * @return
+   */
+  public static String writePropertyFileContentToString( PropertyFileContent propertyFileContent,
+                                                         boolean useJavaStyleUnicodeEscaping )
+  {
     //
     String retval = null;
     
@@ -93,7 +117,7 @@ public class PropertyFileContentWriter
       OutputStreamWriter outputStreamWriter = byteArrayContainer.getOutputStreamWriter();
       
       //
-      writePropertyFileContentToOutputStreamWriter( propertyFileContent, outputStreamWriter );
+      writePropertyFileContentToOutputStreamWriter( propertyFileContent, outputStreamWriter, useJavaStyleUnicodeEscaping );
       
       //
       retval = byteArrayContainer.toString();
@@ -103,13 +127,22 @@ public class PropertyFileContentWriter
     return retval;
   }
   
+  public static void writePropertyFileContentToOutputStreamWriter( PropertyFileContent propertyFileContent,
+                                                                   OutputStreamWriter outputStreamWriter )
+  {
+    boolean useJavaStyleUnicodeEscaping = false;
+    writePropertyFileContentToOutputStreamWriter( propertyFileContent, outputStreamWriter, useJavaStyleUnicodeEscaping );
+  }
+  
   /**
    * @see PropertyFileContentParser
    * @param propertyFileContent
    * @param outputStreamWriter
+   * @param useJavaStyleUnicodeEscaping
    */
   public static void writePropertyFileContentToOutputStreamWriter( PropertyFileContent propertyFileContent,
-                                                                   OutputStreamWriter outputStreamWriter )
+                                                                   OutputStreamWriter outputStreamWriter,
+                                                                   boolean useJavaStyleUnicodeEscaping )
   {
     //
     if ( propertyFileContent != null && outputStreamWriter != null )
@@ -150,8 +183,9 @@ public class PropertyFileContentWriter
             String delimiter = property.getDelimiter();
             List<String> valueList = property.getValueList();
             
-            //
-            String text = prefixBlanks + key + delimiter + valueList.get( 0 );
+            //            
+            String value = escapeJavaStyleIfNecessary( useJavaStyleUnicodeEscaping, valueList.get( 0 ) );
+            String text = prefixBlanks + key + delimiter + value;
             
             if ( valueList.size() > 1 )
             {
@@ -164,7 +198,7 @@ public class PropertyFileContentWriter
             for ( int ii = 1; ii < valueList.size(); ii++ )
             {
               //
-              String value = valueList.get( ii );
+              value = escapeJavaStyleIfNecessary( useJavaStyleUnicodeEscaping, valueList.get( ii ) );
               
               if ( ii < valueList.size() - 1 )
               {
@@ -220,5 +254,10 @@ public class PropertyFileContentWriter
         e.printStackTrace();
       }
     }
+  }
+  
+  private static String escapeJavaStyleIfNecessary( boolean useJavaStyleUnicodeEscaping, final String value )
+  {
+    return useJavaStyleUnicodeEscaping ? StringEscapeUtils.escapeJava( value ) : value;
   }
 }
