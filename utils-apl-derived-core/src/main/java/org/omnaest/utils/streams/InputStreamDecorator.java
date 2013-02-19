@@ -17,6 +17,7 @@ package org.omnaest.utils.streams;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 
 import org.omnaest.utils.assertion.Assert;
 
@@ -27,12 +28,10 @@ import org.omnaest.utils.assertion.Assert;
  * @see InputStreamDecoratorSimple
  * @author Omnaest
  */
-public class InputStreamDecorator extends InputStream
+public class InputStreamDecorator extends InputStream implements Serializable
 {
-  /* ********************************************** Variables / State (internal/hiding) ********************************************** */
+  private static final long   serialVersionUID = 5572775924214029834L;
   protected final InputStream inputStream;
-  
-  /* ********************************************** Methods ********************************************** */
   
   /**
    * @see InputStreamDecorator

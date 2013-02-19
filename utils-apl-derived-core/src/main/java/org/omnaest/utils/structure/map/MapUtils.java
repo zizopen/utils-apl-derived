@@ -1297,6 +1297,19 @@ public class MapUtils
   }
   
   /**
+   * Similar to {@link #valueOf(KeyExtractor, Iterable)}
+   * 
+   * @param keyExtractor
+   *          {@link KeyExtractor}
+   * @param values
+   * @return
+   */
+  public static <K, V> Map<K, V> valueOf( KeyExtractor<? extends K, V> keyExtractor, V... values )
+  {
+    return valueOf( keyExtractor, Arrays.asList( values ) );
+  }
+  
+  /**
    * Returns a new {@link Map} instance for the given {@link Iterable} using the given {@link KeyExtractor} to extract every key
    * one by one from the {@link Iterable}
    * 
@@ -1319,6 +1332,48 @@ public class MapUtils
         //
         K key = keyExtractor.extractKey( element );
         retmap.put( key, element );
+      }
+    }
+    
+    //
+    return retmap;
+  }
+  
+  /**
+   * Similar to {@link #valueOfMultiple(KeyExtractor, Iterable)}
+   * 
+   * @param keyExtractor
+   * @param values
+   * @return
+   */
+  public static <K, V> Map<K, List<V>> valueOfMultiple( KeyExtractor<? extends K, V> keyExtractor, V... values )
+  {
+    return valueOfMultiple( keyExtractor, Arrays.asList( values ) );
+  }
+  
+  /**
+   * Similar to {@link #valueOf(KeyExtractor, Iterable)} but allows to generate multiple values for the same key
+   * 
+   * @param keyExtractor
+   *          {@link KeyExtractor}
+   * @param iterable
+   *          {@link Iterable}
+   * @return
+   */
+  public static <K, V> Map<K, List<V>> valueOfMultiple( KeyExtractor<? extends K, V> keyExtractor, Iterable<? extends V> iterable )
+  {
+    //
+    final Map<K, List<V>> retmap = new LinkedHashMap<K, List<V>>();
+    
+    //
+    if ( keyExtractor != null && iterable != null )
+    {
+      final Map<K, List<V>> initializedRetmap = initializedValueListMap( retmap );
+      for ( V element : iterable )
+      {
+        //
+        K key = keyExtractor.extractKey( element );
+        initializedRetmap.get( key ).add( element );
       }
     }
     

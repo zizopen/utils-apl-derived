@@ -27,6 +27,7 @@ import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.omnaest.utils.propertyfile.PropertyFile;
 import org.omnaest.utils.propertyfile.content.Element;
 import org.omnaest.utils.propertyfile.content.PropertyFileContent;
 import org.omnaest.utils.propertyfile.content.element.BlankLineElement;
@@ -55,7 +56,9 @@ public class PropertyFileContentParserTest
   public void testParsePropertyFile()
   {
     //
-    PropertyFileContent propertyFileContent = PropertyFileContentParser.parsePropertyFileContent( this.srcFile, "UTF-8" );
+    boolean useJavaStyleUnicodeEscaping = true;
+    PropertyFileContent propertyFileContent = PropertyFileContentParser.parsePropertyFileContent( this.srcFile, "UTF-8",
+                                                                                                  useJavaStyleUnicodeEscaping );
     
     //
     assertNotNull( propertyFileContent );
@@ -183,6 +186,18 @@ public class PropertyFileContentParserTest
     {
       Assert.fail();
     }
+  }
+  
+  @Test
+  public void testFixForIssue9()
+  {
+    //
+    String fileContent = "unicodeKey Text with \\u00DC\\u00E4\\u00F6\\u00DF characters";
+    PropertyFile propertyFile = new PropertyFile( (File) null ).setUseJavaStyleUnicodeEscaping( true );
+    propertyFile.load( fileContent );
     
+    //
+    String fileContentRewritten = propertyFile.setUseJavaStyleUnicodeEscaping( false ).toString();
+    assertEquals( "unicodeKey Text with Üäöß characters", fileContentRewritten );
   }
 }

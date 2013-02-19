@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.propertyfile.PropertyFile;
 import org.omnaest.utils.propertyfile.content.PropertyFileContent;
@@ -44,13 +45,20 @@ public class PropertyFileContentParser
   
   /* ********************************************** Methods ********************************************** */
   
+  public static PropertyFileContent parsePropertyFileContent( File file, String fileEncoding )
+  {
+    boolean useJavaStyleUnicodeEscaping = false;
+    return parsePropertyFileContent( file, fileEncoding, useJavaStyleUnicodeEscaping );
+  }
+  
   /**
-   * @see #parsePropertyFileContent(String)
+   * @see #parsePropertyFileContent(String, boolean)
    * @param file
    * @param fileEncoding
+   * @param useJavaStyleUnicodeEscaping
    * @return
    */
-  public static PropertyFileContent parsePropertyFileContent( File file, String fileEncoding )
+  public static PropertyFileContent parsePropertyFileContent( File file, String fileEncoding, boolean useJavaStyleUnicodeEscaping )
   {
     //
     PropertyFileContent propertyFileContent = null;
@@ -63,7 +71,7 @@ public class PropertyFileContentParser
       {
         //
         String fileContent = IOUtils.toString( new FileInputStream( file ), fileEncoding );
-        propertyFileContent = parsePropertyFileContent( fileContent );
+        propertyFileContent = parsePropertyFileContent( fileContent, useJavaStyleUnicodeEscaping );
       }
       catch ( Exception e )
       {
@@ -79,12 +87,19 @@ public class PropertyFileContentParser
     return propertyFileContent;
   }
   
+  public static PropertyFileContent parsePropertyFileContent( final String fileContent )
+  {
+    boolean useJavaStyleUnicodeEscaping = false;
+    return parsePropertyFileContent( fileContent, useJavaStyleUnicodeEscaping );
+  }
+  
   /**
-   * @see #parsePropertyFileContent(File, String)
+   * @see #parsePropertyFileContent(File, String, boolean)
    * @param fileContent
+   * @param useJavaStyleUnicodeEscaping
    * @return
    */
-  public static PropertyFileContent parsePropertyFileContent( final String fileContent )
+  public static PropertyFileContent parsePropertyFileContent( final String fileContent, boolean useJavaStyleUnicodeEscaping )
   {
     //
     PropertyFileContent propertyFileContent = new PropertyFileContent();
@@ -168,7 +183,8 @@ public class PropertyFileContentParser
               property.setKey( matcherProperty.group( 2 ) );
               property.setDelimiter( matcherProperty.group( 3 ) );
               List<String> valueList = property.getValueList();
-              valueList.add( matcherProperty.group( 4 ) );
+              final String value = unescapeJavaStyleIfNecessary( useJavaStyleUnicodeEscaping, matcherProperty.group( 4 ) );
+              valueList.add( value );
               
               //
               if ( StringUtils.isNotBlank( matcherProperty.group( 5 ) ) )
@@ -195,7 +211,9 @@ public class PropertyFileContentParser
             {
               //
               List<String> valueList = propertyMultiline.getValueList();
-              valueList.add( matcherPropertyOngoingLine.group( 1 ) );
+              final String value = unescapeJavaStyleIfNecessary( useJavaStyleUnicodeEscaping,
+                                                                 matcherPropertyOngoingLine.group( 1 ) );
+              valueList.add( value );
               
               //
               if ( StringUtils.isBlank( matcherPropertyOngoingLine.group( 2 ) ) )
@@ -219,5 +237,10 @@ public class PropertyFileContentParser
     
     //
     return propertyFileContent;
+  }
+  
+  private static String unescapeJavaStyleIfNecessary( boolean useJavaStyleUnicodeEscaping, final String group )
+  {
+    return useJavaStyleUnicodeEscaping ? StringEscapeUtils.unescapeJava( group ) : group;
   }
 }
