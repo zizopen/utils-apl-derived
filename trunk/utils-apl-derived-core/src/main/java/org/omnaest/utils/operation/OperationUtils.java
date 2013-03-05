@@ -15,6 +15,12 @@
  ******************************************************************************/
 package org.omnaest.utils.operation;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 
 import org.omnaest.utils.operation.special.OperationIntrinsic;
@@ -28,6 +34,54 @@ import org.omnaest.utils.operation.special.OperationWithResult;
  */
 public class OperationUtils
 {
+  
+  /**
+   * Executes the given {@link Operation} using one {@link Callable} tasks submitted to the given {@link ExecutorService}
+   * 
+   * @param operation
+   *          {@link OperationIntrinsic}
+   * @param executorService
+   *          {@link ExecutorService}
+   * @param timeout
+   * @param timeUnit
+   *          {@link TimeUnit}
+   * @return true if no timeout occurs
+   */
+  public static boolean executeWithTimeout( final OperationIntrinsic operation,
+                                            ExecutorService executorService,
+                                            long timeout,
+                                            TimeUnit timeUnit )
+  {
+    boolean retval = false;
+    
+    if ( executorService != null )
+    {
+      Future<Boolean> submit = executorService.submit( new Callable<Boolean>()
+      {
+        @Override
+        public Boolean call() throws Exception
+        {
+          operation.execute();
+          return true;
+        }
+      } );
+      try
+      {
+        retval = submit.get( timeout, timeUnit );
+      }
+      catch ( InterruptedException e )
+      {
+      }
+      catch ( ExecutionException e )
+      {
+      }
+      catch ( TimeoutException e )
+      {
+      }
+    }
+    
+    return retval;
+  }
   
   /**
    * @param operation

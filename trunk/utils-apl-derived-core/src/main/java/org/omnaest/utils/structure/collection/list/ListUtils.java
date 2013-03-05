@@ -1499,4 +1499,21 @@ public class ListUtils
     return type != null && List.class.isAssignableFrom( type );
   }
   
+  /**
+   * Returns the index of the first null element within the given {@link List}. If the given {@link List} is null or no element of
+   * the {@link List} is null, -1 is returned.
+   * 
+   * @param list
+   * @return
+   */
+  public static <E> int indexOfNull( List<E> list )
+  {
+    int retval = -1;
+    if ( list != null )
+    {
+      retval = list.indexOf( null );
+    }
+    return retval;
+  }
+  
 }

@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.structure.element;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,8 +32,10 @@ import org.omnaest.utils.structure.element.accessor.Accessor;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ElementHolder<E> extends ElementHolderUnmodifiable<E> implements Accessor<E>
+public class ElementHolder<E> extends ElementHolderUnmodifiable<E> implements Accessor<E>, Serializable
 {
+  
+  private static final long serialVersionUID = -4566820555702467091L;
   
   /**
    * @param element

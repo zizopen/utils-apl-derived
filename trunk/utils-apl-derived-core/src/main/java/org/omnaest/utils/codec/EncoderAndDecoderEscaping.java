@@ -68,6 +68,7 @@ import com.google.common.collect.ImmutableMap;
  */
 class EncoderAndDecoderEscaping implements EncoderAndDecoder<String, String>
 {
+  private static final long         serialVersionUID = 18672532619883917L;
   private final Map<String, String> encodedCharacterToEscapeSequenceMap;
   private final Map<String, String> escapeSequenceToEncodedCharacterMap;
   

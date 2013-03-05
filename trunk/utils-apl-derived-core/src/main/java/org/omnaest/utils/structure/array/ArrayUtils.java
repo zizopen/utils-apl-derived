@@ -471,4 +471,28 @@ public class ArrayUtils
   {
     return (Class<E[]>) Array.newInstance( componentType, 0 ).getClass();
   }
+  
+  @SuppressWarnings("unchecked")
+  public static <T> T[][] splitAsArrayGroups( Class<T> elementType, T[] array, int... groupStarts )
+  {
+    List<T[]> retlist = new ArrayList<T[]>();
+    if ( groupStarts != null )
+    {
+      boolean first = true;
+      int groupStart = 0;
+      for ( int groupEnd : groupStarts )
+      {
+        if ( !first )
+        {
+          T[] subArray = Arrays.copyOfRange( array, groupStart, groupEnd );
+          retlist.add( subArray );
+        }
+        groupStart = groupEnd;
+        first = false;
+      }
+      T[] subArray = Arrays.copyOfRange( array, groupStart, array.length );
+      retlist.add( subArray );
+    }
+    return retlist.toArray( (T[][]) Array.newInstance( elementType, 0, 0 ) );
+  }
 }

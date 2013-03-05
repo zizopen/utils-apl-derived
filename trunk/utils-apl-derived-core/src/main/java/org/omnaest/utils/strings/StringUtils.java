@@ -22,8 +22,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.text.StrTokenizer;
+import org.omnaest.utils.strings.StringTokenEncoder.Configuration;
 import org.omnaest.utils.strings.tokenizer.ConvertingCharacterSequenceTokenizerDecoratorToString;
 import org.omnaest.utils.strings.tokenizer.PatternBasedCharacterSequenceTokenizer;
+import org.omnaest.utils.structure.array.ArrayUtils;
 
 /**
  * Utility class for supporting the work with {@link String}s
@@ -54,35 +56,33 @@ public class StringUtils
   }
   
   /**
-   * @param strings
    * @param delimiter
+   * @param tokens
    * @return
    */
-  public static String stringJoin( String[] strings, String delimiter )
+  public static String join( String delimiter, String... tokens )
   {
-    String retval = null;
-    StringBuffer sb = new StringBuffer( "" );
+    final StringBuilder sb = new StringBuilder();
     boolean first = true;
-    for ( String iString : strings )
+    if ( tokens != null )
     {
-      //
-      if ( !first )
+      for ( String token : tokens )
       {
-        sb.append( delimiter );
+        //
+        if ( !first )
+        {
+          sb.append( delimiter );
+        }
+        else
+        {
+          first = false;
+        }
+        
+        //
+        sb.append( token );
       }
-      else
-      {
-        first = false;
-      }
-      
-      //
-      sb.append( iString );
     }
-    if ( sb.length() > 0 )
-    {
-      retval = sb.toString();
-    }
-    return retval;
+    return sb.toString();
   }
   
   public static String insertString( String baseString, String insertString, int insertPosition, boolean overwrite )
@@ -427,6 +427,30 @@ public class StringUtils
       }
     }
     return retlist.toArray( new String[0] );
+  }
+  
+  /**
+   * Returns a new {@link StringTokenEncoder} for the given {@link Configuration}
+   * 
+   * @param configuration
+   * @return
+   */
+  public static StringTokenEncoder tokenEncoder( Configuration configuration )
+  {
+    return new StringTokenEncoder( configuration );
+  }
+  
+  /**
+   * Splits the given array into multiple groups of subarrays. The given group start indexes will determine the end of the
+   * previous group also. The resulting array will contain the subarrays sorted like the given group start indexes.
+   * 
+   * @param array
+   * @param groupStarts
+   * @return
+   */
+  public static String[][] splitAsArrayGroups( String[] array, int... groupStarts )
+  {
+    return ArrayUtils.splitAsArrayGroups( String.class, array, groupStarts );
   }
   
 }
