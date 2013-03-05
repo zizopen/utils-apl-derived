@@ -15,6 +15,8 @@
  ******************************************************************************/
 package org.omnaest.utils.codec;
 
+import java.io.Serializable;
+
 import org.omnaest.utils.structure.element.converter.ElementConverterAlphaNumericEncodedStringToDecodedString;
 import org.omnaest.utils.structure.element.converter.ElementConverterStringToAlphaNumericEncodedString;
 
@@ -50,7 +52,7 @@ public abstract class Codec
    * @param <ENCODED>
    * @param <DECODED>
    */
-  public static interface Encoder<ENCODED, DECODED>
+  public static interface Encoder<ENCODED, DECODED> extends Serializable
   {
     /**
      * Encodes the given source
@@ -70,7 +72,7 @@ public abstract class Codec
    * @param <DECODED>
    * @param <ENCODED>
    */
-  public static interface Decoder<DECODED, ENCODED>
+  public static interface Decoder<DECODED, ENCODED> extends Serializable
   {
     /**
      * Decodes the given encoded source

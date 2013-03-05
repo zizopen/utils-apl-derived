@@ -46,6 +46,7 @@ import org.omnaest.utils.structure.element.converter.ElementConverter;
 @SuppressWarnings("javadoc")
 class EncoderAndDecoderAlphanumericTokens implements EncoderAndDecoder<String, String>
 {
+  private static final long   serialVersionUID   = 5537633288345695177L;
   /* ********************************************** Constants ********************************************** */
   private static final String CHARSET_UTF_8      = "utf-8";
   private static final int    INTERVAL           = 3;

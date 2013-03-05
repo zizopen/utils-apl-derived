@@ -112,7 +112,7 @@ public class ListUtilsTest
     {
       
       private static final long serialVersionUID = -8723840880637843080L;
-
+      
       @Override
       public Entry<String, String> convert( String element )
       {
@@ -219,5 +219,11 @@ public class ListUtilsTest
     assertEquals( Arrays.asList( "a", "b", "c" ), ListUtils.set( new ArrayList<String>( Arrays.asList( "a", "b" ) ), 2, "c" ) );
     assertEquals( Arrays.asList( "a", "b", null, "c" ),
                   ListUtils.set( new ArrayList<String>( Arrays.asList( "a", "b" ) ), 3, "c" ) );
+  }
+  
+  @Test
+  public void testIndexOfNull() throws Exception
+  {
+    assertEquals( 1, ListUtils.indexOfNull( Arrays.asList( "lala", null, "lolo" ) ) );
   }
 }

@@ -319,7 +319,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>13.0.1</version>
+                <version>14.0</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -419,6 +419,21 @@
                 <artifactId>jersey-apache-client4</artifactId>
                 <version>1.13</version>
             </dependency>
+            <dependency>
+                <groupId>org.omnaest.utils</groupId>
+                <artifactId>utils-apl-derived-rest</artifactId>
+                <version>0.2.12-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>org.springframework.core</artifactId>
+                <version>3.1.2.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>org.springframework.context</artifactId>
+                <version>3.1.2.RELEASE</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -427,5 +442,6 @@
         <module>utils-apl-derived-table</module>
         <module>utils-apl-derived-table-orientdbconnector</module>
         <module>utils-apl-derived-rest</module>
+        <module>utils-apl-derived-cluster</module>
     </modules>
 </project>
