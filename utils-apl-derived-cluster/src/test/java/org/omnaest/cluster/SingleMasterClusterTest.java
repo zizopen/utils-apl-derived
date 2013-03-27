@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -29,6 +30,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.omnaest.cluster.Cluster.ClusterDisconnectedException;
+import org.omnaest.utils.structure.collection.set.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
@@ -177,9 +179,32 @@ public class SingleMasterClusterTest
     this.cluster1.awaitUntilClusterIsAvailable();
     {
       TestDomain testDomainRetrieved = this.cluster1.getClusterStore( TestDomain.class, "abc", "def" ).get();
-      assertEquals( testDomain2, testDomainRetrieved );
+      assertEquals( testDomain1, testDomainRetrieved );
     }
     
+    //
+    {
+      Map<String, String> clusterStoreMap = this.cluster1.getClusterStoreMap( "xyz", "123" );
+      clusterStoreMap.put( "key1", "value1" );
+    }
+    {
+      Map<String, String> clusterStoreMap = this.cluster2.getClusterStoreMap( "xyz", "123" );
+      assertEquals( "value1", clusterStoreMap.get( "key1" ) );
+      assertEquals( SetUtils.valueOf( "key1" ), clusterStoreMap.keySet() );
+      assertEquals( SetUtils.valueOf( "value1" ), SetUtils.valueOf( clusterStoreMap.values() ) );
+      
+      clusterStoreMap.put( "key2", "value2" );
+      assertEquals( SetUtils.valueOf( "key1", "key2" ), clusterStoreMap.keySet() );
+      clusterStoreMap.remove( "key1" );
+    }
+    {
+      Map<String, String> clusterStoreMap = this.cluster1.getClusterStoreMap( "xyz", "123" );
+      assertEquals( "value2", clusterStoreMap.get( "key2" ) );
+      assertEquals( SetUtils.valueOf( "key2" ), clusterStoreMap.keySet() );
+      assertEquals( SetUtils.valueOf( "value2" ), SetUtils.valueOf( clusterStoreMap.values() ) );
+    }
+    
+    //
     this.cluster2.disconnect();
     this.cluster1.disconnect();
     

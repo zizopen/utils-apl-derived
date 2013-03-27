@@ -19,12 +19,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.omnaest.cluster.ClusterCommunicatorAdapter.ClusterStateHandler;
@@ -38,6 +42,8 @@ import org.omnaest.cluster.store.ClusterStoreProvider;
 import org.omnaest.cluster.store.ClusterStoreProvider.ClusterStoreIdentifier;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.assertion.AssertLogger;
+import org.omnaest.utils.structure.map.MapAbstract;
+import org.omnaest.utils.xml.JAXBMap;
 
 /**
  * {@link Cluster} implementation having a single master server and multiple slaves
@@ -57,9 +63,12 @@ public class SingleMasterCluster implements Cluster
   private volatile ClusterState      clusterState                     = null;
   
   private final ClusterWatchRunnable clusterWatchRunnable             = new ClusterWatchRunnable();
-  private transient Thread           clusterWatchThread               = new Thread( this.clusterWatchRunnable );       ;
-  private final Lock                 clusterNotAvailableLock          = new ReentrantLock();
-  private final Condition            clusterNotAvailableLockCondition = this.clusterNotAvailableLock.newCondition();
+  private transient Thread           clusterWatchThread               = new Thread( this.clusterWatchRunnable );           ;
+  
+  private final ReadWriteLock        clusterNotAvailableReadWriteLock = new ReentrantReadWriteLock();
+  private final Lock                 clusterNotAvailableReadLock      = this.clusterNotAvailableReadWriteLock.readLock();
+  private final Lock                 clusterNotAvailableWriteLock     = this.clusterNotAvailableReadWriteLock.writeLock();
+  private final Condition            clusterNotAvailableLockCondition = this.clusterNotAvailableWriteLock.newCondition();
   private volatile boolean           clusterAvailable                 = false;
   private boolean                    connected                        = false;
   
@@ -83,21 +92,21 @@ public class SingleMasterCluster implements Cluster
     @Override
     public T get()
     {
-      SingleMasterCluster.this.clusterNotAvailableLock.lock();
+      SingleMasterCluster.this.clusterNotAvailableReadLock.lock();
       try
       {
         return this.clusterStore.get();
       }
       finally
       {
-        SingleMasterCluster.this.clusterNotAvailableLock.unlock();
+        SingleMasterCluster.this.clusterNotAvailableReadLock.unlock();
       }
     }
     
     @Override
     public void set( T instance )
     {
-      SingleMasterCluster.this.clusterNotAvailableLock.lock();
+      SingleMasterCluster.this.clusterNotAvailableWriteLock.lock();
       try
       {
         checkIfMasterIsAvailableAndWaitIfNot();
@@ -108,14 +117,14 @@ public class SingleMasterCluster implements Cluster
       }
       finally
       {
-        SingleMasterCluster.this.clusterNotAvailableLock.unlock();
+        SingleMasterCluster.this.clusterNotAvailableWriteLock.unlock();
       }
     }
     
     @Override
     public void remove()
     {
-      SingleMasterCluster.this.clusterNotAvailableLock.lock();
+      SingleMasterCluster.this.clusterNotAvailableWriteLock.lock();
       try
       {
         checkIfMasterIsAvailableAndWaitIfNot();
@@ -126,7 +135,7 @@ public class SingleMasterCluster implements Cluster
       }
       finally
       {
-        SingleMasterCluster.this.clusterNotAvailableLock.unlock();
+        SingleMasterCluster.this.clusterNotAvailableWriteLock.unlock();
       }
       
     }
@@ -166,21 +175,21 @@ public class SingleMasterCluster implements Cluster
     @Override
     public T get()
     {
-      SingleMasterCluster.this.clusterNotAvailableLock.lock();
+      SingleMasterCluster.this.clusterNotAvailableReadLock.lock();
       try
       {
         return this.clusterStore.get();
       }
       finally
       {
-        SingleMasterCluster.this.clusterNotAvailableLock.unlock();
+        SingleMasterCluster.this.clusterNotAvailableReadLock.unlock();
       }
     }
     
     @Override
     public void set( T instance )
     {
-      SingleMasterCluster.this.clusterNotAvailableLock.lock();
+      SingleMasterCluster.this.clusterNotAvailableWriteLock.lock();
       try
       {
         //
@@ -218,14 +227,14 @@ public class SingleMasterCluster implements Cluster
       }
       finally
       {
-        SingleMasterCluster.this.clusterNotAvailableLock.unlock();
+        SingleMasterCluster.this.clusterNotAvailableWriteLock.unlock();
       }
     }
     
     @Override
     public void remove()
     {
-      SingleMasterCluster.this.clusterNotAvailableLock.lock();
+      SingleMasterCluster.this.clusterNotAvailableWriteLock.lock();
       try
       {
         //
@@ -264,7 +273,7 @@ public class SingleMasterCluster implements Cluster
       }
       finally
       {
-        SingleMasterCluster.this.clusterNotAvailableLock.unlock();
+        SingleMasterCluster.this.clusterNotAvailableWriteLock.unlock();
       }
       
     }
@@ -293,7 +302,7 @@ public class SingleMasterCluster implements Cluster
     @Override
     public void run()
     {
-      SingleMasterCluster.this.clusterNotAvailableLock.lock();
+      SingleMasterCluster.this.clusterNotAvailableWriteLock.lock();
       try
       {
         SingleMasterCluster.this.assertLogger.info.message( getLocalServer() + " Cluster watch thread started" );
@@ -303,7 +312,13 @@ public class SingleMasterCluster implements Cluster
           {
             final ClusterState clusterState = getClusterState();
             final int counter = checkSlaveServersAndUpdateState();
-            if ( counter <= 1 && clusterState.size() >= 2 )
+            /*
+             * 1 -> 0.66
+             * 2 -> 1,3
+             * 3 -> 2
+             */
+            if ( counter <= ( clusterState.size() - 1 )
+                            * SingleMasterCluster.this.clusterConfiguration.getClusterAvailableFactor() )
             {
               setClusterNotAvailable();
             }
@@ -334,7 +349,7 @@ public class SingleMasterCluster implements Cluster
             }
           }
           
-          SingleMasterCluster.this.clusterNotAvailableLock.lock();
+          SingleMasterCluster.this.clusterNotAvailableWriteLock.lock();
           try
           {
             SingleMasterCluster.this.clusterNotAvailableLockCondition.await( SingleMasterCluster.this.scanInterval,
@@ -342,12 +357,13 @@ public class SingleMasterCluster implements Cluster
           }
           finally
           {
-            SingleMasterCluster.this.clusterNotAvailableLock.unlock();
+            SingleMasterCluster.this.clusterNotAvailableWriteLock.unlock();
           }
         }
       }
       catch ( InterruptedException e )
       {
+        Thread.interrupted();
       }
       finally
       {
@@ -358,7 +374,16 @@ public class SingleMasterCluster implements Cluster
         catch ( Exception e )
         {
         }
-        SingleMasterCluster.this.clusterNotAvailableLock.unlock();
+        try
+        {
+          while ( true )
+          {
+            SingleMasterCluster.this.clusterNotAvailableWriteLock.unlock();
+          }
+        }
+        catch ( Exception e )
+        {
+        }
       }
       
       //
@@ -406,7 +431,7 @@ public class SingleMasterCluster implements Cluster
   {
     if ( !this.clusterAvailable )
     {
-      this.clusterNotAvailableLock.lock();
+      this.clusterNotAvailableWriteLock.lock();
       try
       {
         while ( !this.clusterAvailable )
@@ -415,12 +440,12 @@ public class SingleMasterCluster implements Cluster
           {
             throw new ClusterDisconnectedException( getLocalServer() );
           }
-          this.clusterNotAvailableLockCondition.await();
+          this.clusterNotAvailableLockCondition.await( this.scanInterval, TimeUnit.MILLISECONDS );
         }
       }
       finally
       {
-        this.clusterNotAvailableLock.unlock();
+        this.clusterNotAvailableWriteLock.unlock();
       }
     }
   }
@@ -536,7 +561,7 @@ public class SingleMasterCluster implements Cluster
   {
     if ( this.clusterAvailable )
     {
-      this.clusterNotAvailableLock.lock();
+      this.clusterNotAvailableWriteLock.lock();
       try
       {
         this.clusterAvailable = false;
@@ -544,7 +569,7 @@ public class SingleMasterCluster implements Cluster
       }
       finally
       {
-        this.clusterNotAvailableLock.unlock();
+        this.clusterNotAvailableWriteLock.unlock();
       }
     }
   }
@@ -597,14 +622,13 @@ public class SingleMasterCluster implements Cluster
   {
     if ( !this.clusterAvailable )
     {
-      this.clusterNotAvailableLock.lock();
+      this.clusterNotAvailableWriteLock.lock();
       try
       {
         this.clusterAvailable = true;
       }
       finally
       {
-        this.clusterNotAvailableLock.unlock();
         try
         {
           this.clusterNotAvailableLockCondition.signalAll();
@@ -612,6 +636,7 @@ public class SingleMasterCluster implements Cluster
         catch ( Exception exception )
         {
         }
+        this.clusterNotAvailableWriteLock.unlock();
       }
       this.assertLogger.info.message( getLocalServer() + " Cluster is available now" );
     }
@@ -621,7 +646,7 @@ public class SingleMasterCluster implements Cluster
   public SingleMasterCluster connect()
   {
     this.assertLogger.info.message( this.getLocalServer() + " Cluster connecting..." );
-    this.clusterNotAvailableLock.lock();
+    this.clusterNotAvailableWriteLock.lock();
     try
     {
       this.connected = true;
@@ -629,7 +654,7 @@ public class SingleMasterCluster implements Cluster
     }
     finally
     {
-      this.clusterNotAvailableLock.unlock();
+      this.clusterNotAvailableWriteLock.unlock();
     }
     this.assertLogger.info.message( this.getLocalServer() + " Cluster connected" );
     return this;
@@ -639,15 +664,17 @@ public class SingleMasterCluster implements Cluster
   public SingleMasterCluster disconnect()
   {
     this.assertLogger.info.message( this.getLocalServer() + " Cluster disconnecting..." );
-    this.clusterNotAvailableLock.lock();
+    this.clusterNotAvailableWriteLock.lock();
     try
     {
       this.connected = false;
       try
       {
         this.clusterWatchThread.interrupt();
-        this.clusterNotAvailableLockCondition.awaitUninterruptibly();
-        this.clusterWatchThread.join();
+        while ( this.clusterWatchThread.isAlive() )
+        {
+          this.clusterNotAvailableLockCondition.await( this.scanInterval, TimeUnit.MILLISECONDS );
+        }
         this.clusterWatchThread = null;
       }
       catch ( InterruptedException e )
@@ -660,7 +687,7 @@ public class SingleMasterCluster implements Cluster
     }
     finally
     {
-      this.clusterNotAvailableLock.unlock();
+      this.clusterNotAvailableWriteLock.unlock();
     }
     this.assertLogger.info.message( this.getLocalServer() + " Cluster disconnected" );
     return this;
@@ -678,7 +705,7 @@ public class SingleMasterCluster implements Cluster
   
   private void findMaster()
   {
-    this.clusterNotAvailableLock.lock();
+    this.clusterNotAvailableWriteLock.lock();
     try
     {
       SingleMasterCluster.this.assertLogger.info.message( getLocalServer() + " Searching master..." );
@@ -738,7 +765,7 @@ public class SingleMasterCluster implements Cluster
     }
     finally
     {
-      this.clusterNotAvailableLock.unlock();
+      this.clusterNotAvailableWriteLock.unlock();
     }
   }
   
@@ -799,7 +826,7 @@ public class SingleMasterCluster implements Cluster
         @Override
         public void set( Class<?> type, String[] qualifiers, Object instance )
         {
-          SingleMasterCluster.this.clusterNotAvailableLock.lock();
+          SingleMasterCluster.this.clusterNotAvailableWriteLock.lock();
           try
           {
             final String fullQualifier = type + " " + Arrays.deepToString( qualifiers );
@@ -869,7 +896,7 @@ public class SingleMasterCluster implements Cluster
           }
           finally
           {
-            SingleMasterCluster.this.clusterNotAvailableLock.unlock();
+            SingleMasterCluster.this.clusterNotAvailableWriteLock.unlock();
           }
         }
         
@@ -877,7 +904,7 @@ public class SingleMasterCluster implements Cluster
         @Override
         public void remove( Class<?> type, String[] qualifiers )
         {
-          SingleMasterCluster.this.clusterNotAvailableLock.lock();
+          SingleMasterCluster.this.clusterNotAvailableWriteLock.lock();
           try
           {
             final String fullQualifier = type + " " + Arrays.deepToString( qualifiers );
@@ -946,7 +973,7 @@ public class SingleMasterCluster implements Cluster
           }
           finally
           {
-            SingleMasterCluster.this.clusterNotAvailableLock.unlock();
+            SingleMasterCluster.this.clusterNotAvailableWriteLock.unlock();
           }
         }
         
@@ -988,7 +1015,7 @@ public class SingleMasterCluster implements Cluster
   
   private void changeClusterState( ClusterState clusterState, boolean publish )
   {
-    this.clusterNotAvailableLock.lock();
+    this.clusterNotAvailableWriteLock.lock();
     try
     {
       this.setClusterNotAvailable();
@@ -997,7 +1024,7 @@ public class SingleMasterCluster implements Cluster
     }
     finally
     {
-      this.clusterNotAvailableLock.unlock();
+      this.clusterNotAvailableWriteLock.unlock();
     }
   }
   
@@ -1171,6 +1198,62 @@ public class SingleMasterCluster implements Cluster
       this.connect();
       this.awaitUntilClusterIsAvailable();
     }
+  }
+  
+  @Override
+  public <K, V> Map<K, V> getClusterStoreMap( String... qualifiers )
+  {
+    @SuppressWarnings("rawtypes")
+    final ClusterStore<JAXBMap> clusterStore = this.getClusterStore( JAXBMap.class, qualifiers );
+    return new MapAbstract<K, V>()
+    {
+      private static final long serialVersionUID = 7862691574997861891L;
+      
+      @Override
+      public V get( Object key )
+      {
+        @SuppressWarnings("unchecked")
+        JAXBMap<K, V> jaxbMap = clusterStore.get();
+        return jaxbMap == null ? null : jaxbMap.get( key );
+      }
+      
+      @Override
+      public V put( K key, V value )
+      {
+        @SuppressWarnings("unchecked")
+        JAXBMap<K, V> jaxbMap = clusterStore.get();
+        if ( jaxbMap == null )
+        {
+          jaxbMap = JAXBMap.newInstance( new HashMap<K, V>() );
+          clusterStore.set( jaxbMap );
+        }
+        return jaxbMap.put( key, value );
+      }
+      
+      @Override
+      public V remove( Object key )
+      {
+        @SuppressWarnings("unchecked")
+        JAXBMap<K, V> jaxbMap = clusterStore.get();
+        return jaxbMap == null ? null : jaxbMap.remove( key );
+      }
+      
+      @Override
+      public Set<K> keySet()
+      {
+        @SuppressWarnings("unchecked")
+        JAXBMap<K, V> jaxbMap = clusterStore.get();
+        return jaxbMap == null ? null : jaxbMap.keySet();
+      }
+      
+      @Override
+      public Collection<V> values()
+      {
+        @SuppressWarnings("unchecked")
+        JAXBMap<K, V> jaxbMap = clusterStore.get();
+        return jaxbMap == null ? null : jaxbMap.values();
+      }
+    };
   }
   
 }
