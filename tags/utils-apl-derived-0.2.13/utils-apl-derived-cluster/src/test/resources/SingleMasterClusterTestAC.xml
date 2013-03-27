@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="clusterConfiguration" class="org.omnaest.cluster.ClusterConfiguration">
+        <property name="serverList">
+            <list>
+                <bean class="org.omnaest.cluster.Server">
+                    <constructor-arg name="host" value="localhost" />
+                    <constructor-arg name="port" value="12000" />
+                </bean>
+                <bean class="org.omnaest.cluster.Server">
+                    <constructor-arg name="host" value="localhost" />
+                    <constructor-arg name="port" value="12001" />
+                </bean>
+            </list>
+        </property>
+        <property name="clusterAvailableFactor" value="0.3" />
+    </bean>
+
+    <bean id="singleMasterCluster1" class="org.omnaest.cluster.SingleMasterCluster">
+        <property name="clusterConfiguration">
+            <ref bean="clusterConfiguration" />
+        </property>
+        <property name="localServer">
+            <bean class="org.omnaest.cluster.Server">
+                <constructor-arg name="host" value="localhost" />
+                <constructor-arg name="port" value="12000" />
+            </bean>
+        </property>
+        <property name="clusterStoreProvider">
+            <bean class="org.omnaest.cluster.store.ClusterStoreProviderMemory" />
+            <!-- <bean class="org.omnaest.cluster.store.ClusterStoreProviderFileBased"> <property name="marshallingStrategy"> 
+                <bean class="org.omnaest.cluster.store.MarshallingStrategyXMLJAXB" /> </property> </bean> -->
+        </property>
+        <property name="clusterCommunicator">
+            <!-- <bean class="org.omnaest.cluster.communicator.ClusterCommunicatorTCP"> <property name="marshallingStrategy"> 
+                <bean class="org.omnaest.cluster.store.MarshallingStrategyJavaSerialization" /> </property> <property name="exceptionHandler"> 
+                <bean class="org.omnaest.utils.events.exception.basic.ExceptionHandlerEPrintStackTrace" /> </property> </bean> -->
+            <bean class="org.omnaest.cluster.communicator.ClusterCommunicatorInJVM" />
+        </property>
+
+    </bean>
+
+    <bean id="singleMasterCluster2" class="org.omnaest.cluster.SingleMasterCluster">
+        <property name="clusterConfiguration">
+            <ref bean="clusterConfiguration" />
+        </property>
+        <property name="localServer">
+            <bean class="org.omnaest.cluster.Server">
+                <constructor-arg name="host" value="localhost" />
+                <constructor-arg name="port" value="12001" />
+            </bean>
+        </property>
+        <property name="clusterStoreProvider">
+            <bean class="org.omnaest.cluster.store.ClusterStoreProviderMemory" />
+            <!-- <bean class="org.omnaest.cluster.store.ClusterStoreProviderFileBased"> <property name="marshallingStrategy"> 
+                <bean class="org.omnaest.cluster.store.MarshallingStrategyXMLJAXB" /> </property> </bean> -->
+        </property>
+        <property name="clusterCommunicator">
+            <!-- <bean class="org.omnaest.cluster.communicator.ClusterCommunicatorTCP"> <property name="marshallingStrategy"> 
+                <bean class="org.omnaest.cluster.store.MarshallingStrategyJavaSerialization" /> </property> <property name="exceptionHandler"> 
+                <bean class="org.omnaest.utils.events.exception.basic.ExceptionHandlerEPrintStackTrace" /> </property> </bean> -->
+            <bean class="org.omnaest.cluster.communicator.ClusterCommunicatorInJVM" />
+        </property>
+    </bean>
+</beans>
