@@ -16,6 +16,7 @@
 package org.omnaest.cluster;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import org.omnaest.cluster.store.ClusterStore;
 
@@ -43,11 +44,22 @@ public interface Cluster extends Serializable
   public ClusterState getClusterState();
   
   /**
+   * Returns the stored instance qualified by a given type and further qualifiers
+   * 
    * @param type
    * @param qualifiers
    * @return {@link ClusterStore}
    */
   public <T> ClusterStore<T> getClusterStore( Class<T> type, String... qualifiers );
+  
+  /**
+   * Returns a {@link Map} backed by the {@link #getClusterStore(Class, String...)}. This means changes to the {@link Map} will be
+   * stored immediately to the {@link ClusterStore} which makes write operations slow but read operations keep being fast.
+   * 
+   * @param qualifiers
+   * @return {@link Map}
+   */
+  public <K, V> Map<K, V> getClusterStoreMap( String... qualifiers );
   
   public Cluster disconnect();
   
@@ -64,7 +76,7 @@ public interface Cluster extends Serializable
                                             ClusterDisconnectedException;
   
   /**
-   * Returns true if the {@link Cluster} is available
+   * Returns true if the {@link Cluster} is available for any read and write operation
    * 
    * @see #awaitUntilClusterIsAvailable()
    * @return

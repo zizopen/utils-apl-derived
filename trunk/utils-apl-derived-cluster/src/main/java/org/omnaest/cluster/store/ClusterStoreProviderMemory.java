@@ -40,7 +40,15 @@ public class ClusterStoreProviderMemory extends ClusterStoreProviderAbstract imp
   public <T> ClusterStore<T> getClusterStore( final ClusterStoreIdentifier<T> clusterStoreIdentifier )
   {
     Assert.isNotNull( clusterStoreIdentifier, "clusterStoreIdentifier must not be null" );
-    final ClusterStore<T> clusterStoreDelegate = this.delegateClusterStoreProvider.getClusterStore( clusterStoreIdentifier );
+    final ClusterStore<T> clusterStoreDelegate;
+    if ( this.delegateClusterStoreProvider != null )
+    {
+      clusterStoreDelegate = this.delegateClusterStoreProvider.getClusterStore( clusterStoreIdentifier );
+    }
+    else
+    {
+      clusterStoreDelegate = null;
+    }
     final Lock readLock = this.readWriteLock.readLock();
     final Lock writeLock = this.readWriteLock.writeLock();
     return new ClusterStore<T>()
@@ -67,7 +75,10 @@ public class ClusterStoreProviderMemory extends ClusterStoreProviderAbstract imp
         try
         {
           ClusterStoreProviderMemory.this.qualifiersToObjectMap.put( clusterStoreIdentifier, instance );
-          clusterStoreDelegate.set( instance );
+          if ( clusterStoreDelegate != null )
+          {
+            clusterStoreDelegate.set( instance );
+          }
         }
         finally
         {
@@ -82,7 +93,10 @@ public class ClusterStoreProviderMemory extends ClusterStoreProviderAbstract imp
         try
         {
           ClusterStoreProviderMemory.this.qualifiersToObjectMap.remove( clusterStoreIdentifier );
-          clusterStoreDelegate.remove();
+          if ( clusterStoreDelegate != null )
+          {
+            clusterStoreDelegate.remove();
+          }
         }
         finally
         {

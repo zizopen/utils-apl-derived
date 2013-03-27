@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -29,10 +30,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ClusterConfiguration implements Serializable
 {
-  private static final long serialVersionUID = 3467444603535051856L;
+  private static final long serialVersionUID       = 3467444603535051856L;
   @XmlElementWrapper(name = "servers")
   @XmlElementRef
-  private List<Server>      serverList       = new ArrayList<Server>();
+  private List<Server>      serverList             = new ArrayList<Server>();
+  
+  @XmlElement
+  private double            clusterAvailableFactor = 0.66;
   
   public List<Server> getServerList()
   {
@@ -52,6 +56,8 @@ public class ClusterConfiguration implements Serializable
     StringBuilder builder = new StringBuilder();
     builder.append( "ClusterConfiguration [serverList=" );
     builder.append( this.serverList );
+    builder.append( ", clusterAvailableFactor=" );
+    builder.append( this.clusterAvailableFactor );
     builder.append( "]" );
     return builder.toString();
   }
@@ -61,6 +67,9 @@ public class ClusterConfiguration implements Serializable
   {
     final int prime = 31;
     int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits( this.clusterAvailableFactor );
+    result = prime * result + (int) ( temp ^ ( temp >>> 32 ) );
     result = prime * result + ( ( this.serverList == null ) ? 0 : this.serverList.hashCode() );
     return result;
   }
@@ -81,6 +90,10 @@ public class ClusterConfiguration implements Serializable
       return false;
     }
     ClusterConfiguration other = (ClusterConfiguration) obj;
+    if ( Double.doubleToLongBits( this.clusterAvailableFactor ) != Double.doubleToLongBits( other.clusterAvailableFactor ) )
+    {
+      return false;
+    }
     if ( this.serverList == null )
     {
       if ( other.serverList != null )
@@ -93,6 +106,26 @@ public class ClusterConfiguration implements Serializable
       return false;
     }
     return true;
+  }
+  
+  public double getClusterAvailableFactor()
+  {
+    return this.clusterAvailableFactor;
+  }
+  
+  /**
+   * Factor of how many slave nodes have to be available related to the number of all slaves (=clustersize-1), so that a master
+   * becomes active<br>
+   * <br>
+   * Default is 66%
+   * 
+   * @param clusterAvailableFactor
+   * @return
+   */
+  public ClusterConfiguration setClusterAvailableFactor( double clusterAvailableFactor )
+  {
+    this.clusterAvailableFactor = clusterAvailableFactor;
+    return this;
   }
   
 }
