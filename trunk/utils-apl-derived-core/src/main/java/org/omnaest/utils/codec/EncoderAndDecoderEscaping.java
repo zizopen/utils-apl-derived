@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.ArrayUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.codec.Codec.EncoderAndDecoder;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.map.MapUtils;
 
 import com.google.common.collect.ImmutableMap;
@@ -125,7 +126,7 @@ class EncoderAndDecoderEscaping implements EncoderAndDecoder<String, String>
     {
       if ( retval != null )
       {
-        for ( String escapeSequence : this.escapeSequenceToEncodedCharacterMap.keySet() )
+        for ( String escapeSequence : ListUtils.reverse( this.escapeSequenceToEncodedCharacterMap.keySet() ) )
         {
           final String encodedCharacter = this.escapeSequenceToEncodedCharacterMap.get( escapeSequence );
           retval = retval.replaceAll( Pattern.quote( escapeSequence ), Matcher.quoteReplacement( encodedCharacter ) );
