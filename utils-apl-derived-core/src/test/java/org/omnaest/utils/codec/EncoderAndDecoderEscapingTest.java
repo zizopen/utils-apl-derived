@@ -76,4 +76,21 @@ public class EncoderAndDecoderEscapingTest
       assertEquals( text, decodedText );
     }
   }
+  
+  @Test
+  public void testEncodeAndDecode2()
+  {
+    final String escapeCharacter = "#";
+    final String[] encodedCharacters = new String[] { "a", "b" };
+    
+    EncoderAndDecoder<String, String> encoderAndDecoder = new EncoderAndDecoderEscaping( escapeCharacter, encodedCharacters );
+    
+    final String text = "test#123abc";
+    String encodedText = encoderAndDecoder.encode( text );
+    
+    //System.out.println( encodedText );
+    
+    String decodedText = encoderAndDecoder.decode( encodedText );
+    assertEquals( text, decodedText );
+  }
 }
