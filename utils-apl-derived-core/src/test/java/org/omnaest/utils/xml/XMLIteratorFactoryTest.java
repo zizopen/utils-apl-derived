@@ -44,7 +44,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.omnaest.utils.events.exception.basic.ExceptionHandlerEPrintStackTrace;
 import org.omnaest.utils.operation.Operation;
-import org.omnaest.utils.operation.foreach.ForEach;
+import org.omnaest.utils.operation.foreach.ForEachOperation;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.container.ByteArrayContainer;
 import org.omnaest.utils.structure.iterator.IterableUtils;
@@ -529,7 +529,7 @@ public class XMLIteratorFactoryTest
     
     //    
     final ExecutorService executorService = Executors.newFixedThreadPool( 2 );
-    final List<Book> bookList = new ForEach<Book, Book>( IterableUtils.valueOf( iterator ) ).doIterateInParallelUsing( executorService,
+    final List<Book> bookList = new ForEachOperation<Book, Book>( IterableUtils.valueOf( iterator ) ).doIterateInParallelUsing( executorService,
                                                                                                                        2 )
                                                                                             .execute( new Operation<Book, Book>()
                                                                                             {

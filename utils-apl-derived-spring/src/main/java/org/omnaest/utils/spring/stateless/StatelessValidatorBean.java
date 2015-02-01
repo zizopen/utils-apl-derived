@@ -27,7 +27,7 @@ import javax.annotation.PostConstruct;
 
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.operation.Operation;
-import org.omnaest.utils.operation.foreach.ForEach;
+import org.omnaest.utils.operation.foreach.ForEachOperation;
 import org.omnaest.utils.reflection.ReflectionUtils;
 import org.omnaest.utils.structure.collection.list.ListUtils;
 import org.omnaest.utils.structure.collection.set.SetUtils;
@@ -134,7 +134,7 @@ public class StatelessValidatorBean
         
         //
         boolean matchesExlusionPattern = patternList != null
-                                         && new ForEach<Pattern, Boolean>( patternList ).execute( new Operation<Boolean, Pattern>()
+                                         && new ForEachOperation<Pattern, Boolean>( patternList ).execute( new Operation<Boolean, Pattern>()
                                                                                                   {
                                                                                                     @Override
                                                                                                     public Boolean execute( Pattern pattern )

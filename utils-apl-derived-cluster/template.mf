@@ -1,4 +1,0 @@
-Bundle-ManifestVersion: 2
-Import-Template: 
- *;resolution:=optional
- 

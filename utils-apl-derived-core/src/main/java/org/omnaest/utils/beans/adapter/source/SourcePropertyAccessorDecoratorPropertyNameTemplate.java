@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.omnaest.utils.assertion.Assert;
 import org.omnaest.utils.reflection.ReflectionUtils;
@@ -53,7 +54,7 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourceP
   {
     //
     String propertyNameProcessed = SourcePropertyAccessorDecoratorPropertyNameTemplate.processPropertyNameWithTemplate( propertyName,
-                                                                                                                        propertyMetaInformation );
+                                                                                                                        propertyMetaInformation )[0];
     
     //
     Assert.isNotNull( this.sourcePropertyAccessor );
@@ -63,19 +64,31 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourceP
   @Override
   public Object getValue( String propertyName, Class<?> returnType, PropertyMetaInformation propertyMetaInformation )
   {
+    Object retval = null;
+    
     //
-    String propertyNameProcessed = SourcePropertyAccessorDecoratorPropertyNameTemplate.processPropertyNameWithTemplate( propertyName,
-                                                                                                                        propertyMetaInformation );
+    String[] propertyNamesProcessed = SourcePropertyAccessorDecoratorPropertyNameTemplate.processPropertyNameWithTemplate( propertyName,
+                                                                                                                           propertyMetaInformation );
     
     //
     Assert.isNotNull( this.sourcePropertyAccessor );
-    return this.sourcePropertyAccessor.getValue( propertyNameProcessed, returnType, propertyMetaInformation );
+    
+    for ( String propertyNameProcessed : propertyNamesProcessed )
+    {
+      retval = this.sourcePropertyAccessor.getValue( propertyNameProcessed, returnType, propertyMetaInformation );
+      if ( retval != null )
+      {
+        break;
+      }
+    }
+    
+    return retval;
   }
   
-  private static String processPropertyNameWithTemplate( String propertyName, PropertyMetaInformation propertyMetaInformation )
+  private static String[] processPropertyNameWithTemplate( String propertyName, PropertyMetaInformation propertyMetaInformation )
   {
     //
-    String retval = propertyName;
+    String[] retval = new String[] { propertyName };
     if ( propertyMetaInformation != null )
     {
       //
@@ -93,49 +106,61 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplate extends SourceP
       {
         //
         final Class<? extends ElementConverter<?, String>>[] additionalArgumentConverterTypes = propertyNameTemplate.additionalArgumentConverterTypes();
-        final String template = propertyNameTemplate.value();
-        if ( template != null )
+        final String primaryTemplate = propertyNameTemplate.value();
+        final String[] alternativeTemplateValues = propertyNameTemplate.alternativeValues();
+        
+        final String[] templates = ArrayUtils.add( alternativeTemplateValues, 0, primaryTemplate );
+        
+        if ( primaryTemplate != null )
         {
-          //
-          final String TAG_PROPERTYNAME = "\\{(?iu)propertyname(?-iu)\\}";
-          final String TAG_PARAMETER = "\\{(\\d)\\}";
-          Assert.isTrue( Pattern.matches( "(" + TAG_PROPERTYNAME + "|" + TAG_PARAMETER + "|[^\\{\\}])+", template ),
-                         "PropertyNameTemplate of property " + propertyName + " has an invalid format." );
-          
-          //
-          String templateWithValues = template.replaceAll( TAG_PROPERTYNAME, propertyName );
-          
-          //
-          StringBuffer stringBuffer = new StringBuffer();
-          Matcher matcher = Pattern.compile( TAG_PARAMETER ).matcher( templateWithValues );
-          while ( matcher.find() )
+          retval = new String[0];
+        }
+        
+        for ( String template : templates )
+        {
+          if ( template != null )
           {
             //
-            String group = matcher.group( 1 );
+            final String TAG_PROPERTYNAME = "\\{(?iu)propertyname(?-iu)\\}";
+            final String TAG_PARAMETER = "\\{(\\d)\\}";
+            Assert.isTrue( Pattern.matches( "(" + TAG_PROPERTYNAME + "|" + TAG_PARAMETER + "|[^\\{\\}])+", template ),
+                           "PropertyNameTemplate of property " + propertyName + " has an invalid format." );
             
             //
-            Assert.isTrue( StringUtils.isNumeric( group ), "Parameter index position within PropertyNameTemplate of property "
-                                                           + propertyName + " has to be a valid number. Found: " + group );
-            int additionalArgumentIndexPosition = Integer.valueOf( group );
+            String templateWithValues = template.replaceAll( TAG_PROPERTYNAME, propertyName );
             
             //
-            Object[] additionalArguments = propertyMetaInformation.getAdditionalArguments();
-            int parameterIndexPositionMax = additionalArguments.length - 1;
-            Assert.isTrue( additionalArgumentIndexPosition >= 0 && additionalArgumentIndexPosition <= parameterIndexPositionMax,
-                           "Parameter index position within PropertyNameTemplate of property " + propertyName
-                               + " has to be between 0 and " + parameterIndexPositionMax );
+            StringBuffer stringBuffer = new StringBuffer();
+            Matcher matcher = Pattern.compile( TAG_PARAMETER ).matcher( templateWithValues );
+            while ( matcher.find() )
+            {
+              //
+              String group = matcher.group( 1 );
+              
+              //
+              Assert.isTrue( StringUtils.isNumeric( group ), "Parameter index position within PropertyNameTemplate of property "
+                                                             + propertyName + " has to be a valid number. Found: " + group );
+              int additionalArgumentIndexPosition = Integer.valueOf( group );
+              
+              //
+              Object[] additionalArguments = propertyMetaInformation.getAdditionalArguments();
+              int parameterIndexPositionMax = additionalArguments.length - 1;
+              Assert.isTrue( additionalArgumentIndexPosition >= 0 && additionalArgumentIndexPosition <= parameterIndexPositionMax,
+                             "Parameter index position within PropertyNameTemplate of property " + propertyName
+                                 + " has to be between 0 and " + parameterIndexPositionMax );
+              
+              //
+              final Object additionalArgument = determineAdditionalArgument( additionalArgumentConverterTypes,
+                                                                             additionalArgumentIndexPosition, additionalArguments );
+              
+              final String additionalArgumentString = String.valueOf( additionalArgument );
+              matcher.appendReplacement( stringBuffer, additionalArgumentString );
+            }
+            matcher.appendTail( stringBuffer );
             
             //
-            final Object additionalArgument = determineAdditionalArgument( additionalArgumentConverterTypes,
-                                                                           additionalArgumentIndexPosition, additionalArguments );
-            
-            final String additionalArgumentString = String.valueOf( additionalArgument );
-            matcher.appendReplacement( stringBuffer, additionalArgumentString );
+            retval = ArrayUtils.add( retval, stringBuffer.toString() );
           }
-          matcher.appendTail( stringBuffer );
-          
-          //
-          retval = stringBuffer.toString();
         }
       }
     }

@@ -442,6 +442,5 @@
         <module>utils-apl-derived-table</module>
         <module>utils-apl-derived-table-orientdbconnector</module>
         <module>utils-apl-derived-rest</module>
-        <module>utils-apl-derived-cluster</module>
     </modules>
 </project>
