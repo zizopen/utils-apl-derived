@@ -10,7 +10,7 @@
     <artifactId>utils-apl-derived</artifactId>
     <packaging>pom</packaging>
     <name>utils-apl-derived</name>
-    <version>0.2.14-SNAPSHOT</version>
+    <version>0.2.14</version>
     <description>Collection and extension of utils which are based on Apache License 2.0 license.</description>
     <url>http://code.google.com/p/utils-apl-derived/</url>
     <licenses>
@@ -21,9 +21,9 @@
         </license>
     </licenses>
     <scm>
-        <developerConnection>scm:svn:https://utils-apl-derived.googlecode.com/svn/trunk</developerConnection>
-        <url>http://utils-apl-derived.googlecode.com/svn/trunk</url>
-        <connection>scm:svn:http://utils-apl-derived.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://utils-apl-derived.googlecode.com/svn/tags/utils-apl-derived-0.2.14</developerConnection>
+        <url>http://utils-apl-derived.googlecode.com/svn/tags/utils-apl-derived-0.2.14</url>
+        <connection>scm:svn:http://utils-apl-derived.googlecode.com/svn/tags/utils-apl-derived-0.2.14</connection>
     </scm>
     <issueManagement>
         <url>http://code.google.com/p/utils-apl-derived/issues/list</url>
@@ -422,7 +422,7 @@
             <dependency>
                 <groupId>org.omnaest.utils</groupId>
                 <artifactId>utils-apl-derived-rest</artifactId>
-                <version>0.2.14-SNAPSHOT</version>
+                <version>0.2.14</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
