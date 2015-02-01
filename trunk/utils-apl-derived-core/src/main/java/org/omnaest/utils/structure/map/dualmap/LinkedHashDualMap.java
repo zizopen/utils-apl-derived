@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.omnaest.utils.operation.foreach.ForEach;
+import org.omnaest.utils.operation.foreach.ForEachOperation;
 import org.omnaest.utils.operation.special.OperationBooleanResult;
 import org.omnaest.utils.structure.collection.decorator.CollectionDecorator;
 import org.omnaest.utils.structure.collection.list.ListUtils;
@@ -299,7 +299,7 @@ public class LinkedHashDualMap<K, V> implements DualMap<K, V>
             return remove( object );
           }
         };
-        return new ForEach<Object, Boolean>( (Collection<Object>) collection ).execute( operation ).areAllValuesEqualTo( true );
+        return new ForEachOperation<Object, Boolean>( (Collection<Object>) collection ).execute( operation ).areAllValuesEqualTo( true );
       }
       
       @Override
@@ -422,7 +422,7 @@ public class LinkedHashDualMap<K, V> implements DualMap<K, V>
             return add( entry );
           }
         };
-        return new ForEach<Entry<K, V>, Boolean>( (Collection<Entry<K, V>>) collection ).execute( operation )
+        return new ForEachOperation<Entry<K, V>, Boolean>( (Collection<Entry<K, V>>) collection ).execute( operation )
                                                                                         .areAllValuesEqualTo( true );
       }
       
@@ -459,7 +459,7 @@ public class LinkedHashDualMap<K, V> implements DualMap<K, V>
             return remove( object );
           }
         };
-        return new ForEach<Object, Boolean>( (Collection<Object>) collection ).execute( operation ).areAllValuesEqualTo( true );
+        return new ForEachOperation<Object, Boolean>( (Collection<Object>) collection ).execute( operation ).areAllValuesEqualTo( true );
       }
       
       @Override

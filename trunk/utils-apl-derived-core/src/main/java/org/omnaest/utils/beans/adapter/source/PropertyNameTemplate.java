@@ -87,6 +87,14 @@ public @interface PropertyNameTemplate
   public String value();
   
   /**
+   * Alternative property name values for get operations. If a get operation returns null, those alternative property name
+   * templates are used.
+   * 
+   * @return
+   */
+  public String[] alternativeValues() default {};
+  
+  /**
    * This declares {@link ElementConverter}s which will be used to convert any <b>additionally</b> given template parameter into a
    * {@link String}. The array index of the {@link ElementConverter} types will correspond to the {0},{1},... placeholder
    * definitions.

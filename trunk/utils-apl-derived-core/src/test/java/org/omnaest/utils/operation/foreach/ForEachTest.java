@@ -1,178 +1,71 @@
-/*******************************************************************************
- * Copyright 2011 Danny Kunz
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 package org.omnaest.utils.operation.foreach;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.omnaest.utils.operation.Operation;
-import org.omnaest.utils.operation.foreach.ForEach.Result;
-import org.omnaest.utils.operation.special.OperationBooleanResult;
-import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
+import org.omnaest.utils.structure.collection.list.ListUtils;
 
+/**
+ * @see ForEach
+ * @author Omnaest
+ */
 public class ForEachTest
 {
   
-  @SuppressWarnings("unchecked")
-  private Iterable<String>[] iterables = new Iterable[] { Arrays.asList( "a", "b" ), Arrays.asList( "c", "d" ) };
-  
   @Test
-  public void testExecuteOperationOfOECollectionConverterOfOR()
+  public void testOperation() throws ExecutionException
   {
-    //
-    final int[] executedCounter = new int[] { 0 };
-    
-    //    
-    @SuppressWarnings("unchecked")
-    Boolean retval = new ForEach<String, Boolean>( this.iterables ).execute( new CollectionConverter<Boolean, Boolean>()
+    assertEquals( ListUtils.valueOf( "a", "b", "c" ),
+                  ListUtils.valueOf( new ForEach<String>( "a", "b", "c" ).map( new Operation<String, String>()
+                  {
+                    @Override
+                    public String execute( String parameter )
+                    {
+                      return parameter;
+                    }
+                  } ) ) );
+    assertEquals( "a b c ", new ForEach<String>( "a", "b", "c" ).map( new Operation<String, String>()
     {
-      /* ********************************************** Variables ********************************************** */
-      private boolean localRetval = true;
-      
-      /* ********************************************** Methods ********************************************** */
       @Override
-      public Boolean result()
+      public String execute( String parameter )
       {
-        return this.localRetval;
+        return parameter + " ";
       }
-      
-      @Override
-      public void process( Boolean element )
-      {
-        this.localRetval &= element;
-      }
-    }, new Operation<Boolean, String>()
+    } ).reduce( new Operation<String, Collection<String>>()
     {
-      private Iterator<String> iterator = Arrays.asList( "a", "b", "c", "d" ).iterator();
-      
       @Override
-      public Boolean execute( String parameter )
+      public String execute( Collection<String> parameter )
       {
-        //
-        assertNotNull( parameter );
-        assertEquals( this.iterator.next(), parameter );
-        
-        //
-        executedCounter[0]++;
-        
-        // 
-        return true;
+        return StringUtils.join( parameter, "" );
       }
-    } );
-    
-    //
-    assertNotNull( retval );
-    assertTrue( retval );
-    
-    //
-    assertEquals( 4, executedCounter[0] );
+    } ) );
   }
   
   @Test
-  public void testExecuteOperationOfOEArray()
+  public void testExceptionHandling() throws ExecutionException
   {
-    //
-    final int[] executedCounter = new int[] { 0, 0 };
-    
-    //
-    @SuppressWarnings("unchecked")
-    Operation<Object, String>[] operations = new Operation[] { new Operation<Object, String>()
+    try
     {
-      private Iterator<String> iterator = Arrays.asList( "a", "b", "c", "d" ).iterator();
-      
-      @Override
-      public Object execute( String parameter )
-      {
-        //
-        assertNotNull( parameter );
-        assertEquals( this.iterator.next(), parameter );
-        
-        //
-        executedCounter[0]++;
-        
-        //
-        return null;
-      }
-    }, new Operation<Void, String>()
-    {
-      private Iterator<String> iterator = Arrays.asList( "a", "b", "c", "d" ).iterator();
-      
-      @Override
-      public Void execute( String parameter )
-      {
-        //
-        assertNotNull( parameter );
-        assertEquals( this.iterator.next(), parameter );
-        
-        //
-        executedCounter[1]++;
-        
-        // 
-        return null;
-      }
-    } };
-    new ForEach<String, Object>( this.iterables ).execute( operations );
-    
-    //
-    assertEquals( 4, executedCounter[0] );
-    assertEquals( 4, executedCounter[1] );
-    
-    //
-    Operation<String, String> operation = null;
-    Result<String> result = new ForEach<String, String>( this.iterables ).execute( operation );
-    assertNotNull( result );
-  }
-  
-  @Test
-  public void testExecuteOperationOfBooleanOperation()
-  {
-    //
-    {
-      //
-      final Boolean value = true;
-      Operation<Boolean, String> operation = new OperationBooleanResult<String>()
+      Operation<Object, String> operation = new Operation<Object, String>()
       {
         @Override
-        public Boolean execute( String parameter )
+        public Object execute( String parameter )
         {
-          // 
-          return value;
+          throw new RuntimeException();
         }
       };
-      assertTrue( new ForEach<String, Boolean>( this.iterables ).execute( operation ).areAllValuesEqualTo( value ) );
+      new ForEach<String>( "a", "b", "c" ).map( operation );
+      
+      fail();
     }
+    catch ( ExecutionException e )
     {
-      //
-      final Boolean value = false;
-      Operation<Boolean, String> operation = new OperationBooleanResult<String>()
-      {
-        @Override
-        public Boolean execute( String parameter )
-        {
-          // 
-          return value;
-        }
-      };
-      assertTrue( new ForEach<String, Boolean>( this.iterables ).execute( operation ).areAllValuesEqualTo( value ) );
     }
   }
-  
 }

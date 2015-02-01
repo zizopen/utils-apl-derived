@@ -71,6 +71,9 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplateTest
     //The name template of the corresponding setter is ignored. The "{0}" token is replaced by the given tag value.
     @PropertyNameTemplate("{propertyname}AndMore({0})")
     public String getFieldWithTemplateAndAdditionalArguments( String tagValue );
+    
+    @PropertyNameTemplate(value = "test1", alternativeValues = { "test2", "test3" })
+    public String getFieldWithAlternativeTemplate();
   }
   
   /* ********************************************** Methods ********************************************** */
@@ -97,6 +100,37 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplateTest
   }
   
   @Test
+  public void testGetValue()
+  {
+    //
+    {
+      //
+      String fieldWithTemplate = this.testInterface.getField();
+      assertEquals( "value1", fieldWithTemplate );
+      assertEquals( "field_class", this.argumentCaptorPropertyName.getValue() );
+    }
+    {
+      //      
+      String fieldWithTemplate = this.testInterface.getFieldWithTemplate();
+      assertEquals( "value1", fieldWithTemplate );
+      assertEquals( "fieldWithTemplateAndMore", this.argumentCaptorPropertyName.getValue() );
+    }
+    {
+      //
+      String fieldWithTemplate = this.testInterface.getFieldWithTemplateAndAdditionalArguments( "abc" );
+      assertEquals( "value1", fieldWithTemplate );
+      assertEquals( "fieldWithTemplateAndAdditionalArgumentsAndMore(abc)", this.argumentCaptorPropertyName.getValue() );
+    }
+    {
+      //
+      String fieldWithTemplate = this.testInterface.getFieldWithAlternativeTemplate();
+      assertEquals( "value1", fieldWithTemplate );
+      assertEquals( "test1", this.argumentCaptorPropertyName.getValue() );
+    }
+    
+  }
+  
+  @Test
   public void testSetValue()
   {
     //
@@ -119,30 +153,4 @@ public class SourcePropertyAccessorDecoratorPropertyNameTemplateTest
       assertEquals( "lala", this.argumentCaptorPropertyValue.getValue() );
     }
   }
-  
-  @Test
-  public void testGetValue()
-  {
-    //
-    {
-      //
-      String fieldWithTemplate = this.testInterface.getField();
-      assertEquals( "value1", fieldWithTemplate );
-      assertEquals( "field_class", this.argumentCaptorPropertyName.getValue() );
-    }
-    {
-      //      
-      String fieldWithTemplate = this.testInterface.getFieldWithTemplate();
-      assertEquals( "value1", fieldWithTemplate );
-      assertEquals( "fieldWithTemplateAndMore", this.argumentCaptorPropertyName.getValue() );
-    }
-    {
-      //
-      String fieldWithTemplate = this.testInterface.getFieldWithTemplateAndAdditionalArguments( "abc" );
-      assertEquals( "value1", fieldWithTemplate );
-      assertEquals( "fieldWithTemplateAndAdditionalArgumentsAndMore(abc)", this.argumentCaptorPropertyName.getValue() );
-    }
-    
-  }
-  
 }

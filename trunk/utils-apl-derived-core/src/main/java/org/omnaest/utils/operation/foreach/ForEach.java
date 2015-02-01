@@ -16,371 +16,150 @@
 package org.omnaest.utils.operation.foreach;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.omnaest.utils.operation.Operation;
-import org.omnaest.utils.operation.foreach.ForEach.Result;
-import org.omnaest.utils.structure.collection.CollectionUtils;
-import org.omnaest.utils.structure.collection.CollectionUtils.CollectionConverter;
-import org.omnaest.utils.structure.collection.list.decorator.ListDecorator;
-import org.omnaest.utils.threads.FutureTaskManager;
 
 /**
- * A {@link ForEach} will iterate over a given {@link Iterable} instance and executes a given {@link List} of {@link Operation}s.
+ * Wrapper of any {@link Iterable} which allows parallel processing using the well known {@link #map(Operation)} and
+ * {@link IterationResult#reduce(Operation)} paradigm.
  * 
- * @see Operation
- * @see Iterable
  * @author Omnaest
  * @param <E>
- *          elements
- * @param <V>
- *          result values
  */
-public class ForEach<E, V> implements Operation<Result<V>, Operation<V, E>>
+public class ForEach<E>
 {
-  /* ********************************************** Variables ********************************************** */
-  private final Iterable<E>[] iterables;
-  
-  /* ********************************************** Beans / Services / References ********************************************** */
-  private ExecutorService     executorServiceForParallelExecution = null;
-  private ExecutorService     executorServiceForParallelIteration = null;
-  private int                 numberOfThreadsForParallelIteration = 1;
-  
-  /* ********************************************** Classes/Interfaces ********************************************** */
+  protected Iterable<E> iterable;
   
   /**
-   * {@link ReplacementResult} of a {@link ForEach} {@link Operation} which is basically an unmodifiable {@link List} of all returned
-   * instances from the {@link Operation}s.<br>
-   * <br>
-   * Additionally there a some special methods.<br>
-   * E.g. the {@link #areAllValuesEqualTo(Object)} allows to test for equality of the whole result objects:<br>
+   * Result of an iteration which provides an {@link #iterator()} over the result element, as well as to
+   * {@link #reduce(Operation)} them to a single reduction result
    * 
-   * <pre>
-   * boolean result = new ForEach&lt;String, Boolean&gt;( iterables ).execute( operation ).areAllValuesEqualTo( true );
-   * </pre>
-   * 
-   * @see #convert(CollectionConverter)
-   * @see #areAllValuesEqualTo(Object)
-   * @see #areNumberOfValuesEqualTo(Object, int)
-   * @see #isAnyValueEqualTo(Object)
    * @author Omnaest
-   * @param <V>
+   * @param <R>
    */
-  public static class Result<V> extends ListDecorator<V>
+  public static class IterationResult<R> implements Iterable<R>
   {
-    /* ********************************************** Constants ********************************************** */
-    private static final long serialVersionUID = -3838376068713161966L;
+    private List<R> elementList;
     
-    /* ********************************************** Methods ********************************************** */
-    
-    /**
-     * @see ReplacementResult
-     * @param list
-     */
-    protected Result( List<V> list )
+    public IterationResult( List<R> elementList )
     {
-      super( list );
+      super();
+      this.elementList = elementList;
     }
     
     /**
-     * Converts the {@link ReplacementResult} to a single value using a {@link CollectionConverter}
+     * Reduces multiple result elements into a single result
      * 
-     * @param collectionConverter
+     * @param operation
      * @return
      */
-    public <TO> TO convert( CollectionConverter<V, TO> collectionConverter )
+    public <RR> RR reduce( Operation<RR, Collection<R>> operation )
     {
-      return CollectionUtils.convert( this.list, collectionConverter );
-    }
-    
-    /**
-     * Returns true if all values of the {@link ReplacementResult} are equal to the given value
-     * 
-     * @param value
-     * @return
-     */
-    public boolean areAllValuesEqualTo( V value )
-    {
-      return this.areNumberOfValuesEqualTo( value, this.size() );
-    }
-    
-    /**
-     * Returns true if any value of the result is equal to the given value
-     * 
-     * @param value
-     * @return
-     */
-    public boolean isAnyValueEqualTo( V value )
-    {
-      return this.areNumberOfValuesEqualTo( value, 1 );
-    }
-    
-    /**
-     * Returns true if a given number of values of the result are equal to the given value
-     * 
-     * @param value
-     * @param number
-     * @return
-     */
-    public boolean areNumberOfValuesEqualTo( V value, int number )
-    {
-      //
-      boolean retval = false;
-      
-      //
-      int counter = 0;
-      if ( value != null )
-      {
-        for ( V iValue : this )
-        {
-          counter += value.equals( iValue ) ? 1 : 0;
-          if ( counter >= number )
-          {
-            retval = true;
-            break;
-          }
-        }
-      }
-      
-      //
+      RR retval = operation != null ? operation.execute( this.elementList ) : null;
       return retval;
     }
     
-  }
-  
-  /* ********************************************** Methods ********************************************** */
-  
-  /**
-   * @see ForEach
-   * @param iterables
-   */
-  public ForEach( Iterable<E>... iterables )
-  {
-    super();
-    this.iterables = iterables;
+    @SuppressWarnings("unchecked")
+    @Override
+    public Iterator<R> iterator()
+    {
+      return IteratorUtils.unmodifiableIterator( this.elementList.iterator() );
+    }
   }
   
   /**
    * @see ForEach
-   * @param iterable
+   * @param elementIterable
    */
-  @SuppressWarnings("unchecked")
-  public ForEach( Iterable<E> iterable )
+  public ForEach( Iterable<E> elementIterable )
   {
-    this( new Iterable[] { iterable } );
+    this.iterable = elementIterable;
   }
   
   /**
-   * Executes the given {@link Operation} and uses the given {@link CollectionConverter} to produce a single result value
-   * 
-   * @param collectionConverter
-   * @param operations
-   * @return
+   * @see ForEach
+   * @param elements
    */
-  public <O> V execute( CollectionConverter<O, V> collectionConverter, Operation<O, E>... operations )
+  public ForEach( E... elements )
   {
-    return new ForEach<E, O>( this.iterables ).execute( operations ).convert( collectionConverter );
+    this.iterable = Arrays.asList( elements );
   }
   
   /**
-   * Executes the {@link ForEach} {@link Operation}
+   * Maps any element to a result. This is done using an fixed threadpool with as many threads as
+   * {@link Runtime#availableProcessors()} is set.
    * 
    * @param operation
-   * @return
+   *          {@link Operation}
+   * @return {@link IterationResult}
+   * @throws ExecutionException
    */
-  @SuppressWarnings("unchecked")
-  @Override
-  public Result<V> execute( Operation<V, E> operation )
+  public <R> IterationResult<R> map( Operation<R, E> operation ) throws ExecutionException
   {
-    return this.execute( new Operation[] { operation } );
+    final ExecutorService executorService = Executors.newFixedThreadPool( Runtime.getRuntime().availableProcessors() );
+    return this.map( operation, executorService );
   }
   
   /**
-   * Executes the {@link ForEach} {@link Operation}
-   * 
-   * @param operations
+   * @see #map(Operation)
+   * @param operation
+   * @param executorService
    * @return
+   * @throws ExecutionException
    */
-  public Result<V> execute( Operation<V, E>... operations )
+  public <R> IterationResult<R> map( final Operation<R, E> operation, ExecutorService executorService ) throws ExecutionException
   {
-    //
-    Result<V> retval = null;
+    IterationResult<R> retval = null;
     
-    //
-    if ( this.executorServiceForParallelExecution != null || this.executorServiceForParallelIteration != null )
+    List<Callable<R>> callableList = new ArrayList<Callable<R>>();
+    for ( final E element : this.iterable )
     {
-      retval = this.executeMultiThreaded( operations );
-    }
-    else
-    {
-      retval = this.executeSingleThreaded( operations );
-    }
-    
-    //
-    return retval;
-  }
-  
-  /**
-   * @see #execute(Operation...)
-   * @param operations
-   * @return
-   */
-  @SuppressWarnings("unchecked")
-  private Result<V> executeSingleThreaded( Operation<V, E>... operations )
-  {
-    //
-    List<V> retlist = new ArrayList<V>();
-    
-    //
-    for ( Iterable<E> iterable : this.iterables )
-    {
-      if ( iterable != null )
+      callableList.add( new Callable<R>()
       {
-        for ( E element : iterable )
+        @Override
+        public R call() throws Exception
         {
-          for ( Operation<V, E> operation : operations )
-          {
-            if ( operation != null )
-            {
-              retlist.add( operation.execute( element ) );
-            }
-          }
+          return operation.execute( element );
         }
-      }
+      } );
     }
     
-    //
-    return new Result<V>( org.apache.commons.collections.ListUtils.unmodifiableList( retlist ) );
-  }
-  
-  /**
-   * @see #execute(Operation...)
-   * @param operations
-   * @return
-   */
-  @SuppressWarnings("unchecked")
-  private Result<V> executeMultiThreaded( final Operation<V, E>... operations )
-  {
-    //
-    final List<V> retlist = new CopyOnWriteArrayList<V>();
-    
-    //
-    final FutureTaskManager futureTaskManagerExecution = new FutureTaskManager( this.executorServiceForParallelExecution );
-    final FutureTaskManager futureTaskManagerIteration = new FutureTaskManager( this.executorServiceForParallelIteration );
-    
-    //    
-    for ( Iterable<E> iterable : this.iterables )
+    List<R> resultList = new ArrayList<R>();
     {
-      if ( iterable != null )
+      try
       {
-        //
-        final Iterator<E> iterator = iterable.iterator();
-        final Runnable runnableForIteration = new Runnable()
+        List<Future<R>> futureList = executorService.invokeAll( callableList );
+        for ( Future<R> future : futureList )
         {
-          @Override
-          public void run()
+          do
           {
-            //
             try
             {
-              while ( true )
-              {
-                //
-                final E element = iterator.next();
-                
-                //
-                for ( final Operation<V, E> operation : operations )
-                {
-                  if ( operation != null )
-                  {
-                    if ( futureTaskManagerExecution.hasExecutorService() )
-                    {
-                      futureTaskManagerExecution.submitAndManage( new Callable<V>()
-                      {
-                        @Override
-                        public V call() throws Exception
-                        {
-                          return operation.execute( element );
-                        }
-                      } );
-                    }
-                    else
-                    {
-                      retlist.add( operation.execute( element ) );
-                    }
-                  }
-                }
-              }
-              
+              resultList.add( future.get() );
             }
-            catch ( NoSuchElementException e )
+            catch ( InterruptedException e )
             {
             }
-            
-            //
-            if ( futureTaskManagerExecution.hasExecutorService() )
-            {
-              retlist.addAll( (List<V>) futureTaskManagerExecution.waitForAllTasksToFinish().getResult() );
-            }
-          }
-        };
-        
-        //
-        if ( futureTaskManagerIteration.hasExecutorService() )
-        {
-          //
-          for ( int ii = 1; ii <= this.numberOfThreadsForParallelIteration; ii++ )
-          {
-            futureTaskManagerIteration.submitAndManage( runnableForIteration );
-          }
-          
-          //
-          futureTaskManagerIteration.waitForAllTasksToFinish();
-        }
-        else
-        {
-          runnableForIteration.run();
+          } while ( !future.isDone() );
         }
       }
+      catch ( InterruptedException e )
+      {
+      }
     }
+    retval = new IterationResult<R>( resultList );
     
-    //
-    return new Result<V>( org.apache.commons.collections.ListUtils.unmodifiableList( retlist ) );
-  }
-  
-  /**
-   * @param executorService
-   *          the executorService to set
-   * @return this
-   */
-  public ForEach<E, V> doExecuteInParallelUsing( ExecutorService executorService )
-  {
-    this.executorServiceForParallelExecution = executorService;
-    return this;
-  }
-  
-  /**
-   * If this option is used, the given {@link Iterable}s have to have threadsafe {@link Iterable#iterator()} instances, since even
-   * the {@link Iterator}s will be called from parallel running threads.<br>
-   * <br>
-   * Be aware that several default implementations like {@link ArrayList} do not provide thread safe iterators, so do only use
-   * this option, if you have special {@link Iterator}s in place.
-   * 
-   * @param executorService
-   *          the executorService to set
-   * @param numberOfThreads
-   * @return this
-   */
-  public ForEach<E, V> doIterateInParallelUsing( ExecutorService executorService, int numberOfThreads )
-  {
-    this.executorServiceForParallelIteration = executorService;
-    this.numberOfThreadsForParallelIteration = numberOfThreads;
-    return this;
+    return retval;
   }
   
 }
